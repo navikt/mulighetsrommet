@@ -4,7 +4,17 @@ import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Alert, Box, Button, Heading, HGrid, HStack, TextField, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  Box,
+  Button,
+  Heading,
+  HGrid,
+  HStack,
+  Textarea,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -47,6 +57,7 @@ export function TilsagnForm(props: Props) {
   const {
     handleSubmit,
     setError,
+    register,
     formState: { errors },
   } = form;
 
@@ -105,6 +116,13 @@ export function TilsagnForm(props: Props) {
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
                 {props.beregningInput}
+                <Textarea
+                  size="small"
+                  error={errors.kommentar?.message}
+                  label={tilsagnTekster.kommentar.label}
+                  maxLength={500}
+                  {...register("kommentar")}
+                />
               </VStack>
               {props.beregningOutput}
             </TwoColumnGrid>

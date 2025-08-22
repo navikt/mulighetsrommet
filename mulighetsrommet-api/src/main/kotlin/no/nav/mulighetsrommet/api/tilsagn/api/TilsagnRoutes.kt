@@ -273,6 +273,7 @@ data class TilsagnRequest(
     val periodeSlutt: LocalDate,
     val kostnadssted: NavEnhetNummer,
     val beregning: TilsagnBeregningInput,
+    val kommentar: String?,
 )
 
 private fun resolveTilsagnDefaults(

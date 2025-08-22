@@ -1,3 +1,4 @@
+import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 import { Alert, BodyShort, Heading, HStack, List } from "@navikt/ds-react";
 
 type Props = {
@@ -34,7 +35,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           <Heading level="5" size="xsmall">
             Forklaring:
           </Heading>
-          <BodyShort>{forklaring}</BodyShort>
+          <Fritekstfelt text={forklaring} className="w-80" />
         </HStack>
       )}
     </Alert>

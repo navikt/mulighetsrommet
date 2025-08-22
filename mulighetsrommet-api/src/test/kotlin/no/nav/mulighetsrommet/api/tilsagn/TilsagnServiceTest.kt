@@ -70,6 +70,7 @@ class TilsagnServiceTest : FunSpec({
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = Gjovik.enhetsnummer,
         beregning = beregningFri(),
+        kommentar = null,
     )
 
     beforeEach {

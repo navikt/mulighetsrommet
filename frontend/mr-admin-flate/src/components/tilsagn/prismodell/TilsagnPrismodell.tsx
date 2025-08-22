@@ -11,7 +11,7 @@ import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
+import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 
 interface Props {
   beregning: TilsagnBeregningDto;
@@ -41,11 +41,7 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
         definitions={[
           {
             key: avtaletekster.prisOgBetalingLabel,
-            value: beregning.prisbetingelser ? (
-              <Prisbetingelser value={beregning.prisbetingelser} />
-            ) : (
-              "-"
-            ),
+            value: beregning.prisbetingelser && <Fritekstfelt text={beregning.prisbetingelser} />,
           },
         ]}
       />
@@ -89,11 +85,7 @@ function PrisPerManedsUkesverkPrismodell({
         definitions={[
           {
             key: avtaletekster.prisOgBetalingLabel,
-            value: beregning.prisbetingelser ? (
-              <Prisbetingelser value={beregning.prisbetingelser} />
-            ) : (
-              "-"
-            ),
+            value: beregning.prisbetingelser && <Fritekstfelt text={beregning.prisbetingelser} />,
           },
         ]}
       />

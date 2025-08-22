@@ -1,6 +1,9 @@
 import { TilsagnBeregningDto, TilsagnBeregningInput } from "@mr/api-client-v2";
 
 export const tilsagnTekster = {
+  kommentar: {
+    label: "Kommentar",
+  },
   bestillingsnummer: {
     label: "Tilsagnsnummer",
   },

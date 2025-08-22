@@ -37,6 +37,7 @@ object TilsagnFixtures {
             ),
             output = TilsagnBeregningFri.Output(1000),
         ),
+        kommentar = null,
     )
 
     val Tilsagn2 = TilsagnDbo(
@@ -63,6 +64,7 @@ object TilsagnFixtures {
             ),
             output = TilsagnBeregningFri.Output(1500),
         ),
+        kommentar = null,
     )
 
     val Tilsagn3 = TilsagnDbo(
@@ -89,6 +91,7 @@ object TilsagnFixtures {
             ),
             output = TilsagnBeregningFri.Output(2500),
         ),
+        kommentar = null,
     )
 
     val Tilsagn4 = TilsagnDbo(
@@ -115,6 +118,7 @@ object TilsagnFixtures {
             ),
             output = TilsagnBeregningFri.Output(2500),
         ),
+        kommentar = null,
     )
 
     val TilsagnRequest1 = TilsagnRequest(
@@ -135,6 +139,7 @@ object TilsagnFixtures {
             ),
             prisbetingelser = null,
         ),
+        kommentar = null,
     )
 }
 

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -355,6 +356,9 @@ val ApplicationConfigProd = AppConfig(
         ),
         generateUtbetaling = GenerateUtbetaling.Config(
             cronPattern = "0 0 5 7 * *",
+        ),
+        beregnUtbetaling = BeregnUtbetaling.Config(
+            bucketName = "mulighetsrommet-api-uploads-prod",
         ),
     ),
     slack = SlackConfig(

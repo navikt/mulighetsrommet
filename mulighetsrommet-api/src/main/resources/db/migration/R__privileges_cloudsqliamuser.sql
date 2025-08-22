@@ -5,7 +5,6 @@ $$
             grant insert, update, delete on table topics to cloudsqliamuser;
             grant insert, update, delete on table kafka_consumer_record to cloudsqliamuser;
             grant insert, update, delete on table scheduled_tasks to cloudsqliamuser;
-            grant insert, update, delete on table del_med_bruker to cloudsqliamuser;
         end if;
     end
 $$;

@@ -67,6 +67,14 @@ object TilsagnValidator {
                     ),
                 )
             }
+            if ((next.kommentar?.length ?: 0) > 500) {
+                add(
+                    FieldError.of(
+                        TilsagnRequest::kommentar,
+                        "Kommentar kan ikke inneholde mer enn 500 tegn",
+                    ),
+                )
+            }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()

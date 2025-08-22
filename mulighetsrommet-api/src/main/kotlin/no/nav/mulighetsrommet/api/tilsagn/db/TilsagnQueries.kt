@@ -39,7 +39,8 @@ class TilsagnQueries(private val session: Session) {
                 belop_beregnet,
                 beregning_type,
                 datastream_periode_start,
-                datastream_periode_slutt
+                datastream_periode_slutt,
+                kommentar
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
@@ -54,7 +55,8 @@ class TilsagnQueries(private val session: Session) {
                 :belop_beregnet,
                 :beregning_type::tilsagn_beregning_type,
                 :datastream_periode_start,
-                :datastream_periode_slutt
+                :datastream_periode_slutt,
+                :kommentar
             )
             on conflict (id) do update set
                 gjennomforing_id                        = excluded.gjennomforing_id,
@@ -69,7 +71,8 @@ class TilsagnQueries(private val session: Session) {
                 belop_beregnet                          = excluded.belop_beregnet,
                 beregning_type                          = excluded.beregning_type,
                 datastream_periode_start                = excluded.datastream_periode_start,
-                datastream_periode_slutt                = excluded.datastream_periode_slutt
+                datastream_periode_slutt                = excluded.datastream_periode_slutt,
+                kommentar                               = excluded.kommentar
         """.trimIndent()
 
         val params = mapOf(
@@ -92,6 +95,7 @@ class TilsagnQueries(private val session: Session) {
             }.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
+            "kommentar" to dbo.kommentar,
         )
 
         execute(queryOf(query, params))
@@ -375,6 +379,7 @@ class TilsagnQueries(private val session: Session) {
             ),
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
+            kommentar = stringOrNull("kommentar"),
         )
     }
 

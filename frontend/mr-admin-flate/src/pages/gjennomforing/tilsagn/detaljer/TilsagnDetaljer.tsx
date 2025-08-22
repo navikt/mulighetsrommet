@@ -16,6 +16,7 @@ import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregnin
 import { TilsagnPrismodell } from "@/components/tilsagn/prismodell/TilsagnPrismodell";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -26,7 +27,7 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) {
-  const { beregning, bestillingsnummer, status, periode, type, kostnadssted } = tilsagn;
+  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
 
   const arsaker = oppgjor?.aarsaker || annullering?.aarsaker;
 
@@ -64,6 +65,10 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               <MetadataHorisontal
                 header={tilsagnTekster.type.label}
                 verdi={avtaletekster.tilsagn.type(type)}
+              />
+              <MetadataHorisontal
+                header={tilsagnTekster.kommentar.label}
+                verdi={kommentar && <Fritekstfelt text={kommentar} />}
               />
             </VStack>
           </HGrid>
@@ -106,7 +111,11 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               />
               <MetadataHorisontal
                 header={"Forklaring"}
-                verdi={annullering?.forklaring ?? oppgjor?.forklaring}
+                verdi={
+                  (annullering?.forklaring ?? oppgjor?.forklaring) && (
+                    <Fritekstfelt text={(annullering?.forklaring ?? oppgjor?.forklaring)!} />
+                  )
+                }
               />
             </>
           )}

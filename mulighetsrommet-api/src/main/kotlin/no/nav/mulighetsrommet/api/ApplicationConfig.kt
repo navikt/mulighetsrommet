@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -172,6 +173,7 @@ data class TaskConfig(
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForPamelding: UpdateApentForPamelding.Config = UpdateApentForPamelding.Config(),
     val generateUtbetaling: GenerateUtbetaling.Config,
+    val beregnUtbetaling: BeregnUtbetaling.Config = BeregnUtbetaling.Config(),
 )
 
 data class SlackConfig(
