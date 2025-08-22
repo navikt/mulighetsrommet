@@ -1,30 +1,39 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
-import { Alert, BodyLong, Heading } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, Faneinnhold, Kontorstruktur } from "@mr/api-client-v2";
+import {
+  EmbeddedTiltakstype,
+  Faneinnhold,
+  GjennomforingKontaktperson,
+  Kontorstruktur,
+} from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
-import { Suspense, Fragment } from "react";
+import { Suspense, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { LenkerList } from "../lenker/LenkerList";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { sorterPaRegionsnavn } from "@/utils/Utils";
 import { Metadata } from "../detaljside/Metadata";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useAvtale } from "@/api/avtaler/useAvtale";
+import { Bolk } from "../detaljside/Bolk";
+import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
+import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
+import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
   beskrivelse?: string;
   faneinnhold?: Faneinnhold;
   kontorstruktur: Kontorstruktur;
+  kontaktpersoner: GjennomforingKontaktperson[];
 }
 
 export function RedaksjoneltInnholdPreview() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
   const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = avtale;
+
   return (
     <Suspense fallback={<Laster tekst="Laster innhold" />}>
       <RedaksjoneltInnhold
@@ -32,12 +41,14 @@ export function RedaksjoneltInnholdPreview() {
         kontorstruktur={kontorstruktur}
         beskrivelse={beskrivelse}
         faneinnhold={faneinnhold}
+        kontaktpersoner={[]}
       />
     </Suspense>
   );
 }
+
 export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
-  const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = props;
+  const { tiltakstype, kontaktpersoner, beskrivelse, faneinnhold, kontorstruktur } = props;
 
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
   return (
@@ -136,39 +147,25 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         ) : null}
       </RedaksjoneltInnholdContainer>
       <RedaksjoneltInnholdContainer>
-        <Heading size="medium" level="3">
-          Geografisk tilgjengelighet
-        </Heading>
-        {kontorstruktur.length > 1 ? (
+        <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
           <Metadata
-            header={avtaletekster.fylkessamarbeidLabel}
-            verdi={
-              <ul>
-                {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
-                  return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
-                })}
-              </ul>
-            }
+            header={gjennomforingTekster.tilgjengeligIModiaLabel}
+            verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
           />
-        ) : (
-          kontorstruktur.map((struktur, index) => {
-            return (
-              <Fragment key={index}>
-                <Metadata header={avtaletekster.navRegionerLabel} verdi={struktur.region.navn} />
-
-                <Metadata
-                  header={avtaletekster.navEnheterLabel}
-                  verdi={
-                    <ul className="columns-2">
-                      {struktur.kontorer.map((kontor) => (
-                        <li key={kontor.enhetsnummer}>{kontor.navn}</li>
-                      ))}
-                    </ul>
-                  }
-                />
-              </Fragment>
-            );
-          })
+        </Bolk>
+        {kontaktpersoner.length > 0 && (
+          <Bolk>
+            <Metadata
+              header={gjennomforingTekster.kontaktpersonNav.mainLabel}
+              verdi={
+                <VStack gap="2">
+                  {kontaktpersoner.map((kp, index) => (
+                    <Kontaktperson key={index} kontaktperson={kp} />
+                  ))}
+                </VStack>
+              }
+            />
+          </Bolk>
         )}
       </RedaksjoneltInnholdContainer>
     </TwoColumnGrid>
@@ -228,3 +225,51 @@ const DetaljerFane = ({
     </div>
   );
 };
+
+function RegionOgLokalkontorer({ kontorstruktur }: { kontorstruktur: Kontorstruktur }) {
+  const [openRegions, setOpenRegions] = useState<string[]>([]);
+
+  const toggleRegion = (enhetsnummer: string) => {
+    setOpenRegions((prev) =>
+      prev.includes(enhetsnummer)
+        ? prev.filter((num) => num !== enhetsnummer)
+        : [...prev, enhetsnummer],
+    );
+  };
+
+  function isRegionOpen(enhetsnummer: string) {
+    return openRegions.includes(enhetsnummer);
+  }
+
+  return (
+    <ul>
+      {kontorstruktur.map((kontor) => {
+        return (
+          <li className="font-bold my-2 ml-3" key={kontor.region.enhetsnummer}>
+            <button
+              className="hover:cursor-pointer flex"
+              onClick={() => toggleRegion(kontor.region.enhetsnummer)}
+              title={`${kontor.region.navn} (${kontor.kontorer.length} kontorer)`}
+            >
+              {kontor.region.navn} ({kontor.kontorer.length || 0})
+              {isRegionOpen(kontor.region.enhetsnummer) ? (
+                <CaretUpFillIcon className="text-xl" />
+              ) : (
+                <CaretDownFillIcon className="text-xl" />
+              )}
+            </button>
+            {isRegionOpen(kontor.region.enhetsnummer) && (
+              <ul className="list-disc ml-5">
+                {kontor.kontorer.map((kontor) => (
+                  <li className="ml-5 font-thin" key={kontor.enhetsnummer}>
+                    {kontor.navn}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

@@ -14,15 +14,12 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
-import { GjennomforingOppstartstype, Kontorstruktur } from "@mr/api-client-v2";
+import { GjennomforingOppstartstype } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
-import { useState } from "react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 
@@ -30,8 +27,6 @@ export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-
-  const kontaktpersonerFraNav = gjennomforing.kontaktpersoner;
 
   const {
     tiltakstype,
@@ -43,7 +38,6 @@ export function GjennomforingDetaljer() {
     deltidsprosent,
     apentForPamelding,
     administratorer,
-    kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
     stedForGjennomforing,
@@ -176,13 +170,6 @@ export function GjennomforingDetaljer() {
           </Bolk>
         </VStack>
         <VStack>
-          <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
-            <Metadata
-              header={gjennomforingTekster.tilgjengeligIModiaLabel}
-              verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
-            />
-          </Bolk>
-
           {arenaAnsvarligEnhet ? (
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
@@ -197,20 +184,6 @@ export function GjennomforingDetaljer() {
               </div>
             </Bolk>
           ) : null}
-          {kontaktpersonerFraNav.length > 0 && (
-            <Bolk>
-              <Metadata
-                header={gjennomforingTekster.kontaktpersonNav.mainLabel}
-                verdi={
-                  <VStack gap="2">
-                    {kontaktpersonerFraNav.map((kp, index) => (
-                      <Kontaktperson key={index} kontaktperson={kp} />
-                    ))}
-                  </VStack>
-                }
-              />
-            </Bolk>
-          )}
           <Separator />
           <VStack gap="5">
             {avtale?.arrangor ? (
@@ -223,7 +196,6 @@ export function GjennomforingDetaljer() {
                 }
               />
             ) : null}
-
             <Metadata
               header={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
@@ -272,53 +244,5 @@ function HentTiltaksnummer({ id }: { id: string }) {
     </HStack>
   ) : (
     data?.tiltaksnummer
-  );
-}
-
-function RegionOgLokalkontorer({ kontorstruktur }: { kontorstruktur: Kontorstruktur }) {
-  const [openRegions, setOpenRegions] = useState<string[]>([]);
-
-  const toggleRegion = (enhetsnummer: string) => {
-    setOpenRegions((prev) =>
-      prev.includes(enhetsnummer)
-        ? prev.filter((num) => num !== enhetsnummer)
-        : [...prev, enhetsnummer],
-    );
-  };
-
-  function isRegionOpen(enhetsnummer: string) {
-    return openRegions.includes(enhetsnummer);
-  }
-
-  return (
-    <ul>
-      {kontorstruktur.map((kontor) => {
-        return (
-          <li className="font-bold my-2 ml-3" key={kontor.region.enhetsnummer}>
-            <button
-              className="hover:cursor-pointer flex"
-              onClick={() => toggleRegion(kontor.region.enhetsnummer)}
-              title={`${kontor.region.navn} (${kontor.kontorer.length} kontorer)`}
-            >
-              {kontor.region.navn} ({kontor.kontorer.length || 0})
-              {isRegionOpen(kontor.region.enhetsnummer) ? (
-                <CaretUpFillIcon className="text-xl" />
-              ) : (
-                <CaretDownFillIcon className="text-xl" />
-              )}
-            </button>
-            {isRegionOpen(kontor.region.enhetsnummer) && (
-              <ul className="list-disc ml-5">
-                {kontor.kontorer.map((kontor) => (
-                  <li className="ml-5 font-thin" key={kontor.enhetsnummer}>
-                    {kontor.navn}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        );
-      })}
-    </ul>
   );
 }
