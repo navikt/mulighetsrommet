@@ -101,14 +101,47 @@ private fun createReport(
     existingUtbetalinger: List<Utbetaling>,
     newUtbetalinger: List<Utbetaling>,
 ): XSSFWorkbook = buildExcelWorkbook {
-    createUtbetalingerSheet(
-        "Utbetaling",
-        getDifference(existingUtbetalinger, newUtbetalinger),
+    createUtbetalingerSheet("Utbetaling", existingUtbetalinger, newUtbetalinger)
+    createUtbetalingerSheet("Ny beregning", newUtbetalinger, existingUtbetalinger)
+}
+
+private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
+    sheetName: String,
+    source: List<Utbetaling>,
+    other: List<Utbetaling>,
+) = sheet(sheetName) {
+    header(
+        "Tiltakskode",
+        "Gjennomføring - Id",
+        "Gjennomføring - Navn",
+        "Utbetaling - Beregning",
+        "Utbetaling - Periode",
+        "Utbetaling - Beløp",
+        "Utbetaling - Beløp - Differanse",
+        "Deltakelse - Id",
+        "Deltakelse - Faktor",
     )
-    createUtbetalingerSheet(
-        "Ny beregning",
-        getDifference(newUtbetalinger, existingUtbetalinger),
-    )
+
+    val utbetalingComparator = compareBy<Utbetaling>({ it.tiltakstype.tiltakskode }, { it.gjennomforing.navn })
+
+    getDifference(source, other).sortedWith(utbetalingComparator).forEach { utbetaling ->
+        val otherUtbetaling = other.find { it.gjennomforing.id == utbetaling.gjennomforing.id }
+        val otherDeltakelser = otherUtbetaling?.beregning?.output?.deltakelser() ?: setOf()
+        val deltakelser = utbetaling.beregning.output.deltakelser().subtract(otherDeltakelser)
+        deltakelser.sortedBy { it.deltakelseId }.forEach { deltakelse ->
+            row(
+                utbetaling.tiltakstype.tiltakskode,
+                utbetaling.gjennomforing.id,
+                utbetaling.gjennomforing.navn,
+                utbetaling.beregning::class.simpleName!!,
+                utbetaling.periode.formatPeriode(),
+                utbetaling.beregning.output.belop,
+                utbetaling.beregning.output.belop - (otherUtbetaling?.beregning?.output?.belop ?: 0),
+                deltakelse.deltakelseId,
+                deltakelse.faktor,
+            )
+        }
+    }
 }
 
 private fun getDifference(
@@ -119,38 +152,5 @@ private fun getDifference(
     return source.filter { sourceEntry ->
         val otherEntry = otherById[sourceEntry.gjennomforing.id]
         otherEntry == null || sourceEntry.beregning.output.belop != otherEntry.beregning.output.belop
-    }
-}
-
-private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
-    sheetName: String,
-    utbetalinger: List<Utbetaling>,
-) = sheet(sheetName) {
-    header(
-        "Tiltakskode",
-        "Gjennomføring - Id",
-        "Gjennomføring - Navn",
-        "Utbetaling - Beregning",
-        "Utbetaling - Periode",
-        "Utbetaling - Beløp",
-        "Deltakelse - Id",
-        "Deltakelse - Faktor",
-    )
-
-    val utbetalingComparator = compareBy<Utbetaling>({ it.tiltakstype.tiltakskode }, { it.gjennomforing.navn })
-
-    utbetalinger.sortedWith(utbetalingComparator).forEach { utbetaling ->
-        utbetaling.beregning.output.deltakelser().sortedBy { it.deltakelseId }.forEach { deltakelse ->
-            row(
-                utbetaling.tiltakstype.tiltakskode,
-                utbetaling.gjennomforing.id,
-                utbetaling.gjennomforing.navn,
-                utbetaling.beregning::class.simpleName!!,
-                utbetaling.periode.formatPeriode(),
-                utbetaling.beregning.output.belop,
-                deltakelse.deltakelseId,
-                deltakelse.faktor,
-            )
-        }
     }
 }
