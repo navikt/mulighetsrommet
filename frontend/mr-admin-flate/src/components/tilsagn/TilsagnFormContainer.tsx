@@ -10,7 +10,6 @@ import {
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
-import { Alert } from "@navikt/ds-react";
 
 interface Props {
   avtale: AvtaleDto;
@@ -64,8 +63,6 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
           {...props}
         />
       );
-    case null:
-      return <Alert variant={"warning"}>Prismodell mangler</Alert>;
   }
 }
 
