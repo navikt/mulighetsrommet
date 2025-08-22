@@ -76,7 +76,10 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 
   return (
     <VStack gap="4">
-      <Metadata header={tilsagnTekster.prismodell.label} verdi={tilsagnTekster.prismodell.sats.label("PRIS_PER_MANEDSVERK")}/>
+      <Metadata
+        header={tilsagnTekster.prismodell.label}
+        verdi={tilsagnTekster.prismodell.sats.label("PRIS_PER_MANEDSVERK")}
+      />
       <Definisjonsliste
         columns={1}
         definitions={[

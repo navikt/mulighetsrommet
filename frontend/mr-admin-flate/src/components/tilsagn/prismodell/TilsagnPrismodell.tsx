@@ -80,14 +80,11 @@ function PrisPerManedsUkesverkPrismodell({
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
-        <MetadataHorisontal
-          header={tilsagnTekster.antallPlasser.label}
-          verdi={beregning.antallPlasser}
-        />
-        <MetadataHorisontal
-          header={tilsagnTekster.pris.label}
-          verdi={formaterNOK(beregning.sats)}
-        />
+      <MetadataHorisontal
+        header={tilsagnTekster.antallPlasser.label}
+        verdi={beregning.antallPlasser}
+      />
+      <MetadataHorisontal header={tilsagnTekster.pris.label} verdi={formaterNOK(beregning.sats)} />
       <Definisjonsliste
         columns={1}
         definitions={[
