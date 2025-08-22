@@ -49,16 +49,16 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   }
 
   function dupliserGjennomforing() {
+    const duplisert: Partial<GjennomforingDto> = {
+      opphav: Opphav.TILTAKSADMINISTRASJON,
+      avtaleId: gjennomforing.avtaleId,
+      beskrivelse: gjennomforing.beskrivelse,
+      faneinnhold: gjennomforing.faneinnhold,
+    };
+
     setGjennomforingDetaljerTab("detaljer");
     navigate(`/avtaler/${gjennomforing.avtaleId}/gjennomforinger/skjema`, {
-      state: {
-        dupliserGjennomforing: {
-          opphav: Opphav.TILTAKSADMINISTRASJON,
-          avtaleId: gjennomforing.avtaleId,
-          beskrivelse: gjennomforing.beskrivelse,
-          faneinnhold: gjennomforing.faneinnhold,
-        },
-      },
+      state: { dupliserGjennomforing: duplisert },
     });
   }
 
