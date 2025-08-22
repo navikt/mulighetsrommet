@@ -9,7 +9,6 @@ import {
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { VStack } from "@navikt/ds-react";
-import { isBeregningPrisPerManedsverk } from "@/pages/gjennomforing/tilsagn/tilsagnUtils";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import Prisbetingelser from "@/components/utbetaling/Prisbetingelser";
@@ -35,7 +34,7 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.annenPris.label}
+        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
       <Definisjonsliste
         columns={1}
@@ -63,7 +62,7 @@ function FastSatsPerTiltaksplassPerManedPrismodell({
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.fastSatsManed.label}
+        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
       <MetadataHorisontal
         header={tilsagnTekster.antallPlasser.label}
@@ -83,10 +82,7 @@ function PrisPerManedsUkesverkPrismodell({
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={
-          isBeregningPrisPerManedsverk(beregning)
-            ? tilsagnTekster.prismodell.manedsPris.label
-            : tilsagnTekster.prismodell.ukesPris.label
+        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)
         }
       />
       <Definisjonsliste
@@ -108,7 +104,7 @@ function PrisPerManedsUkesverkPrismodell({
           verdi={beregning.antallPlasser}
         />
         <MetadataHorisontal
-          header={tilsagnTekster.sats.label}
+          header={tilsagnTekster.pris.label}
           verdi={formaterNOK(beregning.sats)}
         />
       </VStack>
