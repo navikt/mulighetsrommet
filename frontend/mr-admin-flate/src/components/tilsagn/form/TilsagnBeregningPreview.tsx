@@ -2,7 +2,6 @@ import {
   ProblemDetail,
   TilsagnBeregningDto,
   TilsagnBeregningInput,
-  TilsagnBeregningType,
   ValidationError,
 } from "@mr/api-client-v2";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -42,14 +41,7 @@ export function TilsagnBeregningPreview(props: Props) {
 
   useEffect(() => {
     if (TilsagnBeregningSchema.safeParse(input).success) {
-      const beregningInput =
-        input.type !== TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-          ? {
-              ...input,
-              prisbetingelser: input.prisbetingelser ?? null,
-            }
-          : input;
-      beregnTilsagn(beregningInput, {
+      beregnTilsagn(input, {
         onSuccess,
         onError: (error: ProblemDetail) => onValidationError(error as ValidationError),
       });

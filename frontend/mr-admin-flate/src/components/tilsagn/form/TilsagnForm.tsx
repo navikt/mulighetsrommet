@@ -2,13 +2,7 @@ import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  GjennomforingDto,
-  TilsagnBeregningType,
-  TilsagnRequest,
-  TilsagnType,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Box, Button, Heading, HGrid, HStack, TextField, VStack } from "@navikt/ds-react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -57,17 +51,9 @@ export function TilsagnForm(props: Props) {
   } = form;
 
   const postData: SubmitHandler<InferredTilsagn> = async (data): Promise<void> => {
-    const beregning =
-      data.beregning.type !== TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-        ? {
-            ...data.beregning,
-            prisbetingelser: data.beregning.prisbetingelser ?? null,
-          }
-        : { ...data.beregning };
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
-      beregning: beregning,
     };
 
     mutation.mutate(request, {

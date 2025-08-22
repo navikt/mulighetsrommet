@@ -1,4 +1,4 @@
-import { TilsagnBeregningDto, TilsagnBeregningInput, TilsagnBeregningType } from "@mr/api-client-v2";
+import { TilsagnBeregningDto, TilsagnBeregningInput } from "@mr/api-client-v2";
 
 export const tilsagnTekster = {
   bestillingsnummer: {
@@ -34,15 +34,15 @@ export const tilsagnTekster = {
   prismodell: {
     label: "Prismodell",
     sats: {
-      label: (type: TilsagnBeregningDto['type'] | TilsagnBeregningInput['type']) => {
+      label: (type: TilsagnBeregningDto["type"] | TilsagnBeregningInput["type"]) => {
         switch (type) {
-          case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
+          case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
             return "Fast sats per tiltaksplass per måned";
-          case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
+          case "PRIS_PER_MANEDSVERK":
             return "Avtalt månedspris per tiltaksplass";
-          case TilsagnBeregningType.PRIS_PER_UKESVERK:
+          case "PRIS_PER_UKESVERK":
             return "Avtalt ukespris per tiltaksplass";
-          case TilsagnBeregningType.FRI:
+          case "FRI":
             return "Annen avtalt pris";
         }
       },

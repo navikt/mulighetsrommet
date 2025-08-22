@@ -82,8 +82,7 @@ function PrisPerManedsUkesverkPrismodell({
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)
-        }
+        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
       <Definisjonsliste
         columns={1}
