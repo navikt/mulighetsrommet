@@ -17,6 +17,7 @@ export function RedaksjoneltInnholdGjennomforing() {
           kontorstruktur={gjennomforing.kontorstruktur}
           beskrivelse={gjennomforing.beskrivelse}
           faneinnhold={gjennomforing.faneinnhold}
+          kontaktpersoner={gjennomforing.kontaktpersoner}
         />
       </GjennomforingPageLayout>
     </Suspense>
