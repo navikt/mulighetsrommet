@@ -10,7 +10,6 @@ import {
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
-import { Alert } from "@navikt/ds-react";
 
 interface Props {
   avtale: AvtaleDto;
@@ -34,7 +33,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  const beregning = defaults.beregning?.type ? getTilsagnBeregningType(avtale.prismodell) : null;
+  const beregning = getTilsagnBeregningType(avtale.prismodell);
 
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
@@ -64,8 +63,6 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
           {...props}
         />
       );
-    case null:
-      return <Alert variant={"warning"}>Prismodell mangler</Alert>;
   }
 }
 
