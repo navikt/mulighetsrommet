@@ -11,18 +11,14 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak Nav ka
 - [Teknologier](#teknologier)
 - [Overvåking og alarmer](#overvåking-og-alarmer)
 - [Kom i gang](#kom-i-gang)
-  - [Forutsetninger](#forutsetninger)
-    - [Miljøvariabler](#miljøvariabler)
-  - [Steg for steg](#steg-for-steg)
-    - [Databasemigrasjoner](#databasemigrasjoner)
-    - [Autentisering](#autentisering)
-    - [Feature toggles](#feature-toggles)
-  - [Automatiske jobber](#automatiske-jobber)
-    - [Oppdatere enheter fra NORG til Sanity](#oppdatere-enheter-fra-norg-til-sanity)
+    - [Forutsetninger](#forutsetninger)
+    - [Steg for steg](#steg-for-steg)
+        - [Databasemigrasjoner](#databasemigrasjoner)
+        - [Autentisering](#autentisering)
+        - [Feature toggles](#feature-toggles)
+    - [Automatiske jobber](#automatiske-jobber)
+        - [Oppdatere enheter fra NORG til Sanity](#oppdatere-enheter-fra-norg-til-sanity)
 - [Strukturert innhold](#strukturert-innhold)
-- [Datadeling til Datamarkedsplassen med Datastream](#datadeling-til-datamarkedsplassen-med-datastream)
-    - [Ang. datastream](#ang-datastream)
-    - [Tilganger for servicebruker (SA-bruker)](#tilganger-for-servicebruker-sa-bruker)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -55,24 +51,6 @@ Sørg for at du har fulgt oppsettet beskrevet i prosjektets [README](../README.m
 
 Under er det satt opp et par ting som må på plass for at applikasjonen og databasen skal fungere.
 
-### Miljøvariabler
-
-Disse miljøvariablene må være konfigurert og tilgjengelige for prosessen som skal kjøre applikasjonen:
-
-```sh
-export DB_HOST=localhost
-export DB_PORT=5442
-export DB_DATABASE=mr-api
-export DB_USERNAME=valp
-export DB_PASSWORD=valp
-export DB_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_DATABASE}
-```
-
-Benytt et et verktøy som f.eks. [direnv](https://direnv.net/), konfigurerer de som
-miljøvariabler under en
-egen [Run Configuration i IntelliJ](https://www.jetbrains.com/idea/guide/tutorials/hello-world/creating-a-run-configuration/),
-eller legg de direkte til i setup for shell'et du bruker (f.eks. `.bashrc` eller `.zshrc`) om du foretrekker dette.
-
 ## <a name="steg-for-steg"></a>Steg for steg
 
 For å komme fort i gang fra en terminal gjør følgende (antar at du står i rot av prosjektet):
@@ -84,63 +62,22 @@ For å komme fort i gang fra en terminal gjør følgende (antar at du står i ro
 
 Hvis alt gikk knirkefritt skal nå applikasjonen kjøre på <http://0.0.0.0:8080>.
 
-### Databasemigrasjoner
+## Databasemigrasjoner
 
-Databasemigrasjoner administreres via Flyway og prosjektet inkluderer en
-[Gradle plugin](https://plugins.gradle.org/plugin/org.flywaydb.flyway) for å gjøre det enklere å teste
-databaseendringer med Flyway lokalt. Hvis du ønsker å benytte deg av dette må du overstyre noen Gradle-instillinger
-pga. manglende support for [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) i
-Flyway sin Gradle plugin.
+Databasemigrasjoner administreres via Flyway. Siden flyway sin gradle plugin ikke
+støtter [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) så er det ikke mulig å
+benytte denne lokalt.
 
-Opprett filen `~/.gradle/gradle.properties` med følgende innhold for å komme deg rundt dette problemet:
+## Autentisering
 
-```
-# Overstyrt lokalt fordi flyway ikke funker med configuration-cache
-org.gradle.configuration-cache=false
-```
+For å kalle APIet lokalt må man være autentisert med et Bearer token. Vi
+benytter [mock-ouath2-server](https://github.com/navikt/mock-oauth2-server) til å utstede tokens på lokal maskin.
+Påkrevd innhold i tokenet varierer basert på hvilket endepunkt man ønsker å kalle (f.eks. som en Nav-ansatt, som en
+ekstern bruker, eller som en Nais-app).
 
-### Autentisering
+Det er beskrevet hvordan hvordan man skaffer seg et token for lokal utvikling i README per frontend-app.
 
-For å kalle APIet lokalt må man være autentisert med et Bearer token.
-
-Vi benytter [mock-ouath2-server](https://github.com/navikt/mock-oauth2-server) til å utstede tokens på lokal maskin.
-Følgende steg kan benyttes til å generere opp et token:
-
-1. Sørg for at containeren for `mock-oauth2-server` kjører lokalt (se [oppsett for Docker](../README.md#docker)).
-2. Naviger til [mock-oauth2-server sin side for debugging av tokens](http://localhost:8081/azure/debugger).
-3. Generer et token
-    1. Trykk på knappen `Get a token`
-    2. Skriv inn et random username og følgende JSON payload i `optional claims` (`NAVident` og `groups` claims matcher med annen mock-data):
-       ```json
-       {
-         "NAVident": "B123456",
-         "roles": [
-           "access_as_application"
-         ],
-         "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
-         "uti": "0bab029e-e84e-4842-8a27-d153b29782cf",
-         "azp_name": "test name",
-         "groups": [
-           "52bb9196-b071-4cc7-9472-be4942d33c4b"
-         ]
-       }
-       ```
-    3. Trykk `Sign in`
-4. Kopier verdien for `access_token` og benytt denne som `Bearer` i `Authorization`-header i `.env`-filen du har
-   opprettet
-   i `/mr-admin-flate`
-
-Eksempel:
-
-```sh
-$ curl localhost:8080/api/v1/innsatsgrupper -H 'Authorization: Bearer <access_token>'
-```
-
-For arrangor-flate kreves det token generert
-fra [mock-oauth2-server sin tokenx side for debugging av tokens](http://localhost:8081/tokenx/debugger). Les mer i
-readme til arrangor-flate.
-
-### Feature toggles
+## Feature toggles
 
 Vi administrerer en del feature toggles via [NAIS og Unleash](https://doc.nais.io/addons/unleash/).
 Grensesnitt for å definere toggles finner du her: https://team-mulighetsrommet-unleash-web.iap.nav.cloud.nais.io
@@ -168,27 +105,26 @@ Jobben `synchronize-norg2-enheter-to-sanity` brukes for å oppdatere enheter i S
 Jobben benytter seg av tokenet `Token for task: synchronize-norg2-enheter-to-sanity fra api (PROD | TEST)` som har
 create/update-tilgang til enheter-dokumentene i Sanity.
 
-# <a name="strukturert-innhold"></a>Strukturert innhold
+### Synkronisere kontaktpersoner til admin-flate
+
+Administratorer kan selv legge til kontaktpersoner fra Tiltaksadministrasjon, men hvis kontaktperson ikke allerede
+finnes og gjøres tilgjengelig i Sanity så kan kontaktperson også legges til manuelt av oss.
+
+Dette gjøres på følgende måte:
+
+1. Naviger til [Grupper jeg eier](https://myaccount.microsoft.com/groups/groups-i-own) i Entra Id
+2. Finn frem til gruppen for kontaktpersoner i Tiltaksadministrasjon
+3. Trykk på "Medlemmer" -> Trykk "Legg til"
+4. Søk opp personen med navn -> Velg "Medlem" -> Trykk "Legg til"
+
+**TIPS:** Du kan gå til [MAAM](https://mulighetsrommet-arena-adapter-manager.intern.nav.no/) og velge mr-api (i
+toppmenyen) og så kjøre task'en `sync-navansatte`. Da skal kontaktpersoner blir synkronisert i løpet av ett minutt.
+
+**MERK:** Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse
+her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
+
+## <a name="strukturert-innhold"></a>Strukturert innhold
+
 Vi deler strukturert innhold om tiltakstyper via Kafka.
-Innholdet lever i tabeller i databasen og kan oppdateres via filen `R__deltakerregistrering-innhold.sql`. Gjør de endringene som må til og deploy så vil migrasjonsfilen kjøres på nytt mot databasene i dev og prod.
-
-# Datadeling til Datamarkedsplassen med Datastream
-Databasen til api er satt opp med replikasjon av tabeller for tiltakstyper og tiltaksgjennomføringer.
-Vi har fulgt guiden her https://github.com/navikt/nada-datastream for oppsett.
-
-Datastream i dev: https://console.cloud.google.com/datastream/streams?authuser=1&project=team-mulighetsrommet-dev-a2d7
-Datastream i prod: https://console.cloud.google.com/datastream/streams?authuser=1&project=team-mulighetsrommet-prod-5492
-
-BigQuery i dev: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-dev-a2d7&ws=!1m0
-BigQuery i prod: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-prod-5492&ws=!1m0
-
-### Views
-Vi har views til BigQuery definert i iac/bigquery-views.
-Du kan gjøre endringer i view'ene og så vil de bygges på nytt når du deployer koden via Github Actions.
-
-### Ang. datastream
-Dersom datastreamen tuller seg eller man vil restarte prosessen så må man gå til datastreamen (lenke over) og så slette datastreamen.
-[Kjør så datastream på nytt basert på guiden her ](https://github.com/navikt/nada-datastream)
-
-### Tilganger for servicebruker (SA-bruker)
-I dev og prod har vi servicebrukere som trenger tilgang til BigQuery for å opprette ressurser (feks. views). Disse har tilgang til `BigQuery Data Editor`-rollen. Den rollen trengs for å opprette og oppdatere views.
+Innholdet lever i tabeller i databasen og kan oppdateres via filen `R__deltakerregistrering-innhold.sql`. Gjør de
+endringene som må til og deploy så vil migrasjonsfilen kjøres på nytt mot databasene i dev og prod.

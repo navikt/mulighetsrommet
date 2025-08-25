@@ -32,7 +32,7 @@ avhengig av bruksområde.
 Som standard vil `LOKAL`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env`:
 
 ```.env
-APP=LOKAL # Eller MODIA, Nav
+APP=LOKAL # Eller MODIA, NAV
 ```
 
 ### Installere avhengigheter
@@ -49,15 +49,23 @@ turbo run dev
 
 ### Lokal utvikling mot lokal backend
 
-`.env` må konfigureres med token for lokal autentisering. Se seksjonen
-om [lokal autentisering](../../mulighetsrommet-api/README.md#autentisering):
+For dette trenger man et access token definert i miljøvariabelen `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`.
+Denne kan du definere etter eget ønske, enten som en vanlig miljøvariabel, evt.
+via [vite](https://vite.dev/guide/env-and-mode.html#env-files)
+eller [mise](https://mise.jdx.dev/environments/#using-environment-variables).
+For å generere dette gjør du følgende:
 
-```.env
-# Setter Bearer token for HTTP-kall mot mulighetsrommet-api.
-VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
-```
-
-Deretter kan appen startes mot lokal backend:
+1. Naviger til lokal [Mock Oauth2 Server](http://localhost:8081/azure/debugger)
+2. Trykk på knappen `Get a token`
+3. Skriv inn hva som helst som `user/subject`
+4. Legg inn dette i optional claims:
+   ```json
+   {
+     "NAVident": "B123456"
+   }
+   ```
+5. Trykk `Sign in`
+6. Kopier verdien til `access_token` og benytt denne i nevnte miljøvariabel
 
 ```sh
 turbo run backend
