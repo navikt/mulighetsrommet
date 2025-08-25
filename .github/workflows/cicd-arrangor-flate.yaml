@@ -8,9 +8,7 @@ on:
       - package.json
       - pnpm-lock.yaml
       - turbo.json
-      - frontend/api-client/**
       - frontend/frontend-common/**
-      - mulighetsrommet-api/src/main/resources/web/openapi.yaml
       - frontend/arrangor-flate/**
   workflow_dispatch:
     inputs:
