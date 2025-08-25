@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
-data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
+data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -28,7 +28,7 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
     }
 
     companion object {
-        fun beregn(input: Input): UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder {
+        fun beregn(input: Input): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
             val stengtHosArrangor = input.stengt.map { it.periode }
 
             val manedsverk = input.deltakelser
@@ -42,7 +42,7 @@ data class UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
 
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(manedsverk, input.sats)
 
-            return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(input, Output(belop, manedsverk))
+            return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop, manedsverk))
         }
     }
 }

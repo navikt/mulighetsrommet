@@ -49,8 +49,8 @@ sealed class ArrangorflateBeregning {
     abstract val digest: String
 
     @Serializable
-    @SerialName("ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder")
-    data class PrisPerManedsverkMedDeltakelsesmengder(
+    @SerialName("ArrangorflateBeregningFastSatsPerTiltaksplassPerManed")
+    data class FastSatsPerTiltaksplassPerManed(
         override val belop: Int,
         override val digest: String,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
@@ -129,8 +129,8 @@ sealed class ArrangorflateBeregningDeltakelse {
     abstract val status: DeltakerStatusType?
 
     @Serializable
-    @SerialName("ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder")
-    data class PrisPerManedsverkMedDeltakelsesmengder(
+    @SerialName("ArrangorflateBeregningFastSatsPerTiltaksplassPerManed")
+    data class FastSatsPerTiltaksplassPerManed(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)

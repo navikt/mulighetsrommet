@@ -139,7 +139,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
-            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+            utbetaling.beregning.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 sats = 20975,
                 stengt = setOf(),
@@ -261,7 +261,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
                 .should {
                     it.deltakelser shouldBe setOf(
                         DeltakelseDeltakelsesprosentPerioder(
@@ -356,7 +356,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
-            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+            utbetaling.beregning.input.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
                 .should {
                     it.stengt shouldBe setOf(
                         StengtPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 10)), "Ferie 1"),
@@ -381,7 +381,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
                     it.belop shouldBe 20975
                     it.deltakelser shouldBe setOf(
@@ -421,7 +421,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
                     it.belop shouldBe 10149
                     it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.48387))
@@ -455,7 +455,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
                     it.belop shouldBe 10149
                     it.deltakelser shouldBe setOf(DeltakelseManedsverk(domain.deltakere[0].id, 0.48387))
@@ -518,7 +518,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
             utbetaling.beregning.input
-                .shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+                .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
                 .should {
                     it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[1].id)
                 }
@@ -608,7 +608,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val utbetaling = service.genererUtbetalingForPeriode(januar).first()
 
             utbetaling.beregning.input
-                .shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input>()
+                .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
                 .should {
                     it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[0].id)
                 }
@@ -626,8 +626,8 @@ class GenererUtbetalingServiceTest : FunSpec({
             deltakelsesprosent = 100.0,
         )
 
-        val beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-            input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+        val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 6, 1)),
                 sats = 20975,
                 stengt = setOf(),
@@ -643,7 +643,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ),
-            output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 20975,
                 deltakelser = setOf(
                     DeltakelseManedsverk(deltakelseId = deltaker.id, manedsverk = 1.0),
@@ -668,7 +668,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetaling1.id).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                     .should {
                         it.belop shouldBe 10488
                         it.deltakelser shouldBe setOf(
@@ -698,7 +698,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 val utbetaling = queries.utbetaling.get(utbetaling1.id).shouldNotBeNull()
-                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output>()
+                utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                     .should {
                         it.belop shouldBe 20975
                         it.deltakelser shouldBe setOf(

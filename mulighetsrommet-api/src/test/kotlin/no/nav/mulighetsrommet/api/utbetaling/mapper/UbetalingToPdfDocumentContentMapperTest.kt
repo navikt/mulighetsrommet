@@ -43,11 +43,11 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             navn = "Nav",
         ),
-        beregning = ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
+        beregning = ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
             belop = 100,
             digest = "digest",
             deltakelser = listOf(
-                ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2025, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
@@ -64,7 +64,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     ),
                     status = null,
                 ),
-                ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2024, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),

@@ -121,8 +121,8 @@ class GenererUtbetalingService(
     ): UtbetalingDbo? {
         val beregning = when (prismodell) {
             Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                val input = resolvePrisPerManedsverkMedDeltakelsesmengderInput(gjennomforing, periode)
-                UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.beregn(input)
+                val input = resolveFastSatsPerTiltaksplassPerManedInput(gjennomforing, periode)
+                UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
             }
 
             Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
@@ -148,14 +148,14 @@ class GenererUtbetalingService(
         }
     }
 
-    private fun QueryContext.resolvePrisPerManedsverkMedDeltakelsesmengderInput(
+    private fun QueryContext.resolveFastSatsPerTiltaksplassPerManedInput(
         gjennomforing: GjennomforingDto,
         periode: Periode,
-    ): UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input {
+    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
-        return UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+        return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
             periode = periode,
             sats = sats,
             stengt = stengtHosArrangor,

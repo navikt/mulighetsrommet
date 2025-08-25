@@ -18,6 +18,53 @@ sealed class UtbetalingBeregningDto {
     abstract val deltakerRegioner: List<NavRegionDto>
 
     @Serializable
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+    data class FastSatsPerTiltaksplassPerManed(
+        val sats: Int,
+        val manedsverkTotal: Double,
+        override val belop: Int,
+        override val deltakerRegioner: List<NavRegionDto>,
+        override val deltakerTableData: DataDrivenTableDto,
+    ) : UtbetalingBeregningDto() {
+        override val heading = "Fast sats per tiltaksplass per måned"
+
+        companion object {
+            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
+                columns = manedsverkDeltakelseColumns(),
+                rows = deltakelsePersoner.map { (deltakelse, person) ->
+                    manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
+                },
+            )
+
+            private fun manedsverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
+                listOf(
+                    DataDrivenTableDto.Column(
+                        "manedsverk",
+                        "Månedsverk",
+                        true,
+                        DataDrivenTableDto.Column.Align.RIGHT,
+                        null,
+                    ),
+                    DataDrivenTableDto.Column(
+                        "belop",
+                        "Beløp",
+                        true,
+                        DataDrivenTableDto.Column.Align.RIGHT,
+                        DataDrivenTableDto.Column.Format.NOK,
+                    ),
+                ),
+            )
+
+            private fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: PersonEnhetOgRegion?) = Fri.friDeltakelseRow(person).plus(
+                mapOf(
+                    "manedsverk" to JsonPrimitive(manedsverk),
+                    "belop" to JsonPrimitive(sats.toDouble() * manedsverk),
+                ),
+            )
+        }
+    }
+
+    @Serializable
     @SerialName("PRIS_PER_MANEDSVERK")
     data class PrisPerManedsverk(
         val sats: Int,
@@ -168,7 +215,18 @@ sealed class UtbetalingBeregningDto {
                     deltakerTableData = Fri.friTable(deltakelsePersoner),
                 )
 
-                is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+                -> {
+                    val sats = getSats(utbetaling.beregning.input)
+                    val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
+                    FastSatsPerTiltaksplassPerManed(
+                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(deltakelsePersoner.map { it.first }.toSet(), sats),
+                        manedsverkTotal = manedsverkTotal,
+                        deltakerRegioner = regioner,
+                        deltakerTableData = FastSatsPerTiltaksplassPerManed.manedsverkTable(deltakelsePersoner, sats),
+                        sats = sats,
+                    )
+                }
                 is UtbetalingBeregningPrisPerManedsverk,
                 -> {
                     val sats = getSats(utbetaling.beregning.input)
@@ -200,7 +258,7 @@ sealed class UtbetalingBeregningDto {
 
 private fun getSats(input: UtbetalingBeregningInput): Int {
     return when (input) {
-        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input -> input.sats
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input -> input.sats
         is UtbetalingBeregningPrisPerManedsverk.Input -> input.sats
         is UtbetalingBeregningPrisPerUkesverk.Input -> input.sats
         is UtbetalingBeregningFri.Input -> throw IllegalArgumentException("UtbetalingBeregningFri har ingen sats")

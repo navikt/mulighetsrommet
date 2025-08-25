@@ -76,7 +76,7 @@ class UtbetalingQueries(private val session: Session) {
             "periode" to dbo.periode.toDaterange(),
             "beregning_type" to when (dbo.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
-                is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER
+                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
                 is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
             }.name,
@@ -95,7 +95,7 @@ class UtbetalingQueries(private val session: Session) {
         when (dbo.beregning) {
             is UtbetalingBeregningFri -> Unit
 
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
                 upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
                 upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
@@ -462,7 +462,7 @@ class UtbetalingQueries(private val session: Session) {
     private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {
         return when (beregning) {
             UtbetalingBeregningType.FRI -> getBeregningFri(id)
-            UtbetalingBeregningType.PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER -> {
+            UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> {
                 getBeregningPrisPerManedsverkMedDeltakelsesmengder(id)
             }
 
@@ -500,14 +500,14 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
-            UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-                input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+            UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                     periode = row.periode("periode"),
                     sats = row.int("sats"),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
-                output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                     belop = row.int("belop_beregnet"),
                     deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
                 ),

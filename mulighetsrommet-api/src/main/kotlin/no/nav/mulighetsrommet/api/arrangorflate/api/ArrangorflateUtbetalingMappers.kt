@@ -43,8 +43,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             )
         }
 
-        is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
-            ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
+            ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
                 belop = beregning.output.belop,
@@ -133,7 +133,7 @@ fun toArrangorflateBeregningDeltakelse(
                 )
 
             is DeltakelseDeltakelsesprosentPerioder ->
-                ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
                     person = person?.let { ArrangorflatePerson.fromPerson(it) },
