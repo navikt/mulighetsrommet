@@ -1,0 +1,5 @@
+[tools]
+gradle = "9"
+java = "temurin-21"
+kubectl = "1.28"
+node = "22"
