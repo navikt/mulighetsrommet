@@ -1141,7 +1141,7 @@ components:
       required:
       - erReservert
       - kanVarsles
-    BrukerVarsel:
+    BrukerdataVarsel:
       type: string
       enum:
       - LOKAL_OPPFOLGINGSENHET
@@ -1173,7 +1173,7 @@ components:
         varsler:
           type: array
           items:
-            $ref: "#/components/schemas/BrukerVarsel"
+            $ref: "#/components/schemas/BrukerdataVarsel"
       required:
       - enheter
       - erSykmeldtMedArbeidsgiver
