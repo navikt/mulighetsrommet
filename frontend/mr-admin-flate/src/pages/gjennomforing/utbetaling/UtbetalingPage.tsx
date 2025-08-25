@@ -1,4 +1,4 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import React from "react";
 import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -52,12 +52,12 @@ import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetal
 import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
 import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
   const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
   const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
@@ -70,7 +70,6 @@ function useUtbetalingPageData() {
 
   return {
     gjennomforing,
-    ansatt,
     historikk,
     tilsagn,
     utbetaling: utbetaling.utbetaling,
@@ -94,7 +93,7 @@ function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
 
 export function UtbetalingPage() {
   const { gjennomforingId, utbetalingId } = useParams();
-  const { gjennomforing, ansatt, historikk, tilsagn, utbetaling, linjer, beregning, handlinger } =
+  const { gjennomforing, historikk, tilsagn, utbetaling, linjer, beregning, handlinger } =
     useUtbetalingPageData();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
   const [linjerState, setLinjerState] = useState<UtbetalingLinje[]>(() =>
@@ -293,7 +292,6 @@ export function UtbetalingPage() {
                   tilsagn={tilsagn}
                   linjer={linjerState}
                   setLinjer={setLinjerState}
-                  roller={ansatt.roller}
                 />
               </>
               <VStack gap="2">
@@ -341,42 +339,35 @@ export function UtbetalingPage() {
   );
 }
 
-function UtbetalingLinjeView({
-  utbetaling,
-  tilsagn,
-  linjer,
-  roller,
-  setLinjer,
-}: {
+interface UtbetalingLinjeViewProps {
   utbetaling: UtbetalingDto;
   tilsagn: TilsagnDto[];
   linjer: UtbetalingLinje[];
-  roller: Rolle[];
   setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
-}) {
+}
+
+function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: UtbetalingLinjeViewProps) {
   switch (utbetaling.status.type) {
     case "VENTER_PA_ARRANGOR":
       return null;
     case "RETURNERT":
     case "KLAR_TIL_BEHANDLING":
-      if (roller.includes(Rolle.SAKSBEHANDLER_OKONOMI)) {
-        return (
+      return (
+        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
           <RedigerUtbetalingLinjeView
             setLinjer={setLinjer}
             tilsagn={tilsagn}
             utbetaling={utbetaling}
             linjer={linjer}
           />
-        );
-      } else {
-        return null;
-      }
+        </HarTilgang>
+      );
     case "TIL_ATTESTERING":
     case "OVERFORT_TIL_UTBETALING":
-      if (roller.includes(Rolle.ATTESTANT_UTBETALING)) {
-        return <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />;
-      } else {
-        return null;
-      }
+      return (
+        <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
+          <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
+        </HarTilgang>
+      );
   }
 }

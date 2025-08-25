@@ -1,7 +1,7 @@
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
+import { Avtaletype, Rolle, TilsagnService, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -35,7 +35,7 @@ export function TilsagnForGjennomforingPage() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Økonomi">
+        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
           <Dropdown>
             <Button size="small" variant="secondary" as={Dropdown.Toggle}>
               Handlinger
@@ -55,7 +55,7 @@ export function TilsagnForGjennomforingPage() {
               </Dropdown.Menu.GroupedList>
             </Dropdown.Menu>
           </Dropdown>
-        </HarSkrivetilgang>
+        </HarTilgang>
       </KnapperadContainer>
       {tilsagnForGjennomforing.length > 0 ? (
         <TilsagnTable tilsagn={tilsagnForGjennomforing} />

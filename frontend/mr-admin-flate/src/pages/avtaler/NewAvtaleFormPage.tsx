@@ -1,7 +1,7 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { Header } from "@/components/detaljside/Header";
@@ -18,7 +18,7 @@ import {
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, ValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, Rolle, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -141,7 +141,7 @@ export function NewAvtaleFormPage() {
           Opprett ny avtale
         </Heading>
       </Header>
-      <HarSkrivetilgang ressurs="Avtale">
+      <HarTilgang rolle={Rolle.AVTALER_SKRIV}>
         <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
           <Heading size="medium" spacing level="2" id="stepper-heading">
             Steg
@@ -184,7 +184,7 @@ export function NewAvtaleFormPage() {
             </form>
           </FormProvider>
         </Box>
-      </HarSkrivetilgang>
+      </HarTilgang>
     </>
   );
 }
