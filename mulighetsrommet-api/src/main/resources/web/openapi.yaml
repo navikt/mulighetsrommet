@@ -5706,11 +5706,11 @@ components:
             - left
             - right
         format:
-          type: string
+          type: [string, "null"]
           enum:
             - DATE
             - NOK
-      required: [key, type, sortable, align]
+      required: [key, type, sortable, align, format]
 
     AarsakerOgForklaringRequest:
       type: object

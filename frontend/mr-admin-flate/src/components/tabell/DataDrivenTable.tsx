@@ -12,14 +12,14 @@ interface Props {
 export function DataDrivenTable({ data, className }: Props) {
   const { sort, toggleSort, sortedData } = useSortableData(data.rows);
 
-  function formatRow(row?: string, format?: "DATE" | "NOK"): string {
+  function formatRow(format: "DATE" | "NOK" | null, row?: string): string {
     if (!row) return "-";
     switch (format) {
       case "DATE":
         return formaterDato(row) ?? "-";
       case "NOK":
         return formaterNOK(Number(row));
-      case undefined:
+      case null:
         return row;
     }
   }
@@ -50,7 +50,7 @@ export function DataDrivenTable({ data, className }: Props) {
           <Table.Row key={index}>
             {data.columns.map((col) => (
               <Table.DataCell key={col.key} align={col.align}>
-                {formatRow(row[col.key], col.format)}
+                {formatRow(col.format, row[col.key])}
               </Table.DataCell>
             ))}
           </Table.Row>
