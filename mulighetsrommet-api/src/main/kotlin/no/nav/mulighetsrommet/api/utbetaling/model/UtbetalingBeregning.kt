@@ -149,12 +149,11 @@ object UtbetalingBeregningHelpers {
             .sumOf { it }
     }
 
-    fun calculateManedsverkBelop(periode: Periode, sats: Int, antallPlasser: Int): Int =
-        calculateManedsverk(periode)
-            .multiply(BigDecimal(sats))
-            .multiply(BigDecimal(antallPlasser))
-            .setScale(0, RoundingMode.HALF_UP)
-            .intValueExact()
+    fun calculateManedsverkBelop(periode: Periode, sats: Int, antallPlasser: Int): Int = calculateManedsverk(periode)
+        .multiply(BigDecimal(sats))
+        .multiply(BigDecimal(antallPlasser))
+        .setScale(0, RoundingMode.HALF_UP)
+        .intValueExact()
 
     fun calculateUkesverk(
         deltakelse: DeltakelsePeriode,
