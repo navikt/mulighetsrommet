@@ -1,5 +1,5 @@
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -7,12 +7,13 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import {
-  AvtaleDto,
-  Opphav,
-  AvtaleStatus,
   AvbrytAvtaleAarsak,
-  ValidationError,
+  AvtaleDto,
+  AvtaleStatus,
   FieldError,
+  Opphav,
+  Rolle,
+  ValidationError,
 } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -76,7 +77,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
-      <HarSkrivetilgang ressurs="Avtale">
+      <HarTilgang rolle={Rolle.AVTALER_SKRIV}>
         <Dropdown>
           <Button size="small" variant="secondary" as={Dropdown.Toggle}>
             Handlinger
@@ -127,7 +128,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
             </Dropdown.Menu.List>
           </Dropdown.Menu>
         </Dropdown>
-      </HarSkrivetilgang>
+      </HarTilgang>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

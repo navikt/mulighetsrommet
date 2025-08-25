@@ -190,9 +190,13 @@ function Brukernavn() {
           </Bolk>
           <ReadMore header="Roller" defaultOpen>
             <ul>
-              {ansatt.roller.map(({ rolle, navn }) => (
-                <li key={rolle}>{navn}</li>
-              ))}
+              {ansatt.roller.map((dto) =>
+                typeof dto === "string" ? (
+                  <li key={dto}>{dto}</li>
+                ) : (
+                  <li key={dto.rolle}>{dto.navn}</li>
+                ),
+              )}
             </ul>
           </ReadMore>
         </Modal.Body>

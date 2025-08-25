@@ -1,8 +1,8 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { AvtaleDto, AvtaleStatus } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleStatus, Rolle } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useSetAtom } from "jotai";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 
 interface Props {
   avtale?: AvtaleDto;
@@ -31,7 +31,7 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
             alignItems: "center",
           }}
         >
-          <HarSkrivetilgang ressurs="Gjennomføring">
+          <HarTilgang rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}>
             <Lenkeknapp
               size="small"
               to={`/avtaler/${avtale.id}/gjennomforinger/skjema`}
@@ -41,7 +41,7 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
             >
               Opprett ny gjennomføring
             </Lenkeknapp>
-          </HarSkrivetilgang>
+          </HarTilgang>
         </div>
       )}
     </div>

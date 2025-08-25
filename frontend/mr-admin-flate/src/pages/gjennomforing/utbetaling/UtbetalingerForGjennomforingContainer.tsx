@@ -1,5 +1,5 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { Toggles } from "@mr/api-client-v2";
+import { Rolle, Toggles } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
@@ -7,7 +7,7 @@ import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomfo
 import { utbetalingerByGjennomforingQuery } from "./utbetalingerForGjennomforingLoader";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useParams();
@@ -30,7 +30,7 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Økonomi">
+        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
           <Dropdown>
             <Button size="small" variant="secondary" as={Dropdown.Toggle}>
               Handlinger
@@ -47,7 +47,7 @@ export function UtbetalingerForGjennomforingContainer() {
               </Dropdown.Menu.GroupedList>
             </Dropdown.Menu>
           </Dropdown>
-        </HarSkrivetilgang>
+        </HarTilgang>
       </KnapperadContainer>
       {utbetalinger.data.length > 0 ? (
         <UtbetalingTable utbetalinger={utbetalinger.data} />

@@ -15,6 +15,7 @@ import {
   Besluttelse,
   BesluttTotrinnskontrollRequest,
   FieldError,
+  Rolle,
   TilsagnAvvisningAarsak,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
@@ -38,7 +39,7 @@ import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TilsagnTable } from "../tabell/TilsagnTable";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -160,8 +161,8 @@ export function TilsagnPage() {
       <EndringshistorikkPopover>
         <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
-      <HarSkrivetilgang
-        ressurs={"Økonomi"}
+      <HarTilgang
+        rolle={Rolle.SAKSBEHANDLER_OKONOMI}
         condition={[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status)}
       >
         <ActionMenu>
@@ -211,7 +212,7 @@ export function TilsagnPage() {
               ))}
           </ActionMenu.Content>
         </ActionMenu>
-      </HarSkrivetilgang>
+      </HarTilgang>
     </HStack>
   );
 

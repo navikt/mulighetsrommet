@@ -1,6 +1,6 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
@@ -13,6 +13,7 @@ import {
   GjennomforingStatus,
   NavAnsatt,
   Opphav,
+  Rolle,
   ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -82,19 +83,19 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   return (
     <KnapperadContainer>
-      <HarSkrivetilgang
-        ressurs="Gjennomføring"
+      <HarTilgang
+        rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}
         condition={gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES}
       >
         <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
           Publiser
         </Switch>
-      </HarSkrivetilgang>
+      </HarTilgang>
 
       <EndringshistorikkPopover>
         <GjennomforingEndringshistorikk id={gjennomforing.id} />
       </EndringshistorikkPopover>
-      <HarSkrivetilgang ressurs="Gjennomføring">
+      <HarTilgang rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}>
         <Dropdown>
           <Button size="small" variant="secondary" as={Dropdown.Toggle}>
             Handlinger
@@ -144,7 +145,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
             </Dropdown.Menu.List>
           </Dropdown.Menu>
         </Dropdown>
-      </HarSkrivetilgang>
+      </HarTilgang>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

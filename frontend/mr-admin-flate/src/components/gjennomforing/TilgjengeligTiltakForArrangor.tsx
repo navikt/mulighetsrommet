@@ -2,13 +2,13 @@ import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjen
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import { FieldError, GjennomforingDto, Rolle, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
@@ -88,11 +88,11 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
 
       <TilgjengeligForArrangorInfo tilgjengeligForArrangorDato={tilgjengeligForArrangorDato} />
 
-      <HarSkrivetilgang ressurs="Gjennomføring">
+      <HarTilgang rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}>
         <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
           Endre dato
         </Button>
-      </HarSkrivetilgang>
+      </HarTilgang>
 
       <Modal
         ref={modalRef}

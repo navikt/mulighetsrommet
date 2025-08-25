@@ -1,3 +1,4 @@
+import React from "react";
 import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -11,6 +12,7 @@ import {
   DelutbetalingRequest,
   FieldError,
   OpprettDelutbetalingerRequest,
+  Rolle,
   TilsagnDto,
   TilsagnStatus,
   UtbetalingDto,
@@ -50,7 +52,7 @@ import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetal
 import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
 import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
@@ -351,21 +353,21 @@ function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: Utbetal
     case "RETURNERT":
     case "KLAR_TIL_BEHANDLING":
       return (
-        <HarSkrivetilgang ressurs={"Økonomi"}>
+        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
           <RedigerUtbetalingLinjeView
             setLinjer={setLinjer}
             tilsagn={tilsagn}
             utbetaling={utbetaling}
             linjer={linjer}
           />
-        </HarSkrivetilgang>
+        </HarTilgang>
       );
     case "TIL_ATTESTERING":
     case "OVERFORT_TIL_UTBETALING":
       return (
-        <HarSkrivetilgang ressurs={"AttestantUtbetaling"}>
+        <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
           <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
-        </HarSkrivetilgang>
+        </HarTilgang>
       );
   }
 }
