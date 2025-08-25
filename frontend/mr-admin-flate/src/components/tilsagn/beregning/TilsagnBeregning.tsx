@@ -1,5 +1,6 @@
 import {
   TilsagnBeregningDto,
+  TilsagnBeregningFastSatsPerTiltaksplassPerManed,
   TilsagnBeregningFriInputLinje,
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
@@ -26,6 +27,7 @@ export function TilsagnBeregning({ beregning, redigeringsModus }: Props) {
     case "PRIS_PER_UKESVERK":
       return <PrisPerUkesverkBeregning beregning={beregning} />;
     case "PRIS_PER_MANEDSVERK":
+    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
       return <PrisPerManedsverkBeregning beregning={beregning} />;
   }
 }
@@ -96,7 +98,7 @@ function PrisPerUkesverkBeregning({ beregning }: { beregning: TilsagnBeregningPr
 function PrisPerManedsverkBeregning({
   beregning,
 }: {
-  beregning: TilsagnBeregningPrisPerManedsverk;
+  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningFastSatsPerTiltaksplassPerManed;
 }) {
   return (
     <HStack align="center" gap="2">

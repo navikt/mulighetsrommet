@@ -8,34 +8,33 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 @Serializable
-@SerialName("PRIS_PER_MANEDSVERK")
-data class TilsagnBeregningPrisPerManedsverk(
+@SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+data class TilsagnBeregningFastSatsPerTiltaksplassPerManed(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Input(
         val periode: Periode,
         val sats: Int,
         val antallPlasser: Int,
-        val prisbetingelser: String?,
     ) : TilsagnBeregningInput()
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Output(
         override val belop: Int,
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
+        fun beregn(input: Input): TilsagnBeregningFastSatsPerTiltaksplassPerManed {
             val (periode, sats, antallPlasser) = input
 
             val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, sats, antallPlasser)
 
-            return TilsagnBeregningPrisPerManedsverk(input, Output(belop = belop))
+            return TilsagnBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop = belop))
         }
     }
 }

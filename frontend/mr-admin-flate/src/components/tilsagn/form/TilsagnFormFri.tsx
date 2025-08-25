@@ -4,7 +4,6 @@ import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
 import {
   Alert,
   Button,
-  Heading,
   HStack,
   Label,
   Spacer,
@@ -16,6 +15,8 @@ import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregn
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { InferredTilsagn } from "./TilsagnSchema";
+import { Metadata } from "@/components/detaljside/Metadata";
+import { tilsagnTekster } from "../TilsagnTekster";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -50,7 +51,10 @@ function BeregningInputSkjema() {
 
   return (
     <VStack gap="4">
-      <Heading size="small">Prismodell - Annen avtalt pris</Heading>
+      <Metadata
+        header={tilsagnTekster.prismodell.label}
+        verdi={tilsagnTekster.prismodell.sats.label("FRI")}
+      />
       {watch("beregning.prisbetingelser") && (
         <Textarea
           size="small"

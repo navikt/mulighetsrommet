@@ -41,16 +41,10 @@ export function TilsagnBeregningPreview(props: Props) {
 
   useEffect(() => {
     if (TilsagnBeregningSchema.safeParse(input).success) {
-      beregnTilsagn(
-        {
-          ...input,
-          prisbetingelser: input.prisbetingelser ?? null,
-        },
-        {
-          onSuccess,
-          onError: (error: ProblemDetail) => onValidationError(error as ValidationError),
-        },
-      );
+      beregnTilsagn(input, {
+        onSuccess,
+        onError: (error: ProblemDetail) => onValidationError(error as ValidationError),
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [beregnTilsagn, flattendDepsToString(input)]);

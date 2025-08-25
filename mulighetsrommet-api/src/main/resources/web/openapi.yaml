@@ -4690,20 +4690,53 @@ components:
       type: string
       enum:
         - FRI
+        - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
         - PRIS_PER_MANEDSVERK
         - PRIS_PER_UKESVERK
 
     TilsagnBeregningDto:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningFri"
+        - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManed"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
 
     TilsagnBeregningInput:
       oneOf:
         - $ref: "#/components/schemas/TilsagnBeregningFriInput"
+        - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManedInput"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
+
+    TilsagnBeregningFastSatsPerTiltaksplassPerManed:
+      type: object
+      properties:
+        type:
+          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        belop:
+          type: integer
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        antallManeder:
+          type: number
+        periode:
+          $ref: "#/components/schemas/Periode"
+      required: [ periode, type, belop, sats, antallPlasser, antallManeder ]
+
+    TilsagnBeregningFastSatsPerTiltaksplassPerManedInput:
+      type: object
+      properties:
+        type:
+          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+      required: [ type, periode, sats, antallPlasser ]
 
     TilsagnBeregningPrisPerManedsverk:
       type: object

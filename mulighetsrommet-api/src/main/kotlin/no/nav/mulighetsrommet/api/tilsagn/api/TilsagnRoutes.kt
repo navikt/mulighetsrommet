@@ -290,11 +290,10 @@ private fun resolveTilsagnDefaults(
         is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> {
             val periode = getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
             AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-                TilsagnBeregningPrisPerManedsverk.Input(
+                TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                     periode = periode,
                     sats = sats,
                     antallPlasser = gjennomforing.antallPlasser,
-                    prisbetingelser = null,
                 )
             } to periode
         }

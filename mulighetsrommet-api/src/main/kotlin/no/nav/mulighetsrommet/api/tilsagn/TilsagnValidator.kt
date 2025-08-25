@@ -129,6 +129,7 @@ object TilsagnValidator {
     fun validateAvtaltSats(input: TilsagnBeregningInput, avtale: AvtaleDto): Either<List<FieldError>, Unit> = either {
         return when (input) {
             is TilsagnBeregningFri.Input -> Unit.right()
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input -> validateAvtaltSats(avtale, input.periode, input.sats)
             is TilsagnBeregningPrisPerManedsverk.Input ->
                 validateAvtaltSats(avtale, input.periode, input.sats)
             is TilsagnBeregningPrisPerUkesverk.Input ->
@@ -139,6 +140,7 @@ object TilsagnValidator {
     fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregningInput> = either {
         return when (input) {
             is TilsagnBeregningFri.Input -> validateBeregningFriInput(input)
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input -> validateBeregningFastSatsPerTiltaksplassPerManedInput(input)
             is TilsagnBeregningPrisPerManedsverk.Input -> validateBeregningPrisPerManedsverkInput(input)
             is TilsagnBeregningPrisPerUkesverk.Input -> validateBeregningPrisPerUkesverkInput(input)
         }
@@ -160,6 +162,30 @@ object TilsagnValidator {
                     FieldError.of(
                         "Antall plasser kan ikke være 0",
                         TilsagnBeregningPrisPerManedsverk.Input::antallPlasser,
+                    ),
+                )
+            }
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: input.right()
+    }
+
+    private fun validateBeregningFastSatsPerTiltaksplassPerManedInput(input: TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input): Either<List<FieldError>, TilsagnBeregningInput> = either {
+        val errors = buildList {
+            if (input.periode.start.year != input.periode.getLastInclusiveDate().year) {
+                add(
+                    FieldError.of(
+                        "Tilsagnsperioden kan ikke vare utover årsskiftet",
+                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input::periode,
+                        Periode::slutt,
+                    ),
+                )
+            }
+            if (input.antallPlasser <= 0) {
+                add(
+                    FieldError.of(
+                        "Antall plasser kan ikke være 0",
+                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input::antallPlasser,
                     ),
                 )
             }

@@ -117,6 +117,13 @@ function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregning
         linjer: beregning.linjer,
         prisbetingelser: beregning.prisbetingelser,
       };
+    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
+      return {
+        type: "FAST_SATS_PER_TILTAKSPLASS_PER_MANED",
+        periode: beregning.periode,
+        sats: beregning.sats,
+        antallPlasser: beregning.antallPlasser,
+      };
     case "PRIS_PER_MANEDSVERK":
       return {
         type: "PRIS_PER_MANEDSVERK",

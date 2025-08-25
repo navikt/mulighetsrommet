@@ -89,6 +89,7 @@ class TilsagnQueries(private val session: Session) {
             "belop_beregnet" to dbo.beregning.output.belop,
             "beregning_type" to when (dbo.beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningType.FRI
+                is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
                 is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK
             }.name,
@@ -103,6 +104,14 @@ class TilsagnQueries(private val session: Session) {
             is TilsagnBeregningFri -> {
                 upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
                 upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
+            }
+
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> {
+                upsertTilsagnBeregningSats(
+                    dbo.id,
+                    dbo.beregning.input.sats,
+                    dbo.beregning.input.antallPlasser,
+                )
             }
 
             is TilsagnBeregningPrisPerManedsverk -> {
@@ -377,6 +386,19 @@ class TilsagnQueries(private val session: Session) {
     private fun getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
             TilsagnBeregningType.FRI -> getBeregningFri(id)
+
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> getBeregningSats(id) { row ->
+                TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+                    input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                        periode = row.periode("periode"),
+                        sats = row.int("sats"),
+                        antallPlasser = row.int("antall_plasser"),
+                    ),
+                    output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
+                        belop = row.int("belop_beregnet"),
+                    ),
+                )
+            }
 
             TilsagnBeregningType.PRIS_PER_MANEDSVERK -> getBeregningSats(id) { row ->
                 TilsagnBeregningPrisPerManedsverk(

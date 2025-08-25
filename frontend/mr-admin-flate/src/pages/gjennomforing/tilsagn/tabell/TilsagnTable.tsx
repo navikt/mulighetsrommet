@@ -109,8 +109,8 @@ function getAntallPlasser(tilsagn: TilsagnDto) {
   switch (tilsagn.beregning.type) {
     case "FRI":
       return null;
+    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
     case "PRIS_PER_MANEDSVERK":
-      return tilsagn.beregning.antallPlasser;
     case "PRIS_PER_UKESVERK":
       return tilsagn.beregning.antallPlasser;
   }
