@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
@@ -46,7 +47,7 @@ fun Route.brukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Data om bruker"
-                    body<BrukerService.Brukerdata>()
+                    body<Brukerdata>()
                 }
                 default {
                     description = "Problem details"

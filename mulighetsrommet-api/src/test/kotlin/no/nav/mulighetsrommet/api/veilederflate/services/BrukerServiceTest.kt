@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.oppfolging.KrrStatus
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -127,13 +128,13 @@ class BrukerServiceTest : FunSpec({
 
     test("Henter brukerdata for et gitt fnr") {
         brukerService.hentBrukerdata(fnr1, AccessType.OBO("")) shouldBe
-            BrukerService.Brukerdata(
+            Brukerdata(
                 fornavn = "Ola",
                 innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
                 fnr = fnr1,
                 manuellStatus = ManuellStatusDto(
                     erUnderManuellOppfolging = false,
-                    krrStatus = ManuellStatusDto.KrrStatus(
+                    krrStatus = KrrStatus(
                         erReservert = false,
                         kanVarsles = true,
                     ),
@@ -229,7 +230,7 @@ class BrukerServiceTest : FunSpec({
 fun mockManuellStatus(): ManuellStatusDto {
     return ManuellStatusDto(
         erUnderManuellOppfolging = false,
-        krrStatus = ManuellStatusDto.KrrStatus(
+        krrStatus = KrrStatus(
             kanVarsles = true,
             erReservert = false,
         ),
