@@ -4,13 +4,11 @@ import arrow.core.getOrElse
 import io.ktor.http.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.OppfolgingstilfelleError
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
-import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
@@ -161,13 +159,13 @@ class BrukerService(
             erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
             varsler = buildList {
                 if (erOppfolgingsenhetEnAnnenGeografiskEnhet(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
-                    add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
+                    add(BrukerdataVarsel.LOKAL_OPPFOLGINGSENHET)
                 }
 
                 if (!erUnderOppfolging) {
-                    add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
+                    add(BrukerdataVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
                 } else if (gjeldendeVedtak?.innsatsgruppe == null) {
-                    add(BrukerVarsel.BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK)
+                    add(BrukerdataVarsel.BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK)
                 }
             },
         )
@@ -191,24 +189,6 @@ class BrukerService(
                     )
                 }
             }
-    }
-
-    @Serializable
-    data class Brukerdata(
-        val fnr: NorskIdent,
-        val innsatsgruppe: Innsatsgruppe?,
-        val enheter: List<NavEnhetDto>,
-        val fornavn: String?,
-        val manuellStatus: ManuellStatusDto,
-        val erUnderOppfolging: Boolean,
-        val erSykmeldtMedArbeidsgiver: Boolean,
-        val varsler: List<BrukerVarsel>,
-    )
-
-    enum class BrukerVarsel {
-        LOKAL_OPPFOLGINGSENHET,
-        BRUKER_IKKE_UNDER_OPPFOLGING,
-        BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK,
     }
 }
 
