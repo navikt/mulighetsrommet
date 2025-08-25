@@ -19,12 +19,5 @@ export function HarTilgang({ rolle, children, condition }: Props) {
 }
 
 function harRolle(ansatt: NavAnsatt, rolle: Rolle) {
-  return ansatt.roller.some((dto) => {
-    // TODO: denne sjekken er lagt til for bakoverkompatibilitet. Skal fjernes snart..
-    if (typeof dto === "string") {
-      return dto === rolle;
-    }
-
-    return dto.rolle === rolle;
-  });
+  return ansatt.roller.some((dto) => dto.rolle === rolle);
 }
