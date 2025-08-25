@@ -1,4 +1,3 @@
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
@@ -16,7 +15,6 @@ import {
   Besluttelse,
   BesluttTotrinnskontrollRequest,
   FieldError,
-  Rolle,
   TilsagnAvvisningAarsak,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
@@ -40,20 +38,19 @@ import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TilsagnTable } from "../tabell/TilsagnTable";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: tilsagnDetaljer } = useApiSuspenseQuery(tilsagnQuery(tilsagnId));
-  const { data: ansatt } = useHentAnsatt();
   const { data: historikk } = useApiSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
   const { data: aktiveTilsagn } = useApiSuspenseQuery({
     ...aktiveTilsagnQuery(gjennomforingId),
   });
 
   return {
-    ansatt,
     gjennomforing,
     historikk,
     ...tilsagnDetaljer,
@@ -72,16 +69,8 @@ const tilAnnuleringAarsaker = [
 }));
 
 export function TilsagnPage() {
-  const {
-    ansatt,
-    gjennomforing,
-    tilsagn,
-    opprettelse,
-    annullering,
-    tilOppgjor,
-    historikk,
-    aktiveTilsagn,
-  } = useTilsagnDetaljer();
+  const { gjennomforing, tilsagn, opprettelse, annullering, tilOppgjor, historikk, aktiveTilsagn } =
+    useTilsagnDetaljer();
 
   const besluttMutation = useBesluttTilsagn();
   const tilAnnulleringMutation = useTilsagnTilAnnullering();
@@ -166,16 +155,15 @@ export function TilsagnPage() {
     slettMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilbake });
   }
 
-  const visHandlingerMeny =
-    ansatt.roller.includes(Rolle.SAKSBEHANDLER_OKONOMI) &&
-    [TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status);
-
   const handlingsMeny = (
     <HStack gap="2" justify={"end"}>
       <EndringshistorikkPopover>
         <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
-      {visHandlingerMeny ? (
+      <HarSkrivetilgang
+        ressurs={"Økonomi"}
+        condition={[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status)}
+      >
         <ActionMenu>
           <ActionMenu.Trigger>
             <Button variant="secondary" size="small">
@@ -223,7 +211,7 @@ export function TilsagnPage() {
               ))}
           </ActionMenu.Content>
         </ActionMenu>
-      ) : null}
+      </HarSkrivetilgang>
     </HStack>
   );
 

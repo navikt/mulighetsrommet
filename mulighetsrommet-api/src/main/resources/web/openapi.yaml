@@ -3277,7 +3277,7 @@ components:
         roller:
           type: array
           items:
-            $ref: "#/components/schemas/Rolle"
+            $ref: "#/components/schemas/NavAnsattRolleDto"
         skalSlettesDato:
           type: [string, "null"]
           format: date
@@ -3291,6 +3291,17 @@ components:
         - epost
         - roller
         - skalSlettesDato
+
+    NavAnsattRolleDto:
+      type: object
+      properties:
+        rolle:
+          $ref: "#/components/schemas/Rolle"
+        navn:
+          type: string
+      required:
+        - rolle
+        - navn
 
     Rolle:
       type: string

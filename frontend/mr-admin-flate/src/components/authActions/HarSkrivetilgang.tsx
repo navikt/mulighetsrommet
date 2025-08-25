@@ -4,7 +4,7 @@ import { NavAnsatt, Rolle } from "@mr/api-client-v2";
 
 interface Props {
   children: ReactNode;
-  ressurs: "Avtale" | "Gjennomføring" | "Økonomi";
+  ressurs: "Avtale" | "Gjennomføring" | "Økonomi" | "AttestantUtbetaling";
   condition?: boolean;
 }
 
@@ -19,11 +19,13 @@ export function HarSkrivetilgang({ ressurs, children, condition }: Props) {
     return children;
   } else if (ressurs === "Økonomi" && harRolle(ansatt, Rolle.SAKSBEHANDLER_OKONOMI)) {
     return children;
+  } else if (ressurs === "AttestantUtbetaling" && harRolle(ansatt, Rolle.ATTESTANT_UTBETALING)) {
+    return children;
   } else {
     return null;
   }
 }
 
 function harRolle(ansatt: NavAnsatt, rolle: Rolle) {
-  return ansatt.roller.includes(rolle);
+  return ansatt.roller.some((dto) => dto.rolle === rolle);
 }

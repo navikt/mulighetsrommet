@@ -158,17 +158,17 @@ export function AdministratorHeader() {
 }
 
 function Brukernavn() {
-  const { data } = useHentAnsatt();
+  const { data: ansatt } = useHentAnsatt();
   const [open, setOpen] = useState(false);
 
-  const ansattNavn = [data.fornavn, data.etternavn].join(" ");
+  const ansattNavn = [ansatt.fornavn, ansatt.etternavn].join(" ");
 
   return (
     <>
       <InternalHeader.User
         onClick={() => setOpen(true)}
         name={ansattNavn}
-        description={data.navIdent}
+        description={ansatt.navIdent}
         className="cursor-pointer"
       />
       <Modal
@@ -184,14 +184,14 @@ function Brukernavn() {
         <Modal.Body>
           <Bolk>
             <Metadata header="Navn" verdi={ansattNavn} />
-            <Metadata header="Navident" verdi={data.navIdent} />
-            <Metadata header="Epost" verdi={data.epost || "Ikke registrert"} />
-            <Metadata header="Mobil" verdi={data.mobilnummer || "Ikke registrert"} />
+            <Metadata header="Navident" verdi={ansatt.navIdent} />
+            <Metadata header="Epost" verdi={ansatt.epost || "Ikke registrert"} />
+            <Metadata header="Mobil" verdi={ansatt.mobilnummer || "Ikke registrert"} />
           </Bolk>
           <ReadMore header="Roller" defaultOpen>
             <ul>
-              {data.roller.sort().map((rolle) => (
-                <li key={rolle}>{rolle}</li>
+              {ansatt.roller.map(({ rolle, navn }) => (
+                <li key={rolle}>{navn}</li>
               ))}
             </ul>
           </ReadMore>

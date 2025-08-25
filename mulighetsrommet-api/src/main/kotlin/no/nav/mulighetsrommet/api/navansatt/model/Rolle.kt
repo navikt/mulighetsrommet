@@ -7,13 +7,6 @@ enum class Rolle(val visningsnavn: String) {
     TEAM_MULIGHETSROMMET("Team Mulighetsrommet"),
 
     /**
-     * Indikerer Nav-ansatte som kan være kontaktperson (tiltaksansvarlig) for et tiltak.
-     *
-     * Gir ellers ingen rettigheter.
-     */
-    KONTAKTPERSON("Kontaktperson"),
-
-    /**
      * Generell tilgang til Tiltaksadministrasjon.
      *
      * Gir generell lesetilgang til en del data, men ikke til modeller som inneholder (eller kan inneholde) persondata,
@@ -50,4 +43,11 @@ enum class Rolle(val visningsnavn: String) {
      * Gir tilgang til å attestere utbetalinger.
      */
     ATTESTANT_UTBETALING("Attestant - Utbetaling"),
+
+    /**
+     * Indikerer Nav-ansatte som kan være kontaktperson (tiltaksansvarlig) for et tiltak.
+     *
+     * Gir ellers ingen rettigheter.
+     */
+    KONTAKTPERSON("Kontaktperson"),
 }
