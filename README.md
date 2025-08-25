@@ -13,26 +13,32 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 - [Gradle](https://gradle.org/) med subprojects
 - [Turborepo](https://turborepo.org/) i kombinasjon med [PNPM workspaces](https://pnpm.io/workspaces)
 
-### Tooling via asdf
+**MERK: Det er lenket til flere programmer under, men vær oppmerksom om du følger lenkene og installerer disse
+programmene. Dobbeltsjekk at lenkene er oppdaterte og troverdige før du blindt følger noen som helst
+guider (også denne) og gjør endringer på egen maskin!**
 
-Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette
-prosjektet lokalt. Dette prosjektet inkluderer en
-`asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for
-runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
+### Tooling via mise-en-place
 
-For å benytte `asdf` så må du [installere programmet](https://asdf-vm.com/guide/getting-started.html) og deretter
-plugins for hver toolchain eller verktøy du ønsker å administrere med `asdf` (du kan utelate plugins etter eget ønske
-hvis du ønsker å administrere dette manuelt i stedet):
+Om ønskelig så kan [mise](https://mise.jdx.dev/) benyttes til å installere verktøyene som trengs for å kjøre dette
+prosjektet lokalt. Dette prosjektet inkluderer en `mise` [mise.toml](https://mise.jdx.dev/configuration.html#mise-toml)
+-fil som spesifiserer versjoner for bygg- og runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og
+på NAIS.
+
+For å benytte `mise` så må du [installere programmet](https://mise.jdx.dev/getting-started.html#getting-started) og
+deretter kan du kjøre følgende kommando:
 
 ```bash
-asdf plugin-add java
-asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
-asdf plugin-add nodejs
-asdf plugin-add kubectl https://github.com/asdf-community/asdf-kubectl.git
+# Installer tooling
+mise install
+
+# Oppdater verktøy til ny versjon, f.eks.
+mise use node@24
 ```
 
-Når plugins er installert så kan du kjøre kommandoen `asdf install` i rot av prosjektet, samt for hver
-gang `.tools-versions` har endret seg.
+**MERK:** `mise` er et verktøy som gjør det enklere å administrere ting som er felles på tvers av prosjektet. Unngå å
+legge til unødvendig med verktøy i konfigurasjonen som er sjekket inn i repoet.
+Benytt heller [mise.local.toml](https://mise.jdx.dev/configuration.html#mise-toml) om du ønsker å benytte verktøyet til
+flere formål, så unngår du å dytte dine egne vaner på naboen.
 
 ### Gradle
 
@@ -158,6 +164,39 @@ Følgende endepunkter kan være kjekke for benytte under testing:
 - Get all mocks: `curl -XGET http://localhost:8090/__admin/mappings`
 - Reload mocks: `curl -I -XPOST http://localhost:8090/__admin/mappings/reset`
 
+## Databaser
+
+Flere av backend-applikasjonene har en egen PostgreSQL-database. [Flyway](https://github.com/flyway/flyway)
+benyttes til å kjøre databasemigrasjoner, stort sett DDL, men også noen repeterbare scripts for kodeverk etc.
+
+Se dokumentasjonen om [PostgreSQL på Nais](https://docs.nais.io/persistence/postgresql/) og om nais-cli
+sin [postgres command](https://docs.nais.io/operate/cli/reference/postgres/) for mer informasjon.
+
+### Personlig lese- eller skrivetilgang til databasene
+
+På generell basis skal det ikke være nødvendig med skrivetilganger til databasene i produksjon, men til tider kan det
+bli nødvendig. Du kan benytte [nais-cli](https://docs.nais.io/operate/cli/) til å gi deg selv midlertidig skrivetilgang
+på følgende måte (gitt at databasen allerede er klargjort for personlig tilkobling):
+
+```bash
+# 1a. Enten, gi deg selv (og andre brukere i gruppen cloudsqliamuser) lesetilgang til <app> sin database
+nais postgres prepare --context prod-gcp --namespace team-mulighetsrommet <app>
+
+# 1b. Alternativt, gi deg selv (og andre brukere i gruppen cloudsqliamuser) full tilgang (les, skriv, alter etc.) til <app> sin database
+nais postgres prepare --context prod-gcp --namespace team-mulighetsrommet --all-privileges <app>
+
+# 2. Gi deg selv (og andre brukere i gruppen cloudsqliamuser) personlig tilgang til <app> sin database
+nais postgres grant --context prod-gcp --namespace team-mulighetsrommet <app>
+
+# 3. Gjør det du trenger å gjøre...
+
+# 4. Fjern personlige rettigheter fra <app> sin database når du er ferdig
+nais postgres revoke --context prod-gcp --namespace team-mulighetsrommet <app>
+```
+
+**MERK:** Hvis du skaffer deg skrivetilgang er det god praksis å avslutte med å kjør `revoke` til slutt, evt. etterfulgt
+av en ny `prepare` **uten** `--all-privileges` hvis du fortsatt har behov for lesetilgang.
+
 ## Overvåking av løsninger
 
 Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
@@ -166,78 +205,6 @@ Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 - [Opentelemetry-metrikker fra frontend](https://grafana.nav.cloud.nais.io/d/k8g_nks4z/frontend-web-vitals?orgId=1&var-app=mulighetsrommet-veileder-flate&var-env=prod-gcp-loki&from=now-15m&to=now)
 - [Metrikker fra frontend](<https://logs.adeo.no/app/dashboards#/view/b9e91b00-01ba-11ed-9b1a-4723a5e7a9db?_a=(viewMode:edit)&_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:now-15m,to:now))>)
 - [Metrikker fra backend](https://grafana.nais.io/d/8W2DNq6nk/mulighetsrommet-api?orgId=1&refresh=5m&var-datasource=prod-gcp&var-duration=30m&var-team=team-mulighetsrommet&from=now-15m&to=now)
-
-## Moduler
-
-### `mulighetsrommet-veileder-flate`
-
-|                 |                                                                                                         |
-|-----------------|---------------------------------------------------------------------------------------------------------|
-| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-veileder-flate>           |
-| README          | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
-| Url (dev-miljø) | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
-
-### `@mr/api-client`
-
-Klient til frontend for å snakke med backend. Auto-generert med OpenAPI via `openapi.yaml` i `mulighetsrommet-api`.
-
-|              |                                                                                                               |
-|--------------|---------------------------------------------------------------------------------------------------------------|
-| Kildekode    | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/api-client>                                     |
-| README       | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/api-client/README.md>                           |
-| openapi.yaml | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api/src/main/resources/web/openapi.yaml> |
-
-### `mulighetsrommet-veileder-cms`
-
-Sanity Studio til forvaltning av informasjon for veiledere.
-
-|                     |                                                                                              |
-|---------------------|----------------------------------------------------------------------------------------------|
-| Kildekode           | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-cms>           |
-| README              | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-cms/README.md> |
-| Url (test-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk>                              |
-| Url (prod-datasett) | <https://mulighetsrommet-sanity-studio.intern.nav.no/production/desk>                        |
-
-### `mulighetsrommet-api`
-
-|                 |                                                                                     |
-|-----------------|-------------------------------------------------------------------------------------|
-| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api>           |
-| README          | <https://github.com/navikt/mulighetsrommet/blob/main/mulighetsrommet-api/README.md> |
-| Url (dev-miljø) | <https://mulighetsrommet-api.intern.dev.nav.no/>                                    |
-| API (internt)   | <https://mulighetsrommet-api.intern.dev.nav.no/swagger-ui/internal>                 |
-| API (eksternt)  | <https://mulighetsrommet-api.intern.dev.nav.no/swagger-ui/external>                 |
-
-### `mulighetsrommet-kafka-manager`
-
-Applikasjon som gir oversikt over kafka-topics relevante for dette prosjektet.
-
-|                 |                                                                         |
-|-----------------|-------------------------------------------------------------------------|
-| README          | <https://github.com/navikt/kafka-manager>                               |
-| Kildekode       | <https://github.com/navikt/mulighetsrommet/tree/main/iac/kafka-manager> |
-| Url (dev-miljø) | <https://mulighetsrommet-kafka-manager.intern.dev.nav.no>               |
-| Url (prod-miljø | <https://mulighetsrommet-kafka-manager.intern.nav.no>                   |
-
-### `mr-admin-flate`
-
-Administrasjonsflate for tiltak- og fagansvarlige i Nav som jobber med tiltakstyper og tiltaksgjennomføringer.
-
-|                  |                                                                                         |
-|------------------|-----------------------------------------------------------------------------------------|
-| README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mr-admin-flate/README.md> |
-| Url (dev-miljø)  | <https://tiltaksadministrasjon.intern.dev.nav.no>                                       |
-| Url (prod-miljø) | <https://tiltaksadministrasjon.intern.nav.no>                                           |
-
-### `arrangør-flate`
-
-Flate på nav.no for arrangører som skal be om utbetaling
-
-|                  |                                                                                         |
-|------------------|-----------------------------------------------------------------------------------------|
-| README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/arrangor-flate/README.md> |
-| Url (dev-miljø)  | <https://arrangor-utbetaling.intern.dev.nav.no/>                                        |
-| Url (prod-miljø) | <TBD - Ikke prodsatt per 06.09.2024>                                                    |
 
 ## Overvåking av automatiske jobber
 
@@ -249,32 +216,9 @@ Botene finner man her:
 - Dev-monitorering: https://api.slack.com/apps/A04PW7S8J94/general
 - Prod-monitorering: https://api.slack.com/apps/A04Q2NNABDZ
 
-## Rutiner i teamet
+## Datadeling på Datamarkedsplassen
 
-### Synkronisere kontaktpersoner til admin-flate
-
-Administratorer kan selv legge til kontaktpersoner fra Tiltaksadministrasjon, men hvis kontaktperson ikke allerede
-finnes og gjøres tilgjengelig i Sanity så kan kontaktperson også legges til manuelt av oss.
-
-Detrte gjøres på følgende måte:
-
-1. Naviger til [Grupper jeg eier](https://myaccount.microsoft.com/groups/groups-i-own) i Entra Id
-2. Finn frem til gruppen for kontaktpersoner i Tiltaksadministrasjon
-3. Trykk på "Medlemmer" -> Trykk "Legg til"
-4. Søk opp personen med navn -> Velg "Medlem" -> Trykk "Legg til"
-
-**TIPS:** Du kan gå til [MAAM](https://mulighetsrommet-arena-adapter-manager.intern.nav.no/) og velge mr-api (i
-toppmenyen) og så kjøre task'en `sync-navansatte`. Da skal kontaktpersoner blir synkronisert i løpet av ett minutt.
-
-**MERK:** Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse
-her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
-
-# Datadeling på Datamarkedsplassen
-
-Vi har to datasett tilgjengelig på datamarkedsplassen. Det er data om tiltakstypene vi skal migrere og data om
-tiltaksgjennomføringer.
-Datasettene finner du
-her: https://data.intern.nav.no/dataproduct/5755b188-6670-41a2-8bbc-74fba810bd9e/Data%20om%20arbeidsmarkedstiltak%20fra%20Team%20Valp
+[Se dokumentasjon](./docs/datamarkedsplassen/README.md)
 
 ## Henvendelser
 
