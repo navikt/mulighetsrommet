@@ -1,10 +1,5 @@
-import {
-  ENDRINGSMELDINGER_URL,
-  PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
-  SANITY_STUDIO_URL,
-} from "@/constants";
+import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL, SANITY_STUDIO_URL } from "@/constants";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
-import { EndringsmeldingerIkon } from "@/components/ikoner/EndringsmeldingerIkon";
 import { ForhandsvisningIkon } from "@/components/ikoner/ForhandsvisningIkon";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
@@ -46,12 +41,6 @@ const forsidekortData: ForsideKortProps[] = [
     ikon: <ForhandsvisningIkon inkluderBakgrunn aria-label="Preview" />,
     url: PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
     tekst: "Her kan du se hvordan tiltakene vises for veileder i Modia",
-  },
-  {
-    navn: "Endringsmeldinger",
-    ikon: <EndringsmeldingerIkon inkluderBakgrunn aria-label="Endringsmeldinger" />,
-    url: ENDRINGSMELDINGER_URL,
-    tekst: "Her finner du endringsmeldinger fra tiltaksarrangør",
   },
 ];
 
