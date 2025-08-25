@@ -17,7 +17,12 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import { ArrangorflateService, ArrangorflateTilsagn, FieldError, Tilskuddstype } from "api-client";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagnDto,
+  FieldError,
+  Tilskuddstype,
+} from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -27,7 +32,7 @@ import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { yyyyMMddFormatting, formaterPeriode } from "@mr/frontend-common/utils/date";
+import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 
@@ -44,7 +49,7 @@ export const meta: MetaFunction = () => {
 type LoaderData = {
   orgnr: string;
   gjennomforingId: string;
-  tilsagn: ArrangorflateTilsagn;
+  tilsagn: ArrangorflateTilsagnDto;
   periodeStart: string;
   periodeSlutt: string;
   belop: number;
@@ -88,7 +93,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw new Error("Formdata mangler");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id: tilsagnId, orgnr },
+    path: { id: tilsagnId },
     headers: await apiHeaders(request),
   });
   if (error) {
@@ -154,7 +159,7 @@ export const action: ActionFunction = async ({ request }) => {
     return { errors };
   }
 
-  const { error, data: utbetalingId } = await ArrangorflateService.opprettKravOmUtbetaling({
+  const { error, data } = await ArrangorflateService.opprettKravOmUtbetaling({
     path: { orgnr: orgnr! },
     body: {
       belop: belop!,
@@ -177,7 +182,7 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   } else {
-    return redirect(`${pathByOrgnr(orgnr!).kvittering(utbetalingId)}`, {
+    return redirect(`${pathByOrgnr(orgnr!).kvittering(data.id)}`, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },

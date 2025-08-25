@@ -20,7 +20,7 @@ import {
 import {
   ArrangorflateGjennomforing,
   ArrangorflateService,
-  ArrangorflateTilsagn,
+  ArrangorflateTilsagnDto,
   FieldError,
   TilsagnStatus,
   TilsagnType,
@@ -48,7 +48,7 @@ import { pathByOrgnr } from "~/utils/navigation";
 
 type LoaderData = {
   gjennomforinger: ArrangorflateGjennomforing[];
-  tilsagn: ArrangorflateTilsagn[];
+  tilsagn: ArrangorflateTilsagnDto[];
   orgnr: string;
   arrangor: string;
   sessionGjennomforingId?: string;

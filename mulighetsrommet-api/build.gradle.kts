@@ -23,6 +23,9 @@ tasks.register<JavaExec>("generateOpenApi") {
     args = listOf(
         "veilederflate",
         "../frontend/mulighetsrommet-veileder-flate/openapi.yaml",
+
+        "arrangorflate",
+        "../frontend/arrangor-flate/openapi.yaml",
     )
 }
 

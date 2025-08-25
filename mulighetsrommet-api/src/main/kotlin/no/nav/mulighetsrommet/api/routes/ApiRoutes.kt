@@ -4,6 +4,7 @@ import io.github.smiley4.ktoropenapi.openApi
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
+import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorFeatureToggleRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
@@ -58,6 +59,17 @@ fun Route.apiRoutes() {
             }
         }
 
+        route("/arrangorflate") {
+            route("openapi.yaml") {
+                openApi(OpenApiSpec.ARRANGORFLATE.specName)
+            }
+
+            authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
+                arrangorflateRoutes()
+                arrangorFeatureToggleRoutes()
+            }
+        }
+
         route("/v1/intern") {
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
                 featureTogglesRoute()
@@ -67,10 +79,6 @@ fun Route.apiRoutes() {
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
                     adminflateRoutes()
                 }
-            }
-
-            authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
-                arrangorflateRoutes()
             }
         }
     }

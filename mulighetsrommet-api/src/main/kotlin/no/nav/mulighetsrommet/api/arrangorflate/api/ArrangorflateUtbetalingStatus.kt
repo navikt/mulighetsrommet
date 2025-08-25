@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
-enum class ArrFlateUtbetalingStatus {
+enum class ArrangorflateUtbetalingStatus {
     KLAR_FOR_GODKJENNING,
     BEHANDLES_AV_NAV,
     UTBETALT,
@@ -17,7 +17,7 @@ enum class ArrFlateUtbetalingStatus {
             status: UtbetalingStatusType,
             delutbetalinger: List<Delutbetaling>,
             harAdvarsler: Boolean,
-        ): ArrFlateUtbetalingStatus = when (status) {
+        ): ArrangorflateUtbetalingStatus = when (status) {
             UtbetalingStatusType.GENERERT -> {
                 if (harAdvarsler) {
                     KREVER_ENDRING
@@ -38,7 +38,7 @@ enum class ArrFlateUtbetalingStatus {
             }
         }
 
-        fun toReadableName(status: ArrFlateUtbetalingStatus): String {
+        fun toReadableName(status: ArrangorflateUtbetalingStatus): String {
             return when (status) {
                 KLAR_FOR_GODKJENNING -> "Klar for godkjenning"
                 BEHANDLES_AV_NAV -> "Behandles av NAV"

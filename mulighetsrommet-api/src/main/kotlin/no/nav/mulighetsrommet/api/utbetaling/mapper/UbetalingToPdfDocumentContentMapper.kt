@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregningDeltakelse
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregningDeltakelse
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 
 object UbetalingToPdfDocumentContentMapper {
     fun toUtbetalingsdetaljerPdfContent(
-        utbetaling: ArrFlateUtbetaling,
+        utbetaling: ArrangorflateUtbetalingDto,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetalingsdetaljer",
         subject = "Utbetaling til ${utbetaling.arrangor.navn}",
@@ -28,13 +28,13 @@ object UbetalingToPdfDocumentContentMapper {
         addUtbetalingSection(utbetaling)
         addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
 
-        if (utbetaling.status == ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING || utbetaling.status == ArrFlateUtbetalingStatus.UTBETALT) {
+        if (utbetaling.status == ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING || utbetaling.status == ArrangorflateUtbetalingStatus.UTBETALT) {
             addUtbetalingsstatusSection(utbetaling)
         }
     }
 
     fun toJournalpostPdfContent(
-        utbetaling: ArrFlateUtbetaling,
+        utbetaling: ArrangorflateUtbetalingDto,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetaling",
         subject = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
@@ -49,39 +49,39 @@ object UbetalingToPdfDocumentContentMapper {
         addStengtHosArrangorSection(utbetaling.beregning)
 
         when (utbetaling.beregning) {
-            is ArrFlateBeregning.Fri -> Unit
+            is ArrangorflateBeregning.Fri -> Unit
 
-            is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
-                require(utbetaling.beregning.deltakelser.all { it is ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder })
-                val casted = utbetaling.beregning.deltakelser.map { it as ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder }
+            is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
+                require(utbetaling.beregning.deltakelser.all { it is ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder })
+                val casted = utbetaling.beregning.deltakelser.map { it as ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder }
                 addDeltakelsesmengderSection(casted)
             }
 
-            is ArrFlateBeregning.PrisPerManedsverk -> {
+            is ArrangorflateBeregning.PrisPerManedsverk -> {
                 addDeltakerperioderSection(utbetaling.beregning.deltakelser)
             }
 
-            is ArrFlateBeregning.PrisPerUkesverk -> {
+            is ArrangorflateBeregning.PrisPerUkesverk -> {
                 addDeltakerperioderSection(utbetaling.beregning.deltakelser)
             }
         }
 
         when (utbetaling.beregning) {
-            is ArrFlateBeregning.Fri -> Unit
+            is ArrangorflateBeregning.Fri -> Unit
 
-            is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> addDeltakelsesfaktorSection(
+            is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet månedsverk",
                 deltakelseFaktorColumnName = "Månedsverk",
                 deltakelser = utbetaling.beregning.deltakelser,
             )
 
-            is ArrFlateBeregning.PrisPerManedsverk -> addDeltakelsesfaktorSection(
+            is ArrangorflateBeregning.PrisPerManedsverk -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet månedsverk",
                 deltakelseFaktorColumnName = "Månedsverk",
                 deltakelser = utbetaling.beregning.deltakelser,
             )
 
-            is ArrFlateBeregning.PrisPerUkesverk -> addDeltakelsesfaktorSection(
+            is ArrangorflateBeregning.PrisPerUkesverk -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet ukesverk",
                 deltakelseFaktorColumnName = "Ukesverk",
                 deltakelser = utbetaling.beregning.deltakelser,
@@ -90,7 +90,7 @@ object UbetalingToPdfDocumentContentMapper {
     }
 }
 
-private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: ArrFlateUtbetaling) {
+private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: ArrangorflateUtbetalingDto) {
     val utbetalingHeader = when (utbetaling.type) {
         UtbetalingType.KORRIGERING -> "Korrigering"
         UtbetalingType.INVESTERING -> "Utbetaling for investering"
@@ -121,7 +121,7 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: ArrFlateU
     }
 }
 
-private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateUtbetaling) {
+private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrangorflateUtbetalingDto) {
     section("Utbetaling") {
         descriptionList {
             val start = utbetaling.periode.start.formaterDatoTilEuropeiskDatoformat()
@@ -129,9 +129,9 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateU
             entry("Utbetalingsperiode", "$start - $slutt")
 
             when (utbetaling.beregning) {
-                is ArrFlateBeregning.Fri -> Unit
+                is ArrangorflateBeregning.Fri -> Unit
 
-                is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
+                is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
                     entry(
                         "Sats",
@@ -139,7 +139,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateU
                         Format.NOK,
                     )
                 }
-                is ArrFlateBeregning.PrisPerManedsverk -> {
+                is ArrangorflateBeregning.PrisPerManedsverk -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
                     entry(
                         "Sats",
@@ -147,7 +147,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrFlateU
                         Format.NOK,
                     )
                 }
-                is ArrFlateBeregning.PrisPerUkesverk -> {
+                is ArrangorflateBeregning.PrisPerUkesverk -> {
                     entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
                     entry(
                         "Sats",
@@ -177,10 +177,10 @@ private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
     }
 }
 
-private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(utbetaling: ArrFlateUtbetaling) {
+private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(utbetaling: ArrangorflateUtbetalingDto) {
     section("Utbetalingsstatus") {
         descriptionList {
-            val status = ArrFlateUtbetalingStatus.toReadableName(utbetaling.status)
+            val status = ArrangorflateUtbetalingStatus.toReadableName(utbetaling.status)
             entry("Status", status, Format.STATUS_SUCCESS)
 
             val totaltUtbetalt = utbetaling.linjer.fold(0) { acc, linje -> acc + linje.belop }
@@ -207,13 +207,13 @@ private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(utbetaling: Ar
 }
 
 private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
-    beregning: ArrFlateBeregning,
+    beregning: ArrangorflateBeregning,
 ) {
     val stengt = when (beregning) {
-        is ArrFlateBeregning.Fri -> listOf()
-        is ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> beregning.stengt
-        is ArrFlateBeregning.PrisPerManedsverk -> beregning.stengt
-        is ArrFlateBeregning.PrisPerUkesverk -> beregning.stengt
+        is ArrangorflateBeregning.Fri -> listOf()
+        is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> beregning.stengt
+        is ArrangorflateBeregning.PrisPerManedsverk -> beregning.stengt
+        is ArrangorflateBeregning.PrisPerUkesverk -> beregning.stengt
     }
     if (stengt.isNotEmpty()) {
         section("Stengt hos arrangør") {
@@ -230,7 +230,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
-    deltakelser: List<ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder>,
+    deltakelser: List<ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -267,7 +267,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
-    deltakelser: List<ArrFlateBeregningDeltakelse>,
+    deltakelser: List<ArrangorflateBeregningDeltakelse>,
 ) {
     section("Deltakerperioder") {
         table {
@@ -299,7 +299,7 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
 private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     sectionHeader: String,
     deltakelseFaktorColumnName: String,
-    deltakelser: List<ArrFlateBeregningDeltakelse>,
+    deltakelser: List<ArrangorflateBeregningDeltakelse>,
 ) {
     section(sectionHeader) {
         table {

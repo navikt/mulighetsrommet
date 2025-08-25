@@ -1,6 +1,10 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Accordion, BodyShort, Heading, Link, VStack } from "@navikt/ds-react";
-import { ArrangorUtbetalingLinje, ArrFlateUtbetaling, ArrFlateUtbetalingStatus } from "api-client";
+import {
+  ArrangorUtbetalingLinje,
+  ArrangorflateUtbetalingDto,
+  ArrangorflateUtbetalingStatus,
+} from "api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste } from "../common/Definisjonsliste";
 import { DelUtbetalingStatusTag } from "./DelUtbetalingStatusTag";
@@ -9,13 +13,14 @@ import { useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
-  utbetaling: ArrFlateUtbetaling;
+  utbetaling: ArrangorflateUtbetalingDto;
 }
 
-const seesPaaSomUtbetalt = (status: ArrFlateUtbetalingStatus) =>
-  [ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING, ArrFlateUtbetalingStatus.UTBETALT].includes(
-    status,
-  );
+const seesPaaSomUtbetalt = (status: ArrangorflateUtbetalingStatus) =>
+  [
+    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+    ArrangorflateUtbetalingStatus.UTBETALT,
+  ].includes(status);
 
 export default function UtbetalingStatusList({ utbetaling }: Props) {
   const erUtbetalt = seesPaaSomUtbetalt(utbetaling.status);
@@ -33,7 +38,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
         ]}
       />
 
-      {erUtbetalt && utbetaling.linjer && utbetaling.linjer.length > 0 ? (
+      {erUtbetalt && utbetaling.linjer.length > 0 ? (
         <>
           <Heading size="small" level="4">
             Tilsagn som er brukt til utbetaling

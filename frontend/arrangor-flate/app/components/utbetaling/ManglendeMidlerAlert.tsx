@@ -1,9 +1,9 @@
 import { Alert, Heading } from "@navikt/ds-react";
-import { ArrangorflateTilsagn } from "api-client";
+import { ArrangorflateTilsagnDto } from "api-client";
 
 interface ManglendeMidlerAlertProps {
   belopTilUtbetaling: number;
-  tilsagn: ArrangorflateTilsagn[];
+  tilsagn: ArrangorflateTilsagnDto[];
 }
 
 export function ManglendeMidlerAlert({ belopTilUtbetaling, tilsagn }: ManglendeMidlerAlertProps) {

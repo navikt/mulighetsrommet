@@ -1958,280 +1958,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/utbetaling:
-    get:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-      operationId: getAllUtbetaling
-      responses:
-        200:
-          description: Hent utbetaling til arrangør
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrFlateUtbetalinger"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-    post:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-      operationId: opprettKravOmUtbetaling
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: "#/components/schemas/OpprettKravOmUtbetalingRequest"
-      responses:
-        200:
-          description: Opprett utbetaling
-          content:
-            text/plain:
-              schema:
-                type: string
-                format: uuid
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getAllArrangorflateTilsagn
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TilsagnStatus"
-          description: Tilsagn statuser
-        - in: query
-          name: typer
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TilsagnType"
-          description: Tilsagn typer
-      responses:
-        200:
-          description: Hent tilsagn til arrangør
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagn"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/tilsagn/{id}:
-    get:
-      tags:
-        - Arrangorflate
-      parameters:
-        - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/OrgnrParam"
-      operationId: getArrangorflateTilsagn
-      responses:
-        200:
-          description: Hent tilsagn by id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateTilsagn"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/utbetaling/{id}/tilsagn:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getArrangorflateTilsagnTilUtbetaling
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Hent tilsagn til utbetaling
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateTilsagn"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/gjennomforing:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getArrangorflateGjennomforinger
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-        - in: query
-          name: prismodeller
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Prismodell"
-          description: Prismodeller
-      responses:
-        200:
-          description: Get gjennomforinger til arrangør
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/kontonummer:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getKontonummer
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
-      responses:
-        200:
-          description: Get kontonummer til arrangør
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/utbetaling/{id}/sync-kontonummer:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: synkroniserKontonummerForUtbetaling
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Synkroniserer kontonummer for utbetaling
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/utbetaling/{id}:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      tags:
-        - Arrangorflate
-      operationId: getArrFlateUtbetaling
-      responses:
-        200:
-          description: Hent utbetaling til arrangør
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrFlateUtbetaling"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/utbetaling/{id}/godkjenn:
-    post:
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      tags:
-        - Arrangorflate
-      operationId: godkjennUtbetaling
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GodkjennUtbetaling"
-        required: true
-      responses:
-        200:
-          description: Godkjenn et utbetaling
-        400:
-          description: Respons med valideringsfeil
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationError"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/utbetaling/{id}/pdf:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getUtbetalingPdf
-      responses:
-        200:
-          description: Generer PDF for utbetaling
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/tilgang-arrangor:
-    get:
-      tags:
-        - Arrangorflate
-      operationId: getArrangorerInnloggetBrukerHarTilgangTil
-      responses:
-        200:
-          description: Henter liste over arrangører innlogget bruker har tilgang til
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Arrangor"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/arrangorflate/arrangor/{orgnr}/features:
-    parameters:
-      - in: query
-        name: feature
-        description: Navn på feature toggle
-        required: true
-        schema:
-          $ref: "#/components/schemas/Toggles"
-      - in: query
-        name: tiltakskoder
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Tiltakskode"
-      - $ref: "#/components/parameters/OrgnrParam"
-    get:
-      tags:
-        - FeatureToggleArrangor
-      operationId: getFeatureToggleArrangor
-      responses:
-        200:
-          description: Hent verdi for feature toggle
-          content:
-            application/json:
-              schema:
-                type: boolean
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/utdanninger:
     get:
       tags:
@@ -4897,7 +4623,7 @@ components:
         - pris
         - valuta
 
-    ArrFlateUtbetalingStatus:
+    ArrangorflateUtbetalingStatus:
       type: string
       enum:
         - KLAR_FOR_GODKJENNING
@@ -5029,27 +4755,27 @@ components:
         - KORRIGERING
         - INVESTERING
 
-    ArrFlateUtbetalinger:
+    ArrangorflateUtbetalinger:
       type: object
       properties:
         aktive:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+            $ref: "#/components/schemas/ArrangorflateUtbetalingKompakt"
         historiske:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateUtbetalingKompakt"
+            $ref: "#/components/schemas/ArrangorflateUtbetalingKompakt"
       required: [aktive, historiske]
 
-    ArrFlateUtbetalingKompakt:
+    ArrangorflateUtbetalingKompakt:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -5076,14 +4802,14 @@ components:
         - periode
         - belop
 
-    ArrFlateUtbetaling:
+    ArrangorflateUtbetalingDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
         status:
-          $ref: "#/components/schemas/ArrFlateUtbetalingStatus"
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
         godkjentAvArrangorTidspunkt:
           type: [string, "null"]
           format: date-time
@@ -5099,7 +4825,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/UtbetalingArrangor"
         beregning:
-          $ref: "#/components/schemas/ArrFlateBeregning"
+          $ref: "#/components/schemas/ArrangorflateBeregning"
         betalingsinformasjon:
           $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
@@ -5193,14 +4919,14 @@ components:
         - navn
         - slettet
 
-    ArrFlateBeregningDeltakelse:
+    ArrangorflateBeregningDeltakelse:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkDeltakelse"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverkDeltakelse"
 
-    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse:
+    ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse:
       type: object
       properties:
         type:
@@ -5225,7 +4951,7 @@ components:
           $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor, perioderMedDeltakelsesmengde]
 
-    ArrFlateBeregningPrisPerManedsverkDeltakelse:
+    ArrangorflateBeregningPrisPerManedsverkDeltakelse:
       type: object
       properties:
         type:
@@ -5246,7 +4972,7 @@ components:
           $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor]
 
-    ArrFlateBeregningPrisPerUkesverkDeltakelse:
+    ArrangorflateBeregningPrisPerUkesverkDeltakelse:
       type: object
       properties:
         type:
@@ -5267,15 +4993,15 @@ components:
           $ref: "#/components/schemas/ArrFlatePerson"
       required: [type, id, periode, faktor]
 
-    ArrFlateBeregning:
+    ArrangorflateBeregning:
       type: object
       oneOf:
-        - $ref: "#/components/schemas/ArrFlateBeregningFri"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverk"
-        - $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverk"
+        - $ref: "#/components/schemas/ArrangorflateBeregningFri"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
+        - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
 
-    ArrFlateBeregningFri:
+    ArrangorflateBeregningFri:
       type: object
       properties:
         type:
@@ -5286,7 +5012,7 @@ components:
           type: string
       required: [type, belop, digest, deltakelser]
 
-    ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengder:
+    ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder:
       type: object
       properties:
         type:
@@ -5298,7 +5024,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengderDeltakelse"
         stengt:
           type: array
           items:
@@ -5309,7 +5035,7 @@ components:
           type: number
       required: [type, sats, belop, digest, deltakelser, stengt, antallManedsverk]
 
-    ArrFlateBeregningPrisPerManedsverk:
+    ArrangorflateBeregningPrisPerManedsverk:
       type: object
       properties:
         type:
@@ -5321,7 +5047,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningPrisPerManedsverkDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkDeltakelse"
         stengt:
           type: array
           items:
@@ -5332,7 +5058,7 @@ components:
           type: number
       required: [type, sats, belop, digest, deltakelser, stengt, antallManedsverk]
 
-    ArrFlateBeregningPrisPerUkesverk:
+    ArrangorflateBeregningPrisPerUkesverk:
       type: object
       properties:
         type:
@@ -5344,7 +5070,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/ArrFlateBeregningPrisPerUkesverkDeltakelse"
+            $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverkDeltakelse"
         stengt:
           type: array
           items:
