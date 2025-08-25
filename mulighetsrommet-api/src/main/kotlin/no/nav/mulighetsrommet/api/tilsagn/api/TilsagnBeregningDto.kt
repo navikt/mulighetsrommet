@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.InputLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
-import java.math.RoundingMode
 
 @Serializable
 sealed class TilsagnBeregningDto {
@@ -65,8 +64,7 @@ sealed class TilsagnBeregningDto {
                     belop = beregning.output.belop,
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
-                    antallManeder = UtbetalingBeregningHelpers.calculateManedsverk(beregning.input.periode)
-                        .setScale(2, RoundingMode.HALF_UP)
+                    antallManeder = UtbetalingBeregningHelpers.calculateMonthsInPeriode(beregning.input.periode)
                         .toDouble(),
                 )
 
@@ -75,8 +73,7 @@ sealed class TilsagnBeregningDto {
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
                     prisbetingelser = beregning.input.prisbetingelser,
-                    antallManeder = UtbetalingBeregningHelpers.calculateManedsverk(beregning.input.periode)
-                        .setScale(2, RoundingMode.HALF_UP)
+                    antallManeder = UtbetalingBeregningHelpers.calculateMonthsInPeriode(beregning.input.periode)
                         .toDouble(),
                 )
 
@@ -85,8 +82,7 @@ sealed class TilsagnBeregningDto {
                     antallPlasser = beregning.input.antallPlasser,
                     sats = beregning.input.sats,
                     prisbetingelser = beregning.input.prisbetingelser,
-                    antallUker = UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
-                        .setScale(2, RoundingMode.HALF_UP)
+                    antallUker = UtbetalingBeregningHelpers.calculateWeeksInPeriode(beregning.input.periode)
                         .toDouble(),
                 )
             }
