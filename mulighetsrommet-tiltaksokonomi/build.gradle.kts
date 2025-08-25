@@ -35,7 +35,7 @@ dependencies {
     implementation(libs.shedlock.jdbc)
 
     // FTP
-    implementation("com.github.mwiede:jsch:2.27.2")
+    implementation("com.github.mwiede:jsch:2.27.3")
     testImplementation("com.github.stefanbirkner:fake-sftp-server-lambda:2.0.0")
 
     // Cache
