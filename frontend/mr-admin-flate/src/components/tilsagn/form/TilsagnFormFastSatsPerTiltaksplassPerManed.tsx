@@ -4,32 +4,28 @@ import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import {
   GjennomforingDto,
-  TilsagnBeregningPrisPerManedsverk,
-  TilsagnBeregningPrisPerUkesverk,
+  TilsagnBeregningFastSatsPerTiltaksplassPerManed,
 } from "@mr/api-client-v2";
 import { HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 
-type TilsagnPrisPerManedsverk = InferredTilsagn & {
-  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
+type TilsagnFastSats = InferredTilsagn & {
+  beregning: TilsagnBeregningFastSatsPerTiltaksplassPerManed;
 };
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<TilsagnPrisPerManedsverk>;
+  defaultValues: DeepPartial<TilsagnFastSats>;
   regioner: string[];
 }
 
-export function TilsagnFormPrisPerManedsverk(props: Props) {
+export function TilsagnFormFastSatsPerTiltaksplassPerManed(props: Props) {
   return (
     <TilsagnForm
       {...props}
@@ -44,15 +40,13 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     register,
     watch,
     setValue,
-    getValues,
     formState: { errors },
-  } = useFormContext<TilsagnPrisPerManedsverk>();
+  } = useFormContext<TilsagnFastSats>();
 
   const periodeStart = watch("periodeStart");
   const periodeSlutt = watch("periodeSlutt");
 
   const sats = useFindAvtaltSats(gjennomforing.avtaleId!, periodeStart);
-  const type = getValues("beregning.type");
 
   useEffect(() => {
     // FIXME: Satt til 0 for at validering og beregning ikke skal stoppe opp. Kan det gjøres på en bedre måte?
@@ -70,22 +64,11 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     setValue("beregning.periode.slutt", periodeSluttExclusive);
   }, [periodeSlutt, setValue]);
 
-  const prisbetingelser = watch("beregning.prisbetingelser");
-
   return (
     <VStack gap="4">
       <Metadata
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(type)}
-      />
-      <Definisjonsliste
-        columns={1}
-        definitions={[
-          {
-            key: avtaletekster.prisOgBetalingLabel,
-            value: prisbetingelser && <Fritekstfelt text={prisbetingelser} />,
-          },
-        ]}
+        verdi={tilsagnTekster.prismodell.sats.label("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")}
       />
       <HGrid columns={2}>
         <TextField
@@ -96,22 +79,24 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
           error={errors.beregning?.antallPlasser?.message}
           {...register("beregning.antallPlasser", { valueAsNumber: true })}
         />
-        <TextField
-          size="small"
-          type="number"
-          label={tilsagnTekster.pris.label}
-          style={{ width: "180px" }}
-          readOnly={true}
-          error={errors.beregning?.sats?.message}
-          {...register("beregning.sats", { valueAsNumber: true })}
-        />
+        <VStack gap="2">
+          <TextField
+            size="small"
+            type="number"
+            label={tilsagnTekster.sats.label}
+            style={{ width: "180px" }}
+            readOnly={true}
+            error={errors.beregning?.sats?.message}
+            {...register("beregning.sats", { valueAsNumber: true })}
+          />
+        </VStack>
       </HGrid>
     </VStack>
   );
 }
 
 function BeregningOutputPreview() {
-  const { watch } = useFormContext<TilsagnPrisPerManedsverk>();
+  const { watch } = useFormContext<TilsagnFastSats>();
   const values = watch("beregning");
   return <TilsagnBeregningPreview input={values} />;
 }
