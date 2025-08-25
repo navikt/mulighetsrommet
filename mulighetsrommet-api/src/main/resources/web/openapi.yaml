@@ -1920,7 +1920,6 @@ paths:
           required: true
           schema:
             $ref: "#/components/schemas/Tiltakskode"
-            type: string
       operationId: getPrismodeller
       responses:
         200:
@@ -1944,7 +1943,6 @@ paths:
           required: true
           schema:
             $ref: "#/components/schemas/Tiltakskode"
-            type: string
       operationId: getForhandsgodkjenteSatser
       responses:
         200:
@@ -4165,37 +4163,25 @@ components:
       type: object
       properties:
         gjennomforingId:
-          schema:
-            type: string
-            format: uuid
+          type: string
+          format: uuid
         type:
-          schema:
-            $ref: "#/components/schemas/TilsagnType"
+          $ref: "#/components/schemas/TilsagnType"
         prismodell:
-          schema:
-            $ref: "#/components/schemas/Prismodell"
+          oneOf:
+            - $ref: "#/components/schemas/Prismodell"
+            - type: "null"
         belop:
-          schema:
-            type: number
+          type: [number, "null"]
         kostnadssted:
-          schema:
-            type: string
+          type: [string, "null"]
         periodeStart:
-          schema:
-            type: string
-            format: date
+          type: [string, "null"]
+          format: date
         periodeSlutt:
-          schema:
-            type: string
-            format: date
-      required:
-        - gjennomforingId
-        - type
-        - prismodell
-        - belop
-        - kostnadssted
-        - periodeStart
-        - periodeSlutt
+          type: [string, "null"]
+          format: date
+      required: [gjennomforingId, type, prismodell, belop, kostnadssted, periodeStart, periodeSlutt]
 
     TilsagnDefaults:
       type: object
