@@ -16,7 +16,7 @@ import {
   ValidationError,
 } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
@@ -28,6 +28,7 @@ interface Props {
 
 export function AvtaleKnapperad({ avtale }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
@@ -93,7 +94,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   ) {
                     advarselModal.current?.showModal();
                   } else {
-                    navigate("skjema");
+                    navigate(`${location.pathname}/skjema`);
                   }
                 }}
               >
@@ -137,7 +138,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
         body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
         secondaryButton
         primaryButton={
-          <Button variant="primary" onClick={() => navigate("skjema")}>
+          <Button variant="primary" onClick={() => navigate(`${location.pathname}/skjema`)}>
             Ja, jeg vil redigere
           </Button>
         }
