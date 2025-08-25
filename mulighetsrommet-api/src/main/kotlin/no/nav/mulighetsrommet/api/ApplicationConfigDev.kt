@@ -108,6 +108,11 @@ val ApplicationConfigDev = AppConfig(
             ),
 
             EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "b78d7080-aed9-490b-bd38-2ef3a283cd1a".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_lesetilgang-økonomi",
+                rolle = Rolle.OKONOMI_LES,
+            ),
+            EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "d776c0f9-9c8a-4299-8d34-aa563925b00b".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi",
                 rolle = Rolle.SAKSBEHANDLER_OKONOMI,
