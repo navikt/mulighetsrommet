@@ -400,8 +400,8 @@ importers:
         specifier: 7.28.1
         version: 7.28.1
       '@portabletext/react':
-        specifier: 3.2.1
-        version: 3.2.1(react@19.0.0)
+        specifier: 4.0.1
+        version: 4.0.1(react@19.0.0)
       '@portabletext/types':
         specifier: 2.0.13
         version: 2.0.13
@@ -554,8 +554,8 @@ importers:
         specifier: 7.28.1
         version: 7.28.1
       '@portabletext/react':
-        specifier: 3.2.1
-        version: 3.2.1(react@19.0.0)
+        specifier: 4.0.1
+        version: 4.0.1(react@19.0.0)
       '@sanity/client':
         specifier: 7.9.0
         version: 7.9.0(debug@4.4.1)
@@ -621,8 +621,8 @@ importers:
         specifier: 7.28.1
         version: 7.28.1
       '@portabletext/react':
-        specifier: 3.2.1
-        version: 3.2.1(react@19.0.0)
+        specifier: 4.0.1
+        version: 4.0.1(react@19.0.0)
       '@tailwindcss/postcss':
         specifier: 4.1.12
         version: 4.1.12
@@ -2418,9 +2418,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.28.1':
     resolution: {integrity: sha512-E5Il6uSAs+P+lo+xNht2GITU7il1Eq2S4BO1z1VpqUDMLcoKMv4qfFw5IEmi/6sjhgR2vNfTS0WNgbyAgJ5K7A==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.28.1/b4a35695c40f4d549934c1c3f602053831127e17}
@@ -2436,9 +2433,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.8.0':
     resolution: {integrity: sha512-5CDsv3wop9eIw2YNBCJRr0w6PwwkoTiHzZQXn1+5YZnsksCkHJAFsfKSbRle6zgsD+XRBnc/TPOP0nvNly7NWg==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.8.0/fc6862d934adfbefa382220614af18160688cd1e}
@@ -2705,6 +2699,12 @@ packages:
     engines: {node: ^14.13.1 || >=16.0.0}
     peerDependencies:
       react: ^17 || ^18 || >=19.0.0-0
+
+  '@portabletext/react@4.0.1':
+    resolution: {integrity: sha512-S1MNyGQERpdU5bVUYGDWyyHkTiedwnuOHSMPgLr96yJmLKGcyHTcwPktqcgPuaCxsRUrqPVR89IYFsGW2JKn3w==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      react: ^18.2 || ^19
 
   '@portabletext/sanity-bridge@1.1.5':
     resolution: {integrity: sha512-rUsWW9ZrcPdSJD/mEiPykhrFVC/rhifKpaRuvyVVyQJDfFgX74ZyuO2pt/UlJezbm/NrozRENtAG4WaSLkSpvg==}
@@ -11054,12 +11054,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.28.1
       '@navikt/ds-tokens': 7.28.1
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -11073,7 +11072,6 @@ snapshots:
       html-react-parser: 5.2.6(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 26.1.0
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@3.8.0':
@@ -11387,6 +11385,12 @@ snapshots:
     dependencies:
       '@portabletext/toolkit': 2.0.17
       '@portabletext/types': 2.0.13
+      react: 19.0.0
+
+  '@portabletext/react@4.0.1(react@19.0.0)':
+    dependencies:
+      '@portabletext/toolkit': 3.0.0
+      '@portabletext/types': 2.0.15
       react: 19.0.0
 
   '@portabletext/sanity-bridge@1.1.5(@sanity/schema@4.5.0(@types/react@19.0.3))(@sanity/types@4.5.0(@types/react@19.0.3))':
