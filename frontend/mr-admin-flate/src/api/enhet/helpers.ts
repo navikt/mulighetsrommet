@@ -1,6 +1,4 @@
 import { ArenaNavEnhet, NavEnhetDto, NavEnhetType } from "@mr/api-client-v2";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
-import { MultiValue } from "react-select";
 
 export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;
@@ -46,14 +44,6 @@ export function getAndreUnderenheterAsSelectOptions(
   return getUnderenheterAsSelectOptionsBy(navRegioner, enheter, (enhet) =>
     andreEnheter.includes(enhet.type),
   );
-}
-
-export function velgAlleLokaleUnderenheter(
-  selectedOptions: MultiValue<SelectOption<string>>,
-  enheter: NavEnhetDto[],
-): string[] {
-  const regioner = selectedOptions.map((option) => option.value);
-  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
 export interface TypeSplittedNavEnheter {

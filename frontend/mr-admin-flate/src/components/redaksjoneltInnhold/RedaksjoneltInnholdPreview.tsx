@@ -150,7 +150,7 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
           <Metadata
             header={gjennomforingTekster.tilgjengeligIModiaLabel}
-            verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
+            verdi={<RegionOgUnderenheter kontorstruktur={kontorstruktur} />}
           />
         </Bolk>
         {kontaktpersoner.length > 0 && (
@@ -226,7 +226,7 @@ const DetaljerFane = ({
   );
 };
 
-function RegionOgLokalkontorer({ kontorstruktur }: { kontorstruktur: Kontorstruktur }) {
+function RegionOgUnderenheter({ kontorstruktur }: { kontorstruktur: Kontorstruktur }) {
   const [openRegions, setOpenRegions] = useState<string[]>([]);
 
   const toggleRegion = (enhetsnummer: string) => {

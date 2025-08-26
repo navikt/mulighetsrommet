@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.navenhet
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 // TODO: forenkle typer til å bedre represenere hvordan de benyttes i Tiltaksadministrasjon vs hvordan de er definert i NORG2
@@ -44,6 +44,13 @@ data class NavEnhetDto(
     val enhetsnummer: NavEnhetNummer,
     val type: NavEnhetType,
     val overordnetEnhet: NavEnhetNummer?,
+)
+
+fun NavEnhetDbo.toDto() = NavEnhetDto(
+    navn = this.navn,
+    enhetsnummer = this.enhetsnummer,
+    type = NavEnhetType.valueOf(this.type.name),
+    overordnetEnhet = this.overordnetEnhet,
 )
 
 @Serializable

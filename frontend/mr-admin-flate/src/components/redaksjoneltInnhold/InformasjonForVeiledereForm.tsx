@@ -12,11 +12,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import {
-  GjennomforingKontaktperson,
-  NavEnhetDto,
-  VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
+import { GjennomforingKontaktperson, VeilederflateTiltakstype } from "@mr/api-client-v2";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
@@ -30,11 +26,7 @@ import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/R
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { getLokaleUnderenheterAsSelectOptions } from "@/api/enhet/helpers";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
-import { MultiValue } from "react-select";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
@@ -319,14 +311,6 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
   );
 };
 
-function velgAlleLokaleUnderenheter(
-  selectedOptions: MultiValue<SelectOption<string>>,
-  enheter: NavEnhetDto[],
-): string[] {
-  const regioner = selectedOptions.map((option) => option.value);
-  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
-}
-
 function RegionerOgEnheterOgKontaktpersoner({
   regionerOptions,
   kontorerOptions,
@@ -340,8 +324,7 @@ function RegionerOgEnheterOgKontaktpersoner({
   kontaktpersonForm: boolean;
   lagredeKontaktpersoner: GjennomforingKontaktperson[];
 }) {
-  const { register, setValue, watch, control } = useFormContext();
-  const { data: enheter } = useNavEnheter();
+  const { register, control } = useFormContext();
 
   const {
     fields: kontaktpersonFields,
@@ -365,18 +348,6 @@ function RegionerOgEnheterOgKontaktpersoner({
           label={avtaletekster.navRegionerLabel}
           {...register("navRegioner")}
           name={"navRegioner"}
-          additionalOnChange={(selectedOptions) => {
-            if ((watch("navRegioner")?.length ?? 0) > 1) {
-              const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(selectedOptions, enheter);
-              setValue("navKontorer", alleLokaleUnderenheter as [string, ...string[]]);
-            } else {
-              const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(selectedOptions, enheter);
-              const navKontorer = watch("navKontorer")?.filter((enhet: string) =>
-                alleLokaleUnderenheter.includes(enhet),
-              );
-              setValue("navKontorer", navKontorer as [string, ...string[]]);
-            }
-          }}
           options={regionerOptions}
         />
         <ControlledMultiSelect
@@ -396,7 +367,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en (valgfritt)"
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("navAndreEnheter")}
+          {...register("navEnheterAndre")}
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (
