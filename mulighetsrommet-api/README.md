@@ -68,6 +68,20 @@ Databasemigrasjoner administreres via Flyway. Siden flyway sin gradle plugin ikk
 støtter [configuration cache](https://docs.gradle.org/current/userguide/configuration_cache.html) så er det ikke mulig å
 benytte denne lokalt.
 
+## OpenAPI
+
+Det blir generert OpenAPI-dokumentasjon via [ktor-openapi-tools](https://github.com/SMILEY4/ktor-openapi-tools), som
+igjen blir benyttet til å generere klienter for frontend-applikasjonene.
+
+Hvis du gjør endringer i modeller eller endepunkter som er eksponert via OpenAPI må du også huske å generere ny spec og
+sjekke dette inn i git. Dette kan gjøres ved å kjøre følgende kommando:
+
+```bash
+gradle generateOpenApi
+```
+
+Det er også satt opp en egen workflow i Github Actions som skal sørge for at man ikke glemmer å generere skjemaet.
+
 ## Autentisering
 
 For å kalle APIet lokalt må man være autentisert med et Bearer token. Vi
