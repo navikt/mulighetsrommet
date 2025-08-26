@@ -1,5 +1,5 @@
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
-import { Alert, BodyShort, Heading, HStack, List } from "@navikt/ds-react";
+import { MetadataFritekstfelt } from "@/components/detaljside/Metadata";
+import { Alert, BodyShort, Heading, List } from "@navikt/ds-react";
 
 type Props = {
   heading: string;
@@ -32,14 +32,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           <List.Item key={aarsak}>{aarsak}</List.Item>
         ))}
       </List>
-      {forklaring && (
-        <HStack gap="2">
-          <Heading level="5" size="xsmall">
-            {forklaringHeading}
-          </Heading>
-          <Fritekstfelt text={forklaring} ariaLabel={forklaringHeading} className="w-80" />
-        </HStack>
-      )}
+      {forklaring && <MetadataFritekstfelt header={forklaringHeading} value={forklaring} />}
     </Alert>
   );
 }
