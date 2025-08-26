@@ -7,13 +7,13 @@ import {
   TilsagnBeregningPrisPerManedsverk,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
-import { HGrid, TextField, VStack } from "@navikt/ds-react";
+import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { PrisOgBetaingsbetingelser } from "@/components/detaljside/PrisOgBetaingsbetingelser";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
   beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
@@ -43,6 +43,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     watch,
     setValue,
     getValues,
+    setError,
     formState: { errors },
   } = useFormContext<TilsagnPrisPerManedsverk>();
 
@@ -54,9 +55,13 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 
   useEffect(() => {
     // FIXME: Satt til 0 for at validering og beregning ikke skal stoppe opp. Kan det gjøres på en bedre måte?
-    const pris = sats?.pris ?? 0;
-    setValue("beregning.sats", pris);
-  }, [sats, setValue]);
+    if (sats?.pris) {
+      setValue("beregning.sats", sats.pris);
+    } else {
+      setValue("beregning.sats", 0);
+      setError("beregning.periode.start", { message: "Det finnes ingen sats for perioden" });
+    }
+  }, [sats, periodeStart, setValue, setError]);
 
   useEffect(() => {
     setValue("beregning.periode.start", periodeStart);
@@ -76,7 +81,12 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label(type)}
       />
-      <PrisOgBetaingsbetingelser prisbetingelser={prisbetingelser} lockedInput />
+      <Textarea
+        size="small"
+        label={avtaletekster.prisOgBetalingLabel}
+        value={prisbetingelser || "-"}
+        readOnly
+      />
       <HGrid columns={2}>
         <TextField
           size="small"

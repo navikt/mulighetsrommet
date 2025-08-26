@@ -16,7 +16,7 @@ import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { InferredTilsagn } from "./TilsagnSchema";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { PrisOgBetaingsbetingelser } from "@/components/detaljside/PrisOgBetaingsbetingelser";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -56,7 +56,12 @@ function BeregningInputSkjema() {
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label("FRI")}
       />
-      <PrisOgBetaingsbetingelser prisbetingelser={prisbetingelser} lockedInput />
+      <Textarea
+        size="small"
+        label={avtaletekster.prisOgBetalingLabel}
+        value={prisbetingelser || "-"}
+        readOnly
+      />
       <Label size="small">Avtalte priser</Label>
       {fields.map((item, index) => (
         <HStack
