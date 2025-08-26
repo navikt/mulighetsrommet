@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import { DeepPartial } from "react-hook-form";
+import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
 
 interface Props {
   avtale: AvtaleDto;
@@ -38,9 +39,21 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
-    case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
       return (
         <TilsagnFormPrisPerManedsverk
+          defaultValues={{
+            ...defaults,
+            beregning: {
+              ...defaults.beregning,
+              type: beregning,
+            },
+          }}
+          {...props}
+        />
+      );
+    case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
+      return (
+        <TilsagnFormFastSatsPerTiltaksplassPerManed
           defaultValues={{
             ...defaults,
             beregning: {
