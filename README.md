@@ -179,18 +179,18 @@ bli nødvendig. Du kan benytte [nais-cli](https://docs.nais.io/operate/cli/) til
 på følgende måte (gitt at databasen allerede er klargjort for personlig tilkobling):
 
 ```bash
-# 1a. Enten, gi deg selv (og andre brukere i gruppen cloudsqliamuser) lesetilgang til <app> sin database
+# 1a. Enten, gi IAM-brukere lesetilgang til <app> sin database
 nais postgres prepare --context prod-gcp --namespace team-mulighetsrommet <app>
 
-# 1b. Alternativt, gi deg selv (og andre brukere i gruppen cloudsqliamuser) full tilgang (les, skriv, alter etc.) til <app> sin database
+# 1b. Alternativt, gi IAM-brukere full tilgang (les, skriv, alter etc.) til <app> sin database
 nais postgres prepare --context prod-gcp --namespace team-mulighetsrommet --all-privileges <app>
 
-# 2. Gi deg selv (og andre brukere i gruppen cloudsqliamuser) personlig tilgang til <app> sin database
+# 2. Gi deg selv tilgang til <app> sin database, med rettighetene spesifisert fra steg 1.
 nais postgres grant --context prod-gcp --namespace team-mulighetsrommet <app>
 
 # 3. Gjør det du trenger å gjøre...
 
-# 4. Fjern personlige rettigheter fra <app> sin database når du er ferdig
+# 4. Fjern rettighetene til IAM-brukere fra <app> sin database når du er ferdig
 nais postgres revoke --context prod-gcp --namespace team-mulighetsrommet <app>
 ```
 
