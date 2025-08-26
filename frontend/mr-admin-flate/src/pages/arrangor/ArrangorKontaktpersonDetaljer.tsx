@@ -14,9 +14,9 @@ export function ArrangorKontaktpersonDetaljer({ kontaktperson }: Props) {
         {navn}
       </Label>
       <dl className="flex">
-        <Metadata header="Epost" verdi={<a href={`mailto:${epost}`}>{epost}</a>} />
-        <Metadata header="Telefon" verdi={telefon} />
-        {beskrivelse && <Metadata header="Beskrivelse" verdi={beskrivelse} />}
+        <Metadata header="Epost" value={<a href={`mailto:${epost}`}>{epost}</a>} />
+        <Metadata header="Telefon" value={telefon} />
+        {beskrivelse && <Metadata header="Beskrivelse" value={beskrivelse} />}
       </dl>
     </Box>
   );

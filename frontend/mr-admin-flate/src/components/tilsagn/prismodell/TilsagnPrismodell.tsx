@@ -48,13 +48,13 @@ function FastSatsPerTiltaksplassPerManedPrismodell({
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
+        value={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
       <MetadataHorisontal
         header={tilsagnTekster.antallPlasser.label}
-        verdi={beregning.antallPlasser}
+        value={beregning.antallPlasser}
       />
-      <MetadataHorisontal header={tilsagnTekster.sats.label} verdi={formaterNOK(beregning.sats)} />
+      <MetadataHorisontal header={tilsagnTekster.sats.label} value={formaterNOK(beregning.sats)} />
     </VStack>
   );
 }

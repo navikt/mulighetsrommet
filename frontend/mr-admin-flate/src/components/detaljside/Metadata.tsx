@@ -4,14 +4,14 @@ import { ReactNode } from "react";
 
 export interface MetadataProps {
   header: string | ReactNode;
-  verdi: string | number | undefined | null | ReactNode;
+  value: string | number | undefined | null | ReactNode;
 }
 
-export function Metadata({ header, verdi }: MetadataProps) {
+export function Metadata({ header, value }: MetadataProps) {
   return (
     <div className={`flex flex-col gap-2`}>
       <dt className="font-bold">{header}</dt>
-      <dd className="mr-6 whitespace-pre-line">{verdi ?? "-"}</dd>
+      <dd className="mr-6 whitespace-pre-line">{value ?? "-"}</dd>
     </div>
   );
 }

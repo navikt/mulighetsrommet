@@ -79,15 +79,15 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           <VStack gap="4">
             <MetadataHorisontal
               header={tilsagnTekster.beregning.belop.label}
-              verdi={formaterNOK(beregning.belop)}
+              value={formaterNOK(beregning.belop)}
             />
             <MetadataHorisontal
               header={tilsagnTekster.belopBrukt.label}
-              verdi={formaterNOK(tilsagn.belopBrukt)}
+              value={formaterNOK(tilsagn.belopBrukt)}
             />
             <MetadataHorisontal
               header={tilsagnTekster.belopGjenstaende.label}
-              verdi={formaterNOK(tilsagn.belopGjenstaende)}
+              value={formaterNOK(tilsagn.belopGjenstaende)}
             />
           </VStack>
           <Separator />

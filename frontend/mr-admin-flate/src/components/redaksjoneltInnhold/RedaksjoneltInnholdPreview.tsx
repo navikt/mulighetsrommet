@@ -150,14 +150,14 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
           <Metadata
             header={gjennomforingTekster.tilgjengeligIModiaLabel}
-            verdi={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
+            value={<RegionOgLokalkontorer kontorstruktur={kontorstruktur} />}
           />
         </Bolk>
         {kontaktpersoner.length > 0 && (
           <Bolk>
             <Metadata
               header={gjennomforingTekster.kontaktpersonNav.mainLabel}
-              verdi={
+              value={
                 <VStack gap="2">
                   {kontaktpersoner.map((kp, index) => (
                     <Kontaktperson key={index} kontaktperson={kp} />

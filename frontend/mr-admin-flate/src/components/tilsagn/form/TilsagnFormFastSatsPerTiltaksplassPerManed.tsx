@@ -68,7 +68,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     <VStack gap="4">
       <Metadata
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")}
+        value={tilsagnTekster.prismodell.sats.label("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")}
       />
       <HGrid columns={2}>
         <TextField

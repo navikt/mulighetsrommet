@@ -54,7 +54,7 @@ function BeregningInputSkjema() {
     <VStack gap="4">
       <Metadata
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label("FRI")}
+        value={tilsagnTekster.prismodell.sats.label("FRI")}
       />
       <Textarea
         size="small"

@@ -222,11 +222,11 @@ export function UtbetalingPage() {
                   <VStack gap="2">
                     <MetadataHorisontal
                       header="Kontonummer"
-                      verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                      value={utbetaling.betalingsinformasjon?.kontonummer}
                     />
                     <MetadataHorisontal
                       header="KID (valgfritt)"
-                      verdi={utbetaling.betalingsinformasjon?.kid || "-"}
+                      value={utbetaling.betalingsinformasjon?.kid || "-"}
                     />
                   </VStack>
                   {utbetaling.journalpostId ? (
@@ -237,7 +237,7 @@ export function UtbetalingPage() {
                       <VStack gap="2">
                         <MetadataHorisontal
                           header="Journalpost-ID i Gosys"
-                          verdi={
+                          value={
                             <HStack align="center">
                               <CopyButton
                                 size="small"
