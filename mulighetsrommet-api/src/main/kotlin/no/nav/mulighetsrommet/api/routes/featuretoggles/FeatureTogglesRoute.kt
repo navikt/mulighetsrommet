@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.veilederflate.routes.NavVeilederDto
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.unleash.FeatureToggle
@@ -43,6 +42,7 @@ fun Route.featureTogglesRoute() {
         }) {
             val feature: FeatureToggle by call.parameters
             val tiltakskoder = call.parameters.getAll("tiltakskoder")
+                ?.filter { it.isNotBlank() }
                 ?.map { Tiltakskode.valueOf(it) }
                 ?: emptyList()
 
