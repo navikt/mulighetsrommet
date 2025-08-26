@@ -50,17 +50,17 @@ export function GjennomforingDetaljer() {
       <TwoColumnGrid separator>
         <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
-            <Metadata header={gjennomforingTekster.tiltaksnavnLabel} verdi={gjennomforing.navn} />
+            <Metadata header={gjennomforingTekster.tiltaksnavnLabel} value={gjennomforing.navn} />
             <Metadata
               header={gjennomforingTekster.tiltaksnummerLabel}
-              verdi={tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />}
+              value={tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />}
             />
           </Bolk>
 
           <Bolk aria-label="Tiltakstype og avtaletype">
             <Metadata
               header={gjennomforingTekster.avtaleLabel}
-              verdi={
+              value={
                 avtale?.id ? (
                   <>
                     <Link to={`/avtaler/${avtale.id}`}>
@@ -78,7 +78,7 @@ export function GjennomforingDetaljer() {
                 )
               }
             />
-            <Metadata header={gjennomforingTekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
+            <Metadata header={gjennomforingTekster.tiltakstypeLabel} value={tiltakstype.navn} />
           </Bolk>
           <Separator />
           {amoKategorisering && (
@@ -91,17 +91,17 @@ export function GjennomforingDetaljer() {
           <Bolk aria-label={gjennomforingTekster.oppstartstypeLabel}>
             <Metadata
               header={gjennomforingTekster.oppstartstypeLabel}
-              verdi={oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart"}
+              value={oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart"}
             />
           </Bolk>
           <Bolk aria-label="Start- og sluttdato">
             <Metadata
               header={gjennomforingTekster.startdatoLabel}
-              verdi={formaterDato(startDato)}
+              value={formaterDato(startDato)}
             />
             <Metadata
               header={gjennomforingTekster.sluttdatoLabel}
-              verdi={sluttDato ? formaterDato(sluttDato) : "-"}
+              value={sluttDato ? formaterDato(sluttDato) : "-"}
             />
           </Bolk>
           {gjennomforing.stengt.length !== 0 && (
@@ -109,9 +109,9 @@ export function GjennomforingDetaljer() {
           )}
 
           <Bolk>
-            <Metadata header={gjennomforingTekster.antallPlasserLabel} verdi={antallPlasser} />
+            <Metadata header={gjennomforingTekster.antallPlasserLabel} value={antallPlasser} />
             {isKursTiltak(tiltakstype.tiltakskode) && (
-              <Metadata header={gjennomforingTekster.deltidsprosentLabel} verdi={deltidsprosent} />
+              <Metadata header={gjennomforingTekster.deltidsprosentLabel} value={deltidsprosent} />
             )}
           </Bolk>
 
@@ -119,7 +119,7 @@ export function GjennomforingDetaljer() {
           <Bolk aria-label={gjennomforingTekster.apentForPameldingLabel}>
             <Metadata
               header={gjennomforingTekster.apentForPameldingLabel}
-              verdi={apentForPamelding ? "Ja" : "Nei"}
+              value={apentForPamelding ? "Ja" : "Nei"}
             />
           </Bolk>
 
@@ -130,7 +130,7 @@ export function GjennomforingDetaljer() {
               <Bolk aria-label={gjennomforingTekster.estimertVentetidLabel}>
                 <Metadata
                   header={gjennomforingTekster.estimertVentetidLabel}
-                  verdi={formatertVentetid(
+                  value={formatertVentetid(
                     gjennomforing.estimertVentetid.verdi,
                     gjennomforing.estimertVentetid.enhet,
                   )}
@@ -143,7 +143,7 @@ export function GjennomforingDetaljer() {
           <Bolk aria-label={gjennomforingTekster.administratorerForGjennomforingenLabel}>
             <Metadata
               header={gjennomforingTekster.administratorerForGjennomforingenLabel}
-              verdi={
+              value={
                 administratorer.length ? (
                   <ul>
                     {administratorer.map((admin) => {
@@ -175,7 +175,7 @@ export function GjennomforingDetaljer() {
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
                   header={gjennomforingTekster.ansvarligEnhetFraArenaLabel}
-                  verdi={getDisplayName(arenaAnsvarligEnhet)}
+                  value={getDisplayName(arenaAnsvarligEnhet)}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
                   Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
@@ -189,7 +189,7 @@ export function GjennomforingDetaljer() {
             {avtale?.arrangor ? (
               <Metadata
                 header={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
-                verdi={
+                value={
                   <Link to={`/arrangorer/${avtale.arrangor.id}`}>
                     {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
                   </Link>
@@ -198,12 +198,12 @@ export function GjennomforingDetaljer() {
             ) : null}
             <Metadata
               header={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
-              verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
+              value={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
             />
             {arrangor.kontaktpersoner.length > 0 && (
               <Metadata
                 header={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
-                verdi={
+                value={
                   <VStack>
                     {arrangor.kontaktpersoner.map((kontaktperson) => (
                       <ArrangorKontaktpersonDetaljer
@@ -220,7 +220,7 @@ export function GjennomforingDetaljer() {
                 <Separator />
                 <Metadata
                   header={gjennomforingTekster.stedForGjennomforingLabel}
-                  verdi={stedForGjennomforing}
+                  value={stedForGjennomforing}
                 />
               </>
             )}

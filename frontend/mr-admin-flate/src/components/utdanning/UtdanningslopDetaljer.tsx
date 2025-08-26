@@ -14,13 +14,13 @@ export function UtdanningslopDetaljer({ utdanningslop }: Props) {
       <Bolk>
         <Metadata
           header={avtaletekster.utdanning.utdanningsprogram.label}
-          verdi={utdanningslop.utdanningsprogram.navn}
+          value={utdanningslop.utdanningsprogram.navn}
         />
       </Bolk>
       <Bolk>
         <Metadata
           header={avtaletekster.utdanning.laerefag.label}
-          verdi={
+          value={
             <List>
               {utdanningslop.utdanninger
                 .sort((a, b) => a.navn.localeCompare(b.navn))

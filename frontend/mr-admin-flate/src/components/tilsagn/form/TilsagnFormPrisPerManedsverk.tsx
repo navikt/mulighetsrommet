@@ -79,12 +79,12 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     <VStack gap="4">
       <Metadata
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(type)}
+        value={tilsagnTekster.prismodell.sats.label(type)}
       />
       <Textarea
         size="small"
         label={avtaletekster.prisOgBetalingLabel}
-        value={prisbetingelser || "-"}
+        value={prisbetingelser ?? ""}
         readOnly
       />
       <HGrid columns={2}>

@@ -93,7 +93,6 @@ function AvtalteSatser() {
 
   return (
     <VStack gap="4">
-      <PrisbetingelserTextArea />
       {fields.map((field, index) => (
         <HStack
           key={field.periodeStart}
@@ -156,6 +155,7 @@ function AvtalteSatser() {
       >
         Legg til ny prisperiode
       </Button>
+      <PrisbetingelserTextArea />
     </VStack>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -51,7 +51,6 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 
 function useUtbetalingPageData() {
@@ -180,44 +179,38 @@ export function UtbetalingPage() {
                   <VStack gap="2">
                     <MetadataHorisontal
                       header="Status"
-                      verdi={<UtbetalingStatusTag status={utbetaling.status} />}
+                      value={<UtbetalingStatusTag status={utbetaling.status} />}
                     />
 
                     <MetadataHorisontal
                       header="Utbetalingsperiode"
-                      verdi={formaterPeriode(utbetaling.periode)}
+                      value={formaterPeriode(utbetaling.periode)}
                     />
                     {utbetaling.type && (
                       <MetadataHorisontal
                         header="Type"
-                        verdi={<UtbetalingTypeText type={utbetaling.type} />}
+                        value={<UtbetalingTypeText type={utbetaling.type} />}
                       />
                     )}
                     <MetadataHorisontal
                       header="Dato innsendt"
-                      verdi={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
+                      value={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
                     />
-                    <MetadataHorisontal header="Innsendt av" verdi={utbetaling.innsendtAv} />
+                    <MetadataHorisontal header="Innsendt av" value={utbetaling.innsendtAv} />
                     <MetadataHorisontal
                       header={utbetalingTekster.beregning.belop.label}
-                      verdi={formaterNOK(utbetaling.belop)}
+                      value={formaterNOK(utbetaling.belop)}
                     />
                     {utbetaling.beskrivelse && (
-                      <MetadataHorisontal
+                      <MetadataFritekstfelt
                         header="Begrunnelse for utbetaling"
-                        verdi={
-                          utbetaling.beskrivelse && <Fritekstfelt text={utbetaling.beskrivelse} />
-                        }
+                        value={utbetaling.beskrivelse}
                       />
                     )}
                     {utbetaling.begrunnelseMindreBetalt && (
-                      <MetadataHorisontal
+                      <MetadataFritekstfelt
                         header="Begrunnelse for mindre utbetalt"
-                        verdi={
-                          utbetaling.begrunnelseMindreBetalt && (
-                            <Fritekstfelt text={utbetaling.begrunnelseMindreBetalt} />
-                          )
-                        }
+                        value={utbetaling.begrunnelseMindreBetalt}
                       />
                     )}
                   </VStack>
@@ -229,11 +222,11 @@ export function UtbetalingPage() {
                   <VStack gap="2">
                     <MetadataHorisontal
                       header="Kontonummer"
-                      verdi={utbetaling.betalingsinformasjon?.kontonummer}
+                      value={utbetaling.betalingsinformasjon?.kontonummer}
                     />
                     <MetadataHorisontal
                       header="KID (valgfritt)"
-                      verdi={utbetaling.betalingsinformasjon?.kid || "-"}
+                      value={utbetaling.betalingsinformasjon?.kid || "-"}
                     />
                   </VStack>
                   {utbetaling.journalpostId ? (
@@ -244,7 +237,7 @@ export function UtbetalingPage() {
                       <VStack gap="2">
                         <MetadataHorisontal
                           header="Journalpost-ID i Gosys"
-                          verdi={
+                          value={
                             <HStack align="center">
                               <CopyButton
                                 size="small"

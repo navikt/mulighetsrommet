@@ -32,9 +32,9 @@ function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
+        value={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
-      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} horizontal />
+      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} />
     </VStack>
   );
 }
@@ -48,13 +48,13 @@ function FastSatsPerTiltaksplassPerManedPrismodell({
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
+        value={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
       <MetadataHorisontal
         header={tilsagnTekster.antallPlasser.label}
-        verdi={beregning.antallPlasser}
+        value={beregning.antallPlasser}
       />
-      <MetadataHorisontal header={tilsagnTekster.sats.label} verdi={formaterNOK(beregning.sats)} />
+      <MetadataHorisontal header={tilsagnTekster.sats.label} value={formaterNOK(beregning.sats)} />
     </VStack>
   );
 }
@@ -68,14 +68,14 @@ function PrisPerManedsUkesverkPrismodell({
     <VStack gap="4">
       <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
+        value={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
       <MetadataHorisontal
         header={tilsagnTekster.antallPlasser.label}
-        verdi={beregning.antallPlasser}
+        value={beregning.antallPlasser}
       />
-      <MetadataHorisontal header={tilsagnTekster.pris.label} verdi={formaterNOK(beregning.sats)} />
-      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} horizontal />
+      <MetadataHorisontal header={tilsagnTekster.pris.label} value={formaterNOK(beregning.sats)} />
+      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} />
     </VStack>
   );
 }

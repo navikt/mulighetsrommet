@@ -36,7 +36,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
             {avtaletekster.prismodell.heading}
           </Heading>
           <VStack gap="4">
-            <Metadata header={avtaletekster.prismodell.label} verdi={beskrivelse} />
+            <Metadata header={avtaletekster.prismodell.label} value={beskrivelse} />
             {avtale.prismodell.satser.map((sats) => (
               <Box
                 key={sats.periodeStart}
@@ -46,18 +46,18 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
                 borderRadius="medium"
               >
                 <HStack gap="4">
-                  <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+                  <Metadata header={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
                   <Metadata
                     header={avtaletekster.prismodell.pris.label}
-                    verdi={formaterTall(sats.pris)}
+                    value={formaterTall(sats.pris)}
                   />
                   <Metadata
                     header={avtaletekster.prismodell.periodeStart.label}
-                    verdi={formaterDato(sats.periodeStart)}
+                    value={formaterDato(sats.periodeStart)}
                   />
                   <Metadata
                     header={avtaletekster.prismodell.periodeSlutt.label}
-                    verdi={formaterDato(sats.periodeSlutt)}
+                    value={formaterDato(sats.periodeSlutt)}
                   />
                 </HStack>
               </Box>
@@ -82,7 +82,7 @@ function AvtalteSatser({
   return (
     <Box>
       <VStack gap="4">
-        <Metadata header={avtaletekster.prismodell.label} verdi={prismodellBeskrivelse} />
+        <Metadata header={avtaletekster.prismodell.label} value={prismodellBeskrivelse} />
         {satser.map((sats) => (
           <Box
             key={sats.periodeStart}
@@ -92,18 +92,18 @@ function AvtalteSatser({
             borderRadius="medium"
           >
             <HStack gap="4" key={sats.periodeStart}>
-              <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+              <Metadata header={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
               <Metadata
                 header={avtaletekster.prismodell.sats.label}
-                verdi={formaterTall(sats.pris)}
+                value={formaterTall(sats.pris)}
               />
               <Metadata
                 header={avtaletekster.prismodell.periodeStart.label}
-                verdi={formaterDato(sats.periodeStart)}
+                value={formaterDato(sats.periodeStart)}
               />
               <Metadata
                 header={avtaletekster.prismodell.periodeSlutt.label}
-                verdi={formaterDato(sats.periodeSlutt)}
+                value={formaterDato(sats.periodeSlutt)}
               />
             </HStack>
           </Box>
@@ -129,7 +129,7 @@ export function AnnenAvtaltPrismodell({
         {avtaletekster.prismodell.heading}
       </Heading>
       <VStack gap="4">
-        <Metadata header={avtaletekster.prismodell.label} verdi={prismodellBeskrivelse} />
+        <Metadata header={avtaletekster.prismodell.label} value={prismodellBeskrivelse} />
         <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
       </VStack>
     </Box>

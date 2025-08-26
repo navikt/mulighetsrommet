@@ -19,7 +19,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
       <Bolk>
         <Metadata
           header={gjennomforingTekster.kurstypeLabel}
-          verdi={
+          value={
             amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET
               ? `${kurstypeToString(amoKategorisering.kurstype as Kurstype)} - ${bransjeToString(amoKategorisering.bransje)}`
               : kurstypeToString(amoKategorisering.kurstype as Kurstype)
@@ -32,7 +32,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
             {amoKategorisering.forerkort.length > 0 && (
               <Metadata
                 header={gjennomforingTekster.forerkortLabel}
-                verdi={
+                value={
                   <ul>
                     {amoKategorisering.forerkort.map((klasse) => (
                       <li key={klasse}>{forerkortKlasseToString(klasse)}</li>
@@ -44,7 +44,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
             {amoKategorisering.sertifiseringer.length > 0 && (
               <Metadata
                 header={gjennomforingTekster.sertifiseringerLabel}
-                verdi={
+                value={
                   <ul>
                     {amoKategorisering.sertifiseringer.map((s) => (
                       <li key={s.konseptId}>{s.label}</li>
@@ -56,7 +56,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
           </>
         )}
         {amoKategorisering.kurstype == Kurstype.NORSKOPPLAERING && amoKategorisering.norskprove && (
-          <Metadata header={gjennomforingTekster.norskproveLabel} verdi="Ja" />
+          <Metadata header={gjennomforingTekster.norskproveLabel} value="Ja" />
         )}
       </Bolk>
       <Bolk>
@@ -65,7 +65,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
           amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET) && (
           <Metadata
             header={gjennomforingTekster.innholdElementerLabel}
-            verdi={
+            value={
               <ul>
                 {amoKategorisering.innholdElementer.map((element) => (
                   <li key={element}>{innholdElementToString(element)}</li>
