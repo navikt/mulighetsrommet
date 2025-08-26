@@ -4692,6 +4692,7 @@ components:
       type: object
       oneOf:
         - $ref: "#/components/schemas/UtbetalingBeregningFri"
+        - $ref: "#/components/schemas/UtbetalingBeregningFastSatsPerTiltaksplassPerManed"
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerUkesverk"
 
@@ -4711,6 +4712,27 @@ components:
         heading:
           type: string
       required: [heading, belop, type, deltakerTableData, deltakerRegioner]
+
+    UtbetalingBeregningFastSatsPerTiltaksplassPerManed:
+      type: object
+      properties:
+        type:
+          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        belop:
+          type: integer
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        sats:
+          type: integer
+        manedsverkTotal:
+          type: number
+        heading:
+          type: string
+      required: [ heading, type, belop, sats, deltakerTableData, deltakerRegioner, manedsverkTotal ]
 
     UtbetalingBeregningPrisPerManedsverk:
       type: object

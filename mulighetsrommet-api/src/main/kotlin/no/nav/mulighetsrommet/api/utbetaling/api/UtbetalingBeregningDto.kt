@@ -29,38 +29,8 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Fast sats per tiltaksplass per måned"
 
         companion object {
-            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
-                columns = manedsverkDeltakelseColumns(),
-                rows = deltakelsePersoner.map { (deltakelse, person) ->
-                    manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
-                },
-            )
-
-            private fun manedsverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
-                listOf(
-                    DataDrivenTableDto.Column(
-                        "manedsverk",
-                        "Månedsverk",
-                        true,
-                        DataDrivenTableDto.Column.Align.RIGHT,
-                        null,
-                    ),
-                    DataDrivenTableDto.Column(
-                        "belop",
-                        "Beløp",
-                        true,
-                        DataDrivenTableDto.Column.Align.RIGHT,
-                        DataDrivenTableDto.Column.Format.NOK,
-                    ),
-                ),
-            )
-
-            private fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: PersonEnhetOgRegion?) = Fri.friDeltakelseRow(person).plus(
-                mapOf(
-                    "manedsverk" to JsonPrimitive(manedsverk),
-                    "belop" to JsonPrimitive(sats.toDouble() * manedsverk),
-                ),
-            )
+            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) =
+                PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats)
         }
     }
 

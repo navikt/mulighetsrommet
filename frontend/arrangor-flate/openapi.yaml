@@ -857,32 +857,18 @@ components:
       - NUMBER
     ArrangorflateBeregning:
       anyOf:
+      - $ref: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
       - $ref: "#/components/schemas/ArrangorflateBeregningFri"
       - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
-      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder"
       - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
       discriminator:
         propertyName: type
         mapping:
+          ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
           ArrangorflateBeregningFri: "#/components/schemas/ArrangorflateBeregningFri"
           ArrangorflateBeregningPrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
-          ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder"
           ArrangorflateBeregningPrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
-    ArrangorflateBeregningFri:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        digest:
-          type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
-      required:
-      - belop
-      - detaljer
-      - digest
-    ArrangorflateBeregningPrisPerManedsverk:
+    ArrangorflateBeregningFastSatsPerTiltaksplassPerManed:
       type: object
       properties:
         belop:
@@ -916,77 +902,16 @@ components:
       - stengt
     ArrangorflateBeregningDeltakelse:
       anyOf:
+      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed"
       - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
-      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
       - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
       discriminator:
         propertyName: type
         mapping:
+          ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed: "#/components/schemas/ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed"
           ArrangorflateBeregningDeltakelsePrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
-          ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder"
           ArrangorflateBeregningDeltakelsePrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
-    ArrangorflateBeregningDeltakelsePrisPerManedsverk:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type:
-          - "null"
-          - string
-          format: date
-        faktor:
-          type: number
-          format: double
-        periode:
-          $ref: "#/components/schemas/Periode"
-        person:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePerson"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DeltakerStatusType"
-      required:
-      - deltakerStartDato
-      - faktor
-      - id
-      - periode
-      - person
-      - status
-    ArrangorflatePerson:
-      type: object
-      properties:
-        navn:
-          type: string
-        foedselsdato:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - foedselsdato
-      - navn
-    DeltakerStatusType:
-      type: string
-      enum:
-      - AVBRUTT
-      - AVBRUTT_UTKAST
-      - DELTAR
-      - FEILREGISTRERT
-      - FULLFORT
-      - HAR_SLUTTET
-      - IKKE_AKTUELL
-      - KLADD
-      - PABEGYNT_REGISTRERING
-      - SOKT_INN
-      - UTKAST_TIL_PAMELDING
-      - VENTELISTE
-      - VENTER_PA_OPPSTART
-      - VURDERES
-    ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder:
+    ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed:
       type: object
       properties:
         id:
@@ -1033,6 +958,67 @@ components:
       required:
       - deltakelsesprosent
       - periode
+    ArrangorflatePerson:
+      type: object
+      properties:
+        navn:
+          type: string
+        foedselsdato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - foedselsdato
+      - navn
+    DeltakerStatusType:
+      type: string
+      enum:
+      - AVBRUTT
+      - AVBRUTT_UTKAST
+      - DELTAR
+      - FEILREGISTRERT
+      - FULLFORT
+      - HAR_SLUTTET
+      - IKKE_AKTUELL
+      - KLADD
+      - PABEGYNT_REGISTRERING
+      - SOKT_INN
+      - UTKAST_TIL_PAMELDING
+      - VENTELISTE
+      - VENTER_PA_OPPSTART
+      - VURDERES
+    ArrangorflateBeregningDeltakelsePrisPerManedsverk:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type:
+          - "null"
+          - string
+          format: date
+        faktor:
+          type: number
+          format: double
+        periode:
+          $ref: "#/components/schemas/Periode"
+        person:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ArrangorflatePerson"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerStatusType"
+      required:
+      - deltakerStartDato
+      - faktor
+      - id
+      - periode
+      - person
+      - status
     ArrangorflateBeregningDeltakelsePrisPerUkesverk:
       type: object
       properties:
@@ -1074,7 +1060,21 @@ components:
       required:
       - beskrivelse
       - periode
-    ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder:
+    ArrangorflateBeregningFri:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        digest:
+          type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
+      required:
+      - belop
+      - detaljer
+      - digest
+    ArrangorflateBeregningPrisPerManedsverk:
       type: object
       properties:
         belop:

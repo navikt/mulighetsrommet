@@ -65,7 +65,7 @@ interface TimelinePeriodeData {
 
 function perioder(deltakelse: ArrangorflateBeregningDeltakelse): TimelinePeriodeData[] {
   switch (deltakelse.type) {
-    case "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder": {
+    case "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed": {
       return deltakelse.perioderMedDeltakelsesmengde.map((p) => {
         const start = new Date(p.periode.start);
         const end = subDuration(new Date(p.periode.slutt), { days: 1 })!;
