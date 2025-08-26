@@ -10,9 +10,8 @@ import { Metadata } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
-import { Fritekstfelt } from "../detaljside/Fritekstfelt";
+import { PrisOgBetaingsbetingelser } from "../detaljside/PrisOgBetaingsbetingelser";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
@@ -63,18 +62,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
                 </HStack>
               </Box>
             ))}
-            <Definisjonsliste
-              columns={1}
-              headingLevel="4"
-              definitions={[
-                {
-                  key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell.prisbetingelser && (
-                    <Fritekstfelt text={avtale.prismodell.prisbetingelser} />
-                  ),
-                },
-              ]}
-            />
+            <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
           </VStack>
         </Box>
       );
@@ -142,18 +130,7 @@ export function AnnenAvtaltPrismodell({
       </Heading>
       <VStack gap="4">
         <Metadata header={avtaletekster.prismodell.label} verdi={prismodellBeskrivelse} />
-        <Definisjonsliste
-          columns={1}
-          headingLevel="4"
-          definitions={[
-            {
-              key: avtaletekster.prisOgBetalingLabel,
-              value: avtale.prismodell.prisbetingelser && (
-                <Fritekstfelt text={avtale.prismodell.prisbetingelser} />
-              ),
-            },
-          ]}
-        />
+        <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
       </VStack>
     </Box>
   );

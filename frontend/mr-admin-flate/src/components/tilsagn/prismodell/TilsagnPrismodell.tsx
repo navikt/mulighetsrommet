@@ -1,4 +1,4 @@
-import { Metadata, MetadataHorisontal } from "@/components/detaljside/Metadata";
+import { MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import {
   TilsagnBeregningDto,
@@ -9,9 +9,7 @@ import {
 } from "@mr/api-client-v2";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { VStack } from "@navikt/ds-react";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
+import { PrisOgBetaingsbetingelser } from "@/components/detaljside/PrisOgBetaingsbetingelser";
 
 interface Props {
   beregning: TilsagnBeregningDto;
@@ -32,19 +30,11 @@ export function TilsagnPrismodell({ beregning }: Props) {
 function FriPrismodell({ beregning }: { beregning: TilsagnBeregningFri }) {
   return (
     <VStack gap="4">
-      <Metadata
+      <MetadataHorisontal
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label(beregning.type)}
       />
-      <Definisjonsliste
-        columns={1}
-        definitions={[
-          {
-            key: avtaletekster.prisOgBetalingLabel,
-            value: beregning.prisbetingelser && <Fritekstfelt text={beregning.prisbetingelser} />,
-          },
-        ]}
-      />
+      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} horizontal />
     </VStack>
   );
 }
@@ -85,15 +75,7 @@ function PrisPerManedsUkesverkPrismodell({
         verdi={beregning.antallPlasser}
       />
       <MetadataHorisontal header={tilsagnTekster.pris.label} verdi={formaterNOK(beregning.sats)} />
-      <Definisjonsliste
-        columns={1}
-        definitions={[
-          {
-            key: avtaletekster.prisOgBetalingLabel,
-            value: beregning.prisbetingelser && <Fritekstfelt text={beregning.prisbetingelser} />,
-          },
-        ]}
-      />
+      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} horizontal />
     </VStack>
   );
 }

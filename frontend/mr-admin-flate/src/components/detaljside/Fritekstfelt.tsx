@@ -3,9 +3,10 @@ import { BodyLong, Box } from "@navikt/ds-react";
 interface Props {
   text: string;
   className?: string;
+  ariaLabel?: string;
 }
 
-export function Fritekstfelt({ text, className = "" }: Props) {
+export function Fritekstfelt({ text, ariaLabel, className = "" }: Props) {
   return (
     <Box
       borderColor="border-subtle"
@@ -13,8 +14,8 @@ export function Fritekstfelt({ text, className = "" }: Props) {
       borderWidth="1"
       borderRadius="medium"
       className={`h-20 overflow-y-auto resize-y ${className}`}
+      aria-label={ariaLabel}
       tabIndex={0}
-      aria-label="Prisbetingelser"
     >
       <BodyLong className="whitespace-pre-line">{text}</BodyLong>
     </Box>
