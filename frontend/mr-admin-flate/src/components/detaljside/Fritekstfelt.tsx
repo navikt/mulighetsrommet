@@ -15,6 +15,7 @@ export function Fritekstfelt({ text, ariaLabel, className = "" }: Props) {
       borderRadius="medium"
       className={`h-20 overflow-y-auto resize-y ${className}`}
       aria-label={ariaLabel}
+      tabIndex={0}
     >
       <BodyLong className="whitespace-pre-line">{text}</BodyLong>
     </Box>
