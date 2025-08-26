@@ -169,7 +169,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KREVER_ENDRING
 
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }
@@ -196,8 +196,8 @@ class ArrangorflateServiceTest : FunSpec({
         val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
 
         result.shouldNotBeNull()
-        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
         }
         result.kanViseBeregning shouldBe true

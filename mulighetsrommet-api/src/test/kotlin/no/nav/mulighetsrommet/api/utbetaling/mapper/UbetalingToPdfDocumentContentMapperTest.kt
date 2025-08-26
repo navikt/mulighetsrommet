@@ -64,7 +64,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     ),
                     status = null,
                 ),
-                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2024, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),

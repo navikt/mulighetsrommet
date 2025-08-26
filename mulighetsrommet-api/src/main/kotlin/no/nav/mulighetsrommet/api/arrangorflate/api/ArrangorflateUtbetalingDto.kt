@@ -129,7 +129,7 @@ sealed class ArrangorflateBeregningDeltakelse {
     abstract val status: DeltakerStatusType?
 
     @Serializable
-    @SerialName("ArrangorflateBeregningFastSatsPerTiltaksplassPerManed")
+    @SerialName("ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed")
     data class FastSatsPerTiltaksplassPerManed(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,

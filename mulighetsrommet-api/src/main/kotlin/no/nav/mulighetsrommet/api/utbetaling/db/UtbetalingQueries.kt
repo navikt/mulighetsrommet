@@ -463,7 +463,7 @@ class UtbetalingQueries(private val session: Session) {
         return when (beregning) {
             UtbetalingBeregningType.FRI -> getBeregningFri(id)
             UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> {
-                getBeregningPrisPerManedsverkMedDeltakelsesmengder(id)
+                getBeregningFastSatsPerTiltaksplassPerManed(id)
             }
 
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
@@ -491,11 +491,11 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningPrisPerManedsverkMedDeltakelsesmengder(id: UUID): UtbetalingBeregning {
+    private fun getBeregningFastSatsPerTiltaksplassPerManed(id: UUID): UtbetalingBeregning {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_utbetaling_beregning_manedsverk_med_deltakelsesmengder
+            from view_utbetaling_beregning_manedsverk_fast_sats_admin
             where id = ?::uuid
         """.trimIndent()
 

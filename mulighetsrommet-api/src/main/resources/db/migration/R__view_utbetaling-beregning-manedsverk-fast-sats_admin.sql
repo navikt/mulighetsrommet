@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_utbetaling_beregning_manedsverk_med_deltakelsesmengder;
+drop view if exists view_utbetaling_beregning_manedsverk_fast_sats_admin;
 
-create view view_utbetaling_beregning_manedsverk_med_deltakelsesmengder as
+create view view_utbetaling_beregning_manedsverk_fast_sats_admin as
 with stengt as (select utbetaling_id,
                        jsonb_agg(
                                jsonb_build_object(
