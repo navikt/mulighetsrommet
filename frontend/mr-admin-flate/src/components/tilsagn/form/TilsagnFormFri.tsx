@@ -59,7 +59,7 @@ function BeregningInputSkjema() {
       <Textarea
         size="small"
         label={avtaletekster.prisOgBetalingLabel}
-        value={prisbetingelser || "-"}
+        value={prisbetingelser ?? ""}
         readOnly
       />
       <Label size="small">Avtalte priser</Label>

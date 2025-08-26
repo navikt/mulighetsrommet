@@ -84,7 +84,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
       <Textarea
         size="small"
         label={avtaletekster.prisOgBetalingLabel}
-        value={prisbetingelser || "-"}
+        value={prisbetingelser ?? ""}
         readOnly
       />
       <HGrid columns={2}>
