@@ -55,6 +55,7 @@ fun Route.arrangorFeatureToggleRoutes() {
 
         val feature: FeatureToggle by call.parameters
         val tiltakskoder = call.parameters.getAll("tiltakskoder")
+            ?.filter { it.isNotBlank() }
             ?.map { Tiltakskode.valueOf(it) }
             ?: emptyList()
 
