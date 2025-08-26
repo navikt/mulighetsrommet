@@ -41,7 +41,9 @@ function Regnestykke(props: { beregning: UtbetalingBeregningDto }) {
   }
 }
 
-function FastSatsPerTiltaksplassPerManedRegnestykke(props: { beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed }) {
+function FastSatsPerTiltaksplassPerManedRegnestykke(props: {
+  beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed;
+}) {
   const { beregning } = props;
 
   return (
