@@ -135,7 +135,9 @@ class GenererUtbetalingService(
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
-            Prismodell.ANNEN_AVTALT_PRIS -> return null
+            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            Prismodell.ANNEN_AVTALT_PRIS,
+            -> return null
         }
 
         return beregning.takeIf { it.output.belop > 0 }?.let {

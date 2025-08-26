@@ -2297,6 +2297,7 @@ components:
         - $ref: "#/components/schemas/PrismodellDtoForhandsgodkjentPrisPerManedsverk"
         - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerManedsverk"
         - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerUkesverk"
+        - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerTimeOppfolgingPerDeltaker"
 
     PrismodellDtoAnnenAvtaltPris:
       type: object
@@ -2471,6 +2472,7 @@ components:
         - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
         - AVTALT_PRIS_PER_MANEDSVERK
         - AVTALT_PRIS_PER_UKESVERK
+        - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
 
     EmbeddedTiltakstype:
       type: object

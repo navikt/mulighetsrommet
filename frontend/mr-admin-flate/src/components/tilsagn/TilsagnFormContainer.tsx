@@ -96,5 +96,8 @@ function getTilsagnBeregningType(prismodell: PrismodellDto): TilsagnBeregningTyp
       return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
     case "AVTALT_PRIS_PER_UKESVERK":
       return TilsagnBeregningType.PRIS_PER_UKESVERK;
+    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
+      // TODO: tilsagn for ny prismodell
+      return TilsagnBeregningType.FRI;
   }
 }
