@@ -68,7 +68,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               />
               <MetadataHorisontal
                 header={tilsagnTekster.kommentar.label}
-                verdi={kommentar && <Fritekstfelt text={kommentar} />}
+                verdi={kommentar ? <Fritekstfelt text={kommentar} /> : "-"}
               />
             </VStack>
           </HGrid>

@@ -12,10 +12,8 @@ import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Metadata } from "@/components/detaljside/Metadata";
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
+import { PrisOgBetaingsbetingelser } from "@/components/detaljside/PrisOgBetaingsbetingelser";
 
 type TilsagnPrisPerManedsverk = InferredTilsagn & {
   beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
@@ -78,15 +76,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
         header={tilsagnTekster.prismodell.label}
         verdi={tilsagnTekster.prismodell.sats.label(type)}
       />
-      <Definisjonsliste
-        columns={1}
-        definitions={[
-          {
-            key: avtaletekster.prisOgBetalingLabel,
-            value: prisbetingelser && <Fritekstfelt text={prisbetingelser} />,
-          },
-        ]}
-      />
+      <PrisOgBetaingsbetingelser prisbetingelser={prisbetingelser} lockedInput />
       <HGrid columns={2}>
         <TextField
           size="small"

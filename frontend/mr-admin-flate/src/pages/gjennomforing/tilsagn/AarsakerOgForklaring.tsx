@@ -10,6 +10,8 @@ type Props = {
 };
 
 export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {
+  const aarsakHeading = "Årsaker:";
+  const forklaringHeading = "Forklaring:";
   return (
     <Alert size="medium" variant="warning">
       <Heading spacing size="small" level="4">
@@ -23,7 +25,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           </BodyShort>
         ))}
       <Heading level="5" size="xsmall">
-        Årsaker:
+        {aarsakHeading}
       </Heading>
       <List as="ul" size="small">
         {aarsaker.map((aarsak) => (
@@ -33,9 +35,9 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
       {forklaring && (
         <HStack gap="2">
           <Heading level="5" size="xsmall">
-            Forklaring:
+            {forklaringHeading}
           </Heading>
-          <Fritekstfelt text={forklaring} className="w-80" />
+          <Fritekstfelt text={forklaring} ariaLabel={forklaringHeading} className="w-80" />
         </HStack>
       )}
     </Alert>
