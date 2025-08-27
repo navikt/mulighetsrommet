@@ -88,128 +88,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/veilederflate/nav-enheter:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getEnheter
-      parameters:
-      - name: statuser
-        in: query
-        description: Filtrer på status
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavEnhetStatus"
-      responses:
-        "200":
-          description: Alle Nav-enheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhetDbo"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/veilederflate/nav-enheter/regioner:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getRegioner
-      parameters: []
-      responses:
-        "200":
-          description: Alle Nav-enheter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/veilederflate/nav-enheter/kostnadssted:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getKostnadssted
-      parameters:
-      - name: regioner
-        in: query
-        description: Hvilke regioner man henter for
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: array
-          items:
-            type: string
-      responses:
-        "200":
-          description: Alle kostnadssteder basert på filter
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhetDbo"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/veilederflate/nav-enheter/{enhetsnummer}/overordnet:
-    get:
-      tags:
-      - NavEnheter
-      operationId: getOverordnetEnhet
-      parameters:
-      - name: enhetsnummer
-        in: path
-        description: Enhetsnummer for Nav-enhet
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Overordnet Nav-enhet for gitt enhetsnummer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NavEnhetDbo"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/veilederflate/bruker:
     post:
       tags:
@@ -908,6 +786,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/veilederflate/nav-enheter/regioner:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getRegioner
+      parameters: []
+      responses:
+        "200":
+          description: Alle Nav-enheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavRegionDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
 components:
   schemas:
     LagretFilterType:
@@ -963,98 +865,6 @@ components:
       - status
       - title
       - type
-    NavEnhetStatus:
-      type: string
-      enum:
-      - UNDER_ETABLERING
-      - AKTIV
-      - UNDER_AVVIKLING
-      - NEDLAGT
-    NavEnhetDbo:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        status:
-          $ref: "#/components/schemas/NavEnhetStatus"
-        type:
-          $ref: "#/components/schemas/Norg2Type"
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
-      required:
-      - enhetsnummer
-      - navn
-      - overordnetEnhet
-      - status
-      - type
-    Norg2Type:
-      type: string
-      enum:
-      - KO
-      - FYLKE
-      - TILTAK
-      - AAREG
-      - ALS
-      - ARK
-      - DIR
-      - DOKSENTER
-      - EKSTERN
-      - FORVALTNING
-      - FPY
-      - HELFO
-      - HMS
-      - INNKREV
-      - INTRO
-      - IT
-      - KLAGE
-      - KONTAKT
-      - KONTROLL
-      - LOKAL
-      - OKONOMI
-      - OTENESTE
-      - OPPFUTLAND
-      - OTENESE
-      - RIKSREV
-      - ROBOT
-      - ROL
-      - TILLIT
-      - UTLAND
-      - YTA
-    NavRegionDto:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
-      required:
-      - enheter
-      - enhetsnummer
-      - navn
-    NavRegionUnderenhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        overordnetEnhet:
-          type: string
-        erStandardvalg:
-          type: boolean
-      required:
-      - enhetsnummer
-      - erStandardvalg
-      - navn
-      - overordnetEnhet
     GetBrukerRequest:
       type: object
       properties:
@@ -2288,5 +2098,36 @@ components:
             $ref: "#/components/schemas/Oppskrift"
       required:
       - data
+    NavRegionDto:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionUnderenhetDto"
+      required:
+      - enheter
+      - enhetsnummer
+      - navn
+    NavRegionUnderenhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        overordnetEnhet:
+          type: string
+        erStandardvalg:
+          type: boolean
+      required:
+      - enhetsnummer
+      - erStandardvalg
+      - navn
+      - overordnetEnhet
   examples: {}
 webhooks: {}

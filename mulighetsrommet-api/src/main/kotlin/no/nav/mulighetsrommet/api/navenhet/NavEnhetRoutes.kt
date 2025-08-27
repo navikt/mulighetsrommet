@@ -48,23 +48,6 @@ fun Route.navEnhetRoutes() {
             call.respond(enheter)
         }
 
-        get("regioner", {
-            tags = setOf("NavEnheter")
-            operationId = "getRegioner"
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Alle Nav-enheter"
-                    body<List<NavRegionDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            call.respond(navEnhetService.hentRegioner())
-        }
-
         get("kostnadssted", {
             tags = setOf("NavEnheter")
             operationId = "getKostnadssted"
