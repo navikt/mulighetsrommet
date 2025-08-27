@@ -83,7 +83,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
           <TextField
             size="small"
             type="number"
-            label={tilsagnTekster.sats.label}
+            label={tilsagnTekster.sats.label("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")}
             style={{ width: "180px" }}
             readOnly={true}
             error={errors.beregning?.sats?.message}

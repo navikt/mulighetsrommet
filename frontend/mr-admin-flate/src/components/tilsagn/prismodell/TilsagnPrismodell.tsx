@@ -5,9 +5,10 @@ import {
   TilsagnBeregningFastSatsPerTiltaksplassPerManed,
   TilsagnBeregningFri,
   TilsagnBeregningPrisPerManedsverk,
+  TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { VStack } from "@navikt/ds-react";
 import { PrisOgBetaingsbetingelser } from "@/components/detaljside/PrisOgBetaingsbetingelser";
 
@@ -24,6 +25,8 @@ export function TilsagnPrismodell({ beregning }: Props) {
     case "PRIS_PER_UKESVERK":
     case "PRIS_PER_MANEDSVERK":
       return <PrisPerManedsUkesverkPrismodell beregning={beregning} />;
+    case "PRIS_PER_TIME_OPPFOLGING":
+      return <PrisPerTimeOppfolging beregning={beregning} />;
   }
 }
 
@@ -54,7 +57,10 @@ function FastSatsPerTiltaksplassPerManedPrismodell({
         header={tilsagnTekster.antallPlasser.label}
         value={beregning.antallPlasser}
       />
-      <MetadataHorisontal header={tilsagnTekster.sats.label} value={formaterNOK(beregning.sats)} />
+      <MetadataHorisontal
+        header={tilsagnTekster.sats.label(beregning.type)}
+        value={formaterNOK(beregning.sats)}
+      />
     </VStack>
   );
 }
@@ -74,7 +80,38 @@ function PrisPerManedsUkesverkPrismodell({
         header={tilsagnTekster.antallPlasser.label}
         value={beregning.antallPlasser}
       />
-      <MetadataHorisontal header={tilsagnTekster.pris.label} value={formaterNOK(beregning.sats)} />
+      <MetadataHorisontal
+        header={tilsagnTekster.sats.label(beregning.type)}
+        value={formaterNOK(beregning.sats)}
+      />
+      <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} />
+    </VStack>
+  );
+}
+
+function PrisPerTimeOppfolging({
+  beregning,
+}: {
+  beregning: TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker;
+}) {
+  return (
+    <VStack gap="4">
+      <MetadataHorisontal
+        header={tilsagnTekster.prismodell.label}
+        value={tilsagnTekster.prismodell.sats.label(beregning.type)}
+      />
+      <MetadataHorisontal
+        header={tilsagnTekster.antallPlasser.label}
+        value={beregning.antallPlasser}
+      />
+      <MetadataHorisontal
+        header={tilsagnTekster.sats.label(beregning.type)}
+        value={formaterNOK(beregning.sats)}
+      />
+      <MetadataHorisontal
+        header={tilsagnTekster.antallTimerOppfolgingPerDeltaker.label}
+        value={formaterTall(beregning.antallTimerOppfolgingPerDeltaker)}
+      />
       <PrisOgBetaingsbetingelser prisbetingelser={beregning.prisbetingelser} />
     </VStack>
   );

@@ -3,11 +3,12 @@ import {
   TilsagnBeregningFastSatsPerTiltaksplassPerManed,
   TilsagnBeregningFriInputLinje,
   TilsagnBeregningPrisPerManedsverk,
+  TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker,
   TilsagnBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
 import { BodyShort, HStack, Table } from "@navikt/ds-react";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   beregning: TilsagnBeregningDto;
@@ -29,6 +30,8 @@ export function TilsagnBeregning({ beregning, redigeringsModus }: Props) {
     case "PRIS_PER_MANEDSVERK":
     case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
       return <PrisPerManedsverkBeregning beregning={beregning} />;
+    case "PRIS_PER_TIME_OPPFOLGING":
+      return <PrisPerTimeOppfolgingBeregning beregning={beregning} />;
   }
 }
 
@@ -105,6 +108,22 @@ function PrisPerManedsverkBeregning({
       <BodyShort>
         {beregning.antallPlasser} plasser × {formaterNOK(beregning.sats)} ×{" "}
         {beregning.antallManeder} måneder = {formaterNOK(beregning.belop)}
+      </BodyShort>
+    </HStack>
+  );
+}
+
+function PrisPerTimeOppfolgingBeregning({
+  beregning,
+}: {
+  beregning: TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker;
+}) {
+  return (
+    <HStack align="center" gap="2">
+      <BodyShort>
+        {beregning.antallPlasser} plasser × {formaterNOK(beregning.sats)} per oppfølgingstime ×{" "}
+        {formaterTall(beregning.antallTimerOppfolgingPerDeltaker)} oppfølgingstimer per deltaker ={" "}
+        {formaterNOK(beregning.belop)}
       </BodyShort>
     </HStack>
   );

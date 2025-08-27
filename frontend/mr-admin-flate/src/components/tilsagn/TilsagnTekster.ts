@@ -34,6 +34,9 @@ export const tilsagnTekster = {
   antallPlasser: {
     label: "Antall plasser",
   },
+  antallTimerOppfolgingPerDeltaker: {
+    label: "Antall oppfølgingstimer per deltaker",
+  },
   prismodell: {
     label: "Prismodell",
     sats: {
@@ -45,6 +48,8 @@ export const tilsagnTekster = {
             return "Avtalt månedspris per tiltaksplass";
           case "PRIS_PER_UKESVERK":
             return "Avtalt ukespris per tiltaksplass";
+          case "PRIS_PER_TIME_OPPFOLGING":
+            return "Avtalt pris per time oppfølging per deltaker";
           case "FRI":
             return "Annen avtalt pris";
         }
@@ -52,10 +57,18 @@ export const tilsagnTekster = {
     },
   },
   sats: {
-    label: "Sats",
-  },
-  pris: {
-    label: "Avtalt pris",
+    label: (type: TilsagnBeregningDto["type"]) => {
+      switch (type) {
+        case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
+          return "Sats";
+        case "PRIS_PER_TIME_OPPFOLGING":
+          return "Avtalt pris per oppfølgingstime";
+        case "PRIS_PER_UKESVERK":
+        case "FRI":
+        case "PRIS_PER_MANEDSVERK":
+          return "Avtalt pris";
+      }
+    },
   },
   beregning: {
     belop: {
