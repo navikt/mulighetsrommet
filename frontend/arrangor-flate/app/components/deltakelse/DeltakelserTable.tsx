@@ -8,8 +8,8 @@ import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
 import {
   ArrangorflateBeregning,
   ArrangorflateBeregningDeltakelse,
+  ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed,
   ArrangorflateBeregningDeltakelsePrisPerManedsverk,
-  ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder,
   ArrangorflateBeregningDeltakelsePrisPerUkesverk,
   DeltakerAdvarsel,
   Periode,
@@ -82,14 +82,14 @@ const baseColumns: Column<ArrangorflateBeregningDeltakelse>[] = [
 
 type DeltakerTypeMap = {
   ArrangorflateBeregningPrisPerManedsverk: ArrangorflateBeregningDeltakelsePrisPerManedsverk;
-  ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder: ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder;
+  ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed;
   ArrangorflateBeregningPrisPerUkesverk: ArrangorflateBeregningDeltakelsePrisPerUkesverk;
 };
 
 const columns: {
   [K in keyof DeltakerTypeMap]: Column<DeltakerTypeMap[K]>[];
 } = {
-  ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder: [
+  ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: [
     ...baseColumns,
     {
       label: "Deltakelsesprosent",

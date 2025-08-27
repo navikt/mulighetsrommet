@@ -26,7 +26,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     },
     kanViseBeregning: true,
     beregning: {
-      type: "ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder",
+      type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
       detaljer: {
         entries: [
           { key: "Antall månedsverk", value: "0.48", format: DetailsFormat.NUMBER },
@@ -39,7 +39,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
       digest: "b3602d2a",
       deltakelser: [
         {
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           id: "6248f41f-4029-4bce-baba-dc23cfd5a242",
           deltakerStartDato: "2025-01-17",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
@@ -103,7 +103,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     ],
     kanViseBeregning: true,
     beregning: {
-      type: "ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder",
+      type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
       detaljer: {
         entries: [
           { key: "Antall månedsverk", value: "11.58", format: DetailsFormat.NUMBER },
@@ -117,7 +117,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
       deltakelser: [
         {
           id: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           deltakerStartDato: "2024-07-15",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
@@ -129,7 +129,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         },
         {
           id: "f7284cdb-9b8f-4431-9808-b1bcc9ae7494",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           deltakerStartDato: "2024-07-16",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
@@ -142,7 +142,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "32b05c15-e666-46ad-8fae-ee7a5263fa81",
           deltakerStartDato: "2024-12-19",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -154,7 +154,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "a06a5562-78ac-4564-992c-cae22d9707f2",
           deltakerStartDato: "2024-12-19",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -166,7 +166,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "44af1d55-33f6-4198-9ebd-3f09e50e9b84",
           deltakerStartDato: "2024-08-29",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -178,7 +178,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "b78c320c-e67e-4326-ab2a-441ac5c8c63a",
           deltakerStartDato: "2024-07-08",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-01-09" }, deltakelsesprosent: 60.0 },
@@ -190,7 +190,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "7efeb453-805b-4fda-a413-e1723ff93a1b",
           deltakerStartDato: "2024-10-14",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-01-15" }, deltakelsesprosent: 80.0 },
@@ -202,7 +202,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "ec1c4596-cbd9-4fb0-8aa7-0c7b41ced5de",
           deltakerStartDato: "2024-11-08",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -214,7 +214,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "5c74c72c-52b0-49d4-8cf2-8466656f735a",
           deltakerStartDato: "2024-09-23",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 80.0 },
@@ -226,7 +226,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "9ba5eb6e-c230-4f72-8114-9f24d7652485",
           deltakerStartDato: "2024-10-01",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-01-08" }, deltakelsesprosent: 60.0 },
@@ -238,7 +238,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "4616dda7-e9ff-474e-8470-982a675b2ca5",
           deltakerStartDato: "2024-11-06",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -250,7 +250,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "bca5c636-bcc5-433f-96e8-e6f6230a11c1",
           deltakerStartDato: "2025-01-27",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-27", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -262,7 +262,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "9f72fa31-d7e4-4e97-ab6c-0f33e86fe22b",
           deltakerStartDato: "2024-10-21",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -274,7 +274,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "f40a502c-c983-4e89-b446-3679113dc50a",
           deltakerStartDato: "2024-08-19",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 77.0 },
@@ -286,7 +286,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "b08e99ff-4406-4ceb-9299-b6e9f1afaa30",
           deltakerStartDato: "2025-01-17",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-01-17", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
@@ -395,7 +395,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     },
     kanViseBeregning: true,
     beregning: {
-      type: "ArrangorflateBeregningPrisPerManedsverkMedDeltakelsesmengder",
+      type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
       detaljer: {
         entries: [
           { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
@@ -410,7 +410,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         {
           id: "2e9d8070-b74f-455b-b8ae-df7b61c871aa",
           deltakerStartDato: "2025-05-20",
-          type: "ArrangorflateBeregningDeltakelsePrisPerManedsverkMedDeltakelsesmengder",
+          type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
           periode: { start: "2025-01-01", slutt: "2025-01-31" },
           perioderMedDeltakelsesmengde: [
             { periode: { start: "2025-06-01", slutt: "2025-06-12" }, deltakelsesprosent: 100.0 },

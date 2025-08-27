@@ -1361,14 +1361,14 @@ private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRo
     )
 }
 
-private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-    input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+private fun getForhandsgodkjentBeregning(periode: Periode, belop: Int) = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
         periode = periode,
         sats = 20205,
         stengt = setOf(),
         deltakelser = setOf(),
     ),
-    output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
         belop = belop,
         deltakelser = setOf(),
     ),
