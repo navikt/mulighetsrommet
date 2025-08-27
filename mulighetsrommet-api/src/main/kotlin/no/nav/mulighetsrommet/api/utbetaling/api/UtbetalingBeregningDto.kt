@@ -29,8 +29,7 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Fast sats per tiltaksplass per måned"
 
         companion object {
-            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) =
-                PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats)
+            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats)
         }
     }
 
