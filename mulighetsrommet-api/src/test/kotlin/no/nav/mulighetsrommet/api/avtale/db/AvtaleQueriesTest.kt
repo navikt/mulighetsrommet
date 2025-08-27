@@ -100,11 +100,11 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging.copy(id = avtale2Id, avtalenummer = null))
 
                 val avtale1Avtalenummer = queries.get(avtale1Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
-                avtale1Avtalenummer.substring(0, 4).toInt() shouldBe LocalDate.now().year
+                avtale1Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeGreaterThanOrEqual 10_000
 
                 val avtale2Avtalenummer = queries.get(avtale2Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
-                avtale2Avtalenummer.substring(0, 4).toInt() shouldBe LocalDate.now().year
+                avtale2Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeLessThan avtale2Avtalenummer.substring(5).toInt()
             }
         }
@@ -155,14 +155,24 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"))
+                queries.setStatus(
+                    id,
+                    AvtaleStatus.AVBRUTT,
+                    tidspunkt,
+                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"),
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbruttAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null))
+                queries.setStatus(
+                    id,
+                    AvtaleStatus.AVBRUTT,
+                    tidspunkt,
+                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
@@ -476,8 +486,8 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should {
+                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
+                    avtale.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
                                 periodeStart = LocalDate.of(2025, 7, 1),
@@ -497,6 +507,16 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
                     it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
+                }
+
+                queries.upsert(
+                    AvtaleFixtures.oppfolging.copy(
+                        prismodell = Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                    ),
+                )
+
+                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
+                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
                 }
             }
         }

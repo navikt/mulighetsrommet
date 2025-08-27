@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
@@ -109,32 +110,22 @@ fun Route.tilsagnRoutes() {
                 ?: return@post call.respond(HttpStatusCode.NotFound)
 
             val defaults = when (request.type) {
-                TilsagnType.TILSAGN -> {
-                    val avtale = gjennomforing.avtaleId
-                        ?.let { db.session { queries.avtale.get(it) } }
-
-                    val sisteTilsagn = db.session {
-                        queries.tilsagn
-                            .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
-                            .firstOrNull()
+                TilsagnType.TILSAGN -> db.session {
+                    val avtale = gjennomforing.avtaleId?.let {
+                        queries.avtale.get(it)
                     }
+
+                    val sisteTilsagn = queries.tilsagn
+                        .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
+                        .firstOrNull()
 
                     resolveTilsagnDefaults(service.config.okonomiConfig, avtale, gjennomforing, sisteTilsagn)
                 }
 
-                TilsagnType.EKSTRATILSAGN -> {
-                    val prisbetingelser = gjennomforing.avtaleId
-                        ?.let {
-                            val prismodell = db.session { queries.avtale.get(it)?.prismodell }
-                            when (prismodell) {
-                                is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> prismodell.prisbetingelser
-                                is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
-                                is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
-                                AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
-                                null,
-                                -> null
-                            }
-                        }
+                TilsagnType.EKSTRATILSAGN -> db.session {
+                    val prisbetingelser = gjennomforing.avtaleId?.let {
+                        queries.avtale.get(it)?.prismodell?.prisbetingelser()
+                    }
 
                     resolveEkstraTilsagnDefaults(request, gjennomforing, prisbetingelser)
                 }
@@ -286,20 +277,25 @@ private fun resolveTilsagnDefaults(
         HttpStatusCode.BadRequest,
         "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
     )
-    val (beregning, periode) = when (prismodell) {
+    val periode = when (prismodell) {
+        is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk ->
+            getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+
+        else -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+    }
+
+    val beregning = when (prismodell) {
         is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> {
-            val periode = getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
             AvtalteSatser.findSats(avtale, periode)?.let { sats ->
                 TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                     periode = periode,
                     sats = sats,
                     antallPlasser = gjennomforing.antallPlasser,
                 )
-            } to periode
+            }
         }
 
         is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> {
-            val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             AvtalteSatser.findSats(avtale, periode)?.let { sats ->
                 TilsagnBeregningPrisPerManedsverk.Input(
                     periode = periode,
@@ -307,11 +303,10 @@ private fun resolveTilsagnDefaults(
                     antallPlasser = gjennomforing.antallPlasser,
                     prisbetingelser = prismodell.prisbetingelser,
                 )
-            } to periode
+            }
         }
 
         is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> {
-            val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             AvtalteSatser.findSats(avtale, periode)?.let { sats ->
                 TilsagnBeregningPrisPerUkesverk.Input(
                     periode = periode,
@@ -319,17 +314,20 @@ private fun resolveTilsagnDefaults(
                     antallPlasser = gjennomforing.antallPlasser,
                     prisbetingelser = prismodell.prisbetingelser,
                 )
-            } to periode
+            }
         }
 
         is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> {
-            val periode = getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
             TilsagnBeregningFri.Input(
                 linjer = listOf(
                     TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
                 ),
                 prisbetingelser = prismodell.prisbetingelser,
-            ) to periode
+            )
+        }
+
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> {
+            TODO("AvtaltPrisPerTimeOppfolgingPerDeltaker er enda ikke støttet")
         }
     }
 
