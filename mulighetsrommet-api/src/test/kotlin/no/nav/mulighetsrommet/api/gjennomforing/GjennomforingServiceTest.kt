@@ -20,6 +20,10 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -45,7 +49,9 @@ class GjennomforingServiceTest : FunSpec({
         navAnsattService = mockk(relaxed = true),
     )
 
-    val domain = MulighetsrommetTestDomain()
+    val domain = MulighetsrommetTestDomain(
+        navEnheter = listOf(Innlandet, Oslo, Sagene, Gjovik),
+    )
 
     beforeEach {
         domain.initialize(database.db)
@@ -108,6 +114,20 @@ class GjennomforingServiceTest : FunSpec({
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(record.value.decodeToString())
                 decoded.id shouldBe gjennomforing.id
+            }
+        }
+
+        test("navEnheter uten fylke blir filtrert vekk") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1Request
+
+            service.upsert(
+                gjennomforing.copy(navEnheter = setOf(Oslo.enhetsnummer, Sagene.enhetsnummer, Gjovik.enhetsnummer)),
+                bertilNavIdent,
+            ).shouldBeRight().should {
+                it.kontorstruktur.shouldHaveSize(1)
+                it.kontorstruktur[0].kontorer.shouldHaveSize(1)
+                it.kontorstruktur[0].kontorer[0].enhetsnummer shouldBe Sagene.enhetsnummer
+                it.kontorstruktur[0].region.enhetsnummer shouldBe Oslo.enhetsnummer
             }
         }
 

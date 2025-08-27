@@ -12,10 +12,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakskoder.isKursTiltak
 import java.time.LocalDate
 
@@ -87,29 +84,6 @@ class GjennomforingValidator(
                 }
             }
 
-            val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
-            if (avtaleRegioner.intersect(next.navEnheter).isEmpty()) {
-                add(
-                    FieldError.of(
-                        GjennomforingDbo::navEnheter,
-                        "Du må velge minst én Nav-region fra avtalen",
-                    ),
-                )
-            }
-
-            val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
-            if (avtaleNavKontorer.intersect(next.navEnheter).isEmpty()) {
-                add(
-                    FieldError.of(
-                        GjennomforingDbo::navEnheter,
-                        "Du må velge minst én Nav-enhet fra avtalen",
-                    ),
-                )
-            }
-            next.navEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
-                add(FieldError.of(GjennomforingDbo::navEnheter, "Nav-enhet $enhetsnummer mangler i avtalen"))
-            }
-
             val avtaleHasArrangor = avtale.arrangor?.underenheter?.any {
                 it.id == next.arrangorId
             } ?: false
@@ -173,6 +147,7 @@ class GjennomforingValidator(
                     }
                 }
             }
+            validateNavEnheter(next, avtale)
             validateKontaktpersoner(next)
             validateAdministratorer(next)
 
@@ -186,6 +161,34 @@ class GjennomforingValidator(
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
+    }
+
+    private fun MutableList<FieldError>.validateNavEnheter(
+        next: GjennomforingDbo,
+        avtale: AvtaleDto,
+    ) {
+        val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
+        if (avtaleRegioner.intersect(next.navEnheter).isEmpty()) {
+            add(
+                FieldError.of(
+                    GjennomforingDbo::navEnheter,
+                    "Du må velge minst én Nav-region fra avtalen",
+                ),
+            )
+        }
+
+        val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
+        if (avtaleNavKontorer.intersect(next.navEnheter).isEmpty()) {
+            add(
+                FieldError.of(
+                    GjennomforingDbo::navEnheter,
+                    "Du må velge minst én Nav-enhet fra avtalen",
+                ),
+            )
+        }
+        next.navEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
+            add(FieldError.of(GjennomforingDbo::navEnheter, "Nav-enhet $enhetsnummer mangler i avtalen"))
+        }
     }
 
     private fun MutableList<FieldError>.validateKontaktpersoner(

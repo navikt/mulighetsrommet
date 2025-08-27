@@ -5,7 +5,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -41,11 +40,11 @@ class NavEnhetService(
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDto> = db.session {
-        val typer = filter.typer?.map { toNorg2Type(it) }
+        val typer = filter.typer?.map { Norg2Type.valueOf(it.name) }
 
         queries.enhet
             .getAll(filter.statuser, typer, filter.overordnetEnhet)
-            .map { toNavEnhetDto(it) }
+            .map { it.toDto() }
     }
 
     fun hentRegioner(): List<NavRegionDto> {
@@ -61,21 +60,12 @@ class NavEnhetService(
     }
 
     fun hentKostnadssted(regioner: List<NavEnhetNummer>): List<NavEnhetDto> = db.session {
-        queries.enhet.getKostnadssted(regioner).map { toNavEnhetDto(it) }
+        queries.enhet.getKostnadssted(regioner).map { it.toDto() }
     }
 
     private fun QueryContext.getNavEnhetDto(enhetsnummer: NavEnhetNummer): NavEnhetDto? {
-        return queries.enhet.get(enhetsnummer)?.let { toNavEnhetDto(it) }
+        return queries.enhet.get(enhetsnummer)?.toDto()
     }
 }
-
-private fun toNavEnhetDto(dbo: NavEnhetDbo) = NavEnhetDto(
-    navn = dbo.navn,
-    enhetsnummer = dbo.enhetsnummer,
-    type = toNavEnhetType(dbo.type),
-    overordnetEnhet = dbo.overordnetEnhet,
-)
-
-private fun toNorg2Type(type: NavEnhetType) = Norg2Type.valueOf(type.name)
 
 private fun toNavEnhetType(type: Norg2Type) = NavEnhetType.valueOf(type.name)

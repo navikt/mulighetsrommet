@@ -58,4 +58,25 @@ class NavEnhetHelpersTest : FunSpec({
             ),
         )
     }
+
+    test("buildNavRegioner skal fjerne underenheter som mangler fylke") {
+        val enheter = listOf(
+            NavEnhetDto("Fylke 1", NavEnhetNummer("0400"), NavEnhetType.FYLKE, null),
+            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+            NavEnhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0400")),
+            NavEnhetDto("Lokal 3", NavEnhetNummer("0401"), NavEnhetType.LOKAL, NavEnhetNummer("0300")),
+        )
+
+        val result = NavEnhetHelpers.buildNavRegioner(enheter)
+
+        result shouldBe listOf(
+            NavRegionDto(
+                enhetsnummer = NavEnhetNummer("0400"),
+                navn = "Fylke 1",
+                enheter = listOf(
+                    NavRegionUnderenhetDto("Lokal 1", NavEnhetNummer("0401"), NavEnhetNummer("0400"), true),
+                ),
+            ),
+        )
+    }
 })
