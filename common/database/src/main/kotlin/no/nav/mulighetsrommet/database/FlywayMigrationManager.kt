@@ -20,7 +20,7 @@ class FlywayMigrationManager(
 
     data class MigrationConfig(
         val cleanDisabled: Boolean = true,
-        val strategy: InitializationStrategy = InitializationStrategy.RepairAndMigrate,
+        val strategy: InitializationStrategy = InitializationStrategy.Migrate,
     )
 
     enum class InitializationStrategy {
