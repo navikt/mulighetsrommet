@@ -30,6 +30,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
       );
     case "AVTALT_PRIS_PER_MANEDSVERK":
     case "AVTALT_PRIS_PER_UKESVERK":
+    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
       return (
         <Box>
           <Heading level="3" size="small" spacing>

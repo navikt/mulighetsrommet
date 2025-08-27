@@ -567,6 +567,7 @@ components:
       - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     ArrangorflateGjennomforing:
       type: object
       properties:

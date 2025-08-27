@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Periode
@@ -40,12 +41,7 @@ object AvtaleDboMapper {
         opsjonsmodell = dto.opsjonsmodell,
         utdanningslop = dto.utdanningslop?.toDbo(),
         prismodell = dto.prismodell.prismodell(),
-        prisbetingelser = when (dto.prismodell) {
-            is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> dto.prismodell.prisbetingelser
-            is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> dto.prismodell.prisbetingelser
-            is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> dto.prismodell.prisbetingelser
-            AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
-        },
+        prisbetingelser = dto.prismodell.prisbetingelser(),
         satser = dto.prismodell.satser(),
     )
 
@@ -91,24 +87,30 @@ fun AvtaleDto.PrismodellDto.prismodell(): Prismodell = when (this) {
     is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> Prismodell.AVTALT_PRIS_PER_MANEDSVERK
     is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> Prismodell.AVTALT_PRIS_PER_UKESVERK
     is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+}
+
+fun AvtaleDto.PrismodellDto.prisbetingelser(): String? = when (this) {
+    is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> prisbetingelser
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> prisbetingelser
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> prisbetingelser
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
+    AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
 }
 
 fun AvtaleDto.PrismodellDto.satser(): List<AvtaltSats> = when (this) {
     is AvtaleDto.PrismodellDto.AnnenAvtaltPris,
     is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
     -> emptyList()
-    is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk ->
-        this.satser.map {
-            AvtaltSats(
-                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
-                sats = it.pris,
-            )
-        }
-    is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk ->
-        this.satser.map {
-            AvtaltSats(
-                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
-                sats = it.pris,
-            )
-        }
+
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
+    is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
+}
+
+private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = satser.map {
+    AvtaltSats(
+        periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+        sats = it.pris,
+    )
 }

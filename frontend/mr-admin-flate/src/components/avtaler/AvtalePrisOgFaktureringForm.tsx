@@ -42,12 +42,7 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
         error={errors.prismodell?.message}
         {...register("prismodell", {
           onChange: (e) => {
-            if (
-              [Prismodell.AVTALT_PRIS_PER_MANEDSVERK, Prismodell.AVTALT_PRIS_PER_UKESVERK].includes(
-                e.target.value as Prismodell,
-              ) &&
-              satser.length === 0
-            ) {
+            if (erPrismodellMedAvtalteSatser(e.target.value as Prismodell) && satser.length === 0) {
               setValue("satser", [
                 {
                   periodeStart: "",
@@ -73,4 +68,12 @@ export default function AvtalePrisOgFaktureringForm({ tiltakskode }: AvtalPrisOg
       <PrismodellForm prismodell={prismodell} tiltakskode={tiltakskode} />
     </>
   );
+}
+
+function erPrismodellMedAvtalteSatser(prismodell: Prismodell) {
+  return [
+    Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+    Prismodell.AVTALT_PRIS_PER_UKESVERK,
+    Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+  ].includes(prismodell);
 }
