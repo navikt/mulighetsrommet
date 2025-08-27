@@ -14,15 +14,15 @@ export function TiltakstypeInfo() {
   return (
     <WhitePaddedBox>
       <Bolk>
-        <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
-        <Metadata header="Tiltakskode" verdi={tiltakstype.arenaKode} />
+        <Metadata header="Tiltakstype" value={tiltakstype.navn} />
+        <Metadata header="Tiltakskode" value={tiltakstype.arenaKode} />
       </Bolk>
       <Separator />
       <Bolk>
-        <Metadata header="Startdato" verdi={formaterDato(tiltakstype.startDato)} />
+        <Metadata header="Startdato" value={formaterDato(tiltakstype.startDato)} />
         <Metadata
           header="Sluttdato"
-          verdi={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
+          value={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
         />
       </Bolk>
       {tiltakstype.sanityId && (
@@ -31,7 +31,7 @@ export function TiltakstypeInfo() {
           <Bolk aria-label="Sanity-dokument">
             <Metadata
               header="Sanity-dokument"
-              verdi={
+              value={
                 <>
                   <Lenke isExternal target="_blank" to={tiltakstypeSanityUrl}>
                     Åpne tiltakstypen i Sanity

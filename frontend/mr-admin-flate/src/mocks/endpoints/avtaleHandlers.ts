@@ -10,6 +10,15 @@ import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
 export const avtaleHandlers = [
+  http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/prismodeller", () => {
+    return HttpResponse.json([
+      {
+        type: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK",
+        beskrivelse: "Fast sats per tiltaksplass per måned",
+      },
+    ]);
+  }),
+
   http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/avtaler", ({ request }) => {
     const url = new URL(request.url);
     const avtalestatus = url.searchParams.get("avtalestatus");
@@ -66,14 +75,8 @@ export const avtaleHandlers = [
     return HttpResponse.json();
   }),
 
-  http.delete("/api/v1/intern/avtaler/:id", () => {
-    return HttpResponse.json();
-  }),
-
   http.put("*/api/v1/intern/avtaler", () => {
-    return HttpResponse.json({
-      id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    });
+    return HttpResponse.json(mockAvtaler[0]);
   }),
 
   http.get<PathParams, AvtaltSatsDto | undefined>(

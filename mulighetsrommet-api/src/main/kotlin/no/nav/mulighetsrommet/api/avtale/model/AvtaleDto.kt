@@ -66,6 +66,13 @@ data class AvtaleDto(
             val prisbetingelser: String?,
             val satser: List<AvtaltSatsDto>,
         ) : PrismodellDto()
+
+        @Serializable
+        @SerialName("AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER")
+        data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
+            val prisbetingelser: String?,
+            val satser: List<AvtaltSatsDto>,
+        ) : PrismodellDto()
     }
 
     @Serializable

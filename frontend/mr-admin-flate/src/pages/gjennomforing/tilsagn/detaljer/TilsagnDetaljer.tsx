@@ -1,4 +1,8 @@
-import { MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
+import {
+  MetadataFritekstfelt,
+  MetadataHorisontal,
+  Separator,
+} from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import {
@@ -16,7 +20,6 @@ import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregnin
 import { TilsagnPrismodell } from "@/components/tilsagn/prismodell/TilsagnPrismodell";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -46,31 +49,28 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             <VStack gap="4" className="flex-1">
               <MetadataHorisontal
                 header={tilsagnTekster.bestillingsnummer.label}
-                verdi={bestillingsnummer}
+                value={bestillingsnummer}
               />
               <MetadataHorisontal
                 header={tilsagnTekster.kostnadssted.label}
-                verdi={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
+                value={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
               />
               <MetadataHorisontal
                 header={tilsagnTekster.periode.label}
-                verdi={formaterPeriode(periode)}
+                value={formaterPeriode(periode)}
               />
             </VStack>
             <VStack gap="4" className="flex-1">
               <MetadataHorisontal
                 header={tilsagnTekster.status.label}
-                verdi={<TilsagnTag status={status} />}
+                value={<TilsagnTag status={status} />}
               />
               <MetadataHorisontal
                 header={tilsagnTekster.type.label}
-                verdi={avtaletekster.tilsagn.type(type)}
-              />
-              <MetadataHorisontal
-                header={tilsagnTekster.kommentar.label}
-                verdi={kommentar && <Fritekstfelt text={kommentar} />}
+                value={avtaletekster.tilsagn.type(type)}
               />
             </VStack>
+            <MetadataFritekstfelt header={tilsagnTekster.kommentar.label} value={kommentar} />
           </HGrid>
           <Separator />
           <TilsagnPrismodell beregning={beregning} />
@@ -79,15 +79,15 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
           <VStack gap="4">
             <MetadataHorisontal
               header={tilsagnTekster.beregning.belop.label}
-              verdi={formaterNOK(beregning.belop)}
+              value={formaterNOK(beregning.belop)}
             />
             <MetadataHorisontal
               header={tilsagnTekster.belopBrukt.label}
-              verdi={formaterNOK(tilsagn.belopBrukt)}
+              value={formaterNOK(tilsagn.belopBrukt)}
             />
             <MetadataHorisontal
               header={tilsagnTekster.belopGjenstaende.label}
-              verdi={formaterNOK(tilsagn.belopGjenstaende)}
+              value={formaterNOK(tilsagn.belopGjenstaende)}
             />
           </VStack>
           <Separator />
@@ -105,18 +105,11 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
               </Heading>
               <MetadataHorisontal
                 header={"Årsaker"}
-                verdi={arsaker
+                value={arsaker
                   ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnTilAnnulleringAarsak))
                   .join(", ")}
               />
-              <MetadataHorisontal
-                header={"Forklaring"}
-                verdi={
-                  (annullering?.forklaring ?? oppgjor?.forklaring) && (
-                    <Fritekstfelt text={(annullering?.forklaring ?? oppgjor?.forklaring)!} />
-                  )
-                }
-              />
+              <MetadataFritekstfelt header={"Forklaring"} value={oppgjor?.forklaring} />
             </>
           )}
         </HGrid>

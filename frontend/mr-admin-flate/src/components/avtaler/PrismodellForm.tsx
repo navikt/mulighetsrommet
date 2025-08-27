@@ -20,6 +20,7 @@ const PrismodellForm = memo(({ tiltakskode, prismodell }: Props) => {
       return <ForhandsgodkjenteSatser tiltakskode={tiltakskode} />;
     case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
     case Prismodell.AVTALT_PRIS_PER_UKESVERK:
+    case Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
       return <AvtalteSatser />;
     case Prismodell.ANNEN_AVTALT_PRIS:
     case undefined:
@@ -93,7 +94,6 @@ function AvtalteSatser() {
 
   return (
     <VStack gap="4">
-      <PrisbetingelserTextArea />
       {fields.map((field, index) => (
         <HStack
           key={field.periodeStart}
@@ -156,6 +156,7 @@ function AvtalteSatser() {
       >
         Legg til ny prisperiode
       </Button>
+      <PrisbetingelserTextArea />
     </VStack>
   );
 }

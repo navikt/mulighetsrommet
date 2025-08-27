@@ -11,9 +11,9 @@ interface BehandlerInformasjonProps {
 export function BehandlerInformasjon({ status, opprettelse }: BehandlerInformasjonProps) {
   return (
     <HStack gap="4">
-      <Metadata header="Behandlet av" verdi={navnEllerIdent(opprettelse.behandletAv)} />
+      <Metadata header="Behandlet av" value={navnEllerIdent(opprettelse.behandletAv)} />
       {status === DelutbetalingStatus.RETURNERT && opprettelse.type === "BESLUTTET" ? (
-        <Metadata header="Returnert av" verdi={navnEllerIdent(opprettelse.besluttetAv)} />
+        <Metadata header="Returnert av" value={navnEllerIdent(opprettelse.besluttetAv)} />
       ) : opprettelse.type === "BESLUTTET" &&
         status &&
         [
@@ -21,7 +21,7 @@ export function BehandlerInformasjon({ status, opprettelse }: BehandlerInformasj
           DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
           DelutbetalingStatus.UTBETALT,
         ].includes(status) ? (
-        <Metadata header="Attestert av" verdi={navnEllerIdent(opprettelse.besluttetAv)} />
+        <Metadata header="Attestert av" value={navnEllerIdent(opprettelse.besluttetAv)} />
       ) : null}
     </HStack>
   );

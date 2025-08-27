@@ -12,11 +12,11 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { InferredTilsagn } from "./TilsagnSchema";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "../TilsagnTekster";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
 
@@ -46,24 +46,22 @@ function BeregningInputSkjema() {
     setError,
     control,
   } = useFormContext<FriTilsagn>();
-
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
+
+  const prisbetingelser = watch("beregning.prisbetingelser");
 
   return (
     <VStack gap="4">
       <Metadata
         header={tilsagnTekster.prismodell.label}
-        verdi={tilsagnTekster.prismodell.sats.label("FRI")}
+        value={tilsagnTekster.prismodell.sats.label("FRI")}
       />
-      {watch("beregning.prisbetingelser") && (
-        <Textarea
-          size="small"
-          label={avtaletekster.prisOgBetalingLabel}
-          readOnly
-          error={errors.beregning?.prisbetingelser?.message}
-          {...register("beregning.prisbetingelser")}
-        />
-      )}
+      <Textarea
+        size="small"
+        label={avtaletekster.prisOgBetalingLabel}
+        value={prisbetingelser ?? ""}
+        readOnly
+      />
       <Label size="small">Avtalte priser</Label>
       {fields.map((item, index) => (
         <HStack

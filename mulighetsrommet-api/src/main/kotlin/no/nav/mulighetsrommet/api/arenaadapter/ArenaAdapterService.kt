@@ -6,6 +6,7 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -202,12 +203,7 @@ private fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
                 is AvtaleStatusDto.Avsluttet -> Avslutningsstatus.AVSLUTTET
                 is AvtaleStatusDto.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
             },
-            prisbetingelser = when (prismodell) {
-                is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> prismodell.prisbetingelser
-                is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
-                is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
-                AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
-            },
+            prisbetingelser = prismodell.prisbetingelser(),
         )
     }
 }

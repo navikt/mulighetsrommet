@@ -22,28 +22,31 @@ VITE_MULIGHETSROMMET_API_BASE=<url>
 VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
 ```
 
-## Utvikling mot mock server
+## Lokal utvikling med mock-data
 
 ```
 turbo run dev
 ```
 
-## Utvikling mot backend
+## Lokal utvikling mot lokal backend
 
-For dette trenger man et access token definert i `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`. For å generere denne:
+For dette trenger man et access token definert i miljøvariabelen `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`.
+Denne kan du definere etter eget ønske, enten som en vanlig miljøvariabel, evt.
+via [vite](https://vite.dev/guide/env-and-mode.html#env-files)
+eller [mise](https://mise.jdx.dev/environments/#using-environment-variables).
+For å generere dette gjør du følgende:
 
 1. Naviger til lokal [Mock Oauth2 Server](http://localhost:8081/tokenx/debugger)
 2. Trykk på knappen `Get a token`
 3. Skriv inn hva som helst i toppen
-4. Legg inn dette i optional claims (pid kan du velge selv men påkrevd)
-
-```json
-{
-  "pid": "11830348931"
-}
-```
-
-5. Legg `access_token` verdien inn i env variabelen din
+4. Legg inn dette i optional claims:
+   ```json
+   {
+     "pid": "11830348931"
+   }
+   ```
+5. Trykk `Sign in`
+6. Kopier verdien til `access_token` og benytt denne i nevnte miljøvariabel
 
 ```
 turbo run backend

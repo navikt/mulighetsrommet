@@ -1,5 +1,5 @@
-import { Fritekstfelt } from "@/components/detaljside/Fritekstfelt";
-import { Alert, BodyShort, Heading, HStack, List } from "@navikt/ds-react";
+import { MetadataFritekstfelt } from "@/components/detaljside/Metadata";
+import { Alert, BodyShort, Heading, List } from "@navikt/ds-react";
 
 type Props = {
   heading: string;
@@ -10,6 +10,8 @@ type Props = {
 };
 
 export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {
+  const aarsakHeading = "Årsaker:";
+  const forklaringHeading = "Forklaring:";
   return (
     <Alert size="medium" variant="warning">
       <Heading spacing size="small" level="4">
@@ -23,21 +25,14 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           </BodyShort>
         ))}
       <Heading level="5" size="xsmall">
-        Årsaker:
+        {aarsakHeading}
       </Heading>
       <List as="ul" size="small">
         {aarsaker.map((aarsak) => (
           <List.Item key={aarsak}>{aarsak}</List.Item>
         ))}
       </List>
-      {forklaring && (
-        <HStack gap="2">
-          <Heading level="5" size="xsmall">
-            Forklaring:
-          </Heading>
-          <Fritekstfelt text={forklaring} className="w-80" />
-        </HStack>
-      )}
+      {forklaring && <MetadataFritekstfelt header={forklaringHeading} value={forklaring} />}
     </Alert>
   );
 }
