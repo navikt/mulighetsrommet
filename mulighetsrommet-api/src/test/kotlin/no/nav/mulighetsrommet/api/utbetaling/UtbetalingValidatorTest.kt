@@ -26,6 +26,25 @@ class UtbetalingValidatorTest : FunSpec({
         result.shouldBeRight()
     }
 
+    test("valider opprett utbetaling akumulerer feil") {
+        val request = OpprettUtbetalingRequest(
+            gjennomforingId = UUID.randomUUID(),
+            periodeStart = LocalDate.now(),
+            periodeSlutt = LocalDate.now().minusDays(1),
+            beskrivelse = "Bla bla bla beskrivelse",
+            kontonummer = Kontonummer(value = "12345678910"),
+            kidNummer = "asdf",
+            belop = -5,
+        )
+
+        val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+        result.shouldBeLeft().shouldContainAll(
+            FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart"),
+            FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt"),
+            FieldError.of(OpprettUtbetalingRequest::kidNummer, "Ugyldig kid"),
+        )
+    }
+
     test("Periodeslutt må være etter periodestart") {
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
