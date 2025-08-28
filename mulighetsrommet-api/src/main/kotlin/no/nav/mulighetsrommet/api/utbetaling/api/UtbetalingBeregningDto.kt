@@ -61,14 +61,12 @@ sealed class UtbetalingBeregningDto {
                 DataDrivenTableDto.Column(
                     "manedsverk",
                     "Månedsverk",
-                    true,
-                    DataDrivenTableDto.Column.Align.RIGHT,
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
                 ),
                 DataDrivenTableDto.Column(
                     "belop",
                     "Beløp",
-                    true,
-                    DataDrivenTableDto.Column.Align.RIGHT,
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
                 ),
             )
 
@@ -105,14 +103,12 @@ sealed class UtbetalingBeregningDto {
                 DataDrivenTableDto.Column(
                     "ukesverk",
                     "Ukesverk",
-                    true,
-                    DataDrivenTableDto.Column.Align.RIGHT,
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
                 ),
                 DataDrivenTableDto.Column(
                     "belop",
                     "Beløp",
-                    true,
-                    DataDrivenTableDto.Column.Align.RIGHT,
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
                 ),
             )
 
@@ -135,26 +131,14 @@ sealed class UtbetalingBeregningDto {
         companion object {
             fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
                 columns = friDeltakelseColumns(),
-                rows = deltakelsePersoner.map {
-                    friDeltakelseCells(it.second)
-                },
+                rows = deltakelsePersoner.map { friDeltakelseCells(it.second) },
             )
 
             fun friDeltakelseColumns() = listOf(
-                DataDrivenTableDto.Column("navn", "Navn", true, DataDrivenTableDto.Column.Align.LEFT),
-                DataDrivenTableDto.Column(
-                    "foedselsdato",
-                    "Fødselsdato",
-                    true,
-                    DataDrivenTableDto.Column.Align.LEFT,
-                ),
-                DataDrivenTableDto.Column("region", "Region", true, DataDrivenTableDto.Column.Align.LEFT),
-                DataDrivenTableDto.Column(
-                    "geografiskEnhet",
-                    "Geografisk enhet",
-                    true,
-                    DataDrivenTableDto.Column.Align.LEFT,
-                ),
+                DataDrivenTableDto.Column("navn", "Navn"),
+                DataDrivenTableDto.Column("foedselsdato", "Fødselsdato"),
+                DataDrivenTableDto.Column("region", "Region"),
+                DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
             )
 
             fun friDeltakelseCells(person: PersonEnhetOgRegion?) = mapOf(

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.DataElement.Text.Format
 
 @Serializable
 class DataDrivenTableDto(
@@ -12,8 +13,8 @@ class DataDrivenTableDto(
     data class Column(
         val key: String,
         val label: String,
-        val sortable: Boolean,
-        val align: Align,
+        val sortable: Boolean = true,
+        val align: Align = Align.LEFT,
     ) {
         @Serializable
         enum class Align {
@@ -36,8 +37,13 @@ sealed class DataElement {
         val format: Format? = null,
     ) : DataElement() {
         enum class Format {
+            @SerialName("date")
             DATE,
+
+            @SerialName("nok")
             NOK,
+
+            @SerialName("number")
             NUMBER,
         }
     }
@@ -49,9 +55,16 @@ sealed class DataElement {
         val variant: Variant,
     ) : DataElement() {
         enum class Variant {
+            @SerialName("neutral")
             NEUTRAL,
+
+            @SerialName("success")
             SUCCESS,
+
+            @SerialName("warning")
             WARNING,
+
+            @SerialName("error")
             ERROR,
         }
     }
@@ -69,4 +82,17 @@ sealed class DataElement {
         val start: String,
         val slutt: String,
     ) : DataElement()
+
+    companion object {
+        fun text(value: Any) = Text(value.toString())
+
+        fun nok(value: Number) = Text(value.toString(), Format.NOK)
+
+        fun number(value: Number) = Text(value.toString(), Format.NUMBER)
+
+        fun periode(periode: no.nav.mulighetsrommet.model.Periode) = Periode(
+            start = periode.start,
+            slutt = periode.getLastInclusiveDate(),
+        )
+    }
 }
