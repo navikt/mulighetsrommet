@@ -43,7 +43,7 @@ val ApplicationConfigLocal = AppConfig(
         micrometerRegistry = Metrics.micrometerRegistry,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesBuilder.producerBuilder()

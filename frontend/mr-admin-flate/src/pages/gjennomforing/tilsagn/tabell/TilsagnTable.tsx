@@ -112,6 +112,7 @@ function getAntallPlasser(tilsagn: TilsagnDto) {
     case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
     case "PRIS_PER_MANEDSVERK":
     case "PRIS_PER_UKESVERK":
+    case "PRIS_PER_TIME_OPPFOLGING":
       return tilsagn.beregning.antallPlasser;
   }
 }

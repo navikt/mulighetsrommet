@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -62,7 +62,7 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     fun verifyForhandsgodkjentBeregning(
-        beregning: ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder,
+        beregning: ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed,
         expectedBelop: Int,
         expectedManedsverk: Double,
         expectedDeltakelserCount: Int,
@@ -109,7 +109,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
 
-        result.beregning.shouldBeInstanceOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder>().should {
+        result.beregning.shouldBeInstanceOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed>().should {
             it.output.belop shouldBe 10000
         }
     }
@@ -169,7 +169,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KREVER_ENDRING
 
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }
@@ -197,7 +197,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
         }
         result.kanViseBeregning shouldBe true
@@ -210,7 +210,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
             it.deltakelser[0].person.shouldBeNull()
         }

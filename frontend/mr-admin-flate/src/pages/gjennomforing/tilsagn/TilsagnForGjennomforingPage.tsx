@@ -9,21 +9,21 @@ import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomfo
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { TilsagnTable } from "./tabell/TilsagnTable";
 
-function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
-  return {
-    queryKey: ["tilsagnForGjennomforing", gjennomforingId],
-    queryFn: () => TilsagnService.getAll({ query: { gjennomforingId: gjennomforingId! } }),
-    enabled: !!gjennomforingId,
-  };
+function useTilsagnForGjennomforing(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: ["tilsagnForGjennomforing", id],
+    queryFn: async () => TilsagnService.getAll({ query: { gjennomforingId: id } }),
+  });
 }
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  if (!gjennomforingId) {
+    throw Error("Fant ikke gjennomforingId i url");
+  }
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: tilsagnForGjennomforing } = useApiSuspenseQuery({
-    ...tilsagnForGjennomforingQuery(gjennomforingId),
-  });
+  const { data: tilsagnForGjennomforing } = useTilsagnForGjennomforing(gjennomforingId);
 
   const tilsagnstyper =
     avtale?.avtaletype === Avtaletype.FORHANDSGODKJENT

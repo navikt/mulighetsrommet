@@ -3,7 +3,7 @@ import { Checkbox } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
-import { addOrRemove } from "../../utils/utils";
+import { addOrRemoveBy, addOrRemove } from "../../utils/utils";
 
 interface NavRegion {
   enhetsnummer: string;
@@ -90,7 +90,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    onChange(addOrRemove(value, enhet).map((e) => e.enhetsnummer));
+    onChange(addOrRemoveBy(value, enhet, (a, b) => a.enhetsnummer === b.enhetsnummer).map((e) => e.enhetsnummer));
   }
 
   return (

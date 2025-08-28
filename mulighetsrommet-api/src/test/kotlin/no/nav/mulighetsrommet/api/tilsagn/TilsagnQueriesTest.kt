@@ -8,12 +8,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -113,7 +109,49 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
-        test("upsert forhåndsgodkjent beregning") {
+        test("upsert beregning - fri") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningFri(
+                    input = TilsagnBeregningFri.Input(
+                        prisbetingelser = "Betingelser",
+                        linjer = listOf(
+                            TilsagnBeregningFri.InputLinje(UUID.randomUUID(), "To ting", 500, 2),
+                            TilsagnBeregningFri.InputLinje(UUID.randomUUID(), "En ting", 100, 1),
+                        ),
+                    ),
+                    output = TilsagnBeregningFri.Output(1100),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning))
+
+                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+            }
+        }
+
+        test("upsert beregning - fast sats per tiltaksplass per måned") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+                    input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                        periode = tilsagn.periode,
+                        antallPlasser = 10,
+                        sats = 100,
+                    ),
+                    output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(1000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning))
+
+                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+            }
+        }
+
+        test("upsert beregning - pris per månedsverk") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
@@ -124,42 +162,56 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100,
-                        prisbetingelser = null,
+                        prisbetingelser = "Per måned",
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(1000),
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
             }
         }
 
-        test("upsert fri beregning") {
+        test("upsert beregning - pris per ukesverk") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
                 val queries = TilsagnQueries(session)
 
-                val beregning = TilsagnBeregningFri(
-                    input = TilsagnBeregningFri.Input(
-                        prisbetingelser = AvtaleFixtures.ARR.prisbetingelser,
-                        linjer = listOf(
-                            TilsagnBeregningFri.InputLinje(
-                                id = UUID.randomUUID(),
-                                beskrivelse = "Beskrivelse",
-                                belop = 500,
-                                antall = 2,
-                            ),
-                        ),
+                val beregning = TilsagnBeregningPrisPerUkesverk(
+                    input = TilsagnBeregningPrisPerUkesverk.Input(
+                        periode = tilsagn.periode,
+                        antallPlasser = 10,
+                        sats = 100,
+                        prisbetingelser = "Per uke",
                     ),
-                    output = TilsagnBeregningFri.Output(1000),
+                    output = TilsagnBeregningPrisPerUkesverk.Output(1000),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning, gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id))
-                queries.get(tilsagn.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.upsert(tilsagn.copy(beregning = beregning))
+
+                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+            }
+        }
+
+        test("upsert beregning - pris per time oppfølging") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
+                    input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                        periode = tilsagn.periode,
+                        sats = 100,
+                        antallPlasser = 10,
+                        antallTimerOppfolgingPerDeltaker = 5,
+                        prisbetingelser = "Betingelser",
+                    ),
+                    output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(5000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning))
+
+                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
             }
         }
 

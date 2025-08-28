@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTilta
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.InputLinje
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import java.math.RoundingMode
@@ -41,6 +42,16 @@ sealed class TilsagnBeregningDto {
         val sats: Int,
         val antallPlasser: Int,
         val antallUker: Double,
+        val prisbetingelser: String?,
+    ) : TilsagnBeregningDto()
+
+    @Serializable
+    @SerialName("PRIS_PER_TIME_OPPFOLGING")
+    data class PrisPerTimeOppfolging(
+        override val belop: Int,
+        val sats: Int,
+        val antallPlasser: Int,
+        val antallTimerOppfolgingPerDeltaker: Int,
         val prisbetingelser: String?,
     ) : TilsagnBeregningDto()
 
@@ -88,6 +99,14 @@ sealed class TilsagnBeregningDto {
                     antallUker = UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
                         .setScale(2, RoundingMode.HALF_UP)
                         .toDouble(),
+                )
+
+                is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> PrisPerTimeOppfolging(
+                    belop = beregning.output.belop,
+                    sats = beregning.input.sats,
+                    antallPlasser = beregning.input.antallPlasser,
+                    antallTimerOppfolgingPerDeltaker = beregning.input.antallTimerOppfolgingPerDeltaker,
+                    prisbetingelser = beregning.input.prisbetingelser,
                 )
             }
         }

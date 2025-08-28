@@ -4,13 +4,12 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnBeregningDto, TilsagnBeregningInput, TilsagnRequest } from "@mr/api-client-v2";
+import { TilsagnBeregningInput, TilsagnDto, TilsagnRequest } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
+import { useAktiveTilsagn, useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
@@ -19,18 +18,19 @@ import { TilsagnTable } from "../tabell/TilsagnTable";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
+  if (!gjennomforingId || !tilsagnId) {
+    throw Error("Fant ikke gjennomforingId eller tilsagnId i url");
+  }
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
-  const { data: aktiveTilsagn } = useSuspenseQuery({
-    ...aktiveTilsagnQuery(gjennomforingId),
-  });
+  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
 
   return {
     avtale,
     gjennomforing,
-    aktiveTilsagn: aktiveTilsagn.data,
-    ...tilsagnDetaljer.data,
+    ...tilsagnDetaljer,
+    aktiveTilsagn,
   };
 }
 
@@ -63,7 +63,7 @@ export function RedigerTilsagnFormPage() {
     periodeStart: tilsagn.periode.start,
     periodeSlutt: yyyyMMddFormatting(subDuration(tilsagn.periode.slutt, { days: 1 }))!,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-    beregning: tilsagnBeregningInput(tilsagn.beregning),
+    beregning: tilsagnBeregningInput(tilsagn),
     gjennomforingId: gjennomforing.id,
     kommentar: tilsagn.kommentar,
   };
@@ -109,7 +109,8 @@ export function RedigerTilsagnFormPage() {
   );
 }
 
-function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregningInput {
+function tilsagnBeregningInput(tilsagn: TilsagnDto): TilsagnBeregningInput {
+  const { periode, beregning } = tilsagn;
   switch (beregning.type) {
     case "FRI":
       return {
@@ -120,14 +121,14 @@ function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregning
     case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
       return {
         type: "FAST_SATS_PER_TILTAKSPLASS_PER_MANED",
-        periode: beregning.periode,
+        periode,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
       };
     case "PRIS_PER_MANEDSVERK":
       return {
         type: "PRIS_PER_MANEDSVERK",
-        periode: beregning.periode,
+        periode,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
         prisbetingelser: beregning.prisbetingelser,
@@ -135,9 +136,18 @@ function tilsagnBeregningInput(beregning: TilsagnBeregningDto): TilsagnBeregning
     case "PRIS_PER_UKESVERK":
       return {
         type: "PRIS_PER_UKESVERK",
-        periode: beregning.periode,
+        periode,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
+        prisbetingelser: beregning.prisbetingelser,
+      };
+    case "PRIS_PER_TIME_OPPFOLGING":
+      return {
+        type: "PRIS_PER_TIME_OPPFOLGING",
+        periode,
+        sats: beregning.sats,
+        antallPlasser: beregning.antallPlasser,
+        antallTimerOppfolgingPerDeltaker: beregning.antallTimerOppfolgingPerDeltaker,
         prisbetingelser: beregning.prisbetingelser,
       };
   }

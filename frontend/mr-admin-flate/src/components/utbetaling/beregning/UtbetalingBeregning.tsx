@@ -1,6 +1,7 @@
 import { BodyShort, CopyButton, HStack, VStack } from "@navikt/ds-react";
 import {
   UtbetalingBeregningDto,
+  UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
   UtbetalingBeregningFri,
   UtbetalingBeregningPrisPerManedsverk,
   UtbetalingBeregningPrisPerUkesverk,
@@ -29,6 +30,8 @@ function roundNdecimals(num: number, N: number) {
 
 function Regnestykke(props: { beregning: UtbetalingBeregningDto }) {
   switch (props.beregning.type) {
+    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
+      return <FastSatsPerTiltaksplassPerManedRegnestykke beregning={props.beregning} />;
     case "PRIS_PER_MANEDSVERK":
       return <PrisPerManedsverkRegnestykke beregning={props.beregning} />;
     case "PRIS_PER_UKESVERK":
@@ -38,7 +41,9 @@ function Regnestykke(props: { beregning: UtbetalingBeregningDto }) {
   }
 }
 
-function PrisPerManedsverkRegnestykke(props: { beregning: UtbetalingBeregningPrisPerManedsverk }) {
+function FastSatsPerTiltaksplassPerManedRegnestykke(props: {
+  beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed;
+}) {
   const { beregning } = props;
 
   return (
@@ -59,6 +64,27 @@ function PrisPerManedsverkRegnestykke(props: { beregning: UtbetalingBeregningPri
   );
 }
 
+function PrisPerManedsverkRegnestykke(props: { beregning: UtbetalingBeregningPrisPerManedsverk }) {
+  const { beregning } = props;
+
+  return (
+    <HStack align="center" gap="2">
+      <BodyShort className="font-bold">
+        Månedsverk {roundNdecimals(beregning.manedsverkTotal, 5)}
+      </BodyShort>
+      <BodyShort className="font-bold">×</BodyShort>
+      <BodyShort className="font-bold">Pris {formaterNOK(beregning.sats)}</BodyShort>
+      <BodyShort className="font-bold">=</BodyShort>
+      <CopyButton
+        variant="action"
+        copyText={beregning.belop.toString()}
+        size="small"
+        text={formaterNOK(beregning.belop)}
+      />
+    </HStack>
+  );
+}
+
 function PrisPerUkesverkRegnestykke(props: { beregning: UtbetalingBeregningPrisPerUkesverk }) {
   const { beregning } = props;
 
@@ -68,7 +94,7 @@ function PrisPerUkesverkRegnestykke(props: { beregning: UtbetalingBeregningPrisP
         Ukesverk {roundNdecimals(beregning.ukesverkTotal, 5)}
       </BodyShort>
       <BodyShort className="font-bold">×</BodyShort>
-      <BodyShort className="font-bold">Sats {formaterNOK(beregning.sats)}</BodyShort>
+      <BodyShort className="font-bold">Pris {formaterNOK(beregning.sats)}</BodyShort>
       <BodyShort className="font-bold">=</BodyShort>
       <CopyButton
         variant="action"

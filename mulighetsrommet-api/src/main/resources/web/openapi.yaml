@@ -4374,6 +4374,7 @@ components:
         - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
         - PRIS_PER_MANEDSVERK
         - PRIS_PER_UKESVERK
+        - PRIS_PER_TIME_OPPFOLGING
 
     TilsagnBeregningDto:
       oneOf:
@@ -4381,6 +4382,7 @@ components:
         - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManed"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker"
 
     TilsagnBeregningInput:
       oneOf:
@@ -4388,6 +4390,7 @@ components:
         - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManedInput"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
+        - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerInput"
 
     TilsagnBeregningFastSatsPerTiltaksplassPerManed:
       type: object
@@ -4402,9 +4405,7 @@ components:
           type: integer
         antallManeder:
           type: number
-        periode:
-          $ref: "#/components/schemas/Periode"
-      required: [ periode, type, belop, sats, antallPlasser, antallManeder ]
+      required: [type, belop, sats, antallPlasser, antallManeder]
 
     TilsagnBeregningFastSatsPerTiltaksplassPerManedInput:
       type: object
@@ -4417,7 +4418,7 @@ components:
           type: integer
         antallPlasser:
           type: integer
-      required: [ type, periode, sats, antallPlasser ]
+      required: [type, periode, sats, antallPlasser]
 
     TilsagnBeregningPrisPerManedsverk:
       type: object
@@ -4432,11 +4433,9 @@ components:
           type: integer
         antallManeder:
           type: number
-        periode:
-          $ref: "#/components/schemas/Periode"
         prisbetingelser:
           type: [string, "null"]
-      required: [periode, type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
+      required: [type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
 
     TilsagnBeregningPrisPerManedsverkInput:
       type: object
@@ -4460,8 +4459,6 @@ components:
           const: PRIS_PER_UKESVERK
         belop:
           type: integer
-        periode:
-          $ref: "#/components/schemas/Periode"
         sats:
           type: integer
         antallPlasser:
@@ -4470,7 +4467,7 @@ components:
           type: number
         prisbetingelser:
           type: [string, "null"]
-      required: [periode, type, belop, sats, antallPlasser, antallUker, prisbetingelser]
+      required: [type, belop, sats, antallPlasser, antallUker, prisbetingelser]
 
     TilsagnBeregningPrisPerUkesverkInput:
       type: object
@@ -4486,6 +4483,52 @@ components:
         prisbetingelser:
           type: [string, "null"]
       required: [type, periode, sats, antallPlasser, prisbetingelser]
+
+    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_TIME_OPPFOLGING
+        belop:
+          type: integer
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        antallTimerOppfolgingPerDeltaker:
+          type: integer
+        prisbetingelser:
+          type: [string, "null"]
+      required:
+        - type
+        - belop
+        - sats
+        - antallPlasser
+        - antallTimerOppfolgingPerDeltaker
+        - prisbetingelser
+
+    TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerInput:
+      type: object
+      properties:
+        type:
+          const: PRIS_PER_TIME_OPPFOLGING
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        antallTimerOppfolgingPerDeltaker:
+          type: integer
+        prisbetingelser:
+          type: [string, "null"]
+      required:
+        - type
+        - periode
+        - sats
+        - antallPlasser
+        - antallTimerOppfolgingPerDeltaker
+        - prisbetingelser
 
     TilsagnBeregningFri:
       type: object
@@ -4694,6 +4737,7 @@ components:
       type: object
       oneOf:
         - $ref: "#/components/schemas/UtbetalingBeregningFri"
+        - $ref: "#/components/schemas/UtbetalingBeregningFastSatsPerTiltaksplassPerManed"
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
         - $ref: "#/components/schemas/UtbetalingBeregningPrisPerUkesverk"
 
@@ -4713,6 +4757,27 @@ components:
         heading:
           type: string
       required: [heading, belop, type, deltakerTableData, deltakerRegioner]
+
+    UtbetalingBeregningFastSatsPerTiltaksplassPerManed:
+      type: object
+      properties:
+        type:
+          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        belop:
+          type: integer
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        sats:
+          type: integer
+        manedsverkTotal:
+          type: number
+        heading:
+          type: string
+      required: [heading, type, belop, sats, deltakerTableData, deltakerRegioner, manedsverkTotal]
 
     UtbetalingBeregningPrisPerManedsverk:
       type: object

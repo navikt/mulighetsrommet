@@ -78,6 +78,31 @@ export const TilsagnBeregningSchema = z.discriminatedUnion("type", [
     prisbetingelser: z.string().nullable(),
   }),
   z.object({
+    type: z.literal("PRIS_PER_TIME_OPPFOLGING"),
+    sats: z.number({
+      error: "Sats er påkrevd",
+    }),
+    periode: z.object({
+      start: z
+        .string({ error: tilsagnTekster.manglerStartdato })
+        .min(10, tilsagnTekster.manglerStartdato),
+      slutt: z
+        .string({ error: tilsagnTekster.manglerSluttdato })
+        .min(10, tilsagnTekster.manglerSluttdato),
+    }),
+    antallPlasser: z
+      .number({
+        error: "Antall plasser mangler",
+      })
+      .positive({ error: "Antall plasser må være positivt" }),
+    antallTimerOppfolgingPerDeltaker: z
+      .number({
+        error: "Antall timer oppfølging per deltaker mangler",
+      })
+      .positive({ error: "Antall timer oppfølging per deltaker må være positivt" }),
+    prisbetingelser: z.string().nullable(),
+  }),
+  z.object({
     type: z.literal("FRI"),
     linjer: z.array(TilsagnBeregningFriInputLinje),
     prisbetingelser: z.string().nullable(),
@@ -107,10 +132,7 @@ export const TilsagnSchema = z
     (data) => {
       const start = new Date(data.periodeStart);
       const slutt = new Date(data.periodeSlutt);
-      if (start > slutt) {
-        return false;
-      }
-      return true;
+      return start <= slutt;
     },
     {
       error: "Periodestart må være før periodeslutt",
@@ -121,10 +143,7 @@ export const TilsagnSchema = z
     (data) => {
       const start = new Date(data.periodeStart);
       const slutt = new Date(data.periodeSlutt);
-      if (slutt < start) {
-        return false;
-      }
-      return true;
+      return slutt >= start;
     },
     {
       error: "Periodeslutt må være etter periodestart",

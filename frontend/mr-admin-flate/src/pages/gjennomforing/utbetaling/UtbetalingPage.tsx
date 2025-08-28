@@ -32,18 +32,11 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { useParams } from "react-router";
-import {
-  beregningQuery,
-  tilsagnTilUtbetalingQuery,
-  utbetalingHistorikkQuery,
-  utbetalingQuery,
-} from "./utbetalingPageLoader";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useEffect, useState } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
@@ -52,15 +45,24 @@ import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetal
 import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
 import { HarTilgang } from "@/components/auth/HarTilgang";
+import {
+  useTilsagnTilUtbetaling,
+  useUtbetaling,
+  useUtbetalingBeregning,
+  useUtbetalingEndringshistorikk,
+} from "./utbetalingPageLoader";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useParams();
+  if (!gjennomforingId || !utbetalingId) {
+    throw Error("Fant ikke gjennomforingId eller utbetalingId i url");
+  }
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: historikk } = useApiSuspenseQuery(utbetalingHistorikkQuery(utbetalingId));
-  const { data: utbetaling } = useApiSuspenseQuery(utbetalingQuery(utbetalingId));
-  const { data: tilsagn } = useApiSuspenseQuery(tilsagnTilUtbetalingQuery(utbetalingId));
-  const { data: beregning } = useApiSuspenseQuery(beregningQuery({ navEnheter: [] }, utbetalingId));
+  const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
+  const { data: utbetaling } = useUtbetaling(utbetalingId);
+  const { data: tilsagn } = useTilsagnTilUtbetaling(utbetalingId);
+  const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
   useEffect(() => {

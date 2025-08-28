@@ -131,13 +131,21 @@ class TilsagnService(
         Unit.right()
     }
 
-    fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
+    fun tilAnnulleringRequest(
+        id: UUID,
+        navIdent: NavIdent,
+        request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
+    ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
+    fun tilGjorOppRequest(
+        id: UUID,
+        navIdent: NavIdent,
+        request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
+    ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
@@ -148,14 +156,25 @@ class TilsagnService(
             .map {
                 when (input) {
                     is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
-                    is TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input -> TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+
+                    is TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input ->
+                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+
                     is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
+
                     is TilsagnBeregningPrisPerUkesverk.Input -> TilsagnBeregningPrisPerUkesverk.beregn(input)
+
+                    is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input ->
+                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input)
                 }
             }
     }
 
-    fun beslutt(id: UUID, request: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
+    fun beslutt(
+        id: UUID,
+        request: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))

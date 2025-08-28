@@ -51,9 +51,9 @@ object UbetalingToPdfDocumentContentMapper {
         when (utbetaling.beregning) {
             is ArrangorflateBeregning.Fri -> Unit
 
-            is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
-                require(utbetaling.beregning.deltakelser.all { it is ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder })
-                val casted = utbetaling.beregning.deltakelser.map { it as ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder }
+            is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> {
+                require(utbetaling.beregning.deltakelser.all { it is ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed })
+                val casted = utbetaling.beregning.deltakelser.map { it as ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed }
                 addDeltakelsesmengderSection(casted)
             }
 
@@ -69,7 +69,7 @@ object UbetalingToPdfDocumentContentMapper {
         when (utbetaling.beregning) {
             is ArrangorflateBeregning.Fri -> Unit
 
-            is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> addDeltakelsesfaktorSection(
+            is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet månedsverk",
                 deltakelseFaktorColumnName = "Månedsverk",
                 deltakelser = utbetaling.beregning.deltakelser,
@@ -131,7 +131,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
             when (utbetaling.beregning) {
                 is ArrangorflateBeregning.Fri -> Unit
 
-                is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> {
+                is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
                     entry(
                         "Sats",
@@ -142,7 +142,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
                 is ArrangorflateBeregning.PrisPerManedsverk -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
                     entry(
-                        "Sats",
+                        "Pris",
                         utbetaling.beregning.sats,
                         Format.NOK,
                     )
@@ -150,7 +150,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
                 is ArrangorflateBeregning.PrisPerUkesverk -> {
                     entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
                     entry(
-                        "Sats",
+                        "Pris",
                         utbetaling.beregning.sats,
                         Format.NOK,
                     )
@@ -211,7 +211,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 ) {
     val stengt = when (beregning) {
         is ArrangorflateBeregning.Fri -> listOf()
-        is ArrangorflateBeregning.PrisPerManedsverkMedDeltakelsesmengder -> beregning.stengt
+        is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> beregning.stengt
         is ArrangorflateBeregning.PrisPerManedsverk -> beregning.stengt
         is ArrangorflateBeregning.PrisPerUkesverk -> beregning.stengt
     }
@@ -230,7 +230,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
-    deltakelser: List<ArrangorflateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder>,
+    deltakelser: List<ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed>,
 ) {
     section("Deltakerperioder") {
         table {

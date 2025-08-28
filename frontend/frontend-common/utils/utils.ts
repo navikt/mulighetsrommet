@@ -1,5 +1,19 @@
 import { shallowEquals } from "./shallow-equals";
 
+export function addOrRemoveBy<T>(
+  array: T[],
+  item: T,
+  compare: (a: T, b: T) => boolean
+): T[] {
+  const exists = array.some((a) => compare(a, item));
+
+  if (exists) {
+    return array.filter((c) => !compare(c, item));
+  } else {
+    return [...array, item];
+  }
+}
+
 export function addOrRemove<T>(array: T[], item: T): T[] {
   const exists = array.some((a) => shallowEquals(a, item));
 

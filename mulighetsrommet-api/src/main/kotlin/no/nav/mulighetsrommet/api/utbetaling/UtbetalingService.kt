@@ -243,7 +243,7 @@ class UtbetalingService(
             is UtbetalingBeregningPrisPerUkesverk,
             -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
             -> Unit
         }
 
