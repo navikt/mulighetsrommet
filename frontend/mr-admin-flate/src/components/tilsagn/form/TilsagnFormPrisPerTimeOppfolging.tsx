@@ -4,8 +4,7 @@ import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import {
   GjennomforingDto,
-  TilsagnBeregningPrisPerManedsverk,
-  TilsagnBeregningPrisPerUkesverk,
+  TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker,
 } from "@mr/api-client-v2";
 import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
@@ -15,19 +14,19 @@ import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date"
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
-type TilsagnPrisPerManedsverk = InferredTilsagn & {
-  beregning: TilsagnBeregningPrisPerManedsverk | TilsagnBeregningPrisPerUkesverk;
+type TilsagnFormValues = InferredTilsagn & {
+  beregning: TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker;
 };
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<TilsagnPrisPerManedsverk>;
+  defaultValues: DeepPartial<TilsagnFormValues>;
   regioner: string[];
 }
 
-export function TilsagnFormPrisPerManedsverk(props: Props) {
+export function TilsagnFormPrisPerTimeOppfolging(props: Props) {
   return (
     <TilsagnForm
       {...props}
@@ -45,7 +44,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     getValues,
     setError,
     formState: { errors },
-  } = useFormContext<TilsagnPrisPerManedsverk>();
+  } = useFormContext<TilsagnFormValues>();
 
   const periodeStart = watch("periodeStart");
   const periodeSlutt = watch("periodeSlutt");
@@ -106,12 +105,22 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
           {...register("beregning.sats", { valueAsNumber: true })}
         />
       </HGrid>
+      <HGrid columns={2}>
+        <TextField
+          size="small"
+          type="number"
+          label={tilsagnTekster.antallTimerOppfolgingPerDeltaker.label}
+          style={{ width: "180px" }}
+          error={errors.beregning?.antallTimerOppfolgingPerDeltaker?.message}
+          {...register("beregning.antallTimerOppfolgingPerDeltaker", { valueAsNumber: true })}
+        />
+      </HGrid>
     </VStack>
   );
 }
 
 function BeregningOutputPreview() {
-  const { watch } = useFormContext<TilsagnPrisPerManedsverk>();
+  const { watch } = useFormContext<TilsagnFormValues>();
   const values = watch("beregning");
   return <TilsagnBeregningPreview input={values} />;
 }

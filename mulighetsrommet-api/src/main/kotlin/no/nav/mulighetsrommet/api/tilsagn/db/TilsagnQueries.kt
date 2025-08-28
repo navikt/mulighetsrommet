@@ -38,6 +38,7 @@ class TilsagnQueries(private val session: Session) {
                 belop_brukt,
                 belop_beregnet,
                 beregning_type,
+                antall_timer_oppfolging_per_deltaker,
                 datastream_periode_start,
                 datastream_periode_slutt,
                 kommentar
@@ -54,6 +55,7 @@ class TilsagnQueries(private val session: Session) {
                 :belop_brukt,
                 :belop_beregnet,
                 :beregning_type::tilsagn_beregning_type,
+                :antall_timer_oppfolging_per_deltaker,
                 :datastream_periode_start,
                 :datastream_periode_slutt,
                 :kommentar
@@ -70,6 +72,7 @@ class TilsagnQueries(private val session: Session) {
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
                 beregning_type                          = excluded.beregning_type,
+                antall_timer_oppfolging_per_deltaker    = excluded.antall_timer_oppfolging_per_deltaker,
                 datastream_periode_start                = excluded.datastream_periode_start,
                 datastream_periode_slutt                = excluded.datastream_periode_slutt,
                 kommentar                               = excluded.kommentar
@@ -92,10 +95,15 @@ class TilsagnQueries(private val session: Session) {
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
                 is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK
+                is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
             }.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
             "kommentar" to dbo.kommentar,
+            "antall_timer_oppfolging_per_deltaker" to when (dbo.beregning) {
+                is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> dbo.beregning.input.antallTimerOppfolgingPerDeltaker
+                else -> null
+            },
         )
 
         execute(queryOf(query, params))
@@ -124,6 +132,15 @@ class TilsagnQueries(private val session: Session) {
             }
 
             is TilsagnBeregningPrisPerUkesverk -> {
+                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
+                upsertTilsagnBeregningSats(
+                    dbo.id,
+                    dbo.beregning.input.sats,
+                    dbo.beregning.input.antallPlasser,
+                )
+            }
+
+            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> {
                 upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
                 upsertTilsagnBeregningSats(
                     dbo.id,
@@ -383,7 +400,7 @@ class TilsagnQueries(private val session: Session) {
         )
     }
 
-    private fun getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
+    private fun Row.getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
             TilsagnBeregningType.FRI -> getBeregningFri(id)
 
@@ -423,6 +440,21 @@ class TilsagnQueries(private val session: Session) {
                         prisbetingelser = row.stringOrNull("prisbetingelser"),
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(
+                        belop = row.int("belop_beregnet"),
+                    ),
+                )
+            }
+
+            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> getBeregningSats(id) { row ->
+                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
+                    input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                        periode = row.periode("periode"),
+                        sats = row.int("sats"),
+                        antallPlasser = row.int("antall_plasser"),
+                        antallTimerOppfolgingPerDeltaker = int("antall_timer_oppfolging_per_deltaker"),
+                        prisbetingelser = row.stringOrNull("prisbetingelser"),
+                    ),
+                    output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
                         belop = row.int("belop_beregnet"),
                     ),
                 )

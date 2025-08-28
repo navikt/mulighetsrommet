@@ -141,5 +141,14 @@ function tilsagnBeregningInput(tilsagn: TilsagnDto): TilsagnBeregningInput {
         antallPlasser: beregning.antallPlasser,
         prisbetingelser: beregning.prisbetingelser,
       };
+    case "PRIS_PER_TIME_OPPFOLGING":
+      return {
+        type: "PRIS_PER_TIME_OPPFOLGING",
+        periode,
+        sats: beregning.sats,
+        antallPlasser: beregning.antallPlasser,
+        antallTimerOppfolgingPerDeltaker: beregning.antallTimerOppfolgingPerDeltaker,
+        prisbetingelser: beregning.prisbetingelser,
+      };
   }
 }

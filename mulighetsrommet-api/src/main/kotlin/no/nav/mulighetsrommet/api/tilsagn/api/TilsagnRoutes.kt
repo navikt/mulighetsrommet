@@ -327,7 +327,18 @@ private fun resolveTilsagnDefaults(
         }
 
         is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> {
-            TODO("AvtaltPrisPerTimeOppfolgingPerDeltaker er enda ikke støttet")
+            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
+                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                    periode = periode,
+                    sats = sats,
+                    antallPlasser = gjennomforing.antallPlasser,
+                    antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
+                        is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+                        else -> 0
+                    },
+                    prisbetingelser = prismodell.prisbetingelser,
+                )
+            }
         }
     }
 
