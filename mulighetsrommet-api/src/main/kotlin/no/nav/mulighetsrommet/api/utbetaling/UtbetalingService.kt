@@ -76,7 +76,7 @@ class UtbetalingService(
                 periode = utbetaling.periode,
                 kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                 belopUtbetalt = belopUtbetalt,
-                type = UtbetalingType.from(utbetaling),
+                type = UtbetalingType.from(utbetaling).toDto(),
             )
         }
     }

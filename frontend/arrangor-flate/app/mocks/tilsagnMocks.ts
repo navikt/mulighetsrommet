@@ -37,7 +37,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
           format: DetailsFormat.NOK,
         },
         {
-          key: "Totalt beløp",
+          key: "Totalbeløp",
           value: "5285700",
           format: DetailsFormat.NOK,
         },
@@ -76,7 +76,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     beregning: {
       entries: [
         {
-          key: "Totalt beløp",
+          key: "Totalbeløp",
           value: "5285700",
           format: DetailsFormat.NOK,
         },
@@ -115,7 +115,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     beregning: {
       entries: [
         {
-          key: "Totalt beløp",
+          key: "Totalbeløp",
           value: "39000",
           format: DetailsFormat.NOK,
         },
@@ -164,7 +164,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
           format: DetailsFormat.NOK,
         },
         {
-          key: "Totalt beløp",
+          key: "Totalbeløp",
           value: "1147752",
           format: DetailsFormat.NOK,
         },
@@ -208,7 +208,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
           format: DetailsFormat.NOK,
         },
         {
-          key: "Totalt beløp",
+          key: "Totalbeløp",
           value: "6000",
           format: DetailsFormat.NOK,
         },

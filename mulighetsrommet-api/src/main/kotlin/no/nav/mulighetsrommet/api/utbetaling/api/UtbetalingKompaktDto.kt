@@ -14,5 +14,5 @@ data class UtbetalingKompaktDto(
     val periode: Periode,
     val kostnadssteder: List<KostnadsstedDto>,
     val belopUtbetalt: Int?,
-    val type: UtbetalingType?,
+    val type: UtbetalingTypeDto,
 )

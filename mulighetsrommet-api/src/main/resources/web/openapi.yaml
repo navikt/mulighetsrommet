@@ -4698,7 +4698,7 @@ components:
           $ref: "#/components/schemas/UtbetalingType"
         begrunnelseMindreBetalt:
           type: string
-      required: [id, status, periode, belop, createdAt, tilskuddstype]
+      required: [id, status, periode, belop, createdAt, tilskuddstype, type]
 
     UtbetalingHandlinger:
       type: object
@@ -4725,13 +4725,18 @@ components:
           type: [number, "null"]
         type:
           $ref: "#/components/schemas/UtbetalingType"
-      required: [id, status, periode, kostnadssteder, belopUtbetalt]
+      required: [id, status, periode, kostnadssteder, belopUtbetalt, type]
 
     UtbetalingType:
-      type: string
-      enum:
-        - KORRIGERING
-        - INVESTERING
+      type: object
+      properties:
+        displayName:
+          type: string
+        displayNameLong:
+          type: [ string, "null" ]
+        tagName:
+          type: [ string, "null" ]
+      required: [ displayName, displayNameLong, tagName]
 
     UtbetalingBeregningDto:
       type: object

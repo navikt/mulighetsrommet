@@ -10,8 +10,27 @@ import {
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
+  UtbetalingType,
 } from "@mr/api-client-v2";
 import { mockEnheter } from "./mock_enheter";
+
+const utbetalingType: Record<"KORRIGERING" | "INVESTERING" | "INNSENDING", UtbetalingType> = {
+  KORRIGERING: {
+    displayName: "Korrigering",
+    displayNameLong: null,
+    tagName: "KOR",
+  },
+  INVESTERING: {
+    displayName: "Korrigering",
+    displayNameLong: "Utbetaling for investering",
+    tagName: "INV",
+  },
+  INNSENDING: {
+    displayName: "Innsending",
+    displayNameLong: null,
+    tagName: null,
+  },
+};
 
 export const mockUtbetalinger: UtbetalingDto[] = [
   {
@@ -32,6 +51,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z123456",
     journalpostId: "JP123456",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -51,6 +71,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Arrangør",
     journalpostId: "JP123457",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -70,6 +91,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -89,6 +111,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     innsendtAv: "Z987654",
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    type: utbetalingType.INNSENDING,
   },
 ];
 
@@ -102,6 +125,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     status: { type: "VENTER_PA_ARRANGOR" },
     belopUtbetalt: null,
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
+    type: utbetalingType.INNSENDING,
   },
   {
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
@@ -112,6 +136,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     },
     status: { type: "TIL_ATTESTERING" },
     belopUtbetalt: null,
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -122,6 +147,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: 13400,
     status: { type: "OVERFORT_TIL_UTBETALING" },
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -132,6 +158,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     status: { type: "RETURNERT" },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: null,
+    type: utbetalingType.INNSENDING,
   },
 ];
 
