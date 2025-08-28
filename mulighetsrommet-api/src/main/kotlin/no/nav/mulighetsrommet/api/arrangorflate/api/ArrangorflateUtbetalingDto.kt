@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -35,7 +35,7 @@ data class ArrangorflateUtbetalingDto(
     val beregning: ArrangorflateBeregning,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
-    val type: UtbetalingType,
+    val type: UtbetalingTypeDto,
     val linjer: List<ArrangorUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
 )

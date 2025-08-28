@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -99,7 +100,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         periode = utbetaling.periode,
         beregning = beregning,
         betalingsinformasjon = utbetaling.betalingsinformasjon,
-        type = UtbetalingType.from(utbetaling),
+        type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         advarsler = advarsler,
     )

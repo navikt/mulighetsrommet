@@ -7,7 +7,7 @@ import {
   ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-  UtbetalingType,
+  UtbetalingTypeDto,
 } from "api-client";
 import { useRef } from "react";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
@@ -140,7 +140,7 @@ export default function UtbetalingDetaljerSide() {
   );
 }
 
-function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingType }) {
+function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingTypeDto }) {
   const tekst = utbetalingType.displayNameLong ?? utbetalingType.displayName;
   return (
     <HStack gap="2">

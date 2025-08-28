@@ -602,7 +602,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/ArrangorflateArrangor"
         type:
-          $ref: "#/components/schemas/UtbetalingType"
+          $ref: "#/components/schemas/UtbetalingTypeDto"
         periode:
           $ref: "#/components/schemas/Periode"
         status:
@@ -678,11 +678,9 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    UtbetalingType:
+    UtbetalingTypeDto:
       type: object
       properties:
-        type:
-          type: string
         displayName:
           type: string
         displayNameLong:
@@ -697,7 +695,6 @@ components:
       - displayName
       - displayNameLong
       - tagName
-      - type
     Periode:
       type: object
       properties:
@@ -1293,7 +1290,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         type:
-          $ref: "#/components/schemas/UtbetalingType"
+          $ref: "#/components/schemas/UtbetalingTypeDto"
         linjer:
           type: array
           items:

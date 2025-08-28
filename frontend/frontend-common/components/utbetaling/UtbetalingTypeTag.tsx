@@ -1,8 +1,13 @@
-import { UtbetalingType } from "@api-client";
 import { HStack, Tag } from "@navikt/ds-react";
 
+export type UtbetalingTypeDto = {
+    displayName: string;
+    displayNameLong: string | null;
+    tagName: string | null;
+};
+
 interface UtbetalingsTypeTagProps {
-  type: UtbetalingType;
+  type: UtbetalingTypeDto;
 }
 
 export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
@@ -17,7 +22,7 @@ export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
 }
 
 interface UtbetalingsTypeProps {
-  type: UtbetalingType;
+  type: UtbetalingTypeDto;
 }
 
 export function UtbetalingTypeText({ type }: UtbetalingsTypeProps) {

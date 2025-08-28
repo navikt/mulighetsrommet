@@ -1,23 +1,22 @@
-import { UtbetalingType } from "@api-client";
+import { UtbetalingTypeDto } from "@api-client";
 
-export const utbetalingType: Record<"KORRIGERING" | "INVESTERING" | "INNSENDING", UtbetalingType> =
-  {
-    KORRIGERING: {
-      type: "KORRIGERING",
-      displayName: "Korrigering",
-      displayNameLong: null,
-      tagName: "KOR",
-    },
-    INVESTERING: {
-      type: "INVESTERING",
-      displayName: "Korrigering",
-      displayNameLong: "Utbetaling for investering",
-      tagName: "INV",
-    },
-    INNSENDING: {
-      type: "INNSENDING",
-      displayName: "Innsending",
-      displayNameLong: null,
-      tagName: null,
-    },
-  };
+export const utbetalingType: Record<
+  "KORRIGERING" | "INVESTERING" | "INNSENDING",
+  UtbetalingTypeDto
+> = {
+  KORRIGERING: {
+    displayName: "Korrigering",
+    displayNameLong: null,
+    tagName: "KOR",
+  },
+  INVESTERING: {
+    displayName: "Investering",
+    displayNameLong: "Utbetaling for investering",
+    tagName: "INV",
+  },
+  INNSENDING: {
+    displayName: "Innsending",
+    displayNameLong: null,
+    tagName: null,
+  },
+};

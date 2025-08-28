@@ -188,7 +188,7 @@ export function UtbetalingPage() {
                       header="Utbetalingsperiode"
                       value={formaterPeriode(utbetaling.periode)}
                     />
-                    {utbetaling.type && (
+                    {utbetaling.type.tagName && (
                       <MetadataHorisontal
                         header="Type"
                         value={<UtbetalingTypeText type={utbetaling.type} />}

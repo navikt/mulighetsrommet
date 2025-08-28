@@ -7,6 +7,8 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
@@ -100,7 +102,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             kid = null,
         ),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-        type = null,
+        type = UtbetalingType.INNSENDING.toDto(),
         linjer = listOf(
             ArrangorUtbetalingLinje(
                 id = UUID.randomUUID(),

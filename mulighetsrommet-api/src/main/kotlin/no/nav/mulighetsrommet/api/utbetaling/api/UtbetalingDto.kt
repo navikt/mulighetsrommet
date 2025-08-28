@@ -26,7 +26,7 @@ data class UtbetalingDto(
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
-    val type: UtbetalingType,
+    val type: UtbetalingTypeDto,
 ) {
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
@@ -43,7 +43,7 @@ data class UtbetalingDto(
                 innsendtAv = formaterInnsendtAv(utbetaling.innsender),
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,
-                type = UtbetalingType.from(utbetaling),
+                type = UtbetalingType.from(utbetaling).toDto(),
             )
         }
 
