@@ -403,7 +403,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PersonService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get()) }
-    single { GjennomforingValidator(get()) }
+    single { GjennomforingValidator(get(), get()) }
     single { LagretFilterService(get()) }
     single {
         TilsagnService(

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -36,7 +37,7 @@ class GjennomforingValidatorTest : FunSpec({
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
         ),
-        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
     )
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
@@ -106,7 +107,7 @@ class GjennomforingValidatorTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createValidator() = GjennomforingValidator(database.db)
+    fun createValidator() = GjennomforingValidator(database.db, NavEnhetService(database.db))
 
     test("skal feile når avtale ikke finnes") {
         val unknownAvtaleId = UUID.randomUUID()
@@ -310,16 +311,6 @@ class GjennomforingValidatorTest : FunSpec({
             row(
                 gjennomforing.copy(antallPlasser = 0),
                 listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
-            ),
-            row(
-                gjennomforing.copy(
-                    navEnheter = setOf(
-                        NavEnhetNummer("0400"),
-                        NavEnhetNummer("0502"),
-                        NavEnhetNummer("0401"),
-                    ),
-                ),
-                listOf(FieldError("/navEnheter", "Nav-enhet 0401 mangler i avtalen")),
             ),
             row(
                 gjennomforing.copy(navEnheter = setOf()),

@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvbruttAarsak
@@ -41,7 +42,7 @@ class GjennomforingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createService(
-        validator: GjennomforingValidator = GjennomforingValidator(database.db),
+        validator: GjennomforingValidator = GjennomforingValidator(database.db, NavEnhetService(database.db)),
     ): GjennomforingService = GjennomforingService(
         config = GjennomforingService.Config(PRODUCER_TOPIC),
         db = database.db,
@@ -120,14 +121,14 @@ class GjennomforingServiceTest : FunSpec({
         test("navEnheter uten fylke blir filtrert vekk") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request
 
-            service.upsert(
-                gjennomforing.copy(navEnheter = setOf(Oslo.enhetsnummer, Sagene.enhetsnummer, Gjovik.enhetsnummer)),
+            createService().upsert(
+                gjennomforing.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sagene.enhetsnummer)),
                 bertilNavIdent,
             ).shouldBeRight().should {
                 it.kontorstruktur.shouldHaveSize(1)
                 it.kontorstruktur[0].kontorer.shouldHaveSize(1)
-                it.kontorstruktur[0].kontorer[0].enhetsnummer shouldBe Sagene.enhetsnummer
-                it.kontorstruktur[0].region.enhetsnummer shouldBe Oslo.enhetsnummer
+                it.kontorstruktur[0].kontorer[0].enhetsnummer shouldBe Gjovik.enhetsnummer
+                it.kontorstruktur[0].region.enhetsnummer shouldBe Innlandet.enhetsnummer
             }
         }
 

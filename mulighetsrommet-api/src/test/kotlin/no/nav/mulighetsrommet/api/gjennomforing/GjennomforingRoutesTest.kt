@@ -114,7 +114,7 @@ class GjennomforingRoutesTest : FunSpec({
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(
                 AvtaleFixtures.oppfolging.copy(
-                    navEnheter = listOf(
+                    navEnheter = setOf(
                         NavEnhetFixtures.Oslo.enhetsnummer,
                         NavEnhetFixtures.Sagene.enhetsnummer,
                     ),
