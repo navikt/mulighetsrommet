@@ -1,19 +1,14 @@
-import { Prismodell, TilsagnService, TilsagnType } from "@mr/api-client-v2";
+import { TilsagnDefaultsRequest, TilsagnService } from "@mr/api-client-v2";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export const tilsagnDefaultsQuery = (params: {
-  gjennomforingId?: string;
-  type: TilsagnType;
-  prismodell: Prismodell | null;
-  periodeStart: string | null;
-  periodeSlutt: string | null;
-  belop: number | null;
-  kostnadssted: string | null;
-}) => ({
-  queryKey: [QueryKeys.opprettTilsagn(), params],
-  queryFn: () =>
-    TilsagnService.getTilsagnDefaults({
-      body: { gjennomforingId: params.gjennomforingId!, ...params },
-    }),
-  enabled: !!params.gjennomforingId,
-});
+export function useTilsagnDefaults(request: TilsagnDefaultsRequest) {
+  return useApiSuspenseQuery({
+    queryKey: [QueryKeys.opprettTilsagn(), request],
+    queryFn: async () => {
+      return TilsagnService.getTilsagnDefaults({
+        body: request,
+      });
+    },
+  });
+}

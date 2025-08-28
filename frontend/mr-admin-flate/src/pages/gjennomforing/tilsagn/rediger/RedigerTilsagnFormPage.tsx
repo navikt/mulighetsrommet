@@ -6,11 +6,10 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnBeregningInput, TilsagnDto, TilsagnRequest } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { aktiveTilsagnQuery, tilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
+import { useAktiveTilsagn, useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
@@ -19,18 +18,19 @@ import { TilsagnTable } from "../tabell/TilsagnTable";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
+  if (!gjennomforingId || !tilsagnId) {
+    throw Error("Fant ikke gjennomforingId eller tilsagnId i url");
+  }
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: tilsagnDetaljer } = useSuspenseQuery({ ...tilsagnQuery(tilsagnId) });
-  const { data: aktiveTilsagn } = useSuspenseQuery({
-    ...aktiveTilsagnQuery(gjennomforingId),
-  });
+  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
 
   return {
     avtale,
     gjennomforing,
-    aktiveTilsagn: aktiveTilsagn.data,
-    ...tilsagnDetaljer.data,
+    ...tilsagnDetaljer,
+    aktiveTilsagn,
   };
 }
 
