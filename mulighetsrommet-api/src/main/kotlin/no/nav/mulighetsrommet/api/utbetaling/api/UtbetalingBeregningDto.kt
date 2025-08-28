@@ -53,9 +53,7 @@ sealed class UtbetalingBeregningDto {
             ) = DataDrivenTableDto(
                 columns = Fri.friDeltakelseColumns() + manedsverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
-                    DataDrivenTableDto.Row(
-                        Fri.friDeltakelseCells(person) + manedsverkDeltakelseCells(deltakelse.faktor, sats),
-                    )
+                    Fri.friDeltakelseCells(person) + manedsverkDeltakelseCells(deltakelse.faktor, sats)
                 },
             )
 
@@ -74,15 +72,9 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = listOf(
-                DataDrivenTableDto.Cell(
-                    "manedsverk",
-                    DataElement.Text(manedsverk.toString(), DataElement.Text.Format.NUMBER),
-                ),
-                DataDrivenTableDto.Cell(
-                    "belop",
-                    DataElement.Text((sats.toDouble() * manedsverk).toString(), DataElement.Text.Format.NOK),
-                ),
+            private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
+                "manedsverk" to DataElement.Text(manedsverk.toString(), DataElement.Text.Format.NUMBER),
+                "belop" to DataElement.Text((sats.toDouble() * manedsverk).toString(), DataElement.Text.Format.NOK),
             )
         }
     }
@@ -105,9 +97,7 @@ sealed class UtbetalingBeregningDto {
             ) = DataDrivenTableDto(
                 columns = Fri.friDeltakelseColumns() + ukesverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
-                    DataDrivenTableDto.Row(
-                        Fri.friDeltakelseCells(person) + ukesverkDeltakelseCells(deltakelse.faktor, sats),
-                    )
+                    Fri.friDeltakelseCells(person) + ukesverkDeltakelseCells(deltakelse.faktor, sats)
                 },
             )
 
@@ -126,15 +116,9 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = listOf(
-                DataDrivenTableDto.Cell(
-                    "ukesverk",
-                    DataElement.Text(ukesverk.toString(), DataElement.Text.Format.NUMBER),
-                ),
-                DataDrivenTableDto.Cell(
-                    "belop",
-                    DataElement.Text((sats.toDouble() * ukesverk).toString(), DataElement.Text.Format.NOK),
-                ),
+            private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
+                "ukesverk" to DataElement.Text(ukesverk.toString(), DataElement.Text.Format.NUMBER),
+                "belop" to DataElement.Text((sats.toDouble() * ukesverk).toString(), DataElement.Text.Format.NOK),
             )
         }
     }
@@ -152,7 +136,7 @@ sealed class UtbetalingBeregningDto {
             fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
                 columns = friDeltakelseColumns(),
                 rows = deltakelsePersoner.map {
-                    DataDrivenTableDto.Row(friDeltakelseCells(it.second))
+                    friDeltakelseCells(it.second)
                 },
             )
 
@@ -173,23 +157,13 @@ sealed class UtbetalingBeregningDto {
                 ),
             )
 
-            fun friDeltakelseCells(person: PersonEnhetOgRegion?) = listOf(
-                DataDrivenTableDto.Cell(
-                    "navn",
-                    person?.person?.navn?.let { DataElement.Text(it) },
-                ),
-                DataDrivenTableDto.Cell(
-                    "geografiskEnhet",
-                    person?.geografiskEnhet?.navn?.let { DataElement.Text(it) },
-                ),
-                DataDrivenTableDto.Cell(
-                    "region",
-                    person?.region?.navn?.let { DataElement.Text(it) },
-                ),
-                DataDrivenTableDto.Cell(
-                    "foedselsdato",
-                    person?.person?.foedselsdato?.let { DataElement.Text(it.toString(), DataElement.Text.Format.DATE) },
-                ),
+            fun friDeltakelseCells(person: PersonEnhetOgRegion?) = mapOf(
+                "navn" to person?.person?.navn?.let { DataElement.Text(it) },
+                "geografiskEnhet" to person?.geografiskEnhet?.navn?.let { DataElement.Text(it) },
+                "region" to person?.region?.navn?.let { DataElement.Text(it) },
+                "foedselsdato" to person?.person?.foedselsdato?.let {
+                    DataElement.Text(it.toString(), DataElement.Text.Format.DATE)
+                },
             )
         }
     }

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class DataDrivenTableDto(
     val columns: List<Column>,
-    val rows: List<Row>,
+    val rows: List<Map<String, DataElement?>>,
 ) {
     @Serializable
     data class Column(
@@ -24,17 +24,6 @@ class DataDrivenTableDto(
             RIGHT,
         }
     }
-
-    @Serializable
-    data class Row(
-        val cells: List<Cell>,
-    )
-
-    @Serializable
-    data class Cell(
-        val key: String,
-        val value: DataElement?,
-    )
 }
 
 @Serializable
