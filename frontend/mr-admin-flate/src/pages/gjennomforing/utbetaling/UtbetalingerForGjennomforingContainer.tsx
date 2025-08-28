@@ -1,22 +1,22 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Rolle, Toggles } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { utbetalingerByGjennomforingQuery } from "./utbetalingerForGjennomforingLoader";
+import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLoader";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useParams();
+  if (!gjennomforingId) {
+    throw Error("Fant ikke gjennomforingId i url");
+  }
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const navigate = useNavigate();
 
-  const { data: utbetalinger } = useSuspenseQuery({
-    ...utbetalingerByGjennomforingQuery(gjennomforingId),
-  });
+  const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
 
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
@@ -49,8 +49,8 @@ export function UtbetalingerForGjennomforingContainer() {
           </Dropdown>
         </HarTilgang>
       </KnapperadContainer>
-      {utbetalinger.data.length > 0 ? (
-        <UtbetalingTable utbetalinger={utbetalinger.data} />
+      {utbetalinger.length > 0 ? (
+        <UtbetalingTable utbetalinger={utbetalinger} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen utbetalinger for dette tiltaket

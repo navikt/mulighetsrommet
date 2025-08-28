@@ -1,13 +1,13 @@
 import { UtbetalingService } from "@mr/api-client-v2";
-import { queryOptions } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export const utbetalingerByGjennomforingQuery = (gjennomforingId?: string) =>
-  queryOptions({
+export function useUtbetalingerByGjennomforing(gjennomforingId: string) {
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.utbetalingerByGjennomforing(gjennomforingId),
-    queryFn: () =>
+    queryFn: async () =>
       UtbetalingService.utbetalingerByGjennomforing({
-        path: { gjennomforingId: gjennomforingId! },
+        path: { gjennomforingId },
       }),
-    enabled: !!gjennomforingId,
   });
+}

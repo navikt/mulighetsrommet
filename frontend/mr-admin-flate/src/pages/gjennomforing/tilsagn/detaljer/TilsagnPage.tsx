@@ -33,23 +33,22 @@ import { ActionMenu, Alert, BodyShort, Button, Heading, HStack, VStack } from "@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
-import { aktiveTilsagnQuery, tilsagnHistorikkQuery, tilsagnQuery } from "./tilsagnDetaljerLoader";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
-import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TilsagnTable } from "../tabell/TilsagnTable";
 import { HarTilgang } from "@/components/auth/HarTilgang";
+import { useAktiveTilsagn, useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
-
+  if (!gjennomforingId || !tilsagnId) {
+    throw Error("Fant ikke gjennomforingId eller tilsagnId i url");
+  }
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: tilsagnDetaljer } = useApiSuspenseQuery(tilsagnQuery(tilsagnId));
-  const { data: historikk } = useApiSuspenseQuery({ ...tilsagnHistorikkQuery(tilsagnId) });
-  const { data: aktiveTilsagn } = useApiSuspenseQuery({
-    ...aktiveTilsagnQuery(gjennomforingId),
-  });
+  const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
+  const { data: historikk } = useTilsagnEndringshistorikk(tilsagnId);
+  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
 
   return {
     gjennomforing,

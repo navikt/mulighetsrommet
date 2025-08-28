@@ -9,10 +9,9 @@ import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { tilsagnDefaultsQuery } from "./opprettTilsagnLoader";
+import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { Laster } from "@/components/laster/Laster";
-import { aktiveTilsagnQuery } from "../detaljer/tilsagnDetaljerLoader";
-import { useApiSuspenseQuery } from "@mr/frontend-common";
+import { useAktiveTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { TilsagnTable } from "../tabell/TilsagnTable";
 
@@ -41,23 +40,23 @@ function useHentData() {
   const kostnadssted = searchParams.get("kostnadssted");
 
   const { gjennomforingId } = useParams();
+  if (!gjennomforingId) {
+    throw Error("Fant ikke gjennomforingId i url");
+  }
+
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: defaults } = useApiSuspenseQuery({
-    ...tilsagnDefaultsQuery({
-      gjennomforingId,
-      type,
-      prismodell: selectPrismodellDefault(prismodell, avtale),
-      periodeStart,
-      periodeSlutt,
-      belop: belop ? Number(belop) : null,
-      kostnadssted: kostnadssted ? kostnadssted : null,
-    }),
+  const { data: defaults } = useTilsagnDefaults({
+    gjennomforingId,
+    type,
+    prismodell: selectPrismodellDefault(prismodell, avtale),
+    periodeStart,
+    periodeSlutt,
+    belop: belop ? Number(belop) : null,
+    kostnadssted: kostnadssted ? kostnadssted : null,
   });
 
-  const { data: aktiveTilsagn } = useApiSuspenseQuery({
-    ...aktiveTilsagnQuery(gjennomforingId),
-  });
+  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
 
   return { gjennomforing, avtale, defaults, aktiveTilsagn };
 }
