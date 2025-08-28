@@ -400,8 +400,8 @@ importers:
         specifier: 7.28.1
         version: 7.28.1
       '@portabletext/react':
-        specifier: 3.2.1
-        version: 3.2.1(react@19.0.0)
+        specifier: 4.0.1
+        version: 4.0.1(react@19.0.0)
       '@portabletext/types':
         specifier: 2.0.15
         version: 2.0.15
@@ -554,8 +554,8 @@ importers:
         specifier: 7.28.1
         version: 7.28.1
       '@portabletext/react':
-        specifier: 3.2.1
-        version: 3.2.1(react@19.0.0)
+        specifier: 4.0.1
+        version: 4.0.1(react@19.0.0)
       '@sanity/client':
         specifier: 7.9.0
         version: 7.9.0(debug@4.4.1)
@@ -621,8 +621,8 @@ importers:
         specifier: 7.28.1
         version: 7.28.1
       '@portabletext/react':
-        specifier: 3.2.1
-        version: 3.2.1(react@19.0.0)
+        specifier: 4.0.1
+        version: 4.0.1(react@19.0.0)
       '@tailwindcss/postcss':
         specifier: 4.1.12
         version: 4.1.12
@@ -2491,6 +2491,12 @@ packages:
     engines: {node: ^14.13.1 || >=16.0.0}
     peerDependencies:
       react: ^17 || ^18 || >=19.0.0-0
+
+  '@portabletext/react@4.0.1':
+    resolution: {integrity: sha512-S1MNyGQERpdU5bVUYGDWyyHkTiedwnuOHSMPgLr96yJmLKGcyHTcwPktqcgPuaCxsRUrqPVR89IYFsGW2JKn3w==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      react: ^18.2 || ^19
 
   '@portabletext/sanity-bridge@1.1.5':
     resolution: {integrity: sha512-rUsWW9ZrcPdSJD/mEiPykhrFVC/rhifKpaRuvyVVyQJDfFgX74ZyuO2pt/UlJezbm/NrozRENtAG4WaSLkSpvg==}
@@ -10842,6 +10848,12 @@ snapshots:
   '@portabletext/react@3.2.1(react@19.0.0)':
     dependencies:
       '@portabletext/toolkit': 2.0.17
+      '@portabletext/types': 2.0.15
+      react: 19.0.0
+
+  '@portabletext/react@4.0.1(react@19.0.0)':
+    dependencies:
+      '@portabletext/toolkit': 3.0.0
       '@portabletext/types': 2.0.15
       react: 19.0.0
 
