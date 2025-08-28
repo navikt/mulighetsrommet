@@ -60,7 +60,7 @@ class AvtaleValidatorTest : FunSpec({
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         avtaletype = Avtaletype.RAMMEAVTALE,
         prisbetingelser = null,
-        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         antallPlasser = null,
         beskrivelse = null,
         faneinnhold = null,
@@ -93,7 +93,7 @@ class AvtaleValidatorTest : FunSpec({
         val dbo = avtaleDbo.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
-            navEnheter = emptyList(),
+            navEnheter = emptySet(),
             arrangor = AvtaleDbo.Arrangor(
                 hovedenhet = ArrangorFixtures.hovedenhet.id,
                 underenheter = emptyList(),
@@ -155,31 +155,13 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
 
         val dbo = avtaleDbo.copy(
-            navEnheter = listOf(),
+            navEnheter = setOf(),
         )
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
                 FieldError("/navRegioner", "Du må velge minst én Nav-region"),
                 FieldError("/navKontorer", "Du må velge minst én Nav-enhet"),
-            ),
-        )
-    }
-
-    test("skal validere at Nav-enheter må være koblet til Nav-fylke") {
-        val validator = createValidator()
-
-        val dbo = avtaleDbo.copy(
-            navEnheter = listOf(
-                NavEnhetFixtures.Oslo.enhetsnummer,
-                NavEnhetFixtures.Sagene.enhetsnummer,
-                NavEnhetFixtures.Gjovik.enhetsnummer,
-            ),
-        )
-
-        validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            listOf(
-                FieldError("/navKontorer", "Nav-enheten 0502 passer ikke i avtalens kontorstruktur"),
             ),
         )
     }
@@ -550,7 +532,7 @@ class AvtaleValidatorTest : FunSpec({
                 ).initialize(database.db)
 
                 val dbo = avtaleDbo.copy(
-                    navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
+                    navEnheter = setOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
                 )
 
                 val previous = database.run { queries.avtale.get(avtaleDbo.id) }

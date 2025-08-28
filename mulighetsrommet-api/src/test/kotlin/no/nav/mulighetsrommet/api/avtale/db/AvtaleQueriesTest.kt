@@ -216,7 +216,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("avtalens nav-enheter hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer),
+                navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer),
             )
 
             database.runAndRollback { session ->
@@ -240,7 +240,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("Nav-enheter uten overordnet enhet hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Oslo.enhetsnummer),
+                navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Oslo.enhetsnummer),
             )
 
             database.runAndRollback { session ->
@@ -692,9 +692,9 @@ class AvtaleQueriesTest : FunSpec({
                     TiltakstypeFixtures.VTA,
                 ),
                 avtaler = listOf(
-                    AvtaleFixtures.oppfolging.copy(navEnheter = listOf()),
-                    AvtaleFixtures.AFT.copy(navEnheter = listOf()),
-                    AvtaleFixtures.VTA.copy(navEnheter = listOf()),
+                    AvtaleFixtures.oppfolging.copy(navEnheter = setOf()),
+                    AvtaleFixtures.AFT.copy(navEnheter = setOf()),
+                    AvtaleFixtures.VTA.copy(navEnheter = setOf()),
                 ),
             )
 
@@ -729,12 +729,12 @@ class AvtaleQueriesTest : FunSpec({
                 ),
                 avtaler = listOf(
                     AvtaleFixtures.oppfolging.copy(
-                        navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
                     ),
                     AvtaleFixtures.AFT.copy(
-                        navEnheter = listOf(Innlandet.enhetsnummer, Sel.enhetsnummer),
+                        navEnheter = setOf(Innlandet.enhetsnummer, Sel.enhetsnummer),
                     ),
-                    AvtaleFixtures.VTA.copy(navEnheter = listOf(Innlandet.enhetsnummer)),
+                    AvtaleFixtures.VTA.copy(navEnheter = setOf(Innlandet.enhetsnummer)),
                 ),
             )
 
