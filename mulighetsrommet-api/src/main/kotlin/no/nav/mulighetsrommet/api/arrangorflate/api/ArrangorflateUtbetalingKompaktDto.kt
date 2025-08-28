@@ -16,7 +16,7 @@ data class ArrangorflateUtbetalingKompaktDto(
     val tiltakstype: ArrangorflateTiltakstype,
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
-    val type: UtbetalingType? = null,
+    val type: UtbetalingType,
     val periode: Periode,
     val status: ArrangorflateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)

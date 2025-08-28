@@ -26,7 +26,7 @@ data class UtbetalingDto(
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
-    val type: UtbetalingType?,
+    val type: UtbetalingType,
 ) {
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {

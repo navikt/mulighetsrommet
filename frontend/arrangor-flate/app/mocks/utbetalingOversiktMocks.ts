@@ -2,8 +2,8 @@ import {
   ArrangorflateUtbetalingKompaktDto,
   ArrangorflateUtbetalingStatus,
   Tiltakskode,
-  UtbetalingType,
 } from "api-client";
+import { utbetalingType } from "./utbetalingTypeMocks";
 
 export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktDto[] = [
   {
@@ -29,7 +29,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       slutt: "2025-02-01",
     },
     belop: 10149,
-    type: null,
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
@@ -54,7 +54,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     },
     belop: 242904,
     godkjentBelop: null,
-    type: null,
+    type: utbetalingType.INNSENDING,
   },
   {
     id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
@@ -79,7 +79,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     },
     belop: 234,
     godkjentBelop: null,
-    type: UtbetalingType.INVESTERING,
+    type: utbetalingType.INVESTERING,
   },
   {
     id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
@@ -104,7 +104,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       slutt: "2025-02-01",
     },
     belop: 500,
-    type: UtbetalingType.KORRIGERING,
+    type: utbetalingType.KORRIGERING,
   },
   {
     id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
@@ -129,6 +129,6 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     },
     belop: 16848,
     godkjentBelop: null,
-    type: null,
+    type: utbetalingType.INNSENDING,
   },
 ];

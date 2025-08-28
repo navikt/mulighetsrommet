@@ -602,9 +602,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/ArrangorflateArrangor"
         type:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtbetalingType"
+          $ref: "#/components/schemas/UtbetalingType"
         periode:
           $ref: "#/components/schemas/Periode"
         status:
@@ -681,10 +679,25 @@ components:
       - navn
       - organisasjonsnummer
     UtbetalingType:
-      type: string
-      enum:
-      - KORRIGERING
-      - INVESTERING
+      type: object
+      properties:
+        type:
+          type: string
+        displayName:
+          type: string
+        displayNameLong:
+          type:
+          - "null"
+          - string
+        tagName:
+          type:
+          - "null"
+          - string
+      required:
+      - displayName
+      - displayNameLong
+      - tagName
+      - type
     Periode:
       type: object
       properties:
@@ -891,6 +904,8 @@ components:
         sats:
           type: integer
           format: int32
+        displayName:
+          type: string
         detaljer:
           $ref: "#/components/schemas/Details"
       required:
@@ -899,6 +914,7 @@ components:
       - deltakelser
       - detaljer
       - digest
+      - displayName
       - sats
       - stengt
     ArrangorflateBeregningDeltakelse:
@@ -1069,12 +1085,15 @@ components:
           format: int32
         digest:
           type: string
+        displayName:
+          type: string
         detaljer:
           $ref: "#/components/schemas/Details"
       required:
       - belop
       - detaljer
       - digest
+      - displayName
     ArrangorflateBeregningPrisPerManedsverk:
       type: object
       properties:
@@ -1097,6 +1116,8 @@ components:
         sats:
           type: integer
           format: int32
+        displayName:
+          type: string
         detaljer:
           $ref: "#/components/schemas/Details"
       required:
@@ -1105,6 +1126,7 @@ components:
       - deltakelser
       - detaljer
       - digest
+      - displayName
       - sats
       - stengt
     ArrangorflateBeregningPrisPerUkesverk:
@@ -1129,6 +1151,8 @@ components:
         sats:
           type: integer
           format: int32
+        displayName:
+          type: string
         detaljer:
           $ref: "#/components/schemas/Details"
       required:
@@ -1137,6 +1161,7 @@ components:
       - deltakelser
       - detaljer
       - digest
+      - displayName
       - sats
       - stengt
     Betalingsinformasjon:
@@ -1268,9 +1293,7 @@ components:
         periode:
           $ref: "#/components/schemas/Periode"
         type:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtbetalingType"
+          $ref: "#/components/schemas/UtbetalingType"
         linjer:
           type: array
           items:

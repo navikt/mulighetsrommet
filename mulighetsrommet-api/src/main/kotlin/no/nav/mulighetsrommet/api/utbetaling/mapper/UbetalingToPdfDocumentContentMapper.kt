@@ -94,7 +94,7 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Arrangorf
     val utbetalingHeader = when (utbetaling.type) {
         UtbetalingType.KORRIGERING -> "Korrigering"
         UtbetalingType.INVESTERING -> "Utbetaling for investering"
-        null -> "Innsending"
+        UtbetalingType.INNSENDING -> "Innsending"
     }
     section(utbetalingHeader) {
         descriptionList {

@@ -1,18 +1,17 @@
+import { UtbetalingType } from "@api-client";
 import { HStack, Tag } from "@navikt/ds-react";
-
-enum UtbetalingType {
-  KORRIGERING = "KORRIGERING",
-  INVESTERING = "INVESTERING",
-}
 
 interface UtbetalingsTypeTagProps {
   type: UtbetalingType;
 }
 
 export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
+  if (!type.tagName) {
+    return null
+  }
   return (
-    <Tag variant="neutral" title={visningsNavn(type)} size="small">
-      {tagNavn(type)}
+    <Tag variant="neutral" title={type.displayName} size="small">
+      {type.tagName}
     </Tag>
   );
 }
@@ -22,28 +21,13 @@ interface UtbetalingsTypeProps {
 }
 
 export function UtbetalingTypeText({ type }: UtbetalingsTypeProps) {
+  if (!type.tagName){
+    return null;
+  }
   return (
     <HStack gap="2">
-      {visningsNavn(type)}
+      {type.displayName}
       <UtbetalingTypeTag type={type} />
     </HStack>
   );
-}
-
-function visningsNavn(type: UtbetalingType) {
-  switch (type) {
-    case UtbetalingType.KORRIGERING:
-      return "Korrigering";
-    case UtbetalingType.INVESTERING:
-      return "Investering";
-  }
-}
-
-function tagNavn(type: UtbetalingType) {
-  switch (type) {
-    case UtbetalingType.KORRIGERING:
-      return "KOR";
-    case UtbetalingType.INVESTERING:
-      return "INV";
-  }
 }

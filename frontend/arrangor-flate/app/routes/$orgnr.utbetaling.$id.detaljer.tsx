@@ -90,7 +90,7 @@ export default function UtbetalingDetaljerSide() {
           </Link>
         )}
       </HStack>
-      <UtbetalingHeader type={utbetaling.type} />
+      <UtbetalingHeader utbetalingType={utbetaling.type} />
       <Definisjonsliste
         definitions={[
           innsendtTidspunkt,
@@ -140,25 +140,16 @@ export default function UtbetalingDetaljerSide() {
   );
 }
 
-function UtbetalingHeader({ type }: { type: UtbetalingType | null }) {
-  const tekst = type ? getUtbetalingTypeNavn(type) : "Innsending";
+function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingType }) {
+  const tekst = utbetalingType.displayNameLong ?? utbetalingType.displayName;
   return (
     <HStack gap="2">
       <Heading level="3" size="medium">
         {tekst}
       </Heading>
-      {type && <UtbetalingTypeTag type={type} />}
+      <UtbetalingTypeTag type={utbetalingType} />
     </HStack>
   );
-}
-
-function getUtbetalingTypeNavn(type: UtbetalingType) {
-  switch (type) {
-    case UtbetalingType.KORRIGERING:
-      return "Korrigering";
-    case UtbetalingType.INVESTERING:
-      return "Utbetaling for investering";
-  }
 }
 
 interface DeltakerModalProps {
