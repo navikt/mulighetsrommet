@@ -379,7 +379,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
         is TilsagnBeregningPrisPerManedsverk -> listOf(
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
             DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailsEntry.nok("Avtalt månedspris per tiltaksplassk", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Avtalt månedspris per tiltaksplass", tilsagn.beregning.input.sats),
             DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
