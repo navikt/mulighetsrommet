@@ -1,4 +1,5 @@
 import {
+  BeregnTilsagnRequest,
   GetArrangorerData,
   type GetAvtalerData,
   GetGjennomforingerData,
@@ -8,6 +9,7 @@ import {
 } from "@mr/api-client-v2";
 
 export const QueryKeys = {
+  beregnTilsagn: (req?: BeregnTilsagnRequest) => ["beregn-tilsagn", req] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,

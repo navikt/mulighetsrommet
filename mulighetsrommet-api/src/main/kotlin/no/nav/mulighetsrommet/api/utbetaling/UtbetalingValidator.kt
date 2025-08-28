@@ -292,27 +292,3 @@ object UtbetalingValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: request.kid?.let { Kid.parseOrThrow(it) }.right()
     }
 }
-
-data class Book private constructor(
-    val title: String,
-    val authors: NonEmptyList<String>,
-) {
-    companion object {
-        operator fun invoke(
-            title: String,
-            authors: Iterable<String>,
-        ): Either<NonEmptyList<Int>, Book> = either {
-            zipOrAccumulate(
-                { ensure(title.isNotEmpty()) { 1 } },
-                {
-                    val validatedAuthors = mapOrAccumulate(authors.withIndex()) { nameAndIx ->
-                        nameAndIx.value
-                    }
-                    ensureNotNull(validatedAuthors.toNonEmptyListOrNull()) { 43 }
-                },
-            ) { _, authorsNel ->
-                Book(title, authorsNel)
-            }
-        }
-    }
-}

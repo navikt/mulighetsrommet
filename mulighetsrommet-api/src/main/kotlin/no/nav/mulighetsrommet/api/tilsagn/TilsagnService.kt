@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
@@ -50,6 +49,10 @@ class TilsagnService(
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId)) {
             "Avtalen finnes ikke"
         }
+        requireNotNull(request.id) {
+            "id mangler"
+        }
+        val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -65,20 +68,18 @@ class TilsagnService(
             besluttetAvNavn = null,
             behandletAvNavn = null,
         )
-
         val previous = queries.tilsagn.get(request.id)
         return TilsagnValidator
             .validate(
                 next = request,
                 previous = previous,
-                gjennomforingSluttDato = gjennomforing.sluttDato,
                 tiltakstypeNavn = gjennomforing.tiltakstype.navn,
                 arrangorSlettet = gjennomforing.arrangor.slettet,
                 minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+                gjennomforingSluttDato = gjennomforing.sluttDato,
+                avtalteSatser = avtalteSatser,
             )
-            .flatMap { TilsagnValidator.validateAvtaltSats(request.beregning, avtale) }
-            .flatMap { beregnTilsagn(request.beregning) }
-            .map { beregning ->
+            .map { step3 ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
@@ -89,13 +90,13 @@ class TilsagnService(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
+                    periode = step3.step2.periode,
                     lopenummer = lopenummer,
-                    kostnadssted = request.kostnadssted,
+                    kostnadssted = step3.step2.step1.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
-                    beregning = beregning,
+                    beregning = step3.beregning,
                     kommentar = request.kommentar,
                 )
             }
@@ -151,23 +152,28 @@ class TilsagnService(
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregning> {
-        return TilsagnValidator.validateBeregningInput(input)
-            .map {
-                when (input) {
-                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
+    fun beregnTilsagn(request: BeregnTilsagnRequest): Either<NonEmptyList<FieldError>, TilsagnBeregning> = db.session {
+        val avtale = requireNotNull(
+            queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
+                queries.avtale.get(it)
+            },
+        ) {
+            "Avtalen finnes ikke"
+        }
+        val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
+        requireNotNull(request.periodeStart)
+        requireNotNull(request.periodeSlutt)
+        require(request.periodeStart.isBefore(request.periodeSlutt))
 
-                    is TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input ->
-                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+        val sats = AvtalteSatser.findSats(avtalteSatser, periode.start)
 
-                    is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
-
-                    is TilsagnBeregningPrisPerUkesverk.Input -> TilsagnBeregningPrisPerUkesverk.beregn(input)
-
-                    is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input ->
-                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input)
-                }
-            }
+        return TilsagnValidator.validateBeregning(
+            request.beregning,
+            periode,
+            sats,
+            avtalteSatser,
+        )
     }
 
     fun beslutt(

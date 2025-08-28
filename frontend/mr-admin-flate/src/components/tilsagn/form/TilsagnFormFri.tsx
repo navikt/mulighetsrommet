@@ -1,6 +1,6 @@
-import { GjennomforingDto, TilsagnBeregningFri, TilsagnBeregningType } from "@mr/api-client-v2";
+import { GjennomforingDto, TilsagnBeregningType, TilsagnRequest } from "@mr/api-client-v2";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
-import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import {
   Alert,
   Button,
@@ -11,20 +11,18 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { InferredTilsagn } from "./TilsagnSchema";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-
-type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
+import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<FriTilsagn>;
+  defaultValues: TilsagnRequest;
   regioner: string[];
 }
 
@@ -33,7 +31,7 @@ export function TilsagnFormFri(props: Props) {
     <TilsagnForm
       {...props}
       beregningInput={<BeregningInputSkjema />}
-      beregningOutput={<BeregningOutputPreview />}
+      beregningOutput={<TilsagnBeregningPreview />}
     />
   );
 }
@@ -45,7 +43,7 @@ function BeregningInputSkjema() {
     formState: { errors },
     setError,
     control,
-  } = useFormContext<FriTilsagn>();
+  } = useFormContext<InferredTilsagn>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
 
   const prisbetingelser = watch("beregning.prisbetingelser");
@@ -54,7 +52,7 @@ function BeregningInputSkjema() {
     <VStack gap="4">
       <Metadata
         header={tilsagnTekster.prismodell.label}
-        value={tilsagnTekster.prismodell.sats.label("FRI")}
+        value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.FRI)}
       />
       <Textarea
         size="small"
@@ -77,7 +75,7 @@ function BeregningInputSkjema() {
             className="flex-3"
             error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
             {...register(`beregning.linjer.${index}.beskrivelse`)}
-            defaultValue={item.beskrivelse}
+            defaultValue={item.beskrivelse ?? ""}
           />
           <TextField
             size="small"
@@ -85,8 +83,10 @@ function BeregningInputSkjema() {
             label="Beløp"
             className="flex-2"
             error={errors.beregning?.linjer?.[index]?.belop?.message}
-            {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
-            defaultValue={item.belop}
+            {...register(`beregning.linjer.${index}.belop`, {
+              setValueAs: (v) => (v === "" ? null : Number(v)),
+            })}
+            defaultValue={item.belop ?? 0}
           />
           <TextField
             size="small"
@@ -94,8 +94,10 @@ function BeregningInputSkjema() {
             label="Antall"
             className="flex-1"
             error={errors.beregning?.linjer?.[index]?.antall?.message}
-            {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
-            defaultValue={item.antall}
+            {...register(`beregning.linjer.${index}.antall`, {
+              setValueAs: (v) => (v === "" ? null : Number(v)),
+            })}
+            defaultValue={item.antall ?? 0}
           />
           <input
             type="hidden"
@@ -132,23 +134,5 @@ function BeregningInputSkjema() {
         Legg til ny pris
       </Button>
     </VStack>
-  );
-}
-
-function BeregningOutputPreview() {
-  const { watch } = useFormContext<FriTilsagn>();
-
-  const values = watch();
-  const linjer = values.beregning.linjer;
-  return (
-    <>
-      <TilsagnBeregningPreview
-        input={{
-          type: TilsagnBeregningType.FRI,
-          linjer: linjer,
-          prisbetingelser: values.beregning.prisbetingelser,
-        }}
-      />
-    </>
   );
 }

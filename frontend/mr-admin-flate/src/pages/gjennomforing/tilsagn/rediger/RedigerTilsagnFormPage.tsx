@@ -4,7 +4,12 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnBeregningInput, TilsagnDto, TilsagnRequest } from "@mr/api-client-v2";
+import {
+  TilsagnBeregningRequest,
+  TilsagnBeregningType,
+  TilsagnDto,
+  TilsagnRequest,
+} from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -63,9 +68,9 @@ export function RedigerTilsagnFormPage() {
     periodeStart: tilsagn.periode.start,
     periodeSlutt: yyyyMMddFormatting(subDuration(tilsagn.periode.slutt, { days: 1 }))!,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-    beregning: tilsagnBeregningInput(tilsagn),
+    beregning: tilsagnBeregningRequest(tilsagn),
     gjennomforingId: gjennomforing.id,
-    kommentar: tilsagn.kommentar,
+    kommentar: tilsagn.kommentar ?? undefined,
   };
 
   return (
@@ -109,46 +114,42 @@ export function RedigerTilsagnFormPage() {
   );
 }
 
-function tilsagnBeregningInput(tilsagn: TilsagnDto): TilsagnBeregningInput {
-  const { periode, beregning } = tilsagn;
+function tilsagnBeregningRequest(tilsagn: TilsagnDto): TilsagnBeregningRequest {
+  const { beregning } = tilsagn;
   switch (beregning.type) {
     case "FRI":
       return {
-        type: "FRI",
+        type: TilsagnBeregningType.FRI,
         linjer: beregning.linjer,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
     case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
       return {
-        type: "FAST_SATS_PER_TILTAKSPLASS_PER_MANED",
-        periode,
+        type: TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
       };
     case "PRIS_PER_MANEDSVERK":
       return {
-        type: "PRIS_PER_MANEDSVERK",
-        periode,
+        type: TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
     case "PRIS_PER_UKESVERK":
       return {
-        type: "PRIS_PER_UKESVERK",
-        periode,
+        type: TilsagnBeregningType.PRIS_PER_UKESVERK,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
     case "PRIS_PER_TIME_OPPFOLGING":
       return {
-        type: "PRIS_PER_TIME_OPPFOLGING",
-        periode,
+        type: TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
         antallTimerOppfolgingPerDeltaker: beregning.antallTimerOppfolgingPerDeltaker,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
   }
 }

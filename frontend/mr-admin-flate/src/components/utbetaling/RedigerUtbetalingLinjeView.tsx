@@ -46,11 +46,9 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
 
   function opprettEkstraTilsagn() {
     const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
-    const defaultBelop = tilsagn.length === 0 ? utbetaling.belop : 0;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
-        `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,

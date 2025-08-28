@@ -1,11 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -128,9 +125,10 @@ object TilsagnFixtures {
         periodeStart = LocalDate.of(2025, 1, 1),
         periodeSlutt = LocalDate.of(2025, 1, 31),
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        beregning = TilsagnBeregningFri.Input(
-            listOf(
-                TilsagnBeregningFri.InputLinje(
+        beregning = TilsagnBeregningRequest(
+            type = TilsagnBeregningType.FRI,
+            linjer = listOf(
+                TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
                     beskrivelse = "1000",
                     belop = 1000,

@@ -8,6 +8,10 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
 object AvtalteSatser {
+    fun findSats(avtalteSatser: List<AvtaltSats>, dato: LocalDate): Int? {
+        return avtalteSatser.firstOrNull { dato in it.periode }?.sats
+    }
+
     fun findSats(avtale: AvtaleDto, periode: Periode): Int? {
         return getAvtalteSatser(avtale).firstOrNull { periode in it.periode }?.sats
     }

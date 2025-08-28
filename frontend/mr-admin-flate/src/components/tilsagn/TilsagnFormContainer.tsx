@@ -5,18 +5,17 @@ import {
   GjennomforingDto,
   PrismodellDto,
   TilsagnBeregningType,
+  TilsagnRequest,
   TilsagnType,
 } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
-import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
-import { DeepPartial } from "react-hook-form";
 import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
 import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";
 
 interface Props {
   avtale: AvtaleDto;
   gjennomforing: GjennomforingDto;
-  defaults: DeepPartial<InferredTilsagn>;
+  defaults: TilsagnRequest;
 }
 
 export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props) {
