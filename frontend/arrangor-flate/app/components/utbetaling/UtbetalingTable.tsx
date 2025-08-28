@@ -118,7 +118,9 @@ export function UtbetalingTable({ utbetalinger, belopColumn }: Props) {
                 <Table.DataCell align="right" className="whitespace-nowrap">
                   {vistBelop ? formaterNOK(vistBelop) : "-"}
                 </Table.DataCell>
-                <Table.DataCell>{type && <UtbetalingTypeTag type={type} />}</Table.DataCell>
+                <Table.DataCell>
+                  <UtbetalingTypeTag type={type} />
+                </Table.DataCell>
                 <Table.DataCell>
                   <UtbetalingStatusTag status={status} />
                 </Table.DataCell>
