@@ -172,7 +172,7 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
       <Modal
         ref={modalRef}
         size="medium"
-        header={{ heading: "Beregning" }}
+        header={{ heading: `Beregning - ${utbetaling.beregning.displayName}` }}
         onClose={() => modalRef.current?.close()}
         width="80rem"
         closeOnBackdropClick
