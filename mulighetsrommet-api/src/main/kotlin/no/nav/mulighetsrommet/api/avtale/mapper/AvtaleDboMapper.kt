@@ -29,7 +29,6 @@ object AvtaleDboMapper {
             it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer
         }.toSet(),
         avtaletype = dto.avtaletype,
-        antallPlasser = dto.antallPlasser,
         administratorer = dto.administratorer.map { it.navIdent },
         beskrivelse = null,
         faneinnhold = null,
@@ -59,7 +58,6 @@ object AvtaleDboMapper {
         sluttDato = request.sluttDato,
         status = status,
         avtaletype = request.avtaletype,
-        antallPlasser = null,
         administratorer = request.administratorer,
         navEnheter = request.navEnheter.toSet(),
         beskrivelse = request.beskrivelse,
