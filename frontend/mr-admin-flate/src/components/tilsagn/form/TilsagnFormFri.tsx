@@ -16,7 +16,6 @@ import { InferredTilsagn } from "./TilsagnSchema";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -27,13 +26,7 @@ interface Props {
 }
 
 export function TilsagnFormFri(props: Props) {
-  return (
-    <TilsagnForm
-      {...props}
-      beregningInput={<BeregningInputSkjema />}
-      beregningOutput={<TilsagnBeregningPreview />}
-    />
-  );
+  return <TilsagnForm {...props} beregningInput={<BeregningInputSkjema />} />;
 }
 
 function BeregningInputSkjema() {

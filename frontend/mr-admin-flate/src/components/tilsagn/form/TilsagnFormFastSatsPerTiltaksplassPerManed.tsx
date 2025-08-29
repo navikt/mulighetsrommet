@@ -1,4 +1,3 @@
-import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import { GjennomforingDto, TilsagnBeregningType, TilsagnRequest } from "@mr/api-client-v2";
@@ -25,7 +24,6 @@ export function TilsagnFormFastSatsPerTiltaksplassPerManed(props: Props) {
       onAvbryt={props.onAvbryt}
       defaultValues={props.defaultValues}
       beregningInput={<BeregningInputSkjema gjennomforing={props.gjennomforing} />}
-      beregningOutput={<TilsagnBeregningPreview />}
     />
   );
 }

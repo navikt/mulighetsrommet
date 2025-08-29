@@ -25,6 +25,7 @@ import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
+import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 
 interface Props {
   onSuccess: () => void;
@@ -32,7 +33,6 @@ interface Props {
   defaultValues: TilsagnRequest;
   regioner: string[];
   beregningInput: ReactElement;
-  beregningOutput: ReactElement;
   gjennomforing: GjennomforingDto;
 }
 
@@ -126,7 +126,7 @@ export function TilsagnForm(props: Props) {
                   {...register("kommentar")}
                 />
               </VStack>
-              {props.beregningOutput}
+              <TilsagnBeregningPreview />
             </TwoColumnGrid>
           </Box>
           <VStack gap="2">

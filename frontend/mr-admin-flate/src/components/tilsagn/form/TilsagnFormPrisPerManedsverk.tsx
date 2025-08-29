@@ -1,4 +1,3 @@
-import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { GjennomforingDto, TilsagnRequest } from "@mr/api-client-v2";
 import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
@@ -22,7 +21,6 @@ export function TilsagnFormPrisPerManedsverk(props: Props) {
     <TilsagnForm
       {...props}
       beregningInput={<BeregningInputSkjema gjennomforing={props.gjennomforing} />}
-      beregningOutput={<TilsagnBeregningPreview />}
     />
   );
 }
