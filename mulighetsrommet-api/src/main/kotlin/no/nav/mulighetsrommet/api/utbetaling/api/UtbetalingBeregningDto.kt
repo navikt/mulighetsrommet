@@ -2,13 +2,12 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.PersonEnhetOgRegion
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
+import no.nav.mulighetsrommet.model.DataElement
 
 @Serializable
 sealed class UtbetalingBeregningDto {
@@ -29,7 +28,10 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Fast sats per tiltaksplass per måned"
 
         companion object {
-            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats)
+            fun manedsverkTable(
+                deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
+                sats: Int,
+            ) = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats)
         }
     }
 
@@ -45,37 +47,32 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Pris per månedsverk"
 
         companion object {
-            fun manedsverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
-                columns = manedsverkDeltakelseColumns(),
+            fun manedsverkTable(
+                deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
+                sats: Int,
+            ) = DataDrivenTableDto(
+                columns = Fri.friDeltakelseColumns() + manedsverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
-                    manedsverkDeltakelseRow(deltakelse.faktor, sats, person)
+                    Fri.friDeltakelseCells(person) + manedsverkDeltakelseCells(deltakelse.faktor, sats)
                 },
             )
 
-            private fun manedsverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
-                listOf(
-                    DataDrivenTableDto.Column(
-                        "manedsverk",
-                        "Månedsverk",
-                        true,
-                        DataDrivenTableDto.Column.Align.RIGHT,
-                        null,
-                    ),
-                    DataDrivenTableDto.Column(
-                        "belop",
-                        "Beløp",
-                        true,
-                        DataDrivenTableDto.Column.Align.RIGHT,
-                        DataDrivenTableDto.Column.Format.NOK,
-                    ),
+            private fun manedsverkDeltakelseColumns() = listOf(
+                DataDrivenTableDto.Column(
+                    "manedsverk",
+                    "Månedsverk",
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
+                ),
+                DataDrivenTableDto.Column(
+                    "belop",
+                    "Beløp",
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
                 ),
             )
 
-            private fun manedsverkDeltakelseRow(manedsverk: Double, sats: Int, person: PersonEnhetOgRegion?) = Fri.friDeltakelseRow(person).plus(
-                mapOf(
-                    "manedsverk" to JsonPrimitive(manedsverk),
-                    "belop" to JsonPrimitive(sats.toDouble() * manedsverk),
-                ),
+            private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
+                "manedsverk" to DataElement.Text(manedsverk.toString(), DataElement.Text.Format.NUMBER),
+                "belop" to DataElement.Text((sats.toDouble() * manedsverk).toString(), DataElement.Text.Format.NOK),
             )
         }
     }
@@ -92,37 +89,32 @@ sealed class UtbetalingBeregningDto {
         override val heading = "Pris per ukesverk"
 
         companion object {
-            fun ukesverkTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>, sats: Int) = DataDrivenTableDto(
-                columns = ukesverkDeltakelseColumns(),
+            fun ukesverkTable(
+                deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
+                sats: Int,
+            ) = DataDrivenTableDto(
+                columns = Fri.friDeltakelseColumns() + ukesverkDeltakelseColumns(),
                 rows = deltakelsePersoner.map { (deltakelse, person) ->
-                    ukesverkDeltakelseRow(deltakelse.faktor, sats, person)
+                    Fri.friDeltakelseCells(person) + ukesverkDeltakelseCells(deltakelse.faktor, sats)
                 },
             )
 
-            private fun ukesverkDeltakelseColumns() = Fri.friDeltakelseColumns().plus(
-                listOf(
-                    DataDrivenTableDto.Column(
-                        "ukesverk",
-                        "Ukesverk",
-                        true,
-                        DataDrivenTableDto.Column.Align.RIGHT,
-                        null,
-                    ),
-                    DataDrivenTableDto.Column(
-                        "belop",
-                        "Beløp",
-                        true,
-                        DataDrivenTableDto.Column.Align.RIGHT,
-                        DataDrivenTableDto.Column.Format.NOK,
-                    ),
+            private fun ukesverkDeltakelseColumns() = listOf(
+                DataDrivenTableDto.Column(
+                    "ukesverk",
+                    "Ukesverk",
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
+                ),
+                DataDrivenTableDto.Column(
+                    "belop",
+                    "Beløp",
+                    align = DataDrivenTableDto.Column.Align.RIGHT,
                 ),
             )
 
-            private fun ukesverkDeltakelseRow(ukesverk: Double, sats: Int, person: PersonEnhetOgRegion?) = Fri.friDeltakelseRow(person).plus(
-                mapOf(
-                    "ukesverk" to JsonPrimitive(ukesverk),
-                    "belop" to JsonPrimitive(sats.toDouble() * ukesverk),
-                ),
+            private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
+                "ukesverk" to DataElement.Text(ukesverk.toString(), DataElement.Text.Format.NUMBER),
+                "belop" to DataElement.Text((sats.toDouble() * ukesverk).toString(), DataElement.Text.Format.NOK),
             )
         }
     }
@@ -139,38 +131,27 @@ sealed class UtbetalingBeregningDto {
         companion object {
             fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
                 columns = friDeltakelseColumns(),
-                rows = deltakelsePersoner.map {
-                    friDeltakelseRow(it.second)
-                },
+                rows = deltakelsePersoner.map { friDeltakelseCells(it.second) },
             )
 
             fun friDeltakelseColumns() = listOf(
-                DataDrivenTableDto.Column("navn", "Navn", true, DataDrivenTableDto.Column.Align.LEFT, null),
-                DataDrivenTableDto.Column(
-                    "foedselsdato",
-                    "Fødselsdato",
-                    true,
-                    DataDrivenTableDto.Column.Align.LEFT,
-                    DataDrivenTableDto.Column.Format.DATE,
-                ),
-                DataDrivenTableDto.Column("region", "Region", true, DataDrivenTableDto.Column.Align.LEFT, null),
-                DataDrivenTableDto.Column(
-                    "geografiskEnhet",
-                    "Geografisk enhet",
-                    true,
-                    DataDrivenTableDto.Column.Align.LEFT,
-                    null,
-                ),
+                DataDrivenTableDto.Column("navn", "Navn"),
+                DataDrivenTableDto.Column("foedselsdato", "Fødselsdato"),
+                DataDrivenTableDto.Column("region", "Region"),
+                DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
             )
 
-            fun friDeltakelseRow(person: PersonEnhetOgRegion?) = mapOf<String, JsonElement>(
-                "navn" to JsonPrimitive(person?.person?.navn),
-                "geografiskEnhet" to JsonPrimitive(person?.geografiskEnhet?.navn),
-                "region" to JsonPrimitive(person?.region?.navn),
-                "foedselsdato" to JsonPrimitive(person?.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat()),
+            fun friDeltakelseCells(person: PersonEnhetOgRegion?) = mapOf(
+                "navn" to person?.person?.navn?.let { DataElement.Text(it) },
+                "geografiskEnhet" to person?.geografiskEnhet?.navn?.let { DataElement.Text(it) },
+                "region" to person?.region?.navn?.let { DataElement.Text(it) },
+                "foedselsdato" to person?.person?.foedselsdato?.let {
+                    DataElement.Text(it.toString(), DataElement.Text.Format.DATE)
+                },
             )
         }
     }
+
     companion object {
         fun from(
             utbetaling: Utbetaling,
@@ -189,19 +170,26 @@ sealed class UtbetalingBeregningDto {
                     val sats = getSats(utbetaling.beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     FastSatsPerTiltaksplassPerManed(
-                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(deltakelsePersoner.map { it.first }.toSet(), sats),
+                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
+                            deltakelsePersoner.map { it.first }.toSet(),
+                            sats,
+                        ),
                         manedsverkTotal = manedsverkTotal,
                         deltakerRegioner = regioner,
                         deltakerTableData = FastSatsPerTiltaksplassPerManed.manedsverkTable(deltakelsePersoner, sats),
                         sats = sats,
                     )
                 }
+
                 is UtbetalingBeregningPrisPerManedsverk,
                 -> {
                     val sats = getSats(utbetaling.beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerManedsverk(
-                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(deltakelsePersoner.map { it.first }.toSet(), sats),
+                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
+                            deltakelsePersoner.map { it.first }.toSet(),
+                            sats,
+                        ),
                         manedsverkTotal = manedsverkTotal,
                         deltakerRegioner = regioner,
                         deltakerTableData = PrisPerManedsverk.manedsverkTable(deltakelsePersoner, sats),
@@ -213,7 +201,10 @@ sealed class UtbetalingBeregningDto {
                     val sats = getSats(utbetaling.beregning.input)
                     val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     PrisPerUkesverk(
-                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(deltakelsePersoner.map { it.first }.toSet(), sats),
+                        belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
+                            deltakelsePersoner.map { it.first }.toSet(),
+                            sats,
+                        ),
                         ukesverkTotal = ukesverkTotal,
                         deltakerRegioner = regioner,
                         deltakerTableData = PrisPerUkesverk.ukesverkTable(deltakelsePersoner, sats),
