@@ -96,7 +96,7 @@ object UtbetalingValidator {
                     add(
                         FieldError.ofPointer(
                             "/$index/tilsagnId",
-                            "Tilsagnet er ${req.tilsagn.status.navn()} og kan ikke benyttes, linjen må fjernes",
+                            "Tilsagnet er ${req.tilsagn.status.navn().lowercase()} og kan ikke benyttes, linjen må fjernes",
                         ),
                     )
                 }

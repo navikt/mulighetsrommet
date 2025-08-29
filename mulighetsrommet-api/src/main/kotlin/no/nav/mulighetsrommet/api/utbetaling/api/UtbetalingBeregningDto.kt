@@ -71,8 +71,8 @@ sealed class UtbetalingBeregningDto {
             )
 
             private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
-                "manedsverk" to DataElement.Text(manedsverk.toString(), DataElement.Text.Format.NUMBER),
-                "belop" to DataElement.Text((sats.toDouble() * manedsverk).toString(), DataElement.Text.Format.NOK),
+                "manedsverk" to DataElement.number(manedsverk),
+                "belop" to DataElement.nok(manedsverk * sats),
             )
         }
     }
@@ -113,8 +113,8 @@ sealed class UtbetalingBeregningDto {
             )
 
             private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
-                "ukesverk" to DataElement.Text(ukesverk.toString(), DataElement.Text.Format.NUMBER),
-                "belop" to DataElement.Text((sats.toDouble() * ukesverk).toString(), DataElement.Text.Format.NOK),
+                "ukesverk" to DataElement.number(ukesverk),
+                "belop" to DataElement.nok(ukesverk * sats),
             )
         }
     }
@@ -142,12 +142,10 @@ sealed class UtbetalingBeregningDto {
             )
 
             fun friDeltakelseCells(person: PersonEnhetOgRegion?) = mapOf(
-                "navn" to person?.person?.navn?.let { DataElement.Text(it) },
-                "geografiskEnhet" to person?.geografiskEnhet?.navn?.let { DataElement.Text(it) },
-                "region" to person?.region?.navn?.let { DataElement.Text(it) },
-                "foedselsdato" to person?.person?.foedselsdato?.let {
-                    DataElement.Text(it.toString(), DataElement.Text.Format.DATE)
-                },
+                "navn" to person?.person?.navn?.let { DataElement.text(it) },
+                "geografiskEnhet" to person?.geografiskEnhet?.navn?.let { DataElement.text(it) },
+                "region" to person?.region?.navn?.let { DataElement.text(it) },
+                "foedselsdato" to person?.person?.foedselsdato?.let { DataElement.date(it) },
             )
         }
     }

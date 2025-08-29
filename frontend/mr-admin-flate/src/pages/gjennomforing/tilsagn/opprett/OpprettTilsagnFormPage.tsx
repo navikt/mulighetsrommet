@@ -5,29 +5,24 @@ import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer"
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnBeregningType, TilsagnType } from "@mr/api-client-v2";
-import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useParams, useSearchParams } from "react-router";
+import { Heading, VStack } from "@navikt/ds-react";
+import { useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { Laster } from "@/components/laster/Laster";
-import { useAktiveTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
-import { TilsagnTable } from "../tabell/TilsagnTable";
+import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
-function useHentData() {
+function useHentData(gjennomforingId: string) {
   const [searchParams] = useSearchParams();
   const type = (searchParams.get("type") as TilsagnType | null) ?? TilsagnType.TILSAGN;
   const periodeStart = searchParams.get("periodeStart");
   const periodeSlutt = searchParams.get("periodeSlutt");
   const kostnadssted = searchParams.get("kostnadssted");
 
-  const { gjennomforingId } = useParams();
-  if (!gjennomforingId) {
-    throw Error("Fant ikke gjennomforingId i url");
-  }
-
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: defaults } = useTilsagnDefaults({
     id: undefined,
@@ -40,14 +35,12 @@ function useHentData() {
     kostnadssted: kostnadssted ?? undefined,
   });
 
-  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
-
-  return { gjennomforing, avtale, defaults, aktiveTilsagn };
+  return { gjennomforing, avtale, defaults };
 }
 
 export function OpprettTilsagnFormPage() {
-  const { gjennomforingId } = useParams();
-  const { gjennomforing, avtale, defaults, aktiveTilsagn } = useHentData();
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { gjennomforing, avtale, defaults } = useHentData(gjennomforingId);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -92,12 +85,7 @@ export function OpprettTilsagnFormPage() {
       </ContentBox>
       <WhitePaddedBox>
         <VStack gap="4">
-          <Heading size="medium">Aktive tilsagn</Heading>
-          {aktiveTilsagn.length > 0 ? (
-            <TilsagnTable tilsagn={aktiveTilsagn} />
-          ) : (
-            <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
-          )}
+          <AktiveTilsagnTable gjennomforingId={gjennomforingId} />
         </VStack>
       </WhitePaddedBox>
     </>
