@@ -61,7 +61,7 @@ const tilAnnuleringAarsaker = [
 export function TilsagnPage() {
   const { gjennomforingId, tilsagnId } = useRequiredParams(["gjennomforingId", "tilsagnId"]);
 
-  const { gjennomforing, tilsagn, opprettelse, annullering, tilOppgjor, historikk } =
+  const { gjennomforing, tilsagn, beregning, opprettelse, annullering, tilOppgjor, historikk } =
     useTilsagnDetaljer(gjennomforingId, tilsagnId);
 
   const besluttMutation = useBesluttTilsagn();
@@ -282,6 +282,7 @@ export function TilsagnPage() {
           <VStack gap="6" padding="4" className="rounded-lg border-gray-300 border-1">
             <TilsagnDetaljer
               tilsagn={tilsagn}
+              beregning={beregning}
               opprettelse={opprettelse}
               annullering={annullering}
               oppgjor={tilOppgjor}

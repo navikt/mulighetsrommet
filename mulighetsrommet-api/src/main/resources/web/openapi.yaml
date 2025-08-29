@@ -4291,14 +4291,14 @@ components:
           $ref: "#/components/schemas/TilsagnType"
         periode:
           $ref: "#/components/schemas/Periode"
+        belop:
+          type: integer
         belopBrukt:
           type: integer
         belopGjenstaende:
           type: integer
         kostnadssted:
           $ref: "#/components/schemas/KostnadsstedDto"
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningDto"
         status:
           $ref: "#/components/schemas/TilsagnStatus"
         bestillingsnummer:
@@ -4309,10 +4309,10 @@ components:
         - id
         - type
         - periode
+        - belop
         - belopBrukt
         - belopGjenstaende
         - kostnadssted
-        - beregning
         - status
         - bestillingsnummer
         - kommentar
@@ -4333,6 +4333,8 @@ components:
       properties:
         tilsagn:
           $ref: "#/components/schemas/TilsagnDto"
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningDto"
         opprettelse:
           $ref: "#/components/schemas/TotrinnskontrollDto"
         annullering:
@@ -4341,6 +4343,7 @@ components:
           $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - tilsagn
+        - beregning
         - opprettelse
 
     TilsagnStatus:

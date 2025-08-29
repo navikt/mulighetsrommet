@@ -6,6 +6,7 @@ import {
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import {
+  TilsagnBeregningDto,
   TilsagnDto,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
@@ -23,14 +24,15 @@ import { DataDetails } from "@/components/tabell/DataDrivenTable";
 
 interface Props {
   tilsagn: TilsagnDto;
+  beregning: TilsagnBeregningDto;
   opprettelse: TotrinnskontrollDto;
   annullering?: TotrinnskontrollDto;
   oppgjor?: TotrinnskontrollDto;
   meny?: ReactNode;
 }
 
-export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) {
-  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
+export function TilsagnDetaljer({ tilsagn, beregning, meny, annullering, oppgjor }: Props) {
+  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
 
   const arsaker = oppgjor?.aarsaker || annullering?.aarsaker;
 
