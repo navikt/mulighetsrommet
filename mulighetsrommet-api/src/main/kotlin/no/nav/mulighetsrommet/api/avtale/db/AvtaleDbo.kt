@@ -20,7 +20,6 @@ data class AvtaleDbo(
     val status: AvtaleStatus,
     val navEnheter: Set<NavEnhetNummer>,
     val avtaletype: Avtaletype,
-    val antallPlasser: Int?,
     val administratorer: List<NavIdent>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,

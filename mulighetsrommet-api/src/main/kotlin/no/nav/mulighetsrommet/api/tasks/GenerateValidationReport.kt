@@ -8,15 +8,21 @@ import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
+import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
+import no.nav.mulighetsrommet.api.avtale.mapper.prismodell
+import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
@@ -109,9 +115,9 @@ class GenerateValidationReport(
 
     private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
         buildMap {
-            paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
-                avtaleValidator.validate(AvtaleDboMapper.fromAvtaleDto(it), it).onLeft { validationErrors ->
-                    put(it, validationErrors)
+            paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
+                avtaleValidator.validate(dto.toAvtaleRequest(), dto).onLeft { validationErrors ->
+                    put(dto, validationErrors)
                 }
             }
         }
@@ -191,3 +197,37 @@ class GenerateValidationReport(
         row.createCell(5, CellType.STRING).setCellValue(error.detail)
     }
 }
+
+fun AvtaleDto.toAvtaleRequest() = AvtaleRequest(
+    id = this.id,
+    navn = this.navn,
+    tiltakskode = this.tiltakstype.tiltakskode,
+    arrangor = this.arrangor?.let {
+        AvtaleRequest.Arrangor(
+            hovedenhet = it.organisasjonsnummer,
+            underenheter = it.underenheter.map { it.organisasjonsnummer },
+            kontaktpersoner = it.kontaktpersoner.map { it.id },
+        )
+    },
+    avtalenummer = this.avtalenummer,
+    sakarkivNummer = this.sakarkivNummer,
+    startDato = this.startDato,
+    sluttDato = this.sluttDato,
+    administratorer = this.administratorer.map { it.navIdent },
+    avtaletype = this.avtaletype,
+    navEnheter = this.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } },
+    beskrivelse = this.beskrivelse,
+    faneinnhold = this.faneinnhold,
+    personopplysninger = this.personopplysninger,
+    personvernBekreftet = this.personvernBekreftet,
+    opsjonsmodell = this.opsjonsmodell,
+    amoKategorisering = this.amoKategorisering,
+    utdanningslop = this.utdanningslop?.toDbo(),
+    prismodell = PrismodellRequest(
+        type = this.prismodell.prismodell(),
+        satser = this.prismodell.satser().map {
+            AvtaltSatsDto.fromAvtaltSats(it)
+        },
+        prisbetingelser = this.prismodell.prisbetingelser(),
+    ),
+)

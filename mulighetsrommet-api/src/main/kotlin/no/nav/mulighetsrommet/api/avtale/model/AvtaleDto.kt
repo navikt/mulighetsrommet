@@ -28,7 +28,6 @@ data class AvtaleDto(
     val avtaletype: Avtaletype,
     val status: AvtaleStatusDto,
     val administratorer: List<Administrator>,
-    val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String?,

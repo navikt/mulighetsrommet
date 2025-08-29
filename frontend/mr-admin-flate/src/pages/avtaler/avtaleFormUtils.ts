@@ -56,7 +56,7 @@ export async function onSubmitAvtaleForm({
             kontaktpersoner: data.arrangorKontaktpersoner || [],
           }
         : null,
-    tiltakKode: data.tiltakskode,
+    tiltakskode: data.tiltakskode,
     amoKategorisering: data.amoKategorisering || null,
     opsjonsmodell: {
       type: data.opsjonsmodell.type,
@@ -82,7 +82,7 @@ export function mapNameToSchemaPropertyName(name: string) {
     opsjonsmodell: "opsjonsmodell.type",
     opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
     customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
-    tiltakstypeId: "tiltakstype",
+    tiltakstypeId: "tiltakskode",
     utdanningslop: "utdanningslop.utdanninger",
   };
   return (mapping[name] ?? name) as keyof AvtaleFormValues;
