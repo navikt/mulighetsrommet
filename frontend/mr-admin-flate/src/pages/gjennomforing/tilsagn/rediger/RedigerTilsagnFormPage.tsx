@@ -11,38 +11,30 @@ import {
   TilsagnRequest,
 } from "@mr/api-client-v2";
 import { Heading, VStack } from "@navikt/ds-react";
-import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useAktiveTilsagnTableData, useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
+import { useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
-function useRedigerTilsagnFormData() {
-  const { gjennomforingId, tilsagnId } = useParams();
-  if (!gjennomforingId || !tilsagnId) {
-    throw Error("Fant ikke gjennomforingId eller tilsagnId i url");
-  }
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: aktiveTilsagn } = useAktiveTilsagnTableData(gjennomforingId);
-
-  return {
-    avtale,
-    gjennomforing,
-    ...tilsagnDetaljer,
-    aktiveTilsagn,
-  };
+  return { avtale, gjennomforing, ...tilsagnDetaljer };
 }
 
 export function RedigerTilsagnFormPage() {
-  const { gjennomforingId } = useParams();
-  const { avtale, gjennomforing, aktiveTilsagn, tilsagn, opprettelse } =
-    useRedigerTilsagnFormData();
+  const { gjennomforingId, tilsagnId } = useRequiredParams(["gjennomforingId", "tilsagnId"]);
+
+  const { avtale, gjennomforing, tilsagn, opprettelse } = useRedigerTilsagnFormData(
+    gjennomforingId,
+    tilsagnId,
+  );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -97,7 +89,7 @@ export function RedigerTilsagnFormPage() {
           </WhitePaddedBox>
           <WhitePaddedBox>
             <VStack gap="4">
-              <AktiveTilsagnTable data={aktiveTilsagn} />
+              <AktiveTilsagnTable gjennomforingId={gjennomforingId} />
             </VStack>
           </WhitePaddedBox>
         </VStack>

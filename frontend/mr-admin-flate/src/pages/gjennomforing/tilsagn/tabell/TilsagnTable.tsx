@@ -1,6 +1,7 @@
 import { DataDrivenTableDto } from "@mr/api-client-v2";
 import { Alert, Heading } from "@navikt/ds-react";
 import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
+import { useAktiveTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 
 interface TilsagnTableProps {
   emptyStateMessage: string;
@@ -18,10 +19,11 @@ export function TilsagnTable({ data, emptyStateMessage }: TilsagnTableProps) {
 }
 
 interface AktiveTilsagnTableProps {
-  data: DataDrivenTableDto;
+  gjennomforingId: string;
 }
 
-export function AktiveTilsagnTable({ data }: AktiveTilsagnTableProps) {
+export function AktiveTilsagnTable({ gjennomforingId }: AktiveTilsagnTableProps) {
+  const { data } = useAktiveTilsagnTableData(gjennomforingId);
   return (
     <>
       <Heading size="medium">Aktive tilsagn</Heading>
