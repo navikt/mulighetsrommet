@@ -8,7 +8,7 @@ import { InferredTilsagn } from "./TilsagnSchema";
 export function TilsagnBeregningPreview() {
   const { watch } = useFormContext<InferredTilsagn>();
   const values = watch();
-  const { data: beregning, isLoading } = useBeregnTilsagn({
+  const { data, isLoading } = useBeregnTilsagn({
     periodeStart: values.periodeStart,
     periodeSlutt: values.periodeSlutt,
     beregning: values.beregning,
@@ -19,7 +19,7 @@ export function TilsagnBeregningPreview() {
     return <Loader />;
   }
 
-  if (!beregning) {
+  if (!data?.success || !data.beregning) {
     return null;
   }
 
@@ -28,9 +28,9 @@ export function TilsagnBeregningPreview() {
       <VStack gap="4">
         <HStack gap="2" justify="space-between">
           <Label size="medium">Totalbeløp</Label>
-          {beregning.belop && <Label size="medium">{formaterNOK(beregning.belop)}</Label>}
+          {data.beregning.belop && <Label size="medium">{formaterNOK(data.beregning.belop)}</Label>}
         </HStack>
-        <TilsagnBeregning redigeringsModus beregning={beregning} />
+        <TilsagnBeregning redigeringsModus beregning={data.beregning} />
       </VStack>
     </>
   );

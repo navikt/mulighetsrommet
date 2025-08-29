@@ -1747,9 +1747,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnBeregningDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
+                $ref: "#/components/schemas/BeregnTilsagnResponse"
 
   /api/v1/intern/tilsagn/defaults:
     post:
@@ -4190,6 +4188,15 @@ components:
         beregning:
           $ref: '#/components/schemas/TilsagnBeregningRequest'
       required: [gjennomforingId]
+
+    BeregnTilsagnResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        beregning:
+          $ref: '#/components/schemas/TilsagnBeregningDto'
+      required: [success]
 
     TilsagnBeregningRequest:
       type: object

@@ -133,8 +133,14 @@ fun Route.tilsagnRoutes() {
 
         post("/beregn") {
             val request = call.receive<BeregnTilsagnRequest>()
+            val beregning = service.beregnTilsagn(request)?.let {
+                TilsagnBeregningDto.from(it)
+            }
             call.respond(
-                TilsagnBeregningDto.from(service.beregnTilsagn(request)),
+                BeregnTilsagnResponse(
+                    success = beregning != null,
+                    beregning = beregning,
+                ),
             )
         }
 
