@@ -2,6 +2,7 @@ import {
   Besluttelse,
   GetForhandsgodkjenteSatserResponse,
   TilsagnAvvisningAarsak,
+  TilsagnBeregningType,
   TilsagnDetaljerDto,
   TilsagnDto,
   TilsagnRequest,
@@ -38,6 +39,7 @@ export const tilsagnHandlers = [
       type: TilsagnType.TILSAGN,
       gjennomforingId: mockGjennomforinger[0].id,
       id: v4(),
+      beregning: { type: TilsagnBeregningType.FRI },
     });
   }),
   http.get<PathParams, any, TilsagnDetaljerDto>(

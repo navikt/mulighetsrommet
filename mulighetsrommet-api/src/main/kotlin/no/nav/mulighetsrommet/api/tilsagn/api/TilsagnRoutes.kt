@@ -104,39 +104,28 @@ fun Route.tilsagnRoutes() {
             val gjennomforing = gjennomforinger.get(request.gjennomforingId)
                 ?: return@post call.respond(HttpStatusCode.NotFound)
 
+            val prismodell = gjennomforing.avtaleId?.let {
+                db.session { queries.avtale.get(it) }
+            }?.prismodell
+                ?: throw StatusException(
+                    HttpStatusCode.BadRequest,
+                    "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
+                )
+
             val defaults = when (request.type) {
                 TilsagnType.TILSAGN -> db.session {
-                    val avtale = gjennomforing.avtaleId?.let {
-                        queries.avtale.get(it)
-                    }
-
                     val sisteTilsagn = queries.tilsagn
                         .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                         .firstOrNull()
 
-                    resolveTilsagnDefaults(service.config.okonomiConfig, avtale, gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(service.config.okonomiConfig, prismodell, gjennomforing, sisteTilsagn)
                 }
 
-                TilsagnType.EKSTRATILSAGN -> db.session {
-                    val prismodell = gjennomforing.avtaleId?.let {
-                        queries.avtale.get(it)?.prismodell
-                    } ?: throw StatusException(
-                        HttpStatusCode.BadRequest,
-                        "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
-                    )
-
-                    resolveEkstraTilsagnDefaults(request, gjennomforing, prismodell)
+                TilsagnType.INVESTERING,
+                TilsagnType.EKSTRATILSAGN,
+                -> db.session {
+                    resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing, prismodell)
                 }
-
-                TilsagnType.INVESTERING -> TilsagnRequest(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = gjennomforing.id,
-                    type = TilsagnType.INVESTERING,
-                    periodeStart = request.periodeStart,
-                    periodeSlutt = request.periodeSlutt,
-                    kostnadssted = request.kostnadssted,
-                    beregning = null,
-                )
             }
 
             call.respond(HttpStatusCode.OK, defaults)
@@ -144,11 +133,9 @@ fun Route.tilsagnRoutes() {
 
         post("/beregn") {
             val request = call.receive<BeregnTilsagnRequest>()
-            val result = service.beregnTilsagn(request)
-                .map { TilsagnBeregningDto.from(it) }
-                .mapLeft { ValidationError(errors = it) }
-
-            call.respondWithStatusResponse(result)
+            call.respond(
+                TilsagnBeregningDto.from(service.beregnTilsagn(request)),
+            )
         }
 
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
@@ -222,14 +209,10 @@ fun Route.tilsagnRoutes() {
 
 private fun resolveTilsagnDefaults(
     config: OkonomiConfig,
-    avtale: AvtaleDto?,
+    prismodell: AvtaleDto.PrismodellDto,
     gjennomforing: GjennomforingDto,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
-    val prismodell = avtale?.prismodell ?: throw StatusException(
-        HttpStatusCode.BadRequest,
-        "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
-    )
     val periode = when (prismodell) {
         is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk ->
             getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
@@ -310,7 +293,7 @@ private fun getAnskaffetTiltakPeriode(
     return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
 }
 
-private fun resolveEkstraTilsagnDefaults(
+private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
     gjennomforing: GjennomforingDto,
     prismodell: AvtaleDto.PrismodellDto,
@@ -326,7 +309,7 @@ private fun resolveEkstraTilsagnDefaults(
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
-        type = TilsagnType.EKSTRATILSAGN,
+        type = request.type,
         periodeStart = request.periodeStart,
         periodeSlutt = request.periodeSlutt,
         kostnadssted = request.kostnadssted,

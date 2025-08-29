@@ -15,7 +15,7 @@ data class TilsagnRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     val kostnadssted: NavEnhetNummer? = null,
-    val beregning: TilsagnBeregningRequest? = null,
+    val beregning: TilsagnBeregningRequest,
     val kommentar: String? = null,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate? = null,

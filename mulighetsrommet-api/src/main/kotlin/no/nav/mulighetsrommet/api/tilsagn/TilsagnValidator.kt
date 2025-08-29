@@ -1,10 +1,8 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.*
-import arrow.core.raise.either
+import arrow.core.raise.*
 import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
-import arrow.core.raise.zipOrAccumulate
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -34,7 +32,11 @@ object TilsagnValidator {
                 validateStep2(step1, gjennomforingSluttDato, tiltakstypeNavn)
             }
             .flatMap { step2 ->
-                validateStep3(step2, next.beregning, avtalteSatser)
+                validateStep3(
+                    step2,
+                    next.beregning,
+                    avtalteSatser,
+                )
             }
     }
 
@@ -90,8 +92,19 @@ object TilsagnValidator {
                     FieldError.of(TilsagnRequest::kostnadssted, "Du må velge et kostnadssted")
                 }
             },
-        ) { start, slutt, minStart, _, _, _, kostnadssted ->
-            Step1(periodeStart = start, periodeSlutt = slutt, kostnadssted = kostnadssted, minimumTilsagnPeriodeStart = minStart)
+            {
+                validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser).bind()
+            },
+            {
+                validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker).bind()
+            },
+        ) { start, slutt, minStart, _, _, _, kostnadssted, _, _ ->
+            Step1(
+                periodeStart = start,
+                periodeSlutt = slutt,
+                kostnadssted = kostnadssted,
+                minimumTilsagnPeriodeStart = minStart,
+            )
         }
     }
 
@@ -139,21 +152,33 @@ object TilsagnValidator {
 
     fun validateStep3(
         step2: Step2,
-        request: TilsagnBeregningRequest?,
+        request: TilsagnBeregningRequest,
         avtalteSatser: List<AvtaltSats>,
-    ): Either<NonEmptyList<FieldError>, Step3> = if (request == null) {
-        FieldError.root("Beregning mangler").nel().left()
-    } else {
+    ): Either<NonEmptyList<FieldError>, Step3> {
         val sats = AvtalteSatser.findSats(avtalteSatser, step2.periode.start)
-        validateBeregning(request, step2.periode, sats, avtalteSatser)
+        return validateBeregning(
+            request = request,
+            periode = step2.periode,
+            sats = sats,
+            avtalteSatser,
+        )
             .map { Step3(step2, it) }
     }
 
     fun validateAvtaltSats(
+        beregningType: TilsagnBeregningType,
         avtalteSatser: List<AvtaltSats>,
         periode: Periode,
         sats: Int?,
     ): Either<NonEmptyList<FieldError>, Int> = either {
+        when (beregningType) {
+            TilsagnBeregningType.FRI -> return 0.right()
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+            TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+            -> Unit
+        }
         val errors = buildList {
             if (sats == null) {
                 return FieldError.of(
@@ -202,6 +227,12 @@ object TilsagnValidator {
     }
 
     fun validateBeregning(request: TilsagnBeregningRequest, periode: Periode, sats: Int?, avtalteSatser: List<AvtaltSats>): Either<NonEmptyList<FieldError>, TilsagnBeregning> = either {
+        val satsV = validateAvtaltSats(request.type, avtalteSatser, periode, sats).bind()
+        val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
+            .mapLeft { it.nel() }.bind()
+        val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker)
+            .mapLeft { it.nel() }.bind()
+
         return when (request.type) {
             TilsagnBeregningType.FRI ->
                 validateBeregningFriInput(request)
@@ -211,8 +242,8 @@ object TilsagnValidator {
                     TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
                         TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                             periode = periode,
-                            sats = validateAvtaltSats(avtalteSatser, periode, sats).bind(),
-                            antallPlasser = validateAntallPlasser(request.antallPlasser).bind(),
+                            sats = satsV,
+                            antallPlasser = antallPlasser,
                         ),
                     )
                 }
@@ -222,8 +253,8 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerManedsverk.beregn(
                         TilsagnBeregningPrisPerManedsverk.Input(
                             periode = periode,
-                            sats = validateAvtaltSats(avtalteSatser, periode, sats).bind(),
-                            antallPlasser = validateAntallPlasser(request.antallPlasser).bind(),
+                            sats = satsV,
+                            antallPlasser = antallPlasser,
                             prisbetingelser = request.prisbetingelser,
                         ),
                     )
@@ -234,8 +265,8 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerUkesverk.beregn(
                         TilsagnBeregningPrisPerUkesverk.Input(
                             periode = periode,
-                            sats = validateAvtaltSats(avtalteSatser, periode, sats).bind(),
-                            antallPlasser = validateAntallPlasser(request.antallPlasser).bind(),
+                            sats = satsV,
+                            antallPlasser = antallPlasser,
                             prisbetingelser = request.prisbetingelser,
                         ),
                     )
@@ -246,37 +277,59 @@ object TilsagnValidator {
                     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
                         TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                             periode = periode,
-                            sats = validateAvtaltSats(avtalteSatser, periode, sats).bind(),
-                            antallPlasser = validateAntallPlasser(request.antallPlasser).bind(),
+                            sats = satsV,
+                            antallPlasser = antallPlasser,
                             prisbetingelser = request.prisbetingelser,
-                            antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.antallTimerOppfolgingPerDeltaker).bind(),
+                            antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltaker,
                         ),
                     )
                 }
         }
     }
 
-    private fun validateAntallTimerOppfolgingPerDeltaker(antallTimerOppfolgingPerDeltaker: Int?): Either<NonEmptyList<FieldError>, Int> = if (antallTimerOppfolgingPerDeltaker == null || antallTimerOppfolgingPerDeltaker <= 0) {
-        FieldError.of(
-            "Antall timer oppfølging per deltaker kan ikke være 0",
-            TilsagnRequest::beregning,
-            TilsagnBeregningRequest::antallTimerOppfolgingPerDeltaker,
-        ).nel().left()
-    } else {
-        antallTimerOppfolgingPerDeltaker.right()
+    private fun validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Either<FieldError, Int> {
+        return when (type) {
+            TilsagnBeregningType.FRI,
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+            TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+            -> 0.right()
+            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> {
+                if (antallTimerOppfolgingPerDeltaker == null || antallTimerOppfolgingPerDeltaker <= 0) {
+                    FieldError.of(
+                        "Antall timer oppfølging per deltaker må være større enn 0",
+                        TilsagnRequest::beregning,
+                        TilsagnBeregningRequest::antallTimerOppfolgingPerDeltaker,
+                    ).left()
+                } else {
+                    antallTimerOppfolgingPerDeltaker.right()
+                }
+            }
+        }
     }
 
-    private fun validateAntallPlasser(antallPlasser: Int?): Either<NonEmptyList<FieldError>, Int> = if (antallPlasser == null || antallPlasser <= 0) {
-        FieldError.of(
-            "Antall plasser kan ikke være 0",
-            TilsagnRequest::beregning,
-            TilsagnBeregningRequest::antallPlasser,
-        ).nel().left()
-    } else {
-        antallPlasser.right()
+    private fun validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Either<FieldError, Int> {
+        return when (beregningType) {
+            TilsagnBeregningType.FRI -> 0.right()
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+            TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+            -> {
+                if (antallPlasser == null || antallPlasser <= 0) {
+                    FieldError.of(
+                        "Antall plasser må være større enn 0",
+                        TilsagnRequest::beregning,
+                        TilsagnBeregningRequest::antallPlasser,
+                    ).left()
+                } else {
+                    antallPlasser.right()
+                }
+            }
+        }
     }
 
-    private fun validateBeregningFriInput(request: TilsagnBeregningRequest): Either<NonEmptyList<FieldError>, TilsagnBeregning> = either {
+    fun validateBeregningFriInput(request: TilsagnBeregningRequest): Either<NonEmptyList<FieldError>, TilsagnBeregning> = either {
         if (request.linjer.isNullOrEmpty()) {
             return FieldError.ofPointer(
                 pointer = "beregning/linjer",

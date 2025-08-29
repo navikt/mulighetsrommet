@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.*
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -18,6 +19,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -152,28 +155,26 @@ class TilsagnService(
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun beregnTilsagn(request: BeregnTilsagnRequest): Either<NonEmptyList<FieldError>, TilsagnBeregning> = db.session {
+    fun beregnTilsagn(request: BeregnTilsagnRequest): TilsagnBeregning = db.session {
+        requireNotNull(request.periodeStart)
+        requireNotNull(request.periodeSlutt)
+        require(request.periodeStart.isBefore(request.periodeSlutt))
+        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+
         val avtale = requireNotNull(
             queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
                 queries.avtale.get(it)
             },
-        ) {
-            "Avtalen finnes ikke"
-        }
+        )
         val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
-        requireNotNull(request.periodeStart)
-        requireNotNull(request.periodeSlutt)
-        require(request.periodeStart.isBefore(request.periodeSlutt))
-
-        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
-        val sats = AvtalteSatser.findSats(avtalteSatser, periode.start)
+        val sats = AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
 
         return TilsagnValidator.validateBeregning(
             request.beregning,
-            periode,
-            sats,
-            avtalteSatser,
-        )
+            periode = periode,
+            sats = sats,
+            avtalteSatser = avtalteSatser,
+        ).getOrElse { throw StatusException(HttpStatusCode.BadRequest, "Klarte ikke beregne tilsagn") }
     }
 
     fun beslutt(

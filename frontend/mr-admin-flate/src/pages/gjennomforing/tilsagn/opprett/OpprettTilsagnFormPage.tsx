@@ -4,7 +4,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnType } from "@mr/api-client-v2";
+import { TilsagnBeregningType, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -35,7 +35,8 @@ function useHentData() {
     type,
     periodeStart: periodeStart ?? undefined,
     periodeSlutt: periodeSlutt ?? undefined,
-    beregning: undefined,
+    // Denne blir bestemt av backend men er påkrevd
+    beregning: { type: TilsagnBeregningType.FRI },
     kostnadssted: kostnadssted ?? undefined,
   });
 

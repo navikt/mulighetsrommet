@@ -4249,7 +4249,7 @@ components:
           $ref: "#/components/schemas/TilsagnBeregningRequest"
         kommentar:
           type: [string, "null"]
-      required: [type, gjennomforingId]
+      required: [type, gjennomforingId, beregning]
 
     TilsagnType:
       type: string

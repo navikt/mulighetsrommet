@@ -3,10 +3,8 @@ package no.nav.mulighetsrommet.api.tilsagn
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
 
@@ -33,7 +31,7 @@ class TilsagnValidatorTest : FunSpec({
                     linjer = emptyList(),
                     prisbetingelser = null,
                 )
-                TilsagnValidator.validateBeregning(input, Periode.forMonthOf(LocalDate.of(2024, 1, 1)), null, emptyList()).shouldBeLeft()
+                TilsagnValidator.validateBeregningFriInput(input).shouldBeLeft()
             }
 
             test("should return list of field error for invalid input") {
@@ -55,12 +53,7 @@ class TilsagnValidatorTest : FunSpec({
                     FieldError(pointer = "beregning/linjer/0/antall", detail = "Antall må være positivt"),
                 )
 
-                TilsagnValidator.validateBeregning(
-                    input,
-                    Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
-                    sats = null,
-                    emptyList(),
-                ) shouldBeLeft leftFieldErrors
+                TilsagnValidator.validateBeregningFriInput(input) shouldBeLeft leftFieldErrors
             }
         }
     }
