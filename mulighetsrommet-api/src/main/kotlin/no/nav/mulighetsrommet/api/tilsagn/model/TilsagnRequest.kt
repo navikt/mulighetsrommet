@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -50,4 +51,10 @@ data class BeregnTilsagnRequest(
     val beregning: TilsagnBeregningRequest,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
+)
+
+@Serializable
+data class BeregnTilsagnResponse(
+    val success: Boolean,
+    val beregning: TilsagnBeregningDto?,
 )
