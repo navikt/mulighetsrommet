@@ -4213,7 +4213,7 @@ components:
           type: [string, "null"]
           format: date
         beregning:
-          $ref: '#/components/schemas/TilsagnBeregningRequest'
+          $ref: "#/components/schemas/TilsagnBeregningRequest"
       required: [gjennomforingId]
 
     BeregnTilsagnResponse:
@@ -4222,7 +4222,7 @@ components:
         success:
           type: boolean
         beregning:
-          $ref: '#/components/schemas/TilsagnBeregningDto'
+          $ref: "#/components/schemas/TilsagnBeregningDto"
       required: [success]
 
     TilsagnBeregningRequest:
@@ -5072,7 +5072,9 @@ components:
           items:
             type: object
             additionalProperties:
-              $ref: "#/components/schemas/DataElement"
+              oneOf:
+                - type: "null"
+                - $ref: "#/components/schemas/DataElement"
       required: [columns, rows]
 
     DataDrivenTableColumn:

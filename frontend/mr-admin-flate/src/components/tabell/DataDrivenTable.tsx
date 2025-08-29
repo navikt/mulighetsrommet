@@ -39,11 +39,14 @@ export function DataDrivenTable({ data, className, size }: Props) {
       <Table.Body>
         {sortedData.map((row, index) => (
           <Table.Row key={index}>
-            {data.columns.map((col) => (
-              <Table.DataCell key={col.key} align={col.align}>
-                {renderCell(row[col.key])}
-              </Table.DataCell>
-            ))}
+            {data.columns.map((col) => {
+              const cell = row[col.key];
+              return (
+                <Table.DataCell key={col.key} align={col.align}>
+                  {cell ? renderCell(cell) : null}
+                </Table.DataCell>
+              );
+            })}
           </Table.Row>
         ))}
       </Table.Body>
@@ -51,9 +54,7 @@ export function DataDrivenTable({ data, className, size }: Props) {
   );
 }
 
-function renderCell(cell?: DataElement): ReactNode {
-  if (!cell) return "-";
-
+function renderCell(cell: DataElement): ReactNode {
   switch (cell.type) {
     case "text":
       return formatText(cell.value, cell.format || null);
@@ -79,9 +80,9 @@ function formatText(value: string, format: DataElementTextFormat | null): ReactN
   }
 }
 
-function compareCells(aCell: DataElement, bCell: DataElement) {
-  const aValue = getComparableValue(aCell);
-  const bValue = getComparableValue(bCell);
+function compareCells(aCell: DataElement | null, bCell: DataElement | null) {
+  const aValue = aCell ? getComparableValue(aCell) : null;
+  const bValue = bCell ? getComparableValue(bCell) : null;
   return compare(aValue, bValue);
 }
 
