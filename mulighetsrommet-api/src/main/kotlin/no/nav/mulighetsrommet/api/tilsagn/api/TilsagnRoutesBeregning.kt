@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -22,6 +23,17 @@ fun Route.tilsagnRoutesBeregning() {
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
     val gjennomforinger: GjennomforingService by inject()
+
+    get("/{id}/defaults") {
+        val id: UUID by call.parameters
+
+        val tilsagn = db.session { queries.tilsagn.get(id) }
+            ?: return@get call.respond(HttpStatusCode.NotFound)
+
+        val defaults = resolveTilsagnRequest(tilsagn)
+
+        call.respond(defaults)
+    }
 
     post("/defaults") {
         val request = call.receive<TilsagnRequest>()
@@ -67,6 +79,56 @@ fun Route.tilsagnRoutesBeregning() {
             ),
         )
     }
+}
+
+private fun resolveTilsagnRequest(tilsagn: Tilsagn): TilsagnRequest {
+    return TilsagnRequest(
+        id = tilsagn.id,
+        type = tilsagn.type,
+        gjennomforingId = tilsagn.gjennomforing.id,
+        kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+        beregning = when (tilsagn.beregning) {
+            is TilsagnBeregningFri -> TilsagnBeregningRequest(
+                type = TilsagnBeregningType.FRI,
+                linjer = tilsagn.beregning.input.linjer.map {
+                    TilsagnInputLinjeRequest(
+                        id = it.id,
+                        beskrivelse = it.beskrivelse,
+                        belop = it.belop,
+                        antall = it.antall,
+                    )
+                },
+                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
+            )
+
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningRequest(
+                type = TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+                antallPlasser = tilsagn.beregning.input.antallPlasser,
+            )
+
+            is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningRequest(
+                type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                antallPlasser = tilsagn.beregning.input.antallPlasser,
+                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
+            )
+
+            is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningRequest(
+                type = TilsagnBeregningType.PRIS_PER_UKESVERK,
+                antallPlasser = tilsagn.beregning.input.antallPlasser,
+                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
+            )
+
+            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningRequest(
+                type = TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+                antallPlasser = tilsagn.beregning.input.antallPlasser,
+                antallTimerOppfolgingPerDeltaker = tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker,
+                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
+            )
+        },
+        kommentar = tilsagn.kommentar,
+        periodeStart = tilsagn.periode.start,
+        periodeSlutt = tilsagn.periode.getLastInclusiveDate(),
+    )
 }
 
 private fun resolveTilsagnDefaults(

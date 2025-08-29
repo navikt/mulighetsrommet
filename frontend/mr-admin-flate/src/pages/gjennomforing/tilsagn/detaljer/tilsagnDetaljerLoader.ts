@@ -11,6 +11,14 @@ export function useTilsagn(id: string) {
     },
   });
 }
+export function useTilsagnRequest(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: ["tilsagn", id, "request"],
+    queryFn: async () => {
+      return TilsagnService.getTilsagnRequest({ path: { id } });
+    },
+  });
+}
 
 export function useTilsagnEndringshistorikk(id: string) {
   return useApiSuspenseQuery({

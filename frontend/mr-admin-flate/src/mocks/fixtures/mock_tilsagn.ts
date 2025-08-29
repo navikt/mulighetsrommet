@@ -1,46 +1,69 @@
 import {
   AlignEnum,
   DataDrivenTableDto,
+  DataElementMathOperatorType,
   DataElementStatusVariant,
   DataElementTextFormat,
-  PrismodellDtoAnnenAvtaltPris,
+  LabeledDataElementType,
   TilsagnDto,
   TilsagnStatus,
   TilsagnType,
 } from "@mr/api-client-v2";
-import { mockAvtaler } from "./mock_avtaler";
 
 export const mockTilsagn: TilsagnDto[] = [
   {
-    type: TilsagnType.TILSAGN,
-    beregning: {
-      type: "FRI",
-      prisbetingelser: (mockAvtaler[0].prismodell as PrismodellDtoAnnenAvtaltPris).prisbetingelser,
-      linjer: [{ id: "asd", beskrivelse: "Som avtalt", belop: 2_000, antall: 7 }],
-      belop: 14_000,
-    },
-    belopBrukt: 4_000,
-    belopGjenstaende: 10_000,
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
-    kostnadssted: {
-      enhetsnummer: "0300",
-      navn: "Nav Oslo",
+    type: TilsagnType.TILSAGN,
+    periode: { start: "2025-06-01", slutt: "2025-12-01" },
+    belopBrukt: 0,
+    belopGjenstaende: 12207450,
+    kostnadssted: { navn: "Nav tiltak Oslo", enhetsnummer: "0387" },
+    beregning: {
+      belop: 12207450,
+      prismodell: {
+        entries: [
+          {
+            type: LabeledDataElementType.INLINE,
+            label: "Prismodell",
+            value: { type: "text", value: "Fast sats per tiltaksplass per måned", format: null },
+          },
+          {
+            type: LabeledDataElementType.INLINE,
+            label: "Antall plasser",
+            value: { type: "text", value: "97", format: DataElementTextFormat.NUMBER },
+          },
+          {
+            type: LabeledDataElementType.INLINE,
+            label: "Sats",
+            value: { type: "text", value: "20975", format: DataElementTextFormat.NOK },
+          },
+        ],
+      },
+      regnestykke: {
+        expression: [
+          { type: "text", value: "97", format: DataElementTextFormat.NUMBER },
+          { type: "text", value: "plasser", format: null },
+          { type: "math-operator", operator: DataElementMathOperatorType.MULTIPLY },
+          { type: "text", value: "20975", format: DataElementTextFormat.NOK },
+          { type: "text", value: "per tiltaksplass per måned", format: null },
+          { type: "math-operator", operator: DataElementMathOperatorType.MULTIPLY },
+          { type: "text", value: "6.0", format: DataElementTextFormat.NUMBER },
+          { type: "text", value: "måneder", format: null },
+          { type: "math-operator", operator: DataElementMathOperatorType.EQUALS },
+          { type: "text", value: "12207450", format: DataElementTextFormat.NOK },
+        ],
+      },
     },
-    periode: {
-      start: "2024-01-05",
-      slutt: "2024-01-06",
-    },
+    bestillingsnummer: "A-2025/11133-23",
     status: TilsagnStatus.TIL_GODKJENNING,
-    bestillingsnummer: "A-2024/123",
     kommentar: null,
   },
   {
     type: TilsagnType.TILSAGN,
     beregning: {
-      type: "FRI",
-      prisbetingelser: null,
-      linjer: [{ id: "asd", beskrivelse: "Kurspris per dag", belop: 2_000, antall: 7 }],
       belop: 14_000,
+      prismodell: { entries: [] },
+      regnestykke: { expression: [] },
     },
     belopBrukt: 4_000,
     belopGjenstaende: 10_000,
@@ -60,10 +83,9 @@ export const mockTilsagn: TilsagnDto[] = [
   {
     type: TilsagnType.TILSAGN,
     beregning: {
-      type: "FRI",
-      prisbetingelser: "10 000,- + 4 000,-",
-      linjer: [{ id: "asd", beskrivelse: "10 000,- + 4 000,-", belop: 14_000, antall: 1 }],
       belop: 14_000,
+      prismodell: { entries: [] },
+      regnestykke: { expression: [] },
     },
     belopBrukt: 4_000,
     belopGjenstaende: 10_000,
@@ -83,10 +105,9 @@ export const mockTilsagn: TilsagnDto[] = [
   {
     type: TilsagnType.TILSAGN,
     beregning: {
-      type: "FRI",
-      prisbetingelser: null,
-      linjer: [{ id: "asd", beskrivelse: "Kurspris per dag", belop: 2_000, antall: 7 }],
       belop: 14_000,
+      prismodell: { entries: [] },
+      regnestykke: { expression: [] },
     },
     belopBrukt: 4_000,
     belopGjenstaende: 10_000,
@@ -106,10 +127,9 @@ export const mockTilsagn: TilsagnDto[] = [
   {
     type: TilsagnType.TILSAGN,
     beregning: {
-      type: "FRI",
-      prisbetingelser: null,
-      linjer: [{ id: "asd", beskrivelse: "Kurspris per dag", belop: 2_000, antall: 7 }],
       belop: 14_000,
+      prismodell: { entries: [] },
+      regnestykke: { expression: [] },
     },
     belopBrukt: 4_000,
     belopGjenstaende: 10_000,

@@ -1748,6 +1748,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/BeregnTilsagnResponse"
 
+  /api/v1/intern/tilsagn/{id}/defaults:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagnRequest
+      responses:
+        200:
+          description: Standardverdier for tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnRequest"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/tilsagn/defaults:
     post:
       tags:
@@ -4378,23 +4395,16 @@ components:
         - PRIS_PER_TIME_OPPFOLGING
 
     TilsagnBeregningDto:
-      allOf:
-        - $ref: "#/components/schemas/TilsagnBeregningBase"
-        - oneOf:
-            - $ref: "#/components/schemas/TilsagnBeregningFri"
-            - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManed"
-            - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
-            - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
-            - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker"
-
-    TilsagnBeregningBase:
       type: object
       properties:
+        belop:
+          type: number
         prismodell:
           $ref: "#/components/schemas/DataDetails"
         regnestykke:
           $ref: "#/components/schemas/CalculationDto"
       required:
+        - belop
         - prismodell
         - regnestykke
 
@@ -4407,111 +4417,6 @@ components:
             $ref: "#/components/schemas/DataElement"
         breakdown:
           $ref: "#/components/schemas/DataDrivenTableDto"
-
-    TilsagnBeregningFastSatsPerTiltaksplassPerManed:
-      type: object
-      properties:
-        type:
-          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallManeder:
-          type: number
-      required: [type, belop, sats, antallPlasser, antallManeder]
-
-    TilsagnBeregningPrisPerManedsverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_MANEDSVERK
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallManeder:
-          type: number
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
-
-    TilsagnBeregningPrisPerUkesverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_UKESVERK
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallUker:
-          type: number
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, belop, sats, antallPlasser, antallUker, prisbetingelser]
-
-    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_TIME_OPPFOLGING
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallTimerOppfolgingPerDeltaker:
-          type: integer
-        prisbetingelser:
-          type: [string, "null"]
-      required:
-        - type
-        - belop
-        - sats
-        - antallPlasser
-        - antallTimerOppfolgingPerDeltaker
-        - prisbetingelser
-
-    TilsagnBeregningFri:
-      type: object
-      properties:
-        type:
-          const: FRI
-        linjer:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
-        prisbetingelser:
-          type: [string, "null"]
-        belop:
-          type: integer
-      required: [type, belop, prisbetingelser, linjer]
-
-    TilsagnBeregningFriInputLinje:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        beskrivelse:
-          type: string
-        belop:
-          type: integer
-        antall:
-          type: integer
-      required:
-        - id
-        - beskrivelse
-        - belop
-        - antall
 
     PrismodellOgBeskrivelse:
       type: object
@@ -5222,7 +5127,7 @@ components:
       properties:
         type:
           type: string
-          const: operator
+          const: math-operator
         operator:
           $ref: "#/components/schemas/DataElementMathOperatorType"
       required:

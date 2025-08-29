@@ -8,5 +8,6 @@ export function useBeregnTilsagn(request: BeregnTilsagnRequest) {
   return useApiQuery({
     queryKey: QueryKeys.beregnTilsagn(debouncedSerialized),
     queryFn: () => BeregnTilsagnService.beregnTilsagn({ body: JSON.parse(debouncedSerialized) }),
+    placeholderData: (prev) => prev,
   });
 }

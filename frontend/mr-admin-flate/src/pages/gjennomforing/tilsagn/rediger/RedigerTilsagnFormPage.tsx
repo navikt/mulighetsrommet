@@ -4,20 +4,13 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import {
-  TilsagnBeregningRequest,
-  TilsagnBeregningType,
-  TilsagnDto,
-  TilsagnRequest,
-} from "@mr/api-client-v2";
 import { Heading, VStack } from "@navikt/ds-react";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
+import { useTilsagn, useTilsagnRequest } from "../detaljer/tilsagnDetaljerLoader";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
-import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 
@@ -25,13 +18,14 @@ function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  return { avtale, gjennomforing, ...tilsagnDetaljer };
+  const { data: defaults } = useTilsagnRequest(tilsagnId);
+  return { avtale, gjennomforing, defaults, opprettelse: tilsagnDetaljer.opprettelse };
 }
 
 export function RedigerTilsagnFormPage() {
   const { gjennomforingId, tilsagnId } = useRequiredParams(["gjennomforingId", "tilsagnId"]);
 
-  const { avtale, gjennomforing, tilsagn, opprettelse } = useRedigerTilsagnFormData(
+  const { avtale, gjennomforing, defaults, opprettelse } = useRedigerTilsagnFormData(
     gjennomforingId,
     tilsagnId,
   );
@@ -53,17 +47,6 @@ export function RedigerTilsagnFormPage() {
   if (!avtale) {
     return <Laster tekst="Laster data..." />;
   }
-
-  const defaults: TilsagnRequest = {
-    id: tilsagn.id,
-    type: tilsagn.type,
-    periodeStart: tilsagn.periode.start,
-    periodeSlutt: yyyyMMddFormatting(subDuration(tilsagn.periode.slutt, { days: 1 }))!,
-    kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-    beregning: tilsagnBeregningRequest(tilsagn),
-    gjennomforingId: gjennomforing.id,
-    kommentar: tilsagn.kommentar ?? undefined,
-  };
 
   return (
     <>
@@ -96,44 +79,4 @@ export function RedigerTilsagnFormPage() {
       </ContentBox>
     </>
   );
-}
-
-function tilsagnBeregningRequest(tilsagn: TilsagnDto): TilsagnBeregningRequest {
-  const { beregning } = tilsagn;
-  switch (beregning.type) {
-    case "FRI":
-      return {
-        type: TilsagnBeregningType.FRI,
-        linjer: beregning.linjer,
-        prisbetingelser: beregning.prisbetingelser ?? undefined,
-      };
-    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
-      return {
-        type: TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-        sats: beregning.sats,
-        antallPlasser: beregning.antallPlasser,
-      };
-    case "PRIS_PER_MANEDSVERK":
-      return {
-        type: TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-        sats: beregning.sats,
-        antallPlasser: beregning.antallPlasser,
-        prisbetingelser: beregning.prisbetingelser ?? undefined,
-      };
-    case "PRIS_PER_UKESVERK":
-      return {
-        type: TilsagnBeregningType.PRIS_PER_UKESVERK,
-        sats: beregning.sats,
-        antallPlasser: beregning.antallPlasser,
-        prisbetingelser: beregning.prisbetingelser ?? undefined,
-      };
-    case "PRIS_PER_TIME_OPPFOLGING":
-      return {
-        type: TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-        sats: beregning.sats,
-        antallPlasser: beregning.antallPlasser,
-        antallTimerOppfolgingPerDeltaker: beregning.antallTimerOppfolgingPerDeltaker,
-        prisbetingelser: beregning.prisbetingelser ?? undefined,
-      };
-  }
 }
