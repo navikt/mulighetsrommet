@@ -1,15 +1,18 @@
-import { Table, TableProps, TagProps } from "@navikt/ds-react";
+import { BodyLong, Table, TableProps, TagProps, VStack } from "@navikt/ds-react";
 import {
   DataDrivenTableDto,
   DataElement,
   DataElementStatusVariant,
   DataElementTextFormat,
+  LabeledDataElement,
+  LabeledDataElementType,
 } from "@mr/api-client-v2";
 import { compare, formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { StatusTag, useSortableData } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ReactNode } from "react";
+import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
 
 interface Props {
   data: DataDrivenTableDto;
@@ -57,7 +60,7 @@ export function DataDrivenTable({ data, className, size }: Props) {
 function renderCell(cell: DataElement): ReactNode {
   switch (cell.type) {
     case "text":
-      return formatText(cell.value, cell.format || null);
+      return cell.value ? formatText(cell.value, cell.format) : null;
     case "status":
       return <DataElementStatusTag {...cell} />;
     case "periode":
@@ -137,5 +140,33 @@ function getStatusTagStyles(variant: DataElementStatusVariant): {
         className:
           "bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through",
       };
+  }
+}
+
+export function DataDetails({ entries }: { entries: LabeledDataElement[] }) {
+  return (
+    <VStack gap="4">
+      {entries.map((entry) => (
+        <LabaledDataElement key={entry.label} {...entry} />
+      ))}
+    </VStack>
+  );
+}
+
+export function LabaledDataElement(props: LabeledDataElement) {
+  const label = props.label;
+  const value = props.value ? renderCell(props.value) : null;
+  const valueOrFallback = value || "-";
+
+  switch (props.type) {
+    case LabeledDataElementType.INLINE:
+      return <MetadataHorisontal header={label} value={valueOrFallback} />;
+    case LabeledDataElementType.MULTILINE:
+      return (
+        <Metadata
+          header={label}
+          value={<BodyLong className="whitespace-pre-line">{valueOrFallback}</BodyLong>}
+        />
+      );
   }
 }

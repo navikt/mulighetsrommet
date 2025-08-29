@@ -4378,12 +4378,22 @@ components:
         - PRIS_PER_TIME_OPPFOLGING
 
     TilsagnBeregningDto:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningFri"
-        - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManed"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker"
+      allOf:
+        - $ref: "#/components/schemas/TilsagnBeregningBase"
+        - oneOf:
+            - $ref: "#/components/schemas/TilsagnBeregningFri"
+            - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManed"
+            - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
+            - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
+            - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker"
+
+    TilsagnBeregningBase:
+      type: object
+      properties:
+        prismodell:
+          $ref: "#/components/schemas/DataDetails"
+      required:
+        - prismodell
 
     TilsagnBeregningFastSatsPerTiltaksplassPerManed:
       type: object
@@ -5074,6 +5084,38 @@ components:
         - sortable
         - align
 
+    DataDetails:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabeledDataElement"
+      required:
+        - entries
+
+    LabeledDataElement:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
+          type: string
+        value:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/DataElement"
+      required:
+        - type
+        - label
+        - value
+
+    LabeledDataElementType:
+      type: string
+      enum:
+        - INLINE
+        - MULTILINE
+
     DataElement:
       type: object
       oneOf:
@@ -5089,7 +5131,7 @@ components:
           type: string
           const: text
         value:
-          type: string
+          type: ["null", string]
         format:
           oneOf:
             - type: "null"

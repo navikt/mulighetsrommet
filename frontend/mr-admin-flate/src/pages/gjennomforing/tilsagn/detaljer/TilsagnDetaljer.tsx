@@ -17,9 +17,9 @@ import { ReactNode } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregning";
-import { TilsagnPrismodell } from "@/components/tilsagn/prismodell/TilsagnPrismodell";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { DataDetails } from "@/components/tabell/DataDrivenTable";
 
 interface Props {
   tilsagn: TilsagnDto;
@@ -73,7 +73,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             <MetadataFritekstfelt header={tilsagnTekster.kommentar.label} value={kommentar} />
           </HGrid>
           <Separator />
-          <TilsagnPrismodell beregning={beregning} />
+          <DataDetails {...beregning.prismodell} />
         </HGrid>
         <HGrid columns={1} gap="2" align="center">
           <VStack gap="4">
