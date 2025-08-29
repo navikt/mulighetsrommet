@@ -25,19 +25,6 @@ fun Route.tilsagnRoutesGetAll() {
 
         call.respond(table)
     }
-
-    get("table") {
-        val gjennomforingId: UUID? by call.queryParameters
-        val status = call.queryParameters.getAll("statuser")
-            ?.map { TilsagnStatus.valueOf(it) }
-
-        val tilsagn = db.session {
-            queries.tilsagn.getAll(gjennomforingId = gjennomforingId, statuser = status)
-        }
-        val table = toTilsagnDataTable(tilsagn)
-
-        call.respond(table)
-    }
 }
 
 private fun toTilsagnDataTable(tilsagn: List<Tilsagn>): DataDrivenTableDto {

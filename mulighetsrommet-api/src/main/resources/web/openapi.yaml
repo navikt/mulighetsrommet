@@ -1511,39 +1511,11 @@ paths:
                 $ref: "#/components/schemas/TilsagnDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
-    get:
-      tags:
-        - Tilsagn
-      operationId: getAll
-      parameters:
-        - name: gjennomforingId
-          in: query
-          schema:
-            type: string
-            format: uuid
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TilsagnStatus"
-      responses:
-        200:
-          description: TiltagnDto
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TilsagnDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/tilsagn/table:
     get:
       tags:
         - Tilsagn
-      operationId: getTable
+      operationId: getTilsagnTableData
       parameters:
         - name: gjennomforingId
           in: query
