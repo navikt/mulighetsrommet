@@ -1,5 +1,6 @@
 import {
   Besluttelse,
+  DataDrivenTableDto,
   GetForhandsgodkjenteSatserResponse,
   TilsagnAvvisningAarsak,
   TilsagnBeregningType,
@@ -13,7 +14,7 @@ import {
   TotrinnskontrollTilBeslutningDto,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
-import { mockTilsagn } from "../fixtures/mock_tilsagn";
+import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
 import { v4 } from "uuid";
 import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
@@ -25,14 +26,8 @@ export const tilsagnHandlers = [
       return HttpResponse.json(body);
     },
   ),
-  http.get<PathParams, any, TilsagnDto[]>(
-    "*/api/v1/intern/gjennomforinger/:gjennomforingId/tilsagn",
-    async () => {
-      return HttpResponse.json(mockTilsagn);
-    },
-  ),
-  http.get<PathParams, any, TilsagnDto[]>("*/api/v1/intern/tilsagn", async () => {
-    return HttpResponse.json(mockTilsagn);
+  http.get<PathParams, any, DataDrivenTableDto>("*/api/v1/intern/tilsagn", async () => {
+    return HttpResponse.json(mockTilsagnTable);
   }),
   http.get<PathParams, any, TilsagnRequest>("*/api/v1/intern/tilsagn/defaults", async () => {
     return HttpResponse.json({
