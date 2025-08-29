@@ -1,7 +1,7 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HStack, Label, Loader, VStack } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
-import { TilsagnBeregning } from "../beregning/TilsagnBeregning";
+import { TilsagnRegnestykke } from "../beregning/TilsagnRegnestykke";
 import { useFormContext } from "react-hook-form";
 import { InferredTilsagn } from "./TilsagnSchema";
 
@@ -30,7 +30,7 @@ export function TilsagnBeregningPreview() {
           <Label size="medium">Totalbeløp</Label>
           {data.beregning.belop && <Label size="medium">{formaterNOK(data.beregning.belop)}</Label>}
         </HStack>
-        <TilsagnBeregning redigeringsModus beregning={data.beregning} />
+        <TilsagnRegnestykke regnestykke={data.beregning.regnestykke} />
       </VStack>
     </>
   );

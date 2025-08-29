@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.InputLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.DataDetails
+import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.LabeledDataElementType
 import java.math.RoundingMode
@@ -14,6 +15,7 @@ import java.math.RoundingMode
 sealed class TilsagnBeregningDto {
     abstract val belop: Int
     abstract val prismodell: DataDetails
+    abstract val regnestykke: CalculationDto
 
     @Serializable
     @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
@@ -28,6 +30,21 @@ sealed class TilsagnBeregningDto {
                 DataElement.text("Fast sats per tiltaksplass per måned").label("Prismodell"),
                 DataElement.number(antallPlasser).label("Antall plasser"),
                 DataElement.nok(sats).label("Sats"),
+            ),
+        )
+
+        override val regnestykke = CalculationDto(
+            expression = listOf(
+                DataElement.number(antallPlasser),
+                DataElement.text("plasser"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.nok(sats),
+                DataElement.text("per tiltaksplass per måned"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.number(antallManeder),
+                DataElement.text("måneder"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                DataElement.nok(belop),
             ),
         )
     }
@@ -50,6 +67,21 @@ sealed class TilsagnBeregningDto {
                     .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
             ),
         )
+
+        override val regnestykke = CalculationDto(
+            expression = listOf(
+                DataElement.number(antallPlasser),
+                DataElement.text("plasser"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.nok(sats),
+                DataElement.text("per tiltaksplass per måned"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.number(antallManeder),
+                DataElement.text("måneder"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                DataElement.nok(belop),
+            ),
+        )
     }
 
     @Serializable
@@ -68,6 +100,21 @@ sealed class TilsagnBeregningDto {
                 DataElement.nok(sats).label("Avtalt pris"),
                 DataElement.text(prisbetingelser)
                     .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+            ),
+        )
+
+        override val regnestykke = CalculationDto(
+            expression = listOf(
+                DataElement.number(antallPlasser),
+                DataElement.text("plasser"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.nok(sats),
+                DataElement.text("per tiltaksplass per uke"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.nok(antallUker),
+                DataElement.text("uker"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                DataElement.nok(belop),
             ),
         )
     }
@@ -91,6 +138,21 @@ sealed class TilsagnBeregningDto {
                     .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
             ),
         )
+
+        override val regnestykke = CalculationDto(
+            expression = listOf(
+                DataElement.number(antallPlasser),
+                DataElement.text("plasser"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.nok(sats),
+                DataElement.text("per oppfølgingstime"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                DataElement.nok(antallTimerOppfolgingPerDeltaker),
+                DataElement.text("oppfølgingstimer per deltaker"),
+                DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                DataElement.nok(belop),
+            ),
+        )
     }
 
     @Serializable
@@ -105,6 +167,44 @@ sealed class TilsagnBeregningDto {
                 DataElement.text("Annen avtalt pris").label("Prismodell"),
                 DataElement.text(prisbetingelser)
                     .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+            ),
+        )
+
+        override val regnestykke = CalculationDto(
+            breakdown = DataDrivenTableDto(
+                columns = listOf(
+                    DataDrivenTableDto.Column(
+                        "beskrivelse",
+                        "Beskrivelse",
+                        sortable = false,
+                    ),
+                    DataDrivenTableDto.Column(
+                        "belop",
+                        "Beløp",
+                        sortable = false,
+                        align = DataDrivenTableDto.Column.Align.RIGHT,
+                    ),
+                    DataDrivenTableDto.Column(
+                        "antall",
+                        "Antall",
+                        sortable = false,
+                        align = DataDrivenTableDto.Column.Align.RIGHT,
+                    ),
+                    DataDrivenTableDto.Column(
+                        "delsum",
+                        "Delsum",
+                        sortable = false,
+                        align = DataDrivenTableDto.Column.Align.RIGHT,
+                    ),
+                ),
+                rows = linjer.map { linje ->
+                    mapOf(
+                        "beskrivelse" to DataElement.text(linje.beskrivelse.ifEmpty { "<Mangler beskrivelse>" }),
+                        "belop" to DataElement.nok(linje.belop),
+                        "antall" to DataElement.number(linje.antall),
+                        "delsum" to DataElement.nok(linje.belop * linje.antall),
+                    )
+                },
             ),
         )
     }
@@ -158,3 +258,9 @@ sealed class TilsagnBeregningDto {
         }
     }
 }
+
+@Serializable
+data class CalculationDto(
+    val expression: List<DataElement>? = null,
+    val breakdown: DataDrivenTableDto? = null,
+)

@@ -4392,8 +4392,21 @@ components:
       properties:
         prismodell:
           $ref: "#/components/schemas/DataDetails"
+        regnestykke:
+          $ref: "#/components/schemas/CalculationDto"
       required:
         - prismodell
+        - regnestykke
+
+    CalculationDto:
+      type: object
+      properties:
+        expression:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataElement"
+        breakdown:
+          $ref: "#/components/schemas/DataDrivenTableDto"
 
     TilsagnBeregningFastSatsPerTiltaksplassPerManed:
       type: object
@@ -5123,6 +5136,7 @@ components:
         - $ref: "#/components/schemas/DataElementStatus"
         - $ref: "#/components/schemas/DataElementLink"
         - $ref: "#/components/schemas/DataElementPeriode"
+        - $ref: "#/components/schemas/DataElementMathOperator"
 
     DataElementText:
       type: object
@@ -5202,6 +5216,27 @@ components:
         - type
         - start
         - slutt
+
+    DataElementMathOperator:
+      type: object
+      properties:
+        type:
+          type: string
+          const: operator
+        operator:
+          $ref: "#/components/schemas/DataElementMathOperatorType"
+      required:
+        - type
+        - operator
+
+    DataElementMathOperatorType:
+      type: string
+      enum:
+        - plus
+        - minus
+        - multiply
+        - divide
+        - equals
 
     AarsakerOgForklaringRequest:
       type: object

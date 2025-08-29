@@ -16,7 +16,7 @@ import { Box, Heading, HGrid, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
-import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregning";
+import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import { DataDetails } from "@/components/tabell/DataDrivenTable";
@@ -95,7 +95,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             <Heading size="small" spacing>
               Beregning
             </Heading>
-            <TilsagnBeregning beregning={beregning} />
+            <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
           </Box>
           {(status === TilsagnStatus.ANNULLERT || status === TilsagnStatus.OPPGJORT) && (
             <>

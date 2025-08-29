@@ -108,6 +108,29 @@ sealed class DataElement {
         val slutt: String,
     ) : DataElement()
 
+    @Serializable
+    @SerialName("math-operator")
+    data class MathOperator(
+        val operator: Type,
+    ) : DataElement() {
+        enum class Type {
+            @SerialName("plus")
+            PLUS,
+
+            @SerialName("minus")
+            MINUS,
+
+            @SerialName("multiply")
+            MULTIPLY,
+
+            @SerialName("divide")
+            DIVIDE,
+
+            @SerialName("equals")
+            EQUALS,
+        }
+    }
+
     fun label(label: String, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(type, label, this)
 
     companion object {

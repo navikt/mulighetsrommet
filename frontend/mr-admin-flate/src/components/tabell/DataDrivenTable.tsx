@@ -2,6 +2,7 @@ import { BodyLong, Table, TableProps, TagProps, VStack } from "@navikt/ds-react"
 import {
   DataDrivenTableDto,
   DataElement,
+  DataElementMathOperatorType,
   DataElementStatusVariant,
   DataElementTextFormat,
   LabeledDataElement,
@@ -57,7 +58,7 @@ export function DataDrivenTable({ data, className, size }: Props) {
   );
 }
 
-function renderCell(cell: DataElement): ReactNode {
+export function renderCell(cell: DataElement): ReactNode {
   switch (cell.type) {
     case "text":
       return cell.value ? formatText(cell.value, cell.format) : null;
@@ -67,6 +68,23 @@ function renderCell(cell: DataElement): ReactNode {
       return `${formaterDato(cell.start)} - ${formaterDato(cell.slutt)}`;
     case "link":
       return <Lenke to={cell.href}>{cell.text}</Lenke>;
+    case "math-operator":
+      return <MathOperator operator={cell.operator} />;
+  }
+}
+
+function MathOperator({ operator }: { operator: DataElementMathOperatorType }) {
+  switch (operator) {
+    case DataElementMathOperatorType.PLUS:
+      return "+";
+    case DataElementMathOperatorType.MINUS:
+      return "−";
+    case DataElementMathOperatorType.MULTIPLY:
+      return "×";
+    case DataElementMathOperatorType.DIVIDE:
+      return "÷";
+    case DataElementMathOperatorType.EQUALS:
+      return "=";
   }
 }
 
@@ -99,6 +117,8 @@ function getComparableValue(cell: DataElement) {
       return cell.start;
     case "link":
       return cell.text;
+    case "math-operator":
+      return cell.operator;
   }
 }
 
