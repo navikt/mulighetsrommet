@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
+import java.time.LocalDate
 
 @Serializable
 class DataDrivenTableDto(
@@ -12,7 +13,7 @@ class DataDrivenTableDto(
     @Serializable
     data class Column(
         val key: String,
-        val label: String,
+        val label: String?,
         val sortable: Boolean = true,
         val align: Align = Align.LEFT,
     ) {
@@ -34,7 +35,7 @@ sealed class DataElement {
     @SerialName("text")
     data class Text(
         val value: String,
-        val format: Format? = null,
+        val format: Format?,
     ) : DataElement() {
         enum class Format {
             @SerialName("date")
@@ -66,6 +67,12 @@ sealed class DataElement {
 
             @SerialName("error")
             ERROR,
+
+            @SerialName("error-border")
+            ERROR_BORDER,
+
+            @SerialName("error-border-strikethrough")
+            ERROR_BORDER_STRIKETHROUGH,
         }
     }
 
@@ -84,9 +91,11 @@ sealed class DataElement {
     ) : DataElement()
 
     companion object {
-        fun text(value: Any) = Text(value.toString())
+        fun text(value: Any) = Text(value.toString(), null)
 
         fun nok(value: Number) = Text(value.toString(), Format.NOK)
+
+        fun date(value: LocalDate) = Text(value.toString(), Format.DATE)
 
         fun number(value: Number) = Text(value.toString(), Format.NUMBER)
 

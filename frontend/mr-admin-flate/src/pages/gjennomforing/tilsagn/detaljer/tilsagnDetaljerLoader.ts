@@ -19,19 +19,17 @@ export function useTilsagnEndringshistorikk(id: string) {
   });
 }
 
-export function useAktiveTilsagn(id: string) {
+export function useTilsagnTableData(gjennomforingId: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.getTilsagnForGjennomforing(id),
-    queryFn: async () =>
-      TilsagnService.getAll({
-        query: {
-          gjennomforingId: id,
-          statuser: [
-            TilsagnStatus.GODKJENT,
-            TilsagnStatus.TIL_GODKJENNING,
-            TilsagnStatus.RETURNERT,
-          ],
-        },
-      }),
+    queryKey: QueryKeys.getAllTilsagn(gjennomforingId),
+    queryFn: async () => TilsagnService.getTable({ query: { gjennomforingId } }),
+  });
+}
+
+export function useAktiveTilsagnTableData(gjennomforingId: string) {
+  const statuser = [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT];
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.getAllTilsagn(gjennomforingId, statuser),
+    queryFn: async () => TilsagnService.getTable({ query: { gjennomforingId, statuser } }),
   });
 }

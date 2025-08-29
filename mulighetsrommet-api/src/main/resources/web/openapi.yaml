@@ -1539,6 +1539,33 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/tilsagn/table:
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTable
+      parameters:
+        - name: gjennomforingId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: statuser
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TilsagnStatus"
+      responses:
+        200:
+          description: Tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataDrivenTableDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/gjennomforinger/{gjennomforingId}/utbetalinger:
     parameters:
       - $ref: "#/components/parameters/gjennomforingId"
@@ -5054,7 +5081,7 @@ components:
         key:
           type: string
         label:
-          type: string
+          type: [string, "null"]
         sortable:
           type: boolean
         align:
@@ -5122,6 +5149,8 @@ components:
         - success
         - warning
         - error
+        - error-border
+        - error-border-strikethrough
 
     DataElementLink:
       type: object

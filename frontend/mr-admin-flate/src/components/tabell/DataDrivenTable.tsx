@@ -1,5 +1,10 @@
-import { Table } from "@navikt/ds-react";
-import { DataDrivenTableDto, DataElement, DataElementTextFormat } from "@mr/api-client-v2";
+import { Table, TableProps, TagProps } from "@navikt/ds-react";
+import {
+  DataDrivenTableDto,
+  DataElement,
+  DataElementStatusVariant,
+  DataElementTextFormat,
+} from "@mr/api-client-v2";
 import { compare, formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { StatusTag, useSortableData } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -9,13 +14,14 @@ import { ReactNode } from "react";
 interface Props {
   data: DataDrivenTableDto;
   className?: string;
+  size?: TableProps["size"];
 }
 
-export function DataDrivenTable({ data, className }: Props) {
+export function DataDrivenTable({ data, className, size }: Props) {
   const { sort, toggleSort, sortedData } = useSortableData(data.rows, undefined, compareCells);
 
   return (
-    <Table sort={sort} onSortChange={toggleSort} className={className} size="small">
+    <Table sort={sort} onSortChange={toggleSort} className={className} size={size}>
       <Table.Header>
         <Table.Row>
           {data.columns.map((col) => (
@@ -52,7 +58,7 @@ function renderCell(cell?: DataElement): ReactNode {
     case "text":
       return formatText(cell.value, cell.format || null);
     case "status":
-      return <StatusTag variant={cell.variant}>{cell.value}</StatusTag>;
+      return <DataElementStatusTag {...cell} />;
     case "periode":
       return `${formaterDato(cell.start)} - ${formaterDato(cell.slutt)}`;
     case "link":
@@ -89,5 +95,46 @@ function getComparableValue(cell: DataElement) {
       return cell.start;
     case "link":
       return cell.text;
+  }
+}
+
+interface DataElementStatusTagProps {
+  value: string;
+  variant: DataElementStatusVariant;
+}
+
+function DataElementStatusTag(props: DataElementStatusTagProps) {
+  const { variant, className } = getStatusTagStyles(props.variant);
+  return (
+    <StatusTag variant={variant} className={className}>
+      {props.value}
+    </StatusTag>
+  );
+}
+
+function getStatusTagStyles(variant: DataElementStatusVariant): {
+  variant: TagProps["variant"];
+  className?: string;
+} {
+  switch (variant) {
+    case DataElementStatusVariant.NEUTRAL:
+      return { variant: "neutral" };
+    case DataElementStatusVariant.SUCCESS:
+      return { variant: "success" };
+    case DataElementStatusVariant.WARNING:
+      return { variant: "warning" };
+    case DataElementStatusVariant.ERROR:
+      return { variant: "error" };
+    case DataElementStatusVariant.ERROR_BORDER:
+      return {
+        variant: "neutral",
+        className: "bg-white border-[color:var(--a-text-danger)]",
+      };
+    case DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH:
+      return {
+        variant: "neutral",
+        className:
+          "bg-white text-[color:var(--a-text-danger)] border-[color:var(--a-text-danger)] line-through",
+      };
   }
 }

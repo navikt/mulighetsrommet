@@ -10,16 +10,16 @@ import {
   TilsagnDto,
   TilsagnRequest,
 } from "@mr/api-client-v2";
-import { Alert, Heading, VStack } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useAktiveTilsagn, useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
+import { useAktiveTilsagnTableData, useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { TilsagnTable } from "../tabell/TilsagnTable";
+import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 
 function useRedigerTilsagnFormData() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -29,7 +29,7 @@ function useRedigerTilsagnFormData() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
+  const { data: aktiveTilsagn } = useAktiveTilsagnTableData(gjennomforingId);
 
   return {
     avtale,
@@ -97,15 +97,7 @@ export function RedigerTilsagnFormPage() {
           </WhitePaddedBox>
           <WhitePaddedBox>
             <VStack gap="4">
-              <Heading size="medium">Aktive tilsagn</Heading>
-              {aktiveTilsagn.length > 0 ? (
-                <TilsagnTable tilsagn={aktiveTilsagn} />
-              ) : (
-                <Alert variant="info">
-                  Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav
-                  Tiltaksadministrasjon
-                </Alert>
-              )}
+              <AktiveTilsagnTable data={aktiveTilsagn} />
             </VStack>
           </WhitePaddedBox>
         </VStack>

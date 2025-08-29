@@ -29,16 +29,20 @@ import {
   TrashFillIcon,
   TrashIcon,
 } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { ActionMenu, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { TilsagnDetaljer } from "./TilsagnDetaljer";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { TilsagnTable } from "../tabell/TilsagnTable";
+import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { HarTilgang } from "@/components/auth/HarTilgang";
-import { useAktiveTilsagn, useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
+import {
+  useAktiveTilsagnTableData,
+  useTilsagn,
+  useTilsagnEndringshistorikk,
+} from "./tilsagnDetaljerLoader";
 
 function useTilsagnDetaljer() {
   const { gjennomforingId, tilsagnId } = useParams();
@@ -48,7 +52,7 @@ function useTilsagnDetaljer() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: historikk } = useTilsagnEndringshistorikk(tilsagnId);
-  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
+  const { data: aktiveTilsagn } = useAktiveTilsagnTableData(gjennomforingId);
 
   return {
     gjennomforing,
@@ -487,14 +491,7 @@ export function TilsagnPage() {
         </VStack>
       </ContentBox>
       <VStack padding="4" className="bg-white overflow-x-scroll">
-        <Heading size="medium">Aktive tilsagn</Heading>
-        {aktiveTilsagn.length > 0 ? (
-          <TilsagnTable tilsagn={aktiveTilsagn} />
-        ) : (
-          <Alert variant="info" className="mt-4">
-            Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
-          </Alert>
-        )}
+        <AktiveTilsagnTable data={aktiveTilsagn} />
       </VStack>
     </>
   );

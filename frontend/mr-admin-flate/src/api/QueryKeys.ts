@@ -45,7 +45,11 @@ export const QueryKeys = {
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],
-  getTilsagnForGjennomforing: (gjennomforingId?: string) => ["tilsagn", gjennomforingId],
+  getAllTilsagn: (gjennomforingId?: string, statuser?: string[]) => [
+    "tilsagn",
+    gjennomforingId,
+    statuser,
+  ],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
   annullerTilsagn: () => ["annuller-tilsagn"],

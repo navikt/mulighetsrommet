@@ -11,12 +11,12 @@ enum class TilsagnStatus {
     ;
 
     fun navn(): String = when (this) {
-        TIL_GODKJENNING -> "til godkjenning"
-        GODKJENT -> "godkjent"
-        RETURNERT -> "returnert"
-        TIL_ANNULLERING -> "til annullering"
-        ANNULLERT -> "annullert"
-        TIL_OPPGJOR -> "til oppgjør"
-        OPPGJORT -> "oppgjort"
+        TIL_GODKJENNING -> "Til godkjenning"
+        GODKJENT -> "Godkjent"
+        RETURNERT -> "Returnert"
+        TIL_ANNULLERING -> "Til annullering"
+        ANNULLERT -> "Annullert"
+        TIL_OPPGJOR -> "Til oppgjør"
+        OPPGJORT -> "Oppgjort"
     }
 }

@@ -5,15 +5,15 @@ import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer"
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { TilsagnBeregningType, TilsagnType } from "@mr/api-client-v2";
-import { Alert, Heading, VStack } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { Laster } from "@/components/laster/Laster";
-import { useAktiveTilsagn } from "../detaljer/tilsagnDetaljerLoader";
+import { useAktiveTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
-import { TilsagnTable } from "../tabell/TilsagnTable";
+import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 
 function useHentData() {
   const [searchParams] = useSearchParams();
@@ -40,7 +40,7 @@ function useHentData() {
     kostnadssted: kostnadssted ?? undefined,
   });
 
-  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
+  const { data: aktiveTilsagn } = useAktiveTilsagnTableData(gjennomforingId);
 
   return { gjennomforing, avtale, defaults, aktiveTilsagn };
 }
@@ -92,12 +92,7 @@ export function OpprettTilsagnFormPage() {
       </ContentBox>
       <WhitePaddedBox>
         <VStack gap="4">
-          <Heading size="medium">Aktive tilsagn</Heading>
-          {aktiveTilsagn.length > 0 ? (
-            <TilsagnTable tilsagn={aktiveTilsagn} />
-          ) : (
-            <Alert variant="info">Det finnes ingen aktive tilsagn for dette tiltaket</Alert>
-          )}
+          <AktiveTilsagnTable data={aktiveTilsagn} />
         </VStack>
       </WhitePaddedBox>
     </>
