@@ -4,7 +4,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { AvtaleDto, Prismodell, TilsagnType } from "@mr/api-client-v2";
+import { TilsagnBeregningType, TilsagnType } from "@mr/api-client-v2";
 import { Alert, Heading, VStack } from "@navikt/ds-react";
 import { useParams, useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -15,28 +15,11 @@ import { useAktiveTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { TilsagnTable } from "../tabell/TilsagnTable";
 
-const selectPrismodellDefault = (
-  prismodell: Prismodell | null,
-  avtale: AvtaleDto | undefined,
-): Prismodell | null => {
-  if (prismodell) {
-    return prismodell;
-  }
-  if (avtale?.prismodell.type) {
-    return avtale.prismodell.type as Prismodell;
-  }
-  return null;
-};
-
 function useHentData() {
   const [searchParams] = useSearchParams();
   const type = (searchParams.get("type") as TilsagnType | null) ?? TilsagnType.TILSAGN;
   const periodeStart = searchParams.get("periodeStart");
   const periodeSlutt = searchParams.get("periodeSlutt");
-  const belop = searchParams.get("belop");
-  const prismodell = searchParams.get("prismodell")
-    ? (searchParams.get("prismodell") as Prismodell)
-    : null;
   const kostnadssted = searchParams.get("kostnadssted");
 
   const { gjennomforingId } = useParams();
@@ -47,13 +30,14 @@ function useHentData() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: defaults } = useTilsagnDefaults({
+    id: undefined,
     gjennomforingId,
     type,
-    prismodell: selectPrismodellDefault(prismodell, avtale),
-    periodeStart,
-    periodeSlutt,
-    belop: belop ? Number(belop) : null,
-    kostnadssted: kostnadssted ? kostnadssted : null,
+    periodeStart: periodeStart ?? undefined,
+    periodeSlutt: periodeSlutt ?? undefined,
+    // Denne blir bestemt av backend men er påkrevd
+    beregning: { type: TilsagnBeregningType.FRI },
+    kostnadssted: kostnadssted ?? undefined,
   });
 
   const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);

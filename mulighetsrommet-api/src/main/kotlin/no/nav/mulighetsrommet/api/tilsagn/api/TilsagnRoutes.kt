@@ -7,14 +7,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -33,10 +31,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.*
@@ -104,53 +99,43 @@ fun Route.tilsagnRoutes() {
         }
 
         post("/defaults") {
-            val request = call.receive<TilsagnDefaultsRequest>()
+            val request = call.receive<TilsagnRequest>()
 
             val gjennomforing = gjennomforinger.get(request.gjennomforingId)
                 ?: return@post call.respond(HttpStatusCode.NotFound)
 
+            val prismodell = gjennomforing.avtaleId?.let {
+                db.session { queries.avtale.get(it) }
+            }?.prismodell
+                ?: throw StatusException(
+                    HttpStatusCode.BadRequest,
+                    "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
+                )
+
             val defaults = when (request.type) {
                 TilsagnType.TILSAGN -> db.session {
-                    val avtale = gjennomforing.avtaleId?.let {
-                        queries.avtale.get(it)
-                    }
-
                     val sisteTilsagn = queries.tilsagn
                         .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                         .firstOrNull()
 
-                    resolveTilsagnDefaults(service.config.okonomiConfig, avtale, gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(service.config.okonomiConfig, prismodell, gjennomforing, sisteTilsagn)
                 }
 
-                TilsagnType.EKSTRATILSAGN -> db.session {
-                    val prisbetingelser = gjennomforing.avtaleId?.let {
-                        queries.avtale.get(it)?.prismodell?.prisbetingelser()
-                    }
-
-                    resolveEkstraTilsagnDefaults(request, gjennomforing, prisbetingelser)
+                TilsagnType.INVESTERING,
+                TilsagnType.EKSTRATILSAGN,
+                -> db.session {
+                    resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing, prismodell)
                 }
-
-                TilsagnType.INVESTERING -> TilsagnDefaults(
-                    id = null,
-                    gjennomforingId = gjennomforing.id,
-                    type = TilsagnType.INVESTERING,
-                    periodeStart = request.periodeStart,
-                    periodeSlutt = request.periodeSlutt,
-                    kostnadssted = request.kostnadssted,
-                    beregning = null,
-                )
             }
 
             call.respond(HttpStatusCode.OK, defaults)
         }
 
         post("/beregn") {
-            val request = call.receive<TilsagnBeregningInput>()
-            val result = service.beregnTilsagn(request)
-                .map { TilsagnBeregningDto.from(it) }
-                .mapLeft { ValidationError(errors = it) }
-
-            call.respondWithStatusResponse(result)
+            val request = call.receive<BeregnTilsagnRequest>()
+            call.respond(
+                TilsagnBeregningDto.from(service.beregnTilsagn(request)),
+            )
         }
 
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
@@ -222,61 +207,12 @@ fun Route.tilsagnRoutes() {
     }
 }
 
-@Serializable
-data class TilsagnDefaultsRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    val type: TilsagnType,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate?,
-    val kostnadssted: NavEnhetNummer?,
-    val belop: Int?,
-    val prismodell: Prismodell?,
-)
-
-@Serializable
-data class TilsagnDefaults(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID?,
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID?,
-    val type: TilsagnType?,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate?,
-    val kostnadssted: NavEnhetNummer?,
-    val beregning: TilsagnBeregningInput?,
-)
-
-@Serializable
-data class TilsagnRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    val type: TilsagnType,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
-    val kostnadssted: NavEnhetNummer,
-    val beregning: TilsagnBeregningInput,
-    val kommentar: String?,
-)
-
 private fun resolveTilsagnDefaults(
     config: OkonomiConfig,
-    avtale: AvtaleDto?,
+    prismodell: AvtaleDto.PrismodellDto,
     gjennomforing: GjennomforingDto,
     tilsagn: Tilsagn?,
-): TilsagnDefaults {
-    val prismodell = avtale?.prismodell ?: throw StatusException(
-        HttpStatusCode.BadRequest,
-        "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
-    )
+): TilsagnRequest {
     val periode = when (prismodell) {
         is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk ->
             getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
@@ -284,66 +220,27 @@ private fun resolveTilsagnDefaults(
         else -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
     }
 
-    val beregning = when (prismodell) {
-        is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> {
-            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-                TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    periode = periode,
-                    sats = sats,
-                    antallPlasser = gjennomforing.antallPlasser,
-                )
-            }
-        }
-
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> {
-            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-                TilsagnBeregningPrisPerManedsverk.Input(
-                    periode = periode,
-                    sats = sats,
-                    antallPlasser = gjennomforing.antallPlasser,
-                    prisbetingelser = prismodell.prisbetingelser,
-                )
-            }
-        }
-
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> {
-            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-                TilsagnBeregningPrisPerUkesverk.Input(
-                    periode = periode,
-                    sats = sats,
-                    antallPlasser = gjennomforing.antallPlasser,
-                    prisbetingelser = prismodell.prisbetingelser,
-                )
-            }
-        }
-
-        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> {
-            TilsagnBeregningFri.Input(
-                linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1),
-                ),
-                prisbetingelser = prismodell.prisbetingelser,
-            )
-        }
-
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> {
-            AvtalteSatser.findSats(avtale, periode)?.let { sats ->
-                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
-                    periode = periode,
-                    sats = sats,
-                    antallPlasser = gjennomforing.antallPlasser,
-                    antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
-                        is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
-                        else -> 0
-                    },
-                    prisbetingelser = prismodell.prisbetingelser,
-                )
-            }
-        }
+    val (beregningType, prisbetingelser) = when (prismodell) {
+        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
+        AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
     }
 
-    return TilsagnDefaults(
-        id = null,
+    val beregning = TilsagnBeregningRequest(
+        type = beregningType,
+        antallPlasser = gjennomforing.antallPlasser,
+        prisbetingelser = prisbetingelser,
+        linjer = listOf(TilsagnInputLinjeRequest(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)),
+        antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
+            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+            else -> null
+        },
+    )
+
+    return TilsagnRequest(
+        id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
         type = TilsagnType.TILSAGN,
         periodeStart = periode.start,
@@ -396,42 +293,33 @@ private fun getAnskaffetTiltakPeriode(
     return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
 }
 
-private fun resolveEkstraTilsagnDefaults(
-    request: TilsagnDefaultsRequest,
+private fun resolveEkstraTilsagnInvesteringDefaults(
+    request: TilsagnRequest,
     gjennomforing: GjennomforingDto,
-    prisbetingelser: String?,
-): TilsagnDefaults {
-    return if (request.prismodell == Prismodell.ANNEN_AVTALT_PRIS) {
-        TilsagnDefaults(
-            id = null,
-            gjennomforingId = gjennomforing.id,
-            type = TilsagnType.EKSTRATILSAGN,
-            periodeStart = request.periodeStart,
-            periodeSlutt = request.periodeSlutt,
-            kostnadssted = request.kostnadssted,
-            beregning = TilsagnBeregningFri.Input(
-                prisbetingelser = prisbetingelser,
-                linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "",
-                        belop = request.belop ?: 0,
-                        antall = 1,
-                    ),
-                ),
-            ),
-        )
-    } else {
-        TilsagnDefaults(
-            id = null,
-            gjennomforingId = gjennomforing.id,
-            type = TilsagnType.EKSTRATILSAGN,
-            periodeStart = request.periodeStart,
-            periodeSlutt = request.periodeSlutt,
-            kostnadssted = request.kostnadssted,
-            beregning = null,
-        )
+    prismodell: AvtaleDto.PrismodellDto,
+): TilsagnRequest {
+    val (beregningType, prisbetingelser) = when (prismodell) {
+        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
+        AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
     }
+
+    return TilsagnRequest(
+        id = UUID.randomUUID(),
+        gjennomforingId = gjennomforing.id,
+        type = request.type,
+        periodeStart = request.periodeStart,
+        periodeSlutt = request.periodeSlutt,
+        kostnadssted = request.kostnadssted,
+        beregning = TilsagnBeregningRequest(
+            type = beregningType,
+            prisbetingelser = prisbetingelser,
+            linjer = listOf(TilsagnInputLinjeRequest(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)),
+            antallPlasser = gjennomforing.antallPlasser,
+        ),
+    )
 }
 
 fun kanBeslutteTilsagn(totrinnskontroll: Totrinnskontroll, ansatt: NavAnsatt, kostnadssted: NavEnhetNummer): Boolean {

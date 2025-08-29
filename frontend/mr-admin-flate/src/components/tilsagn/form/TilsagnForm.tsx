@@ -15,7 +15,7 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
@@ -24,14 +24,15 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
+import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
+import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 
 interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<InferredTilsagn>;
+  defaultValues: TilsagnRequest;
   regioner: string[];
   beregningInput: ReactElement;
-  beregningOutput: ReactElement;
   gjennomforing: GjennomforingDto;
 }
 
@@ -65,6 +66,7 @@ export function TilsagnForm(props: Props) {
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
+      kommentar: data.kommentar ?? undefined,
     };
 
     mutation.mutate(request, {
@@ -124,11 +126,12 @@ export function TilsagnForm(props: Props) {
                   {...register("kommentar")}
                 />
               </VStack>
-              {props.beregningOutput}
+              <TilsagnBeregningPreview />
             </TwoColumnGrid>
           </Box>
           <VStack gap="2">
             <HStack gap="2" justify={"end"}>
+              <ValideringsfeilOppsummering />
               <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
                 Avbryt
               </Button>
