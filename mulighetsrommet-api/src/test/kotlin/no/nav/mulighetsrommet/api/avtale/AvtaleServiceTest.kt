@@ -12,7 +12,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
@@ -26,9 +25,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
@@ -45,7 +42,7 @@ class AvtaleServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        every { validator.validate(any(), any()) } answers {
+        coEvery { validator.validate(any(), any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
     }
@@ -62,7 +59,6 @@ class AvtaleServiceTest : FunSpec({
     ) = AvtaleService(
         database.db,
         ArrangorService(database.db, brregClient),
-        TiltakstypeService(database.db),
         validator,
         gjennomforingPublisher,
     )
@@ -75,7 +71,7 @@ class AvtaleServiceTest : FunSpec({
         test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
 
-            every { validator.validate(any(), any()) } returns listOf(
+            coEvery { validator.validate(any(), any()) } returns listOf(
                 FieldError("navn", "Dårlig navn"),
             ).left()
 
@@ -84,102 +80,18 @@ class AvtaleServiceTest : FunSpec({
             )
         }
 
-        test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
-            val request = AvtaleFixtures.avtaleRequest.copy(
-                arrangor = AvtaleFixtures.avtaleRequest.arrangor?.copy(
-                    hovedenhet = Organisasjonsnummer("888777435"),
-                    underenheter = listOf(),
-                ),
-            )
-
-            coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("888777435")) } returns BrregError.NotFound.left()
-
-            avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
-                listOf(
-                    FieldError(
-                        "/arrangor/hovedenhet",
-                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                    ),
-                ),
-            )
-        }
-
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.avtaleRequest
 
+            coEvery { validator.validate(any(), any()) } returns AvtaleFixtures.oppfolging.right()
             avtaleService.upsert(request, bertilNavIdent)
 
             verify {
                 gjennomforingPublisher.schedule(
-                    InitialLoadGjennomforinger.Input(avtaleId = request.id),
+                    InitialLoadGjennomforinger.Input(avtaleId = AvtaleFixtures.oppfolging.id),
                     any(),
                     any(),
                 )
-            }
-        }
-
-        test("status blir UTKAST når avtalen lagres uten en arrangør") {
-            val request = AvtaleFixtures.avtaleRequest.copy(arrangor = null)
-
-            avtaleService.upsert(request, bertilNavIdent).shouldBeRight().should {
-                it.status.type shouldBe AvtaleStatus.UTKAST
-            }
-        }
-
-        test("status blir AKTIV når avtalen lagres med sluttdato i fremtiden") {
-            val today = LocalDate.of(2025, 1, 1)
-
-            val request = AvtaleFixtures.avtaleRequest.copy(
-                startDato = today,
-                sluttDato = today,
-            )
-
-            avtaleService.upsert(request, bertilNavIdent, today).shouldBeRight().should {
-                it.status.type shouldBe AvtaleStatus.AKTIV
-            }
-        }
-
-        test("status blir AVSLUTTET når avtalen lagres med en sluttdato som er passert") {
-            val today = LocalDate.of(2025, 1, 1)
-            val yesterday = today.minusDays(1)
-
-            val request = AvtaleFixtures.avtaleRequest.copy(
-                startDato = yesterday,
-                sluttDato = yesterday,
-            )
-
-            avtaleService.upsert(request, bertilNavIdent, today).shouldBeRight().should {
-                it.status.type shouldBe AvtaleStatus.AVSLUTTET
-            }
-        }
-
-        test("status forblir AVBRUTT på en avtale som allerede er AVBRUTT") {
-            val today = LocalDate.of(2025, 1, 1)
-
-            val avtale = AvtaleFixtures.oppfolging
-
-            MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-            ) {
-                queries.avtale.setStatus(
-                    avtale.id,
-                    AvtaleStatus.AVBRUTT,
-                    tidspunkt = today.atStartOfDay(),
-                    AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbruttAarsak.BUDSJETT_HENSYN),
-                        forklaring = null,
-                    ),
-                )
-            }.initialize(database.db)
-
-            val request = AvtaleFixtures.avtaleRequest.copy(
-                id = avtale.id,
-                startDato = today,
-                sluttDato = today,
-            )
-
-            avtaleService.upsert(request, bertilNavIdent, today).shouldBeRight().should {
-                it.status.type shouldBe AvtaleStatus.AVBRUTT
             }
         }
     }
@@ -295,7 +207,10 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
-            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(identAnsatt1))
+            val avtale = AvtaleFixtures.avtaleRequest
+            coEvery { validator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
+                .copy(administratorer = listOf(identAnsatt1))
+                .right()
             avtaleService.upsert(avtale, identAnsatt1)
 
             database.run {
@@ -307,7 +222,10 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
-            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(identAnsatt2))
+            val avtale = AvtaleFixtures.avtaleRequest
+            coEvery { validator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
+                .copy(administratorer = listOf(identAnsatt2))
+                .right()
             avtaleService.upsert(avtale, identAnsatt1)
 
             database.run {

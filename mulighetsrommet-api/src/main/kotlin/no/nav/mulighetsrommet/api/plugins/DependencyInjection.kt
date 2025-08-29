@@ -364,7 +364,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
@@ -402,7 +401,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { PersonService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
-    single { AvtaleValidator(get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get()) }
     single { GjennomforingValidator(get(), get()) }
     single { LagretFilterService(get()) }
     single {
