@@ -584,6 +584,35 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
         }
 
+        test("genererer ikke utbetaling når gjennomføringer ble avsluttet før den startet") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    AFT1.copy(
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = null,
+                    ),
+                ),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 1),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ) {
+                queries.gjennomforing.setStatus(
+                    AFT1.id,
+                    status = GjennomforingStatus.AVLYST,
+                    tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                )
+            }.initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+        }
+
         test("deltaker som har sluttet, men med åpen sluttdato, blir ikke med i utbetalingen") {
             val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
