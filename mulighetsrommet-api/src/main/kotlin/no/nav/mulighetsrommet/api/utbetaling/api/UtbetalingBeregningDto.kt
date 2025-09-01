@@ -44,7 +44,7 @@ sealed class UtbetalingBeregningDto {
         override val deltakerRegioner: List<NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
-        override val heading = "Pris per månedsverk"
+        override val heading = "Avtalt månedpris per tiltaksplass"
 
         companion object {
             fun manedsverkTable(
@@ -86,7 +86,7 @@ sealed class UtbetalingBeregningDto {
         override val deltakerRegioner: List<NavRegionDto>,
         override val deltakerTableData: DataDrivenTableDto,
     ) : UtbetalingBeregningDto() {
-        override val heading = "Pris per ukesverk"
+        override val heading = "Avtalt ukespris per tiltaksplass"
 
         companion object {
             fun ukesverkTable(

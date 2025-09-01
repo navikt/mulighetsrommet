@@ -396,7 +396,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
             DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             DetailsEntry.nok("Pris per time oppfølging", tilsagn.beregning.input.sats),
-            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
     }
