@@ -27,7 +27,7 @@ export const RedaksjoneltInnholdSchema = z.object({
   faneinnhold: FaneinnholdSchema.nullable(),
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
-  navAndreEnheter: z.string().array(),
+  navEnheterAndre: z.string().array(),
 });
 
 export const PersonopplysningerSchema = z.object({
@@ -61,7 +61,7 @@ export function defaultAvtaleData(
     tiltakskode: avtale?.tiltakstype?.tiltakskode,
     navRegioner: navRegioner,
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
-    navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
+    navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,

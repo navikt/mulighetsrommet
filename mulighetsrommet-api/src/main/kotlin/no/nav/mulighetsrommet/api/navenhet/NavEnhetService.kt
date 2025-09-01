@@ -67,5 +67,3 @@ class NavEnhetService(
         return queries.enhet.get(enhetsnummer)?.toDto()
     }
 }
-
-private fun toNavEnhetType(type: Norg2Type) = NavEnhetType.valueOf(type.name)

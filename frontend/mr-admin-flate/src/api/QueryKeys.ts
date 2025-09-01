@@ -8,6 +8,7 @@ import {
 } from "@mr/api-client-v2";
 
 export const QueryKeys = {
+  beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
@@ -44,7 +45,11 @@ export const QueryKeys = {
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],
-  getTilsagnForGjennomforing: (gjennomforingId?: string) => ["tilsagn", gjennomforingId],
+  getAllTilsagn: (gjennomforingId?: string, statuser?: string[]) => [
+    "tilsagn",
+    gjennomforingId,
+    statuser,
+  ],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
   annullerTilsagn: () => ["annuller-tilsagn"],

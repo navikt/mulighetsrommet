@@ -1,9 +1,10 @@
 import { useAvtalteSatser } from "@/api/tilsagn/useAvtalteSatser";
 
-export function useFindAvtaltSats(avtaleId: string, periodeStart: string) {
+export function useFindAvtaltSats(avtaleId: string, periodeStart?: string | null) {
   const { data: satser } = useAvtalteSatser(avtaleId);
 
   return satser?.find(
-    (sats) => sats.periodeStart <= periodeStart && periodeStart <= sats.periodeSlutt,
+    (sats) =>
+      periodeStart && sats.periodeStart <= periodeStart && periodeStart <= sats.periodeSlutt,
   );
 }

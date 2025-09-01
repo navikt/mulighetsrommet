@@ -26,8 +26,8 @@ object Prismodeller {
         -> listOf(
             Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
             Prismodell.AVTALT_PRIS_PER_UKESVERK,
-            Prismodell.ANNEN_AVTALT_PRIS,
             Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            Prismodell.ANNEN_AVTALT_PRIS,
         )
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,

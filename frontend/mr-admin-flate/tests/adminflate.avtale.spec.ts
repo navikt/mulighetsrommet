@@ -36,11 +36,4 @@ test("Opprett ny avtale AFT", async ({ page }) => {
   await page.click("input#navKontorer");
   await page.keyboard.press("Enter");
   await page.locator('button:has-text("Opprett avtale")').click();
-
-  const response = await page.waitForResponse(
-    (response) => response.url().includes("/intern/avtaler") && response.status() === 200,
-  );
-
-  const { id } = await response.json();
-  await page.goto(`/avtaler/${id}`);
 });

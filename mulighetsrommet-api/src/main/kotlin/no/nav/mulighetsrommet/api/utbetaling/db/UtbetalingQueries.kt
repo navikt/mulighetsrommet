@@ -297,7 +297,7 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setBegrunnelseMindreBetalt(id: UUID, begrunnelse: String) {
+    fun setBegrunnelseMindreBetalt(id: UUID, begrunnelse: String?) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set

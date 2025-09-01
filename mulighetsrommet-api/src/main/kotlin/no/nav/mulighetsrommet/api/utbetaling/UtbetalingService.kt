@@ -180,9 +180,7 @@ class UtbetalingService(
                     upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
                 }
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
-                if (request.begrunnelseMindreBetalt != null) {
-                    queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
-                }
+                queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
 
                 logEndring("Utbetaling sendt til attestering", getOrError(utbetaling.id), navIdent)
             }

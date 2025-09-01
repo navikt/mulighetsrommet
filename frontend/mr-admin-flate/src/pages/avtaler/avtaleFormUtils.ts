@@ -46,7 +46,7 @@ export async function onSubmitAvtaleForm({
     startDato,
     sakarkivNummer: data.sakarkivNummer || null,
     sluttDato: data.sluttDato || null,
-    navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
+    navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
     avtalenummer: avtale?.avtalenummer ?? null,
     arrangor:
       data.arrangorHovedenhet && data.arrangorUnderenheter

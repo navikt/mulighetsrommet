@@ -4,40 +4,37 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnBeregningInput, TilsagnDto, TilsagnRequest } from "@mr/api-client-v2";
-import { Alert, Heading, VStack } from "@navikt/ds-react";
-import { useParams } from "react-router";
+import {
+  TilsagnBeregningRequest,
+  TilsagnBeregningType,
+  TilsagnDto,
+  TilsagnRequest,
+} from "@mr/api-client-v2";
+import { Heading, VStack } from "@navikt/ds-react";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useAktiveTilsagn, useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
+import { useTilsagn } from "../detaljer/tilsagnDetaljerLoader";
 import { Laster } from "@/components/laster/Laster";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { TilsagnTable } from "../tabell/TilsagnTable";
+import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
-function useRedigerTilsagnFormData() {
-  const { gjennomforingId, tilsagnId } = useParams();
-  if (!gjennomforingId || !tilsagnId) {
-    throw Error("Fant ikke gjennomforingId eller tilsagnId i url");
-  }
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: aktiveTilsagn } = useAktiveTilsagn(gjennomforingId);
-
-  return {
-    avtale,
-    gjennomforing,
-    ...tilsagnDetaljer,
-    aktiveTilsagn,
-  };
+  return { avtale, gjennomforing, ...tilsagnDetaljer };
 }
 
 export function RedigerTilsagnFormPage() {
-  const { gjennomforingId } = useParams();
-  const { avtale, gjennomforing, aktiveTilsagn, tilsagn, opprettelse } =
-    useRedigerTilsagnFormData();
+  const { gjennomforingId, tilsagnId } = useRequiredParams(["gjennomforingId", "tilsagnId"]);
+
+  const { avtale, gjennomforing, tilsagn, opprettelse } = useRedigerTilsagnFormData(
+    gjennomforingId,
+    tilsagnId,
+  );
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     {
@@ -63,9 +60,9 @@ export function RedigerTilsagnFormPage() {
     periodeStart: tilsagn.periode.start,
     periodeSlutt: yyyyMMddFormatting(subDuration(tilsagn.periode.slutt, { days: 1 }))!,
     kostnadssted: tilsagn.kostnadssted.enhetsnummer,
-    beregning: tilsagnBeregningInput(tilsagn),
+    beregning: tilsagnBeregningRequest(tilsagn),
     gjennomforingId: gjennomforing.id,
-    kommentar: tilsagn.kommentar,
+    kommentar: tilsagn.kommentar ?? undefined,
   };
 
   return (
@@ -92,15 +89,7 @@ export function RedigerTilsagnFormPage() {
           </WhitePaddedBox>
           <WhitePaddedBox>
             <VStack gap="4">
-              <Heading size="medium">Aktive tilsagn</Heading>
-              {aktiveTilsagn.length > 0 ? (
-                <TilsagnTable tilsagn={aktiveTilsagn} />
-              ) : (
-                <Alert variant="info">
-                  Det finnes ikke flere aktive tilsagn for dette tiltaket i Nav
-                  Tiltaksadministrasjon
-                </Alert>
-              )}
+              <AktiveTilsagnTable gjennomforingId={gjennomforingId} />
             </VStack>
           </WhitePaddedBox>
         </VStack>
@@ -109,46 +98,42 @@ export function RedigerTilsagnFormPage() {
   );
 }
 
-function tilsagnBeregningInput(tilsagn: TilsagnDto): TilsagnBeregningInput {
-  const { periode, beregning } = tilsagn;
+function tilsagnBeregningRequest(tilsagn: TilsagnDto): TilsagnBeregningRequest {
+  const { beregning } = tilsagn;
   switch (beregning.type) {
     case "FRI":
       return {
-        type: "FRI",
+        type: TilsagnBeregningType.FRI,
         linjer: beregning.linjer,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
     case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
       return {
-        type: "FAST_SATS_PER_TILTAKSPLASS_PER_MANED",
-        periode,
+        type: TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
       };
     case "PRIS_PER_MANEDSVERK":
       return {
-        type: "PRIS_PER_MANEDSVERK",
-        periode,
+        type: TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
     case "PRIS_PER_UKESVERK":
       return {
-        type: "PRIS_PER_UKESVERK",
-        periode,
+        type: TilsagnBeregningType.PRIS_PER_UKESVERK,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
     case "PRIS_PER_TIME_OPPFOLGING":
       return {
-        type: "PRIS_PER_TIME_OPPFOLGING",
-        periode,
+        type: TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
         sats: beregning.sats,
         antallPlasser: beregning.antallPlasser,
         antallTimerOppfolgingPerDeltaker: beregning.antallTimerOppfolgingPerDeltaker,
-        prisbetingelser: beregning.prisbetingelser,
+        prisbetingelser: beregning.prisbetingelser ?? undefined,
       };
   }
 }

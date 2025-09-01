@@ -19,19 +19,18 @@ export function useTilsagnEndringshistorikk(id: string) {
   });
 }
 
-export function useAktiveTilsagn(id: string) {
+export function useTilsagnTableData(gjennomforingId: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.getTilsagnForGjennomforing(id),
+    queryKey: QueryKeys.getAllTilsagn(gjennomforingId),
+    queryFn: async () => TilsagnService.getTilsagnTableData({ query: { gjennomforingId } }),
+  });
+}
+
+export function useAktiveTilsagnTableData(gjennomforingId: string) {
+  const statuser = [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT];
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.getAllTilsagn(gjennomforingId, statuser),
     queryFn: async () =>
-      TilsagnService.getAll({
-        query: {
-          gjennomforingId: id,
-          statuser: [
-            TilsagnStatus.GODKJENT,
-            TilsagnStatus.TIL_GODKJENNING,
-            TilsagnStatus.RETURNERT,
-          ],
-        },
-      }),
+      TilsagnService.getTilsagnTableData({ query: { gjennomforingId, statuser } }),
   });
 }

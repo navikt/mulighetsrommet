@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.left
+import arrow.core.*
+import arrow.core.Either.Companion.zipOrAccumulate
 import arrow.core.raise.either
-import arrow.core.right
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
+import arrow.core.raise.zipOrAccumulate
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
@@ -16,6 +18,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
@@ -93,7 +96,7 @@ object UtbetalingValidator {
                     add(
                         FieldError.ofPointer(
                             "/$index/tilsagnId",
-                            "Tilsagnet er ${req.tilsagn.status.navn()} og kan ikke benyttes, linjen må fjernes",
+                            "Tilsagnet er ${req.tilsagn.status.navn().lowercase()} og kan ikke benyttes, linjen må fjernes",
                         ),
                     )
                 }
@@ -106,51 +109,53 @@ object UtbetalingValidator {
     fun validateOpprettUtbetalingRequest(
         id: UUID,
         request: OpprettUtbetalingRequest,
-    ): Either<List<FieldError>, OpprettUtbetaling> {
-        val errors = buildList {
-            if (request.periodeSlutt.isBefore(request.periodeStart)) {
-                add(
-                    FieldError.of(
-                        OpprettUtbetalingRequest::periodeSlutt,
-                        "Periodeslutt må være etter periodestart",
-                    ),
-                )
-            }
-
-            if (request.belop < 1) {
-                add(FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt"))
-            }
-
-            if (request.beskrivelse.length < 10) {
-                add(FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse"))
-            }
-
-            if (request.kontonummer.value.length != 11) {
-                add(FieldError.of(OpprettUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn"))
-            }
-
-            if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
-                add(
-                    FieldError.of(
-                        OpprettUtbetalingRequest::kidNummer,
-                        "Ugyldig kid",
-                    ),
-                )
-            }
+    ): Either<NonEmptyList<FieldError>, OpprettUtbetaling> = either {
+        zipOrAccumulate(
+            {
+                ensure(request.periodeStart.isBefore(request.periodeSlutt)) {
+                    FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart")
+                }
+                Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+            },
+            {
+                ensure(request.belop > 1) {
+                    FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt")
+                }
+                request.belop
+            },
+            {
+                ensure(request.beskrivelse.length > 10) {
+                    FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse")
+                }
+                request.beskrivelse
+            },
+            {
+                ensure(request.kontonummer.value.length == 11) {
+                    FieldError.of(OpprettUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn")
+                }
+                request.kontonummer
+            },
+            {
+                request.kidNummer?.let { raw ->
+                    ensureNotNull(Kid.parse(raw)) {
+                        FieldError.of(OpprettUtbetalingRequest::kidNummer, "Ugyldig kid")
+                    }
+                }
+            },
+        ) { periode: Periode, belop, beskrivelse, kontonummer, kid ->
+            OpprettUtbetaling(
+                id = id,
+                gjennomforingId = request.gjennomforingId,
+                periodeStart = periode.start,
+                periodeSlutt = periode.getLastInclusiveDate(),
+                belop = belop,
+                kontonummer = kontonummer,
+                kidNummer = kid,
+                beskrivelse = beskrivelse,
+                vedlegg = emptyList(),
+                tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            )
         }
-
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: OpprettUtbetaling(
-            id = id,
-            gjennomforingId = request.gjennomforingId,
-            periodeStart = request.periodeStart,
-            periodeSlutt = request.periodeSlutt,
-            belop = request.belop,
-            kontonummer = request.kontonummer,
-            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
-            beskrivelse = request.beskrivelse,
-            vedlegg = emptyList(),
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        ).right()
     }
 
     data class OpprettUtbetaling(

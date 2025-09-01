@@ -7,9 +7,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.navenhet.*
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -139,7 +137,8 @@ class AvtaleValidator(
             }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: avtale.right()
+        return errors.takeIf { it.isNotEmpty() }?.left()
+            ?: avtale.copy(navEnheter = sanitizeNavEnheter(avtale.navEnheter)).right()
     }
 
     private fun MutableList<FieldError>.validateCreateAvtale(
@@ -348,7 +347,7 @@ class AvtaleValidator(
         }
     }
 
-    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<NavEnhetNummer>) {
+    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: Set<NavEnhetNummer>) {
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == NavEnhetType.FYLKE }) {
@@ -358,17 +357,22 @@ class AvtaleValidator(
         if (!actualNavEnheter.any { it.value.type != NavEnhetType.FYLKE }) {
             add(FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet"))
         }
-
-        navEnheter.filterNot { actualNavEnheter.containsKey(it) }.forEach { enhet ->
-            add(FieldError.ofPointer("/navKontorer", "Nav-enheten $enhet passer ikke i avtalens kontorstruktur"))
-        }
     }
 
-    private fun resolveNavEnheter(enhetsnummer: List<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDto> {
+    private fun resolveNavEnheter(enhetsnummer: Set<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDto> {
         val navEnheter = enhetsnummer.mapNotNull { navEnheterService.hentEnhet(it) }
         return navEnheter
             .filter { it.type == NavEnhetType.FYLKE }
             .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
             .associateBy { it.enhetsnummer }
+    }
+
+    fun sanitizeNavEnheter(navEnheter: Set<NavEnhetNummer>): Set<NavEnhetNummer> {
+        // Filtrer vekk underenheter uten fylke
+        return NavEnhetHelpers.buildNavRegioner(
+            navEnheter.mapNotNull { navEnheterService.hentEnhet(it) },
+        )
+            .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
+            .toSet()
     }
 }

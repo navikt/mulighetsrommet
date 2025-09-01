@@ -64,9 +64,9 @@ class TilsagnQueries(private val session: Session) {
                 :beregning_antall_plasser,
                 :beregning_antall_timer_oppfolging_per_deltaker,
                 :beregning_prisbetingelser,
+                :kommentar,
                 :datastream_periode_start,
-                :datastream_periode_slutt,
-                :kommentar
+                :datastream_periode_slutt
             )
             on conflict (id) do update set
                 gjennomforing_id                        = excluded.gjennomforing_id,

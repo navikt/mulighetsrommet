@@ -1511,10 +1511,11 @@ paths:
                 $ref: "#/components/schemas/TilsagnDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
+
     get:
       tags:
         - Tilsagn
-      operationId: getAll
+      operationId: getTilsagnTableData
       parameters:
         - name: gjennomforingId
           in: query
@@ -1529,13 +1530,11 @@ paths:
               $ref: "#/components/schemas/TilsagnStatus"
       responses:
         200:
-          description: TiltagnDto
+          description: Tilsagn
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TilsagnDto"
+                $ref: "#/components/schemas/DataDrivenTableDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1734,22 +1733,20 @@ paths:
   /api/v1/intern/tilsagn/beregn:
     post:
       tags:
-        - Beregn Tilsagn
+        - BeregnTilsagn
       operationId: beregnTilsagn
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TilsagnBeregningInput"
+              $ref: "#/components/schemas/BeregnTilsagnRequest"
       responses:
         200:
           description: TilsagnBeregning
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnBeregningDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
+                $ref: "#/components/schemas/BeregnTilsagnResponse"
 
   /api/v1/intern/tilsagn/defaults:
     post:
@@ -1760,14 +1757,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TilsagnDefaultsRequest"
+              $ref: "#/components/schemas/TilsagnRequest"
       responses:
         200:
           description: Standardverdier for neste tilsagn
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TilsagnDefaults"
+                $ref: "#/components/schemas/TilsagnRequest"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -4175,59 +4172,71 @@ components:
         - start
         - slutt
 
-    TilsagnDefaultsRequest:
+    BeregnTilsagnRequest:
       type: object
       properties:
         gjennomforingId:
           type: string
           format: uuid
-        type:
-          $ref: "#/components/schemas/TilsagnType"
-        prismodell:
-          oneOf:
-            - $ref: "#/components/schemas/Prismodell"
-            - type: "null"
-        belop:
-          type: [number, "null"]
-        kostnadssted:
-          type: [string, "null"]
         periodeStart:
           type: [string, "null"]
           format: date
         periodeSlutt:
           type: [string, "null"]
           format: date
-      required: [gjennomforingId, type, prismodell, belop, kostnadssted, periodeStart, periodeSlutt]
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningRequest"
+      required: [gjennomforingId]
 
-    TilsagnDefaults:
+    BeregnTilsagnResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningDto"
+      required: [success]
+
+    TilsagnBeregningRequest:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/TilsagnBeregningType"
+        linjer:
+          type: [array, "null"]
+          items:
+            $ref: "#/components/schemas/TilsagnInputLinjeRequest"
+        prisbetingelser:
+          type: [string, "null"]
+        periode:
+          $ref: "#/components/schemas/TilsagnBeregningType"
+        sats:
+          type: [integer, "null"]
+        antallPlasser:
+          type: [integer, "null"]
+        antallTimerOppfolgingPerDeltaker:
+          type: [integer, "null"]
+      required: [type]
+
+    TilsagnInputLinjeRequest:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        type:
-          $ref: "#/components/schemas/TilsagnType"
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        kostnadssted:
-          type: string
-        antallPlasser:
-          type: integer
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningInput"
+        beskrivelse:
+          type: [string, "null"]
+        belop:
+          type: [number, "null"]
+        antall:
+          type: [number, "null"]
+      required: [id]
 
     TilsagnRequest:
       type: object
       properties:
         id:
-          type: string
+          type: [string, "null"]
           format: uuid
         gjennomforingId:
           type: string
@@ -4235,26 +4244,18 @@ components:
         type:
           $ref: "#/components/schemas/TilsagnType"
         periodeStart:
-          type: string
+          type: [string, "null"]
           format: date
         periodeSlutt:
-          type: string
+          type: [string, "null"]
           format: date
         kostnadssted:
-          type: string
+          type: [string, "null"]
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregningInput"
+          $ref: "#/components/schemas/TilsagnBeregningRequest"
         kommentar:
           type: [string, "null"]
-      required:
-        - id
-        - gjennomforingId
-        - type
-        - periodeStart
-        - periodeSlutt
-        - kostnadssted
-        - beregning
-        - kommentar
+      required: [type, gjennomforingId, beregning]
 
     TilsagnType:
       type: string
@@ -4384,14 +4385,6 @@ components:
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
         - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker"
 
-    TilsagnBeregningInput:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningFriInput"
-        - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManedInput"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverkInput"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverkInput"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerInput"
-
     TilsagnBeregningFastSatsPerTiltaksplassPerManed:
       type: object
       properties:
@@ -4406,19 +4399,6 @@ components:
         antallManeder:
           type: number
       required: [type, belop, sats, antallPlasser, antallManeder]
-
-    TilsagnBeregningFastSatsPerTiltaksplassPerManedInput:
-      type: object
-      properties:
-        type:
-          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-        periode:
-          $ref: "#/components/schemas/Periode"
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-      required: [type, periode, sats, antallPlasser]
 
     TilsagnBeregningPrisPerManedsverk:
       type: object
@@ -4437,21 +4417,6 @@ components:
           type: [string, "null"]
       required: [type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
 
-    TilsagnBeregningPrisPerManedsverkInput:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_MANEDSVERK
-        periode:
-          $ref: "#/components/schemas/Periode"
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, periode, sats, antallPlasser, prisbetingelser]
-
     TilsagnBeregningPrisPerUkesverk:
       type: object
       properties:
@@ -4468,21 +4433,6 @@ components:
         prisbetingelser:
           type: [string, "null"]
       required: [type, belop, sats, antallPlasser, antallUker, prisbetingelser]
-
-    TilsagnBeregningPrisPerUkesverkInput:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_UKESVERK
-        periode:
-          $ref: "#/components/schemas/Periode"
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, periode, sats, antallPlasser, prisbetingelser]
 
     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker:
       type: object
@@ -4507,29 +4457,6 @@ components:
         - antallTimerOppfolgingPerDeltaker
         - prisbetingelser
 
-    TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerInput:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_TIME_OPPFOLGING
-        periode:
-          $ref: "#/components/schemas/Periode"
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallTimerOppfolgingPerDeltaker:
-          type: integer
-        prisbetingelser:
-          type: [string, "null"]
-      required:
-        - type
-        - periode
-        - sats
-        - antallPlasser
-        - antallTimerOppfolgingPerDeltaker
-        - prisbetingelser
-
     TilsagnBeregningFri:
       type: object
       properties:
@@ -4544,23 +4471,6 @@ components:
         belop:
           type: integer
       required: [type, belop, prisbetingelser, linjer]
-
-    TilsagnBeregningFriInput:
-      type: object
-      properties:
-        type:
-          const: FRI
-        linjer:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
-        prisbetingelser:
-          type: [string, "null"]
-      required:
-        - type
-        - belop
-        - prisbetingelser
-        - linjer
 
     TilsagnBeregningFriInputLinje:
       type: object
@@ -5133,22 +5043,24 @@ components:
         columns:
           type: array
           items:
-            $ref: "#/components/schemas/DataDrivenColumn"
+            $ref: "#/components/schemas/DataDrivenTableColumn"
         rows:
           type: array
           items:
             type: object
             additionalProperties:
-              type: string
+              oneOf:
+                - type: "null"
+                - $ref: "#/components/schemas/DataElement"
       required: [columns, rows]
 
-    DataDrivenColumn:
+    DataDrivenTableColumn:
       type: object
       properties:
         key:
           type: string
         label:
-          type: string
+          type: [string, "null"]
         sortable:
           type: boolean
         align:
@@ -5156,12 +5068,98 @@ components:
           enum:
             - left
             - right
+      required:
+        - key
+        - type
+        - sortable
+        - align
+
+    DataElement:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/DataElementText"
+        - $ref: "#/components/schemas/DataElementStatus"
+        - $ref: "#/components/schemas/DataElementLink"
+        - $ref: "#/components/schemas/DataElementPeriode"
+
+    DataElementText:
+      type: object
+      properties:
+        type:
+          type: string
+          const: text
+        value:
+          type: string
         format:
-          type: [string, "null"]
-          enum:
-            - DATE
-            - NOK
-      required: [key, type, sortable, align, format]
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/DataElementTextFormat"
+      required:
+        - type
+        - value
+        - format
+
+    DataElementTextFormat:
+      type: string
+      enum:
+        - date
+        - nok
+        - number
+
+    DataElementStatus:
+      type: object
+      properties:
+        type:
+          type: string
+          const: status
+        value:
+          type: string
+        variant:
+          $ref: "#/components/schemas/DataElementStatusVariant"
+      required:
+        - type
+        - value
+        - variant
+
+    DataElementStatusVariant:
+      type: string
+      enum:
+        - neutral
+        - success
+        - warning
+        - error
+        - error-border
+        - error-border-strikethrough
+
+    DataElementLink:
+      type: object
+      properties:
+        type:
+          type: string
+          const: link
+        text:
+          type: string
+        href:
+          type: string
+      required:
+        - type
+        - text
+        - href
+
+    DataElementPeriode:
+      type: object
+      properties:
+        type:
+          type: string
+          const: periode
+        start:
+          type: string
+        slutt:
+          type: string
+      required:
+        - type
+        - start
+        - slutt
 
     AarsakerOgForklaringRequest:
       type: object
