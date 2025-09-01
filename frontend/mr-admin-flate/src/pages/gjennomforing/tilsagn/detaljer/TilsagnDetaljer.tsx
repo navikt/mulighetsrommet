@@ -20,7 +20,7 @@ import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { DataDetails } from "@/components/tabell/DataDrivenTable";
+import { DataDetails } from "@/components/data-element/DataDetails";
 
 interface Props {
   tilsagn: TilsagnDto;
