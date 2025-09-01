@@ -2,12 +2,10 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 
 import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
 object AvtaleDboMapper {
@@ -31,7 +29,6 @@ object AvtaleDboMapper {
             it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer
         }.toSet(),
         avtaletype = dto.avtaletype,
-        antallPlasser = dto.antallPlasser,
         administratorer = dto.administratorer.map { it.navIdent },
         beskrivelse = null,
         faneinnhold = null,
@@ -61,7 +58,6 @@ object AvtaleDboMapper {
         sluttDato = request.sluttDato,
         status = status,
         avtaletype = request.avtaletype,
-        antallPlasser = null,
         administratorer = request.administratorer,
         navEnheter = request.navEnheter.toSet(),
         beskrivelse = request.beskrivelse,
@@ -79,6 +75,32 @@ object AvtaleDboMapper {
                 sats = it.pris,
             )
         },
+    )
+
+    fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: AvtaleRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
+        id = dbo.id,
+        navn = dbo.navn,
+        avtalenummer = dbo.avtalenummer,
+        sakarkivNummer = dbo.sakarkivNummer,
+        tiltakskode = tiltakskode,
+        arrangor = arrangor,
+        startDato = dbo.startDato,
+        sluttDato = dbo.sluttDato,
+        avtaletype = dbo.avtaletype,
+        administratorer = dbo.administratorer,
+        navEnheter = dbo.navEnheter.toList(),
+        beskrivelse = dbo.beskrivelse,
+        faneinnhold = dbo.faneinnhold,
+        personopplysninger = dbo.personopplysninger,
+        personvernBekreftet = dbo.personvernBekreftet,
+        amoKategorisering = dbo.amoKategorisering,
+        opsjonsmodell = dbo.opsjonsmodell,
+        utdanningslop = dbo.utdanningslop,
+        prismodell = PrismodellRequest(
+            type = dbo.prismodell,
+            prisbetingelser = dbo.prisbetingelser,
+            satser = dbo.satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+        ),
     )
 }
 

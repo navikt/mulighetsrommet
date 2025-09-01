@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
@@ -20,7 +19,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -33,32 +31,17 @@ import java.util.*
 class AvtaleService(
     private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
-    private val tiltakstypeService: TiltakstypeService,
     private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
     suspend fun upsert(
         request: AvtaleRequest,
         navIdent: NavIdent,
-        today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, AvtaleDto> = either {
         val previous = get(request.id)
 
-        val arrangor = request.arrangor?.let {
-            val (arrangor, underenheter) = syncArrangorerFromBrreg(
-                it.hovedenhet,
-                it.underenheter,
-            ).bind()
-            AvtaleDbo.Arrangor(
-                hovedenhet = arrangor.id,
-                underenheter = underenheter.map { underenhet -> underenhet.id },
-                kontaktpersoner = it.kontaktpersoner,
-            )
-        }
-        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.tiltakKode).id
-        val status = resolveStatus(request, previous, today)
         val dbo = validator
-            .validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status, tiltakstypeId), previous)
+            .validate(request, previous)
             .bind()
 
         if (previous != null && AvtaleDboMapper.fromAvtaleDto(previous) == dbo) {
@@ -261,43 +244,6 @@ class AvtaleService(
         )
     }
 
-    private suspend fun syncArrangorerFromBrreg(
-        orgnr: Organisasjonsnummer,
-        underenheterOrgnummere: List<Organisasjonsnummer>,
-    ): Either<List<FieldError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
-        val arrangor = syncArrangorFromBrreg(orgnr).bind()
-        val underenheter = underenheterOrgnummere.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
-            syncArrangorFromBrreg(it).bind()
-        }.bind()
-        Pair(arrangor, underenheter)
-    }
-
-    private suspend fun syncArrangorFromBrreg(
-        orgnr: Organisasjonsnummer,
-    ): Either<List<FieldError>, ArrangorDto> = arrangorService
-        .getArrangorOrSyncFromBrreg(orgnr)
-        .mapLeft {
-            FieldError.of(
-                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                AvtaleRequest::arrangor,
-                AvtaleRequest.Arrangor::hovedenhet,
-            ).nel()
-        }
-
-    private fun resolveStatus(
-        request: AvtaleRequest,
-        previous: AvtaleDto?,
-        today: LocalDate,
-    ): AvtaleStatus = if (request.arrangor == null) {
-        AvtaleStatus.UTKAST
-    } else if (previous?.status is AvtaleStatusDto.Avbrutt) {
-        previous.status.type
-    } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
-        AvtaleStatus.AKTIV
-    } else {
-        AvtaleStatus.AVSLUTTET
-    }
-
     private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
         queries.avtale.setSluttDato(avtaleId, nySluttDato)
 
@@ -352,4 +298,18 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
     }
+}
+
+fun resolveStatus(
+    request: AvtaleRequest,
+    previous: AvtaleDto?,
+    today: LocalDate,
+): AvtaleStatus = if (request.arrangor == null) {
+    AvtaleStatus.UTKAST
+} else if (previous?.status is AvtaleStatusDto.Avbrutt) {
+    previous.status.type
+} else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+    AvtaleStatus.AKTIV
+} else {
+    AvtaleStatus.AVSLUTTET
 }

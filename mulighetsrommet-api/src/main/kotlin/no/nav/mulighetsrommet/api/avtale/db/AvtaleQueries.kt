@@ -46,7 +46,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
-                antall_plasser,
                 opphav,
                 beskrivelse,
                 faneinnhold,
@@ -67,7 +66,6 @@ class AvtaleQueries(private val session: Session) {
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
-                :antall_plasser,
                 :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
@@ -87,7 +85,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
-                antall_plasser              = excluded.antall_plasser,
                 opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
@@ -298,7 +295,6 @@ class AvtaleQueries(private val session: Session) {
                                            avtaletype               = excluded.avtaletype,
                                            prismodell               = coalesce(avtale.prismodell, excluded.prismodell),
                                            prisbetingelser          = excluded.prisbetingelser,
-                                           antall_plasser           = excluded.antall_plasser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
         """.trimIndent()
 
@@ -478,7 +474,6 @@ class AvtaleQueries(private val session: Session) {
         "status" to status.name,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
-        "antall_plasser" to antallPlasser,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
@@ -613,7 +608,6 @@ class AvtaleQueries(private val session: Session) {
                 arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbruttAarsak.valueOf(it) } ?: emptyList(),
                 stringOrNull("avbrutt_forklaring"),
             ),
-            antallPlasser = intOrNull("antall_plasser"),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,

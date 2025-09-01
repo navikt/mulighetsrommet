@@ -179,7 +179,7 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
             type = beregningType,
             prisbetingelser = prisbetingelser,
             linjer = listOf(TilsagnInputLinjeRequest(id = UUID.randomUUID(), beskrivelse = "", belop = 0, antall = 1)),
-            antallPlasser = gjennomforing.antallPlasser,
+            antallPlasser = 0,
         ),
     )
 }
