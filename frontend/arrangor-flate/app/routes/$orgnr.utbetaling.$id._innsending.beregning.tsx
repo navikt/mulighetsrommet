@@ -76,11 +76,6 @@ export default function UtbetalingBeregning() {
         </BodyShort>
         <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
       </GuidePanel>
-      <Alert variant="warning">
-        I forbindelse med utrullering av ny løsning har vi blitt oppmerksomme på det finnes noen
-        deltakere som er registrert med feil sluttdato i beregningen. Vi jobber med å løse feilen.
-        Ved behov kan dere også ta kontakt med tiltaksansvarlig i Nav.
-      </Alert>
       <Heading level="3" size="medium">
         Deltakere
       </Heading>
