@@ -179,6 +179,12 @@ export function isEarlier(date: UnparsedDate, compared: UnparsedDate): boolean {
 }
 
 /**
+ * date-fns allows years back to the start of the common era
+ * The extra check for year is to not allow partial strings like '202' to be interpreted as year 202.
+ */
+const validateDate = (date: Date) => isValid(date) && date.getFullYear() > 1900
+
+/**
  * Parser til gyldige date objekter\
  * Støtter:
  *  - Gyldige **Date** objekter
@@ -193,24 +199,24 @@ export function parseDate(date: UnparsedDate): Date | undefined {
   }
 
   if (isDate(date)) {
-    if (isValid(date)) {
+    if (validateDate(date)) {
       return date
     }
     return undefined
   }
 
   const utcDate = parseISO(date, utcParseContext)
-  if (isValid(utcDate)) {
-    return utcDate
+  if (validateDate(utcDate)) {
+    return NORSK_TID(utcDate)
   }
 
-  const localDate = parse(date, "dd.MM.yyyy HH:mm", new Date(), norwegianParseContext)
-  if (isValid(localDate)) {
+  const localDate = parse(date, "dd.MM.yyyy HH:mm", new UTCDate(), norwegianParseContext)
+  if (validateDate(localDate)) {
     return localDate
   }
 
-  const utcDate2 = parse(date, "dd.MM.yyyy", new Date(), utcParseContext)
-  if (isValid(utcDate2)) {
+  const utcDate2 = parse(date, "dd.MM.yyyy", new UTCDate(), norwegianParseContext)
+  if (validateDate(utcDate2)) {
     return utcDate2
   }
   return undefined
