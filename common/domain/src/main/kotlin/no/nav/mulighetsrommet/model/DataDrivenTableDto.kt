@@ -29,12 +29,30 @@ class DataDrivenTableDto(
 }
 
 @Serializable
+data class DataDetails(
+    val header: String? = null,
+    val entries: List<LabeledDataElement>,
+)
+
+@Serializable
+data class LabeledDataElement(
+    val type: LabeledDataElementType,
+    val label: String,
+    val value: DataElement?,
+)
+
+enum class LabeledDataElementType {
+    INLINE,
+    MULTILINE,
+}
+
+@Serializable
 sealed class DataElement {
 
     @Serializable
     @SerialName("text")
     data class Text(
-        val value: String,
+        val value: String?,
         val format: Format?,
     ) : DataElement() {
         enum class Format {
@@ -90,8 +108,33 @@ sealed class DataElement {
         val slutt: String,
     ) : DataElement()
 
+    @Serializable
+    @SerialName("math-operator")
+    data class MathOperator(
+        val operator: Type,
+    ) : DataElement() {
+        enum class Type {
+            @SerialName("plus")
+            PLUS,
+
+            @SerialName("minus")
+            MINUS,
+
+            @SerialName("multiply")
+            MULTIPLY,
+
+            @SerialName("divide")
+            DIVIDE,
+
+            @SerialName("equals")
+            EQUALS,
+        }
+    }
+
+    fun label(label: String, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(type, label, this)
+
     companion object {
-        fun text(value: Any) = Text(value.toString(), null)
+        fun text(value: String?) = Text(value, null)
 
         fun nok(value: Number) = Text(value.toString(), Format.NOK)
 

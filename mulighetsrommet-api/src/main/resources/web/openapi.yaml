@@ -1748,6 +1748,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/BeregnTilsagnResponse"
 
+  /api/v1/intern/tilsagn/{id}/defaults:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagnRequest
+      responses:
+        200:
+          description: Standardverdier for tilsagn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnRequest"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/tilsagn/defaults:
     post:
       tags:
@@ -4274,14 +4291,14 @@ components:
           $ref: "#/components/schemas/TilsagnType"
         periode:
           $ref: "#/components/schemas/Periode"
+        belop:
+          type: integer
         belopBrukt:
           type: integer
         belopGjenstaende:
           type: integer
         kostnadssted:
           $ref: "#/components/schemas/KostnadsstedDto"
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningDto"
         status:
           $ref: "#/components/schemas/TilsagnStatus"
         bestillingsnummer:
@@ -4292,10 +4309,10 @@ components:
         - id
         - type
         - periode
+        - belop
         - belopBrukt
         - belopGjenstaende
         - kostnadssted
-        - beregning
         - status
         - bestillingsnummer
         - kommentar
@@ -4316,6 +4333,8 @@ components:
       properties:
         tilsagn:
           $ref: "#/components/schemas/TilsagnDto"
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningDto"
         opprettelse:
           $ref: "#/components/schemas/TotrinnskontrollDto"
         annullering:
@@ -4324,6 +4343,7 @@ components:
           $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
         - tilsagn
+        - beregning
         - opprettelse
 
     TilsagnStatus:
@@ -4378,117 +4398,28 @@ components:
         - PRIS_PER_TIME_OPPFOLGING
 
     TilsagnBeregningDto:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningFri"
-        - $ref: "#/components/schemas/TilsagnBeregningFastSatsPerTiltaksplassPerManed"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerManedsverk"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerUkesverk"
-        - $ref: "#/components/schemas/TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker"
-
-    TilsagnBeregningFastSatsPerTiltaksplassPerManed:
       type: object
       properties:
-        type:
-          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
         belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallManeder:
           type: number
-      required: [type, belop, sats, antallPlasser, antallManeder]
-
-    TilsagnBeregningPrisPerManedsverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_MANEDSVERK
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallManeder:
-          type: number
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, belop, sats, antallPlasser, antallManeder, prisbetingelser]
-
-    TilsagnBeregningPrisPerUkesverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_UKESVERK
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallUker:
-          type: number
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, belop, sats, antallPlasser, antallUker, prisbetingelser]
-
-    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_TIME_OPPFOLGING
-        belop:
-          type: integer
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        antallTimerOppfolgingPerDeltaker:
-          type: integer
-        prisbetingelser:
-          type: [string, "null"]
+        prismodell:
+          $ref: "#/components/schemas/DataDetails"
+        regnestykke:
+          $ref: "#/components/schemas/CalculationDto"
       required:
-        - type
         - belop
-        - sats
-        - antallPlasser
-        - antallTimerOppfolgingPerDeltaker
-        - prisbetingelser
+        - prismodell
+        - regnestykke
 
-    TilsagnBeregningFri:
+    CalculationDto:
       type: object
       properties:
-        type:
-          const: FRI
-        linjer:
+        expression:
           type: array
           items:
-            $ref: "#/components/schemas/TilsagnBeregningFriInputLinje"
-        prisbetingelser:
-          type: [string, "null"]
-        belop:
-          type: integer
-      required: [type, belop, prisbetingelser, linjer]
-
-    TilsagnBeregningFriInputLinje:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        beskrivelse:
-          type: string
-        belop:
-          type: integer
-        antall:
-          type: integer
-      required:
-        - id
-        - beskrivelse
-        - belop
-        - antall
+            $ref: "#/components/schemas/DataElement"
+        breakdown:
+          $ref: "#/components/schemas/DataDrivenTableDto"
 
     PrismodellOgBeskrivelse:
       type: object
@@ -5074,6 +5005,38 @@ components:
         - sortable
         - align
 
+    DataDetails:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabeledDataElement"
+      required:
+        - entries
+
+    LabeledDataElement:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
+          type: string
+        value:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/DataElement"
+      required:
+        - type
+        - label
+        - value
+
+    LabeledDataElementType:
+      type: string
+      enum:
+        - INLINE
+        - MULTILINE
+
     DataElement:
       type: object
       oneOf:
@@ -5081,6 +5044,7 @@ components:
         - $ref: "#/components/schemas/DataElementStatus"
         - $ref: "#/components/schemas/DataElementLink"
         - $ref: "#/components/schemas/DataElementPeriode"
+        - $ref: "#/components/schemas/DataElementMathOperator"
 
     DataElementText:
       type: object
@@ -5089,7 +5053,7 @@ components:
           type: string
           const: text
         value:
-          type: string
+          type: ["null", string]
         format:
           oneOf:
             - type: "null"
@@ -5160,6 +5124,27 @@ components:
         - type
         - start
         - slutt
+
+    DataElementMathOperator:
+      type: object
+      properties:
+        type:
+          type: string
+          const: math-operator
+        operator:
+          $ref: "#/components/schemas/DataElementMathOperatorType"
+      required:
+        - type
+        - operator
+
+    DataElementMathOperatorType:
+      type: string
+      enum:
+        - plus
+        - minus
+        - multiply
+        - divide
+        - equals
 
     AarsakerOgForklaringRequest:
       type: object

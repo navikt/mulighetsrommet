@@ -1,8 +1,12 @@
 import {
   Besluttelse,
   DataDrivenTableDto,
+  DataElementMathOperatorType,
+  DataElementTextFormat,
   GetForhandsgodkjenteSatserResponse,
+  LabeledDataElementType,
   TilsagnAvvisningAarsak,
+  TilsagnBeregningDto,
   TilsagnBeregningType,
   TilsagnDetaljerDto,
   TilsagnDto,
@@ -130,23 +134,67 @@ const avvist: TotrinnskontrollBesluttetDto = {
   besluttelse: Besluttelse.AVVIST,
 };
 
+const beregning: TilsagnBeregningDto = {
+  belop: 12207450,
+  prismodell: {
+    entries: [
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Prismodell",
+        value: {
+          type: "text",
+          value: "Fast sats per tiltaksplass per måned",
+          format: null,
+        },
+      },
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Antall plasser",
+        value: { type: "text", value: "97", format: DataElementTextFormat.NUMBER },
+      },
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Sats",
+        value: { type: "text", value: "20975", format: DataElementTextFormat.NOK },
+      },
+    ],
+  },
+  regnestykke: {
+    expression: [
+      { type: "text", value: "97", format: DataElementTextFormat.NUMBER },
+      { type: "text", value: "plasser", format: null },
+      { type: "math-operator", operator: DataElementMathOperatorType.MULTIPLY },
+      { type: "text", value: "20975", format: DataElementTextFormat.NOK },
+      { type: "text", value: "per tiltaksplass per måned", format: null },
+      { type: "math-operator", operator: DataElementMathOperatorType.MULTIPLY },
+      { type: "text", value: "6.0", format: DataElementTextFormat.NUMBER },
+      { type: "text", value: "måneder", format: null },
+      { type: "math-operator", operator: DataElementMathOperatorType.EQUALS },
+      { type: "text", value: "12207450", format: DataElementTextFormat.NOK },
+    ],
+  },
+};
+
 function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
   switch (tilsagn.status) {
     case TilsagnStatus.TIL_GODKJENNING:
       return {
         tilsagn,
+        beregning,
         opprettelse: tilBeslutning,
       };
 
     case TilsagnStatus.GODKJENT:
       return {
         tilsagn,
+        beregning,
         opprettelse: godkjent,
       };
 
     case TilsagnStatus.RETURNERT:
       return {
         tilsagn,
+        beregning,
         opprettelse: {
           ...avvist,
           aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.ANNET],
@@ -157,6 +205,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
     case TilsagnStatus.TIL_ANNULLERING:
       return {
         tilsagn,
+        beregning,
         opprettelse: godkjent,
         annullering: {
           ...tilBeslutning,
@@ -171,6 +220,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
     case TilsagnStatus.ANNULLERT:
       return {
         tilsagn,
+        beregning,
         opprettelse: godkjent,
         annullering: {
           ...godkjent,
@@ -185,12 +235,14 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
     case TilsagnStatus.TIL_OPPGJOR:
       return {
         tilsagn,
+        beregning,
         opprettelse: godkjent,
         tilOppgjor: tilBeslutning,
       };
 
     case TilsagnStatus.OPPGJORT:
       return {
+        beregning,
         tilsagn,
         opprettelse: godkjent,
         tilOppgjor: godkjent,

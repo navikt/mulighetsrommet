@@ -45,6 +45,7 @@ fun Route.tilsagnRoutesGet() {
 
                 TilsagnDetaljerDto(
                     tilsagn = TilsagnDto.fromTilsagn(tilsagn),
+                    beregning = TilsagnBeregningDto.from(tilsagn.beregning),
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,

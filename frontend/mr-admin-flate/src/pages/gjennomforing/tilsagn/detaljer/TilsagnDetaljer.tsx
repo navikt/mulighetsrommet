@@ -6,6 +6,7 @@ import {
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import {
+  TilsagnBeregningDto,
   TilsagnDto,
   TilsagnStatus,
   TilsagnTilAnnulleringAarsak,
@@ -16,21 +17,22 @@ import { Box, Heading, HGrid, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
-import { TilsagnBeregning } from "@/components/tilsagn/beregning/TilsagnBeregning";
-import { TilsagnPrismodell } from "@/components/tilsagn/prismodell/TilsagnPrismodell";
+import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { DataDetails } from "@/components/data-element/DataDetails";
 
 interface Props {
   tilsagn: TilsagnDto;
+  beregning: TilsagnBeregningDto;
   opprettelse: TotrinnskontrollDto;
   annullering?: TotrinnskontrollDto;
   oppgjor?: TotrinnskontrollDto;
   meny?: ReactNode;
 }
 
-export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) {
-  const { beregning, bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
+export function TilsagnDetaljer({ tilsagn, beregning, meny, annullering, oppgjor }: Props) {
+  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
 
   const arsaker = oppgjor?.aarsaker || annullering?.aarsaker;
 
@@ -73,7 +75,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             <MetadataFritekstfelt header={tilsagnTekster.kommentar.label} value={kommentar} />
           </HGrid>
           <Separator />
-          <TilsagnPrismodell beregning={beregning} />
+          <DataDetails {...beregning.prismodell} />
         </HGrid>
         <HGrid columns={1} gap="2" align="center">
           <VStack gap="4">
@@ -95,7 +97,7 @@ export function TilsagnDetaljer({ tilsagn, meny, annullering, oppgjor }: Props) 
             <Heading size="small" spacing>
               Beregning
             </Heading>
-            <TilsagnBeregning beregning={beregning} />
+            <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
           </Box>
           {(status === TilsagnStatus.ANNULLERT || status === TilsagnStatus.OPPGJORT) && (
             <>

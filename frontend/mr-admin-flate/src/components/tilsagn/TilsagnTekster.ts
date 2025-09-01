@@ -1,4 +1,4 @@
-import { TilsagnBeregningDto, TilsagnBeregningType } from "@mr/api-client-v2";
+import { TilsagnBeregningType } from "@mr/api-client-v2";
 
 export const tilsagnTekster = {
   kommentar: {
@@ -40,21 +40,16 @@ export const tilsagnTekster = {
   prismodell: {
     label: "Prismodell",
     sats: {
-      label: (type: TilsagnBeregningType | TilsagnBeregningDto["type"]) => {
+      label: (type: TilsagnBeregningType) => {
         switch (type) {
-          case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
           case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
             return "Fast sats per tiltaksplass per måned";
-          case "PRIS_PER_MANEDSVERK":
           case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
             return "Avtalt månedspris per tiltaksplass";
-          case "PRIS_PER_UKESVERK":
           case TilsagnBeregningType.PRIS_PER_UKESVERK:
             return "Avtalt ukespris per tiltaksplass";
-          case "PRIS_PER_TIME_OPPFOLGING":
           case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
             return "Avtalt pris per time oppfølging per deltaker";
-          case "FRI":
           case TilsagnBeregningType.FRI:
             return "Annen avtalt pris";
         }
@@ -62,15 +57,15 @@ export const tilsagnTekster = {
     },
   },
   sats: {
-    label: (type: TilsagnBeregningDto["type"]) => {
+    label: (type: TilsagnBeregningType) => {
       switch (type) {
-        case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
+        case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
           return "Sats";
-        case "PRIS_PER_TIME_OPPFOLGING":
+        case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
           return "Avtalt pris per oppfølgingstime";
-        case "PRIS_PER_UKESVERK":
-        case "FRI":
-        case "PRIS_PER_MANEDSVERK":
+        case TilsagnBeregningType.PRIS_PER_UKESVERK:
+        case TilsagnBeregningType.FRI:
+        case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
           return "Avtalt pris";
       }
     },

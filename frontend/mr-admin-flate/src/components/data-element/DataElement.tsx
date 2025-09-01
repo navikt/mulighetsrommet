@@ -1,0 +1,56 @@
+import { type DataElement, DataElementTextFormat } from "@mr/api-client-v2";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { formaterDato } from "@mr/frontend-common/utils/date";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { DataElementMathOperator } from "@/components/data-element/DataElementMathOperator";
+import { compare, formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
+import { ReactNode } from "react";
+
+export function getDataElement(element: DataElement) {
+  switch (element.type) {
+    case "text":
+      return element.value ? formatText(element.value, element.format) : null;
+    case "status":
+      return <DataElementStatusTag {...element} />;
+    case "periode":
+      return `${formaterDato(element.start)} - ${formaterDato(element.slutt)}`;
+    case "link":
+      return <Lenke to={element.href}>{element.text}</Lenke>;
+    case "math-operator":
+      return <DataElementMathOperator operator={element.operator} />;
+  }
+}
+
+export function formatText(value: string, format: DataElementTextFormat | null): ReactNode {
+  switch (format) {
+    case DataElementTextFormat.DATE:
+      return formaterDato(value);
+    case DataElementTextFormat.NOK:
+      return formaterNOK(Number(value));
+    case DataElementTextFormat.NUMBER:
+      return formaterTall(Number(value));
+    case null:
+      return value;
+  }
+}
+
+export function compareDataElements(aCell: DataElement | null, bCell: DataElement | null) {
+  const aValue = aCell ? getComparableValue(aCell) : null;
+  const bValue = bCell ? getComparableValue(bCell) : null;
+  return compare(aValue, bValue);
+}
+
+export function getComparableValue(element: DataElement) {
+  switch (element.type) {
+    case "text":
+      return element.value;
+    case "status":
+      return element.value;
+    case "periode":
+      return element.start;
+    case "link":
+      return element.text;
+    case "math-operator":
+      return element.operator;
+  }
+}
