@@ -248,7 +248,8 @@ class GenererUtbetalingService(
             select gjennomforing.id, avtale.prismodell
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
-            where daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
+            where gjennomforing.status != 'AVLYST'
+              and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
               and not exists (
                     select 1
                     from utbetaling
@@ -270,7 +271,8 @@ class GenererUtbetalingService(
             select gjennomforing.id, avtale.prismodell
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
-            where daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
+            where gjennomforing.status != 'AVLYST'
+              and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
