@@ -1,20 +1,13 @@
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { Avtaletype, Rolle, TilsagnService, TilsagnType } from "@mr/api-client-v2";
-import { Alert, Button, Dropdown } from "@navikt/ds-react";
+import { Avtaletype, Rolle, TilsagnType } from "@mr/api-client-v2";
+import { Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { TilsagnTable } from "./tabell/TilsagnTable";
-
-function useTilsagnForGjennomforing(id: string) {
-  return useApiSuspenseQuery({
-    queryKey: ["tilsagnForGjennomforing", id],
-    queryFn: async () => TilsagnService.getAll({ query: { gjennomforingId: id } }),
-  });
-}
+import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useParams();
@@ -23,7 +16,7 @@ export function TilsagnForGjennomforingPage() {
   }
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: tilsagnForGjennomforing } = useTilsagnForGjennomforing(gjennomforingId);
+  const { data: tilsagn } = useTilsagnTableData(gjennomforingId);
 
   const tilsagnstyper =
     avtale?.avtaletype === Avtaletype.FORHANDSGODKJENT
@@ -57,13 +50,10 @@ export function TilsagnForGjennomforingPage() {
           </Dropdown>
         </HarTilgang>
       </KnapperadContainer>
-      {tilsagnForGjennomforing.length > 0 ? (
-        <TilsagnTable tilsagn={tilsagnForGjennomforing} />
-      ) : (
-        <Alert style={{ marginTop: "1rem" }} variant="info">
-          Det finnes ingen tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
-        </Alert>
-      )}
+      <TilsagnTable
+        emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"
+        data={tilsagn}
+      />
     </>
   );
 }

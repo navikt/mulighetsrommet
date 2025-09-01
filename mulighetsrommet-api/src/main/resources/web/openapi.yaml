@@ -1511,10 +1511,11 @@ paths:
                 $ref: "#/components/schemas/TilsagnDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
+
     get:
       tags:
         - Tilsagn
-      operationId: getAll
+      operationId: getTilsagnTableData
       parameters:
         - name: gjennomforingId
           in: query
@@ -1529,13 +1530,11 @@ paths:
               $ref: "#/components/schemas/TilsagnStatus"
       responses:
         200:
-          description: TiltagnDto
+          description: Tilsagn
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TilsagnDto"
+                $ref: "#/components/schemas/DataDrivenTableDto"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -4186,7 +4185,7 @@ components:
           type: [string, "null"]
           format: date
         beregning:
-          $ref: '#/components/schemas/TilsagnBeregningRequest'
+          $ref: "#/components/schemas/TilsagnBeregningRequest"
       required: [gjennomforingId]
 
     BeregnTilsagnResponse:
@@ -4195,7 +4194,7 @@ components:
         success:
           type: boolean
         beregning:
-          $ref: '#/components/schemas/TilsagnBeregningDto'
+          $ref: "#/components/schemas/TilsagnBeregningDto"
       required: [success]
 
     TilsagnBeregningRequest:
@@ -5045,7 +5044,9 @@ components:
           items:
             type: object
             additionalProperties:
-              $ref: "#/components/schemas/DataElement"
+              oneOf:
+                - type: "null"
+                - $ref: "#/components/schemas/DataElement"
       required: [columns, rows]
 
     DataDrivenTableColumn:
@@ -5054,7 +5055,7 @@ components:
         key:
           type: string
         label:
-          type: string
+          type: [string, "null"]
         sortable:
           type: boolean
         align:
@@ -5122,6 +5123,8 @@ components:
         - success
         - warning
         - error
+        - error-border
+        - error-border-strikethrough
 
     DataElementLink:
       type: object
