@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
+import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -16,7 +18,7 @@ data class ArrangorflateUtbetalingKompaktDto(
     val tiltakstype: ArrangorflateTiltakstype,
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
-    val type: UtbetalingType? = null,
+    val type: UtbetalingTypeDto,
     val periode: Periode,
     val status: ArrangorflateUtbetalingStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -45,7 +47,7 @@ data class ArrangorflateUtbetalingKompaktDto(
             periode = utbetaling.periode,
             belop = utbetaling.beregning.output.belop,
             godkjentBelop = godkjentBelop,
-            type = UtbetalingType.from(utbetaling),
+            type = UtbetalingType.from(utbetaling).toDto(),
         )
     }
 }

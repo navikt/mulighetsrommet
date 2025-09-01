@@ -364,31 +364,31 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
     val entries = when (tilsagn.beregning) {
         is TilsagnBeregningFri -> listOf(
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
-            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
         is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> listOf(
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
             DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailsEntry.nok("Fast sats per tiltaksplass per måned", tilsagn.beregning.input.sats),
-            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Sats per tiltaksplass per måned", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
         is TilsagnBeregningPrisPerManedsverk -> listOf(
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
             DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailsEntry.nok("Pris per månedsverk", tilsagn.beregning.input.sats),
-            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Avtalt månedspris per tiltaksplass", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
         is TilsagnBeregningPrisPerUkesverk -> listOf(
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
             DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
-            DetailsEntry.nok("Pris per ukesverk", tilsagn.beregning.input.sats),
-            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats),
+            DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
@@ -396,7 +396,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
             DetailsEntry.periode("Tilsagnsperiode", tilsagn.periode),
             DetailsEntry.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             DetailsEntry.nok("Pris per time oppfølging", tilsagn.beregning.input.sats),
-            DetailsEntry.nok("Totalt beløp", tilsagn.beregning.output.belop),
+            DetailsEntry.nok("Totalbeløp", tilsagn.beregning.output.belop),
             DetailsEntry.nok("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
     }

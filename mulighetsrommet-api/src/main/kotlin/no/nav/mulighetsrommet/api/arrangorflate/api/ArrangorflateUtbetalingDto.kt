@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -35,7 +35,7 @@ data class ArrangorflateUtbetalingDto(
     val beregning: ArrangorflateBeregning,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
-    val type: UtbetalingType?,
+    val type: UtbetalingTypeDto,
     val linjer: List<ArrangorUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
 )
@@ -44,6 +44,7 @@ data class ArrangorflateUtbetalingDto(
 @Serializable
 @JsonClassDiscriminator("type")
 sealed class ArrangorflateBeregning {
+    abstract val displayName: String
     abstract val detaljer: Details
     abstract val belop: Int
     abstract val digest: String
@@ -58,6 +59,7 @@ sealed class ArrangorflateBeregning {
         val antallManedsverk: Double,
         val sats: Int,
     ) : ArrangorflateBeregning() {
+        override val displayName: String = "Sats per tiltaksplass per måned"
         override val detaljer: Details = Details(
             entries = listOf(
                 DetailsEntry.number("Antall månedsverk", antallManedsverk),
@@ -77,10 +79,11 @@ sealed class ArrangorflateBeregning {
         val antallManedsverk: Double,
         val sats: Int,
     ) : ArrangorflateBeregning() {
+        override val displayName: String = "Avtalt månedspris per tiltaksplass"
         override val detaljer: Details = Details(
             entries = listOf(
                 DetailsEntry.number("Antall ukesverk", antallManedsverk),
-                DetailsEntry.nok("Sats", sats),
+                DetailsEntry.nok("Pris", sats),
                 DetailsEntry.nok("Beløp", belop),
             ),
         )
@@ -96,10 +99,11 @@ sealed class ArrangorflateBeregning {
         val antallUkesverk: Double,
         val sats: Int,
     ) : ArrangorflateBeregning() {
+        override val displayName: String = "Avtalt ukespris per tiltaksplass"
         override val detaljer: Details = Details(
             entries = listOf(
                 DetailsEntry.number("Antall ukesverk", antallUkesverk),
-                DetailsEntry.nok("Sats", sats),
+                DetailsEntry.nok("Pris", sats),
                 DetailsEntry.nok("Beløp", belop),
             ),
         )
@@ -111,6 +115,7 @@ sealed class ArrangorflateBeregning {
         override val belop: Int,
         override val digest: String,
     ) : ArrangorflateBeregning() {
+        override val displayName: String = "Annen avtalt pris"
         override val detaljer: Details = Details(
             entries = listOf(DetailsEntry.nok("Beløp", belop)),
         )

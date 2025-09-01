@@ -34,7 +34,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
     }, [utbetalinger]),
   );
 
-  const harUtbetalingsType = sortedData.some((utbetaling) => utbetaling.type);
+  const harUtbetalingsTypeTag = sortedData.some((utbetaling) => utbetaling.type.tagName);
 
   return (
     <Table
@@ -60,7 +60,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <TableColumnHeader sortKey="status" sortable align="right">
             Status
           </TableColumnHeader>
-          <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsType}>
+          <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsTypeTag}>
             <HStack gap="2">
               Type
               <HelpText title="Hva betyr forkortelsene?">
@@ -105,9 +105,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />
               </Table.DataCell>
-              {harUtbetalingsType && (
+              {harUtbetalingsTypeTag && (
                 <Table.DataCell align="left">
-                  {type && <UtbetalingTypeTag type={type} />}
+                  <UtbetalingTypeTag type={type} />
                 </Table.DataCell>
               )}
               <Table.DataCell>

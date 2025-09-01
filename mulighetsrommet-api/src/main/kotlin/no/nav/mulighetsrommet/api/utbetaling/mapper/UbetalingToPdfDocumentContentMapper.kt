@@ -91,11 +91,7 @@ object UbetalingToPdfDocumentContentMapper {
 }
 
 private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: ArrangorflateUtbetalingDto) {
-    val utbetalingHeader = when (utbetaling.type) {
-        UtbetalingType.KORRIGERING -> "Korrigering"
-        UtbetalingType.INVESTERING -> "Utbetaling for investering"
-        null -> "Innsending"
-    }
+    val utbetalingHeader = utbetaling.type.displayNameLong ?: utbetaling.type.displayName
     section(utbetalingHeader) {
         descriptionList {
             entry(

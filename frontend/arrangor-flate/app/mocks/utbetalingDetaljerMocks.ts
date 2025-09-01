@@ -5,8 +5,8 @@ import {
   DelutbetalingStatus,
   DetailsFormat,
   Tiltakskode,
-  UtbetalingType,
 } from "api-client";
+import { utbetalingType } from "./utbetalingTypeMocks";
 
 export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
   {
@@ -27,6 +27,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
+      displayName: "Sats per tiltaksplass per måned",
       detaljer: {
         entries: [
           { key: "Antall månedsverk", value: "0.48", format: DetailsFormat.NUMBER },
@@ -57,7 +58,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     advarsler: [],
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
     periode: { start: "2025-01-01", slutt: "2025-02-01" },
-    type: null,
+    type: utbetalingType.INNSENDING,
     linjer: [
       {
         id: "59b56a35-4406-4c29-b5e6-535a78761044",
@@ -104,6 +105,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
+      displayName: "Sats per tiltaksplass per måned",
       detaljer: {
         entries: [
           { key: "Antall månedsverk", value: "11.58", format: DetailsFormat.NUMBER },
@@ -301,7 +303,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
     periode: { start: "2025-01-01", slutt: "2025-02-01" },
-    type: null,
+    type: utbetalingType.INNSENDING,
     linjer: [],
   },
   {
@@ -326,6 +328,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFri",
+      displayName: "Annen avtalt pris",
       detaljer: {
         entries: [{ key: "Beløp", value: "242904", format: DetailsFormat.NOK }],
       },
@@ -334,7 +337,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
     periode: { start: "2025-05-01", slutt: "2025-08-02" },
-    type: UtbetalingType.INVESTERING,
+    type: utbetalingType.INVESTERING,
     linjer: [],
   },
   {
@@ -355,6 +358,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFri",
+      displayName: "Annen avtalt pris",
       detaljer: {
         entries: [{ key: "Beløp", value: "500", format: DetailsFormat.NOK }],
       },
@@ -363,7 +367,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     },
     betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
     periode: { start: "2025-01-01", slutt: "2025-02-01" },
-    type: UtbetalingType.KORRIGERING,
+    type: utbetalingType.KORRIGERING,
     linjer: [
       {
         id: "b1a3727a-8bf7-4470-a9b6-71803c99846e",
@@ -396,6 +400,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     kanViseBeregning: true,
     beregning: {
       type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
+      displayName: "Sats per tiltaksplass per måned",
       detaljer: {
         entries: [
           { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
@@ -426,7 +431,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: "123123123" },
     periode: { start: "2025-06-01", slutt: "2025-07-01" },
-    type: null,
+    type: utbetalingType.INNSENDING,
     linjer: [],
     advarsler: [],
   },
