@@ -2,18 +2,18 @@ import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AvtaleDto, Prismodell, PrismodellDto, ValidationError } from "@mr/api-client-v2";
 import { Button, Modal } from "@navikt/ds-react";
-import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 interface Props {
-  modalRef: RefObject<HTMLDialogElement | null>;
+  open: boolean;
   avtale: AvtaleDto;
+  onClose: () => void;
 }
 
-export function OppdaterPrisModal({ modalRef, avtale }: Props) {
+export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   const mutation = useUpsertPrismodell(avtale.id);
   const form = useForm<PrismodellValues>({
     resolver: zodResolver(PrismodellSchema),
@@ -50,7 +50,7 @@ export function OppdaterPrisModal({ modalRef, avtale }: Props) {
   function closeAndResetForm() {
     form.reset();
     mutation.reset();
-    modalRef.current?.close();
+    onClose();
   }
 
   return (
@@ -58,7 +58,7 @@ export function OppdaterPrisModal({ modalRef, avtale }: Props) {
       width={900}
       closeOnBackdropClick
       onClose={closeAndResetForm}
-      ref={modalRef}
+      open={open}
       header={{ heading: "Oppdater pris" }}
     >
       <FormProvider {...form}>
