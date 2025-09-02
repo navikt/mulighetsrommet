@@ -1,5 +1,4 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
-import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
 import { GjennomforingDto, TilsagnBeregningType, TilsagnRequest } from "@mr/api-client-v2";
 import { HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
@@ -33,7 +32,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     register,
     formState: { errors },
     watch,
-  } = useFormContext<InferredTilsagn>();
+  } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
   const sats = useFindAvtaltSats(gjennomforing.avtaleId!, periodeStart);

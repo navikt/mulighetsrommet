@@ -16,9 +16,27 @@ import {
   validateAvtaledetaljer,
   toUtdanningslopDbo,
 } from "./avtaledetaljer";
-import { okonomiSchema } from "./okonomi";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
+
+export const PrismodellSchema = z.object({
+  prisbetingelser: z.string().optional(),
+  prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
+  satser: z.array(
+    z.object({
+      periodeStart: z
+        .string({ error: "Du må legge inn en startdato" })
+        .min(10, "Du må legge inn startdato"),
+      periodeSlutt: z
+        .string({ error: "Du må legge inn en sluttdato" })
+        .min(10, "Du må legge inn sluttdato"),
+      pris: z.number({ error: "Du må legge inn en pris for perioden" }),
+      valuta: z.string(),
+    }),
+  ),
+});
+
+export type PrismodellValues = z.infer<typeof PrismodellSchema>;
 
 export const RedaksjoneltInnholdSchema = z.object({
   beskrivelse: z
@@ -37,7 +55,7 @@ export const PersonopplysningerSchema = z.object({
 
 export const avtaleFormSchema = avtaleDetaljerSchema
   .extend(arrangorSchema.shape)
-  .extend(okonomiSchema.shape)
+  .extend(PrismodellSchema.shape)
   .extend(PersonopplysningerSchema.shape)
   .extend(RedaksjoneltInnholdSchema.shape)
   .superRefine((data, ctx) => {

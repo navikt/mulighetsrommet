@@ -599,6 +599,26 @@ class AvtaleValidatorTest : FunSpec({
 
                 createValidator().validate(request, previous).shouldBeRight()
             }
+
+            test("kan ikke endre tiltakstype hvis prismodell er inkompatibel") {
+                MulighetsrommetTestDomain(
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
+                ).initialize(database.db)
+
+                val request = avtaleRequest.copy(
+                    avtaletype = Avtaletype.FORHANDSGODKJENT,
+                    opsjonsmodell = Opsjonsmodell(type = OpsjonsmodellType.VALGFRI_SLUTTDATO, opsjonMaksVarighet = null),
+                    tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                )
+
+                val previous = database.run { queries.avtale.get(oppfolgingMedRammeAvtale.id) }
+
+                createValidator().validate(request, previous).shouldBeLeft() shouldContain
+                    FieldError(
+                        "/tiltakskode",
+                        "Tiltakstype kan ikke endres ikke fordi prismodellen “Annen avtalt pris” er i bruk",
+                    )
+            }
         }
     }
 

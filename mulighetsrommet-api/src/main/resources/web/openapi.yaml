@@ -43,6 +43,28 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/avtaler/{id}/prismodell:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Avtaler
+      operationId: upsertPrismodell
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrismodellRequest"
+      responses:
+        200:
+          description: Avtalen
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/avtaler:
     get:
       tags:
@@ -2420,17 +2442,7 @@ components:
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         prismodell:
-          type: object
-          properties:
-            prisbetingelser:
-              type: [string, "null"]
-            type:
-              $ref: "#/components/schemas/Prismodell"
-            satser:
-              type: array
-              items:
-                $ref: "#/components/schemas/AvtaltSatsDto"
-          required: [type, satser, prisbetingelser]
+          $ref: "#/components/schemas/PrismodellRequest"
         navEnheter:
           type: array
           items:
@@ -2478,6 +2490,19 @@ components:
         - opsjonsmodell
         - utdanningslop
         - prismodell
+
+    PrismodellRequest:
+      type: object
+      properties:
+        prisbetingelser:
+          type: [ string, "null" ]
+        type:
+          $ref: "#/components/schemas/Prismodell"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsDto"
+      required: [type, satser]
 
     Prismodell:
       type: string

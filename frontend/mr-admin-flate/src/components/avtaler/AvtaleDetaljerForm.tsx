@@ -9,18 +9,9 @@ import {
   OpsjonsmodellType,
   OpsjonStatus,
   Tiltakskode,
-  Toggles,
 } from "@mr/api-client-v2";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import {
-  HGrid,
-  List,
-  Select,
-  Textarea,
-  TextField,
-  UNSAFE_Combobox,
-  VStack,
-} from "@navikt/ds-react";
+import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -29,9 +20,7 @@ import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 import { AvtaleVarighet } from "./AvtaleVarighet";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 export function AvtaleDetaljerForm({
   opsjonerRegistrert,
@@ -52,11 +41,6 @@ export function AvtaleDetaljerForm({
   } = useFormContext<AvtaleFormValues>();
   const tiltakskode = watch("tiltakskode");
   const watchedAdministratorer = watch("administratorer");
-
-  const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [tiltakskode],
-  );
 
   const antallOpsjonerUtlost = (
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
@@ -130,7 +114,8 @@ export function AvtaleDetaljerForm({
                 onChange: (e) => {
                   setValue("amoKategorisering", null);
                   setValue("utdanningslop", null);
-                  setValue("prismodell", undefined);
+                  setValue("prismodell", undefined as any, { shouldValidate: true });
+                  setValue("satser", []);
 
                   const avtaletype = isTiltakskode(e.target.value)
                     ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
@@ -171,18 +156,6 @@ export function AvtaleDetaljerForm({
         <FormGroup>
           <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
         </FormGroup>
-        {enableTilsagn ? (
-          <FormGroup>
-            <AvtalePrisOgFaktureringForm tiltakskode={tiltakskode} />
-          </FormGroup>
-        ) : (
-          <Textarea
-            size="small"
-            error={errors.prisbetingelser?.message}
-            label={avtaletekster.prisOgBetalingLabel}
-            {...register("prisbetingelser")}
-          />
-        )}
       </VStack>
       <VStack>
         <FormGroup>

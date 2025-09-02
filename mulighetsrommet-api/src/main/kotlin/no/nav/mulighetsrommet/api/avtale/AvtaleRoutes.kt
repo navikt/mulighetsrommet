@@ -183,6 +183,19 @@ fun Route.avtaleRoutes() {
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
 
+            authorize(Rolle.AVTALER_SKRIV) {
+                put("{id}/prismodell") {
+                    val navIdent = getNavIdent()
+                    val id = call.parameters.getOrFail<UUID>("id")
+                    val request = call.receive<PrismodellRequest>()
+
+                    val result = avtaler.upsertPrismodell(id, request, navIdent)
+                        .mapLeft { ValidationError(errors = it) }
+
+                    call.respondWithStatusResponse(result)
+                }
+            }
+
             delete("kontaktperson") {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
                 val navIdent = getNavIdent()

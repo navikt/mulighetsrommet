@@ -12,7 +12,6 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { InferredTilsagn } from "./TilsagnSchema";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -36,7 +35,7 @@ function BeregningInputSkjema() {
     formState: { errors },
     setError,
     control,
-  } = useFormContext<InferredTilsagn>();
+  } = useFormContext<TilsagnRequest>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
 
   const prisbetingelser = watch("beregning.prisbetingelser");

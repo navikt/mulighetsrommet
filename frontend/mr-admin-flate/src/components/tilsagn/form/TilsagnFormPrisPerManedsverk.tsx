@@ -5,7 +5,6 @@ import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { InferredTilsagn } from "./TilsagnSchema";
 import { useFindAvtaltSats } from "@/api/tilsagn/useFindAvtaltSats";
 
 interface Props {
@@ -31,7 +30,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
     formState: { errors },
     watch,
     getValues,
-  } = useFormContext<InferredTilsagn>();
+  } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
   const sats = useFindAvtaltSats(gjennomforing.avtaleId!, periodeStart);

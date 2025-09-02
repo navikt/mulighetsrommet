@@ -15,7 +15,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -54,11 +53,9 @@ class AvtaleServiceTest : FunSpec({
     val bertilNavIdent = NavIdent("B123456")
 
     fun createAvtaleService(
-        brregClient: BrregClient = mockk(relaxed = true),
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
     ) = AvtaleService(
         database.db,
-        ArrangorService(database.db, brregClient),
         validator,
         gjennomforingPublisher,
     )
@@ -66,7 +63,7 @@ class AvtaleServiceTest : FunSpec({
     context("Upsert avtale") {
         val brregClient = mockk<BrregClient>()
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
-        val avtaleService = createAvtaleService(brregClient, gjennomforingPublisher)
+        val avtaleService = createAvtaleService(gjennomforingPublisher)
 
         test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
