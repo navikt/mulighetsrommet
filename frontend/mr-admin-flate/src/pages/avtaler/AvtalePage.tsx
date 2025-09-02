@@ -27,16 +27,65 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   ];
 }
 
+enum AvtaleTab {
+  DETALJER = "detaljer",
+  PERSONVERN = "personvern",
+  VEILEDERINFORMASJON = "veilederinformasjon",
+  GJENNOMFORINGER = "gjennomforinger",
+}
+
 function getCurrentTab(pathname: string) {
   if (pathname.includes("veilederinformasjon")) {
-    return "veilederinformasjon";
+    return AvtaleTab.VEILEDERINFORMASJON;
   } else if (pathname.includes("gjennomforinger")) {
-    return "gjennomforinger";
+    return AvtaleTab.GJENNOMFORINGER;
   } else if (pathname.includes("personvern")) {
-    return "personvern";
+    return AvtaleTab.PERSONVERN;
   } else {
-    return "detaljer";
+    return AvtaleTab.DETALJER;
   }
+}
+
+interface AvtaleTabLinks {
+  label: string;
+  value: AvtaleTab;
+  href: string;
+  testId?: string;
+}
+
+function getTabLinks(avtaleId: string, redigeringsmodus?: boolean): AvtaleTabLinks[] {
+  const tabs = [
+    {
+      label: "Detaljer",
+      value: AvtaleTab.DETALJER,
+      href: redigeringsmodus ? `/avtaler/${avtaleId}/skjema` : `/avtaler/${avtaleId}`,
+    },
+    {
+      label: "Personvern",
+      value: AvtaleTab.PERSONVERN,
+      href: redigeringsmodus
+        ? `/avtaler/${avtaleId}/personvern/skjema`
+        : `/avtaler/${avtaleId}/personvern`,
+    },
+    {
+      label: "Informasjon for veiledere",
+      value: AvtaleTab.VEILEDERINFORMASJON,
+      href: redigeringsmodus
+        ? `/avtaler/${avtaleId}/veilederinformasjon/skjema`
+        : `/avtaler/${avtaleId}/veilederinformasjon`,
+    },
+  ];
+  if (!redigeringsmodus) {
+    return [
+      ...tabs,
+      {
+        label: "Gjennomføringer",
+        value: AvtaleTab.GJENNOMFORINGER,
+        href: `/avtaler/${avtaleId}/gjennomforinger`,
+      },
+    ];
+  }
+  return tabs;
 }
 
 export function AvtalePage() {
@@ -65,31 +114,17 @@ export function AvtalePage() {
       </Header>
       <Tabs value={currentTab}>
         <Tabs.List>
-          <Tabs.Tab
-            label="Detaljer"
-            value="detaljer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
-          />
-          <Tabs.Tab
-            label="Personvern"
-            value="personvern"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/personvern`)}
-          />
-          <Tabs.Tab
-            label="Informasjon for veiledere"
-            value="veilederinformasjon"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/veilederinformasjon`)}
-          />
-          {!redigeringsmodus && (
+          {getTabLinks(avtale.id, redigeringsmodus).map(({ label, value, href, testId }) => (
             <Tabs.Tab
-              value="gjennomforinger"
-              label="Gjennomføringer"
-              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
-              data-testid="gjennomforinger-tab"
+              key={value}
+              label={label}
+              value={value}
+              onClick={() => navigateAndReplaceUrl(href)}
+              data-testid={testId}
             />
-          )}
+          ))}
         </Tabs.List>
-        <Tabs.Panel value="detaljer">
+        <Tabs.Panel value={AvtaleTab.DETALJER}>
           {redigeringsmodus ? (
             <RedigerAvtaleContainer avtale={avtale}>
               <AvtaleDetaljerForm
@@ -103,7 +138,7 @@ export function AvtalePage() {
             </AvtalePageLayout>
           )}
         </Tabs.Panel>
-        <Tabs.Panel value="personvern">
+        <Tabs.Panel value={AvtaleTab.PERSONVERN}>
           {redigeringsmodus ? (
             <RedigerAvtaleContainer avtale={avtale}>
               <AvtalePersonvernForm />
@@ -114,7 +149,7 @@ export function AvtalePage() {
             </AvtalePageLayout>
           )}
         </Tabs.Panel>
-        <Tabs.Panel value="veilederinformasjon">
+        <Tabs.Panel value={AvtaleTab.VEILEDERINFORMASJON}>
           {redigeringsmodus ? (
             <RedigerAvtaleContainer avtale={avtale}>
               <AvtaleInformasjonForVeiledereForm />
@@ -126,7 +161,7 @@ export function AvtalePage() {
           )}
         </Tabs.Panel>
 
-        <Tabs.Panel value="gjennomforinger">
+        <Tabs.Panel value={AvtaleTab.GJENNOMFORINGER}>
           <InlineErrorBoundary>
             <GjennomforingerForAvtalePage />
           </InlineErrorBoundary>
