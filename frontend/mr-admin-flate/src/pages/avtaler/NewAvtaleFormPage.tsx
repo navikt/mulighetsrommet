@@ -38,7 +38,7 @@ const steps = [
     Component: <AvtaleDetaljerForm />,
   },
   {
-    key: "Prismodel",
+    key: "Prismodell",
     schema: PrismodellSchema,
     Component: <AvtalePrismodellStep />,
   },

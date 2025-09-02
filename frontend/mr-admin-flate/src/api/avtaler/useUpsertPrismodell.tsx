@@ -17,10 +17,6 @@ export function useUpsertPrismodell(id: string) {
         queryClient.invalidateQueries({
           queryKey: QueryKeys.avtale(id),
         }),
-
-        queryClient.invalidateQueries({
-          queryKey: QueryKeys.avtaler(),
-        }),
       ]);
     },
   });

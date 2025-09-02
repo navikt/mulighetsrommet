@@ -12,12 +12,10 @@ interface Props {
 
 export default function AvtalePrismodellForm({ tiltakskode }: Props) {
   const {
-    register,
     formState: { errors },
     setValue,
     watch,
   } = useFormContext<PrismodellValues>();
-
   const { data: prismodeller = [] } = usePrismodeller(tiltakskode);
 
   const prismodell = watch("prismodell");
@@ -37,12 +35,11 @@ export default function AvtalePrismodellForm({ tiltakskode }: Props) {
           label={avtaletekster.prismodell.label}
           size="small"
           error={errors.prismodell?.message}
-          {...register("prismodell", {
-            onChange: (e) => {
-              if (
-                erPrismodellMedAvtalteSatser(e.target.value as Prismodell) &&
-                satser.length === 0
-              ) {
+          value={prismodell}
+          onChange={(e) => {
+            setValue("prismodell", e.target.value as Prismodell);
+            if (erPrismodellMedAvtalteSatser(e.target.value as Prismodell)) {
+              if (satser.length === 0) {
                 setValue("satser", [
                   {
                     periodeStart: "",
@@ -51,11 +48,11 @@ export default function AvtalePrismodellForm({ tiltakskode }: Props) {
                     valuta: "NOK",
                   },
                 ]);
-              } else {
-                setValue("satser", []);
               }
-            },
-          })}
+            } else {
+              setValue("satser", []);
+            }
+          }}
         >
           <option key={undefined} value={undefined}></option>
           {prismodeller.map(({ type, beskrivelse }) => (
