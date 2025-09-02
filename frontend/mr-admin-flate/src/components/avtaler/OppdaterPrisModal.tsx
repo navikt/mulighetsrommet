@@ -6,6 +6,7 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { parseDate } from "@mr/frontend-common/utils/date";
 
 interface Props {
   open: boolean;
@@ -64,7 +65,10 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(postData)}>
           <Modal.Body>
-            <AvtalePrismodellForm tiltakskode={avtale.tiltakstype.tiltakskode} />
+            <AvtalePrismodellForm
+              tiltakskode={avtale.tiltakstype.tiltakskode}
+              avtaleStartDato={parseDate(avtale.startDato)!}
+            />
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" disabled={mutation.isPending}>
