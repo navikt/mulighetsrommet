@@ -3,10 +3,10 @@ import { HStack, Label, Loader, VStack } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { TilsagnBeregning } from "../beregning/TilsagnBeregning";
 import { useFormContext } from "react-hook-form";
-import { InferredTilsagn } from "./TilsagnSchema";
+import { TilsagnRequest } from "@mr/api-client-v2";
 
 export function TilsagnBeregningPreview() {
-  const { watch } = useFormContext<InferredTilsagn>();
+  const { watch } = useFormContext<TilsagnRequest>();
   const values = watch();
   const { data, isLoading } = useBeregnTilsagn({
     periodeStart: values.periodeStart,

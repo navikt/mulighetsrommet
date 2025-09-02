@@ -1,7 +1,5 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
-import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
@@ -47,12 +45,12 @@ export function TilsagnForm(props: Props) {
 
   const forhandsvalgKostnadssted =
     kostnadssteder?.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
-  const form = useForm<InferredTilsagn>({
-    resolver: zodResolver(TilsagnSchema),
+  const form = useForm<TilsagnRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
     defaultValues: {
       ...defaultValues,
       kostnadssted: forhandsvalgKostnadssted,
-    },
+    } as TilsagnRequest,
   });
 
   const {
@@ -62,7 +60,7 @@ export function TilsagnForm(props: Props) {
     formState: { errors },
   } = form;
 
-  const postData: SubmitHandler<InferredTilsagn> = async (data): Promise<void> => {
+  const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
@@ -73,7 +71,7 @@ export function TilsagnForm(props: Props) {
       onSuccess: onSuccess,
       onValidationError: (error: ValidationError) => {
         error.errors.forEach((error: { pointer: string; detail: string }) => {
-          const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
+          const name = jsonPointerToFieldPath(error.pointer) as keyof TilsagnRequest;
           setError(name, { type: "custom", message: error.detail });
         });
       },
