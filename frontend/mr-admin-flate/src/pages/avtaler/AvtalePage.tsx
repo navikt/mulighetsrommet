@@ -10,12 +10,8 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
-import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
-import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
-import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
@@ -27,16 +23,56 @@ function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   ];
 }
 
+enum AvtaleTab {
+  DETALJER = "detaljer",
+  PERSONVERN = "personvern",
+  VEILEDERINFORMASJON = "veilederinformasjon",
+  GJENNOMFORINGER = "gjennomforinger",
+}
+
 function getCurrentTab(pathname: string) {
   if (pathname.includes("veilederinformasjon")) {
-    return "veilederinformasjon";
+    return AvtaleTab.VEILEDERINFORMASJON;
   } else if (pathname.includes("gjennomforinger")) {
-    return "gjennomforinger";
+    return AvtaleTab.GJENNOMFORINGER;
   } else if (pathname.includes("personvern")) {
-    return "personvern";
+    return AvtaleTab.PERSONVERN;
   } else {
-    return "detaljer";
+    return AvtaleTab.DETALJER;
   }
+}
+
+interface AvtaleTabDetaljer {
+  label: string;
+  value: AvtaleTab;
+  href: string;
+  testId?: string;
+}
+
+function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
+  return [
+    {
+      label: "Detaljer",
+      value: AvtaleTab.DETALJER,
+      href: `/avtaler/${avtaleId}`,
+    },
+    {
+      label: "Personvern",
+      value: AvtaleTab.PERSONVERN,
+      href: `/avtaler/${avtaleId}/personvern`,
+    },
+    {
+      label: "Informasjon for veiledere",
+      value: AvtaleTab.VEILEDERINFORMASJON,
+      href: `/avtaler/${avtaleId}/veilederinformasjon`,
+    },
+    {
+      label: "Gjennomføringer",
+      value: AvtaleTab.GJENNOMFORINGER,
+      href: `/avtaler/${avtaleId}/gjennomforinger`,
+      testId: "gjennomforinger-tab",
+    },
+  ];
 }
 
 export function AvtalePage() {
@@ -45,8 +81,6 @@ export function AvtalePage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
   const currentTab = getCurrentTab(pathname);
-
-  const redigeringsmodus = location.pathname.includes("skjema");
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
@@ -65,68 +99,32 @@ export function AvtalePage() {
       </Header>
       <Tabs value={currentTab}>
         <Tabs.List>
-          <Tabs.Tab
-            label="Detaljer"
-            value="detaljer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
-          />
-          <Tabs.Tab
-            label="Personvern"
-            value="personvern"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/personvern`)}
-          />
-          <Tabs.Tab
-            label="Informasjon for veiledere"
-            value="veilederinformasjon"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/veilederinformasjon`)}
-          />
-          {!redigeringsmodus && (
+          {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
             <Tabs.Tab
-              value="gjennomforinger"
-              label="Gjennomføringer"
-              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/gjennomforinger`)}
-              data-testid="gjennomforinger-tab"
+              key={value}
+              label={label}
+              value={value}
+              onClick={() => navigateAndReplaceUrl(href)}
+              data-testid={testId}
             />
-          )}
+          ))}
         </Tabs.List>
-        <Tabs.Panel value="detaljer">
-          {redigeringsmodus ? (
-            <RedigerAvtaleContainer avtale={avtale}>
-              <AvtaleDetaljerForm
-                opsjonerRegistrert={avtale.opsjonerRegistrert}
-                avtalenummer={avtale.avtalenummer}
-              />
-            </RedigerAvtaleContainer>
-          ) : (
-            <AvtalePageLayout avtale={avtale}>
-              <AvtaleDetaljer />
-            </AvtalePageLayout>
-          )}
+        <Tabs.Panel value={AvtaleTab.DETALJER}>
+          <AvtalePageLayout avtale={avtale}>
+            <AvtaleDetaljer />
+          </AvtalePageLayout>
         </Tabs.Panel>
-        <Tabs.Panel value="personvern">
-          {redigeringsmodus ? (
-            <RedigerAvtaleContainer avtale={avtale}>
-              <AvtalePersonvernForm />
-            </RedigerAvtaleContainer>
-          ) : (
-            <AvtalePageLayout avtale={avtale}>
-              <AvtalePersonvern />
-            </AvtalePageLayout>
-          )}
+        <Tabs.Panel value={AvtaleTab.PERSONVERN}>
+          <AvtalePageLayout avtale={avtale}>
+            <AvtalePersonvern />
+          </AvtalePageLayout>
         </Tabs.Panel>
-        <Tabs.Panel value="veilederinformasjon">
-          {redigeringsmodus ? (
-            <RedigerAvtaleContainer avtale={avtale}>
-              <AvtaleInformasjonForVeiledereForm />
-            </RedigerAvtaleContainer>
-          ) : (
-            <AvtalePageLayout avtale={avtale}>
-              <RedaksjoneltInnholdPreview />
-            </AvtalePageLayout>
-          )}
+        <Tabs.Panel value={AvtaleTab.VEILEDERINFORMASJON}>
+          <AvtalePageLayout avtale={avtale}>
+            <RedaksjoneltInnholdPreview />
+          </AvtalePageLayout>
         </Tabs.Panel>
-
-        <Tabs.Panel value="gjennomforinger">
+        <Tabs.Panel value={AvtaleTab.GJENNOMFORINGER}>
           <InlineErrorBoundary>
             <GjennomforingerForAvtalePage />
           </InlineErrorBoundary>
