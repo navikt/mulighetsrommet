@@ -866,6 +866,20 @@ components:
       enum:
       - NOK
       - NUMBER
+    ArrangorflateBetalingsinformasjon:
+      type: object
+      properties:
+        kontonummer:
+          type:
+          - "null"
+          - string
+        kid:
+          type:
+          - "null"
+          - string
+      required:
+      - kid
+      - kontonummer
     ArrangorflateBeregning:
       anyOf:
       - $ref: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
@@ -1161,28 +1175,14 @@ components:
       - displayName
       - sats
       - stengt
-    Betalingsinformasjon:
-      type: object
-      properties:
-        kontonummer:
-          type:
-          - "null"
-          - string
-        kid:
-          type:
-          - "null"
-          - string
-      required:
-      - kid
-      - kontonummer
-    ArrangorUtbetalingLinje:
+    ArrangforflateUtbetalingLinje:
       type: object
       properties:
         id:
           type: string
           format: uuid
         tilsagn:
-          $ref: "#/components/schemas/Tilsagn"
+          $ref: "#/components/schemas/ArrangorflateTilsagnSummary"
         status:
           $ref: "#/components/schemas/DelutbetalingStatus"
         statusSistOppdatert:
@@ -1199,7 +1199,7 @@ components:
       - status
       - statusSistOppdatert
       - tilsagn
-    Tilsagn:
+    ArrangorflateTilsagnSummary:
       type: object
       properties:
         id:
@@ -1283,10 +1283,10 @@ components:
           $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
         arrangor:
           $ref: "#/components/schemas/ArrangorflateArrangor"
+        betalingsinformasjon:
+          $ref: "#/components/schemas/ArrangorflateBetalingsinformasjon"
         beregning:
           $ref: "#/components/schemas/ArrangorflateBeregning"
-        betalingsinformasjon:
-          $ref: "#/components/schemas/Betalingsinformasjon"
         periode:
           $ref: "#/components/schemas/Periode"
         type:
@@ -1294,7 +1294,7 @@ components:
         linjer:
           type: array
           items:
-            $ref: "#/components/schemas/ArrangorUtbetalingLinje"
+            $ref: "#/components/schemas/ArrangforflateUtbetalingLinje"
         advarsler:
           type: array
           items:

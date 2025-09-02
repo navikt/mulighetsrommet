@@ -6,13 +6,11 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -97,16 +95,16 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             antallManedsverk = 1.0,
             sats = 34,
         ),
-        betalingsinformasjon = Utbetaling.Betalingsinformasjon(
+        betalingsinformasjon = ArrangorflateBetalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
             kid = null,
         ),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         type = UtbetalingType.INNSENDING.toDto(),
         linjer = listOf(
-            ArrangorUtbetalingLinje(
+            ArrangforflateUtbetalingLinje(
                 id = UUID.randomUUID(),
-                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                tilsagn = ArrangorflateTilsagnSummary(
                     id = UUID.randomUUID(),
                     bestillingsnummer = "A-1-1",
                 ),
@@ -114,9 +112,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 belop = 99,
                 statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
             ),
-            ArrangorUtbetalingLinje(
+            ArrangforflateUtbetalingLinje(
                 id = UUID.randomUUID(),
-                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                tilsagn = ArrangorflateTilsagnSummary(
                     id = UUID.randomUUID(),
                     bestillingsnummer = "A-1-2",
                 ),

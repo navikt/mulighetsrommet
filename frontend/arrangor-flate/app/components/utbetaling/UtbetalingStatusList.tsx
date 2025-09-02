@@ -1,7 +1,7 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Accordion, BodyShort, Heading, Link, VStack } from "@navikt/ds-react";
 import {
-  ArrangorUtbetalingLinje,
+  ArrangforflateUtbetalingLinje,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
 } from "api-client";
@@ -54,7 +54,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
   );
 }
 
-function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangorUtbetalingLinje[] }) {
+function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangforflateUtbetalingLinje[] }) {
   const orgnr = useOrgnrFromUrl();
 
   return (

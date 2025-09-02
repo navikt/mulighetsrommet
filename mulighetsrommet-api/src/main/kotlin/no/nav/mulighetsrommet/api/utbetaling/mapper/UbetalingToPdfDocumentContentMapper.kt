@@ -1,16 +1,11 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregningDeltakelse
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.TableBlock
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 
 object UbetalingToPdfDocumentContentMapper {
@@ -52,8 +47,9 @@ object UbetalingToPdfDocumentContentMapper {
             is ArrangorflateBeregning.Fri -> Unit
 
             is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> {
-                require(utbetaling.beregning.deltakelser.all { it is ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed })
-                val casted = utbetaling.beregning.deltakelser.map { it as ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed }
+                val casted = utbetaling.beregning.deltakelser.map {
+                    it as ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed
+                }
                 addDeltakelsesmengderSection(casted)
             }
 
@@ -135,6 +131,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
                         Format.NOK,
                     )
                 }
+
                 is ArrangorflateBeregning.PrisPerManedsverk -> {
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
                     entry(
@@ -143,6 +140,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
                         Format.NOK,
                     )
                 }
+
                 is ArrangorflateBeregning.PrisPerUkesverk -> {
                     entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
                     entry(
@@ -163,7 +161,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
 }
 
 private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
-    betalingsinformasjon: Utbetaling.Betalingsinformasjon,
+    betalingsinformasjon: ArrangorflateBetalingsinformasjon,
 ) {
     section("Betalingsinformasjon") {
         descriptionList {

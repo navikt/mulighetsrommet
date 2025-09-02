@@ -5,12 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.utbetaling.Person
-import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -32,12 +33,18 @@ data class ArrangorflateUtbetalingDto(
     val tiltakstype: ArrangorflateTiltakstype,
     val gjennomforing: ArrangorflateGjennomforingInfo,
     val arrangor: ArrangorflateArrangor,
+    val betalingsinformasjon: ArrangorflateBetalingsinformasjon,
     val beregning: ArrangorflateBeregning,
-    val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val periode: Periode,
     val type: UtbetalingTypeDto,
-    val linjer: List<ArrangorUtbetalingLinje>,
+    val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
+)
+
+@Serializable
+data class ArrangorflateBetalingsinformasjon(
+    val kontonummer: Kontonummer?,
+    val kid: Kid?,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -187,3 +194,14 @@ data class ArrangorflatePerson(
         )
     }
 }
+
+@Serializable
+data class ArrangforflateUtbetalingLinje(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val tilsagn: ArrangorflateTilsagnSummary,
+    val status: DelutbetalingStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val statusSistOppdatert: LocalDateTime?,
+    val belop: Int,
+)
