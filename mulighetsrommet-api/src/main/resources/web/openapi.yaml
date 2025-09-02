@@ -389,7 +389,7 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/gjennomforing/{id}/handlinger:
+  /api/v1/intern/gjennomforinger/{id}/handlinger:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:

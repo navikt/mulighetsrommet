@@ -1,6 +1,7 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
   AvtaleDto,
+  AvtaleHandlinger,
   AvtaltSatsDto,
   EndringshistorikkEntry,
   PaginertAvtale,
@@ -17,6 +18,17 @@ export const avtaleHandlers = [
         beskrivelse: "Fast sats per tiltaksplass per måned",
       },
     ]);
+  }),
+
+  http.get<PathParams, AvtaleHandlinger>("*/api/v1/intern/avtaler/:id/handlinger", () => {
+    return HttpResponse.json({
+      rediger: true,
+      avbryt: true,
+      opprettGjennomforing: true,
+      dupliser: true,
+      registrerOpsjon: true,
+      oppdaterPris: true,
+    });
   }),
 
   http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/avtaler", ({ request }) => {

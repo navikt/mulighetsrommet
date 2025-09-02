@@ -4,6 +4,7 @@ import {
   PaginertGjennomforing,
   GjennomforingDto,
   GjennomforingDeltakerSummary,
+  GjennomforingHandlinger,
 } from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
@@ -83,6 +84,24 @@ export const gjennomforingHandlers = [
   http.put<{ id: string }, number>("*/api/v1/intern/gjennomforinger/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
+
+  http.get<PathParams, GjennomforingHandlinger>(
+    "*/api/v1/intern/gjennomforinger/:id/handlinger",
+    () => {
+      return HttpResponse.json({
+        publiser: true,
+        rediger: true,
+        avbryt: true,
+        dupliser: true,
+        endreApenForPamelding: true,
+        registrerStengtHosArrangor: true,
+        opprettTilsagn: true,
+        opprettEkstratilsagn: true,
+        opprettTilsagnForInvesteringer: true,
+        opprettKorreksjonPaUtbetaling: true,
+      });
+    },
+  ),
 
   http.put<{ id: string }, number>(
     "*/api/v1/intern/gjennomforinger/:id/tilgjengelig-for-veileder",
