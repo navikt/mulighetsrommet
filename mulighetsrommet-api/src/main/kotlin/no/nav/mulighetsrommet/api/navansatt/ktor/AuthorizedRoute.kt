@@ -39,7 +39,7 @@ fun Route.authorize(
 
 private val AuthorizedRolesKey = AttributeKey<RequiredRoles>("AuthorizedRolesKey")
 
-private class NavAnsattAuthorizationRouteSelector(val roller: RequiredRoles) : RouteSelector() {
+class NavAnsattAuthorizationRouteSelector(val roller: RequiredRoles) : RouteSelector() {
     override suspend fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
         return RouteSelectorEvaluation.Transparent
     }

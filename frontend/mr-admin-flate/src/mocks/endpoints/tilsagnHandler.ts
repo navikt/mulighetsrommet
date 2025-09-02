@@ -1,48 +1,53 @@
+import { GetForhandsgodkjenteSatserResponse } from "@mr/api-client-v2";
+import { http, HttpResponse, PathParams } from "msw";
+import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
+import { v4 } from "uuid";
+import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import {
-  Besluttelse,
-  DataDrivenTableDto,
-  DataElementMathOperatorType,
-  DataElementTextFormat,
-  GetForhandsgodkjenteSatserResponse,
-  LabeledDataElementType,
-  TilsagnAvvisningAarsak,
+  TotrinnskontrollDtoBesluttet,
+  TotrinnskontrollDtoTilBeslutning,
+  TilsagnStatusAarsak,
   TilsagnBeregningDto,
   TilsagnBeregningType,
   TilsagnDetaljerDto,
   TilsagnDto,
   TilsagnRequest,
   TilsagnStatus,
-  TilsagnTilAnnulleringAarsak,
   TilsagnType,
-  TotrinnskontrollBesluttetDto,
-  TotrinnskontrollTilBeslutningDto,
-} from "@mr/api-client-v2";
-import { http, HttpResponse, PathParams } from "msw";
-import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
-import { v4 } from "uuid";
-import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
+  DataDrivenTableDto,
+  LabeledDataElementType,
+  DataElementTextFormat,
+  DataElementMathOperatorType,
+  Besluttelse,
+} from "@tiltaksadministrasjon/api-client";
 
 export const tilsagnHandlers = [
-  http.put<PathParams, TilsagnRequest>(
-    "*/api/v1/intern/gjennomforinger/:gjennomforingId/tilsagn",
-    async ({ request }) => {
-      const body = await request.json();
-      return HttpResponse.json(body);
-    },
-  ),
-  http.get<PathParams, any, DataDrivenTableDto>("*/api/v1/intern/tilsagn", async () => {
+  http.get<PathParams, any, DataDrivenTableDto>("*/api/tiltaksadministrasjon/tilsagn", async () => {
     return HttpResponse.json(mockTilsagnTable);
   }),
-  http.get<PathParams, any, TilsagnRequest>("*/api/v1/intern/tilsagn/defaults", async () => {
-    return HttpResponse.json({
-      type: TilsagnType.TILSAGN,
-      gjennomforingId: mockGjennomforinger[0].id,
-      id: v4(),
-      beregning: { type: TilsagnBeregningType.FRI },
-    });
-  }),
+  http.get<PathParams, any, TilsagnRequest>(
+    "*/api/tiltaksadministrasjon/tilsagn/defaults",
+    async () => {
+      return HttpResponse.json({
+        id: v4(),
+        gjennomforingId: mockGjennomforinger[0].id,
+        type: TilsagnType.TILSAGN,
+        periodeStart: null,
+        periodeSlutt: null,
+        beregning: {
+          type: TilsagnBeregningType.FRI,
+          antallPlasser: null,
+          prisbetingelser: null,
+          antallTimerOppfolgingPerDeltaker: null,
+          linjer: [],
+        },
+        kostnadssted: null,
+        kommentar: null,
+      });
+    },
+  ),
   http.get<PathParams, any, TilsagnDetaljerDto>(
-    "*/api/v1/intern/tilsagn/:tilsagnId",
+    "*/api/tiltaksadministrasjon/tilsagn/:tilsagnId",
     async ({ params }) => {
       const { tilsagnId } = params;
 
@@ -55,12 +60,15 @@ export const tilsagnHandlers = [
     },
   ),
 
-  http.post<PathParams, any, string>("*/api/v1/intern/tilsagn/:tilsagnId/beslutt", async () => {
-    return HttpResponse.text("OK");
-  }),
+  http.post<PathParams, any, string>(
+    "*/api/tiltaksadministrasjon/tilsagn/:tilsagnId/beslutt",
+    async () => {
+      return HttpResponse.text("OK");
+    },
+  ),
 
   http.get<PathParams, string, GetForhandsgodkjenteSatserResponse>(
-    "*/api/v1/intern/prismodell/satser",
+    "*/api/tiltaksadministrasjon/prismodell/satser",
     () => {
       return HttpResponse.json([
         {
@@ -79,70 +87,69 @@ export const tilsagnHandlers = [
     },
   ),
 
-  http.delete<PathParams, any, string>("*/api/v1/intern/tilsagn/:id", () => {
+  http.delete<PathParams, any, string>("*/api/tiltaksadministrasjon/tilsagn/:id", () => {
     return HttpResponse.text("Ok");
   }),
 ];
 
-const tilBeslutning: TotrinnskontrollTilBeslutningDto = {
-  type: "TIL_BESLUTNING",
+const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
   behandletAv: {
-    type: "NAV_ANSATT",
+    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Per Haraldsen",
     navIdent: "P654321",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
   kanBesluttes: true,
+  forklaring: null,
 };
 
-const godkjent: TotrinnskontrollBesluttetDto = {
-  type: "BESLUTTET",
+const godkjent: TotrinnskontrollDtoBesluttet = {
   besluttetAv: {
-    type: "NAV_ANSATT",
+    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Per Haraldsen",
     navIdent: "P654321",
   },
   behandletAv: {
-    type: "NAV_ANSATT",
+    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Bertil Bengtson",
     navIdent: "B123456",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
-  kanBesluttes: false,
   besluttelse: Besluttelse.GODKJENT,
+  forklaring: null,
 };
 
-const avvist: TotrinnskontrollBesluttetDto = {
-  type: "BESLUTTET",
+const avvist: TotrinnskontrollDtoBesluttet = {
   besluttetAv: {
-    type: "NAV_ANSATT",
+    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Per Haraldsen",
     navIdent: "P654321",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   behandletAv: {
-    type: "NAV_ANSATT",
+    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Bertil Bengtson",
     navIdent: "B123456",
   },
   besluttetTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
-  kanBesluttes: false,
   besluttelse: Besluttelse.AVVIST,
+  forklaring: null,
 };
 
 const beregning: TilsagnBeregningDto = {
   belop: 12207450,
   prismodell: {
+    header: null,
     entries: [
       {
         type: LabeledDataElementType.INLINE,
         label: "Prismodell",
         value: {
-          type: "text",
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
           value: "Fast sats per tiltaksplass per måned",
           format: null,
         },
@@ -150,28 +157,66 @@ const beregning: TilsagnBeregningDto = {
       {
         type: LabeledDataElementType.INLINE,
         label: "Antall plasser",
-        value: { type: "text", value: "97", format: DataElementTextFormat.NUMBER },
+        value: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "97",
+          format: DataElementTextFormat.NUMBER,
+        },
       },
       {
         type: LabeledDataElementType.INLINE,
         label: "Sats",
-        value: { type: "text", value: "20975", format: DataElementTextFormat.NOK },
+        value: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "20975",
+          format: DataElementTextFormat.NOK,
+        },
       },
     ],
   },
   regnestykke: {
     expression: [
-      { type: "text", value: "97", format: DataElementTextFormat.NUMBER },
-      { type: "text", value: "plasser", format: null },
-      { type: "math-operator", operator: DataElementMathOperatorType.MULTIPLY },
-      { type: "text", value: "20975", format: DataElementTextFormat.NOK },
-      { type: "text", value: "per tiltaksplass per måned", format: null },
-      { type: "math-operator", operator: DataElementMathOperatorType.MULTIPLY },
-      { type: "text", value: "6.0", format: DataElementTextFormat.NUMBER },
-      { type: "text", value: "måneder", format: null },
-      { type: "math-operator", operator: DataElementMathOperatorType.EQUALS },
-      { type: "text", value: "12207450", format: DataElementTextFormat.NOK },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.Text",
+        value: "97",
+        format: DataElementTextFormat.NUMBER,
+      },
+      { type: "no.nav.mulighetsrommet.model.DataElement.Text", value: "plasser", format: null },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
+        operator: DataElementMathOperatorType.MULTIPLY,
+      },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.Text",
+        value: "20975",
+        format: DataElementTextFormat.NOK,
+      },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.Text",
+        value: "per tiltaksplass per måned",
+        format: null,
+      },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
+        operator: DataElementMathOperatorType.MULTIPLY,
+      },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.Text",
+        value: "6.0",
+        format: DataElementTextFormat.NUMBER,
+      },
+      { type: "no.nav.mulighetsrommet.model.DataElement.Text", value: "måneder", format: null },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
+        operator: DataElementMathOperatorType.EQUALS,
+      },
+      {
+        type: "no.nav.mulighetsrommet.model.DataElement.Text",
+        value: "12207450",
+        format: DataElementTextFormat.NOK,
+      },
     ],
+    breakdown: null,
   },
 };
 
@@ -182,6 +227,8 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         tilsagn,
         beregning,
         opprettelse: tilBeslutning,
+        annullering: null,
+        tilOppgjor: null,
       };
 
     case TilsagnStatus.GODKJENT:
@@ -189,6 +236,8 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         tilsagn,
         beregning,
         opprettelse: godkjent,
+        annullering: null,
+        tilOppgjor: null,
       };
 
     case TilsagnStatus.RETURNERT:
@@ -197,9 +246,11 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         beregning,
         opprettelse: {
           ...avvist,
-          aarsaker: [TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER, TilsagnAvvisningAarsak.ANNET],
+          aarsaker: [TilsagnStatusAarsak.FEIL_ANTALL_PLASSER, TilsagnStatusAarsak.ANNET],
           forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
         },
+        annullering: null,
+        tilOppgjor: null,
       };
 
     case TilsagnStatus.TIL_ANNULLERING:
@@ -209,12 +260,10 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         opprettelse: godkjent,
         annullering: {
           ...tilBeslutning,
-          aarsaker: [
-            TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-            TilsagnTilAnnulleringAarsak.ANNET,
-          ],
+          aarsaker: [TilsagnStatusAarsak.FEIL_REGISTRERING, TilsagnStatusAarsak.ANNET],
           forklaring: "Du må fikse det",
         },
+        tilOppgjor: null,
       };
 
     case TilsagnStatus.ANNULLERT:
@@ -224,12 +273,10 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         opprettelse: godkjent,
         annullering: {
           ...godkjent,
-          aarsaker: [
-            TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-            TilsagnTilAnnulleringAarsak.ANNET,
-          ],
+          aarsaker: [TilsagnStatusAarsak.FEIL_REGISTRERING, TilsagnStatusAarsak.ANNET],
           forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
         },
+        tilOppgjor: null,
       };
 
     case TilsagnStatus.TIL_OPPGJOR:
@@ -237,6 +284,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         tilsagn,
         beregning,
         opprettelse: godkjent,
+        annullering: null,
         tilOppgjor: tilBeslutning,
       };
 
@@ -245,6 +293,7 @@ function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
         beregning,
         tilsagn,
         opprettelse: godkjent,
+        annullering: null,
         tilOppgjor: godkjent,
       };
   }

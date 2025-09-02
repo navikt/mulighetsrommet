@@ -21,6 +21,9 @@ tasks.register<JavaExec>("generateOpenApi") {
 
     // Specs to generate (name of spec -> file output path)
     args = listOf(
+        "tiltaksadministrasjon",
+        "../frontend/tiltaksadministrasjon-api-client/openapi.yaml",
+
         "veilederflate",
         "../frontend/mulighetsrommet-veileder-flate/openapi.yaml",
 

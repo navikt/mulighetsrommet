@@ -1,19 +1,43 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
+import io.github.smiley4.ktoropenapi.get
+import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.tilsagnRoutesGetAll() {
     val db: ApiDatabase by inject()
 
-    get {
+    get({
+        description = "Hent alle tilsagn for gitt gjennomføring"
+        tags = setOf("Tilsagn")
+        operationId = "getTilsagnTableData"
+        request {
+            queryParameterUuid("gjennomforingId")
+            queryParameter<List<TilsagnStatus>>("statuser") {
+                explode = true
+            }
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Tilsagn i tabellformat"
+                body<DataDrivenTableDto>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
         val gjennomforingId: UUID? by call.queryParameters
         val status = call.queryParameters.getAll("statuser")
             ?.map { TilsagnStatus.valueOf(it) }

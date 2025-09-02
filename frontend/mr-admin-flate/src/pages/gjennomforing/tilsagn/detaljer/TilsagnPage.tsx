@@ -9,18 +9,13 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
-import { navnEllerIdent, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { Besluttelse, FieldError, Rolle, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
 import {
-  AarsakerOgForklaringRequest,
-  Besluttelse,
-  BesluttTotrinnskontrollRequest,
-  FieldError,
-  Rolle,
-  TilsagnAvvisningAarsak,
-  TilsagnStatus,
-  TilsagnTilAnnulleringAarsak,
-  ValidationError,
-} from "@mr/api-client-v2";
+  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
+  TilsagnStatusAarsak,
+} from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import {
   EraserIcon,
@@ -40,6 +35,7 @@ import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/Tilsagn
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { getAgentDisplayName, isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 
 function useTilsagnDetaljer(gjennomforingId: string, tilsagnId: string) {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
@@ -49,10 +45,10 @@ function useTilsagnDetaljer(gjennomforingId: string, tilsagnId: string) {
 }
 
 const tilAnnuleringAarsaker = [
-  TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
-  TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING,
-  TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES,
-  TilsagnTilAnnulleringAarsak.ANNET,
+  TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
+  TilsagnStatusAarsak.FEIL_REGISTRERING,
+  TilsagnStatusAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES,
+  TilsagnStatusAarsak.ANNET,
 ].map((aarsak) => ({
   value: aarsak,
   label: tilsagnAarsakTilTekst(aarsak),
@@ -100,7 +96,7 @@ export function TilsagnPage() {
     navigate(-1);
   }
 
-  function besluttTilsagn(request: BesluttTotrinnskontrollRequest) {
+  function besluttTilsagn(request: BesluttTotrinnskontrollRequestTilsagnStatusAarsak) {
     besluttMutation.mutate(
       {
         id: tilsagn.id,
@@ -115,7 +111,7 @@ export function TilsagnPage() {
     );
   }
 
-  function tilAnnullering(request: AarsakerOgForklaringRequest) {
+  function tilAnnullering(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
     tilAnnulleringMutation.mutate(
       {
         id: tilsagn.id,
@@ -129,7 +125,7 @@ export function TilsagnPage() {
     );
   }
 
-  function upsertTilOppgjor(request: AarsakerOgForklaringRequest) {
+  function upsertTilOppgjor(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
     tilOppgjorMutation.mutate(
       {
         id: tilsagn.id,
@@ -220,61 +216,59 @@ export function TilsagnPage() {
         <VStack gap="6" padding="4" className="bg-white">
           <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
           <ToTrinnsOpprettelsesForklaring opprettelse={opprettelse} />
-          {annullering?.type === "TIL_BESLUTNING" && (
+          {isTilBeslutning(annullering) && (
             <AarsakerOgForklaring
               heading="Tilsagnet annulleres"
               tekster={[
-                `${navnEllerIdent(annullering.behandletAv)} sendte tilsagnet til annullering den ${formaterDato(
+                `${getAgentDisplayName(annullering.behandletAv)} sendte tilsagnet til annullering den ${formaterDato(
                   annullering.behandletTidspunkt,
                 )}.`,
               ]}
               aarsaker={annullering.aarsaker.map((aarsak) =>
-                tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
               )}
               forklaring={annullering.forklaring}
             />
           )}
-          {annullering?.type === "BESLUTTET" &&
-            annullering.besluttelse === "AVVIST" &&
-            !tilOppgjor && (
-              <AarsakerOgForklaring
-                heading="Annullering avvist"
-                tekster={[
-                  `${navnEllerIdent(annullering.besluttetAv)} avviste annullering den ${formaterDato(
-                    annullering.behandletTidspunkt,
-                  )}.`,
-                ]}
-                aarsaker={annullering.aarsaker.map((aarsak) =>
-                  tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
-                )}
-                forklaring={annullering.forklaring}
-              />
-            )}
-          {tilOppgjor?.type === "TIL_BESLUTNING" && (
+          {isBesluttet(annullering) && annullering.besluttelse === "AVVIST" && !tilOppgjor && (
+            <AarsakerOgForklaring
+              heading="Annullering avvist"
+              tekster={[
+                `${getAgentDisplayName(annullering.besluttetAv)} avviste annullering den ${formaterDato(
+                  annullering.behandletTidspunkt,
+                )}.`,
+              ]}
+              aarsaker={annullering.aarsaker.map((aarsak) =>
+                tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
+              )}
+              forklaring={annullering.forklaring}
+            />
+          )}
+          {isTilBeslutning(tilOppgjor) && (
             <AarsakerOgForklaring
               heading="Tilsagnet gjøres opp"
               ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
               tekster={[
-                `${navnEllerIdent(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
+                `${getAgentDisplayName(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
                   tilOppgjor.behandletTidspunkt,
                 )}.`,
               ]}
               aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
-                tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
               )}
               forklaring={tilOppgjor.forklaring}
             />
           )}
-          {tilOppgjor?.type === "BESLUTTET" && tilOppgjor.besluttelse === "AVVIST" && (
+          {isBesluttet(tilOppgjor) && tilOppgjor.besluttelse === "AVVIST" && (
             <AarsakerOgForklaring
               heading="Oppgjør avvist"
               tekster={[
-                `${navnEllerIdent(tilOppgjor.besluttetAv)} avviste oppgjør den ${formaterDato(
+                `${getAgentDisplayName(tilOppgjor.besluttetAv)} avviste oppgjør den ${formaterDato(
                   tilOppgjor.behandletTidspunkt,
                 )}.`,
               ]}
               aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
-                tilsagnAarsakTilTekst(aarsak as TilsagnTilAnnulleringAarsak),
+                tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
               )}
               forklaring={tilOppgjor.forklaring}
             />
@@ -289,7 +283,7 @@ export function TilsagnPage() {
               meny={handlingsMeny}
             />
             <HStack gap="2" justify={"end"}>
-              {opprettelse.type === "TIL_BESLUTNING" && (
+              {isTilBeslutning(opprettelse) && (
                 <>
                   <Button
                     variant="secondary"
@@ -316,7 +310,7 @@ export function TilsagnPage() {
                   )}
                 </>
               )}
-              {annullering?.type === "TIL_BESLUTNING" && (
+              {isTilBeslutning(annullering) && (
                 <>
                   <Button
                     variant="secondary"
@@ -344,7 +338,7 @@ export function TilsagnPage() {
                   )}
                 </>
               )}
-              {tilOppgjor?.type === "TIL_BESLUTNING" && (
+              {isTilBeslutning(tilOppgjor) && (
                 <>
                   <Button
                     variant="secondary"
@@ -373,7 +367,7 @@ export function TilsagnPage() {
                 </>
               )}
             </HStack>
-            <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
+            <AarsakerOgForklaringModal<TilsagnStatusAarsak>
               aarsaker={tilAnnuleringAarsaker}
               header="Annuller tilsagn med forklaring"
               buttonLabel="Send til godkjenning"
@@ -382,13 +376,13 @@ export function TilsagnPage() {
               onClose={() => setTilAnnulleringModalOpen(false)}
               onConfirm={({ aarsaker, forklaring }) => tilAnnullering({ aarsaker, forklaring })}
             />
-            <AarsakerOgForklaringModal<TilsagnTilAnnulleringAarsak>
+            <AarsakerOgForklaringModal<TilsagnStatusAarsak>
               aarsaker={[
                 {
-                  value: TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
+                  value: TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
                   label: "Arrangør har ikke sendt krav",
                 },
-                { value: TilsagnTilAnnulleringAarsak.ANNET, label: "Annet" },
+                { value: TilsagnStatusAarsak.ANNET, label: "Annet" },
               ]}
               header="Gjør opp tilsagn med forklaring"
               ingress={
@@ -399,19 +393,19 @@ export function TilsagnPage() {
               onClose={() => setTilOppgjorModalOpen(false)}
               onConfirm={({ aarsaker, forklaring }) => upsertTilOppgjor({ aarsaker, forklaring })}
             />
-            <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
+            <AarsakerOgForklaringModal<TilsagnStatusAarsak>
               aarsaker={[
                 {
-                  value: TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER,
+                  value: TilsagnStatusAarsak.FEIL_ANTALL_PLASSER,
                   label: "Feil i antall plasser",
                 },
                 {
-                  value: TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED,
+                  value: TilsagnStatusAarsak.FEIL_KOSTNADSSTED,
                   label: "Feil kostnadssted",
                 },
-                { value: TilsagnAvvisningAarsak.FEIL_PERIODE, label: "Feil periode" },
-                { value: TilsagnAvvisningAarsak.FEIL_BELOP, label: "Feil beløp" },
-                { value: TilsagnAvvisningAarsak.ANNET, label: "Annet" },
+                { value: TilsagnStatusAarsak.FEIL_PERIODE, label: "Feil periode" },
+                { value: TilsagnStatusAarsak.FEIL_BELOP, label: "Feil beløp" },
+                { value: TilsagnStatusAarsak.ANNET, label: "Annet" },
               ]}
               header="Send i retur med forklaring"
               buttonLabel="Send i retur"
@@ -427,8 +421,8 @@ export function TilsagnPage() {
                 setAvvisModalOpen(false);
               }}
             />
-            <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-              aarsaker={[{ value: TilsagnAvvisningAarsak.ANNET, label: "Annet" }]}
+            <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+              aarsaker={[{ value: TilsagnStatusAarsak.ANNET, label: "Annet" }]}
               header="Avslå annullering med forklaring"
               buttonLabel="Avslå annullering"
               open={avvisAnnulleringModalOpen}
@@ -442,8 +436,8 @@ export function TilsagnPage() {
                 });
               }}
             />
-            <AarsakerOgForklaringModal<TilsagnAvvisningAarsak>
-              aarsaker={[{ value: TilsagnAvvisningAarsak.ANNET, label: "Annet" }]}
+            <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+              aarsaker={[{ value: TilsagnStatusAarsak.ANNET, label: "Annet" }]}
               header="Avslå oppgjør med forklaring"
               buttonLabel="Avslå oppgjør"
               open={avvisOppgjorModalOpen}
@@ -452,7 +446,8 @@ export function TilsagnPage() {
               onConfirm={({ aarsaker, forklaring }) => {
                 besluttTilsagn({
                   besluttelse: Besluttelse.AVVIST,
-                  aarsaker,
+                  // TODO: fix types
+                  aarsaker: aarsaker as unknown as TilsagnStatusAarsak[],
                   forklaring,
                 });
               }}

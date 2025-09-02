@@ -1,4 +1,4 @@
-import { TilsagnService } from "@mr/api-client-v2";
+import { TilsagnService, TilsagnStatusAarsak } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "../QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
@@ -10,7 +10,7 @@ export function useTilsagnTilOppgjor() {
       forklaring,
     }: {
       id: string;
-      aarsaker: string[];
+      aarsaker: TilsagnStatusAarsak[];
       forklaring: string | null;
     }) =>
       TilsagnService.gjorOpp({

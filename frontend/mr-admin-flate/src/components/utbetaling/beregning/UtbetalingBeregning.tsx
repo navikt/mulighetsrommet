@@ -6,6 +6,7 @@ import {
   UtbetalingBeregningPrisPerManedsverk,
   UtbetalingBeregningPrisPerUkesverk,
 } from "@mr/api-client-v2";
+import { DataDrivenTableDto } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
 
@@ -17,7 +18,7 @@ export default function UtbetalingBeregning({ beregning }: Props) {
   return (
     <VStack gap="2">
       {beregning.deltakerTableData.rows.length > 0 && (
-        <DataDrivenTable data={beregning.deltakerTableData} />
+        <DataDrivenTable data={beregning.deltakerTableData as unknown as DataDrivenTableDto} />
       )}
       <Regnestykke beregning={beregning} />
     </VStack>

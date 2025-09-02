@@ -1,4 +1,4 @@
-import { TilsagnBeregningType } from "@mr/api-client-v2";
+import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
 
 export const tilsagnTekster = {
   kommentar: {

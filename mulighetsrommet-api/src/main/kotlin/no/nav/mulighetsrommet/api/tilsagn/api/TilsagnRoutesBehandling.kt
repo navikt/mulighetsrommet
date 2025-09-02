@@ -2,6 +2,10 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import arrow.core.flatMap
 import arrow.core.right
+import io.github.smiley4.ktoropenapi.config.RequestConfig
+import io.github.smiley4.ktoropenapi.delete
+import io.github.smiley4.ktoropenapi.post
+import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -12,6 +16,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklarin
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -20,6 +25,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -27,17 +33,51 @@ fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()
 
     authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
-        put {
+        put({
+            description = "Opprett tilsagn"
+            tags = setOf("Tilsagn")
+            operationId = "opprettTilsagn"
+            request {
+                body<TilsagnRequest>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Opprettet tilsagn"
+                    body<TilsagnDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<TilsagnRequest>()
             val navIdent = getNavIdent()
 
             val result = service.upsert(request, navIdent)
                 .mapLeft { ValidationError(errors = it) }
+                .map { TilsagnDto.fromTilsagn(it) }
 
             call.respondWithStatusResponse(result)
         }
 
-        post("/{id}/til-annullering") {
+        post("/{id}/til-annullering", {
+            tags = setOf("Tilsagn")
+            operationId = "tilAnnullering"
+            request {
+                pathParameterUuid("id")
+                body<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilsanget ble sendt til annullering"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
@@ -50,7 +90,23 @@ fun Route.tilsagnRoutesBehandling() {
                 }
         }
 
-        post("/{id}/gjor-opp") {
+        post("/{id}/gjor-opp", {
+            tags = setOf("Tilsagn")
+            operationId = "gjorOpp"
+            request {
+                pathParameterUuid("id")
+                body<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilsanget ble sendt til oppgjør"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
@@ -63,7 +119,23 @@ fun Route.tilsagnRoutesBehandling() {
                 }
         }
 
-        delete("/{id}") {
+        delete("/{id}", {
+            description = "Slett tilsagn"
+            tags = setOf("Tilsagn")
+            operationId = "slettTilsagn"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilsagn ble slettet"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
@@ -76,7 +148,23 @@ fun Route.tilsagnRoutesBehandling() {
     }
 
     authorize(Rolle.BESLUTTER_TILSAGN) {
-        post("/{id}/beslutt") {
+        post("/{id}/beslutt", {
+            tags = setOf("Tilsagn")
+            operationId = "besluttTilsagn"
+            request {
+                pathParameterUuid("id")
+                body<BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilsagn ble besluttet"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val request = call.receive<BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>>()
             val navIdent = getNavIdent()

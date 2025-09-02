@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.plugins
 
 import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.OutputFormat
+import io.github.smiley4.ktoropenapi.config.RequestConfig
 import io.github.smiley4.ktoropenapi.config.SchemaOverwriteModule
 import io.github.smiley4.schemakenerator.core.CoreSteps.handleNameAnnotation
 import io.github.smiley4.schemakenerator.core.data.TypeData
@@ -16,10 +17,27 @@ import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.mergePropertyAttri
 import io.github.smiley4.schemakenerator.swagger.TitleBuilder
 import io.ktor.server.application.*
 import io.swagger.v3.oas.models.media.Schema
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattAuthorizationRouteSelector
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import no.nav.mulighetsrommet.model.ProblemDetail
+
+fun RequestConfig.pathParameterUuid(name: String) {
+    val uuidSchema = Schema<Any>().also {
+        it.types = setOf("string")
+        it.format = "uuid"
+    }
+    pathParameter(name, uuidSchema)
+}
+
+fun RequestConfig.queryParameterUuid(name: String) {
+    val uuidSchema = Schema<Any>().also {
+        it.types = setOf("string")
+        it.format = "uuid"
+    }
+    queryParameter(name, uuidSchema)
+}
 
 fun Application.configureOpenApiGenerator() {
     install(OpenApi) {
@@ -34,6 +52,10 @@ fun Application.configureOpenApiGenerator() {
             OpenApiSpec.match(url)?.specName
                 ?: throw IllegalStateException("Failed to resolve OpenApiSpec for $url")
         }
+
+        ignoredRouteSelectors = setOf(
+            NavAnsattAuthorizationRouteSelector::class,
+        )
 
         schemas {
             /**
@@ -88,12 +110,14 @@ fun Application.configureOpenApiGenerator() {
  */
 private val schemaPathBuilder = { type: TypeData, types: Map<TypeId, TypeData> ->
     val fullPath = TitleBuilder.BUILDER_OPENAPI_FULL(type, types)
-    fullPath
-        .split(".")
-        .filter { !it.toCharArray().first().isLowerCase() && it != "Companion" }
-        .joinToString(".")
-        .ifEmpty { fullPath }
+    fullPath.split("_").joinToString("_") { getSimplClassPath(it) }
 }
+
+private fun getSimplClassPath(path: String): String = path
+    .split(".")
+    .filter { !it.toCharArray().first().isLowerCase() && it != "Companion" }
+    .joinToString(".")
+    .ifEmpty { path }
 
 /**
  * Noen modeller trenger litt hjelp til å representeres riktig i OpenAPI.

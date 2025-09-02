@@ -15,11 +15,13 @@ import {
 } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
+import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
+import { isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
   readOnly?: boolean;
@@ -40,8 +42,7 @@ export function UtbetalingLinjeRow({
 }: Props) {
   const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>();
-  const skalApneRad =
-    filterBelopErrors(errors).length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET");
+  const skalApneRad = filterBelopErrors(errors).length > 0 || isBesluttet(linje.opprettelse);
   const [openRow, setOpenRow] = useState(skalApneRad);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
 
@@ -68,7 +69,7 @@ export function UtbetalingLinjeRow({
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
         <VStack gap="4">
-          {linje.opprettelse?.type === "BESLUTTET" && linje.opprettelse.besluttelse === "AVVIST" ? (
+          {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
             <VStack>
               {linje.opprettelse.aarsaker.includes(DelutbetalingReturnertAarsak.PROPAGERT_RETUR) ? (
                 <Alert size="medium" variant="warning">
@@ -102,7 +103,10 @@ export function UtbetalingLinjeRow({
           <HStack gap="4" justify="space-between">
             <TilsagnInformasjon tilsagn={linje.tilsagn} />
             {linje.opprettelse && (
-              <BehandlerInformasjon opprettelse={linje.opprettelse} status={linje.status} />
+              <BehandlerInformasjon
+                opprettelse={linje.opprettelse as unknown as TotrinnskontrollDto}
+                status={linje.status}
+              />
             )}
           </HStack>
         </VStack>
