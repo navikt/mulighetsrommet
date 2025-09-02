@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.flatMap
 import io.ktor.http.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -263,9 +264,10 @@ fun Route.avtaleRoutes() {
 
         get("{id}/handlinger") {
             val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
 
             avtaler.get(id)
-                ?.let { call.respond(avtaler.handlinger(it)) }
+                ?.let { call.respond(avtaler.handlinger(it, navIdent)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 

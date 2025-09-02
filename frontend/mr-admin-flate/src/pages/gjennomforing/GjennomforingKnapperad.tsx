@@ -1,6 +1,5 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
@@ -10,10 +9,8 @@ import {
   AvbrytGjennomforingAarsak,
   FieldError,
   GjennomforingDto,
-  GjennomforingStatus,
   NavAnsatt,
   Opphav,
-  Rolle,
   ValidationError,
 } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -26,6 +23,7 @@ import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useAdminGjennomforingById";
 
 interface Props {
   ansatt: NavAnsatt;
@@ -35,6 +33,7 @@ interface Props {
 export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
@@ -83,69 +82,69 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   return (
     <KnapperadContainer>
-      <HarTilgang
-        rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}
-        condition={gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES}
-      >
+      {handlinger.publiser && (
         <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
           Publiser
         </Switch>
-      </HarTilgang>
-
+      )}
       <EndringshistorikkPopover>
         <GjennomforingEndringshistorikk id={gjennomforing.id} />
       </EndringshistorikkPopover>
-      <HarTilgang rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}>
-        <Dropdown>
-          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-            Handlinger
-          </Button>
-          <Dropdown.Menu>
-            {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
-              <>
-                <Dropdown.Menu.GroupedList>
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => {
-                      if (
-                        gjennomforing.administratorer.length > 0 &&
-                        !gjennomforing.administratorer
-                          .map((a) => a.navIdent)
-                          .includes(ansatt.navIdent)
-                      ) {
-                        advarselModal.current?.showModal();
-                      } else {
-                        navigate("skjema");
-                      }
-                    }}
-                  >
-                    Rediger gjennomføring
-                  </Dropdown.Menu.GroupedList.Item>
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => apentForPameldingModalRef.current?.showModal()}
-                  >
-                    {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
-                  </Dropdown.Menu.GroupedList.Item>
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => registrerStengtModalRef.current?.showModal()}
-                  >
-                    Registrer stengt hos arrangør
-                  </Dropdown.Menu.GroupedList.Item>
-                  <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
-                    Avbryt gjennomføring
-                  </Dropdown.Menu.GroupedList.Item>
-                </Dropdown.Menu.GroupedList>
-                <Dropdown.Menu.Divider />
-              </>
+      <Dropdown>
+        <Button size="small" variant="secondary" as={Dropdown.Toggle}>
+          Handlinger
+        </Button>
+        <Dropdown.Menu>
+          <Dropdown.Menu.GroupedList>
+            {handlinger.rediger && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => {
+                  if (
+                    gjennomforing.administratorer.length > 0 &&
+                    !gjennomforing.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
+                  ) {
+                    advarselModal.current?.showModal();
+                  } else {
+                    navigate("skjema");
+                  }
+                }}
+              >
+                Rediger gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
             )}
-            <Dropdown.Menu.List>
-              <Dropdown.Menu.List.Item onClick={dupliserGjennomforing}>
-                <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
-                Dupliser
-              </Dropdown.Menu.List.Item>
-            </Dropdown.Menu.List>
-          </Dropdown.Menu>
-        </Dropdown>
-      </HarTilgang>
+            {handlinger.endreApenForPamelding && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => apentForPameldingModalRef.current?.showModal()}
+              >
+                {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.registrerStengtHosArrangor && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => registrerStengtModalRef.current?.showModal()}
+              >
+                Registrer stengt hos arrangør
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.avbryt && (
+              <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
+                Avbryt gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+          </Dropdown.Menu.GroupedList>
+          {handlinger.dupliser && (
+            <>
+              <Dropdown.Menu.Divider />
+              <Dropdown.Menu.List>
+                <Dropdown.Menu.List.Item onClick={dupliserGjennomforing}>
+                  <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
+                  Dupliser
+                </Dropdown.Menu.List.Item>
+              </Dropdown.Menu.List>
+            </>
+          )}
+        </Dropdown.Menu>
+      </Dropdown>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

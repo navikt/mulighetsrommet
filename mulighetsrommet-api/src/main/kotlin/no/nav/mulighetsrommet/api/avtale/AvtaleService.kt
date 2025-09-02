@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.*
 import arrow.core.raise.either
 import io.ktor.http.*
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -14,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
@@ -269,7 +269,10 @@ class AvtaleService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
-    fun handlinger(avtale: AvtaleDto, ansatt: NavAnsatt): AvtaleHandlinger {
+    fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): AvtaleHandlinger {
+        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+            ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
+
         val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
 
         return AvtaleHandlinger(

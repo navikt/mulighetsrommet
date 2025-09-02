@@ -8,3 +8,10 @@ export function useAdminGjennomforingById(id: string) {
     queryFn: () => GjennomforingerService.getGjennomforing({ path: { id } }),
   });
 }
+
+export function useGjennomforingHandlinger(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.gjennomforing(id),
+    queryFn: () => GjennomforingerService.getGjennomforingHandlinger({ path: { id } }),
+  });
+}

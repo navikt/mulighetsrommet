@@ -389,6 +389,23 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/gjennomforing/{id}/handlinger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Gjennomforinger
+      operationId: getGjennomforingHandlinger
+      responses:
+        200:
+          description: Gjennomforing handlinger
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GjennomforingHandlinger"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/gjennomforinger/{id}/historikk:
     get:
       tags:
@@ -2261,6 +2278,31 @@ components:
         - arenaKode
         - startDato
         - status
+
+    GjennomforingHandlinger:
+      type: object
+      properties:
+        publiser:
+          type: boolean
+        rediger:
+          type: boolean
+        avbryt:
+          type: boolean
+        dupliser:
+          type: boolean
+        endreApenForPamelding:
+          type: boolean
+        registrerStengtHosArrangor:
+          type: boolean
+        opprettTilsagn:
+          type: boolean
+        opprettEkstratilsagn:
+          type: boolean
+        opprettTilsagnForInvesteringer:
+          type: boolean
+        opprettKorreksjonPaUtbetaling:
+          type: boolean
+      required: [publiser, rediger, avbryt, dupliser, endreApenForPamelding, registrerStengtHosArrangor, opprettTilsagn, opprettEkstratilsagn, opprettTilsagnForInvesteringer, opprettKorreksjonPaUtbetaling]
 
     AvtaleHandlinger:
       type: object

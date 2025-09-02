@@ -241,6 +241,15 @@ fun Route.gjennomforingRoutes() {
 
             call.respond(summary)
         }
+
+        get("{id}/handlinger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
+
+            gjennomforinger.get(id)
+                ?.let { call.respond(gjennomforinger.handlinger(it, navIdent)) }
+                ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+        }
     }
 }
 
@@ -409,4 +418,18 @@ data class SetTilgjengligForArrangorRequest(
 data class EstimertVentetid(
     val verdi: Int,
     val enhet: String,
+)
+
+@Serializable
+data class GjennomforingHandlinger(
+    val publiser: Boolean,
+    val avbryt: Boolean,
+    val endreApenForPamelding: Boolean,
+    val registrerStengtHosArrangor: Boolean,
+    val dupliser: Boolean,
+    val rediger: Boolean,
+    val opprettTilsagn: Boolean,
+    val opprettEkstratilsagn: Boolean,
+    val opprettTilsagnForInvesteringer: Boolean,
+    val opprettKorreksjonPaUtbetaling: Boolean,
 )
