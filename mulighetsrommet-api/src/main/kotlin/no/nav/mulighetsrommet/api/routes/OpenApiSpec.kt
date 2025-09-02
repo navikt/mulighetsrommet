@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.routes
 
 enum class OpenApiSpec(val routePathPrefix: String, val specName: String) {
+    TILTAKSADMINISTRASJON("/api/tiltaksadministrasjon", "tiltaksadministrasjon"),
     VEILEDERFLATE("/api/veilederflate", "veilederflate"),
     ARRANGORFLATE("/api/arrangorflate", "arrangorflate"),
     ;

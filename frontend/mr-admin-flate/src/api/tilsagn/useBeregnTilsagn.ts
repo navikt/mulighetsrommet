@@ -1,4 +1,4 @@
-import { BeregnTilsagnRequest, BeregnTilsagnService } from "@mr/api-client-v2";
+import { BeregnTilsagnRequest, TilsagnService } from "@tiltaksadministrasjon/api-client";
 import { useApiQuery, useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "../QueryKeys";
 
@@ -7,7 +7,7 @@ export function useBeregnTilsagn(request: BeregnTilsagnRequest) {
 
   return useApiQuery({
     queryKey: QueryKeys.beregnTilsagn(debouncedSerialized),
-    queryFn: () => BeregnTilsagnService.beregnTilsagn({ body: JSON.parse(debouncedSerialized) }),
+    queryFn: () => TilsagnService.beregnTilsagn({ body: JSON.parse(debouncedSerialized) }),
     placeholderData: (prev) => prev,
   });
 }

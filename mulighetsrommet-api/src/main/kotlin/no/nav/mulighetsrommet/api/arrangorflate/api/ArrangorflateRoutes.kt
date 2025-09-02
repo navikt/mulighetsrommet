@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import io.github.smiley4.ktoropenapi.config.RequestConfig
-import io.github.smiley4.ktoropenapi.config.RequestParameterConfig
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
@@ -16,7 +14,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.utils.io.*
-import io.swagger.v3.oas.models.media.Schema
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -28,6 +25,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -524,17 +522,6 @@ fun Route.arrangorflateRoutes() {
                 }
         }
     }
-}
-
-private fun RequestConfig.pathParameterUuid(name: String, block: RequestParameterConfig.() -> Unit = {}) {
-    pathParameter(
-        name,
-        Schema<Any>().also {
-            it.types = setOf("string")
-            it.format = "uuid"
-        },
-        block,
-    )
 }
 
 private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {

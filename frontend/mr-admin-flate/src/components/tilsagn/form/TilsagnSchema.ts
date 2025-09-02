@@ -1,31 +1,31 @@
 import z from "zod";
-import { TilsagnBeregningType, TilsagnType } from "@mr/api-client-v2";
+import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 
 const TilsagnBeregningFriInputLinje = z.object({
   id: z.string(),
-  beskrivelse: z.string().nullish(),
-  belop: z.number().nullish(),
-  antall: z.number().nullish(),
+  beskrivelse: z.string().nullable(),
+  belop: z.number().nullable(),
+  antall: z.number().nullable(),
 });
 
 export const TilsagnBeregningSchema = z.object({
   type: z.enum(TilsagnBeregningType),
-  sats: z.number().nullish(),
-  antallTimerOppfolgingPerDeltaker: z.number().nullish(),
-  antallPlasser: z.number().nullish(),
-  prisbetingelser: z.string().nullish(),
-  linjer: z.array(TilsagnBeregningFriInputLinje).nullish(),
+  sats: z.number().nullable(),
+  antallTimerOppfolgingPerDeltaker: z.number().nullable(),
+  antallPlasser: z.number().nullable(),
+  prisbetingelser: z.string().nullable(),
+  linjer: z.array(TilsagnBeregningFriInputLinje).nullable(),
 });
 
 export const TilsagnSchema = z.object({
-  id: z.string().nullish(),
+  id: z.string().nullable(),
   type: z.enum(TilsagnType),
   gjennomforingId: z.string(),
-  kostnadssted: z.string().nullish(),
+  kostnadssted: z.string().nullable(),
   beregning: TilsagnBeregningSchema,
-  kommentar: z.string().nullish(),
-  periodeStart: z.string().nullish(),
-  periodeSlutt: z.string().nullish(),
+  kommentar: z.string().nullable(),
+  periodeStart: z.string().nullable(),
+  periodeSlutt: z.string().nullable(),
 });
 
 export type InferredTilsagn = z.infer<typeof TilsagnSchema>;

@@ -1492,52 +1492,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/tilsagn:
-    put:
-      tags:
-        - Tilsagn
-      operationId: opprettTilsagn
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TilsagnRequest"
-      responses:
-        200:
-          description: TiltagnDto
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-    get:
-      tags:
-        - Tilsagn
-      operationId: getTilsagnTableData
-      parameters:
-        - name: gjennomforingId
-          in: query
-          schema:
-            type: string
-            format: uuid
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/TilsagnStatus"
-      responses:
-        200:
-          description: Tilsagn
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DataDrivenTableDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger/{gjennomforingId}/utbetalinger:
     parameters:
       - $ref: "#/components/parameters/gjennomforingId"
@@ -1727,176 +1681,6 @@ paths:
       responses:
         201:
           description: Created
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/beregn:
-    post:
-      tags:
-        - BeregnTilsagn
-      operationId: beregnTilsagn
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BeregnTilsagnRequest"
-      responses:
-        200:
-          description: TilsagnBeregning
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BeregnTilsagnResponse"
-
-  /api/v1/intern/tilsagn/{id}/defaults:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Tilsagn
-      operationId: getTilsagnRequest
-      responses:
-        200:
-          description: Standardverdier for tilsagn
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnRequest"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/defaults:
-    post:
-      tags:
-        - Tilsagn
-      operationId: getTilsagnDefaults
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TilsagnRequest"
-      responses:
-        200:
-          description: Standardverdier for neste tilsagn
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnRequest"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/{id}:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Tilsagn
-      operationId: getTilsagn
-      responses:
-        200:
-          description: TilsagnDto
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnDetaljerDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-    delete:
-      tags:
-        - Tilsagn
-      operationId: slettTilsagn
-      responses:
-        200:
-          description: OK
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/{id}/historikk:
-    get:
-      tags:
-        - Tilsagn
-      operationId: getTilsagnEndringshistorikk
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ID for tilsagn
-      responses:
-        200:
-          description: Endringshistorikken for tilsagn
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Endringshistorikk"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/{id}/til-annullering:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Tilsagn
-      operationId: tilAnnullering
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest"
-      responses:
-        200:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/{id}/gjor-opp:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Tilsagn
-      operationId: gjorOpp
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest"
-      responses:
-        200:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tilsagn/{id}/beslutt:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Tilsagn
-      operationId: besluttTilsagn
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest"
-      responses:
-        200:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -4189,91 +3973,6 @@ components:
         - start
         - slutt
 
-    BeregnTilsagnRequest:
-      type: object
-      properties:
-        gjennomforingId:
-          type: string
-          format: uuid
-        periodeStart:
-          type: [string, "null"]
-          format: date
-        periodeSlutt:
-          type: [string, "null"]
-          format: date
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningRequest"
-      required: [gjennomforingId]
-
-    BeregnTilsagnResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningDto"
-      required: [success]
-
-    TilsagnBeregningRequest:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/TilsagnBeregningType"
-        linjer:
-          type: [array, "null"]
-          items:
-            $ref: "#/components/schemas/TilsagnInputLinjeRequest"
-        prisbetingelser:
-          type: [string, "null"]
-        periode:
-          $ref: "#/components/schemas/TilsagnBeregningType"
-        sats:
-          type: [integer, "null"]
-        antallPlasser:
-          type: [integer, "null"]
-        antallTimerOppfolgingPerDeltaker:
-          type: [integer, "null"]
-      required: [type]
-
-    TilsagnInputLinjeRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        beskrivelse:
-          type: [string, "null"]
-        belop:
-          type: [number, "null"]
-        antall:
-          type: [number, "null"]
-      required: [id]
-
-    TilsagnRequest:
-      type: object
-      properties:
-        id:
-          type: [string, "null"]
-          format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        type:
-          $ref: "#/components/schemas/TilsagnType"
-        periodeStart:
-          type: [string, "null"]
-          format: date
-        periodeSlutt:
-          type: [string, "null"]
-          format: date
-        kostnadssted:
-          type: [string, "null"]
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningRequest"
-        kommentar:
-          type: [string, "null"]
-      required: [type, gjennomforingId, beregning]
-
     TilsagnType:
       type: string
       enum:
@@ -4328,24 +4027,6 @@ components:
         - navn
         - enhetsnummer
 
-    TilsagnDetaljerDto:
-      type: object
-      properties:
-        tilsagn:
-          $ref: "#/components/schemas/TilsagnDto"
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregningDto"
-        opprettelse:
-          $ref: "#/components/schemas/TotrinnskontrollDto"
-        annullering:
-          $ref: "#/components/schemas/TotrinnskontrollDto"
-        tilOppgjor:
-          $ref: "#/components/schemas/TotrinnskontrollDto"
-      required:
-        - tilsagn
-        - beregning
-        - opprettelse
-
     TilsagnStatus:
       type: string
       enum:
@@ -4363,23 +4044,6 @@ components:
         - GODKJENT
         - AVVIST
 
-    TilsagnTilAnnulleringAarsak:
-      type: string
-      enum:
-        - FEIL_REGISTRERING
-        - TILTAK_SKAL_IKKE_GJENNOMFORES
-        - ARRANGOR_HAR_IKKE_SENDT_KRAV
-        - ANNET
-
-    TilsagnAvvisningAarsak:
-      type: string
-      enum:
-        - FEIL_ANTALL_PLASSER
-        - FEIL_KOSTNADSSTED
-        - FEIL_PERIODE
-        - FEIL_BELOP
-        - ANNET
-
     DelutbetalingReturnertAarsak:
       type: string
       enum:
@@ -4387,39 +4051,6 @@ components:
         - ANNET
         - TILSAGN_FEIL_STATUS
         - PROPAGERT_RETUR
-
-    TilsagnBeregningType:
-      type: string
-      enum:
-        - FRI
-        - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-        - PRIS_PER_MANEDSVERK
-        - PRIS_PER_UKESVERK
-        - PRIS_PER_TIME_OPPFOLGING
-
-    TilsagnBeregningDto:
-      type: object
-      properties:
-        belop:
-          type: number
-        prismodell:
-          $ref: "#/components/schemas/DataDetails"
-        regnestykke:
-          $ref: "#/components/schemas/CalculationDto"
-      required:
-        - belop
-        - prismodell
-        - regnestykke
-
-    CalculationDto:
-      type: object
-      properties:
-        expression:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataElement"
-        breakdown:
-          $ref: "#/components/schemas/DataDrivenTableDto"
 
     PrismodellOgBeskrivelse:
       type: object
@@ -4874,7 +4505,7 @@ components:
       type: object
       properties:
         type:
-          const: TIL_BESLUTNING
+          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
         behandletAv:
           $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
@@ -4899,7 +4530,7 @@ components:
       type: object
       properties:
         type:
-          const: BESLUTTET
+          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet
         behandletAv:
           $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
@@ -4940,7 +4571,7 @@ components:
       type: object
       properties:
         type:
-          const: NAV_ANSATT
+          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt
         navIdent:
           type: string
         navn:
@@ -4953,7 +4584,7 @@ components:
       type: object
       properties:
         type:
-          const: ARRANGOR
+          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.Arrangor
       required:
         - type
 
@@ -4961,7 +4592,7 @@ components:
       type: object
       properties:
         type:
-          const: SYSTEM
+          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.System
         navn:
           type: string
       required:
@@ -5002,40 +4633,10 @@ components:
       required:
         - key
         - type
+        - label
         - sortable
         - align
 
-    DataDetails:
-      type: object
-      properties:
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
-      required:
-        - entries
-
-    LabeledDataElement:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/LabeledDataElementType"
-        label:
-          type: string
-        value:
-          oneOf:
-            - type: "null"
-            - $ref: "#/components/schemas/DataElement"
-      required:
-        - type
-        - label
-        - value
-
-    LabeledDataElementType:
-      type: string
-      enum:
-        - INLINE
-        - MULTILINE
 
     DataElement:
       type: object

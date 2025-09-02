@@ -1,5 +1,4 @@
 import {
-  AgentDto,
   AvbrytAvtaleAarsak,
   AvtaleDto,
   Avtaletype,
@@ -10,14 +9,14 @@ import {
   InnholdElement,
   Kurstype,
   NavEnhetDto,
-  TilsagnAvvisningAarsak,
-  TilsagnTilAnnulleringAarsak,
   TilsagnType,
   Tiltakskode,
   TiltakskodeArena,
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
+
+import { TilsagnStatusAarsak } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -285,27 +284,23 @@ export function getPublisertStatus(statuser: string[] = []): boolean | null {
   return null;
 }
 
-export function tilsagnAarsakTilTekst(
-  aarsak: TilsagnAvvisningAarsak | TilsagnTilAnnulleringAarsak,
-): string {
+export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {
   switch (aarsak) {
-    case TilsagnAvvisningAarsak.FEIL_PERIODE:
+    case TilsagnStatusAarsak.FEIL_PERIODE:
       return "Feil periode";
-    case TilsagnAvvisningAarsak.FEIL_ANTALL_PLASSER:
+    case TilsagnStatusAarsak.FEIL_ANTALL_PLASSER:
       return "Feil antall plasser";
-    case TilsagnAvvisningAarsak.FEIL_KOSTNADSSTED:
+    case TilsagnStatusAarsak.FEIL_KOSTNADSSTED:
       return "Feil kostnadssted";
-    case TilsagnAvvisningAarsak.FEIL_BELOP:
+    case TilsagnStatusAarsak.FEIL_BELOP:
       return "Feil beløp";
-    case TilsagnAvvisningAarsak.ANNET:
-      return "Annet";
-    case TilsagnTilAnnulleringAarsak.FEIL_REGISTRERING:
+    case TilsagnStatusAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
-    case TilsagnTilAnnulleringAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES:
+    case TilsagnStatusAarsak.TILTAK_SKAL_IKKE_GJENNOMFORES:
       return "Tiltaket skal ikke gjennomføres";
-    case TilsagnTilAnnulleringAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
+    case TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
-    case TilsagnTilAnnulleringAarsak.ANNET:
+    case TilsagnStatusAarsak.ANNET:
       return "Annet";
   }
 }
@@ -353,16 +348,7 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
 export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
 }
-export function navnEllerIdent(agent: AgentDto): string {
-  switch (agent.type) {
-    case "NAV_ANSATT":
-      return agent.navn || agent.navIdent;
-    case "SYSTEM":
-      return agent.navn;
-    case "ARRANGOR":
-      return "Tiltaksarrangør";
-  }
-}
+
 export function utbetalingLinjeCompareFn(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
   return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }

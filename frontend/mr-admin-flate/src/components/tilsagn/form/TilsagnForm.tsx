@@ -2,7 +2,8 @@ import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
+import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import { TilsagnRequest, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -66,7 +67,7 @@ export function TilsagnForm(props: Props) {
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
-      kommentar: data.kommentar ?? undefined,
+      kommentar: data.kommentar ?? null,
     };
 
     mutation.mutate(request, {

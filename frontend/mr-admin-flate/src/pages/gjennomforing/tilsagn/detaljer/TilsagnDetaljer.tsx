@@ -9,9 +9,9 @@ import {
   TilsagnBeregningDto,
   TilsagnDto,
   TilsagnStatus,
-  TilsagnTilAnnulleringAarsak,
   TotrinnskontrollDto,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
+import { TilsagnStatusAarsak } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Box, Heading, HGrid, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
@@ -26,8 +26,8 @@ interface Props {
   tilsagn: TilsagnDto;
   beregning: TilsagnBeregningDto;
   opprettelse: TotrinnskontrollDto;
-  annullering?: TotrinnskontrollDto;
-  oppgjor?: TotrinnskontrollDto;
+  annullering: TotrinnskontrollDto | null;
+  oppgjor: TotrinnskontrollDto | null;
   meny?: ReactNode;
 }
 
@@ -108,7 +108,7 @@ export function TilsagnDetaljer({ tilsagn, beregning, meny, annullering, oppgjor
               <MetadataHorisontal
                 header={"Årsaker"}
                 value={arsaker
-                  ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnTilAnnulleringAarsak))
+                  ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnStatusAarsak))
                   .join(", ")}
               />
               <MetadataFritekstfelt header={"Forklaring"} value={oppgjor?.forklaring} />

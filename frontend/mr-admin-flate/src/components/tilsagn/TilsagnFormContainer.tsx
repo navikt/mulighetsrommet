@@ -1,13 +1,11 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
+import { AvtaleDto, GjennomforingDto, PrismodellDto } from "@mr/api-client-v2";
 import {
-  AvtaleDto,
-  GjennomforingDto,
-  PrismodellDto,
   TilsagnBeregningType,
   TilsagnRequest,
   TilsagnType,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
 import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";

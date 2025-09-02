@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.model
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
 import java.time.LocalDate
 
@@ -46,11 +48,12 @@ enum class LabeledDataElementType {
     MULTILINE,
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class DataElement {
 
     @Serializable
-    @SerialName("text")
     data class Text(
         val value: String?,
         val format: Format?,
@@ -68,7 +71,6 @@ sealed class DataElement {
     }
 
     @Serializable
-    @SerialName("status")
     data class Status(
         val value: String,
         val variant: Variant,
@@ -95,21 +97,18 @@ sealed class DataElement {
     }
 
     @Serializable
-    @SerialName("link")
     data class Link(
         val text: String,
         val href: String,
     ) : DataElement()
 
     @Serializable
-    @SerialName("periode")
     data class Periode(
         val start: String,
         val slutt: String,
     ) : DataElement()
 
     @Serializable
-    @SerialName("math-operator")
     data class MathOperator(
         val operator: Type,
     ) : DataElement() {

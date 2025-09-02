@@ -1,0 +1,1001 @@
+openapi: 3.1.0
+info:
+  title: API
+  version: latest
+externalDocs:
+  url: /
+servers: []
+tags: []
+paths:
+  /api/tiltaksadministrasjon/tilsagn:
+    get:
+      tags:
+      - Tilsagn
+      description: Hent alle tilsagn for gitt gjennomføring
+      operationId: getTilsagnTableData
+      parameters:
+      - name: gjennomforingId
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: statuser
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnStatus"
+      responses:
+        "200":
+          description: Tilsagn i tabellformat
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataDrivenTableDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    put:
+      tags:
+      - Tilsagn
+      description: Opprett tilsagn
+      operationId: opprettTilsagn
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnRequest"
+        required: false
+      responses:
+        "200":
+          description: Opprettet tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}:
+    get:
+      tags:
+      - Tilsagn
+      description: Hent tilsagn
+      operationId: getTilsagn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Detaljer om tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDetaljerDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    delete:
+      tags:
+      - Tilsagn
+      description: Slett tilsagn
+      operationId: slettTilsagn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilsagn ble slettet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}/historikk:
+    get:
+      tags:
+      - Tilsagn
+      description: Hent endringshistorikk for tilsagn
+      operationId: getTilsagnEndringshistorikk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Endringshistorikk for tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndringshistorikkDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}/til-annullering:
+    post:
+      tags:
+      - Tilsagn
+      operationId: tilAnnullering
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
+        required: false
+      responses:
+        "200":
+          description: Tilsanget ble sendt til annullering
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}/gjor-opp:
+    post:
+      tags:
+      - Tilsagn
+      operationId: gjorOpp
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
+        required: false
+      responses:
+        "200":
+          description: Tilsanget ble sendt til oppgjør
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}/beslutt:
+    post:
+      tags:
+      - Tilsagn
+      operationId: besluttTilsagn
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest_TilsagnStatusAarsak"
+        required: false
+      responses:
+        "200":
+          description: Tilsagn ble besluttet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/{id}/defaults:
+    get:
+      tags:
+      - Tilsagn
+      description: Hent standardverdier for tilsagn utledet fra gitt tilsagn
+      operationId: getTilsagnRequest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Standardverdier for tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnRequest"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/defaults:
+    post:
+      tags:
+      - Tilsagn
+      description: Hent standardverdier for tilsagn utledet av systemet
+      operationId: getTilsagnDefaults
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnRequest"
+        required: false
+      responses:
+        "200":
+          description: Standardverdier for tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnRequest"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilsagn/beregn:
+    post:
+      tags:
+      - Tilsagn
+      description: Beregn tilsagn
+      operationId: beregnTilsagn
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeregnTilsagnRequest"
+        required: false
+      responses:
+        "200":
+          description: Beregnet tilsagn
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BeregnTilsagnResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+components:
+  schemas:
+    TilsagnStatus:
+      type: string
+      enum:
+      - TIL_GODKJENNING
+      - GODKJENT
+      - RETURNERT
+      - TIL_ANNULLERING
+      - ANNULLERT
+      - TIL_OPPGJOR
+      - OPPGJORT
+    DataDrivenTableDto.Column:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type:
+          - "null"
+          - string
+        sortable:
+          type: boolean
+        align:
+          $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
+      required:
+      - align
+      - key
+      - label
+      - sortable
+    DataDrivenTableDto.Column.Align:
+      type: string
+      enum:
+      - left
+      - right
+    DataElement:
+      anyOf:
+      - $ref: "#/components/schemas/DataElement.Link"
+      - $ref: "#/components/schemas/DataElement.MathOperator"
+      - $ref: "#/components/schemas/DataElement.Periode"
+      - $ref: "#/components/schemas/DataElement.Status"
+      - $ref: "#/components/schemas/DataElement.Text"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
+          no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
+          no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
+          no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
+          no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
+    DataElement.Link:
+      type: object
+      properties:
+        text:
+          type: string
+        href:
+          type: string
+      required:
+      - href
+      - text
+    DataElement.MathOperator:
+      type: object
+      properties:
+        operator:
+          $ref: "#/components/schemas/DataElement.MathOperator.Type"
+      required:
+      - operator
+    DataElement.MathOperator.Type:
+      type: string
+      enum:
+      - plus
+      - minus
+      - multiply
+      - divide
+      - equals
+    DataElement.Periode:
+      type: object
+      properties:
+        start:
+          type: string
+        slutt:
+          type: string
+      required:
+      - slutt
+      - start
+    DataElement.Status:
+      type: object
+      properties:
+        value:
+          type: string
+        variant:
+          $ref: "#/components/schemas/DataElement.Status.Variant"
+      required:
+      - value
+      - variant
+    DataElement.Status.Variant:
+      type: string
+      enum:
+      - neutral
+      - success
+      - warning
+      - error
+      - error-border
+      - error-border-strikethrough
+    DataElement.Text:
+      type: object
+      properties:
+        value:
+          type:
+          - "null"
+          - string
+        format:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataElement.Text.Format"
+      required:
+      - format
+      - value
+    DataElement.Text.Format:
+      type: string
+      enum:
+      - date
+      - nok
+      - number
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Column"
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              $ref: "#/components/schemas/DataElement"
+      required:
+      - columns
+      - rows
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
+    TilsagnDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        belop:
+          type: integer
+          format: int32
+        belopBrukt:
+          type: integer
+          format: int32
+        belopGjenstaende:
+          type: integer
+          format: int32
+        kostnadssted:
+          $ref: "#/components/schemas/KostnadsstedDto"
+        bestillingsnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
+        kommentar:
+          type:
+          - "null"
+          - string
+      required:
+      - belop
+      - belopBrukt
+      - belopGjenstaende
+      - bestillingsnummer
+      - id
+      - kommentar
+      - kostnadssted
+      - periode
+      - status
+      - type
+    TilsagnType:
+      type: string
+      enum:
+      - TILSAGN
+      - EKSTRATILSAGN
+      - INVESTERING
+    Periode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+      required:
+      - slutt
+      - start
+    KostnadsstedDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    TilsagnBeregningDto:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        prismodell:
+          $ref: "#/components/schemas/DataDetails"
+        regnestykke:
+          $ref: "#/components/schemas/CalculationDto"
+      required:
+      - belop
+      - prismodell
+      - regnestykke
+    DataDetails:
+      type: object
+      properties:
+        header:
+          type:
+          - "null"
+          - string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabeledDataElement"
+      required:
+      - entries
+      - header
+    LabeledDataElement:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
+          type: string
+        value:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataElement"
+      required:
+      - label
+      - type
+      - value
+    LabeledDataElementType:
+      type: string
+      enum:
+      - INLINE
+      - MULTILINE
+    CalculationDto:
+      type: object
+      properties:
+        expression:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/DataElement"
+        breakdown:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
+      required:
+      - breakdown
+      - expression
+    TotrinnskontrollDto:
+      anyOf:
+      - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+      - $ref: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+    TotrinnskontrollDto.Besluttet:
+      type: object
+      properties:
+        behandletAv:
+          $ref: "#/components/schemas/AgentDto"
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type:
+          - "null"
+          - string
+        besluttetAv:
+          $ref: "#/components/schemas/AgentDto"
+        besluttetTidspunkt:
+          type: string
+          format: date-time
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+      required:
+      - aarsaker
+      - behandletAv
+      - behandletTidspunkt
+      - besluttelse
+      - besluttetAv
+      - besluttetTidspunkt
+      - forklaring
+    AgentDto:
+      anyOf:
+      - $ref: "#/components/schemas/AgentDto.Arrangor"
+      - $ref: "#/components/schemas/AgentDto.NavAnsatt"
+      - $ref: "#/components/schemas/AgentDto.System"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.Arrangor: "#/components/schemas/AgentDto.Arrangor"
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt: "#/components/schemas/AgentDto.NavAnsatt"
+          no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.System: "#/components/schemas/AgentDto.System"
+    AgentDto.Arrangor:
+      type: object
+      properties: {}
+    AgentDto.NavAnsatt:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+      required:
+      - navIdent
+      - navn
+    AgentDto.System:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+      - navn
+    Besluttelse:
+      type: string
+      enum:
+      - GODKJENT
+      - AVVIST
+    TotrinnskontrollDto.TilBeslutning:
+      type: object
+      properties:
+        behandletAv:
+          $ref: "#/components/schemas/AgentDto"
+        behandletTidspunkt:
+          type: string
+          format: date-time
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type:
+          - "null"
+          - string
+        kanBesluttes:
+          type: boolean
+      required:
+      - aarsaker
+      - behandletAv
+      - behandletTidspunkt
+      - forklaring
+      - kanBesluttes
+    TilsagnDetaljerDto:
+      type: object
+      properties:
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningDto"
+        opprettelse:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
+        annullering:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+        tilOppgjor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+      required:
+      - annullering
+      - beregning
+      - opprettelse
+      - tilOppgjor
+      - tilsagn
+    EndringshistorikkDto.Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+        editedAt:
+          type: string
+          format: date-time
+        editedBy:
+          $ref: "#/components/schemas/EndringshistorikkDto.User"
+      required:
+      - editedAt
+      - editedBy
+      - id
+      - operation
+    EndringshistorikkDto.User:
+      anyOf:
+      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
+      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
+    EndringshistorikkDto.NavAnsatt:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+      required:
+      - navIdent
+      - navn
+    EndringshistorikkDto.Systembruker:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+      - navn
+    EndringshistorikkDto:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
+      required:
+      - entries
+    TilsagnBeregningRequest:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/TilsagnBeregningType"
+        antallPlasser:
+          type:
+          - "null"
+          - integer
+          format: int32
+        prisbetingelser:
+          type:
+          - "null"
+          - string
+        linjer:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/TilsagnInputLinjeRequest"
+        antallTimerOppfolgingPerDeltaker:
+          type:
+          - "null"
+          - integer
+          format: int32
+      required:
+      - antallPlasser
+      - antallTimerOppfolgingPerDeltaker
+      - linjer
+      - prisbetingelser
+      - type
+    TilsagnBeregningType:
+      type: string
+      enum:
+      - FRI
+      - PRIS_PER_MANEDSVERK
+      - PRIS_PER_UKESVERK
+      - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+      - PRIS_PER_TIME_OPPFOLGING
+    TilsagnInputLinjeRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        antall:
+          type:
+          - "null"
+          - integer
+          format: int32
+      required:
+      - antall
+      - belop
+      - beskrivelse
+      - id
+    TilsagnRequest:
+      type: object
+      properties:
+        id:
+          type:
+          - "null"
+          - string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        gjennomforingId:
+          type: string
+          format: uuid
+        kostnadssted:
+          type:
+          - "null"
+          - string
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningRequest"
+        kommentar:
+          type:
+          - "null"
+          - string
+        periodeStart:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - beregning
+      - gjennomforingId
+      - id
+      - kommentar
+      - kostnadssted
+      - periodeSlutt
+      - periodeStart
+      - type
+    TilsagnStatusAarsak:
+      type: string
+      enum:
+      - FEIL_REGISTRERING
+      - TILTAK_SKAL_IKKE_GJENNOMFORES
+      - ARRANGOR_HAR_IKKE_SENDT_KRAV
+      - FEIL_ANTALL_PLASSER
+      - FEIL_KOSTNADSSTED
+      - FEIL_PERIODE
+      - FEIL_BELOP
+      - ANNET
+    AarsakerOgForklaringRequest_TilsagnStatusAarsak:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnStatusAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    BesluttTotrinnskontrollRequest_TilsagnStatusAarsak:
+      type: object
+      properties:
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnStatusAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - besluttelse
+      - forklaring
+    BeregnTilsagnRequest:
+      type: object
+      properties:
+        periodeStart:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          format: date
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregningRequest"
+        gjennomforingId:
+          type: string
+          format: uuid
+      required:
+      - beregning
+      - gjennomforingId
+      - periodeSlutt
+      - periodeStart
+    BeregnTilsagnResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        beregning:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TilsagnBeregningDto"
+      required:
+      - beregning
+      - success
+  examples: {}
+webhooks: {}

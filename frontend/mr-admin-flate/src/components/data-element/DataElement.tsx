@@ -1,4 +1,4 @@
-import { type DataElement, DataElementTextFormat } from "@mr/api-client-v2";
+import { type DataElement, DataElementTextFormat } from "@tiltaksadministrasjon/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
@@ -8,16 +8,18 @@ import { ReactNode } from "react";
 
 export function getDataElement(element: DataElement) {
   switch (element.type) {
-    case "text":
+    case "no.nav.mulighetsrommet.model.DataElement.Text":
       return element.value ? formatText(element.value, element.format) : null;
-    case "status":
+    case "no.nav.mulighetsrommet.model.DataElement.Status":
       return <DataElementStatusTag {...element} />;
-    case "periode":
+    case "no.nav.mulighetsrommet.model.DataElement.Periode":
       return `${formaterDato(element.start)} - ${formaterDato(element.slutt)}`;
-    case "link":
+    case "no.nav.mulighetsrommet.model.DataElement.Link":
       return <Lenke to={element.href}>{element.text}</Lenke>;
-    case "math-operator":
+    case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return <DataElementMathOperator operator={element.operator} />;
+    case undefined:
+      throw new Error(`Unrecognized data element: ${element}`);
   }
 }
 
@@ -42,15 +44,17 @@ export function compareDataElements(aCell: DataElement | null, bCell: DataElemen
 
 export function getComparableValue(element: DataElement) {
   switch (element.type) {
-    case "text":
+    case "no.nav.mulighetsrommet.model.DataElement.Text":
       return element.value;
-    case "status":
+    case "no.nav.mulighetsrommet.model.DataElement.Status":
       return element.value;
-    case "periode":
+    case "no.nav.mulighetsrommet.model.DataElement.Periode":
       return element.start;
-    case "link":
+    case "no.nav.mulighetsrommet.model.DataElement.Link":
       return element.text;
-    case "math-operator":
+    case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return element.operator;
+    case undefined:
+      throw new Error(`Unrecognized data element: ${element}`);
   }
 }

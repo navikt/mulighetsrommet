@@ -1,16 +1,22 @@
 package no.nav.mulighetsrommet.api.totrinnskontroll.api
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class TotrinnskontrollDto {
     abstract val behandletAv: AgentDto
     abstract val behandletTidspunkt: LocalDateTime
@@ -18,7 +24,6 @@ sealed class TotrinnskontrollDto {
     abstract val forklaring: String?
 
     @Serializable
-    @SerialName("TIL_BESLUTNING")
     data class TilBeslutning(
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
@@ -29,7 +34,6 @@ sealed class TotrinnskontrollDto {
     ) : TotrinnskontrollDto()
 
     @Serializable
-    @SerialName("BESLUTTET")
     data class Besluttet(
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
@@ -65,21 +69,20 @@ fun Totrinnskontroll.toDto(
     )
 }
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class AgentDto {
     @Serializable
-    @SerialName("NAV_ANSATT")
     data class NavAnsatt(
         val navIdent: NavIdent,
         val navn: String?,
     ) : AgentDto()
 
     @Serializable
-    @SerialName("ARRANGOR")
     data object Arrangor : AgentDto()
 
     @Serializable
-    @SerialName("SYSTEM")
     data class System(
         val navn: String,
     ) : AgentDto()

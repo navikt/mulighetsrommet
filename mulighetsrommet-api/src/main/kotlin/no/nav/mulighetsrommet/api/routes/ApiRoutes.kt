@@ -65,8 +65,24 @@ fun Route.apiRoutes() {
             }
         }
 
+        route("/tiltaksadministrasjon") {
+            authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                route("openapi.yaml") {
+                    openApi(OpenApiSpec.TILTAKSADMINISTRASJON.specName)
+                }
+
+                authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
+                    tiltaksadministrasjonRoutes()
+                }
+            }
+        }
+
         route("/v1/intern") {
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                route("openapi.yaml") {
+                    openApi(OpenApiSpec.TILTAKSADMINISTRASJON.specName)
+                }
+
                 featureTogglesRoute()
                 lagretFilterRoutes()
                 navEnhetRoutes()
@@ -79,6 +95,11 @@ fun Route.apiRoutes() {
     }
 }
 
+fun Route.tiltaksadministrasjonRoutes() {
+    tilsagnRoutes()
+}
+
+// TODO: migrer disse til tiltaksadministrasjonRoutes
 fun Route.adminflateRoutes() {
     tiltakstypeRoutes()
     gjennomforingRoutes()
