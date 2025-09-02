@@ -7,21 +7,22 @@ import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { VStack, Box, HStack, TextField, Select, Button, Textarea, Spacer } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { addDuration, formaterDato, parseDate } from "@mr/frontend-common/utils/date";
+import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
   tiltakskode: Tiltakskode;
   prismodell?: Prismodell;
+  avtaleStartDato: Date;
 }
 
-const PrismodellForm = memo(({ tiltakskode, prismodell }: Props) => {
+const PrismodellForm = memo(({ tiltakskode, prismodell, avtaleStartDato }: Props) => {
   switch (prismodell) {
     case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
       return <ForhandsgodkjenteSatser tiltakskode={tiltakskode} />;
     case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
     case Prismodell.AVTALT_PRIS_PER_UKESVERK:
     case Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-      return <AvtalteSatser />;
+      return <AvtalteSatser fromDate={avtaleStartDato} />;
     case Prismodell.ANNEN_AVTALT_PRIS:
     case undefined:
       return <PrisbetingelserTextArea />;
@@ -73,11 +74,10 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
   );
 }
 
-function AvtalteSatser() {
+function AvtalteSatser({ fromDate }: { fromDate: Date }) {
   const {
     control,
     register,
-    watch,
     setValue,
     getValues,
     formState: { errors },
@@ -88,7 +88,6 @@ function AvtalteSatser() {
     control,
   });
 
-  const fromDate = parseDate(watch("startDato")) ?? new Date();
   // Pluss 10 år er vilkårlig valgt. Endre ved behov
   const toDate = addDuration(fromDate, { years: 10 })!;
 
