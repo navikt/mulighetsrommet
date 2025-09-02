@@ -2,24 +2,22 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.*
 import arrow.core.raise.either
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -30,7 +28,6 @@ import java.util.*
 
 class AvtaleService(
     private val db: ApiDatabase,
-    private val arrangorService: ArrangorService,
     private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
@@ -60,6 +57,40 @@ class AvtaleService(
                 "Redigerte avtale"
             }
             logEndring(operation, dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    fun upsertPrismodell(
+        id: UUID,
+        request: PrismodellRequest,
+        navIdent: NavIdent,
+    ): Either<NonEmptyList<FieldError>, AvtaleDto> = either {
+        val previous = get(id)
+            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        validator
+            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
+            .bind()
+
+        db.transaction {
+            queries.avtale.upsertPrismodell(
+                id,
+                request.type,
+                request.prisbetingelser,
+                request.satser.map {
+                    AvtaltSats(
+                        periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                        sats = it.pris,
+                    )
+                },
+            )
+
+            val dto = getOrError(id)
+            logEndring("Prismodell oppdatert", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 

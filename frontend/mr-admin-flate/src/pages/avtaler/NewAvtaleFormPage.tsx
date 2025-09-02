@@ -14,6 +14,7 @@ import {
   AvtaleFormValues,
   defaultAvtaleData,
   PersonopplysningerSchema,
+  PrismodellSchema,
   RedaksjoneltInnholdSchema,
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
@@ -28,12 +29,18 @@ import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
+import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 
 const steps = [
   {
     key: "Detaljer",
     schema: avtaleDetaljerFormSchema,
     Component: <AvtaleDetaljerForm />,
+  },
+  {
+    key: "Prismodel",
+    schema: PrismodellSchema,
+    Component: <AvtalePrismodellStep />,
   },
   {
     key: "Personvern",
@@ -116,7 +123,7 @@ export function NewAvtaleFormPage() {
     const mergedData = { ...collectedData, ...data };
     setCollectedData(mergedData);
 
-    if (activeStep !== 3) {
+    if (activeStep !== 4) {
       setActiveStep(activeStep + 1);
     } else {
       const result = avtaleFormSchema.safeParse(mergedData);
@@ -177,7 +184,7 @@ export function NewAvtaleFormPage() {
                     type="button"
                     onClick={methods.handleSubmit(handleForwardStep)}
                   >
-                    {activeStep === 3 ? "Opprett avtale" : "Neste"}
+                    {activeStep === 4 ? "Opprett avtale" : "Neste"}
                   </Button>
                 </HStack>
               </VStack>

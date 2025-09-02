@@ -1,13 +1,7 @@
 import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
-import {
-  AvtaleDto,
-  AvtaleRequest,
-  Prismodell,
-  ProblemDetail,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleRequest, ProblemDetail, ValidationError } from "@mr/api-client-v2";
 import { v4 } from "uuid";
 
 export async function onSubmitAvtaleForm({
@@ -65,7 +59,7 @@ export async function onSubmitAvtaleForm({
     },
     utdanningslop: getUtdanningslop(data),
     prismodell: {
-      type: data.prismodell ?? Prismodell.ANNEN_AVTALT_PRIS,
+      type: data.prismodell,
       prisbetingelser: data.prisbetingelser || null,
       satser,
     },

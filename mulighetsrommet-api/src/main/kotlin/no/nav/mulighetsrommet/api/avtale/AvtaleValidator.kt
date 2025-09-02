@@ -139,7 +139,6 @@ class AvtaleValidator(
                 }
             }
 
-            validatePrismodell(request, tiltakskode, tiltakstype.navn)
             validateNavEnheter(request.navEnheter)
             validateAdministratorer(request)
 
@@ -148,6 +147,9 @@ class AvtaleValidator(
             } else {
                 validateUpdateAvtale(request, arrangor, previous)
             }
+
+            validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn)
+                .onLeft { addAll(it) }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left()
@@ -218,6 +220,14 @@ class AvtaleValidator(
                     ),
                 )
             }
+        }
+        if (request.prismodell.type !in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
+            add(
+                FieldError.of(
+                    AvtaleRequest::tiltakskode,
+                    "Tiltakstype kan ikke endres ikke fordi prismodellen “${request.prismodell.type.beskrivelse}” er i bruk",
+                ),
+            )
         }
 
         val (numGjennomforinger, gjennomforinger) = queries.gjennomforing.getAll(avtaleId = request.id)
@@ -295,25 +305,36 @@ class AvtaleValidator(
         }
     }
 
-    private fun MutableList<FieldError>.validatePrismodell(
-        request: AvtaleRequest,
+    fun validatePrismodell(
+        request: PrismodellRequest,
         tiltakskode: Tiltakskode,
         tiltakstypeNavn: String,
-    ) {
-        if (request.prismodell.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
-            add(
-                FieldError.of(
-                    AvtaleRequest::prismodell,
-                    "${request.prismodell.type.beskrivelse} er ikke tillatt for tiltakstype $tiltakstypeNavn",
-                ),
-            )
-        }
-        if (request.prismodell.type in listOf(
+    ): Either<NonEmptyList<FieldError>, PrismodellRequest> {
+        val errors: List<FieldError> = buildList {
+            if (request.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
+                add(
+                    FieldError.of(
+                        AvtaleRequest::prismodell,
+                        "${request.type.beskrivelse} er ikke tillatt for tiltakstype $tiltakstypeNavn",
+                    ),
+                )
+            }
+            when (request.type) {
+                Prismodell.ANNEN_AVTALT_PRIS,
+                Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                -> Unit
                 Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 Prismodell.AVTALT_PRIS_PER_UKESVERK,
-            ) &&
-            request.prismodell.satser.isEmpty()
-        ) {
+                Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                -> validateSatser(request.satser)
+            }
+        }
+
+        return errors.toNonEmptyListOrNull()?.left() ?: request.right()
+    }
+
+    private fun MutableList<FieldError>.validateSatser(satser: List<AvtaltSatsDto>) {
+        if (satser.isEmpty()) {
             add(
                 FieldError.of(
                     AvtaleRequest::prismodell,
@@ -321,19 +342,19 @@ class AvtaleValidator(
                 ),
             )
         }
-        request.prismodell.satser.forEachIndexed { index, sats ->
+        satser.forEachIndexed { index, sats ->
             if (sats.pris <= 0) {
                 add(FieldError.ofPointer("/satser/$index/pris", "Pris må være positiv"))
             }
         }
-        for (i in request.prismodell.satser.indices) {
-            val a = request.prismodell.satser[i]
+        for (i in satser.indices) {
+            val a = satser[i]
             if (!a.periodeStart.isBefore(a.periodeSlutt)) {
                 add(FieldError.ofPointer("/satser/$i/periodeStart", "Periodestart må være før slutt"))
                 continue
             }
-            for (j in i + 1 until request.prismodell.satser.size) {
-                val b = request.prismodell.satser[j]
+            for (j in i + 1 until satser.size) {
+                val b = satser[j]
                 if (!b.periodeStart.isBefore(b.periodeSlutt)) {
                     add(FieldError.ofPointer("/satser/$j/periodeStart", "Periodestart må være før slutt"))
                     continue

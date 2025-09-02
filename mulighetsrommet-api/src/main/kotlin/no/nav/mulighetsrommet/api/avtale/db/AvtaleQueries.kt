@@ -226,26 +226,56 @@ class AvtaleQueries(private val session: Session) {
             batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
 
+        upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
+    }
+
+    fun upsertPrismodell(id: UUID, prismodell: Prismodell, prisbetingelser: String?, satser: List<AvtaltSats>) = withTransaction(session) {
+        upsertPrismodell(id, prismodell, prisbetingelser, satser)
+    }
+
+    private fun Session.upsertPrismodell(id: UUID, prismodell: Prismodell, prisbetingelser: String?, satser: List<AvtaltSats>) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale set
+                prisbetingelser = :prisbetingelser,
+                prismodell = :prismodell::prismodell
+            where id = :id::uuid
+        """.trimIndent()
+
+        execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "prismodell" to prismodell.name,
+                    "prisbetingelser" to prisbetingelser,
+                ),
+            ),
+        )
+
         @Language("PostgreSQL")
         val deleteSatser = """
             delete from avtale_sats
             where avtale_id = ?::uuid
         """.trimIndent()
-        execute(queryOf(deleteSatser, avtale.id))
+        execute(queryOf(deleteSatser, id))
 
         @Language("PostgreSQL")
         val insertSats = """
             insert into avtale_sats (avtale_id, periode, sats)
             values (:avtale_id::uuid, :periode::daterange, :sats)
         """.trimIndent()
-        val satser = avtale.satser.map {
-            mapOf(
-                "avtale_id" to avtale.id,
-                "periode" to it.periode.toDaterange(),
-                "sats" to it.sats,
-            )
-        }
-        batchPreparedNamedStatement(insertSats, satser)
+
+        batchPreparedNamedStatement(
+            insertSats,
+            satser.map {
+                mapOf(
+                    "avtale_id" to id,
+                    "periode" to it.periode.toDaterange(),
+                    "sats" to it.sats,
+                )
+            },
+        )
     }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {

@@ -13,6 +13,7 @@ import {
   FieldError,
   Opphav,
   Rolle,
+  Toggles,
   ValidationError,
 } from "@mr/api-client-v2";
 import { useRef, useState } from "react";
@@ -21,6 +22,8 @@ import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 
 interface Props {
   avtale: AvtaleDto;
@@ -33,8 +36,14 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
+  const oppdaterPrisModalRef = useRef<HTMLDialogElement>(null);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
+
+  const { data: enableTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    [avtale.tiltakstype.tiltakskode],
+  );
 
   function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
     return !!avtale.opsjonsmodell.opsjonMaksVarighet;
@@ -109,6 +118,15 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
+              {enableTilsagn && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    oppdaterPrisModalRef.current?.showModal();
+                  }}
+                >
+                  Oppdater pris
+                </Dropdown.Menu.GroupedList.Item>
+              )}
               {avtale.status.type === AvtaleStatus.AKTIV && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                   Avbryt avtale
@@ -162,6 +180,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
         errors={avbrytModalErrors}
       />
       <RegistrerOpsjonModal modalRef={registrerOpsjonModalRef} avtale={avtale} />
+      <OppdaterPrisModal modalRef={oppdaterPrisModalRef} avtale={avtale} />
     </KnapperadContainer>
   );
 }
