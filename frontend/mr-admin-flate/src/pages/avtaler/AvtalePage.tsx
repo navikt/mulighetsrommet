@@ -86,8 +86,6 @@ export function AvtalePage() {
   const { data: avtale } = useAvtale(avtaleId);
   const currentTab = getCurrentTab(pathname);
 
-  const redigeringsmodus = location.pathname.includes("skjema");
-
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
 
   return (
@@ -95,7 +93,7 @@ export function AvtalePage() {
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <HStack gap="6" className={redigeringsmodus ? "pb-2" : ""}>
+        <HStack gap="6">
           <AvtaleIkon />
           <Heading size="large" level="2">
             {avtale.navn}
@@ -104,10 +102,9 @@ export function AvtalePage() {
         </HStack>
       </Header>
       <Tabs value={currentTab}>
-        <Tabs.List hidden={redigeringsmodus}>
+        <Tabs.List>
           {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
             <Tabs.Tab
-              hidden={redigeringsmodus && value !== currentTab}
               key={value}
               label={label}
               value={value}
@@ -117,39 +114,20 @@ export function AvtalePage() {
           ))}
         </Tabs.List>
         <Tabs.Panel value={AvtaleTab.DETALJER}>
-          {redigeringsmodus ? (
-            <RedigerAvtaleContainer avtale={avtale}>
-              <AvtaleDetaljerForm opsjonerRegistrert={avtale.opsjonerRegistrert} />
-            </RedigerAvtaleContainer>
-          ) : (
             <AvtalePageLayout avtale={avtale}>
               <AvtaleDetaljer />
             </AvtalePageLayout>
-          )}
         </Tabs.Panel>
         <Tabs.Panel value={AvtaleTab.PERSONVERN}>
-          {redigeringsmodus ? (
-            <RedigerAvtaleContainer avtale={avtale}>
-              <AvtalePersonvernForm />
-            </RedigerAvtaleContainer>
-          ) : (
             <AvtalePageLayout avtale={avtale}>
               <AvtalePersonvern />
             </AvtalePageLayout>
-          )}
         </Tabs.Panel>
         <Tabs.Panel value={AvtaleTab.VEILEDERINFORMASJON}>
-          {redigeringsmodus ? (
-            <RedigerAvtaleContainer avtale={avtale}>
-              <AvtaleInformasjonForVeiledereForm />
-            </RedigerAvtaleContainer>
-          ) : (
             <AvtalePageLayout avtale={avtale}>
               <RedaksjoneltInnholdPreview />
             </AvtalePageLayout>
-          )}
         </Tabs.Panel>
-
         <Tabs.Panel value={AvtaleTab.GJENNOMFORINGER}>
           <InlineErrorBoundary>
             <GjennomforingerForAvtalePage />

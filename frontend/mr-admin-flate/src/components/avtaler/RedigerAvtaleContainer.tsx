@@ -10,12 +10,8 @@ import { AvtaleDto, ValidationError } from "@mr/api-client-v2";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Separator } from "../detaljside/Metadata";
-import { AvtaleFormKnapperad } from "./AvtaleFormKnapperad";
 import { useQueryClient } from "@tanstack/react-query";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { ContentBox } from "@/layouts/ContentBox";
-import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { QueryKeys } from "@/api/QueryKeys";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "@/pages/avtaler/avtaleFormUtils";
@@ -63,13 +59,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)}>
-        <ContentBox>
-          <WhitePaddedBox>
-            <AvtaleFormKnapperad />
-            <Separator />
-            {children}
-          </WhitePaddedBox>
-        </ContentBox>
+        {children}
       </form>
     </FormProvider>
   );

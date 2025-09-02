@@ -9,9 +9,6 @@ export function AvtaleFormKnapperad() {
   const navigate = useNavigate();
   return (
     <SkjemaKnapperad>
-      <Heading size="medium" level="2">
-        Rediger avtale
-      </Heading>
       <Spacer />
       <ValideringsfeilOppsummering />
       <Button size="small" onClick={() => navigate(-1)} variant="tertiary" type="button">
