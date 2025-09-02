@@ -17,6 +17,12 @@ const fyllInnAvtale = async (page: Page) => {
 
   await page.getByRole("button", { name: "Neste" }).click();
 
+  await page
+    .getByLabel("Prismodell")
+    .selectOption({ value: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK" });
+
+  await page.getByRole("button", { name: "Neste" }).click();
+
   await page.getByRole("checkbox", { name: "Velg alle" }).check();
   await page.locator("input#bekreft-personopplysninger").check();
 

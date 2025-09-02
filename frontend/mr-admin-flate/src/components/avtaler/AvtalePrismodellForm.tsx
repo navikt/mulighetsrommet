@@ -33,7 +33,6 @@ export default function AvtalePrismodellForm({ tiltakskode }: Props) {
     >
       <VStack gap="2">
         <Select
-          aria-placeholder="Velg en"
           readOnly={prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
           label={avtaletekster.prismodell.label}
           size="small"
@@ -58,6 +57,7 @@ export default function AvtalePrismodellForm({ tiltakskode }: Props) {
             },
           })}
         >
+          <option key={undefined} value={undefined}></option>
           {prismodeller.map(({ type, beskrivelse }) => (
             <option key={type} value={type}>
               {beskrivelse}
