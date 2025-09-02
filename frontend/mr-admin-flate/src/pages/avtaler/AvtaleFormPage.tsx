@@ -88,7 +88,7 @@ export function AvtaleFormPage() {
       <Header>
         <AvtaleIkon />
         <Heading size="large" level="2">
-          Redigerer ${avtale.navn}
+          Redigerer {avtale.navn}
         </Heading>
         <AvtaleStatusMedAarsakTag status={avtale.status} />
       </Header>
