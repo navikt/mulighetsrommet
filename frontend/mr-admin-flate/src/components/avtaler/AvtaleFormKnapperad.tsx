@@ -1,4 +1,4 @@
-import { Button, Heading, Spacer } from "@navikt/ds-react";
+import { Button, Spacer } from "@navikt/ds-react";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { SkjemaKnapperad } from "@/components/skjema/SkjemaKnapperad";

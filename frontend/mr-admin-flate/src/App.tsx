@@ -38,8 +38,6 @@ import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
 import { AvtalePersonvern } from "./pages/avtaler/AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
-import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
-import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 
 const basename = import.meta.env.BASE_URL;
@@ -129,34 +127,15 @@ const routes: RouteObject[] = [
           {
             path: "personvern",
             element: <AvtalePersonvern />,
-            // children: [
-            //   {
-            //     path: "skjema",
-            //     element: <AvtaleDetaljerForm />,
-            //     errorElement: <ErrorPage />,
-            //   },
-            // ],
           },
           {
             path: "veilederinformasjon",
             element: <RedaksjoneltInnholdPreview />,
-            // children: [
-            //   {
-            //     path: "skjema",
-            //     element: <AvtaleInformasjonForVeiledereForm />,
-            //     errorElement: <ErrorPage />,
-            //   },
-            // ],
           },
           {
             path: "gjennomforinger",
             element: <GjennomforingerForAvtalePage />,
           },
-          // {
-          //   path: "skjema",
-          //   element: <AvtalePage />,
-          //   errorElement: <ErrorPage />,
-          // },
         ],
       },
       {

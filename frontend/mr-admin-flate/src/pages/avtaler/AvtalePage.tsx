@@ -10,12 +10,8 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerForAvtalePage";
-import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
-import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
-import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
@@ -114,19 +110,19 @@ export function AvtalePage() {
           ))}
         </Tabs.List>
         <Tabs.Panel value={AvtaleTab.DETALJER}>
-            <AvtalePageLayout avtale={avtale}>
-              <AvtaleDetaljer />
-            </AvtalePageLayout>
+          <AvtalePageLayout avtale={avtale}>
+            <AvtaleDetaljer />
+          </AvtalePageLayout>
         </Tabs.Panel>
         <Tabs.Panel value={AvtaleTab.PERSONVERN}>
-            <AvtalePageLayout avtale={avtale}>
-              <AvtalePersonvern />
-            </AvtalePageLayout>
+          <AvtalePageLayout avtale={avtale}>
+            <AvtalePersonvern />
+          </AvtalePageLayout>
         </Tabs.Panel>
         <Tabs.Panel value={AvtaleTab.VEILEDERINFORMASJON}>
-            <AvtalePageLayout avtale={avtale}>
-              <RedaksjoneltInnholdPreview />
-            </AvtalePageLayout>
+          <AvtalePageLayout avtale={avtale}>
+            <RedaksjoneltInnholdPreview />
+          </AvtalePageLayout>
         </Tabs.Panel>
         <Tabs.Panel value={AvtaleTab.GJENNOMFORINGER}>
           <InlineErrorBoundary>

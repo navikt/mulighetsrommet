@@ -13,7 +13,7 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Box, Heading, Tabs } from "@navikt/ds-react";
+import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
@@ -83,12 +83,12 @@ export function AvtaleFormPage() {
   const currentTab = getCurrentTab(pathname);
   return (
     <div data-testid="avtale-form-page">
-      <title>{`Avtale | ${avtale.navn}`}</title>
+      <title>{`Redigerer avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler(avtaleId)} />
       <Header>
         <AvtaleIkon />
         <Heading size="large" level="2">
-          Redigerer avtale | {avtale.navn}
+          Redigerer ${avtale.navn}
         </Heading>
         <AvtaleStatusMedAarsakTag status={avtale.status} />
       </Header>
