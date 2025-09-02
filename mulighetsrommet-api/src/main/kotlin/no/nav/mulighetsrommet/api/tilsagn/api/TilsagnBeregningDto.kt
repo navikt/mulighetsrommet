@@ -123,7 +123,7 @@ data class TilsagnBeregningDto(
                             DataElement.nok(beregning.input.sats),
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                            DataElement.nok(
+                            DataElement.number(
                                 UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
                                     .setScale(2, RoundingMode.HALF_UP)
                                     .toDouble(),
@@ -157,7 +157,7 @@ data class TilsagnBeregningDto(
                             DataElement.nok(beregning.input.sats),
                             DataElement.text("per oppfølgingstime"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                            DataElement.nok(beregning.input.antallTimerOppfolgingPerDeltaker),
+                            DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker),
                             DataElement.text("oppfølgingstimer per deltaker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.nok(beregning.output.belop),

@@ -37,7 +37,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
-  const oppdaterPrisModalRef = useRef<HTMLDialogElement>(null);
+  const [oppdaterPrisModalOpen, setOppdaterPrisModalOpen] = useState<boolean>(false);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
 
@@ -118,11 +118,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                 </Dropdown.Menu.GroupedList.Item>
               )}
               {handlinger.oppdaterPris && enableTilsagn && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    oppdaterPrisModalRef.current?.showModal();
-                  }}
-                >
+                <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
                   Oppdater pris
                 </Dropdown.Menu.GroupedList.Item>
               )}
@@ -188,7 +184,13 @@ export function AvtaleKnapperad({ avtale }: Props) {
         errors={avbrytModalErrors}
       />
       <RegistrerOpsjonModal modalRef={registrerOpsjonModalRef} avtale={avtale} />
-      <OppdaterPrisModal modalRef={oppdaterPrisModalRef} avtale={avtale} />
+      {oppdaterPrisModalOpen && (
+        <OppdaterPrisModal
+          avtale={avtale}
+          open={oppdaterPrisModalOpen}
+          onClose={() => setOppdaterPrisModalOpen(false)}
+        />
+      )}
     </KnapperadContainer>
   );
 }
