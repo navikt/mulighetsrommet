@@ -46,46 +46,37 @@ function getCurrentTab(pathname: string) {
   }
 }
 
-interface AvtaleTabLinks {
+interface AvtaleTabDetaljer {
   label: string;
   value: AvtaleTab;
   href: string;
   testId?: string;
 }
 
-function getTabLinks(avtaleId: string, redigeringsmodus?: boolean): AvtaleTabLinks[] {
-  const tabs = [
+function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
+  return [
     {
       label: "Detaljer",
       value: AvtaleTab.DETALJER,
-      href: redigeringsmodus ? `/avtaler/${avtaleId}/skjema` : `/avtaler/${avtaleId}`,
+      href: `/avtaler/${avtaleId}`,
     },
     {
       label: "Personvern",
       value: AvtaleTab.PERSONVERN,
-      href: redigeringsmodus
-        ? `/avtaler/${avtaleId}/personvern/skjema`
-        : `/avtaler/${avtaleId}/personvern`,
+      href: `/avtaler/${avtaleId}/personvern`,
     },
     {
       label: "Informasjon for veiledere",
       value: AvtaleTab.VEILEDERINFORMASJON,
-      href: redigeringsmodus
-        ? `/avtaler/${avtaleId}/veilederinformasjon/skjema`
-        : `/avtaler/${avtaleId}/veilederinformasjon`,
+      href: `/avtaler/${avtaleId}/veilederinformasjon`,
+    },
+    {
+      label: "Gjennomføringer",
+      value: AvtaleTab.GJENNOMFORINGER,
+      href: `/avtaler/${avtaleId}/gjennomforinger`,
+      testId: "gjennomforinger-tab",
     },
   ];
-  if (!redigeringsmodus) {
-    return [
-      ...tabs,
-      {
-        label: "Gjennomføringer",
-        value: AvtaleTab.GJENNOMFORINGER,
-        href: `/avtaler/${avtaleId}/gjennomforinger`,
-      },
-    ];
-  }
-  return tabs;
 }
 
 export function AvtalePage() {
@@ -104,7 +95,7 @@ export function AvtalePage() {
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <HStack gap="6">
+        <HStack gap="6" className={redigeringsmodus ? "pb-2" : ""}>
           <AvtaleIkon />
           <Heading size="large" level="2">
             {avtale.navn}
@@ -113,9 +104,10 @@ export function AvtalePage() {
         </HStack>
       </Header>
       <Tabs value={currentTab}>
-        <Tabs.List>
-          {getTabLinks(avtale.id, redigeringsmodus).map(({ label, value, href, testId }) => (
+        <Tabs.List hidden={redigeringsmodus}>
+          {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
             <Tabs.Tab
+              hidden={redigeringsmodus && value !== currentTab}
               key={value}
               label={label}
               value={value}
@@ -127,10 +119,7 @@ export function AvtalePage() {
         <Tabs.Panel value={AvtaleTab.DETALJER}>
           {redigeringsmodus ? (
             <RedigerAvtaleContainer avtale={avtale}>
-              <AvtaleDetaljerForm
-                opsjonerRegistrert={avtale.opsjonerRegistrert}
-                avtalenummer={avtale.avtalenummer}
-              />
+              <AvtaleDetaljerForm opsjonerRegistrert={avtale.opsjonerRegistrert} />
             </RedigerAvtaleContainer>
           ) : (
             <AvtalePageLayout avtale={avtale}>

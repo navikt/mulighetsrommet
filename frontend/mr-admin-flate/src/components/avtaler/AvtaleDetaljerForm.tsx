@@ -22,12 +22,11 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 
-export function AvtaleDetaljerForm({
-  opsjonerRegistrert,
-}: {
+interface AvtaleDetaljerFormProps {
   opsjonerRegistrert?: OpsjonLoggRegistrert[];
-  avtalenummer?: string;
-}) {
+}
+
+export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormProps) {
   const { data: administratorer } = useAvtaleAdministratorer();
   const { data: ansatt } = useHentAnsatt();
   const { data: tiltakstyper } = useTiltakstyper();
