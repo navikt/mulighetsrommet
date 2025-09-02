@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import no.nav.mulighetsrommet.api.utbetaling.Person
-import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -14,7 +13,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     status: ArrangorflateUtbetalingStatus,
     deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>>,
     advarsler: List<DeltakerAdvarsel>,
-    linjer: List<ArrangorUtbetalingLinje>,
+    linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrangorflateUtbetalingDto {
     val perioderById = utbetaling.beregning.input.deltakelser().associateBy { it.deltakelseId }
@@ -99,7 +98,10 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         ),
         periode = utbetaling.periode,
         beregning = beregning,
-        betalingsinformasjon = utbetaling.betalingsinformasjon,
+        betalingsinformasjon = ArrangorflateBetalingsinformasjon(
+            kontonummer = utbetaling.betalingsinformasjon.kontonummer,
+            kid = utbetaling.betalingsinformasjon.kid,
+        ),
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         advarsler = advarsler,

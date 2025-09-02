@@ -22,3 +22,10 @@ data class ArrangorflateTilsagnDto(
     val beregning: Details,
     val bestillingsnummer: String,
 )
+
+@Serializable
+data class ArrangorflateTilsagnSummary(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val bestillingsnummer: String,
+)

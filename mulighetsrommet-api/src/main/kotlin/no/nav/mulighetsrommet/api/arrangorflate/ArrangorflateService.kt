@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.PersonService
-import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -188,19 +187,19 @@ class ArrangorflateService(
         )
     }
 
-    private fun QueryContext.getLinjer(utbetalingId: UUID): List<ArrangorUtbetalingLinje> {
+    private fun QueryContext.getLinjer(utbetalingId: UUID): List<ArrangforflateUtbetalingLinje> {
         return queries.delutbetaling.getByUtbetalingId(utbetalingId)
             .map { delutbetaling ->
                 val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
                     TilsagnDto.fromTilsagn(it)
                 }
 
-                ArrangorUtbetalingLinje(
+                ArrangforflateUtbetalingLinje(
                     id = delutbetaling.id,
                     belop = delutbetaling.belop,
                     status = delutbetaling.status,
                     statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
-                    tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                    tilsagn = ArrangorflateTilsagnSummary(
                         id = tilsagn.id,
                         bestillingsnummer = tilsagn.bestillingsnummer,
                     ),
