@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -265,6 +267,32 @@ class AvtaleService(
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
+    }
+
+    fun handlinger(avtale: AvtaleDto, ansatt: NavAnsatt): AvtaleHandlinger {
+        val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
+
+        return AvtaleHandlinger(
+            avbryt = when (avtale.status) {
+                AvtaleStatusDto.Utkast,
+                AvtaleStatusDto.Aktiv,
+                -> avtalerSkriv
+                is AvtaleStatusDto.Avbrutt,
+                AvtaleStatusDto.Avsluttet,
+                -> false
+            },
+            opprettGjennomforing = when (avtale.status) {
+                AvtaleStatusDto.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                is AvtaleStatusDto.Avbrutt,
+                AvtaleStatusDto.Avsluttet,
+                AvtaleStatusDto.Utkast,
+                -> false
+            },
+            oppdaterPris = Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv,
+            registrerOpsjon = avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv,
+            dupliser = avtalerSkriv,
+            rediger = avtalerSkriv,
+        )
     }
 
     private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {

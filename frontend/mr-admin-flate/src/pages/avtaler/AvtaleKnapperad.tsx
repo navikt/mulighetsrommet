@@ -9,7 +9,6 @@ import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
-  AvtaleStatus,
   FieldError,
   Opphav,
   Rolle,
@@ -24,6 +23,7 @@ import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
+import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 
 interface Props {
   avtale: AvtaleDto;
@@ -32,6 +32,7 @@ interface Props {
 export function AvtaleKnapperad({ avtale }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: handlinger } = useAvtaleHandlinger(avtale.id);
   const advarselModal = useRef<HTMLDialogElement>(null);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
@@ -44,10 +45,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     [avtale.tiltakstype.tiltakskode],
   );
-
-  function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
-    return !!avtale.opsjonsmodell.opsjonMaksVarighet;
-  }
 
   function dupliserAvtale() {
     navigate(`/avtaler/skjema`, {
@@ -94,22 +91,24 @@ export function AvtaleKnapperad({ avtale }: Props) {
           </Button>
           <Dropdown.Menu>
             <Dropdown.Menu.GroupedList>
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => {
-                  if (
-                    avtale.administratorer &&
-                    avtale.administratorer.length > 0 &&
-                    !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-                  ) {
-                    advarselModal.current?.showModal();
-                  } else {
-                    navigate(`${location.pathname}/skjema`);
-                  }
-                }}
-              >
-                Rediger avtale
-              </Dropdown.Menu.GroupedList.Item>
-              {kanRegistrereOpsjon(avtale) && (
+              {handlinger.rediger && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    if (
+                      avtale.administratorer &&
+                      avtale.administratorer.length > 0 &&
+                      !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
+                    ) {
+                      advarselModal.current?.showModal();
+                    } else {
+                      navigate(`${location.pathname}/skjema`);
+                    }
+                  }}
+                >
+                  Rediger avtale
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+              {handlinger.registrerOpsjon && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     registrerOpsjonModalRef.current?.showModal();
@@ -118,7 +117,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {enableTilsagn && (
+              {handlinger.oppdaterPris && enableTilsagn && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     oppdaterPrisModalRef.current?.showModal();
@@ -127,24 +126,33 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Oppdater pris
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {avtale.status.type === AvtaleStatus.AKTIV && (
+              {handlinger.avbryt && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                   Avbryt avtale
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
-              >
-                Opprett ny gjennomføring
-              </Dropdown.Menu.GroupedList.Item>
+              {handlinger.opprettGjennomforing && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
+                >
+                  Opprett ny gjennomføring
+                </Dropdown.Menu.GroupedList.Item>
+              )}
             </Dropdown.Menu.GroupedList>
-            <Dropdown.Menu.Divider />
-            <Dropdown.Menu.List>
-              <Dropdown.Menu.List.Item onClick={dupliserAvtale}>
-                <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
-                Dupliser
-              </Dropdown.Menu.List.Item>
-            </Dropdown.Menu.List>
+            {handlinger.dupliser && (
+              <>
+                <Dropdown.Menu.Divider />
+                <Dropdown.Menu.List>
+                  <Dropdown.Menu.List.Item onClick={dupliserAvtale}>
+                    <LayersPlusIcon
+                      fontSize="1.5rem"
+                      aria-label="Ikon for duplisering av dokument"
+                    />
+                    Dupliser
+                  </Dropdown.Menu.List.Item>
+                </Dropdown.Menu.List>
+              </>
+            )}
           </Dropdown.Menu>
         </Dropdown>
       </HarTilgang>

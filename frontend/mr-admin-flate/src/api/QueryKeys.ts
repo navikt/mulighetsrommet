@@ -25,6 +25,7 @@ export const QueryKeys = {
   avtaler: (mine?: boolean, avtaleFilter?: Pick<GetAvtalerData, "query">) =>
     ["avtaler", mine, avtaleFilter] as const,
   avtale: (id?: string) => ["avtale", id] as const,
+  avtaleHandlnger: (id?: string) => ["avtale-handlinger", id] as const,
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   navEnheter: () => ["nav-enheter"],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],

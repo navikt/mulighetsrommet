@@ -25,6 +25,23 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/avtaler/{id}/handlinger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Avtaler
+      operationId: getAvtaleHandlinger
+      responses:
+        200:
+          description: Avtale handlinger
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleHandlinger"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -2244,6 +2261,23 @@ components:
         - arenaKode
         - startDato
         - status
+
+    AvtaleHandlinger:
+      type: object
+      properties:
+        rediger:
+          type: boolean
+        avbryt:
+          type: boolean
+        opprettGjennomforing:
+          type: boolean
+        dupliser:
+          type: boolean
+        registrerOpsjon:
+          type: boolean
+        oppdaterPris:
+          type: boolean
+      required: [rediger, avbryt, opprettGjennomforing, dupliser, registrerOpsjon, oppdaterPris]
 
     AvtaleDto:
       type: object
