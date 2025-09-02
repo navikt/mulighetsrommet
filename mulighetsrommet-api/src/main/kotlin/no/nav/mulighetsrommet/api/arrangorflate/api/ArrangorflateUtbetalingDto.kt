@@ -89,7 +89,7 @@ sealed class ArrangorflateBeregning {
         override val displayName: String = "Avtalt månedspris per tiltaksplass"
         override val detaljer: Details = Details(
             entries = listOf(
-                DetailsEntry.number("Antall ukesverk", antallManedsverk),
+                DetailsEntry.number("Antall månedsverk", antallManedsverk),
                 DetailsEntry.nok("Pris", sats),
                 DetailsEntry.nok("Beløp", belop),
             ),
