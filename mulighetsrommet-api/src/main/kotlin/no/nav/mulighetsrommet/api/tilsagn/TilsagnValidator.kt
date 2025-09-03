@@ -17,7 +17,7 @@ object TilsagnValidator {
         previous: Tilsagn?,
         tiltakstypeNavn: String,
         arrangorSlettet: Boolean,
-        minimumTilsagnPeriodeStart: LocalDate?,
+        gyldigTilsagnPeriode: Periode?,
         gjennomforingSluttDato: LocalDate?,
         avtalteSatser: List<AvtaltSats>,
     ): Either<NonEmptyList<FieldError>, Step3> {
@@ -26,7 +26,7 @@ object TilsagnValidator {
             previous,
             tiltakstypeNavn,
             arrangorSlettet,
-            minimumTilsagnPeriodeStart,
+            gyldigTilsagnPeriode,
         )
             .flatMap { step1 ->
                 validateStep2(step1, gjennomforingSluttDato, tiltakstypeNavn)
@@ -44,7 +44,7 @@ object TilsagnValidator {
         val periodeStart: LocalDate,
         val periodeSlutt: LocalDate,
         val kostnadssted: NavEnhetNummer,
-        val minimumTilsagnPeriodeStart: LocalDate,
+        val gyldigTilsagnPeriode: Periode,
     )
 
     fun validateStep1(
@@ -52,7 +52,7 @@ object TilsagnValidator {
         previous: Tilsagn?,
         tiltakstypeNavn: String,
         arrangorSlettet: Boolean,
-        minimumTilsagnPeriodeStart: LocalDate?,
+        gyldigTilsagnPeriode: Periode?,
     ): Either<NonEmptyList<FieldError>, Step1> = either {
         zipOrAccumulate(
             {
@@ -68,7 +68,7 @@ object TilsagnValidator {
                 next.periodeSlutt
             },
             {
-                ensureNotNull(minimumTilsagnPeriodeStart) {
+                ensureNotNull(gyldigTilsagnPeriode) {
                     FieldError.of("Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda", TilsagnRequest::periodeStart)
                 }
             },
@@ -98,12 +98,12 @@ object TilsagnValidator {
             {
                 validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker).bind()
             },
-        ) { start, slutt, minStart, _, _, _, kostnadssted, _, _ ->
+        ) { start, slutt, gyldigPeriode, _, _, _, kostnadssted, _, _ ->
             Step1(
                 periodeStart = start,
                 periodeSlutt = slutt,
                 kostnadssted = kostnadssted,
-                minimumTilsagnPeriodeStart = minStart,
+                gyldigTilsagnPeriode = gyldigPeriode,
             )
         }
     }
@@ -126,8 +126,13 @@ object TilsagnValidator {
                 Periode.fromInclusiveDates(step1.periodeStart, step1.periodeSlutt)
             },
             {
-                ensure(!step1.periodeStart.isBefore(step1.minimumTilsagnPeriodeStart)) {
-                    FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er ${step1.minimumTilsagnPeriodeStart.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart)
+                ensure(!step1.periodeStart.isBefore(step1.gyldigTilsagnPeriode.start)) {
+                    FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er ${step1.gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart)
+                }
+            },
+            {
+                ensure(!step1.periodeSlutt.isAfter(step1.gyldigTilsagnPeriode.getLastInclusiveDate())) {
+                    FieldError.of("Maksimum sluttdato for tilsagn til $tiltakstypeNavn er ${step1.gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt)
                 }
             },
             {
@@ -140,7 +145,7 @@ object TilsagnValidator {
                     FieldError.of(TilsagnRequest::periodeSlutt, "Tilsagnsperioden kan ikke vare utover årsskiftet")
                 }
             },
-        ) { periode, _, _, _ ->
+        ) { periode, _, _, _, _ ->
             Step2(step1, periode)
         }
     }

@@ -76,7 +76,7 @@ class TilsagnService(
                 previous = previous,
                 tiltakstypeNavn = gjennomforing.tiltakstype.navn,
                 arrangorSlettet = gjennomforing.arrangor.slettet,
-                minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+                gyldigTilsagnPeriode = config.okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
             )
