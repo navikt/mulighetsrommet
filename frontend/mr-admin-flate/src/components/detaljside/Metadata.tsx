@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 export interface MetadataProps {
   header: string | ReactNode;
   value: string | number | undefined | null | ReactNode;
+  compact?: boolean;
 }
 
 export function Metadata({ header, value }: MetadataProps) {
@@ -25,9 +26,10 @@ export function Separator({ style, classname }: { style?: any; classname?: strin
   );
 }
 
-export function MetadataHorisontal({ header, value }: MetadataProps) {
+export function MetadataHorisontal({ header, value, compact }: MetadataProps) {
+  const gridLayout = compact ? "max-content 1fr" : "0.5fr 1fr";
   return (
-    <HGrid columns="0.5fr 1fr" gap="2" align="start">
+    <HGrid columns={gridLayout} gap="2" align="start">
       <dt className="font-bold w-max">{header}:</dt>
       <dd className="whitespace-nowrap w-fit">{value ?? "-"}</dd>
     </HGrid>
