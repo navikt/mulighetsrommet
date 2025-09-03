@@ -6,9 +6,10 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { Besluttelse, FieldError, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
+import { FieldError, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  Besluttelse,
   BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
   TilsagnHandling,
   TilsagnStatusAarsak,

@@ -184,12 +184,28 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
-            post("/opprett-utbetaling") {
-                val utbetalingId = call.parameters.getOrFail<UUID>("id")
+            post("/opprett-utbetaling", {
+                tags = setOf("Utbetaling")
+                operationId = "opprettUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<OpprettUtbetalingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.Created) {
+                        description = "Utbetalingen ble opprettet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val request = call.receive<OpprettUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
+                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(id, request)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
