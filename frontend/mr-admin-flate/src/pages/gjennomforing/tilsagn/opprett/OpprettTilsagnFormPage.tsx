@@ -4,7 +4,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { TilsagnBeregningType, TilsagnType } from "@mr/api-client-v2";
+import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import { useSearchParams } from "react-router";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
@@ -25,14 +25,21 @@ function useHentData(gjennomforingId: string) {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: defaults } = useTilsagnDefaults({
-    id: undefined,
+    id: null,
     gjennomforingId,
     type,
-    periodeStart: periodeStart ?? undefined,
-    periodeSlutt: periodeSlutt ?? undefined,
+    periodeStart: periodeStart,
+    periodeSlutt: periodeSlutt,
     // Denne blir bestemt av backend men er påkrevd
-    beregning: { type: TilsagnBeregningType.FRI },
-    kostnadssted: kostnadssted ?? undefined,
+    beregning: {
+      type: TilsagnBeregningType.FRI,
+      antallPlasser: null,
+      prisbetingelser: null,
+      antallTimerOppfolgingPerDeltaker: null,
+      linjer: [],
+    },
+    kostnadssted: kostnadssted,
+    kommentar: null,
   });
 
   return { gjennomforing, avtale, defaults };

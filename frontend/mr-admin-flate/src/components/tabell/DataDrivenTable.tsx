@@ -1,4 +1,4 @@
-import { DataDrivenTableDto } from "@mr/api-client-v2";
+import { DataDrivenTableDto, DataElement } from "@tiltaksadministrasjon/api-client";
 import { useSortableData } from "@mr/frontend-common";
 import { Table, TableProps } from "@navikt/ds-react";
 import { compareDataElements, getDataElement } from "@/components/data-element/DataElement";
@@ -33,7 +33,7 @@ export function DataDrivenTable({ data, className, size }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map((row, index) => (
+        {sortedData.map((row: Record<string, DataElement | null>, index) => (
           <Table.Row key={index}>
             {data.columns.map((col) => {
               const cell = row[col.key];

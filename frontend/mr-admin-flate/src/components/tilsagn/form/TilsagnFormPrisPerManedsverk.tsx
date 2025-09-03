@@ -1,5 +1,6 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
-import { GjennomforingDto, TilsagnRequest } from "@mr/api-client-v2";
+import { GjennomforingDto } from "@mr/api-client-v2";
+import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";

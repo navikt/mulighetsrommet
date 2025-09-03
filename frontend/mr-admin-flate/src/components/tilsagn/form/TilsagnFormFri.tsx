@@ -1,4 +1,6 @@
-import { GjennomforingDto, TilsagnBeregningType, TilsagnRequest } from "@mr/api-client-v2";
+import { GjennomforingDto } from "@mr/api-client-v2";
+import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
+import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import {

@@ -1,4 +1,4 @@
-import { TilsagnService } from "@mr/api-client-v2";
+import { TilsagnService } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "../QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 

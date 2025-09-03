@@ -1,4 +1,4 @@
-import { TilsagnRequest, TilsagnService } from "@mr/api-client-v2";
+import { TilsagnRequest, TilsagnService } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 

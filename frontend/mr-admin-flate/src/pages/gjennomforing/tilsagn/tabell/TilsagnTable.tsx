@@ -1,4 +1,4 @@
-import { DataDrivenTableDto } from "@mr/api-client-v2";
+import { DataDrivenTableDto } from "@tiltaksadministrasjon/api-client";
 import { Alert, Heading } from "@navikt/ds-react";
 import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
 import { useAktiveTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";

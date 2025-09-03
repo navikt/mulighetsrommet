@@ -3,7 +3,7 @@ import { HStack, Label, Loader, VStack } from "@navikt/ds-react";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { TilsagnRegnestykke } from "../beregning/TilsagnRegnestykke";
 import { useFormContext } from "react-hook-form";
-import { TilsagnRequest } from "@mr/api-client-v2";
+import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 
 export function TilsagnBeregningPreview() {
   const { watch } = useFormContext<TilsagnRequest>();

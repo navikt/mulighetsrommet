@@ -6,7 +6,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { client } from "@mr/api-client-v2";
+import { client as legacyClient } from "@mr/api-client-v2";
+import { client } from "@tiltaksadministrasjon/api-client";
 import "./index.css";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
@@ -20,23 +21,30 @@ const queryClient = new QueryClient({
   },
 });
 
-client.setConfig({
-  baseUrl: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
-});
+type ClientType = typeof legacyClient;
 
-client.interceptors.request.use((request) => {
-  request.headers.set("Accept", "application/json");
-  request.headers.set("Nav-Call-Id", uuidv4());
-  request.headers.set("Nav-Consumer-Id", APPLICATION_NAME);
-  if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
-    request.headers.set(
-      "Authorization",
-      `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
-    );
-  }
+configureClient(legacyClient);
+configureClient(client);
 
-  return request;
-});
+function configureClient(client: ClientType) {
+  client.setConfig({
+    baseUrl: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
+  });
+
+  client.interceptors.request.use((request) => {
+    request.headers.set("Accept", "application/json");
+    request.headers.set("Nav-Call-Id", uuidv4());
+    request.headers.set("Nav-Consumer-Id", APPLICATION_NAME);
+    if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
+      request.headers.set(
+        "Authorization",
+        `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
+      );
+    }
+
+    return request;
+  });
+}
 
 async function enableMocking() {
   if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {

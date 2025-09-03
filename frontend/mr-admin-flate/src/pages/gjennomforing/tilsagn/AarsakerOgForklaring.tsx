@@ -6,7 +6,7 @@ type Props = {
   ingress?: string;
   tekster?: string[];
   aarsaker: string[];
-  forklaring?: string;
+  forklaring: string | null | undefined;
 };
 
 export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {

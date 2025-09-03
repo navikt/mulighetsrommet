@@ -1,4 +1,4 @@
-import { type LabeledDataElement, LabeledDataElementType } from "@mr/api-client-v2";
+import { type LabeledDataElement, LabeledDataElementType } from "@tiltaksadministrasjon/api-client";
 import { BodyLong, VStack } from "@navikt/ds-react";
 import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
 import { getDataElement } from "./DataElement";
@@ -17,7 +17,7 @@ export function DataDetails({ entries }: DataElementProps) {
   );
 }
 
-export function LabeledDataElement(props: LabeledDataElement) {
+function LabeledDataElement(props: LabeledDataElement) {
   const value = props.value ? getDataElement(props.value) : null;
   const valueOrFallback = value || "-";
   switch (props.type) {
