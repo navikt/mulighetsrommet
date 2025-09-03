@@ -4,10 +4,8 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { v4 as uuidv4 } from "uuid";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { utbetalingLinjeCompareFn } from "@/utils/Utils";
 import { FieldError, Rolle, ValidationError } from "@mr/api-client-v2";
 import {
   DelutbetalingRequest,
@@ -50,6 +48,7 @@ import {
   useUtbetalingEndringshistorikk,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
@@ -71,23 +70,9 @@ function useUtbetalingPageData() {
     tilsagn,
     utbetaling: utbetaling.utbetaling,
     handlinger: utbetaling.handlinger,
-    linjer: utbetaling.linjer.toSorted(utbetalingLinjeCompareFn),
+    linjer: utbetaling.linjer.toSorted(compareUtbetalingLinje),
     beregning,
   };
-}
-
-function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
-  return tilsagn
-    .filter((t) => t.status === TilsagnStatus.GODKJENT)
-    .map((t) => ({
-      belop: 0,
-      tilsagn: t,
-      gjorOppTilsagn: false,
-      id: uuidv4(),
-      status: null,
-      opprettelse: null,
-    }))
-    .toSorted(utbetalingLinjeCompareFn);
 }
 
 export function UtbetalingPage() {
@@ -273,9 +258,7 @@ export function UtbetalingPage() {
                     </Accordion.Content>
                   </Accordion.Item>
                 </Accordion>
-                {tilsagn.every(
-                  (t) => ![TilsagnStatus.GODKJENT, TilsagnStatus.OPPGJORT].includes(t.status),
-                ) && (
+                {tilsagn.every((t) => t.status.type !== TilsagnStatus.GODKJENT) && (
                   <Alert variant="info">
                     Det finnes ingen godkjente tilsagn for utbetalingsperioden
                   </Alert>

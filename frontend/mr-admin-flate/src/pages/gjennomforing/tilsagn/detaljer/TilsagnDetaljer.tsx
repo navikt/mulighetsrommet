@@ -99,11 +99,13 @@ export function TilsagnDetaljer({ tilsagn, beregning, meny, annullering, oppgjor
             </Heading>
             <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
           </Box>
-          {(status === TilsagnStatus.ANNULLERT || status === TilsagnStatus.OPPGJORT) && (
+          {(status.type === TilsagnStatus.ANNULLERT || status.type === TilsagnStatus.OPPGJORT) && (
             <>
               <Separator />
               <Heading level="4" spacing size="small">
-                Begrunnelse for {status === TilsagnStatus.ANNULLERT ? "annullering" : "oppgjør"}
+                {status.type === TilsagnStatus.ANNULLERT
+                  ? "Begrunnelse for annullering"
+                  : "Begrunnelse for oppgjør"}
               </Heading>
               <MetadataHorisontal
                 header={"Årsaker"}

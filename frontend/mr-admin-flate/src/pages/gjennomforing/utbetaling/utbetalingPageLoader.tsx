@@ -1,4 +1,3 @@
-import { UtbetalingService as LegacyUtbetalingService } from "@mr/api-client-v2";
 import { UtbetalingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
@@ -12,7 +11,7 @@ export function useUtbetaling(id: string) {
 export function useTilsagnTilUtbetaling(id: string) {
   return useApiSuspenseQuery({
     queryKey: ["utbetaling", id, "tilsagn"],
-    queryFn: async () => LegacyUtbetalingService.getTilsagnTilUtbetaling({ path: { id } }),
+    queryFn: async () => UtbetalingService.getTilsagnTilUtbetaling({ path: { id } }),
   });
 }
 

@@ -8,7 +8,6 @@ import {
   InnholdElement,
   Kurstype,
   NavEnhetDto,
-  TilsagnType,
   Tiltakskode,
   TiltakskodeArena,
   ValidationError,
@@ -16,7 +15,7 @@ import {
 import {
   DelutbetalingReturnertAarsak,
   TilsagnStatusAarsak,
-  UtbetalingLinje,
+  TilsagnType,
 } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
@@ -348,8 +347,4 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
 
 export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
-}
-
-export function utbetalingLinjeCompareFn(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
-  return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }

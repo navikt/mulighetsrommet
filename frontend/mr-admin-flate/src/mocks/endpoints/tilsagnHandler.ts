@@ -221,7 +221,7 @@ const beregning: TilsagnBeregningDto = {
 };
 
 function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
-  switch (tilsagn.status) {
+  switch (tilsagn.status.type) {
     case TilsagnStatus.TIL_GODKJENNING:
       return {
         tilsagn,

@@ -10,11 +10,12 @@ import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklari
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { FieldError, Rolle, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
+import { FieldError, Rolle, ValidationError } from "@mr/api-client-v2";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   Besluttelse,
   BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
+  TilsagnStatus,
   TilsagnStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
@@ -151,7 +152,7 @@ export function TilsagnPage() {
       </EndringshistorikkPopover>
       <HarTilgang
         rolle={Rolle.SAKSBEHANDLER_OKONOMI}
-        condition={[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status)}
+        condition={[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status.type)}
       >
         <ActionMenu>
           <ActionMenu.Trigger>
@@ -160,7 +161,7 @@ export function TilsagnPage() {
             </Button>
           </ActionMenu.Trigger>
           <ActionMenu.Content>
-            {tilsagn.status === TilsagnStatus.RETURNERT && (
+            {tilsagn.status.type === TilsagnStatus.RETURNERT && (
               <>
                 <ActionMenu.Item icon={<PencilFillIcon />}>
                   <Link className="no-underline" to="./rediger-tilsagn">
@@ -176,7 +177,7 @@ export function TilsagnPage() {
                 </ActionMenu.Item>
               </>
             )}
-            {tilsagn.status === TilsagnStatus.GODKJENT &&
+            {tilsagn.status.type === TilsagnStatus.GODKJENT &&
               (tilsagn.belopBrukt === 0 ? (
                 <>
                   <ActionMenu.Item

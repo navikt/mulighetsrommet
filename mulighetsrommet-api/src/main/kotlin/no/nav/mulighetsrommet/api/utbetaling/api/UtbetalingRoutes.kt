@@ -195,9 +195,24 @@ fun Route.utbetalingRoutes() {
             call.respond(historikk)
         }
 
-        // TODO: flytt til tilsagnroutes
-        get("/tilsagn") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("/tilsagn", {
+            tags = setOf("Utbetaling")
+            operationId = "getTilsagnTilUtbetaling"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilsagn til utbetaling"
+                    body<List<TilsagnDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
 
             val tilsagn = db.session {
                 val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
