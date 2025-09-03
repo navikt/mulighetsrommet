@@ -10,10 +10,12 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnValidator.validateBeregningFriInput
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Periode
@@ -208,13 +210,7 @@ fun resolveTilsagnDefaults(
         else -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
     }
 
-    val (beregningType, prisbetingelser) = when (prismodell) {
-        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
-        AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
-    }
+    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
@@ -286,13 +282,7 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
     gjennomforing: GjennomforingDto,
     prismodell: AvtaleDto.PrismodellDto,
 ): TilsagnRequest {
-    val (beregningType, prisbetingelser) = when (prismodell) {
-        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
-        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
-        AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
-    }
+    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
 
     return TilsagnRequest(
         id = UUID.randomUUID(),
@@ -309,3 +299,14 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
         ),
     )
 }
+
+private fun resolveBeregningTypeAndPrisbetingelser(
+    prismodell: AvtaleDto.PrismodellDto,
+): Pair<TilsagnBeregningType, String?> =
+    when (prismodell) {
+        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
+    }
