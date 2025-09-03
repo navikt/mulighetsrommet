@@ -4501,11 +4501,22 @@ components:
           type: boolean
         opprettelse:
           $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingLinjeHandling"
       required:
         - id
         - tilsagn
         - belop
         - gjorOppTilsagn
+        - handlinger
+
+    UtbetalingLinjeHandling:
+      type: string
+      enum:
+        - ATTESTER
+        - RETURNER
 
     DelutbetalingRequest:
       type: object

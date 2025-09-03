@@ -62,12 +62,11 @@ fun Route.utbetalingRoutes() {
                         val tilsagnOpprettelse = queries.totrinnskontroll
                             .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
 
-                        val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
+                        val erBeslutter = ansatt.hasKontorspesifikkRolle(
                             Rolle.ATTESTANT_UTBETALING,
                             setOf(tilsagn.kostnadssted.enhetsnummer),
-                        ) &&
-                            opprettelse.behandletAv != ansatt.navIdent &&
-                            tilsagnOpprettelse.besluttetAv != ansatt.navIdent
+                        )
+                        val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
                         UtbetalingLinje(
                             id = delutbetaling.id,
@@ -75,7 +74,13 @@ fun Route.utbetalingRoutes() {
                             belop = delutbetaling.belop,
                             status = delutbetaling.status,
                             tilsagn = tilsagn,
-                            opprettelse = opprettelse.toDto(kanBesluttesAvAnsatt),
+                            opprettelse = opprettelse.toDto(),
+                            handlinger = setOfNotNull(
+                                UtbetalingLinjeHandling.ATTESTER.takeIf {
+                                    erBeslutter && opprettelse.behandletAv != ansatt.navIdent && tilsagnOpprettelse.besluttetAv != ansatt.navIdent
+                                },
+                                UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
+                            ),
                         )
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 

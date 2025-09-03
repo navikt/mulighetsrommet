@@ -7,6 +7,7 @@ import {
   FieldError,
   UtbetalingDto,
   UtbetalingLinje,
+  UtbetalingLinjeHandling,
   ValidationError,
 } from "@mr/api-client-v2";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
@@ -50,7 +51,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
       <UtbetalingLinjeTable
         linjer={linjer}
         utbetaling={utbetaling}
-        renderRow={(linje) => {
+        renderRow={(linje: UtbetalingLinje) => {
           return (
             <UtbetalingLinjeRow
               readOnly
@@ -60,15 +61,17 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               knappeColumn={
                 linje.status === DelutbetalingStatus.TIL_ATTESTERING && (
                   <HStack gap="4">
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      type="button"
-                      onClick={() => setAvvisModalOpen(true)}
-                    >
-                      Send i retur
-                    </Button>
-                    {linje.opprettelse?.kanBesluttes && (
+                    {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        type="button"
+                        onClick={() => setAvvisModalOpen(true)}
+                      >
+                        Send i retur
+                      </Button>
+                    )}
+                    {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
                       <Button
                         size="small"
                         type="button"

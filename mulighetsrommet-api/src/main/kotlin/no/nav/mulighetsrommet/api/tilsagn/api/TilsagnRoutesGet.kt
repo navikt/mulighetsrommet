@@ -9,14 +9,12 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -53,17 +51,9 @@ fun Route.tilsagnRoutesGet() {
                 val ansatt = queries.ansatt.getByNavIdent(navIdent)
                     ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
-                val kostnadssted = tilsagn.kostnadssted.enhetsnummer
-
-                val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).let {
-                    it.toDto(kanBeslutteTilsagn(it, ansatt, kostnadssted))
-                }
-                val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.let {
-                    it.toDto(kanBeslutteTilsagn(it, ansatt, kostnadssted))
-                }
-                val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.let {
-                    it.toDto(kanBeslutteTilsagn(it, ansatt, kostnadssted))
-                }
+                val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).toDto()
+                val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
+                val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
 
                 TilsagnDetaljerDto(
                     tilsagn = TilsagnDto.fromTilsagn(tilsagn),
@@ -71,6 +61,7 @@ fun Route.tilsagnRoutesGet() {
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
+                    handlinger = service.handlinger(tilsagn, ansatt),
                 )
             }
 
@@ -100,16 +91,4 @@ fun Route.tilsagnRoutesGet() {
         val historikk = service.getEndringshistorikk(id)
         call.respond(historikk)
     }
-}
-
-private fun kanBeslutteTilsagn(
-    totrinnskontroll: Totrinnskontroll,
-    ansatt: NavAnsatt,
-    kostnadssted: NavEnhetNummer,
-): Boolean {
-    return totrinnskontroll.behandletAv != ansatt.navIdent &&
-        ansatt.hasKontorspesifikkRolle(
-            Rolle.BESLUTTER_TILSAGN,
-            setOf(kostnadssted),
-        )
 }
