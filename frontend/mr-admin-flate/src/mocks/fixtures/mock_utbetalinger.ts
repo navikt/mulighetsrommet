@@ -1,5 +1,6 @@
-import { Besluttelse, UtbetalingBeregningFri } from "@mr/api-client-v2";
+import { UtbetalingBeregningFri } from "@mr/api-client-v2";
 import {
+  Besluttelse,
   DataElementStatusVariant,
   DelutbetalingStatus,
   TilsagnStatus,

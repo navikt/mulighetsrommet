@@ -432,9 +432,35 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/opprett-utbetaling:
     post:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Utbetaling
+      operationId: opprettUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpprettUtbetalingRequest"
+        required: false
+      responses:
+        "201":
+          description: Utbetalingen ble opprettet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/delutbetalinger:
     put:
@@ -1357,6 +1383,37 @@ components:
       - handlinger
       - linjer
       - utbetaling
+    OpprettUtbetalingRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          type: string
+          format: uuid
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        beskrivelse:
+          type: string
+        kontonummer:
+          type: string
+        kidNummer:
+          type:
+          - "null"
+          - string
+        belop:
+          type: integer
+          format: int32
+      required:
+      - belop
+      - beskrivelse
+      - gjennomforingId
+      - kidNummer
+      - kontonummer
+      - periodeSlutt
+      - periodeStart
     DelutbetalingRequest:
       type: object
       properties:

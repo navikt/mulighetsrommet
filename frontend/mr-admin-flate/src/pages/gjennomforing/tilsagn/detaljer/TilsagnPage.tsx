@@ -10,9 +10,10 @@ import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklari
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { Besluttelse, FieldError, Rolle, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
+import { FieldError, Rolle, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  Besluttelse,
   BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
   TilsagnStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";

@@ -1532,24 +1532,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/utbetaling/{id}/beslutt-avbryt:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Utbetaling
-      operationId: besluttAvbryt
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest"
-      responses:
-        200:
-          description: OK
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/utbetaling/{id}/beregning:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1613,24 +1595,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/utbetaling/{id}/opprett-utbetaling:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Utbetaling
-      operationId: opprettUtbetaling
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OpprettUtbetalingRequest"
-      responses:
-        201:
-          description: Created
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -3991,12 +3955,6 @@ components:
         - TIL_OPPGJOR
         - OPPGJORT
 
-    Besluttelse:
-      type: string
-      enum:
-        - GODKJENT
-        - AVVIST
-
     PrismodellOgBeskrivelse:
       type: object
       properties:
@@ -4203,47 +4161,6 @@ components:
           items:
             type: string
       required: [oppgavetyper, tiltakskoder, regioner]
-
-    OpprettUtbetalingRequest:
-      type: object
-      properties:
-        gjennomforingId:
-          type: string
-          format: UUID
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        beskrivelse:
-          type: string
-        kontonummer:
-          type: string
-        kidNummer:
-          type: [string, "null"]
-        belop:
-          type: string
-      required:
-        - gjennomforingId
-        - beskrivelse
-        - kontonummer
-        - belop
-        - periodeStart
-        - periodeSlutt
-
-    BesluttTotrinnskontrollRequest:
-      type: object
-      properties:
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: [string, "null"]
-      required: [besluttelse, aarsaker, forklaring]
 
     DataDrivenTableDto:
       type: object
