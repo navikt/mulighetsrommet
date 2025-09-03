@@ -8,9 +8,10 @@ import PrismodellForm from "./PrismodellForm";
 
 interface Props {
   tiltakskode: Tiltakskode;
+  avtaleStartDato: Date;
 }
 
-export default function AvtalePrismodellForm({ tiltakskode }: Props) {
+export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: Props) {
   const {
     formState: { errors },
     setValue,
@@ -61,7 +62,11 @@ export default function AvtalePrismodellForm({ tiltakskode }: Props) {
             </option>
           ))}
         </Select>
-        <PrismodellForm prismodell={prismodell} tiltakskode={tiltakskode} />
+        <PrismodellForm
+          prismodell={prismodell}
+          tiltakskode={tiltakskode}
+          avtaleStartDato={avtaleStartDato}
+        />
       </VStack>
     </Box>
   );
