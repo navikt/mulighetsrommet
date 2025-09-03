@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -152,7 +153,7 @@ class TilsagnService(
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun beregnTilsagn(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
+    fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning = db.session {
         return when (request.beregning.type) {
             TilsagnBeregningType.FRI ->
                 TilsagnBeregningFri.beregn(
@@ -169,31 +170,92 @@ class TilsagnService(
                     ),
                 )
 
-            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-            TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
+                beregnTilsagnFallbackResolver(request).let { fallback ->
+                    TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
+                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                            periode = fallback.periode,
+                            sats = fallback.sats,
+                            antallPlasser = fallback.antallPlasser,
+                        ),
+                    )
+                }
+
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
+                beregnTilsagnFallbackResolver(request).let { fallback ->
+                    TilsagnBeregningPrisPerManedsverk.beregn(
+                        TilsagnBeregningPrisPerManedsverk.Input(
+                            periode = fallback.periode,
+                            sats = fallback.sats,
+                            antallPlasser = fallback.antallPlasser,
+                            prisbetingelser = fallback.prisbetingelser,
+                        ),
+                    )
+                }
+            TilsagnBeregningType.PRIS_PER_UKESVERK ->
+                beregnTilsagnFallbackResolver(request).let { fallback ->
+                    TilsagnBeregningPrisPerUkesverk.beregn(
+                        TilsagnBeregningPrisPerUkesverk.Input(
+                            periode = fallback.periode,
+                            sats = fallback.sats,
+                            antallPlasser = fallback.antallPlasser,
+                            prisbetingelser = fallback.prisbetingelser,
+                        ),
+                    )
+                }
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-            -> {
-                if (request.periodeStart == null) return null
-                if (request.periodeSlutt == null) return null
-                if (!request.periodeStart.isBefore(request.periodeSlutt)) return null
-                val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
-
-                val avtale = queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
-                    queries.avtale.get(it)
-                } ?: return null
-
-                val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
-                val sats = AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
-
-                TilsagnValidator.validateBeregning(
-                    request.beregning,
-                    periode = periode,
-                    sats = sats,
-                    avtalteSatser = avtalteSatser,
-                ).getOrNull()
+            -> beregnTilsagnFallbackResolver(request).let { fallback ->
+                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                        periode = fallback.periode,
+                        sats = fallback.sats,
+                        antallPlasser = fallback.antallPlasser,
+                        prisbetingelser = fallback.prisbetingelser,
+                        antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
+                    ),
+                )
             }
         }
+    }
+
+    private data class TilsagnBeregningFallbackResolver(
+        val sats: Int,
+        val periode: Periode,
+        val antallPlasser: Int,
+        val antallTimerOppfolgingPerDeltaker: Int,
+        val prisbetingelser: String?,
+    )
+
+    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver = db.session {
+        val antallPlasserFallback = request.beregning.antallPlasser ?: 0
+        val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
+        if (request.periodeStart == null) {
+            val now = LocalDate.now()
+            return TilsagnBeregningFallbackResolver(
+                sats = 0,
+                periode = Periode.fromInclusiveDates(now, now.plusDays(1)),
+                antallPlasser = antallPlasserFallback,
+                antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
+                prisbetingelser = request.beregning.prisbetingelser,
+            )
+        }
+        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt ?: request.periodeStart.plusDays(1))
+
+        val sats =
+            queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
+                queries.avtale.get(it)
+            }?.let { avtale ->
+                val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
+                AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
+            } ?: 0
+
+        return TilsagnBeregningFallbackResolver(
+            sats = sats,
+            periode = periode,
+            antallPlasser = antallPlasserFallback,
+            antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
+            prisbetingelser = request.beregning.prisbetingelser,
+        )
     }
 
     fun beslutt(
