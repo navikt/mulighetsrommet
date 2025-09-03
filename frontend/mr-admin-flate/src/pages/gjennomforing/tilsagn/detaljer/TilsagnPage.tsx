@@ -446,8 +446,7 @@ export function TilsagnPage() {
               onConfirm={({ aarsaker, forklaring }) => {
                 besluttTilsagn({
                   besluttelse: Besluttelse.AVVIST,
-                  // TODO: fix types
-                  aarsaker: aarsaker as unknown as TilsagnStatusAarsak[],
+                  aarsaker,
                   forklaring,
                 });
               }}
