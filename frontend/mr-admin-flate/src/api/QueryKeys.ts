@@ -17,6 +17,7 @@ export const QueryKeys = {
   gjennomforinger: (mine?: boolean, filter?: Pick<GetGjennomforingerData, "query">) =>
     ["gjennomforinger", mine, filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
+  gjennomforingHandlinger: (id: string) => ["gjennomforing-handlinger", id] as const,
   gjennomforingHistorikk: (id?: string) => ["gjennomforing", id, "historikk"] as const,
   gjennomforingDeltakerSummary(id: string) {
     return ["gjennomforing", id, "deltaker-summary"] as const;
@@ -25,6 +26,7 @@ export const QueryKeys = {
   avtaler: (mine?: boolean, avtaleFilter?: Pick<GetAvtalerData, "query">) =>
     ["avtaler", mine, avtaleFilter] as const,
   avtale: (id?: string) => ["avtale", id] as const,
+  avtaleHandlnger: (id?: string) => ["avtale-handlinger", id] as const,
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   navEnheter: () => ["nav-enheter"],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],

@@ -1,6 +1,7 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
   AvtaleDto,
+  AvtaleHandling,
   AvtaltSatsDto,
   EndringshistorikkEntry,
   PaginertAvtale,
@@ -16,6 +17,17 @@ export const avtaleHandlers = [
         type: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK",
         beskrivelse: "Fast sats per tiltaksplass per måned",
       },
+    ]);
+  }),
+
+  http.get<PathParams, AvtaleHandling[]>("*/api/v1/intern/avtaler/:id/handlinger", () => {
+    return HttpResponse.json([
+      AvtaleHandling.REDIGER,
+      AvtaleHandling.AVBRYT,
+      AvtaleHandling.OPPRETT_GJENNOMFORING,
+      AvtaleHandling.DUPLISER,
+      AvtaleHandling.REGISTRER_OPSJON,
+      AvtaleHandling.OPPDATER_PRIS,
     ]);
   }),
 

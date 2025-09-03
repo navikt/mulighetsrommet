@@ -25,6 +25,25 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
+  /api/v1/intern/avtaler/{id}/handlinger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Avtaler
+      operationId: getAvtaleHandlinger
+      responses:
+        200:
+          description: Avtale handlinger
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaleHandling"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -369,6 +388,25 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Sertifisering"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/gjennomforinger/{id}/handlinger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Gjennomforinger
+      operationId: getGjennomforingHandlinger
+      responses:
+        200:
+          description: Gjennomforing handlinger
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GjennomforingHandling"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2244,6 +2282,30 @@ components:
         - arenaKode
         - startDato
         - status
+
+    GjennomforingHandling:
+      type: string
+      enum:
+        - PUBLISER
+        - REDIGER
+        - AVBRYT
+        - DUPLISER
+        - ENDRE_APEN_FOR_PAMELDING
+        - REGISTRER_STENGT_HOS_ARRANGOR
+        - OPPRETT_TILSAGN
+        - OPPRETT_EKSTRATILSAGN
+        - OPPRETT_TILSAGN_FOR_INVESTERINGER
+        - OPPRETT_KORREKSJON_PA_UTBETALING
+
+    AvtaleHandling:
+      type: string
+      enum:
+        - REDIGER
+        - AVBRYT
+        - OPPRETT_GJENNOMFORING
+        - DUPLISER
+        - REGISTRER_OPSJON
+        - OPPDATER_PRIS
 
     AvtaleDto:
       type: object
@@ -4529,7 +4591,9 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingLinje"
         handlinger:
-          $ref: "#/components/schemas/UtbetalingHandlinger"
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingHandling"
       required: [utbetaling, linjer, handlinger]
 
     UtbetalingDto:
@@ -4566,12 +4630,10 @@ components:
           type: string
       required: [id, status, periode, belop, createdAt, tilskuddstype, type]
 
-    UtbetalingHandlinger:
-      type: object
-      properties:
-        sendTilAttestering:
-          type: boolean
-      required: [sendTilAttestering]
+    UtbetalingHandling:
+      type: string
+      enum:
+        - SEND_TIL_ATTESTERING
 
     UtbetalingKompaktDto:
       type: object

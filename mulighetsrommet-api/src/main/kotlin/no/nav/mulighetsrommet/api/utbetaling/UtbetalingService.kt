@@ -562,15 +562,17 @@ class UtbetalingService(
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 
-    fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = UtbetalingHandlinger(
-        sendTilAttestering = when (utbetaling.status) {
-            UtbetalingStatusType.INNSENDT,
-            UtbetalingStatusType.RETURNERT,
-            -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            -> false
+    fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+        UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
+            when (utbetaling.status) {
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.RETURNERT,
+                -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                -> false
+            }
         },
     )
 }

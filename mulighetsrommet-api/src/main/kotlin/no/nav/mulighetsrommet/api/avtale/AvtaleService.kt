@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.*
 import arrow.core.raise.either
 import io.ktor.http.*
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -265,6 +267,47 @@ class AvtaleService(
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
+    }
+
+    fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): Set<AvtaleHandling> {
+        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+            ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
+
+        val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
+
+        return setOfNotNull(
+            AvtaleHandling.AVBRYT.takeIf {
+                when (avtale.status) {
+                    AvtaleStatusDto.Utkast,
+                    AvtaleStatusDto.Aktiv,
+                    -> avtalerSkriv
+                    is AvtaleStatusDto.Avbrutt,
+                    AvtaleStatusDto.Avsluttet,
+                    -> false
+                }
+            },
+            AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
+                when (avtale.status) {
+                    AvtaleStatusDto.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                    is AvtaleStatusDto.Avbrutt,
+                    AvtaleStatusDto.Avsluttet,
+                    AvtaleStatusDto.Utkast,
+                    -> false
+                }
+            },
+            AvtaleHandling.OPPDATER_PRIS.takeIf {
+                Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv
+            },
+            AvtaleHandling.REGISTRER_OPSJON.takeIf {
+                avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv
+            },
+            AvtaleHandling.DUPLISER.takeIf {
+                avtalerSkriv
+            },
+            AvtaleHandling.REDIGER.takeIf {
+                avtalerSkriv
+            },
+        )
     }
 
     private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {

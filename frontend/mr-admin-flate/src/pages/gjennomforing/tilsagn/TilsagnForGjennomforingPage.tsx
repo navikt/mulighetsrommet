@@ -1,11 +1,12 @@
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { Avtaletype, Rolle, TilsagnType } from "@mr/api-client-v2";
+import { GjennomforingHandling, TilsagnType } from "@mr/api-client-v2";
 import { Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
-import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import {
+  useAdminGjennomforingById,
+  useGjennomforingHandlinger,
+} from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 
@@ -15,40 +16,50 @@ export function TilsagnForGjennomforingPage() {
     throw Error("Fant ikke gjennomforingId i url");
   }
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
-  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId);
-
-  const tilsagnstyper =
-    avtale?.avtaletype === Avtaletype.FORHANDSGODKJENT
-      ? [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN, TilsagnType.INVESTERING]
-      : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
 
   const navigate = useNavigate();
 
   return (
     <>
       <KnapperadContainer>
-        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
-          <Dropdown>
-            <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-              Handlinger
-            </Button>
-            <Dropdown.Menu>
-              <Dropdown.Menu.GroupedList>
-                {tilsagnstyper.map((type) => (
-                  <Dropdown.Menu.GroupedList.Item
-                    key={type}
-                    onClick={() => {
-                      navigate(`opprett-tilsagn?type=${type}`);
-                    }}
-                  >
-                    Opprett {avtaletekster.tilsagn.type(type).toLowerCase()}
-                  </Dropdown.Menu.GroupedList.Item>
-                ))}
-              </Dropdown.Menu.GroupedList>
-            </Dropdown.Menu>
-          </Dropdown>
-        </HarTilgang>
+        <Dropdown>
+          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
+            Handlinger
+          </Button>
+          <Dropdown.Menu>
+            <Dropdown.Menu.GroupedList>
+              {handlinger.includes(GjennomforingHandling.OPPRETT_TILSAGN) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate(`opprett-tilsagn?type=${TilsagnType.TILSAGN}`);
+                  }}
+                >
+                  Opprett {avtaletekster.tilsagn.type(TilsagnType.TILSAGN).toLowerCase()}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+              {handlinger.includes(GjennomforingHandling.OPPRETT_EKSTRATILSAGN) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate(`opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`);
+                  }}
+                >
+                  Opprett {avtaletekster.tilsagn.type(TilsagnType.EKSTRATILSAGN).toLowerCase()}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+              {handlinger.includes(GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate(`opprett-tilsagn?type=${TilsagnType.INVESTERING}`);
+                  }}
+                >
+                  Opprett {avtaletekster.tilsagn.type(TilsagnType.INVESTERING).toLowerCase()}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+            </Dropdown.Menu.GroupedList>
+          </Dropdown.Menu>
+        </Dropdown>
       </KnapperadContainer>
       <TilsagnTable
         emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"

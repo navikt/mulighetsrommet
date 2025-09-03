@@ -2,8 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing
 
 import arrow.core.*
 import arrow.core.raise.either
-import io.ktor.http.*
-import io.ktor.server.response.*
+import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -17,6 +16,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
@@ -306,6 +306,48 @@ class GjennomforingService(
             "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
             gjennomforing,
             navIdent,
+        )
+    }
+
+    fun handlinger(gjennomforing: GjennomforingDto, navIdent: NavIdent): Set<GjennomforingHandling> {
+        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+            ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
+
+        val gjennomforingSkriv = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+        val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+        val statusGjennomfores = gjennomforing.status is GjennomforingStatusDto.Gjennomfores
+
+        return setOfNotNull(
+            GjennomforingHandling.PUBLISER.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.AVBRYT.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.DUPLISER.takeIf {
+                gjennomforingSkriv
+            },
+            GjennomforingHandling.REDIGER.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.OPPRETT_TILSAGN.takeIf {
+                saksbehandlerOkonomi
+            },
+            GjennomforingHandling.OPPRETT_EKSTRATILSAGN.takeIf {
+                saksbehandlerOkonomi
+            },
+            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+                saksbehandlerOkonomi && gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+            },
+            GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING.takeIf {
+                saksbehandlerOkonomi
+            },
         )
     }
 

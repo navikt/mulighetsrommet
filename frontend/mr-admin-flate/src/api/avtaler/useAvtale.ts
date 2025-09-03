@@ -20,3 +20,12 @@ export function usePotentialAvtale(id?: string) {
     enabled: !!id,
   });
 }
+
+export function useAvtaleHandlinger(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.avtaleHandlnger(id),
+    queryFn: async () => {
+      return AvtalerService.getAvtaleHandlinger({ path: { id } });
+    },
+  });
+}

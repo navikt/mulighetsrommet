@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.flatMap
 import io.ktor.http.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -183,17 +184,15 @@ fun Route.avtaleRoutes() {
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
 
-            authorize(Rolle.AVTALER_SKRIV) {
-                put("{id}/prismodell") {
-                    val navIdent = getNavIdent()
-                    val id = call.parameters.getOrFail<UUID>("id")
-                    val request = call.receive<PrismodellRequest>()
+            put("{id}/prismodell") {
+                val navIdent = getNavIdent()
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<PrismodellRequest>()
 
-                    val result = avtaler.upsertPrismodell(id, request, navIdent)
-                        .mapLeft { ValidationError(errors = it) }
+                val result = avtaler.upsertPrismodell(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
 
-                    call.respondWithStatusResponse(result)
-                }
+                call.respondWithStatusResponse(result)
             }
 
             delete("kontaktperson") {
@@ -263,6 +262,15 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
+        get("{id}/handlinger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val navIdent = getNavIdent()
+
+            avtaler.get(id)
+                ?.let { call.respond(avtaler.handlinger(it, navIdent)) }
+                ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+        }
+
         get("{id}/satser") {
             val id: UUID by call.parameters
 
@@ -281,6 +289,16 @@ fun Route.avtaleRoutes() {
             call.respond(historikk)
         }
     }
+}
+
+@Serializable
+enum class AvtaleHandling {
+    REDIGER,
+    AVBRYT,
+    OPPRETT_GJENNOMFORING,
+    DUPLISER,
+    REGISTRER_OPSJON,
+    OPPDATER_PRIS,
 }
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
