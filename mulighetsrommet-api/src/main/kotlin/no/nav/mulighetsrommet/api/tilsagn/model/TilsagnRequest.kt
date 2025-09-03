@@ -55,6 +55,5 @@ data class BeregnTilsagnRequest(
 
 @Serializable
 data class BeregnTilsagnResponse(
-    val success: Boolean,
-    val beregning: TilsagnBeregningDto?,
+    val beregning: TilsagnBeregningDto,
 )

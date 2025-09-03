@@ -19,7 +19,7 @@ export function TilsagnBeregningPreview() {
     return <Loader />;
   }
 
-  if (!data?.success || !data.beregning) {
+  if (!data?.beregning) {
     return null;
   }
 
@@ -28,7 +28,7 @@ export function TilsagnBeregningPreview() {
       <VStack gap="4">
         <HStack gap="2" justify="space-between">
           <Label size="medium">Totalbeløp</Label>
-          {data.beregning.belop && <Label size="medium">{formaterNOK(data.beregning.belop)}</Label>}
+          <Label size="medium">{formaterNOK(data.beregning.belop)}</Label>
         </HStack>
         <TilsagnRegnestykke regnestykke={data.beregning.regnestykke} />
       </VStack>
