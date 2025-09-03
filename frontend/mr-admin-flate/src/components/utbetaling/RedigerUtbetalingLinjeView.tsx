@@ -1,8 +1,6 @@
-import { utbetalingLinjeCompareFn } from "@/utils/Utils";
 import { FieldError } from "@mr/api-client-v2";
 import {
   TilsagnDto,
-  TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
   UtbetalingDto,
@@ -11,25 +9,18 @@ import {
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
 
 export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
   tilsagn: TilsagnDto[];
   setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
-}
-
-function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
-  return tilsagn
-    .filter((t) => t.status === TilsagnStatus.GODKJENT)
-    .map((t) => toEmptyUtbetalingLinje(t))
-    .toSorted(utbetalingLinjeCompareFn);
 }
 
 export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tilsagn }: Props) {
@@ -54,7 +45,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
     const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
       (linje) => !linjer.find((l) => l.tilsagn.id === linje.tilsagn.id),
     );
-    setLinjer([...linjer, ...nyeLinjer].toSorted(utbetalingLinjeCompareFn));
+    setLinjer([...linjer, ...nyeLinjer].toSorted(compareUtbetalingLinje));
   }
 
   function fjernLinje(id: string) {
@@ -126,16 +117,4 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
     case Tilskuddstype.TILTAK_INVESTERINGER:
       return TilsagnType.INVESTERING;
   }
-}
-
-function toEmptyUtbetalingLinje(tilsagn: TilsagnDto): UtbetalingLinje {
-  return {
-    id: uuidv4(),
-    belop: 0,
-    tilsagn: tilsagn,
-    gjorOppTilsagn: false,
-    status: null,
-    opprettelse: null,
-    handlinger: [],
-  };
 }

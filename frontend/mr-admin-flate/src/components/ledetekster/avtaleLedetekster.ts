@@ -1,4 +1,5 @@
-import { Avtaletype, TilsagnType } from "@mr/api-client-v2";
+import { Avtaletype } from "@mr/api-client-v2";
+import { TilsagnType } from "@tiltaksadministrasjon/api-client";
 
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",

@@ -1,11 +1,13 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.*
-import arrow.core.Either.Companion.zipOrAccumulate
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
+import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
@@ -42,6 +44,7 @@ object UtbetalingValidator {
                 UtbetalingStatusType.INNSENDT,
                 UtbetalingStatusType.RETURNERT,
                 -> Unit
+
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -96,7 +99,7 @@ object UtbetalingValidator {
                     add(
                         FieldError.ofPointer(
                             "/$index/tilsagnId",
-                            "Tilsagnet er ${req.tilsagn.status.navn().lowercase()} og kan ikke benyttes, linjen må fjernes",
+                            "Tilsagnet har status ${req.tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
                         ),
                     )
                 }
