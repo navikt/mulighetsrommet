@@ -139,7 +139,6 @@ fun Route.tilsagnRoutesBeregning() {
         }
         call.respond(
             BeregnTilsagnResponse(
-                success = beregning.belop > 0,
                 beregning = beregning,
             ),
         )

@@ -238,7 +238,11 @@ class TilsagnService(
                 prisbetingelser = request.beregning.prisbetingelser,
             )
         }
-        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt ?: request.periodeStart.plusDays(1))
+        val periode = if (request.periodeSlutt == null || request.periodeSlutt <= request.periodeStart) {
+            Periode.fromInclusiveDates(request.periodeStart, request.periodeStart.plusDays(1))
+        } else {
+            Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+        }
 
         val sats =
             queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
