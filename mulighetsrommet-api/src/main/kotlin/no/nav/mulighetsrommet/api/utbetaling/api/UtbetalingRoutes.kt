@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.flatMap
 import arrow.core.right
+import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -15,6 +16,8 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -24,9 +27,10 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -37,10 +41,54 @@ fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
 
+    get("/utbetaling", {
+        description = "Hent alle utbetalinger for gitt gjennomføring"
+        tags = setOf("Utbetaling")
+        operationId = "getUtbetalinger"
+        request {
+            queryParameterUuid("gjennomforingId") {
+                required = true
+            }
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle utbetalinger for gitt gjennomføring"
+                body<List<UtbetalingKompaktDto>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val id: UUID by call.queryParameters
+
+        val utbetalinger = utbetalingService.getByGjennomforing(id)
+
+        call.respond(utbetalinger)
+    }
+
     route("/utbetaling/{id}") {
         authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
-            get {
-                val id = call.parameters.getOrFail<UUID>("id")
+            get({
+                description = "Hent detaljer om utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Detaljer om utbetaling"
+                        body<UtbetalingDetaljerDto>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
 
                 val navIdent = getNavIdent()
 
@@ -173,13 +221,6 @@ fun Route.utbetalingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
-        }
-    }
-
-    route("/gjennomforinger/{id}/utbetalinger") {
-        get {
-            val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(utbetalingService.getByGjennomforing(id))
         }
     }
 }

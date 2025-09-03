@@ -348,6 +348,106 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/utbetaling:
+    get:
+      tags:
+      - Utbetaling
+      description: Hent alle utbetalinger for gitt gjennomføring
+      operationId: getUtbetalinger
+      parameters:
+      - name: gjennomforingId
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Alle utbetalinger for gitt gjennomføring
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtbetalingKompaktDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}:
+    get:
+      tags:
+      - Utbetaling
+      description: Hent detaljer om utbetaling
+      operationId: getUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Detaljer om utbetaling
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UtbetalingDetaljerDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/beregning:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/historikk:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/tilsagn:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/opprett-utbetaling:
+    post:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/delutbetalinger:
+    put:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/delutbetalinger/{id}/beslutt:
+    post:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
 components:
   schemas:
     TilsagnStatus:
@@ -447,6 +547,7 @@ components:
       type: string
       enum:
       - neutral
+      - alt
       - success
       - warning
       - error
@@ -997,5 +1098,202 @@ components:
       required:
       - beregning
       - success
+    UtbetalingKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/UtbetalingStatusDto"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/KostnadsstedDto"
+        belopUtbetalt:
+          type:
+          - "null"
+          - integer
+          format: int32
+        type:
+          $ref: "#/components/schemas/UtbetalingTypeDto"
+      required:
+      - belopUtbetalt
+      - id
+      - kostnadssteder
+      - periode
+      - status
+      - type
+    UtbetalingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/UtbetalingStatusDto.Type"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+      - status
+      - type
+    UtbetalingStatusDto.Type:
+      type: string
+      enum:
+      - VENTER_PA_ARRANGOR
+      - KLAR_TIL_BEHANDLING
+      - TIL_ATTESTERING
+      - RETURNERT
+      - OVERFORT_TIL_UTBETALING
+    UtbetalingTypeDto:
+      type: object
+      properties:
+        displayName:
+          type: string
+        displayNameLong:
+          type:
+          - "null"
+          - string
+        tagName:
+          type:
+          - "null"
+          - string
+      required:
+      - displayName
+      - displayNameLong
+      - tagName
+    UtbetalingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/UtbetalingStatusDto"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        belop:
+          type: integer
+          format: int32
+        godkjentAvArrangorTidspunkt:
+          type:
+          - "null"
+          - string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        betalingsinformasjon:
+          $ref: "#/components/schemas/Utbetaling.Betalingsinformasjon"
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        begrunnelseMindreBetalt:
+          type:
+          - "null"
+          - string
+        innsendtAv:
+          type:
+          - "null"
+          - string
+        journalpostId:
+          type:
+          - "null"
+          - string
+        tilskuddstype:
+          $ref: "#/components/schemas/Tilskuddstype"
+        type:
+          $ref: "#/components/schemas/UtbetalingTypeDto"
+      required:
+      - begrunnelseMindreBetalt
+      - belop
+      - beskrivelse
+      - betalingsinformasjon
+      - createdAt
+      - godkjentAvArrangorTidspunkt
+      - id
+      - innsendtAv
+      - journalpostId
+      - periode
+      - status
+      - tilskuddstype
+      - type
+    Utbetaling.Betalingsinformasjon:
+      type: object
+      properties:
+        kontonummer:
+          type:
+          - "null"
+          - string
+        kid:
+          type:
+          - "null"
+          - string
+      required:
+      - kid
+      - kontonummer
+    Tilskuddstype:
+      type: string
+      enum:
+      - TILTAK_DRIFTSTILSKUDD
+      - TILTAK_INVESTERINGER
+    UtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DelutbetalingStatus"
+        belop:
+          type: integer
+          format: int32
+        gjorOppTilsagn:
+          type: boolean
+        opprettelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+      required:
+      - belop
+      - gjorOppTilsagn
+      - id
+      - opprettelse
+      - status
+      - tilsagn
+    DelutbetalingStatus:
+      type: string
+      enum:
+      - TIL_ATTESTERING
+      - GODKJENT
+      - RETURNERT
+      - UTBETALT
+      - OVERFORT_TIL_UTBETALING
+    UtbetalingHandlinger:
+      type: object
+      properties:
+        sendTilAttestering:
+          type: boolean
+      required:
+      - sendTilAttestering
+    UtbetalingDetaljerDto:
+      type: object
+      properties:
+        utbetaling:
+          $ref: "#/components/schemas/UtbetalingDto"
+        linjer:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingLinje"
+        handlinger:
+          $ref: "#/components/schemas/UtbetalingHandlinger"
+      required:
+      - handlinger
+      - linjer
+      - utbetaling
   examples: {}
 webhooks: {}

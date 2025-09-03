@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -13,12 +13,15 @@ import {
   FieldError,
   OpprettDelutbetalingerRequest,
   Rolle,
+  ValidationError,
+} from "@mr/api-client-v2";
+import {
   TilsagnDto,
   TilsagnStatus,
   UtbetalingDto,
   UtbetalingLinje,
-  ValidationError,
-} from "@mr/api-client-v2";
+  UtbetalingStatusDtoType,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import {
@@ -37,7 +40,6 @@ import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbet
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
-import { useEffect, useState } from "react";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -51,14 +53,12 @@ import {
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
 } from "./utbetalingPageLoader";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 function useUtbetalingPageData() {
-  const { gjennomforingId, utbetalingId } = useParams();
-  if (!gjennomforingId || !utbetalingId) {
-    throw Error("Fant ikke gjennomforingId eller utbetalingId i url");
-  }
+  const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
 
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetaling } = useUtbetaling(utbetalingId);
   const { data: tilsagn } = useTilsagnTilUtbetaling(utbetalingId);
@@ -88,6 +88,8 @@ function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
       tilsagn: t,
       gjorOppTilsagn: false,
       id: uuidv4(),
+      status: null,
+      opprettelse: null,
     }))
     .toSorted(utbetalingLinjeCompareFn);
 }
@@ -224,11 +226,11 @@ export function UtbetalingPage() {
                   <VStack gap="2">
                     <MetadataHorisontal
                       header="Kontonummer"
-                      value={utbetaling.betalingsinformasjon?.kontonummer}
+                      value={utbetaling.betalingsinformasjon.kontonummer}
                     />
                     <MetadataHorisontal
                       header="KID (valgfritt)"
-                      value={utbetaling.betalingsinformasjon?.kid || "-"}
+                      value={utbetaling.betalingsinformasjon.kid}
                     />
                   </VStack>
                   {utbetaling.journalpostId ? (
@@ -343,10 +345,10 @@ interface UtbetalingLinjeViewProps {
 
 function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: UtbetalingLinjeViewProps) {
   switch (utbetaling.status.type) {
-    case "VENTER_PA_ARRANGOR":
+    case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
       return null;
-    case "RETURNERT":
-    case "KLAR_TIL_BEHANDLING":
+    case UtbetalingStatusDtoType.RETURNERT:
+    case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
       return (
         <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
           <RedigerUtbetalingLinjeView
@@ -357,8 +359,8 @@ function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: Utbetal
           />
         </HarTilgang>
       );
-    case "TIL_ATTESTERING":
-    case "OVERFORT_TIL_UTBETALING":
+    case UtbetalingStatusDtoType.TIL_ATTESTERING:
+    case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
       return (
         <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
           <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />

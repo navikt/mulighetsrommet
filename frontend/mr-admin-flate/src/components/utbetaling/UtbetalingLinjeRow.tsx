@@ -1,5 +1,6 @@
 import { delutbetalingAarsakTilTekst, tilsagnTypeToString } from "@/utils/Utils";
-import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
+import { DelutbetalingReturnertAarsak, FieldError } from "@mr/api-client-v2";
+import { UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -13,14 +14,13 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingTag } from "./DelutbetalingTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import { TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
@@ -102,11 +102,8 @@ export function UtbetalingLinjeRow({
           )}
           <HStack gap="4" justify="space-between">
             <TilsagnInformasjon tilsagn={linje.tilsagn} />
-            {linje.opprettelse && (
-              <BehandlerInformasjon
-                opprettelse={linje.opprettelse as unknown as TotrinnskontrollDto}
-                status={linje.status}
-              />
+            {linje.opprettelse && linje.status && (
+              <BehandlerInformasjon opprettelse={linje.opprettelse} status={linje.status} />
             )}
           </HStack>
         </VStack>

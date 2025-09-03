@@ -5,10 +5,14 @@ import {
   TotrinnskontrollTilBeslutningDto,
   UtbetalingBeregningFri,
   UtbetalingDto,
-  UtbetalingKompaktDto,
   UtbetalingLinje,
   UtbetalingType,
 } from "@mr/api-client-v2";
+import {
+  DataElementStatusVariant,
+  UtbetalingKompaktDto,
+  UtbetalingStatusDtoType,
+} from "@tiltaksadministrasjon/api-client";
 import { TilsagnStatus, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
@@ -120,7 +124,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       start: "2024-01-01",
       slutt: "2024-06-30",
     },
-    status: { type: "VENTER_PA_ARRANGOR" },
+    status: {
+      type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
+      status: { value: "Venter på arrangør", variant: DataElementStatusVariant.ALT },
+    },
     belopUtbetalt: null,
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     type: utbetalingType.INNSENDING,
@@ -132,7 +139,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       start: "2025-01-01",
       slutt: "2025-06-30",
     },
-    status: { type: "TIL_ATTESTERING" },
+    status: {
+      type: UtbetalingStatusDtoType.TIL_ATTESTERING,
+      status: { value: "Til attestering", variant: DataElementStatusVariant.WARNING },
+    },
     belopUtbetalt: null,
     type: utbetalingType.INNSENDING,
   },
@@ -144,7 +154,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: 13400,
-    status: { type: "OVERFORT_TIL_UTBETALING" },
+    status: {
+      type: UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING,
+      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+    },
     type: utbetalingType.INNSENDING,
   },
   {
@@ -153,7 +166,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       start: "2025-01-01",
       slutt: "2025-03-31",
     },
-    status: { type: "RETURNERT" },
+    status: {
+      type: UtbetalingStatusDtoType.RETURNERT,
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+    },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: null,
     type: utbetalingType.INNSENDING,

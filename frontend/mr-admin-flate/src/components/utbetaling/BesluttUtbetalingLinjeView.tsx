@@ -5,10 +5,9 @@ import {
   DelutbetalingReturnertAarsak,
   DelutbetalingStatus,
   FieldError,
-  UtbetalingDto,
-  UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
+import { UtbetalingDto, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -16,6 +15,7 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
+import { isTilBeslutning } from "@/utils/totrinnskontroll";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -68,7 +68,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                     >
                       Send i retur
                     </Button>
-                    {linje.opprettelse?.kanBesluttes && (
+                    {isTilBeslutning(linje.opprettelse) && linje.opprettelse.kanBesluttes && (
                       <Button
                         size="small"
                         type="button"

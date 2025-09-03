@@ -97,6 +97,7 @@ fun Route.apiRoutes() {
 
 fun Route.tiltaksadministrasjonRoutes() {
     tilsagnRoutes()
+    utbetalingRoutes()
 }
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes

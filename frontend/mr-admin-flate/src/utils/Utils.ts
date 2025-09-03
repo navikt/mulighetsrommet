@@ -12,11 +12,9 @@ import {
   TilsagnType,
   Tiltakskode,
   TiltakskodeArena,
-  UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
-
-import { TilsagnStatusAarsak } from "@tiltaksadministrasjon/api-client";
+import { TilsagnStatusAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
