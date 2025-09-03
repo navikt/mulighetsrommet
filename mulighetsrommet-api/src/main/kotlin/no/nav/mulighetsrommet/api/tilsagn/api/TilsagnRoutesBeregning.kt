@@ -235,7 +235,7 @@ private fun getForhandsgodkjentTiltakPeriode(
     tilsagn: Tilsagn?,
 ): Periode {
     val periodeStart = listOfNotNull(
-        config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+        config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
         gjennomforing.startDato,
         tilsagn?.periode?.slutt,
     ).max()
@@ -258,7 +258,7 @@ private fun getAnskaffetTiltakPeriode(
 ): Periode {
     val firstDayOfCurrentMonth = now().withDayOfMonth(1)
     val periodeStart = listOfNotNull(
-        config.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+        config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
         gjennomforing.startDato,
         tilsagn?.periode?.slutt,
         firstDayOfCurrentMonth,

@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
@@ -327,7 +328,7 @@ val ApplicationConfigLocal = AppConfig(
         ),
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith { Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1)) },
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

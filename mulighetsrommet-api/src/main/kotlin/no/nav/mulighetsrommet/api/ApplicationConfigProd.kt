@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -372,10 +373,10 @@ val ApplicationConfigProd = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = mapOf(
+        gyldigTilsagnPeriode = mapOf(
             // Forhåndsgodkjente tiltak
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to LocalDate.of(2025, 7, 1),
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to LocalDate.of(2025, 7, 1),
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     clamav = HttpClientConfig(
