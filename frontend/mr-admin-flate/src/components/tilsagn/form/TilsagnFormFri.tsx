@@ -35,7 +35,6 @@ function BeregningInputSkjema() {
     register,
     watch,
     formState: { errors },
-    setError,
     control,
   } = useFormContext<TilsagnRequest>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
@@ -120,8 +119,9 @@ function BeregningInputSkjema() {
         variant="tertiary"
         icon={<PlusIcon aria-hidden />}
         className="self-end"
-        onClick={() => {
-          setError("beregning.linjer", {});
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
           append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
         }}
       >

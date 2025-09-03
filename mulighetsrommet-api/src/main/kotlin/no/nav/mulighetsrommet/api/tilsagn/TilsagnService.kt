@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.*
-import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -154,24 +153,47 @@ class TilsagnService(
     }
 
     fun beregnTilsagn(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
-        if (request.periodeStart == null) return null
-        if (request.periodeSlutt == null) return null
-        if (!request.periodeStart.isBefore(request.periodeSlutt)) return null
-        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+        return when (request.beregning.type) {
+            TilsagnBeregningType.FRI ->
+                TilsagnBeregningFri.beregn(
+                    TilsagnBeregningFri.Input(
+                        linjer = request.beregning.linjer.orEmpty().map {
+                            TilsagnBeregningFri.InputLinje(
+                                id = it.id,
+                                beskrivelse = it.beskrivelse ?: "",
+                                belop = it.belop ?: 0,
+                                antall = it.antall ?: 0,
+                            )
+                        },
+                        prisbetingelser = request.beregning.prisbetingelser,
+                    ),
+                )
 
-        val avtale = queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
-            queries.avtale.get(it)
-        } ?: return null
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+            TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+            -> {
+                if (request.periodeStart == null) return null
+                if (request.periodeSlutt == null) return null
+                if (!request.periodeStart.isBefore(request.periodeSlutt)) return null
+                val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
-        val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
-        val sats = AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
+                val avtale = queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
+                    queries.avtale.get(it)
+                } ?: return null
 
-        return TilsagnValidator.validateBeregning(
-            request.beregning,
-            periode = periode,
-            sats = sats,
-            avtalteSatser = avtalteSatser,
-        ).getOrNull()
+                val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
+                val sats = AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
+
+                TilsagnValidator.validateBeregning(
+                    request.beregning,
+                    periode = periode,
+                    sats = sats,
+                    avtalteSatser = avtalteSatser,
+                ).getOrNull()
+            }
+        }
     }
 
     fun beslutt(
