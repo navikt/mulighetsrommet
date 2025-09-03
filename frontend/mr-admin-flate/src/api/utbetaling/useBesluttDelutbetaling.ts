@@ -1,17 +1,16 @@
 import {
-  BesluttTotrinnskontrollRequest,
+  BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   ProblemDetail,
   UtbetalingService,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useBesluttDelutbetaling() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: BesluttTotrinnskontrollRequest }
+    { id: string; body: BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak }
   >({
-    mutationFn: ({ id, body }: { id: string; body: BesluttTotrinnskontrollRequest }) =>
-      UtbetalingService.besluttDelutbetaling({ path: { id }, body }),
+    mutationFn: ({ id, body }) => UtbetalingService.besluttDelutbetaling({ path: { id }, body }),
   });
 }
