@@ -11,7 +11,7 @@ export function useAdminGjennomforingById(id: string) {
 
 export function useGjennomforingHandlinger(id: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.gjennomforing(id),
+    queryKey: QueryKeys.gjennomforingHandlinger(id),
     queryFn: () => GjennomforingerService.getGjennomforingHandlinger({ path: { id } }),
   });
 }

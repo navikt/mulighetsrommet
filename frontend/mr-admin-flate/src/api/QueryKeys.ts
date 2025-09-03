@@ -17,7 +17,7 @@ export const QueryKeys = {
   gjennomforinger: (mine?: boolean, filter?: Pick<GetGjennomforingerData, "query">) =>
     ["gjennomforinger", mine, filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
-  gjennomforingHandlinger: (id?: string) => ["gjennomforing-handlinger", id] as const,
+  gjennomforingHandlinger: (id: string) => ["gjennomforing-handlinger", id] as const,
   gjennomforingHistorikk: (id?: string) => ["gjennomforing", id, "historikk"] as const,
   gjennomforingDeltakerSummary(id: string) {
     return ["gjennomforing", id, "deltaker-summary"] as const;

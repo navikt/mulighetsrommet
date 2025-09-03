@@ -10,6 +10,24 @@ import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mo
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
 
 export const gjennomforingHandlers = [
+  http.get<{ id: string }, GjennomforingHandlinger>(
+    "/api/v1/intern/gjennomforinger/:id/handlinger",
+    () => {
+      return HttpResponse.json({
+        publiser: true,
+        rediger: true,
+        avbryt: true,
+        dupliser: true,
+        endreApenForPamelding: true,
+        registrerStengtHosArrangor: true,
+        opprettTilsagn: true,
+        opprettEkstratilsagn: true,
+        opprettTilsagnForInvesteringer: true,
+        opprettKorreksjonPaUtbetaling: true,
+      });
+    },
+  ),
+
   http.get<PathParams, PaginertGjennomforing | { x: string }>(
     "*/api/v1/intern/gjennomforinger",
     () => {
@@ -68,7 +86,7 @@ export const gjennomforingHandlers = [
   }),
 
   http.get<{ id: string }, GjennomforingDto | undefined>(
-    "*/api/v1/intern/gjennomforinger/:id",
+    "/api/v1/intern/gjennomforinger/:id",
     ({ params }) => {
       const { id } = params;
 
@@ -84,24 +102,6 @@ export const gjennomforingHandlers = [
   http.put<{ id: string }, number>("*/api/v1/intern/gjennomforinger/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
-
-  http.get<PathParams, GjennomforingHandlinger>(
-    "*/api/v1/intern/gjennomforinger/:id/handlinger",
-    () => {
-      return HttpResponse.json({
-        publiser: true,
-        rediger: true,
-        avbryt: true,
-        dupliser: true,
-        endreApenForPamelding: true,
-        registrerStengtHosArrangor: true,
-        opprettTilsagn: true,
-        opprettEkstratilsagn: true,
-        opprettTilsagnForInvesteringer: true,
-        opprettKorreksjonPaUtbetaling: true,
-      });
-    },
-  ),
 
   http.put<{ id: string }, number>(
     "*/api/v1/intern/gjennomforinger/:id/tilgjengelig-for-veileder",
