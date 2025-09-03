@@ -420,9 +420,33 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/historikk:
     get:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Utbetaling
+      operationId: getUtbetalingEndringshistorikk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Utbetalingen ble opprettet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndringshistorikkDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/tilsagn:
     get:

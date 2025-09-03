@@ -19,7 +19,7 @@ export function useTilsagnTilUtbetaling(id: string) {
 export function useUtbetalingEndringshistorikk(id: string) {
   return useApiSuspenseQuery({
     queryKey: ["utbetaling", id, "historikk"],
-    queryFn: async () => LegacyUtbetalingService.getUtbetalingEndringshistorikk({ path: { id } }),
+    queryFn: async () => UtbetalingService.getUtbetalingEndringshistorikk({ path: { id } }),
   });
 }
 

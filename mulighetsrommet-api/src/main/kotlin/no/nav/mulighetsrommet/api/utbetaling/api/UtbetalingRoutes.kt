@@ -15,6 +15,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -153,8 +154,24 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        get("/historikk") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("/historikk", {
+            tags = setOf("Utbetaling")
+            operationId = "getUtbetalingEndringshistorikk"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetalingen ble opprettet"
+                    body<EndringshistorikkDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
             val historikk = db.session {
                 queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, id)
             }
