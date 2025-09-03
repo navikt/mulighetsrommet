@@ -1,10 +1,10 @@
 import {
   UtbetalingDetaljerDto,
   TilsagnDto,
-  UtbetalingKompaktDto,
   UtbetalingBeregningDto,
   UtbetalingHandling,
 } from "@mr/api-client-v2";
+import { UtbetalingKompaktDto } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import {
   mockBeregning,
@@ -46,7 +46,7 @@ export const utbetalingHandlers = [
     },
   ),
   http.get<PathParams, PathParams, UtbetalingKompaktDto[]>(
-    "*/api/v1/intern/gjennomforinger/:id/utbetalinger",
+    "*/api/tiltaksadministrasjon/utbetalinger",
     () => {
       return HttpResponse.json(mockUtbetalingerKompakt);
     },

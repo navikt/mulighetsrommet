@@ -24,10 +24,10 @@ data class UtbetalingLinje(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilsagn: TilsagnDto,
-    val status: DelutbetalingStatus,
+    val status: DelutbetalingStatus?,
     val belop: Int,
     val gjorOppTilsagn: Boolean,
-    val opprettelse: TotrinnskontrollDto,
+    val opprettelse: TotrinnskontrollDto?,
     val handlinger: Set<UtbetalingLinjeHandling>,
 )
 

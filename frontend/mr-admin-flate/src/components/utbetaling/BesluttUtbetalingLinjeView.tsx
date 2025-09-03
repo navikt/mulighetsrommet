@@ -5,11 +5,13 @@ import {
   DelutbetalingReturnertAarsak,
   DelutbetalingStatus,
   FieldError,
+  ValidationError,
+} from "@mr/api-client-v2";
+import {
   UtbetalingDto,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
-  ValidationError,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -51,7 +53,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
       <UtbetalingLinjeTable
         linjer={linjer}
         utbetaling={utbetaling}
-        renderRow={(linje: UtbetalingLinje) => {
+        renderRow={(linje) => {
           return (
             <UtbetalingLinjeRow
               readOnly

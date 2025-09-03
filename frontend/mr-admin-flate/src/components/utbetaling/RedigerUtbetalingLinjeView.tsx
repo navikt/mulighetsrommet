@@ -1,16 +1,16 @@
 import { utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { FieldError } from "@mr/api-client-v2";
 import {
-  FieldError,
   TilsagnDto,
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
   UtbetalingDto,
   UtbetalingLinje,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
@@ -28,13 +28,7 @@ export interface Props {
 function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
   return tilsagn
     .filter((t) => t.status === TilsagnStatus.GODKJENT)
-    .map((t) => ({
-      belop: 0,
-      tilsagn: t,
-      gjorOppTilsagn: false,
-      id: uuidv4(),
-      handlinger: [],
-    }))
+    .map((t) => toEmptyUtbetalingLinje(t))
     .toSorted(utbetalingLinjeCompareFn);
 }
 
@@ -110,7 +104,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
               }
               grayBackground
               onChange={(updated) => {
-                setLinjer((prev: UtbetalingLinje[]) =>
+                setLinjer((prev) =>
                   prev.map((linje) => (linje.id === updated.id ? updated : linje)),
                 );
               }}
@@ -132,4 +126,16 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
     case Tilskuddstype.TILTAK_INVESTERINGER:
       return TilsagnType.INVESTERING;
   }
+}
+
+function toEmptyUtbetalingLinje(tilsagn: TilsagnDto): UtbetalingLinje {
+  return {
+    id: uuidv4(),
+    belop: 0,
+    tilsagn: tilsagn,
+    gjorOppTilsagn: false,
+    status: null,
+    opprettelse: null,
+    handlinger: [],
+  };
 }

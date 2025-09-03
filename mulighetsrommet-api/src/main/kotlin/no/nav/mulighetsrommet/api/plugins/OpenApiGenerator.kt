@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.plugins
 import io.github.smiley4.ktoropenapi.OpenApi
 import io.github.smiley4.ktoropenapi.config.OutputFormat
 import io.github.smiley4.ktoropenapi.config.RequestConfig
+import io.github.smiley4.ktoropenapi.config.RequestParameterConfig
 import io.github.smiley4.ktoropenapi.config.SchemaOverwriteModule
 import io.github.smiley4.schemakenerator.core.CoreSteps.handleNameAnnotation
 import io.github.smiley4.schemakenerator.core.data.TypeData
@@ -23,20 +24,20 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import no.nav.mulighetsrommet.model.ProblemDetail
 
-fun RequestConfig.pathParameterUuid(name: String) {
+fun RequestConfig.pathParameterUuid(name: String, block: RequestParameterConfig.() -> Unit = {}) {
     val uuidSchema = Schema<Any>().also {
         it.types = setOf("string")
         it.format = "uuid"
     }
-    pathParameter(name, uuidSchema)
+    pathParameter(name, uuidSchema, block)
 }
 
-fun RequestConfig.queryParameterUuid(name: String) {
+fun RequestConfig.queryParameterUuid(name: String, block: RequestParameterConfig.() -> Unit = {}) {
     val uuidSchema = Schema<Any>().also {
         it.types = setOf("string")
         it.format = "uuid"
     }
-    queryParameter(name, uuidSchema)
+    queryParameter(name, uuidSchema, block)
 }
 
 fun Application.configureOpenApiGenerator() {

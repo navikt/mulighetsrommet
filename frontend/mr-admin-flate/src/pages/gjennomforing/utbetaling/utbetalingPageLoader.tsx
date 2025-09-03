@@ -1,4 +1,5 @@
-import { UtbetalingService } from "@mr/api-client-v2";
+import { UtbetalingService as LegacyUtbetalingService } from "@mr/api-client-v2";
+import { UtbetalingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useUtbetaling(id: string) {
@@ -11,14 +12,14 @@ export function useUtbetaling(id: string) {
 export function useTilsagnTilUtbetaling(id: string) {
   return useApiSuspenseQuery({
     queryKey: ["utbetaling", id, "tilsagn"],
-    queryFn: async () => UtbetalingService.getTilsagnTilUtbetaling({ path: { id } }),
+    queryFn: async () => LegacyUtbetalingService.getTilsagnTilUtbetaling({ path: { id } }),
   });
 }
 
 export function useUtbetalingEndringshistorikk(id: string) {
   return useApiSuspenseQuery({
     queryKey: ["utbetaling", id, "historikk"],
-    queryFn: async () => UtbetalingService.getUtbetalingEndringshistorikk({ path: { id } }),
+    queryFn: async () => LegacyUtbetalingService.getUtbetalingEndringshistorikk({ path: { id } }),
   });
 }
 
@@ -26,6 +27,6 @@ export function useUtbetalingBeregning(filter: { navEnheter: string[] }, id: str
   return useApiSuspenseQuery({
     queryKey: ["utbetaling-beregning", id, filter, filter.navEnheter.join(",")],
     queryFn: async () =>
-      UtbetalingService.getUtbetalingBeregning({ path: { id }, query: { ...filter } }),
+      LegacyUtbetalingService.getUtbetalingBeregning({ path: { id }, query: { ...filter } }),
   });
 }

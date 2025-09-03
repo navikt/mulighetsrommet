@@ -79,6 +79,9 @@ sealed class DataElement {
             @SerialName("neutral")
             NEUTRAL,
 
+            @SerialName("alt")
+            ALT,
+
             @SerialName("success")
             SUCCESS,
 
