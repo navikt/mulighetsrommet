@@ -30,7 +30,6 @@ sealed class TotrinnskontrollDto {
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
         override val forklaring: String?,
-        val kanBesluttes: Boolean,
     ) : TotrinnskontrollDto()
 
     @Serializable
@@ -47,15 +46,12 @@ sealed class TotrinnskontrollDto {
     ) : TotrinnskontrollDto()
 }
 
-fun Totrinnskontroll.toDto(
-    kanBesluttes: Boolean,
-) = when {
+fun Totrinnskontroll.toDto() = when {
     besluttetAv == null -> TilBeslutning(
         behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
         behandletTidspunkt = behandletTidspunkt,
         aarsaker = aarsaker,
         forklaring = forklaring,
-        kanBesluttes = kanBesluttes,
     )
 
     else -> Besluttet(

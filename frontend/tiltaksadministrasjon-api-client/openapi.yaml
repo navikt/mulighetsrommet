@@ -733,14 +733,24 @@ components:
           type:
           - "null"
           - string
-        kanBesluttes:
-          type: boolean
       required:
       - aarsaker
       - behandletAv
       - behandletTidspunkt
       - forklaring
-      - kanBesluttes
+    TilsagnHandling:
+      type: string
+      enum:
+      - REDIGER
+      - SLETT
+      - ANNULLER
+      - GJOR_OPP
+      - GODKJENN
+      - RETURNER
+      - AVSLA_ANNULLERING
+      - GODKJENN_ANNULLERING
+      - AVSLA_OPPGJOR
+      - GODKJENN_OPPGJOR
     TilsagnDetaljerDto:
       type: object
       properties:
@@ -758,9 +768,15 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnHandling"
+          uniqueItems: true
       required:
       - annullering
       - beregning
+      - handlinger
       - opprettelse
       - tilOppgjor
       - tilsagn

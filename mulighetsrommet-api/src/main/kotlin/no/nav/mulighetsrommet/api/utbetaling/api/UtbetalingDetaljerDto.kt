@@ -28,7 +28,14 @@ data class UtbetalingLinje(
     val belop: Int,
     val gjorOppTilsagn: Boolean,
     val opprettelse: TotrinnskontrollDto,
+    val handlinger: Set<UtbetalingLinjeHandling>,
 )
+
+@Serializable
+enum class UtbetalingLinjeHandling {
+    ATTESTER,
+    RETURNER,
+}
 
 fun toReadableName(delutbetalingStatus: DelutbetalingStatus): String {
     return when (delutbetalingStatus) {

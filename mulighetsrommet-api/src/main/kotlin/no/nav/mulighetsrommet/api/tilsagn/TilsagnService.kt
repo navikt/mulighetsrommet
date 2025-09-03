@@ -11,18 +11,17 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
@@ -238,6 +237,28 @@ class TilsagnService(
             // TODO returner valideringsfeil i stedet for å kaste exception
             throw IllegalStateException(it.first().detail)
         }
+    }
+
+    fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
+        val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))
+        val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        val tilOppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+
+        return setOfNotNull(
+            TilsagnHandling.REDIGER.takeIf { tilsagn.status == TilsagnStatus.RETURNERT && saksbehandler },
+            TilsagnHandling.SLETT.takeIf { tilsagn.status == TilsagnStatus.RETURNERT && saksbehandler },
+            TilsagnHandling.ANNULLER.takeIf { tilsagn.status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt == 0 && saksbehandler },
+            TilsagnHandling.GJOR_OPP.takeIf { tilsagn.status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt > 0 && saksbehandler },
+            TilsagnHandling.GODKJENN.takeIf { tilsagn.status == TilsagnStatus.TIL_GODKJENNING && beslutter && opprettelse.behandletAv != ansatt.navIdent },
+            TilsagnHandling.RETURNER.takeIf { tilsagn.status == TilsagnStatus.TIL_GODKJENNING && (beslutter || saksbehandler) },
+            TilsagnHandling.AVSLA_ANNULLERING.takeIf { tilsagn.status == TilsagnStatus.TIL_ANNULLERING && (beslutter || saksbehandler) },
+            TilsagnHandling.GODKJENN_ANNULLERING.takeIf { tilsagn.status == TilsagnStatus.TIL_ANNULLERING && beslutter && annullering?.behandletAv != ansatt.navIdent },
+            TilsagnHandling.AVSLA_OPPGJOR.takeIf { tilsagn.status == TilsagnStatus.TIL_OPPGJOR && beslutter },
+            TilsagnHandling.GODKJENN_OPPGJOR.takeIf { tilsagn.status == TilsagnStatus.TIL_OPPGJOR && beslutter && tilOppgjor?.behandletAv != ansatt.navIdent },
+        )
     }
 
     private fun QueryContext.godkjennTilsagn(

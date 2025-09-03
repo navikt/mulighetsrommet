@@ -89,6 +89,7 @@ function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
       tilsagn: t,
       gjorOppTilsagn: false,
       id: uuidv4(),
+      handlinger: [],
     }))
     .toSorted(utbetalingLinjeCompareFn);
 }

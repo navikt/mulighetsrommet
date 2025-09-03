@@ -4,21 +4,16 @@ import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
 import { v4 } from "uuid";
 import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import {
-  TotrinnskontrollDtoBesluttet,
   TotrinnskontrollDtoTilBeslutning,
-  TilsagnStatusAarsak,
   TilsagnBeregningDto,
   TilsagnBeregningType,
   TilsagnDetaljerDto,
-  TilsagnDto,
   TilsagnRequest,
-  TilsagnStatus,
   TilsagnType,
   DataDrivenTableDto,
   LabeledDataElementType,
   DataElementTextFormat,
   DataElementMathOperatorType,
-  Besluttelse,
 } from "@tiltaksadministrasjon/api-client";
 
 export const tilsagnHandlers = [
@@ -56,7 +51,14 @@ export const tilsagnHandlers = [
         return HttpResponse.json(undefined, { status: 404 });
       }
 
-      return HttpResponse.json(toTilsagnDetaljerDto(tilsagn));
+      return HttpResponse.json({
+        tilsagn,
+        beregning,
+        opprettelse: tilBeslutning,
+        annullering: null,
+        tilOppgjor: null,
+        handlinger: [],
+      });
     },
   ),
 
@@ -100,43 +102,6 @@ const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],
-  kanBesluttes: true,
-  forklaring: null,
-};
-
-const godkjent: TotrinnskontrollDtoBesluttet = {
-  besluttetAv: {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-    navn: "Per Haraldsen",
-    navIdent: "P654321",
-  },
-  behandletAv: {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-    navn: "Bertil Bengtson",
-    navIdent: "B123456",
-  },
-  behandletTidspunkt: "2024-01-01T22:00:00",
-  besluttetTidspunkt: "2024-01-01T22:00:00",
-  aarsaker: [],
-  besluttelse: Besluttelse.GODKJENT,
-  forklaring: null,
-};
-
-const avvist: TotrinnskontrollDtoBesluttet = {
-  besluttetAv: {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-    navn: "Per Haraldsen",
-    navIdent: "P654321",
-  },
-  behandletTidspunkt: "2024-01-01T22:00:00",
-  behandletAv: {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-    navn: "Bertil Bengtson",
-    navIdent: "B123456",
-  },
-  besluttetTidspunkt: "2024-01-01T22:00:00",
-  aarsaker: [],
-  besluttelse: Besluttelse.AVVIST,
   forklaring: null,
 };
 
@@ -219,82 +184,3 @@ const beregning: TilsagnBeregningDto = {
     breakdown: null,
   },
 };
-
-function toTilsagnDetaljerDto(tilsagn: TilsagnDto): TilsagnDetaljerDto {
-  switch (tilsagn.status) {
-    case TilsagnStatus.TIL_GODKJENNING:
-      return {
-        tilsagn,
-        beregning,
-        opprettelse: tilBeslutning,
-        annullering: null,
-        tilOppgjor: null,
-      };
-
-    case TilsagnStatus.GODKJENT:
-      return {
-        tilsagn,
-        beregning,
-        opprettelse: godkjent,
-        annullering: null,
-        tilOppgjor: null,
-      };
-
-    case TilsagnStatus.RETURNERT:
-      return {
-        tilsagn,
-        beregning,
-        opprettelse: {
-          ...avvist,
-          aarsaker: [TilsagnStatusAarsak.FEIL_ANTALL_PLASSER, TilsagnStatusAarsak.ANNET],
-          forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
-        },
-        annullering: null,
-        tilOppgjor: null,
-      };
-
-    case TilsagnStatus.TIL_ANNULLERING:
-      return {
-        tilsagn,
-        beregning,
-        opprettelse: godkjent,
-        annullering: {
-          ...tilBeslutning,
-          aarsaker: [TilsagnStatusAarsak.FEIL_REGISTRERING, TilsagnStatusAarsak.ANNET],
-          forklaring: "Du må fikse det",
-        },
-        tilOppgjor: null,
-      };
-
-    case TilsagnStatus.ANNULLERT:
-      return {
-        tilsagn,
-        beregning,
-        opprettelse: godkjent,
-        annullering: {
-          ...godkjent,
-          aarsaker: [TilsagnStatusAarsak.FEIL_REGISTRERING, TilsagnStatusAarsak.ANNET],
-          forklaring: "Du må fikse antall plasser. Det skal være 25 plasser.",
-        },
-        tilOppgjor: null,
-      };
-
-    case TilsagnStatus.TIL_OPPGJOR:
-      return {
-        tilsagn,
-        beregning,
-        opprettelse: godkjent,
-        annullering: null,
-        tilOppgjor: tilBeslutning,
-      };
-
-    case TilsagnStatus.OPPGJORT:
-      return {
-        beregning,
-        tilsagn,
-        opprettelse: godkjent,
-        annullering: null,
-        tilOppgjor: godkjent,
-      };
-  }
-}

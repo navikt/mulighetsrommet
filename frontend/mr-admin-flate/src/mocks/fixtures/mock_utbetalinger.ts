@@ -7,6 +7,7 @@ import {
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
+  UtbetalingLinjeHandling,
   UtbetalingType,
 } from "@mr/api-client-v2";
 import { TilsagnStatus, TilsagnType } from "@tiltaksadministrasjon/api-client";
@@ -195,10 +196,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       behandletTidspunkt: "2024-01-01T22:00:00",
       aarsaker: ["Utbetaling for første halvår 2024"],
       forklaring: "Utbetaling for tilsagn",
-      kanBesluttes: true,
     } as TotrinnskontrollTilBeslutningDto,
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174001",
     tilsagn: {
       id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
@@ -242,6 +244,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     },
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -285,6 +288,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     },
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -323,6 +327,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     },
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -344,50 +349,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     },
 
     status: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-    belop: 3000,
-    gjorOppTilsagn: false,
-    opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
-      behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
-        navn: "Bertil Bengtson",
-      },
-      behandletTidspunkt: "2025-01-01T10:00:00",
-      aarsaker: [],
-      forklaring: "Utbetaling for første halvår 2025",
-      kanBesluttes: true,
-      besluttetAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "P654321",
-        navn: "Per Haraldsen",
-      },
-      besluttetTidspunkt: "2025-01-01T10:00:00",
-      besluttelse: Besluttelse.GODKJENT,
-    },
-  },
-  {
-    id: "456e4567-e89b-12d3-a456-426614174002",
-    tilsagn: {
-      id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
-      type: TilsagnType.TILSAGN,
-      periode: {
-        start: "2025-06-01",
-        slutt: "2025-06-31",
-      },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
-      kostnadssted: {
-        enhetsnummer: "0300",
-        navn: "Nav Oslo",
-      },
-      status: TilsagnStatus.GODKJENT,
-      bestillingsnummer: "A-2025/123",
-      kommentar: null,
-    },
-
-    status: DelutbetalingStatus.UTBETALT,
     belop: 3000,
     gjorOppTilsagn: false,
     opprettelse: {

@@ -6,11 +6,7 @@ import { PORTEN_URL } from "../../constants";
 
 const avtaleFinnesIkke = () => (
   <>
-    <BodyShort>
-      Det finnes ingen avtale koblet til tiltaksgjennomføringen. Hvis gjennomføringen er en AFT-
-      eller VTA-gjennomføring kan du koble gjennomføringen til riktig avtale. Gå til{" "}
-      <Link to={`/avtaler`}>avtaler</Link>, finn riktig avtale og trykk «Legg til gjennomføring».
-    </BodyShort>
+    <BodyShort>Det finnes ingen avtale koblet til tiltaksgjennomføringen.</BodyShort>
     <BodyShort>
       Ta <a href={PORTEN_URL}>kontakt i Porten</a> dersom du trenger mer hjelp.
     </BodyShort>
