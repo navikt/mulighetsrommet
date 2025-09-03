@@ -27,6 +27,6 @@ export function useUtbetalingBeregning(filter: { navEnheter: string[] }, id: str
   return useApiSuspenseQuery({
     queryKey: ["utbetaling-beregning", id, filter, filter.navEnheter.join(",")],
     queryFn: async () =>
-      LegacyUtbetalingService.getUtbetalingBeregning({ path: { id }, query: { ...filter } }),
+      UtbetalingService.getUtbetalingBeregning({ path: { id }, query: { ...filter } }),
   });
 }

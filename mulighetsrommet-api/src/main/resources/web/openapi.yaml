@@ -1532,30 +1532,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/utbetaling/{id}/beregning:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      parameters:
-        - in: query
-          name: navEnheter
-          schema:
-            type: array
-            items:
-              type: string
-      tags:
-        - Utbetaling
-      operationId: getUtbetalingBeregning
-      responses:
-        200:
-          description: Filtrert utbetaling beregning
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UtbetalingBeregningDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/utbetaling/{id}/tilsagn:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -3968,94 +3944,6 @@ components:
         sendTilAttestering:
           type: boolean
       required: [sendTilAttestering]
-
-    UtbetalingBeregningDto:
-      type: object
-      oneOf:
-        - $ref: "#/components/schemas/UtbetalingBeregningFri"
-        - $ref: "#/components/schemas/UtbetalingBeregningFastSatsPerTiltaksplassPerManed"
-        - $ref: "#/components/schemas/UtbetalingBeregningPrisPerManedsverk"
-        - $ref: "#/components/schemas/UtbetalingBeregningPrisPerUkesverk"
-
-    UtbetalingBeregningFri:
-      type: object
-      properties:
-        belop:
-          type: integer
-        type:
-          const: FRI
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required: [heading, belop, type, deltakerTableData, deltakerRegioner]
-
-    UtbetalingBeregningFastSatsPerTiltaksplassPerManed:
-      type: object
-      properties:
-        type:
-          const: FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-        belop:
-          type: integer
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        sats:
-          type: integer
-        manedsverkTotal:
-          type: number
-        heading:
-          type: string
-      required: [heading, type, belop, sats, deltakerTableData, deltakerRegioner, manedsverkTotal]
-
-    UtbetalingBeregningPrisPerManedsverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_MANEDSVERK
-        belop:
-          type: integer
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        sats:
-          type: integer
-        manedsverkTotal:
-          type: number
-        heading:
-          type: string
-      required: [heading, type, belop, sats, deltakerTableData, deltakerRegioner, manedsverkTotal]
-
-    UtbetalingBeregningPrisPerUkesverk:
-      type: object
-      properties:
-        type:
-          const: PRIS_PER_UKESVERK
-        belop:
-          type: integer
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        sats:
-          type: integer
-        ukesverkTotal:
-          type: number
-        heading:
-          type: string
-      required: [heading, type, belop, sats, deltakerTableData, deltakerRegioner, ukesverkTotal]
 
     UtdanningslopDbo:
       type: object

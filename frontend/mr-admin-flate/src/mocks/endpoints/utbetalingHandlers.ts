@@ -1,6 +1,6 @@
-import { UtbetalingBeregningDto } from "@mr/api-client-v2";
 import {
   TilsagnDto,
+  UtbetalingBeregningDto,
   UtbetalingDetaljerDto,
   UtbetalingKompaktDto,
 } from "@tiltaksadministrasjon/api-client";

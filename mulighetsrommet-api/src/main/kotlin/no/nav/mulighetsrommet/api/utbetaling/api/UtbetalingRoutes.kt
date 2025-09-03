@@ -142,13 +142,30 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
-            get("/beregning") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            get("/beregning", {
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingBeregning"
+                request {
+                    pathParameterUuid("id")
+                    queryParameter<List<String>>("navEnheter") {
+                        explode = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingen ble opprettet"
+                        body<UtbetalingBeregningDto>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val filter = getBeregningFilter()
 
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
-                }
+                val utbetaling = db.session { queries.utbetaling.getOrError(id) }
 
                 call.respond(utbetalingService.getUtbetalingBeregning(utbetaling, filter = filter))
             }
