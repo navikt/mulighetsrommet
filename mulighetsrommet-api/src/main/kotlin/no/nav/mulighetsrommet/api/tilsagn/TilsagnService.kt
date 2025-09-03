@@ -152,7 +152,7 @@ class TilsagnService(
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning = db.session {
+    fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
         return when (request.beregning.type) {
             TilsagnBeregningType.FRI ->
                 TilsagnBeregningFri.beregn(
@@ -170,7 +170,7 @@ class TilsagnService(
                 )
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
-                beregnTilsagnFallbackResolver(request).let { fallback ->
+                beregnTilsagnFallbackResolver(request)?.let { fallback ->
                     TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
                         TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                             periode = fallback.periode,
@@ -181,7 +181,7 @@ class TilsagnService(
                 }
 
             TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
-                beregnTilsagnFallbackResolver(request).let { fallback ->
+                beregnTilsagnFallbackResolver(request)?.let { fallback ->
                     TilsagnBeregningPrisPerManedsverk.beregn(
                         TilsagnBeregningPrisPerManedsverk.Input(
                             periode = fallback.periode,
@@ -192,7 +192,7 @@ class TilsagnService(
                     )
                 }
             TilsagnBeregningType.PRIS_PER_UKESVERK ->
-                beregnTilsagnFallbackResolver(request).let { fallback ->
+                beregnTilsagnFallbackResolver(request)?.let { fallback ->
                     TilsagnBeregningPrisPerUkesverk.beregn(
                         TilsagnBeregningPrisPerUkesverk.Input(
                             periode = fallback.periode,
@@ -203,7 +203,7 @@ class TilsagnService(
                     )
                 }
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-            -> beregnTilsagnFallbackResolver(request).let { fallback ->
+            -> beregnTilsagnFallbackResolver(request)?.let { fallback ->
                 TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
                     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = fallback.periode,
@@ -225,25 +225,15 @@ class TilsagnService(
         val prisbetingelser: String?,
     )
 
-    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver = db.session {
+    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
+        if (request.periodeStart == null || request.periodeSlutt == null || request.periodeSlutt <= request.periodeStart) {
+            return null
+        }
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
-        if (request.periodeStart == null) {
-            val now = LocalDate.now()
-            return TilsagnBeregningFallbackResolver(
-                sats = 0,
-                periode = Periode.fromInclusiveDates(now, now.plusDays(1)),
-                antallPlasser = antallPlasserFallback,
-                antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
-                prisbetingelser = request.beregning.prisbetingelser,
-            )
-        }
-        val periode = if (request.periodeSlutt == null || request.periodeSlutt <= request.periodeStart) {
-            Periode.fromInclusiveDates(request.periodeStart, request.periodeStart.plusDays(1))
-        } else {
-            Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
-        }
 
+        val periode =
+            Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
         val sats =
             queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
                 queries.avtale.get(it)
