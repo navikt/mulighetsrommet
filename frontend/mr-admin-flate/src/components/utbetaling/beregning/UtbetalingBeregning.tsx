@@ -1,12 +1,12 @@
 import { BodyShort, CopyButton, HStack, VStack } from "@navikt/ds-react";
 import {
+  DataDrivenTableDto,
   UtbetalingBeregningDto,
-  UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-  UtbetalingBeregningFri,
-  UtbetalingBeregningPrisPerManedsverk,
-  UtbetalingBeregningPrisPerUkesverk,
-} from "@mr/api-client-v2";
-import { DataDrivenTableDto } from "@tiltaksadministrasjon/api-client";
+  UtbetalingBeregningDtoFastSatsPerTiltaksplassPerManed,
+  UtbetalingBeregningDtoFri,
+  UtbetalingBeregningDtoPrisPerManedsverk,
+  UtbetalingBeregningDtoPrisPerUkesverk,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
 
@@ -31,19 +31,21 @@ function roundNdecimals(num: number, N: number) {
 
 function Regnestykke(props: { beregning: UtbetalingBeregningDto }) {
   switch (props.beregning.type) {
-    case "FAST_SATS_PER_TILTAKSPLASS_PER_MANED":
+    case "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed":
       return <FastSatsPerTiltaksplassPerManedRegnestykke beregning={props.beregning} />;
-    case "PRIS_PER_MANEDSVERK":
+    case "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerManedsverk":
       return <PrisPerManedsverkRegnestykke beregning={props.beregning} />;
-    case "PRIS_PER_UKESVERK":
+    case "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerUkesverk":
       return <PrisPerUkesverkRegnestykke beregning={props.beregning} />;
-    case "FRI":
+    case "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri":
       return <FriRegnestykke beregning={props.beregning} />;
+    case undefined:
+      throw new Error(`Ukjent beregning: ${props.beregning}`);
   }
 }
 
 function FastSatsPerTiltaksplassPerManedRegnestykke(props: {
-  beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed;
+  beregning: UtbetalingBeregningDtoFastSatsPerTiltaksplassPerManed;
 }) {
   const { beregning } = props;
 
@@ -65,7 +67,9 @@ function FastSatsPerTiltaksplassPerManedRegnestykke(props: {
   );
 }
 
-function PrisPerManedsverkRegnestykke(props: { beregning: UtbetalingBeregningPrisPerManedsverk }) {
+function PrisPerManedsverkRegnestykke(props: {
+  beregning: UtbetalingBeregningDtoPrisPerManedsverk;
+}) {
   const { beregning } = props;
 
   return (
@@ -86,7 +90,7 @@ function PrisPerManedsverkRegnestykke(props: { beregning: UtbetalingBeregningPri
   );
 }
 
-function PrisPerUkesverkRegnestykke(props: { beregning: UtbetalingBeregningPrisPerUkesverk }) {
+function PrisPerUkesverkRegnestykke(props: { beregning: UtbetalingBeregningDtoPrisPerUkesverk }) {
   const { beregning } = props;
 
   return (
@@ -107,7 +111,7 @@ function PrisPerUkesverkRegnestykke(props: { beregning: UtbetalingBeregningPrisP
   );
 }
 
-function FriRegnestykke(props: { beregning: UtbetalingBeregningFri }) {
+function FriRegnestykke(props: { beregning: UtbetalingBeregningDtoFri }) {
   const { beregning } = props;
 
   return (

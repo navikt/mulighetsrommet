@@ -414,9 +414,42 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/beregning:
     get:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Utbetaling
+      operationId: getUtbetalingBeregning
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: navEnheter
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Utbetalingen ble opprettet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UtbetalingBeregningDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/historikk:
     get:
@@ -1434,6 +1467,150 @@ components:
       - handlinger
       - linjer
       - utbetaling
+    UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed:
+      type: object
+      properties:
+        sats:
+          type: integer
+          format: int32
+        manedsverkTotal:
+          type: number
+          format: double
+        belop:
+          type: integer
+          format: int32
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        heading:
+          type: string
+      required:
+      - belop
+      - deltakerRegioner
+      - deltakerTableData
+      - heading
+      - manedsverkTotal
+      - sats
+    NavRegionDto:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+        enheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionUnderenhetDto"
+      required:
+      - enheter
+      - enhetsnummer
+      - navn
+    NavRegionUnderenhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        overordnetEnhet:
+          type: string
+        erStandardvalg:
+          type: boolean
+      required:
+      - enhetsnummer
+      - erStandardvalg
+      - navn
+      - overordnetEnhet
+    UtbetalingBeregningDto.Fri:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        heading:
+          type: string
+      required:
+      - belop
+      - deltakerRegioner
+      - deltakerTableData
+      - heading
+    UtbetalingBeregningDto.PrisPerManedsverk:
+      type: object
+      properties:
+        sats:
+          type: integer
+          format: int32
+        manedsverkTotal:
+          type: number
+          format: double
+        belop:
+          type: integer
+          format: int32
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        heading:
+          type: string
+      required:
+      - belop
+      - deltakerRegioner
+      - deltakerTableData
+      - heading
+      - manedsverkTotal
+      - sats
+    UtbetalingBeregningDto.PrisPerUkesverk:
+      type: object
+      properties:
+        sats:
+          type: integer
+          format: int32
+        ukesverkTotal:
+          type: number
+          format: double
+        belop:
+          type: integer
+          format: int32
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        heading:
+          type: string
+      required:
+      - belop
+      - deltakerRegioner
+      - deltakerTableData
+      - heading
+      - sats
+      - ukesverkTotal
+    UtbetalingBeregningDto:
+      anyOf:
+      - $ref: "#/components/schemas/UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed"
+      - $ref: "#/components/schemas/UtbetalingBeregningDto.Fri"
+      - $ref: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
+      - $ref: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed: "#/components/schemas/UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed"
+          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri: "#/components/schemas/UtbetalingBeregningDto.Fri"
+          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerManedsverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
+          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerUkesverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
     OpprettUtbetalingRequest:
       type: object
       properties:

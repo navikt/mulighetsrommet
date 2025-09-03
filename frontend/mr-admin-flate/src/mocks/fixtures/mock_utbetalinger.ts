@@ -1,4 +1,3 @@
-import { UtbetalingBeregningFri } from "@mr/api-client-v2";
 import {
   Besluttelse,
   DataElementStatusVariant,
@@ -6,6 +5,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
+  UtbetalingBeregningDto,
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
@@ -413,7 +413,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
   },
 ];
 
-export const mockBeregning: UtbetalingBeregningFri = {
+export const mockBeregning: UtbetalingBeregningDto = {
   heading: "Annen avtalt pris",
   belop: 780,
   deltakerRegioner: [],
@@ -421,5 +421,5 @@ export const mockBeregning: UtbetalingBeregningFri = {
     columns: [],
     rows: [],
   },
-  type: "FRI",
+  type: "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri",
 };
