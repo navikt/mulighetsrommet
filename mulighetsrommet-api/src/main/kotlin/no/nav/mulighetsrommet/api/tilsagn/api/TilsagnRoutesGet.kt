@@ -14,10 +14,8 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -109,8 +107,9 @@ private fun kanBeslutteTilsagn(
     ansatt: NavAnsatt,
     kostnadssted: NavEnhetNummer,
 ): Boolean {
-    return totrinnskontroll.behandletAv != ansatt.navIdent && ansatt.hasKontorspesifikkRolle(
-        Rolle.BESLUTTER_TILSAGN,
-        setOf(kostnadssted),
-    )
+    return totrinnskontroll.behandletAv != ansatt.navIdent &&
+        ansatt.hasKontorspesifikkRolle(
+            Rolle.BESLUTTER_TILSAGN,
+            setOf(kostnadssted),
+        )
 }
