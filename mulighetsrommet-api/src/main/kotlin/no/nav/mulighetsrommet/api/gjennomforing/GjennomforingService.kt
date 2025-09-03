@@ -309,7 +309,7 @@ class GjennomforingService(
         )
     }
 
-    fun handlinger(gjennomforing: GjennomforingDto, navIdent: NavIdent): GjennomforingHandlinger {
+    fun handlinger(gjennomforing: GjennomforingDto, navIdent: NavIdent): Set<GjennomforingHandling> {
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
             ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
 
@@ -317,17 +317,37 @@ class GjennomforingService(
         val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
         val statusGjennomfores = gjennomforing.status is GjennomforingStatusDto.Gjennomfores
 
-        return GjennomforingHandlinger(
-            publiser = statusGjennomfores && gjennomforingSkriv,
-            avbryt = statusGjennomfores && gjennomforingSkriv,
-            endreApenForPamelding = statusGjennomfores && gjennomforingSkriv,
-            registrerStengtHosArrangor = statusGjennomfores && gjennomforingSkriv,
-            dupliser = gjennomforingSkriv,
-            rediger = statusGjennomfores && gjennomforingSkriv,
-            opprettTilsagn = saksbehandlerOkonomi,
-            opprettEkstratilsagn = saksbehandlerOkonomi,
-            opprettTilsagnForInvesteringer = saksbehandlerOkonomi && gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            opprettKorreksjonPaUtbetaling = saksbehandlerOkonomi,
+        return setOfNotNull(
+            GjennomforingHandling.PUBLISER.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.AVBRYT.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.DUPLISER.takeIf {
+                gjennomforingSkriv
+            },
+            GjennomforingHandling.REDIGER.takeIf {
+                statusGjennomfores && gjennomforingSkriv
+            },
+            GjennomforingHandling.OPPRETT_TILSAGN.takeIf {
+                saksbehandlerOkonomi
+            },
+            GjennomforingHandling.OPPRETT_EKSTRATILSAGN.takeIf {
+                saksbehandlerOkonomi
+            },
+            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+                saksbehandlerOkonomi && gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+            },
+            GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING.takeIf {
+                saksbehandlerOkonomi
+            },
         )
     }
 

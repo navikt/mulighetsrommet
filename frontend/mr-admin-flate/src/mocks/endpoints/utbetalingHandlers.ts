@@ -3,6 +3,7 @@ import {
   TilsagnDto,
   UtbetalingKompaktDto,
   UtbetalingBeregningDto,
+  UtbetalingHandling,
 } from "@mr/api-client-v2";
 import { http, HttpResponse, PathParams } from "msw";
 import {
@@ -31,9 +32,10 @@ export const utbetalingHandlers = [
       return HttpResponse.json({
         utbetaling: mockUtbetaling,
         linjer: matchingLinjer,
-        handlinger: {
-          sendTilAttestering: mockUtbetaling.status.type === "KLAR_TIL_BEHANDLING",
-        },
+        handlinger:
+          mockUtbetaling.status.type === "KLAR_TIL_BEHANDLING"
+            ? [UtbetalingHandling.SEND_TIL_ATTESTERING]
+            : [],
       });
     },
   ),

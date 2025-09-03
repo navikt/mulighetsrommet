@@ -269,32 +269,44 @@ class AvtaleService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
-    fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): AvtaleHandlinger {
+    fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): Set<AvtaleHandling> {
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
             ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
 
         val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
 
-        return AvtaleHandlinger(
-            avbryt = when (avtale.status) {
-                AvtaleStatusDto.Utkast,
-                AvtaleStatusDto.Aktiv,
-                -> avtalerSkriv
-                is AvtaleStatusDto.Avbrutt,
-                AvtaleStatusDto.Avsluttet,
-                -> false
+        return setOfNotNull(
+            AvtaleHandling.AVBRYT.takeIf {
+                when (avtale.status) {
+                    AvtaleStatusDto.Utkast,
+                    AvtaleStatusDto.Aktiv,
+                    -> avtalerSkriv
+                    is AvtaleStatusDto.Avbrutt,
+                    AvtaleStatusDto.Avsluttet,
+                    -> false
+                }
             },
-            opprettGjennomforing = when (avtale.status) {
-                AvtaleStatusDto.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
-                is AvtaleStatusDto.Avbrutt,
-                AvtaleStatusDto.Avsluttet,
-                AvtaleStatusDto.Utkast,
-                -> false
+            AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
+                when (avtale.status) {
+                    AvtaleStatusDto.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                    is AvtaleStatusDto.Avbrutt,
+                    AvtaleStatusDto.Avsluttet,
+                    AvtaleStatusDto.Utkast,
+                    -> false
+                }
             },
-            oppdaterPris = Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv,
-            registrerOpsjon = avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv,
-            dupliser = avtalerSkriv,
-            rediger = avtalerSkriv,
+            AvtaleHandling.OPPDATER_PRIS.takeIf {
+                Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv
+            },
+            AvtaleHandling.REGISTRER_OPSJON.takeIf {
+                avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv
+            },
+            AvtaleHandling.DUPLISER.takeIf {
+                avtalerSkriv
+            },
+            AvtaleHandling.REDIGER.takeIf {
+                avtalerSkriv
+            },
         )
     }
 

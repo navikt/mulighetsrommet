@@ -38,7 +38,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AvtaleHandlinger"
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaleHandling"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -402,7 +404,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GjennomforingHandlinger"
+                type: array
+                items:
+                  $ref: "#/components/schemas/GjennomforingHandling"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2279,47 +2283,29 @@ components:
         - startDato
         - status
 
-    GjennomforingHandlinger:
-      type: object
-      properties:
-        publiser:
-          type: boolean
-        rediger:
-          type: boolean
-        avbryt:
-          type: boolean
-        dupliser:
-          type: boolean
-        endreApenForPamelding:
-          type: boolean
-        registrerStengtHosArrangor:
-          type: boolean
-        opprettTilsagn:
-          type: boolean
-        opprettEkstratilsagn:
-          type: boolean
-        opprettTilsagnForInvesteringer:
-          type: boolean
-        opprettKorreksjonPaUtbetaling:
-          type: boolean
-      required: [publiser, rediger, avbryt, dupliser, endreApenForPamelding, registrerStengtHosArrangor, opprettTilsagn, opprettEkstratilsagn, opprettTilsagnForInvesteringer, opprettKorreksjonPaUtbetaling]
+    GjennomforingHandling:
+      type: string
+      enum:
+        - PUBLISER
+        - REDIGER
+        - AVBRYT
+        - DUPLISER
+        - ENDRE_APEN_FOR_PAMELDING
+        - REGISTRER_STENGT_HOS_ARRANGOR
+        - OPPRETT_TILSAGN
+        - OPPRETT_EKSTRATILSAGN
+        - OPPRETT_TILSAGN_FOR_INVESTERINGER
+        - OPPRETT_KORREKSJON_PA_UTBETALING
 
-    AvtaleHandlinger:
-      type: object
-      properties:
-        rediger:
-          type: boolean
-        avbryt:
-          type: boolean
-        opprettGjennomforing:
-          type: boolean
-        dupliser:
-          type: boolean
-        registrerOpsjon:
-          type: boolean
-        oppdaterPris:
-          type: boolean
-      required: [rediger, avbryt, opprettGjennomforing, dupliser, registrerOpsjon, oppdaterPris]
+    AvtaleHandling:
+      type: string
+      enum:
+        - REDIGER
+        - AVBRYT
+        - OPPRETT_GJENNOMFORING
+        - DUPLISER
+        - REGISTRER_OPSJON
+        - OPPDATER_PRIS
 
     AvtaleDto:
       type: object
@@ -4605,7 +4591,9 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingLinje"
         handlinger:
-          $ref: "#/components/schemas/UtbetalingHandlinger"
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingHandling"
       required: [utbetaling, linjer, handlinger]
 
     UtbetalingDto:
@@ -4642,12 +4630,10 @@ components:
           type: string
       required: [id, status, periode, belop, createdAt, tilskuddstype, type]
 
-    UtbetalingHandlinger:
-      type: object
-      properties:
-        sendTilAttestering:
-          type: boolean
-      required: [sendTilAttestering]
+    UtbetalingHandling:
+      type: string
+      enum:
+        - SEND_TIL_ATTESTERING
 
     UtbetalingKompaktDto:
       type: object

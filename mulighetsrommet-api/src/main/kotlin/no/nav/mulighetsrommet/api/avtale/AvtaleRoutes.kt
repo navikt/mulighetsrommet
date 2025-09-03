@@ -292,14 +292,14 @@ fun Route.avtaleRoutes() {
 }
 
 @Serializable
-data class AvtaleHandlinger(
-    val avbryt: Boolean,
-    val opprettGjennomforing: Boolean,
-    val oppdaterPris: Boolean,
-    val dupliser: Boolean,
-    val rediger: Boolean,
-    val registrerOpsjon: Boolean,
-)
+enum class AvtaleHandling {
+    REDIGER,
+    AVBRYT,
+    OPPRETT_GJENNOMFORING,
+    DUPLISER,
+    REGISTRER_OPSJON,
+    OPPDATER_PRIS,
+}
 
 fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()

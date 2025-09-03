@@ -1,6 +1,6 @@
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { TilsagnType } from "@mr/api-client-v2";
+import { GjennomforingHandling, TilsagnType } from "@mr/api-client-v2";
 import { Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -30,7 +30,7 @@ export function TilsagnForGjennomforingPage() {
           </Button>
           <Dropdown.Menu>
             <Dropdown.Menu.GroupedList>
-              {handlinger.opprettTilsagn && (
+              {handlinger.includes(GjennomforingHandling.OPPRETT_TILSAGN) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     navigate(`opprett-tilsagn?type=${TilsagnType.TILSAGN}`);
@@ -39,7 +39,7 @@ export function TilsagnForGjennomforingPage() {
                   Opprett {avtaletekster.tilsagn.type(TilsagnType.TILSAGN).toLowerCase()}
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.opprettEkstratilsagn && (
+              {handlinger.includes(GjennomforingHandling.OPPRETT_EKSTRATILSAGN) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     navigate(`opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`);
@@ -48,7 +48,7 @@ export function TilsagnForGjennomforingPage() {
                   Opprett {avtaletekster.tilsagn.type(TilsagnType.EKSTRATILSAGN).toLowerCase()}
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.opprettTilsagn && (
+              {handlinger.includes(GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     navigate(`opprett-tilsagn?type=${TilsagnType.INVESTERING}`);

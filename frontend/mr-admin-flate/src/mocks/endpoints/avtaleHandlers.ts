@@ -1,7 +1,7 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
   AvtaleDto,
-  AvtaleHandlinger,
+  AvtaleHandling,
   AvtaltSatsDto,
   EndringshistorikkEntry,
   PaginertAvtale,
@@ -20,15 +20,15 @@ export const avtaleHandlers = [
     ]);
   }),
 
-  http.get<PathParams, AvtaleHandlinger>("*/api/v1/intern/avtaler/:id/handlinger", () => {
-    return HttpResponse.json({
-      rediger: true,
-      avbryt: true,
-      opprettGjennomforing: true,
-      dupliser: true,
-      registrerOpsjon: true,
-      oppdaterPris: true,
-    });
+  http.get<PathParams, AvtaleHandling[]>("*/api/v1/intern/avtaler/:id/handlinger", () => {
+    return HttpResponse.json([
+      AvtaleHandling.REDIGER,
+      AvtaleHandling.AVBRYT,
+      AvtaleHandling.OPPRETT_GJENNOMFORING,
+      AvtaleHandling.DUPLISER,
+      AvtaleHandling.REGISTRER_OPSJON,
+      AvtaleHandling.OPPDATER_PRIS,
+    ]);
   }),
 
   http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/avtaler", ({ request }) => {

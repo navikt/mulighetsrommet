@@ -16,6 +16,7 @@ import {
   TilsagnDto,
   TilsagnStatus,
   UtbetalingDto,
+  UtbetalingHandling,
   UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
@@ -291,7 +292,7 @@ export function UtbetalingPage() {
               </>
               <VStack gap="2">
                 <HStack justify="end">
-                  {handlinger.sendTilAttestering && (
+                  {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
                     <Button
                       size="small"
                       type="button"

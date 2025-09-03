@@ -11,13 +11,13 @@ import java.util.*
 data class UtbetalingDetaljerDto(
     val utbetaling: UtbetalingDto,
     val linjer: List<UtbetalingLinje>,
-    val handlinger: UtbetalingHandlinger,
+    val handlinger: Set<UtbetalingHandling>,
 )
 
 @Serializable
-data class UtbetalingHandlinger(
-    val sendTilAttestering: Boolean,
-)
+enum class UtbetalingHandling {
+    SEND_TIL_ATTESTERING,
+}
 
 @Serializable
 data class UtbetalingLinje(

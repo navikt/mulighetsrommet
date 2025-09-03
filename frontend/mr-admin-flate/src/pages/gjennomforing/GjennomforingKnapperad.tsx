@@ -9,6 +9,7 @@ import {
   AvbrytGjennomforingAarsak,
   FieldError,
   GjennomforingDto,
+  GjennomforingHandling,
   NavAnsatt,
   Opphav,
   ValidationError,
@@ -82,7 +83,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   return (
     <KnapperadContainer>
-      {handlinger.publiser && (
+      {handlinger.includes(GjennomforingHandling.PUBLISER) && (
         <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
           Publiser
         </Switch>
@@ -96,7 +97,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         </Button>
         <Dropdown.Menu>
           <Dropdown.Menu.GroupedList>
-            {handlinger.rediger && (
+            {handlinger.includes(GjennomforingHandling.REDIGER) && (
               <Dropdown.Menu.GroupedList.Item
                 onClick={() => {
                   if (
@@ -112,27 +113,27 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
                 Rediger gjennomføring
               </Dropdown.Menu.GroupedList.Item>
             )}
-            {handlinger.endreApenForPamelding && (
+            {handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
               <Dropdown.Menu.GroupedList.Item
                 onClick={() => apentForPameldingModalRef.current?.showModal()}
               >
                 {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
               </Dropdown.Menu.GroupedList.Item>
             )}
-            {handlinger.registrerStengtHosArrangor && (
+            {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
               <Dropdown.Menu.GroupedList.Item
                 onClick={() => registrerStengtModalRef.current?.showModal()}
               >
                 Registrer stengt hos arrangør
               </Dropdown.Menu.GroupedList.Item>
             )}
-            {handlinger.avbryt && (
+            {handlinger.includes(GjennomforingHandling.AVBRYT) && (
               <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                 Avbryt gjennomføring
               </Dropdown.Menu.GroupedList.Item>
             )}
           </Dropdown.Menu.GroupedList>
-          {handlinger.dupliser && (
+          {handlinger.includes(GjennomforingHandling.DUPLISER) && (
             <>
               <Dropdown.Menu.Divider />
               <Dropdown.Menu.List>

@@ -4,27 +4,27 @@ import {
   PaginertGjennomforing,
   GjennomforingDto,
   GjennomforingDeltakerSummary,
-  GjennomforingHandlinger,
+  GjennomforingHandling,
 } from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
 
 export const gjennomforingHandlers = [
-  http.get<{ id: string }, GjennomforingHandlinger>(
+  http.get<{ id: string }, GjennomforingHandling[]>(
     "/api/v1/intern/gjennomforinger/:id/handlinger",
     () => {
-      return HttpResponse.json({
-        publiser: true,
-        rediger: true,
-        avbryt: true,
-        dupliser: true,
-        endreApenForPamelding: true,
-        registrerStengtHosArrangor: true,
-        opprettTilsagn: true,
-        opprettEkstratilsagn: true,
-        opprettTilsagnForInvesteringer: true,
-        opprettKorreksjonPaUtbetaling: true,
-      });
+      return HttpResponse.json([
+        GjennomforingHandling.PUBLISER,
+        GjennomforingHandling.REDIGER,
+        GjennomforingHandling.AVBRYT,
+        GjennomforingHandling.DUPLISER,
+        GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
+        GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR,
+        GjennomforingHandling.OPPRETT_TILSAGN,
+        GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+        GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
+        GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+      ]);
     },
   ),
 

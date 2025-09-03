@@ -421,15 +421,15 @@ data class EstimertVentetid(
 )
 
 @Serializable
-data class GjennomforingHandlinger(
-    val publiser: Boolean,
-    val avbryt: Boolean,
-    val endreApenForPamelding: Boolean,
-    val registrerStengtHosArrangor: Boolean,
-    val dupliser: Boolean,
-    val rediger: Boolean,
-    val opprettTilsagn: Boolean,
-    val opprettEkstratilsagn: Boolean,
-    val opprettTilsagnForInvesteringer: Boolean,
-    val opprettKorreksjonPaUtbetaling: Boolean,
-)
+enum class GjennomforingHandling {
+    PUBLISER,
+    REDIGER,
+    AVBRYT,
+    DUPLISER,
+    ENDRE_APEN_FOR_PAMELDING,
+    REGISTRER_STENGT_HOS_ARRANGOR,
+    OPPRETT_TILSAGN,
+    OPPRETT_EKSTRATILSAGN,
+    OPPRETT_TILSAGN_FOR_INVESTERINGER,
+    OPPRETT_KORREKSJON_PA_UTBETALING,
+}

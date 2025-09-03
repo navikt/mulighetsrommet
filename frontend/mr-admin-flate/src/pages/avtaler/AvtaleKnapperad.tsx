@@ -9,6 +9,7 @@ import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
+  AvtaleHandling,
   FieldError,
   Opphav,
   Rolle,
@@ -91,7 +92,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
           </Button>
           <Dropdown.Menu>
             <Dropdown.Menu.GroupedList>
-              {handlinger.rediger && (
+              {handlinger.includes(AvtaleHandling.REDIGER) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     if (
@@ -108,7 +109,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Rediger avtale
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.registrerOpsjon && (
+              {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     registrerOpsjonModalRef.current?.showModal();
@@ -117,17 +118,17 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.oppdaterPris && enableTilsagn && (
+              {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && enableTilsagn && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
                   Oppdater pris
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.avbryt && (
+              {handlinger.includes(AvtaleHandling.AVBRYT) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
                   Avbryt avtale
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.opprettGjennomforing && (
+              {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
                 >
@@ -135,7 +136,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                 </Dropdown.Menu.GroupedList.Item>
               )}
             </Dropdown.Menu.GroupedList>
-            {handlinger.dupliser && (
+            {handlinger.includes(AvtaleHandling.DUPLISER) && (
               <>
                 <Dropdown.Menu.Divider />
                 <Dropdown.Menu.List>

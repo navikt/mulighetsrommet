@@ -1,5 +1,5 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { Toggles } from "@mr/api-client-v2";
+import { GjennomforingHandling, Toggles } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -39,7 +39,7 @@ export function UtbetalingerForGjennomforingContainer() {
           </Button>
           <Dropdown.Menu>
             <Dropdown.Menu.GroupedList>
-              {handlinger.opprettKorreksjonPaUtbetaling && (
+              {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     navigate(`skjema`);
