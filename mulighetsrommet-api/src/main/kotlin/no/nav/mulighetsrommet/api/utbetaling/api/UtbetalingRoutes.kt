@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import arrow.core.flatMap
 import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
+import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -121,7 +123,7 @@ fun Route.utbetalingRoutes() {
                             id = delutbetaling.id,
                             gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                             belop = delutbetaling.belop,
-                            status = delutbetaling.status,
+                            status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
                             tilsagn = tilsagn,
                             opprettelse = opprettelse.toDto(kanBesluttesAvAnsatt),
                         )
@@ -159,6 +161,7 @@ fun Route.utbetalingRoutes() {
             call.respond(historikk)
         }
 
+        // TODO: flytt til tilsagnroutes
         get("/tilsagn") {
             val id = call.parameters.getOrFail<UUID>("id")
 
@@ -193,7 +196,23 @@ fun Route.utbetalingRoutes() {
 
     route("/delutbetalinger") {
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
-            put {
+            put({
+                tags = setOf("Utbetaling")
+                operationId = "opprettDelutbetalinger"
+                request {
+                    pathParameterUuid("id")
+                    body<OpprettDelutbetalingerRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Tilsanget ble sendt til oppgjør"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()
 
@@ -206,8 +225,24 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(Rolle.ATTESTANT_UTBETALING) {
-            post("/{id}/beslutt") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            post("/{id}/beslutt", {
+                tags = setOf("Utbetaling")
+                operationId = "besluttDelutbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Delutbetaling ble besluttet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val request = call.receive<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
                 val navIdent = getNavIdent()
 

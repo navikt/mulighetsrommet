@@ -1,5 +1,9 @@
-import { UtbetalingDetaljerDto, TilsagnDto, UtbetalingBeregningDto } from "@mr/api-client-v2";
-import { UtbetalingKompaktDto } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingBeregningDto } from "@mr/api-client-v2";
+import {
+  TilsagnDto,
+  UtbetalingDetaljerDto,
+  UtbetalingKompaktDto,
+} from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import {
   mockBeregning,

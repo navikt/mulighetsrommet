@@ -8,14 +8,10 @@ import { v4 as uuidv4 } from "uuid";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { FieldError, Rolle, ValidationError } from "@mr/api-client-v2";
 import {
   DelutbetalingRequest,
-  FieldError,
   OpprettDelutbetalingerRequest,
-  Rolle,
-  ValidationError,
-} from "@mr/api-client-v2";
-import {
   TilsagnDto,
   TilsagnStatus,
   UtbetalingDto,

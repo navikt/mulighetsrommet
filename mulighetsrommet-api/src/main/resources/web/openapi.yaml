@@ -1616,42 +1616,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/delutbetalinger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    put:
-      tags:
-        - Utbetaling
-      operationId: opprettDelutbetalinger
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OpprettDelutbetalingerRequest"
-      responses:
-        200:
-          description: OK
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/delutbetalinger/{id}/beslutt:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Utbetaling
-      operationId: besluttDelutbetaling
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest"
-      responses:
-        200:
-          description: OK
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/utbetaling/{id}/opprett-utbetaling:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -4033,14 +3997,6 @@ components:
         - GODKJENT
         - AVVIST
 
-    DelutbetalingReturnertAarsak:
-      type: string
-      enum:
-        - FEIL_BELOP
-        - ANNET
-        - TILSAGN_FEIL_STATUS
-        - PROPAGERT_RETUR
-
     PrismodellOgBeskrivelse:
       type: object
       properties:
@@ -4071,113 +4027,12 @@ components:
         - pris
         - valuta
 
-    UtbetalingStatusDto:
-      oneOf:
-        - $ref: "#/components/schemas/UtbetalingStatusVenterPaArrangor"
-        - $ref: "#/components/schemas/UtbetalingStatusKlarTilBehandling"
-        - $ref: "#/components/schemas/UtbetalingStatusTilAttestering"
-        - $ref: "#/components/schemas/UtbetalingStatusReturnert"
-        - $ref: "#/components/schemas/UtbetalingStatusOverfortTilUtbetaling"
-
-    UtbetalingStatusVenterPaArrangor:
-      type: object
-      properties:
-        type:
-          const: VENTER_PA_ARRANGOR
-      required: [type]
-
-    UtbetalingStatusKlarTilBehandling:
-      type: object
-      properties:
-        type:
-          const: KLAR_TIL_BEHANDLING
-      required: [type]
-
-    UtbetalingStatusTilAttestering:
-      type: object
-      properties:
-        type:
-          const: TIL_ATTESTERING
-      required: [type]
-
-    UtbetalingStatusReturnert:
-      type: object
-      properties:
-        type:
-          const: RETURNERT
-      required: [type]
-
-    UtbetalingStatusOverfortTilUtbetaling:
-      type: object
-      properties:
-        type:
-          const: OVERFORT_TIL_UTBETALING
-      required: [type]
-
-    UtbetalingDetaljerDto:
-      type: object
-      properties:
-        utbetaling:
-          $ref: "#/components/schemas/UtbetalingDto"
-        linjer:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingLinje"
-        handlinger:
-          $ref: "#/components/schemas/UtbetalingHandlinger"
-      required: [utbetaling, linjer, handlinger]
-
-    UtbetalingDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        status:
-          $ref: "#/components/schemas/UtbetalingStatusDto"
-        periode:
-          $ref: "#/components/schemas/Periode"
-        belop:
-          type: integer
-        godkjentAvArrangorTidspunkt:
-          type: [string, "null"]
-          format: date-time
-        journalpostId:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        betalingsinformasjon:
-          $ref: "#/components/schemas/Betalingsinformasjon"
-        beskrivelse:
-          type: string
-        innsendtAv:
-          type: string
-        tilskuddstype:
-          $ref: "#/components/schemas/Tilskuddstype"
-        type:
-          $ref: "#/components/schemas/UtbetalingType"
-        begrunnelseMindreBetalt:
-          type: string
-      required: [id, status, periode, belop, createdAt, tilskuddstype, type]
-
     UtbetalingHandlinger:
       type: object
       properties:
         sendTilAttestering:
           type: boolean
       required: [sendTilAttestering]
-
-    UtbetalingType:
-      type: object
-      properties:
-        displayName:
-          type: string
-        displayNameLong:
-          type: [ string, "null" ]
-        tagName:
-          type: [ string, "null" ]
-      required: [ displayName, displayNameLong, tagName]
 
     UtbetalingBeregningDto:
       type: object
@@ -4332,15 +4187,6 @@ components:
         - id
         - navn
 
-    Betalingsinformasjon:
-      type: object
-      properties:
-        kontonummer:
-          type: [string, "null"]
-        kid:
-          type: [string, "null"]
-      required: [kontonummer, kid]
-
     GetOppgaverRequest:
       type: object
       properties:
@@ -4357,72 +4203,6 @@ components:
           items:
             type: string
       required: [oppgavetyper, tiltakskoder, regioner]
-
-    DelutbetalingStatus:
-      type: string
-      enum:
-        - TIL_ATTESTERING
-        - GODKJENT
-        - RETURNERT
-        - UTBETALT
-        - OVERFORT_TIL_UTBETALING
-
-    UtbetalingLinje:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tilsagn:
-          $ref: "#/components/schemas/TilsagnDto"
-        status:
-          $ref: "#/components/schemas/DelutbetalingStatus"
-        belop:
-          type: number
-        gjorOppTilsagn:
-          type: boolean
-        opprettelse:
-          $ref: "#/components/schemas/TotrinnskontrollDto"
-      required:
-        - id
-        - tilsagn
-        - belop
-        - gjorOppTilsagn
-
-    DelutbetalingRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        belop:
-          type: number
-        gjorOppTilsagn:
-          type: boolean
-      required: [id, tilsagnId, belop]
-
-    OpprettDelutbetalingerRequest:
-      type: object
-      properties:
-        utbetalingId:
-          type: string
-          format: uuid
-        delutbetalinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/DelutbetalingRequest"
-        begrunnelseMindreBetalt:
-          type: [string, "null"]
-      required: [delutbetalinger, utbetalingId, begrunnelse]
-
-    Tilskuddstype:
-      type: string
-      enum:
-        - TILTAK_DRIFTSTILSKUDD
-        - TILTAK_INVESTERINGER
 
     OpprettUtbetalingRequest:
       type: object
@@ -4464,109 +4244,6 @@ components:
         forklaring:
           type: [string, "null"]
       required: [besluttelse, aarsaker, forklaring]
-
-    TotrinnskontrollDto:
-      oneOf:
-        - $ref: "#/components/schemas/TotrinnskontrollTilBeslutningDto"
-        - $ref: "#/components/schemas/TotrinnskontrollBesluttetDto"
-
-    TotrinnskontrollTilBeslutningDto:
-      type: object
-      properties:
-        type:
-          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        kanBesluttes:
-          type: boolean
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-      required:
-        - type
-        - behandletAv
-        - behandletTidspunkt
-        - kanBesluttes
-        - aarsaker
-
-    TotrinnskontrollBesluttetDto:
-      type: object
-      properties:
-        type:
-          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        kanBesluttes:
-          type: boolean
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: string
-        besluttetAv:
-          $ref: "#/components/schemas/AgentDto"
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        besluttelse:
-          $ref: "#/components/schemas/Besluttelse"
-      required:
-        - type
-        - behandletAv
-        - behandletTidspunkt
-        - aarsaker
-        - kanBesluttes
-        - besluttetAv
-        - besluttetTidspunkt
-        - besluttelse
-
-    AgentDto:
-      oneOf:
-        - $ref: "#/components/schemas/NavAnsattAgentDto"
-        - $ref: "#/components/schemas/ArrangorAgentDto"
-        - $ref: "#/components/schemas/SystemAgentDto"
-
-    NavAnsattAgentDto:
-      type: object
-      properties:
-        type:
-          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt
-        navIdent:
-          type: string
-        navn:
-          type: string
-      required:
-        - type
-        - navIdent
-
-    ArrangorAgentDto:
-      type: object
-      properties:
-        type:
-          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.Arrangor
-      required:
-        - type
-
-    SystemAgentDto:
-      type: object
-      properties:
-        type:
-          const: no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.System
-        navn:
-          type: string
-      required:
-        - type
-        - navn
 
     DataDrivenTableDto:
       type: object

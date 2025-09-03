@@ -438,15 +438,67 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/delutbetalinger:
     put:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Utbetaling
+      operationId: opprettDelutbetalinger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpprettDelutbetalingerRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilsanget ble sendt til oppgjør
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/delutbetalinger/{id}/beslutt:
     post:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Utbetaling
+      operationId: besluttDelutbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BesluttTotrinnskontrollRequest_DelutbetalingReturnertAarsak"
+        required: false
+      responses:
+        "200":
+          description: Delutbetaling ble besluttet
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
 components:
   schemas:
@@ -1248,7 +1300,7 @@ components:
         status:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/DelutbetalingStatus"
+          - $ref: "#/components/schemas/DelutbetalingStatusDto"
         belop:
           type: integer
           format: int32
@@ -1265,6 +1317,16 @@ components:
       - opprettelse
       - status
       - tilsagn
+    DelutbetalingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+      - status
+      - type
     DelutbetalingStatus:
       type: string
       enum:
@@ -1295,5 +1357,66 @@ components:
       - handlinger
       - linjer
       - utbetaling
+    DelutbetalingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagnId:
+          type: string
+          format: uuid
+        belop:
+          type: integer
+          format: int32
+        gjorOppTilsagn:
+          type: boolean
+      required:
+      - belop
+      - gjorOppTilsagn
+      - id
+      - tilsagnId
+    OpprettDelutbetalingerRequest:
+      type: object
+      properties:
+        utbetalingId:
+          type: string
+          format: uuid
+        delutbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DelutbetalingRequest"
+        begrunnelseMindreBetalt:
+          type:
+          - "null"
+          - string
+      required:
+      - begrunnelseMindreBetalt
+      - delutbetalinger
+      - utbetalingId
+    DelutbetalingReturnertAarsak:
+      type: string
+      enum:
+      - FEIL_BELOP
+      - ANNET
+      - TILSAGN_FEIL_STATUS
+      - PROPAGERT_RETUR
+    BesluttTotrinnskontrollRequest_DelutbetalingReturnertAarsak:
+      type: object
+      properties:
+        besluttelse:
+          $ref: "#/components/schemas/Besluttelse"
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/DelutbetalingReturnertAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - besluttelse
+      - forklaring
   examples: {}
 webhooks: {}
