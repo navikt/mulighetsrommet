@@ -989,7 +989,9 @@ components:
       type: object
       properties:
         beregning:
-          $ref: "#/components/schemas/TilsagnBeregningDto"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TilsagnBeregningDto"
       required:
       - beregning
   examples: {}

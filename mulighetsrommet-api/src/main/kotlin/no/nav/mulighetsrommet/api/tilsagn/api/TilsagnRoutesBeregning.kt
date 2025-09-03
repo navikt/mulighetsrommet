@@ -124,7 +124,7 @@ fun Route.tilsagnRoutesBeregning() {
         }
     }) {
         val request = call.receive<BeregnTilsagnRequest>()
-        val beregning = service.beregnTilsagnUnvalidated(request).let {
+        val beregning = service.beregnTilsagnUnvalidated(request)?.let {
             TilsagnBeregningDto.from(it)
         }
         call.respond(
