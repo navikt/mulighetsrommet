@@ -5,6 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
 
@@ -14,13 +16,30 @@ class TilsagnValidatorTest : FunSpec({
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1,
                 previous = null,
-                minimumTilsagnPeriodeStart = LocalDate.of(2025, 1, 1),
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
                 gjennomforingSluttDato = null,
                 arrangorSlettet = true,
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of(TilsagnRequest::id, "Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg"),
+            )
+        }
+
+        test("should validate gyldig periode") {
+            val gyldigStart = LocalDate.of(2025, 1, 8)
+            val gyldigSlutt = LocalDate.of(2025, 1, 9)
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1,
+                previous = null,
+                gyldigTilsagnPeriode = Periode.fromInclusiveDates(gyldigStart, gyldigSlutt),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = emptyList(),
+            ) shouldBeLeft listOf(
+                FieldError.of("Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart),
+                FieldError.of("Maksimum sluttdato for tilsagn til AFT er ${gyldigSlutt.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt),
             )
         }
 

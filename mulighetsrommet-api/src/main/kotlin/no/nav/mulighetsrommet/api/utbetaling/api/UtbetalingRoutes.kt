@@ -2,6 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.flatMap
 import arrow.core.right
+import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
+import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -12,9 +15,12 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -24,9 +30,10 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -37,10 +44,54 @@ fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
 
+    get("/utbetaling", {
+        description = "Hent alle utbetalinger for gitt gjennomføring"
+        tags = setOf("Utbetaling")
+        operationId = "getUtbetalinger"
+        request {
+            queryParameterUuid("gjennomforingId") {
+                required = true
+            }
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle utbetalinger for gitt gjennomføring"
+                body<List<UtbetalingKompaktDto>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val gjennomforingId: UUID by call.queryParameters
+
+        val utbetalinger = utbetalingService.getByGjennomforing(gjennomforingId)
+
+        call.respond(utbetalinger)
+    }
+
     route("/utbetaling/{id}") {
         authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
-            get {
-                val id = call.parameters.getOrFail<UUID>("id")
+            get({
+                description = "Hent detaljer om utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Detaljer om utbetaling"
+                        body<UtbetalingDetaljerDto>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
 
                 val navIdent = getNavIdent()
 
@@ -62,20 +113,25 @@ fun Route.utbetalingRoutes() {
                         val tilsagnOpprettelse = queries.totrinnskontroll
                             .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
 
-                        val kanBesluttesAvAnsatt = ansatt.hasKontorspesifikkRolle(
+                        val erBeslutter = ansatt.hasKontorspesifikkRolle(
                             Rolle.ATTESTANT_UTBETALING,
                             setOf(tilsagn.kostnadssted.enhetsnummer),
-                        ) &&
-                            opprettelse.behandletAv != ansatt.navIdent &&
-                            tilsagnOpprettelse.besluttetAv != ansatt.navIdent
+                        )
+                        val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
                         UtbetalingLinje(
                             id = delutbetaling.id,
                             gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
                             belop = delutbetaling.belop,
-                            status = delutbetaling.status,
+                            status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
                             tilsagn = tilsagn,
-                            opprettelse = opprettelse.toDto(kanBesluttesAvAnsatt),
+                            opprettelse = opprettelse.toDto(),
+                            handlinger = setOfNotNull(
+                                UtbetalingLinjeHandling.ATTESTER.takeIf {
+                                    erBeslutter && opprettelse.behandletAv != ansatt.navIdent && tilsagnOpprettelse.besluttetAv != ansatt.navIdent
+                                },
+                                UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
+                            ),
                         )
                     }.sortedBy { it.tilsagn.bestillingsnummer }
 
@@ -91,28 +147,77 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
-            get("/beregning") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            get("/beregning", {
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingBeregning"
+                request {
+                    pathParameterUuid("id")
+                    queryParameter<List<String>>("navEnheter") {
+                        explode = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingen ble opprettet"
+                        body<UtbetalingBeregningDto>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val filter = getBeregningFilter()
 
-                val utbetaling = db.session {
-                    queries.utbetaling.get(id) ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
-                }
+                val utbetaling = db.session { queries.utbetaling.getOrError(id) }
 
                 call.respond(utbetalingService.getUtbetalingBeregning(utbetaling, filter = filter))
             }
         }
 
-        get("/historikk") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("/historikk", {
+            tags = setOf("Utbetaling")
+            operationId = "getUtbetalingEndringshistorikk"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetalingen ble opprettet"
+                    body<EndringshistorikkDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
             val historikk = db.session {
                 queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, id)
             }
             call.respond(historikk)
         }
 
-        get("/tilsagn") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("/tilsagn", {
+            tags = setOf("Utbetaling")
+            operationId = "getTilsagnTilUtbetaling"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tilsagn til utbetaling"
+                    body<List<TilsagnDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
 
             val tilsagn = db.session {
                 val utbetaling = queries.utbetaling.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
@@ -128,12 +233,28 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
-            post("/opprett-utbetaling") {
-                val utbetalingId = call.parameters.getOrFail<UUID>("id")
+            post("/opprett-utbetaling", {
+                tags = setOf("Utbetaling")
+                operationId = "opprettUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<OpprettUtbetalingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.Created) {
+                        description = "Utbetalingen ble opprettet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val request = call.receive<OpprettUtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(utbetalingId, request)
+                val result = UtbetalingValidator.validateOpprettUtbetalingRequest(id, request)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
@@ -145,7 +266,23 @@ fun Route.utbetalingRoutes() {
 
     route("/delutbetalinger") {
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
-            put {
+            put({
+                tags = setOf("Utbetaling")
+                operationId = "opprettDelutbetalinger"
+                request {
+                    pathParameterUuid("id")
+                    body<OpprettDelutbetalingerRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Tilsanget ble sendt til oppgjør"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val request = call.receive<OpprettDelutbetalingerRequest>()
                 val navIdent = getNavIdent()
 
@@ -158,8 +295,24 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(Rolle.ATTESTANT_UTBETALING) {
-            post("/{id}/beslutt") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            post("/{id}/beslutt", {
+                tags = setOf("Utbetaling")
+                operationId = "besluttDelutbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Delutbetaling ble besluttet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val request = call.receive<BesluttTotrinnskontrollRequest<DelutbetalingReturnertAarsak>>()
                 val navIdent = getNavIdent()
 
@@ -173,13 +326,6 @@ fun Route.utbetalingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
-        }
-    }
-
-    route("/gjennomforinger/{id}/utbetalinger") {
-        get {
-            val id = call.parameters.getOrFail<UUID>("id")
-            call.respond(utbetalingService.getByGjennomforing(id))
         }
     }
 }

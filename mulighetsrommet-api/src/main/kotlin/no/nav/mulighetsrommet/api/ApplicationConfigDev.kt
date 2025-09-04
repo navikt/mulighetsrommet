@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -389,7 +390,7 @@ val ApplicationConfigDev = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith { Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)) },
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

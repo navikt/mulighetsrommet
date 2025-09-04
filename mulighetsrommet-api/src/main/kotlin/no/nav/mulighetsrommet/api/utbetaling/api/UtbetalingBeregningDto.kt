@@ -1,15 +1,18 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.PersonEnhetOgRegion
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class UtbetalingBeregningDto {
     abstract val belop: Int
     abstract val heading: String
@@ -17,7 +20,6 @@ sealed class UtbetalingBeregningDto {
     abstract val deltakerRegioner: List<NavRegionDto>
 
     @Serializable
-    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class FastSatsPerTiltaksplassPerManed(
         val sats: Int,
         val manedsverkTotal: Double,
@@ -36,7 +38,6 @@ sealed class UtbetalingBeregningDto {
     }
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
     data class PrisPerManedsverk(
         val sats: Int,
         val manedsverkTotal: Double,
@@ -78,7 +79,6 @@ sealed class UtbetalingBeregningDto {
     }
 
     @Serializable
-    @SerialName("PRIS_PER_UKESVERK")
     data class PrisPerUkesverk(
         val sats: Int,
         val ukesverkTotal: Double,
@@ -120,7 +120,6 @@ sealed class UtbetalingBeregningDto {
     }
 
     @Serializable
-    @SerialName("FRI")
     data class Fri(
         override val belop: Int,
         override val deltakerRegioner: List<NavRegionDto>,

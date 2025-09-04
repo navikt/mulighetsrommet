@@ -1,18 +1,21 @@
 import {
   Besluttelse,
+  DataElementStatusVariant,
   DelutbetalingStatus,
+  TilsagnStatus,
+  TilsagnType,
   Tilskuddstype,
-  TotrinnskontrollTilBeslutningDto,
-  UtbetalingBeregningFri,
+  UtbetalingBeregningDto,
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
-  UtbetalingType,
-} from "@mr/api-client-v2";
-import { TilsagnStatus, TilsagnType } from "@tiltaksadministrasjon/api-client";
+  UtbetalingStatusDtoType,
+  UtbetalingTypeDto,
+  UtbetalingLinjeHandling,
+} from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
-const utbetalingType: Record<"KORRIGERING" | "INVESTERING" | "INNSENDING", UtbetalingType> = {
+const utbetalingType: Record<"KORRIGERING" | "INVESTERING" | "INNSENDING", UtbetalingTypeDto> = {
   KORRIGERING: {
     displayName: "Korrigering",
     displayNameLong: null,
@@ -37,9 +40,12 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       start: "2024-01-01",
       slutt: "2024-06-30",
     },
-    status: { type: "VENTER_PA_ARRANGOR" },
+    status: {
+      type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
+      status: { value: "Venter på arrangør", variant: DataElementStatusVariant.ALT },
+    },
     createdAt: "2024-01-01T10:00:00",
-    godkjentAvArrangorTidspunkt: undefined,
+    godkjentAvArrangorTidspunkt: null,
     belop: 15000,
     betalingsinformasjon: {
       kontonummer: "1234.56.78900",
@@ -50,6 +56,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     journalpostId: "JP123456",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
+    begrunnelseMindreBetalt: null,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -57,7 +64,10 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       start: "2025-01-01",
       slutt: "2025-06-30",
     },
-    status: { type: "TIL_ATTESTERING" },
+    status: {
+      type: UtbetalingStatusDtoType.TIL_ATTESTERING,
+      status: { value: "Til attestering", variant: DataElementStatusVariant.WARNING },
+    },
     createdAt: "2024-07-01T14:30:00",
     godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
     belop: 18000,
@@ -70,6 +80,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     journalpostId: "JP123457",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
+    begrunnelseMindreBetalt: null,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174002",
@@ -77,9 +88,12 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       start: "2025-01-01",
       slutt: "2025-03-31",
     },
-    status: { type: "RETURNERT" },
+    status: {
+      type: UtbetalingStatusDtoType.RETURNERT,
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+    },
     createdAt: "2025-01-01T08:00:00",
-    godkjentAvArrangorTidspunkt: undefined,
+    godkjentAvArrangorTidspunkt: null,
     belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
@@ -90,6 +104,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
+    begrunnelseMindreBetalt: null,
   },
   {
     id: "129e4567-e89b-12d3-a456-426614174002",
@@ -97,9 +112,12 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       start: "2025-03-01",
       slutt: "2025-03-31",
     },
-    status: { type: "OVERFORT_TIL_UTBETALING" },
+    status: {
+      type: UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING,
+      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+    },
     createdAt: "2025-01-01T08:00:00",
-    godkjentAvArrangorTidspunkt: undefined,
+    godkjentAvArrangorTidspunkt: null,
     belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
@@ -110,6 +128,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     journalpostId: "JP123458",
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
+    begrunnelseMindreBetalt: null,
   },
 ];
 
@@ -120,7 +139,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       start: "2024-01-01",
       slutt: "2024-06-30",
     },
-    status: { type: "VENTER_PA_ARRANGOR" },
+    status: {
+      type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
+      status: { value: "Venter på arrangør", variant: DataElementStatusVariant.ALT },
+    },
     belopUtbetalt: null,
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     type: utbetalingType.INNSENDING,
@@ -132,7 +154,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       start: "2025-01-01",
       slutt: "2025-06-30",
     },
-    status: { type: "TIL_ATTESTERING" },
+    status: {
+      type: UtbetalingStatusDtoType.TIL_ATTESTERING,
+      status: { value: "Til attestering", variant: DataElementStatusVariant.WARNING },
+    },
     belopUtbetalt: null,
     type: utbetalingType.INNSENDING,
   },
@@ -144,7 +169,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: 13400,
-    status: { type: "OVERFORT_TIL_UTBETALING" },
+    status: {
+      type: UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING,
+      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+    },
     type: utbetalingType.INNSENDING,
   },
   {
@@ -153,7 +181,10 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       start: "2025-01-01",
       slutt: "2025-03-31",
     },
-    status: { type: "RETURNERT" },
+    status: {
+      type: UtbetalingStatusDtoType.RETURNERT,
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+    },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: null,
     type: utbetalingType.INNSENDING,
@@ -178,11 +209,17 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belop: 14_000,
       belopBrukt: 4_000,
       belopGjenstaende: 10_000,
-      status: TilsagnStatus.TIL_GODKJENNING,
+      status: {
+        type: TilsagnStatus.TIL_GODKJENNING,
+        status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+      },
       bestillingsnummer: "A-2024/123",
       kommentar: "Min kommentar",
     },
-    status: DelutbetalingStatus.TIL_ATTESTERING,
+    status: {
+      type: DelutbetalingStatus.TIL_ATTESTERING,
+      status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+    },
     belop: 5000,
     gjorOppTilsagn: true,
     opprettelse: {
@@ -195,10 +232,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       behandletTidspunkt: "2024-01-01T22:00:00",
       aarsaker: ["Utbetaling for første halvår 2024"],
       forklaring: "Utbetaling for tilsagn",
-      kanBesluttes: true,
-    } as TotrinnskontrollTilBeslutningDto,
+    },
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174001",
     tilsagn: {
       id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
@@ -214,11 +252,17 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belop: 14_000,
       belopBrukt: 4_000,
       belopGjenstaende: 10_000,
-      status: TilsagnStatus.TIL_ANNULLERING,
+      status: {
+        type: TilsagnStatus.TIL_ANNULLERING,
+        status: { value: "Til annullering", variant: DataElementStatusVariant.ERROR_BORDER },
+      },
       bestillingsnummer: "A-2024/123",
       kommentar: "Min kommentar",
     },
-    status: DelutbetalingStatus.RETURNERT,
+    status: {
+      type: DelutbetalingStatus.RETURNERT,
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+    },
     belop: 7500,
     gjorOppTilsagn: false,
     opprettelse: {
@@ -237,11 +281,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil. Du må justere antall deltakere",
-      kanBesluttes: false,
       besluttelse: Besluttelse.AVVIST,
     },
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -257,11 +301,17 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belop: 14_000,
       belopBrukt: 4_000,
       belopGjenstaende: 10_000,
-      status: TilsagnStatus.GODKJENT,
+      status: {
+        type: TilsagnStatus.GODKJENT,
+        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+      },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
     },
-    status: DelutbetalingStatus.RETURNERT,
+    status: {
+      type: DelutbetalingStatus.RETURNERT,
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+    },
     belop: 3000,
     gjorOppTilsagn: true,
     opprettelse: {
@@ -280,11 +330,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
-      kanBesluttes: false,
       besluttelse: Besluttelse.AVVIST,
     },
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -301,12 +351,18 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belop: 14_000,
       belopBrukt: 4_000,
       belopGjenstaende: 10_000,
-      status: TilsagnStatus.GODKJENT,
+      status: {
+        type: TilsagnStatus.GODKJENT,
+        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+      },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
     },
 
-    status: DelutbetalingStatus.TIL_ATTESTERING,
+    status: {
+      type: DelutbetalingStatus.TIL_ATTESTERING,
+      status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+    },
     belop: 3000,
     gjorOppTilsagn: false,
     opprettelse: {
@@ -319,10 +375,10 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       behandletTidspunkt: "2025-01-01T10:00:00",
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
-      kanBesluttes: true,
     },
   },
   {
+    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
       id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
@@ -338,12 +394,17 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belop: 14_000,
       belopBrukt: 4_000,
       belopGjenstaende: 10_000,
-      status: TilsagnStatus.GODKJENT,
+      status: {
+        type: TilsagnStatus.GODKJENT,
+        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+      },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
     },
-
-    status: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+    status: {
+      type: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+    },
     belop: 3000,
     gjorOppTilsagn: false,
     opprettelse: {
@@ -356,51 +417,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       behandletTidspunkt: "2025-01-01T10:00:00",
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
-      kanBesluttes: true,
-      besluttetAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "P654321",
-        navn: "Per Haraldsen",
-      },
-      besluttetTidspunkt: "2025-01-01T10:00:00",
-      besluttelse: Besluttelse.GODKJENT,
-    },
-  },
-  {
-    id: "456e4567-e89b-12d3-a456-426614174002",
-    tilsagn: {
-      id: "3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
-      type: TilsagnType.TILSAGN,
-      periode: {
-        start: "2025-06-01",
-        slutt: "2025-06-31",
-      },
-      belop: 14_000,
-      belopBrukt: 4_000,
-      belopGjenstaende: 10_000,
-      kostnadssted: {
-        enhetsnummer: "0300",
-        navn: "Nav Oslo",
-      },
-      status: TilsagnStatus.GODKJENT,
-      bestillingsnummer: "A-2025/123",
-      kommentar: null,
-    },
-
-    status: DelutbetalingStatus.UTBETALT,
-    belop: 3000,
-    gjorOppTilsagn: false,
-    opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
-      behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
-        navn: "Bertil Bengtson",
-      },
-      behandletTidspunkt: "2025-01-01T10:00:00",
-      aarsaker: [],
-      forklaring: "Utbetaling for første halvår 2025",
-      kanBesluttes: true,
       besluttetAv: {
         type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
         navIdent: "P654321",
@@ -412,7 +428,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
   },
 ];
 
-export const mockBeregning: UtbetalingBeregningFri = {
+export const mockBeregning: UtbetalingBeregningDto = {
   heading: "Annen avtalt pris",
   belop: 780,
   deltakerRegioner: [],
@@ -420,5 +436,5 @@ export const mockBeregning: UtbetalingBeregningFri = {
     columns: [],
     rows: [],
   },
-  type: "FRI",
+  type: "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri",
 };

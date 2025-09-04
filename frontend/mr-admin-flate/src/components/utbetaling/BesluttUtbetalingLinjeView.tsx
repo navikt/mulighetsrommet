@@ -1,14 +1,13 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
   Besluttelse,
-  BesluttTotrinnskontrollRequest,
+  BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
-  DelutbetalingStatus,
-  FieldError,
   UtbetalingDto,
   UtbetalingLinje,
-  ValidationError,
-} from "@mr/api-client-v2";
+  UtbetalingLinjeHandling,
+} from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -16,6 +15,7 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
+import { isTilBeslutning } from "@/utils/totrinnskontroll";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -28,7 +28,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const besluttMutation = useBesluttDelutbetaling();
 
-  function beslutt(id: string, body: BesluttTotrinnskontrollRequest) {
+  function beslutt(id: string, body: BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak) {
     besluttMutation.mutate(
       { id, body },
       {
@@ -58,17 +58,19 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                linje.status === DelutbetalingStatus.TIL_ATTESTERING && (
+                isTilBeslutning(linje.opprettelse) && (
                   <HStack gap="4">
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      type="button"
-                      onClick={() => setAvvisModalOpen(true)}
-                    >
-                      Send i retur
-                    </Button>
-                    {linje.opprettelse?.kanBesluttes && (
+                    {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        type="button"
+                        onClick={() => setAvvisModalOpen(true)}
+                      >
+                        Send i retur
+                      </Button>
+                    )}
+                    {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
                       <Button
                         size="small"
                         type="button"

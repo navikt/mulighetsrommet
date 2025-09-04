@@ -1,5 +1,5 @@
 import { Button, HStack, VStack } from "@navikt/ds-react";
-import { UtbetalingBeregningDto } from "@mr/api-client-v2";
+import { UtbetalingBeregningDto } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 import UtbetalingBeregning from "./UtbetalingBeregning";
 import { UtbetalingBeregningModal } from "./UtbetalingBeregningModal";

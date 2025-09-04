@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.TableBlock
-import no.nav.mulighetsrommet.api.utbetaling.api.toReadableName
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 
 object UbetalingToPdfDocumentContentMapper {
@@ -187,7 +186,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(utbetaling: Ar
             descriptionList {
                 entry("Tilsagn", it.tilsagn.bestillingsnummer)
                 entry("Beløp til utbetaling", it.belop.toString(), Format.NOK)
-                entry("Status", toReadableName(it.status), Format.STATUS_SUCCESS)
+                entry("Status", it.status.beskrivelse, Format.STATUS_SUCCESS)
                 it.statusSistOppdatert?.let { sistEndret ->
                     entry(
                         "Status endret",

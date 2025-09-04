@@ -1,4 +1,4 @@
-import { DataElementMathOperatorType } from "@mr/api-client-v2";
+import { DataElementMathOperatorType } from "@tiltaksadministrasjon/api-client";
 import { ReactNode } from "react";
 
 interface DataElementMathOperatorProps {

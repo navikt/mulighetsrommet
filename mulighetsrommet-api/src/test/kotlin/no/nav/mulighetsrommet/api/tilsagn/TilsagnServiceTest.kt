@@ -4,6 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -42,7 +44,7 @@ import java.util.*
 class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val minimumTilsagnPeriodeStart = LocalDate.of(2025, 1, 1)
+    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
 
     val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
     val ansatt2 = NavAnsattFixture.MikkeMus.navIdent
@@ -102,9 +104,9 @@ class TilsagnServiceTest : FunSpec({
             db = database.db,
             config = TilsagnService.Config(
                 okonomiConfig = OkonomiConfig(
-                    minimumTilsagnPeriodeStart = mapOf(
-                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to minimumTilsagnPeriodeStart,
-                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
+                    gyldigTilsagnPeriode = mapOf(
+                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
+                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato, LocalDate.of(2026, 1, 1)),
                     ),
                 ),
                 bestillingTopic = "topic",
@@ -122,11 +124,9 @@ class TilsagnServiceTest : FunSpec({
                 periodeSlutt = LocalDate.of(2026, 1, 31),
             )
 
-            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
-                FieldError(
-                    pointer = "/periodeSlutt",
-                    detail = "Tilsagnsperioden kan ikke vare utover årsskiftet",
-                ),
+            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
+                FieldError.of(TilsagnRequest::periodeSlutt, "Tilsagnsperioden kan ikke vare utover årsskiftet"),
+                FieldError.of(TilsagnRequest::periodeSlutt, "Maksimum sluttdato for tilsagn til ${TiltakstypeFixtures.AFT.navn} er ${gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}"),
             )
         }
 

@@ -1,6 +1,6 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
-import { AvtaleDto, GjennomforingDto, PrismodellDto } from "@mr/api-client-v2";
+import { GjennomforingDto } from "@mr/api-client-v2";
 import {
   TilsagnBeregningType,
   TilsagnRequest,
@@ -11,12 +11,11 @@ import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFa
 import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";
 
 interface Props {
-  avtale: AvtaleDto;
   gjennomforing: GjennomforingDto;
   defaults: TilsagnRequest;
 }
 
-export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props) {
+export function TilsagnFormContainer({ gjennomforing, defaults }: Props) {
   const navigate = useNavigate();
 
   function navigerTilTilsagn() {
@@ -32,7 +31,7 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  const beregning = getTilsagnBeregningType(avtale.prismodell);
+  const beregning = defaults.beregning.type;
 
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
@@ -95,19 +94,4 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
   return type === TilsagnType.TILSAGN
     ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
     : [];
-}
-
-function getTilsagnBeregningType(prismodell: PrismodellDto): TilsagnBeregningType {
-  switch (prismodell.type) {
-    case "ANNEN_AVTALT_PRIS":
-      return TilsagnBeregningType.FRI;
-    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
-      return TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED;
-    case "AVTALT_PRIS_PER_MANEDSVERK":
-      return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
-    case "AVTALT_PRIS_PER_UKESVERK":
-      return TilsagnBeregningType.PRIS_PER_UKESVERK;
-    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
-      return TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING;
-  }
 }

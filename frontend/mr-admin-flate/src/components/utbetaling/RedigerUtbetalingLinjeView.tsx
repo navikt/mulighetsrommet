@@ -1,40 +1,26 @@
-import { utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { FieldError } from "@mr/api-client-v2";
 import {
-  FieldError,
   TilsagnDto,
-  TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
   UtbetalingDto,
   UtbetalingLinje,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
 
 export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
   tilsagn: TilsagnDto[];
   setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
-}
-
-function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
-  return tilsagn
-    .filter((t) => t.status === TilsagnStatus.GODKJENT)
-    .map((t) => ({
-      belop: 0,
-      tilsagn: t,
-      gjorOppTilsagn: false,
-      id: uuidv4(),
-    }))
-    .toSorted(utbetalingLinjeCompareFn);
 }
 
 export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tilsagn }: Props) {
@@ -59,7 +45,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
     const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
       (linje) => !linjer.find((l) => l.tilsagn.id === linje.tilsagn.id),
     );
-    setLinjer([...linjer, ...nyeLinjer].toSorted(utbetalingLinjeCompareFn));
+    setLinjer([...linjer, ...nyeLinjer].toSorted(compareUtbetalingLinje));
   }
 
   function fjernLinje(id: string) {
@@ -109,7 +95,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
               }
               grayBackground
               onChange={(updated) => {
-                setLinjer((prev: UtbetalingLinje[]) =>
+                setLinjer((prev) =>
                   prev.map((linje) => (linje.id === updated.id ? updated : linje)),
                 );
               }}

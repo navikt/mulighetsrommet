@@ -1,5 +1,9 @@
 import { useApiMutation } from "@/hooks/useApiMutation";
-import { ProblemDetail, UtbetalingService, OpprettDelutbetalingerRequest } from "@mr/api-client-v2";
+import {
+  OpprettDelutbetalingerRequest,
+  ProblemDetail,
+  UtbetalingService,
+} from "@tiltaksadministrasjon/api-client";
 
 export function useOpprettDelutbetalinger(utbetalingId: string) {
   return useApiMutation<unknown, ProblemDetail, OpprettDelutbetalingerRequest>({
