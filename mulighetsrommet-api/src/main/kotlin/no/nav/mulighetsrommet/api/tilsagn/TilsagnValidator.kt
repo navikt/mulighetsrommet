@@ -355,7 +355,7 @@ object TilsagnValidator {
                         ),
                     )
                 }
-                if (linje.beskrivelse?.let{ it.length > TILSAGN_BESKRIVELSE_MAX_LENDE } == true) {
+                if (linje.beskrivelse?.let { it.length > TILSAGN_BESKRIVELSE_MAX_LENDE } == true) {
                     add(
                         FieldError.ofPointer(
                             pointer = "beregning/linjer/$index/beskrivelse",
