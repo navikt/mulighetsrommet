@@ -51,7 +51,17 @@ fun Route.tilsagnRoutesBeregning() {
         val tilsagn = db.session { queries.tilsagn.get(id) }
             ?: return@get call.respond(HttpStatusCode.NotFound)
 
-        val defaults = resolveTilsagnRequest(tilsagn)
+        val gjennomforing = gjennomforinger.get(tilsagn.gjennomforing.id)
+            ?: return@get call.respond(HttpStatusCode.NotFound)
+
+        val prismodell = gjennomforing.avtaleId?.let { db.session { queries.avtale.get(it) } }
+            ?.prismodell
+            ?: throw StatusException(
+                HttpStatusCode.BadRequest,
+                "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
+            )
+
+        val defaults = resolveTilsagnRequest(tilsagn, prismodell)
 
         call.respond(defaults)
     }
@@ -136,57 +146,56 @@ fun Route.tilsagnRoutesBeregning() {
     }
 }
 
-private fun resolveTilsagnRequest(tilsagn: Tilsagn): TilsagnRequest {
-    return TilsagnRequest(
-        id = tilsagn.id,
-        type = tilsagn.type,
-        gjennomforingId = tilsagn.gjennomforing.id,
-        kostnadssted = tilsagn.kostnadssted.enhetsnummer,
-        beregning = when (tilsagn.beregning) {
-            is TilsagnBeregningFri -> TilsagnBeregningRequest(
-                type = TilsagnBeregningType.FRI,
-                linjer = tilsagn.beregning.input.linjer.map {
+fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: AvtaleDto.PrismodellDto): TilsagnRequest {
+    val (beregningType, prisbetingelser) = when (prismodell) {
+        is AvtaleDto.PrismodellDto.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
+        is AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
+        AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
+    }
+
+    val beregning = TilsagnBeregningRequest(
+        type = beregningType,
+        antallPlasser = when (tilsagn.beregning) {
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningPrisPerManedsverk -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningPrisPerUkesverk -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningFri -> null
+        },
+        prisbetingelser = prisbetingelser,
+        linjer = when (tilsagn.beregning) {
+            is TilsagnBeregningFri ->
+                tilsagn.beregning.input.linjer.map {
                     TilsagnInputLinjeRequest(
                         id = it.id,
                         beskrivelse = it.beskrivelse,
                         belop = it.belop,
                         antall = it.antall,
                     )
-                },
-                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
-            )
-
-            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningRequest(
-                type = TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-                antallPlasser = tilsagn.beregning.input.antallPlasser,
-            )
-
-            is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningRequest(
-                type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-                antallPlasser = tilsagn.beregning.input.antallPlasser,
-                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
-            )
-
-            is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningRequest(
-                type = TilsagnBeregningType.PRIS_PER_UKESVERK,
-                antallPlasser = tilsagn.beregning.input.antallPlasser,
-                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
-            )
-
-            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningRequest(
-                type = TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-                antallPlasser = tilsagn.beregning.input.antallPlasser,
-                antallTimerOppfolgingPerDeltaker = tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker,
-                prisbetingelser = tilsagn.beregning.input.prisbetingelser,
-            )
+                }
+            else -> emptyList()
         },
+        antallTimerOppfolgingPerDeltaker = when (tilsagn.beregning) {
+            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+            else -> null
+        },
+    )
+
+    return TilsagnRequest(
+        id = tilsagn.id,
+        type = tilsagn.type,
+        gjennomforingId = tilsagn.gjennomforing.id,
+        kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+        beregning = beregning,
         kommentar = tilsagn.kommentar,
         periodeStart = tilsagn.periode.start,
         periodeSlutt = tilsagn.periode.getLastInclusiveDate(),
     )
 }
 
-private fun resolveTilsagnDefaults(
+fun resolveTilsagnDefaults(
     config: OkonomiConfig,
     prismodell: AvtaleDto.PrismodellDto,
     gjennomforing: GjennomforingDto,
