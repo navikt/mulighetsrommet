@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -153,67 +152,71 @@ class TilsagnService(
     }
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
-        return when (request.beregning.type) {
-            TilsagnBeregningType.FRI ->
-                TilsagnBeregningFri.beregn(
-                    TilsagnBeregningFri.Input(
-                        linjer = request.beregning.linjer.orEmpty().map {
-                            TilsagnBeregningFri.InputLinje(
-                                id = it.id,
-                                beskrivelse = it.beskrivelse ?: "",
-                                belop = it.belop ?: 0,
-                                antall = it.antall ?: 0,
-                            )
-                        },
-                        prisbetingelser = request.beregning.prisbetingelser,
-                    ),
-                )
-
-            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
-                beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                    TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
-                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
-                            periode = fallback.periode,
-                            sats = fallback.sats,
-                            antallPlasser = fallback.antallPlasser,
+        return try {
+            when (request.beregning.type) {
+                TilsagnBeregningType.FRI ->
+                    TilsagnBeregningFri.beregn(
+                        TilsagnBeregningFri.Input(
+                            linjer = request.beregning.linjer.orEmpty().map {
+                                TilsagnBeregningFri.InputLinje(
+                                    id = it.id,
+                                    beskrivelse = it.beskrivelse ?: "",
+                                    belop = it.belop ?: 0,
+                                    antall = it.antall ?: 0,
+                                )
+                            },
+                            prisbetingelser = request.beregning.prisbetingelser,
                         ),
                     )
-                }
 
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
-                beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                    TilsagnBeregningPrisPerManedsverk.beregn(
-                        TilsagnBeregningPrisPerManedsverk.Input(
+                TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
+                            TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                            ),
+                        )
+                    }
+
+                TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerManedsverk.beregn(
+                            TilsagnBeregningPrisPerManedsverk.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                            ),
+                        )
+                    }
+                TilsagnBeregningType.PRIS_PER_UKESVERK ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerUkesverk.beregn(
+                            TilsagnBeregningPrisPerUkesverk.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                            ),
+                        )
+                    }
+                TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+                -> beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                             periode = fallback.periode,
                             sats = fallback.sats,
                             antallPlasser = fallback.antallPlasser,
                             prisbetingelser = fallback.prisbetingelser,
+                            antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
                         ),
                     )
                 }
-            TilsagnBeregningType.PRIS_PER_UKESVERK ->
-                beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                    TilsagnBeregningPrisPerUkesverk.beregn(
-                        TilsagnBeregningPrisPerUkesverk.Input(
-                            periode = fallback.periode,
-                            sats = fallback.sats,
-                            antallPlasser = fallback.antallPlasser,
-                            prisbetingelser = fallback.prisbetingelser,
-                        ),
-                    )
-                }
-            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-            -> beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
-                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
-                        periode = fallback.periode,
-                        sats = fallback.sats,
-                        antallPlasser = fallback.antallPlasser,
-                        prisbetingelser = fallback.prisbetingelser,
-                        antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
-                    ),
-                )
             }
+        } catch (a: ArithmeticException) {
+            null
         }
     }
 

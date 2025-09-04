@@ -36,7 +36,14 @@ data class TilsagnBeregningFri(
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningFri {
-            return TilsagnBeregningFri(input, Output(input.linjer.sumOf { it.belop * it.antall }))
+            return TilsagnBeregningFri(
+                input,
+                Output(
+                    input.linjer.sumOf {
+                        it.belop.toBigInteger().multiply(it.antall.toBigInteger())
+                    }.intValueExact(),
+                ),
+            )
         }
     }
 }
