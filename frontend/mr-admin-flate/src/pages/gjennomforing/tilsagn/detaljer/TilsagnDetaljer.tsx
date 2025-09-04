@@ -6,13 +6,7 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { Besluttelse, FieldError, TilsagnStatus, ValidationError } from "@mr/api-client-v2";
-import {
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
-  BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
-  TilsagnHandling,
-  TilsagnStatusAarsak,
-} from "@tiltaksadministrasjon/api-client";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import {
@@ -46,6 +40,14 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { DataDetails } from "@/components/data-element/DataDetails";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import {
+  TilsagnStatus,
+  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  Besluttelse,
+  BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
+  TilsagnHandling,
+  TilsagnStatusAarsak,
+} from "@tiltaksadministrasjon/api-client";
 
 function useTilsagnDetaljer(tilsagnId: string) {
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
@@ -139,7 +141,7 @@ export function TilsagnDetaljer() {
       <EndringshistorikkPopover>
         <ViewEndringshistorikk historikk={historikk} />
       </EndringshistorikkPopover>
-      {[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status) && (
+      {[TilsagnStatus.RETURNERT, TilsagnStatus.GODKJENT].includes(tilsagn.status.type) && (
         <ActionMenu>
           <ActionMenu.Trigger>
             <Button variant="secondary" size="small">
@@ -312,11 +314,13 @@ export function TilsagnDetaljer() {
                 </Heading>
                 <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
               </Box>
-              {(status === TilsagnStatus.ANNULLERT || status === TilsagnStatus.OPPGJORT) && (
+              {[TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT].includes(status.type) && (
                 <>
                   <Separator />
                   <Heading level="4" spacing size="small">
-                    Begrunnelse for {status === TilsagnStatus.ANNULLERT ? "annullering" : "oppgjør"}
+                    {status.type === TilsagnStatus.ANNULLERT
+                      ? "Begrunnelse for annullering"
+                      : "Begrunnelse for oppgjør"}
                   </Heading>
                   <MetadataHorisontal
                     header={"Årsaker"}

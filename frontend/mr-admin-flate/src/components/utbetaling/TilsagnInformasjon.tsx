@@ -1,7 +1,7 @@
-import { TilsagnDto } from "@mr/api-client-v2";
 import { HStack } from "@navikt/ds-react";
 import { Metadata } from "../detaljside/Metadata";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { TilsagnDto } from "@tiltaksadministrasjon/api-client";
 
 interface TilsagnInformasjonProps {
   tilsagn: TilsagnDto;

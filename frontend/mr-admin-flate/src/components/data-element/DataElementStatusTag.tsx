@@ -1,4 +1,4 @@
-import { DataElementStatusVariant } from "@mr/api-client-v2";
+import { DataElementStatusVariant } from "@tiltaksadministrasjon/api-client";
 import { StatusTag } from "@mr/frontend-common";
 import { TagProps } from "@navikt/ds-react";
 
@@ -23,6 +23,8 @@ function getStatusTagStyles(variant: DataElementStatusVariant): {
   switch (variant) {
     case DataElementStatusVariant.NEUTRAL:
       return { variant: "neutral" };
+    case DataElementStatusVariant.ALT:
+      return { variant: "alt1" };
     case DataElementStatusVariant.SUCCESS:
       return { variant: "success" };
     case DataElementStatusVariant.WARNING:

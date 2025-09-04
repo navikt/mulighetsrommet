@@ -1,4 +1,4 @@
-import { UtbetalingLinje } from "@mr/api-client-v2";
+import { UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { InformationSquareFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Modal } from "@navikt/ds-react";

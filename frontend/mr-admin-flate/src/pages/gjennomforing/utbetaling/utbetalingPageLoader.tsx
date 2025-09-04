@@ -1,4 +1,4 @@
-import { UtbetalingService } from "@mr/api-client-v2";
+import { UtbetalingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useUtbetaling(id: string) {

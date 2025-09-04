@@ -3,20 +3,20 @@ import {
   AvtaleDto,
   Avtaletype,
   Bransje,
-  DelutbetalingReturnertAarsak,
   EstimertVentetidEnhet,
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
   NavEnhetDto,
-  TilsagnType,
   Tiltakskode,
   TiltakskodeArena,
-  UtbetalingLinje,
   ValidationError,
 } from "@mr/api-client-v2";
-
-import { TilsagnStatusAarsak } from "@tiltaksadministrasjon/api-client";
+import {
+  DelutbetalingReturnertAarsak,
+  TilsagnStatusAarsak,
+  TilsagnType,
+} from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -347,8 +347,4 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
 
 export function isValidationError(error: unknown): error is ValidationError {
   return typeof error === "object" && error !== null && "errors" in error;
-}
-
-export function utbetalingLinjeCompareFn(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
-  return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }

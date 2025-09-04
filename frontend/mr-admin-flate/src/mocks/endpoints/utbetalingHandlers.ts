@@ -1,10 +1,10 @@
 import {
-  UtbetalingDetaljerDto,
   TilsagnDto,
-  UtbetalingKompaktDto,
   UtbetalingBeregningDto,
+  UtbetalingDetaljerDto,
+  UtbetalingKompaktDto,
   UtbetalingHandling,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import {
   mockBeregning,
@@ -15,8 +15,14 @@ import {
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
 export const utbetalingHandlers = [
+  http.get<PathParams, PathParams, UtbetalingKompaktDto[]>(
+    "*/api/tiltaksadministrasjon/utbetaling",
+    () => {
+      return HttpResponse.json(mockUtbetalingerKompakt);
+    },
+  ),
   http.get<PathParams, PathParams, UtbetalingDetaljerDto>(
-    "*/api/v1/intern/utbetaling/:id",
+    "*/api/tiltaksadministrasjon/utbetaling/:id",
     ({ params }) => {
       const { id } = params;
       const mockUtbetaling = mockUtbetalinger.find((u) => u.id === id);
@@ -40,21 +46,18 @@ export const utbetalingHandlers = [
     },
   ),
   http.get<PathParams, PathParams, UtbetalingBeregningDto>(
-    "*/api/v1/intern/utbetaling/:id/beregning",
+    "*/api/tiltaksadministrasjon/utbetaling/:id/beregning",
     () => {
       return HttpResponse.json(mockBeregning);
     },
   ),
-  http.get<PathParams, PathParams, UtbetalingKompaktDto[]>(
-    "*/api/v1/intern/gjennomforinger/:id/utbetalinger",
+  http.get<PathParams, TilsagnDto[], TilsagnDto[]>(
+    "*/api/tiltaksadministrasjon/utbetaling/:id/tilsagn",
     () => {
-      return HttpResponse.json(mockUtbetalingerKompakt);
+      return HttpResponse.json(mockTilsagn);
     },
   ),
-  http.get<PathParams, TilsagnDto[], TilsagnDto[]>("*/api/v1/intern/utbetaling/:id/tilsagn", () => {
-    return HttpResponse.json(mockTilsagn);
-  }),
-  http.post<PathParams>("*/api/v1/intern/utbetaling/:id/opprett-utbetaling", () => {
+  http.post<PathParams>("*/api/tiltaksadministrasjon/utbetaling/:id/opprett-utbetaling", () => {
     return HttpResponse.json("ok");
   }),
 ];

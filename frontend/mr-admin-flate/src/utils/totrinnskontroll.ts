@@ -5,10 +5,8 @@ import {
   TotrinnskontrollDtoTilBeslutning,
 } from "@tiltaksadministrasjon/api-client";
 
-import { TotrinnskontrollDto as LegacyTotrinnskontrollDto } from "@mr/api-client-v2";
-
 export function isBesluttet(
-  totrinnskontroll: TotrinnskontrollDto | LegacyTotrinnskontrollDto | null | undefined,
+  totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
     totrinnskontroll?.type ===

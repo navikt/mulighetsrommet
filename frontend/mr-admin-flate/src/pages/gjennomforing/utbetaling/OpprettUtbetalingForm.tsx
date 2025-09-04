@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto, OpprettUtbetalingRequest, ValidationError } from "@mr/api-client-v2";
+import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import { OpprettUtbetalingRequest } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -47,7 +48,7 @@ const Schema = z
       .regex(/^\d{11}$/, { error: "Kontonummer må være 11 siffer" }),
     kidNummer: z.string().optional(),
     belop: z
-      .string({ error: "Du må skrive inn et beløp" })
+      .number({ error: "Du må skrive inn et beløp" })
       .min(1, { error: "Du må skrive inn et beløp" }),
   })
   .refine(
@@ -142,7 +143,9 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                   size="small"
                   label="Beløp (NOK)"
                   type="number"
-                  {...register("belop")}
+                  {...register("belop", {
+                    valueAsNumber: true,
+                  })}
                   error={errors.belop?.message}
                 />
               </VStack>

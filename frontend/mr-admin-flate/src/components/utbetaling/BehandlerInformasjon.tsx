@@ -1,27 +1,19 @@
-import { DelutbetalingStatus } from "@mr/api-client-v2";
-import { TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
+import { Besluttelse, TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
 import { HStack } from "@navikt/ds-react";
 import { Metadata } from "../detaljside/Metadata";
 import { getAgentDisplayName, isBesluttet } from "@/utils/totrinnskontroll";
 
 interface BehandlerInformasjonProps {
-  status: DelutbetalingStatus | undefined;
   opprettelse: TotrinnskontrollDto;
 }
 
-export function BehandlerInformasjon({ status, opprettelse }: BehandlerInformasjonProps) {
+export function BehandlerInformasjon({ opprettelse }: BehandlerInformasjonProps) {
   return (
     <HStack gap="4">
       <Metadata header="Behandlet av" value={getAgentDisplayName(opprettelse.behandletAv)} />
-      {status === DelutbetalingStatus.RETURNERT && isBesluttet(opprettelse) ? (
+      {isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.AVVIST ? (
         <Metadata header="Returnert av" value={getAgentDisplayName(opprettelse.besluttetAv)} />
-      ) : isBesluttet(opprettelse) &&
-        status &&
-        [
-          DelutbetalingStatus.GODKJENT,
-          DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-          DelutbetalingStatus.UTBETALT,
-        ].includes(status) ? (
+      ) : isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.GODKJENT ? (
         <Metadata header="Attestert av" value={getAgentDisplayName(opprettelse.besluttetAv)} />
       ) : null}
     </HStack>

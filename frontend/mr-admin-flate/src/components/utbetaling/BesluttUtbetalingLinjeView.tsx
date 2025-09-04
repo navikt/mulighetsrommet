@@ -1,15 +1,13 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
   Besluttelse,
-  BesluttTotrinnskontrollRequest,
+  BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
-  DelutbetalingStatus,
-  FieldError,
   UtbetalingDto,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
-  ValidationError,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -17,6 +15,7 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
+import { isTilBeslutning } from "@/utils/totrinnskontroll";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -29,7 +28,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const besluttMutation = useBesluttDelutbetaling();
 
-  function beslutt(id: string, body: BesluttTotrinnskontrollRequest) {
+  function beslutt(id: string, body: BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak) {
     besluttMutation.mutate(
       { id, body },
       {
@@ -51,7 +50,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
       <UtbetalingLinjeTable
         linjer={linjer}
         utbetaling={utbetaling}
-        renderRow={(linje: UtbetalingLinje) => {
+        renderRow={(linje) => {
           return (
             <UtbetalingLinjeRow
               readOnly
@@ -59,7 +58,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
               linje={linje}
               grayBackground
               knappeColumn={
-                linje.status === DelutbetalingStatus.TIL_ATTESTERING && (
+                isTilBeslutning(linje.opprettelse) && (
                   <HStack gap="4">
                     {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
                       <Button
