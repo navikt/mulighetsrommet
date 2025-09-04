@@ -50,6 +50,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
@@ -408,6 +409,7 @@ fun Route.arrangorflateRoutes() {
                     request,
                     utbetaling,
                     advarsler,
+                    today = LocalDate.now(),
                 )
                 .onLeft {
                     call.respondWithProblemDetail(ValidationError(errors = it))
