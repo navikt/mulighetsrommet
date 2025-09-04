@@ -1276,15 +1276,12 @@ components:
     BeregnTilsagnResponse:
       type: object
       properties:
-        success:
-          type: boolean
         beregning:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TilsagnBeregningDto"
       required:
       - beregning
-      - success
     UtbetalingKompaktDto:
       type: object
       properties:
