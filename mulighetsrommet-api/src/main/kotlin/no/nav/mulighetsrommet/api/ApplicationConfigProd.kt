@@ -378,9 +378,9 @@ val ApplicationConfigProd = AppConfig(
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
             Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
             // Anskaffede tiltak
-            Tiltakskode.AVKLARING to Periode(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 1, 1)),
-            Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 1, 1)),
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     clamav = HttpClientConfig(
