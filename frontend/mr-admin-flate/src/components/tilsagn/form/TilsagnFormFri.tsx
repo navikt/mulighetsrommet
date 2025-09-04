@@ -65,7 +65,8 @@ function BeregningInputSkjema() {
           <Textarea
             size="small"
             label="Beskrivelse"
-            className="flex-3"
+            className="flex-20"
+            maxLength={100}
             error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
             {...register(`beregning.linjer.${index}.beskrivelse`)}
             defaultValue={item.beskrivelse ?? ""}
@@ -74,7 +75,7 @@ function BeregningInputSkjema() {
             size="small"
             type="number"
             label="Beløp"
-            className="flex-2"
+            className="w-26 flex-none"
             error={errors.beregning?.linjer?.[index]?.belop?.message}
             {...register(`beregning.linjer.${index}.belop`, {
               setValueAs: (v) => (v === "" ? null : Number(v)),
@@ -85,7 +86,7 @@ function BeregningInputSkjema() {
             size="small"
             type="number"
             label="Antall"
-            className="flex-1"
+            className="w-20 flex-none"
             error={errors.beregning?.linjer?.[index]?.antall?.message}
             {...register(`beregning.linjer.${index}.antall`, {
               setValueAs: (v) => (v === "" ? null : Number(v)),
@@ -102,7 +103,7 @@ function BeregningInputSkjema() {
             size="small"
             variant="secondary-neutral"
             icon={<TrashIcon aria-hidden />}
-            className="max-h-min self-center"
+            className="max-h-min mt-7"
             onClick={() => remove(index)}
           >
             Fjern

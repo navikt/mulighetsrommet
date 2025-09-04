@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 object TilsagnValidator {
+    private const val TILSAGN_BESKRIVELSE_MAX_LENDE = 100
     fun validate(
         next: TilsagnRequest,
         previous: Tilsagn?,
@@ -356,6 +357,14 @@ object TilsagnValidator {
                         FieldError.ofPointer(
                             pointer = "beregning/linjer/$index/beskrivelse",
                             detail = "Beskrivelse mangler",
+                        ),
+                    )
+                }
+                if (linje.beskrivelse?.let { it.length > TILSAGN_BESKRIVELSE_MAX_LENDE } == true) {
+                    add(
+                        FieldError.ofPointer(
+                            pointer = "beregning/linjer/$index/beskrivelse",
+                            detail = "Beskrivelsen kan ikke inneholde mer enn ${TILSAGN_BESKRIVELSE_MAX_LENDE} tegn",
                         ),
                     )
                 }
