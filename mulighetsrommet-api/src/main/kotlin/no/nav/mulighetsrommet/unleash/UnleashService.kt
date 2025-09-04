@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.unleash.strategies.ByOrgnrStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
 
 enum class FeatureToggle(val key: String) {
-    MULIGHETSROMMET_MIGRERING_OKONOMI_AVBRYT_UTBETALING("mulighetsrommet.migrering.okonomi.avbryt-utbetaling"),
     MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN("mulighetsrommet.tiltakstype.migrering.tilsagn"),
     MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING("mulighetsrommet.tiltakstype.migrering.okonomi"),
     ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS("arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris"),
