@@ -64,9 +64,9 @@ fun Route.utbetalingRoutes() {
             }
         }
     }) {
-        val id: UUID by call.queryParameters
+        val gjennomforingId: UUID by call.queryParameters
 
-        val utbetalinger = utbetalingService.getByGjennomforing(id)
+        val utbetalinger = utbetalingService.getByGjennomforing(gjennomforingId)
 
         call.respond(utbetalinger)
     }
