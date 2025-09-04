@@ -143,7 +143,9 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
                   size="small"
                   label="Beløp (NOK)"
                   type="number"
-                  {...register("belop")}
+                  {...register("belop", {
+                    valueAsNumber: true,
+                  })}
                   error={errors.belop?.message}
                 />
               </VStack>
