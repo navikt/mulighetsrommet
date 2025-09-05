@@ -747,8 +747,6 @@ components:
           type: string
         periodeSlutt:
           type: string
-        kontonummer:
-          type: string
         kidNummer:
           type:
           - "null"
@@ -767,7 +765,6 @@ components:
       - belop
       - gjennomforingId
       - kidNummer
-      - kontonummer
       - periodeSlutt
       - periodeStart
       - tilsagnId

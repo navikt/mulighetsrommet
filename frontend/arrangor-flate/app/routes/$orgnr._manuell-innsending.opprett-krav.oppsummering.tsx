@@ -152,7 +152,6 @@ export const action: ActionFunction = async ({ request }) => {
   const tilsagnId = session.get("gjennomforingId");
   const periodeStart = session.get("periodeStart");
   const periodeSlutt = session.get("periodeSlutt");
-  const kontonummer = session.get("kontonummer");
   const kid = session.get("kid");
 
   if (errors.length > 0) {
@@ -167,7 +166,6 @@ export const action: ActionFunction = async ({ request }) => {
       tilsagnId: tilsagnId!,
       periodeStart: yyyyMMddFormatting(periodeStart)!,
       periodeSlutt: yyyyMMddFormatting(periodeSlutt)!,
-      kontonummer: kontonummer!,
       kidNummer: kid || null,
       tilskuddstype: Tilskuddstype.TILTAK_INVESTERINGER,
       vedlegg: vedlegg,
