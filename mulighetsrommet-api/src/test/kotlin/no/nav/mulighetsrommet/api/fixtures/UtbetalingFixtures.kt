@@ -5,12 +5,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.*
+import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -32,6 +29,41 @@ object UtbetalingFixtures {
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
         status = UtbetalingStatusType.GENERERT,
+    )
+
+    val utbetalingDto1 = Utbetaling(
+        id = UUID.randomUUID(),
+        gjennomforing = Gjennomforing(
+            id = AFT1.id,
+            navn = AFT1.navn,
+        ),
+        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        beregning = UtbetalingBeregningFri(
+            input = UtbetalingBeregningFri.Input(1000),
+            output = UtbetalingBeregningFri.Output(1000),
+        ),
+        innsender = null,
+        beskrivelse = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        godkjentAvArrangorTidspunkt = null,
+        status = UtbetalingStatusType.GENERERT,
+        tiltakstype = Tiltakstype(
+            navn = TiltakstypeFixtures.AFT.navn,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+        ),
+        arrangor = Utbetaling.Arrangor(
+            id = ArrangorFixtures.underenhet1.id,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            navn = ArrangorFixtures.underenhet1.navn,
+            slettet = false,
+        ),
+        betalingsinformasjon = Betalingsinformasjon(
+            kontonummer = Kontonummer("11111111111"),
+            kid = null,
+        ),
+        journalpostId = null,
+        begrunnelseMindreBetalt = null,
+        createdAt = LocalDateTime.now(),
     )
 
     val utbetaling2 = UtbetalingDbo(

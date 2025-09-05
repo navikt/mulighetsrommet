@@ -254,10 +254,14 @@ object UtbetalingValidator {
         request: GodkjennUtbetaling,
         utbetaling: Utbetaling,
         advarsler: List<DeltakerAdvarsel>,
+        today: LocalDate,
     ): Either<List<FieldError>, Kid?> {
         val errors = buildList {
             if (utbetaling.innsender != null) {
                 add(FieldError.root("Utbetalingen er allerede godkjent"))
+            }
+            if (!utbetaling.periode.slutt.isBefore(today)) {
+                add(FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert"))
             }
             if (advarsler.isNotEmpty()) {
                 add(
