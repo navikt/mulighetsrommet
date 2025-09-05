@@ -1,7 +1,14 @@
-import { Oppgave, OppgaveIconType, OppgaveType, Tiltakskode } from "@mr/api-client-v2";
+import {
+  Oppgave,
+  OppgaveIconType,
+  OppgaveType,
+  Tiltakskode,
+} from "@tiltaksadministrasjon/api-client";
 
 export const mockOppgaver: Oppgave[] = [
   {
+    id: "1",
+    enhet: null,
     type: OppgaveType.TILSAGN_TIL_ANNULLERING,
     navn: "Tilsagn til annullering",
     title: "Tilsagn til beslutning",
@@ -18,6 +25,8 @@ export const mockOppgaver: Oppgave[] = [
     iconType: OppgaveIconType.TILSAGN,
   },
   {
+    id: "2",
+    enhet: null,
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     navn: "Tilsagn til godkjenning",
     title: "Send tilsagn til beslutning",
@@ -34,6 +43,8 @@ export const mockOppgaver: Oppgave[] = [
     iconType: OppgaveIconType.TILSAGN,
   },
   {
+    id: "3",
+    enhet: null,
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     navn: "Tilsagn til godkjenning",
     title: "Send tilsagn til beslutning",
@@ -50,6 +61,8 @@ export const mockOppgaver: Oppgave[] = [
     iconType: OppgaveIconType.TILSAGN,
   },
   {
+    id: "4",
+    enhet: null,
     type: OppgaveType.UTBETALING_TIL_ATTESTERING,
     navn: "Utbetaling til attestering",
     title: "Utbetaling til godkjenning",

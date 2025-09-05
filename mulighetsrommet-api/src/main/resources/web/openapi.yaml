@@ -1639,46 +1639,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/oppgaver:
-    post:
-      tags:
-        - Oppgaver
-      operationId: getOppgaver
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetOppgaverRequest"
-        required: true
-      responses:
-        200:
-          description: Notifications for the user that is currently signed in.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Oppgave"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/oppgaver/oppgavetyper:
-    get:
-      tags:
-        - Oppgaver
-      operationId: getOppgavetyper
-      responses:
-        200:
-          description: Relevante oppgavetyper
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/OppgaveTypeDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
 components:
   responses:
     ProblemDetail:
@@ -2264,31 +2224,6 @@ components:
       enum:
         - READ
         - UNREAD
-
-    OppgaveTypeDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        type:
-          $ref: "#/components/schemas/OppgaveType"
-      required:
-        - navn
-        - type
-
-    OppgaveType:
-      type: string
-      enum:
-        - TILSAGN_TIL_GODKJENNING
-        - TILSAGN_TIL_ANNULLERING
-        - TILSAGN_TIL_OPPGJOR
-        - TILSAGN_RETURNERT
-        - UTBETALING_TIL_BEHANDLING
-        - UTBETALING_TIL_ATTESTERING
-        - UTBETALING_TIL_AVBRYTELSE
-        - UTBETALING_RETURNERT
-        - AVTALE_MANGLER_ADMINISTRATOR
-        - GJENNOMFORING_MANGLER_ADMINISTRATOR
 
     SorteringAvtaler:
       type: string
@@ -3165,74 +3100,6 @@ components:
         - readCount
         - unreadCount
 
-    Oppgave:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        type:
-          $ref: "#/components/schemas/OppgaveType"
-        navn:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/OppgaveTiltakstype"
-        enhet:
-          $ref: "#/components/schemas/OppgaveEnhet"
-        link:
-          type: object
-          properties:
-            linkText:
-              type: string
-            link:
-              type: string
-          required:
-            - linkText
-            - link
-        createdAt:
-          type: string
-          format: date-time
-        iconType:
-          $ref: "#/components/schemas/OppgaveIconType"
-      required:
-        - type
-        - navn
-        - title
-        - tiltakstype
-        - link
-        - createdAt
-        - iconType
-
-    OppgaveEnhet:
-      properties:
-        nummer:
-          type: string
-        navn:
-          type: string
-
-    OppgaveIconType:
-      type: string
-      enum:
-        - TILSAGN
-        - UTBETALING
-        - AVTALE
-        - GJENNOMFORING
-
-    OppgaveTiltakstype:
-      type: object
-      properties:
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        navn:
-          type: string
-      required:
-        - tiltakskode
-        - navn
-
     AvbrytGjennomforingAarsak:
       type: string
       enum:
@@ -3947,21 +3814,3 @@ components:
       required:
         - id
         - navn
-
-    GetOppgaverRequest:
-      type: object
-      properties:
-        oppgavetyper:
-          type: array
-          items:
-            $ref: "#/components/schemas/OppgaveType"
-        tiltakskoder:
-          type: array
-          items:
-            $ref: "#/components/schemas/Tiltakskode"
-        regioner:
-          type: array
-          items:
-            type: string
-      required: [oppgavetyper, tiltakskoder, regioner]
-
