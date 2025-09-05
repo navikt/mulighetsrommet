@@ -1,7 +1,7 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { GjennomforingHandling, Toggles } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import {
   useAdminGjennomforingById,
   useGjennomforingHandlinger,
@@ -9,22 +9,19 @@ import {
 import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLoader";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function UtbetalingerForGjennomforingContainer() {
-  const { gjennomforingId } = useParams();
-  if (!gjennomforingId) {
-    throw Error("Fant ikke gjennomforingId i url");
-  }
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const navigate = useNavigate();
-  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
-
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforingId);
   const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
-
   const { data: enableOkonomi } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
     [gjennomforing.tiltakstype.tiltakskode],
   );
+
+  const navigate = useNavigate();
 
   if (!enableOkonomi) {
     return null;

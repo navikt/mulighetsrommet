@@ -35,7 +35,7 @@ export function AvtaleArrangorForm() {
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
-  const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id);
+  const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id ?? "");
 
   const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
   const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);

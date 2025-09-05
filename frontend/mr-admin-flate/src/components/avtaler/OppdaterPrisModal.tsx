@@ -67,7 +67,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
           <Modal.Body>
             <AvtalePrismodellForm
               tiltakskode={avtale.tiltakstype.tiltakskode}
-              avtaleStartDato={parseDate(avtale.startDato)!}
+              avtaleStartDato={parseDate(avtale.startDato)}
             />
           </Modal.Body>
           <Modal.Footer>

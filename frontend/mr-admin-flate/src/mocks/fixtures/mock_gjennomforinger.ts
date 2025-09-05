@@ -1,6 +1,7 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
+  GjennomforingArrangorUnderenhet,
   AvbrytGjennomforingAarsak,
   Bransje,
   EstimertVentetidEnhet,
@@ -14,9 +15,16 @@ import {
   PaginertGjennomforing,
 } from "@mr/api-client-v2";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
-import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
+
+const arrangor: GjennomforingArrangorUnderenhet = {
+  id: "d9d4db51-3564-4493-b897-4fc38dc48965",
+  organisasjonsnummer: "992943084",
+  navn: "FRETEX AS AVD OSLO",
+  kontaktpersoner: mockArrangorKontaktpersoner,
+  slettet: false,
+};
 
 export const mockGjennomforinger: GjennomforingDto[] = [
   {
@@ -28,11 +36,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
       enhet: EstimertVentetidEnhet.MANED,
     },
     antallPlasser: 50,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: [mockArrangorKontaktpersoner[0], mockArrangorKontaktpersoner[0]],
-    },
+    arrangor,
     avtaleId: mockAvtaler[0].id,
     tiltakstype: mockTiltakstyper.AVKLARAG,
     administratorer: [
@@ -112,11 +116,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     navn: "Spillbasert kvalifisering",
     tiltaksnummer: "123456",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
+    arrangor,
     tiltakstype: mockTiltakstyper.ARBFORB,
     sanityId: "1234",
     startDato: "2022-01-01",
@@ -146,11 +146,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "654434",
     sanityId: "1234",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
+    arrangor,
     tiltakstype: mockTiltakstyper.GRUPPEAMO,
     administratorer: [
       {
@@ -185,11 +181,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "654432",
     sanityId: "1234",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
+    arrangor,
     tiltakstype: mockTiltakstyper.GRUFAGYRKE,
     avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
@@ -229,11 +221,7 @@ for (let i = 0; i < x; i++) {
     tiltaksnummer: "654434",
     sanityId: "1234",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
+    arrangor,
     tiltakstype: mockTiltakstyper.ARBFORB,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",

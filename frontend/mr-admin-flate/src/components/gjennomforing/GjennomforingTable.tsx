@@ -115,8 +115,8 @@ export function GjennomforingTable({
           <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
         ) : (
           <Table
-            sort={sort!}
-            onSortChange={(sortKey) => handleSort(sortKey!)}
+            sort={sort}
+            onSortChange={(sortKey) => handleSort(sortKey)}
             data-testid="gjennomforing-tabell"
           >
             <Table.Header

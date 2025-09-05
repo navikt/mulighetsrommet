@@ -102,7 +102,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
         ) : (
           <Table
             sort={sort}
-            onSortChange={(sortKey) => handleSort(sortKey!)}
+            onSortChange={(sortKey) => handleSort(sortKey)}
             className="bg-white border-separate border-spacing-0 border-t border-gray-200"
           >
             <Table.Header

@@ -89,7 +89,7 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
   });
 
   // Pluss 10 år er vilkårlig valgt. Endre ved behov
-  const toDate = addDuration(fromDate, { years: 10 })!;
+  const toDate = addDuration(fromDate, { years: 10 });
 
   return (
     <VStack gap="4">

@@ -34,7 +34,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
-  const sats = useFindAvtaltSats(gjennomforing.avtaleId!, periodeStart);
+  const sats = useFindAvtaltSats(gjennomforing.avtaleId ?? "", periodeStart);
 
   const type = getValues("beregning.type");
   const prisbetingelser = watch("beregning.prisbetingelser");

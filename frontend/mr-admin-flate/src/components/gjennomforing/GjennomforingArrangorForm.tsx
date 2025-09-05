@@ -50,7 +50,6 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
               label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               placeholder="Velg underenhet for tiltaksarrangør"
               selectedOptions={arrangorOptions.filter((option) =>
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 field.value?.includes(option.value),
               )}
               name={field.name}
@@ -77,10 +76,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
                 label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
                 placeholder="Velg kontaktpersoner"
                 isMultiSelect
-                selectedOptions={
-                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                  kontaktpersonOptions.filter((v) => field.value?.includes(v.value))
-                }
+                selectedOptions={kontaktpersonOptions.filter((v) => field.value?.includes(v.value))}
                 name={field.name}
                 error={errors.arrangorKontaktpersoner?.message}
                 options={kontaktpersonOptions}
