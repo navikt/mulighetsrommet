@@ -71,6 +71,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             prisbetingelser = null,
         )
 
+        // 28 / 28 * 20205 = 20205
         TilsagnBeregningPrisPerManedsverk.beregn(ikkeSkuddar).output.belop shouldBe 20205
 
         val skuddar = TilsagnBeregningPrisPerManedsverk.Input(
@@ -80,7 +81,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             prisbetingelser = null,
         )
 
-        // 20/21 * 20205 = 19242.85
+        // 28 / 29 * 20205 = 19508.27...
         TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19508
     }
 
