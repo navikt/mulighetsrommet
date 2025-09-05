@@ -1,5 +1,5 @@
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
-import { NotificationStatus } from "@mr/api-client-v2";
+import { NotificationStatus } from "@tiltaksadministrasjon/api-client";
 import { Button, HStack } from "@navikt/ds-react";
 import { EmptyState } from "./EmptyState";
 import { NotifikasjonerListItem } from "./NotifikasjonerListItem";

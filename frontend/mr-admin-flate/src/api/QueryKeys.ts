@@ -2,10 +2,9 @@ import {
   GetArrangorerData,
   type GetAvtalerData,
   GetGjennomforingerData,
-  NotificationStatus,
   Rolle,
 } from "@mr/api-client-v2";
-import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
+import { LagretFilterType, NotificationStatus } from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {
   beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,

@@ -366,31 +366,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/janzz/sertifiseringer/sok:
-    get:
-      tags:
-        - sertifiseringer
-        - janzz
-      operationId: sokSertifiseringer
-      parameters:
-        - in: query
-          name: q
-          required: true
-          schema:
-            type: string
-          description: search query
-      responses:
-        200:
-          description: sertifiseringer etter søk
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Sertifisering"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger/{id}/handlinger:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1261,63 +1236,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/notifications:
-    get:
-      tags:
-        - Notifications
-      operationId: getNotifications
-      parameters:
-        - in: query
-          name: status
-          schema:
-            $ref: "#/components/schemas/NotificationStatus"
-          description: Status for notifikasjon
-      responses:
-        200:
-          description: Notifications for the user that is currently signed in.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertUserNotifications"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/notifications/summary:
-    get:
-      tags:
-        - Notifications
-      operationId: getNotificationSummary
-      responses:
-        200:
-          description: Notifications for the user that is currently signed in.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserNotificationSummary"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/notifications/status:
-    post:
-      tags:
-        - Notifications
-      operationId: setNotificationStatus
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SetNotificationStatusRequest"
-        required: true
-      responses:
-        200:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/personopplysninger:
     get:
       tags:
@@ -1443,23 +1361,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AvtaltSatsDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/utdanninger:
-    get:
-      tags:
-        - Utdanninger
-      operationId: getUtdanningsprogrammer
-      responses:
-        200:
-          description: Alle utdanningsprogram med utdanninger
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2042,12 +1943,6 @@ components:
         - tidspunkt
         - aarsak
         - beskrivelse
-
-    NotificationStatus:
-      type: string
-      enum:
-        - READ
-        - UNREAD
 
     SorteringAvtaler:
       type: string
@@ -2856,65 +2751,6 @@ components:
         - navn
         - overordnetEnhet
 
-    PaginertUserNotifications:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/UserNotification"
-
-    UserNotification:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        title:
-          type: string
-        description:
-          type: [string, "null"]
-        user:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        readAt:
-          type: string
-          format: date-time
-        metadata:
-          anyOf:
-            - type: ["null"]
-            - type: object
-              properties:
-                link:
-                  type: string
-                linkText:
-                  type: string
-      required:
-        - id
-        - title
-        - description
-        - user
-        - createdAt
-        - readAt
-
-    UserNotificationSummary:
-      type: object
-      properties:
-        readCount:
-          type: integer
-        unreadCount:
-          type: integer
-      required:
-        - readCount
-        - unreadCount
-
     AvbrytGjennomforingAarsak:
       type: string
       enum:
@@ -3479,23 +3315,6 @@ components:
       required:
         - id
 
-    SetNotificationStatusRequest:
-      type: object
-      properties:
-        notifikasjoner:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-              status:
-                $ref: "#/components/schemas/NotificationStatus"
-            required:
-              - id
-              - status
-
     PrismodellOgBeskrivelse:
       type: object
       properties:
@@ -3542,19 +3361,6 @@ components:
         - utdanninger
 
     Utdanningslop:
-      type: object
-      properties:
-        utdanningsprogram:
-          $ref: "#/components/schemas/Utdanningsprogram"
-        utdanninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Utdanning"
-      required:
-        - utdanningsprogram
-        - utdanninger
-
-    UtdanningsprogramMedUtdanninger:
       type: object
       properties:
         utdanningsprogram:

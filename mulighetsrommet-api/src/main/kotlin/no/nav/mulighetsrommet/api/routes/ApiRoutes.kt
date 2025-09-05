@@ -102,6 +102,9 @@ fun Route.tiltaksadministrasjonRoutes() {
     featureTogglesRoute()
     lagretFilterRoutes()
     navEnhetRoutes()
+    janzzRoutes()
+    utdanningRoutes()
+    notificationRoutes()
 }
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes
@@ -111,10 +114,6 @@ fun Route.adminflateRoutes() {
     avtaleRoutes()
     navAnsattRoutes()
     arrangorRoutes()
-    notificationRoutes()
-    janzzRoutes()
-    utdanningRoutes()
-    oppgaverRoutes()
 }
 
 fun Route.veilederflateRoutes() {

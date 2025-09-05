@@ -904,6 +904,139 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/janzz/sertifiseringer/sok:
+    get:
+      tags:
+      - Janzz
+      description: Søk etter sertifiseringer fra Janzz
+      operationId: sokSertifiseringer
+      parameters:
+      - name: q
+        in: query
+        description: Søketekst for sertifisering
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Liste over sertifiseringer som matcher søket
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utdanninger:
+    get:
+      tags:
+      - Utdanning
+      description: Hent alle utdanningsprogrammer
+      operationId: getUtdanningsprogrammer
+      parameters: []
+      responses:
+        "200":
+          description: Liste over utdanningsprogrammer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/notifications:
+    get:
+      tags:
+      - Notification
+      operationId: getNotifications
+      parameters:
+      - name: status
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/NotificationStatus"
+      responses:
+        "200":
+          description: Liste over brukernotifikasjoner
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_UserNotification"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/notifications/summary:
+    get:
+      tags:
+      - Notification
+      operationId: getNotificationSummary
+      parameters: []
+      responses:
+        "200":
+          description: Aggregert informasjon om notifikasjoner
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserNotificationSummary"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/notifications/status:
+    post:
+      tags:
+      - Notification
+      operationId: setNotificationStatus
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetNotificationStatusRequest"
+        required: false
+      responses:
+        "200":
+          description: Status på notifikasjoner ble oppdatert
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
 components:
   schemas:
     TilsagnStatus:
@@ -2263,5 +2396,159 @@ components:
       - TILLIT
       - UTLAND
       - YTA
+    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: integer
+          format: int64
+        label:
+          type: string
+      required:
+      - konseptId
+      - label
+    UtdanningsprogramMedUtdanningerDto:
+      type: object
+      properties:
+        utdanningsprogram:
+          $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanningsprogram"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanning"
+      required:
+      - utdanninger
+      - utdanningsprogram
+    UtdanningsprogramMedUtdanningerDto.Utdanningsprogram:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    UtdanningsprogramMedUtdanningerDto.Utdanning:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    NotificationStatus:
+      type: string
+      enum:
+      - READ
+      - UNREAD
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
+    UserNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type:
+          - "null"
+          - string
+        user:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        readAt:
+          type:
+          - "null"
+          - string
+          format: date-time
+        metadata:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NotificationMetadata"
+      required:
+      - createdAt
+      - description
+      - id
+      - metadata
+      - readAt
+      - title
+      - user
+    NotificationMetadata:
+      type: object
+      properties:
+        linkText:
+          type: string
+        link:
+          type: string
+      required:
+      - link
+      - linkText
+    PaginatedResponse_UserNotification:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserNotification"
+      required:
+      - data
+      - pagination
+    UserNotificationSummary:
+      type: object
+      properties:
+        readCount:
+          type: integer
+          format: int32
+        unreadCount:
+          type: integer
+          format: int32
+      required:
+      - readCount
+      - unreadCount
+    SetNotificationStatusRequest.StatusRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/NotificationStatus"
+      required:
+      - id
+      - status
+    SetNotificationStatusRequest:
+      type: object
+      properties:
+        notifikasjoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/SetNotificationStatusRequest.StatusRequest"
+      required:
+      - notifikasjoner
   examples: {}
 webhooks: {}
