@@ -81,19 +81,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
         )
 
         // 20/21 * 20205 = 19242.85
-        TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19243
-    }
-
-    test("én virkedag") {
-        val input = TilsagnBeregningPrisPerManedsverk.Input(
-            periode = Periode(LocalDate.of(2023, 1, 2), LocalDate.of(2023, 1, 3)),
-            sats = 20205,
-            antallPlasser = 1,
-            prisbetingelser = null,
-        )
-
-        // 1/22 * 20205 = 918.4
-        TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 918
+        TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19508
     }
 
     test("overflow kaster exception") {
@@ -119,6 +107,34 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             )
 
             TilsagnBeregningPrisPerManedsverk.beregn(input)
+        }
+    }
+
+    context("beregning av månedsverk før 1. august 2025") {
+        test("én virkedag tilsvarer beløpet for en dag i løpet av perioden") {
+            val input = TilsagnBeregningPrisPerManedsverk.Input(
+                periode = Periode(LocalDate.of(2023, 1, 2), LocalDate.of(2023, 1, 3)),
+                sats = 20205,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            )
+
+            // 1/31 * 20205 = 651.7
+            TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 652
+        }
+    }
+
+    context("beregning av månedsverk etter 1. august 2025") {
+        test("én virkedag tilsvarer beløpet for en ukedag i løpet av perioden") {
+            val input = TilsagnBeregningPrisPerManedsverk.Input(
+                periode = Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 2)),
+                sats = 20205,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            )
+
+            // 1/21 * 20205 = 962.1
+            TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 962
         }
     }
 })

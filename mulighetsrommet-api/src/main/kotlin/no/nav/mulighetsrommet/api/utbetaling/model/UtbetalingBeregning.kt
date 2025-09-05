@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.LocalDate
 import java.util.*
 
 @Serializable
@@ -97,6 +98,11 @@ object UtbetalingBeregningHelpers {
      */
     const val OUTPUT_PRECISION = 5
 
+    /**
+     * Beregningen av månedsverk ble endret fra og med denne datoen
+     */
+    private val DELTAKELSE_MONTHS_FRACTION_VERSION_2_DATE: LocalDate = LocalDate.of(2025, 8, 1)
+
     fun calculateDeltakelseManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
         stengtHosArrangor: List<Periode>,
@@ -179,6 +185,25 @@ object UtbetalingBeregningHelpers {
     }
 
     private fun getMonthsFraction(periode: Periode): BigDecimal {
+        return if (periode.getLastInclusiveDate().isBefore(DELTAKELSE_MONTHS_FRACTION_VERSION_2_DATE)) {
+            getMonthsFractionV1(periode)
+        } else {
+            getMonthsFractionV2(periode)
+        }
+    }
+
+    private fun getMonthsFractionV1(periode: Periode): BigDecimal {
+        return periode
+            .splitByMonth()
+            .map { periode ->
+                val duration = periode.getDurationInDays().toBigDecimal()
+                val lengthOfMonth = periode.start.lengthOfMonth().toBigDecimal()
+                duration.divide(lengthOfMonth, CALCULATION_PRECISION, RoundingMode.HALF_UP)
+            }
+            .sumOf { it }
+    }
+
+    private fun getMonthsFractionV2(periode: Periode): BigDecimal {
         return periode
             .splitByMonth()
             .map { periode ->
