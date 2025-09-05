@@ -6,7 +6,7 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { LagretFilterType } from "@mr/api-client-v2";
+import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,
