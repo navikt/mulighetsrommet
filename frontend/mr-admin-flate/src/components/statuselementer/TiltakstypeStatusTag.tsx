@@ -1,4 +1,4 @@
-import { TiltakstypeStatus } from "@mr/api-client-v2";
+import { TiltakstypeStatus } from "@tiltaksadministrasjon/api-client";
 import { StatusTag } from "@mr/frontend-common";
 import { getTiltakstypeStatusTagProps } from "./getStatusTagProps";
 

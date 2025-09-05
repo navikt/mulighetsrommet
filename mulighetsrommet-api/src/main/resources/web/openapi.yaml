@@ -366,31 +366,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/janzz/sertifiseringer/sok:
-    get:
-      tags:
-        - sertifiseringer
-        - janzz
-      operationId: sokSertifiseringer
-      parameters:
-        - in: query
-          name: q
-          required: true
-          schema:
-            type: string
-          description: search query
-      responses:
-        200:
-          description: sertifiseringer etter søk
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Sertifisering"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger/{id}/handlinger:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -878,126 +853,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/tiltakstyper:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstyper
-      parameters:
-        - in: query
-          name: sort
-          schema:
-            $ref: "#/components/schemas/SorteringTiltakstyper"
-      responses:
-        200:
-          description: Object of paginerte tiltakstyper.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakstypeDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tiltakstyper/{id}:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstypeById
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: the specified tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TiltakstypeDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tiltakstyper/{id}/faneinnhold:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstypeFaneinnhold
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Faneinnhold for the specified tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/VeilederflateTiltakstype"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/ansatt:
-    get:
-      tags:
-        - Ansatt
-      operationId: hentAnsatte
-      parameters:
-        - in: query
-          name: roller
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Rolle"
-          description: Nav-Ansatt rollen du ønsker å filtrere på
-      responses:
-        200:
-          description: Get list of employeees
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavAnsatt"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/ansatt/me:
-    get:
-      tags:
-        - Ansatt
-      operationId: hentInfoOmAnsatt
-      responses:
-        200:
-          description: Information about employee
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NavAnsatt"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/ansatt/sok:
-    get:
-      tags:
-        - Ansatt
-      operationId: sokAnsatt
-      parameters:
-        - in: query
-          name: q
-          required: true
-          schema:
-            type: string
-          description: search query
-      responses:
-        200:
-          description: Information about employee
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavAnsatt"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/arrangorer:
     get:
       tags:
@@ -1261,63 +1116,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/notifications:
-    get:
-      tags:
-        - Notifications
-      operationId: getNotifications
-      parameters:
-        - in: query
-          name: status
-          schema:
-            $ref: "#/components/schemas/NotificationStatus"
-          description: Status for notifikasjon
-      responses:
-        200:
-          description: Notifications for the user that is currently signed in.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertUserNotifications"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/notifications/summary:
-    get:
-      tags:
-        - Notifications
-      operationId: getNotificationSummary
-      responses:
-        200:
-          description: Notifications for the user that is currently signed in.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserNotificationSummary"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/notifications/status:
-    post:
-      tags:
-        - Notifications
-      operationId: setNotificationStatus
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SetNotificationStatusRequest"
-        required: true
-      responses:
-        200:
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/personopplysninger:
     get:
       tags:
@@ -1443,23 +1241,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AvtaltSatsDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/utdanninger:
-    get:
-      tags:
-        - Utdanninger
-      operationId: getUtdanningsprogrammer
-      responses:
-        200:
-          description: Alle utdanningsprogram med utdanninger
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1599,65 +1380,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Arrangor"
-
-    TiltakskodeArena:
-      type: string
-      enum:
-        - IPSUNG
-        - INKLUTILS
-        - HOYEREUTD
-        - ENKELAMO
-        - GRUFAGYRKE
-        - ARBTREN
-        - ARBFORB
-        - MIDLONTIL
-        - TILSJOBB
-        - ENKFAGYRKE
-        - INDJOBSTOT
-        - AVKLARAG
-        - DIGIOPPARB
-        - MENTOR
-        - INDOPPFAG
-        - GRUPPEAMO
-        - VASV
-        - ARBRRHDAG
-        - JOBBK
-        - VATIAROR
-        - VARLONTIL
-        - UTVAOONAV
-
-    TiltakstypeDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        innsatsgrupper:
-          type: array
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        arenaKode:
-          $ref: "#/components/schemas/TiltakskodeArena"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type: string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
-        sanityId:
-          type: string
-      required:
-        - id
-        - navn
-        - arenaKode
-        - startDato
-        - status
 
     GjennomforingHandling:
       type: string
@@ -2043,12 +1765,6 @@ components:
         - aarsak
         - beskrivelse
 
-    NotificationStatus:
-      type: string
-      enum:
-        - READ
-        - UNREAD
-
     SorteringAvtaler:
       type: string
       enum:
@@ -2060,16 +1776,6 @@ components:
         - sluttdato-descending
         - arrangor-ascending
         - arrangor-descending
-
-    SorteringTiltakstyper:
-      type: string
-      enum:
-        - navn-ascending
-        - navn-descending
-        - startdato-ascending
-        - startdato-descending
-        - sluttdato-ascending
-        - sluttdato-descending
 
     SorteringGjennomforinger:
       type: string
@@ -2390,91 +2096,6 @@ components:
         - AVTALE
         - TILTAKSGJENNOMFORING
 
-    NavAnsatt:
-      type: object
-      properties:
-        entraObjectId:
-          type: string
-          format: uuid
-        navIdent:
-          type: string
-        fornavn:
-          type: string
-        etternavn:
-          type: string
-        hovedenhet:
-          $ref: "#/components/schemas/NavAnsattHovedenhet"
-        mobilnummer:
-          type: [string, "null"]
-        epost:
-          type: string
-        roller:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavAnsattRolleDto"
-        skalSlettesDato:
-          type: [string, "null"]
-          format: date
-      required:
-        - entraObjectId
-        - navIdent
-        - fornavn
-        - etternavn
-        - hovedenhet
-        - mobilnummer
-        - epost
-        - roller
-        - skalSlettesDato
-
-    NavAnsattRolleDto:
-      type: object
-      properties:
-        rolle:
-          $ref: "#/components/schemas/Rolle"
-        navn:
-          type: string
-      required:
-        - rolle
-        - navn
-
-    Rolle:
-      type: string
-      enum:
-        - TEAM_MULIGHETSROMMET
-        - KONTAKTPERSON
-        - TILTAKADMINISTRASJON_GENERELL
-        - TILTAKSGJENNOMFORINGER_SKRIV
-        - AVTALER_SKRIV
-        - SAKSBEHANDLER_OKONOMI
-        - BESLUTTER_TILSAGN
-        - ATTESTANT_UTBETALING
-
-    NavAnsattHovedenhet:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-        - enhetsnummer
-        - navn
-
-    Innsatsgruppe:
-      type: string
-      enum:
-        - GODE_MULIGHETER
-        - TRENGER_VEILEDNING
-        - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-        - JOBBE_DELVIS
-        - LITEN_MULIGHET_TIL_A_JOBBE
-
-    TiltakstypeStatus:
-      type: string
-      enum:
-        - AKTIV
-        - AVSLUTTET
-
     ArenaNavEnhet:
       type: object
       properties:
@@ -2656,59 +2277,6 @@ components:
         - navIdent
         - navn
 
-    VeilederflateTiltakstype:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        sanityId:
-          type: string
-        navn:
-          type: string
-        beskrivelse:
-          type: string
-        innsatsgrupper:
-          type: array
-          uniqueItems: true
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-        regelverkLenker:
-          type: array
-          items:
-            $ref: "#/components/schemas/RegelverkLenke"
-        faneinnhold:
-          $ref: "#/components/schemas/Faneinnhold"
-        delingMedBruker:
-          type: string
-        arenakode:
-          $ref: "#/components/schemas/TiltakskodeArena"
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        kanKombineresMed:
-          type: array
-          items:
-            type: string
-      required:
-        - id
-        - sanityId
-        - navn
-        - kanKombineresMed
-
-    RegelverkLenke:
-      type: object
-      properties:
-        _id:
-          type: string
-        regelverkUrl:
-          type: string
-        regelverkLenkeNavn:
-          type: string
-      required:
-        - _id
-        - regelverkUrl
-        - regelverkLenkeNavn
-
     PortableTextTypedObject:
       type: object
       additionalProperties: true
@@ -2855,65 +2423,6 @@ components:
         - organisasjonsform
         - navn
         - overordnetEnhet
-
-    PaginertUserNotifications:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/UserNotification"
-
-    UserNotification:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        title:
-          type: string
-        description:
-          type: [string, "null"]
-        user:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        readAt:
-          type: string
-          format: date-time
-        metadata:
-          anyOf:
-            - type: ["null"]
-            - type: object
-              properties:
-                link:
-                  type: string
-                linkText:
-                  type: string
-      required:
-        - id
-        - title
-        - description
-        - user
-        - createdAt
-        - readAt
-
-    UserNotificationSummary:
-      type: object
-      properties:
-        readCount:
-          type: integer
-        unreadCount:
-          type: integer
-      required:
-        - readCount
-        - unreadCount
 
     AvbrytGjennomforingAarsak:
       type: string
@@ -3479,23 +2988,6 @@ components:
       required:
         - id
 
-    SetNotificationStatusRequest:
-      type: object
-      properties:
-        notifikasjoner:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-              status:
-                $ref: "#/components/schemas/NotificationStatus"
-            required:
-              - id
-              - status
-
     PrismodellOgBeskrivelse:
       type: object
       properties:
@@ -3542,19 +3034,6 @@ components:
         - utdanninger
 
     Utdanningslop:
-      type: object
-      properties:
-        utdanningsprogram:
-          $ref: "#/components/schemas/Utdanningsprogram"
-        utdanninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Utdanning"
-      required:
-        - utdanningsprogram
-        - utdanninger
-
-    UtdanningsprogramMedUtdanninger:
       type: object
       properties:
         utdanningsprogram:

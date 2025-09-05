@@ -2,6 +2,7 @@ import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
   Avtaletype,
+  EmbeddedTiltakstype,
   Opphav,
   OpsjonsmodellType,
   Prismodell,
@@ -9,15 +10,12 @@ import {
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
+import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 
 export const mockAvtaler: AvtaleDto[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    tiltakstype: {
-      id: mockTiltakstyper.AVKLARAG.id,
-      navn: mockTiltakstyper.AVKLARAG.navn,
-      tiltakskode: mockTiltakstyper.AVKLARAG.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
     navn: "Testtiltak Varig",
     administratorer: [
       {
@@ -87,11 +85,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    tiltakstype: {
-      id: mockTiltakstyper.ARBFORB.id,
-      navn: mockTiltakstyper.ARBFORB.navn,
-      tiltakskode: mockTiltakstyper.ARBFORB.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
@@ -151,11 +145,7 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Test Testesen",
       },
     ],
-    tiltakstype: {
-      id: mockTiltakstyper.INDOPPFAG.id,
-      navn: mockTiltakstyper.INDOPPFAG.navn,
-      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -203,11 +193,7 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: {
-      id: mockTiltakstyper.GRUFAGYRKE.id,
-      navn: mockTiltakstyper.GRUFAGYRKE.navn,
-      tiltakskode: mockTiltakstyper.GRUFAGYRKE.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
     sakarkivNummer: "24/12345",
@@ -262,11 +248,7 @@ for (let i = 0; i < x; i++) {
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: {
-      id: mockTiltakstyper.INDOPPFAG.id,
-      navn: mockTiltakstyper.INDOPPFAG.navn,
-      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -305,4 +287,16 @@ for (let i = 0; i < x; i++) {
       prisbetingelser: "Maskert prisbetingelser",
     },
   });
+}
+
+export function getEmbeddedTiltakstype(dto: TiltakstypeDto): EmbeddedTiltakstype {
+  if (!dto.tiltakskode) {
+    throw new Error("Tiltakskode mangler");
+  }
+
+  return {
+    id: dto.id,
+    navn: dto.navn,
+    tiltakskode: dto.tiltakskode,
+  };
 }

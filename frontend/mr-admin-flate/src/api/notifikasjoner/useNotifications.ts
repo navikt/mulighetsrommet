@@ -1,8 +1,8 @@
 import {
-  NotificationsService,
+  NotificationService,
   NotificationStatus,
   SetNotificationStatusRequest,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +10,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export function useNotificationSummary() {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.notificationsSummary(),
-    queryFn: () => NotificationsService.getNotificationSummary(),
+    queryFn: () => NotificationService.getNotificationSummary(),
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });
@@ -19,7 +19,7 @@ export function useNotificationSummary() {
 export function useNotifications(status: NotificationStatus) {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.notifications(status),
-    queryFn: () => NotificationsService.getNotifications({ query: { status } }),
+    queryFn: () => NotificationService.getNotifications({ query: { status } }),
   });
 }
 
@@ -29,7 +29,7 @@ export function useMutateNotifications() {
   const mutation = useMutation({
     mutationKey: QueryKeys.notifications(),
     mutationFn: (body: SetNotificationStatusRequest) => {
-      return NotificationsService.setNotificationStatus({ body });
+      return NotificationService.setNotificationStatus({ body });
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({

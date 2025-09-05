@@ -178,7 +178,7 @@ function someValuesExists(params: any[]): boolean {
 
 interface DetaljerFaneProps {
   gjennomforingAlert?: string;
-  tiltakstypeAlert?: string;
+  tiltakstypeAlert?: string | null;
   gjennomforing?: any;
   tiltakstype?: any;
 }

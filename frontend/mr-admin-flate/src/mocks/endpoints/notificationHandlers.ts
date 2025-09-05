@@ -1,14 +1,21 @@
-import { HttpResponse, PathParams, http } from "msw";
-import { PaginertUserNotifications, UserNotificationSummary } from "@mr/api-client-v2";
-import { mockNotifikasjoner } from "../fixtures/mock_notifikasjoner";
-import { mockUserNotificationSummary } from "../fixtures/mock_userNotificationSummary";
+import { http, HttpResponse, PathParams } from "msw";
+import {
+  PaginatedResponseUserNotification,
+  UserNotificationSummary,
+} from "@tiltaksadministrasjon/api-client";
+import { mockNotifikasjoner } from "@/mocks/fixtures/mock_notifikasjoner";
+import { mockUserNotificationSummary } from "@/mocks/fixtures/mock_userNotificationSummary";
 
 export const notificationHandlers = [
-  http.get<PathParams, PaginertUserNotifications>("*/api/v1/intern/notifications", () =>
-    HttpResponse.json(mockNotifikasjoner),
+  http.get<PathParams, PaginatedResponseUserNotification>(
+    "*/api/tiltaksadministrasjon/notifications",
+    () => HttpResponse.json(mockNotifikasjoner),
   ),
-  http.get<PathParams, UserNotificationSummary>("*/api/v1/intern/notifications/summary", () =>
-    HttpResponse.json(mockUserNotificationSummary),
+  http.get<PathParams, UserNotificationSummary>(
+    "*/api/tiltaksadministrasjon/notifications/summary",
+    () => HttpResponse.json(mockUserNotificationSummary),
   ),
-  http.post<PathParams, null>("*/api/v1/intern/notifications/status", () => HttpResponse.json()),
+  http.post<PathParams, null>("*/api/tiltaksadministrasjon/notifications/status", () =>
+    HttpResponse.json(),
+  ),
 ];

@@ -1,6 +1,6 @@
-import { Rolle } from "@mr/api-client-v2";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
+import { Rolle } from "@tiltaksadministrasjon/api-client";
 
 export function AvtaleFilterButtons() {
   return (

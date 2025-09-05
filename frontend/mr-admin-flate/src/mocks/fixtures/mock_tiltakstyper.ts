@@ -1,18 +1,18 @@
 import {
   Innsatsgruppe,
   Tiltakskode,
-  TiltakskodeArena,
   TiltakstypeDto,
   TiltakstypeStatus,
   VeilederflateTiltakstype,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 
-export const mockTiltakstyper = {
+export const mockTiltakstyper: Record<string, TiltakstypeDto> = {
   ARBFORB: {
     id: "59a64a02-efdd-471d-9529-356ff5553a5d",
     navn: "Arbeidsforberedende trening (AFT)",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    arenaKode: TiltakskodeArena.ARBFORB,
+    innsatsgrupper: [],
+    arenaKode: "ARBFORB",
     startDato: "2016-01-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -22,7 +22,8 @@ export const mockTiltakstyper = {
     id: "1d5bf722-02aa-4aa5-97e2-f359ea307a14",
     navn: "Arbeidsrettet rehabilitering (dag)",
     tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-    arenaKode: TiltakskodeArena.ARBRRHDAG,
+    innsatsgrupper: [],
+    arenaKode: "ARBRRHDAG",
     startDato: "2012-01-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -32,7 +33,8 @@ export const mockTiltakstyper = {
     id: "938c2e7b-91d6-4eee-97d3-a110ccbc5968",
     navn: "Avklaring",
     tiltakskode: Tiltakskode.AVKLARING,
-    arenaKode: TiltakskodeArena.AVKLARAG,
+    innsatsgrupper: [],
+    arenaKode: "AVKLARAG",
     startDato: "2009-01-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -42,7 +44,8 @@ export const mockTiltakstyper = {
     id: "e47447e3-bbe4-4c41-839d-f352130b2e8a",
     navn: "Digitalt jobbsøkerkurs for arbeidsledige (jobbklubb)",
     tiltakskode: Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-    arenaKode: TiltakskodeArena.DIGIOPPARB,
+    innsatsgrupper: [],
+    arenaKode: "DIGIOPPARB",
     startDato: "2021-01-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -52,7 +55,8 @@ export const mockTiltakstyper = {
     id: "9b52265c-914c-413d-bca4-e9d7b3f1bd8d",
     navn: "Gruppe AMO",
     tiltakskode: Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    arenaKode: TiltakskodeArena.GRUPPEAMO,
+    innsatsgrupper: [],
+    arenaKode: "GRUPPEAMO",
     startDato: "2019-07-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -62,7 +66,8 @@ export const mockTiltakstyper = {
     id: "53ecc473-c0ce-40ea-88c3-9f4a3131080b",
     navn: "Gruppe Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning",
     tiltakskode: Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-    arenaKode: TiltakskodeArena.GRUFAGYRKE,
+    innsatsgrupper: [],
+    arenaKode: "GRUFAGYRKE",
     startDato: "2019-07-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -72,7 +77,8 @@ export const mockTiltakstyper = {
     id: "95766f55-a456-4c4b-9a77-ca61ae214409",
     navn: "Jobbklubb",
     tiltakskode: Tiltakskode.JOBBKLUBB,
-    arenaKode: TiltakskodeArena.JOBBK,
+    innsatsgrupper: [],
+    arenaKode: "JOBBK",
     startDato: "2003-10-10",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -82,7 +88,8 @@ export const mockTiltakstyper = {
     id: "71a51692-35c5-4951-84eb-a338b0a57210",
     navn: "Oppfølging",
     tiltakskode: Tiltakskode.OPPFOLGING,
-    arenaKode: TiltakskodeArena.INDOPPFAG,
+    innsatsgrupper: [],
+    arenaKode: "INDOPPFAG",
     startDato: "2009-01-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -92,7 +99,8 @@ export const mockTiltakstyper = {
     id: "6fb921d6-0a87-4b8a-82a4-067477c1e113",
     navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
     tiltakskode: Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    arenaKode: TiltakskodeArena.VASV,
+    innsatsgrupper: [],
+    arenaKode: "VASV",
     startDato: "2001-01-01",
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
@@ -110,17 +118,21 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
       _id: "123",
       regelverkLenkeNavn: "Regelverk",
       regelverkUrl: "https://www.google.no",
+      beskrivelse: null,
     },
     {
       _id: "1234",
       regelverkLenkeNavn: "Rundskriv",
       regelverkUrl: "https://www.google.no",
+      beskrivelse: null,
     },
   ],
   id: "59a64a02-efdd-471d-9529-356ff5553a5d",
   sanityId: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
   navn: "AFT - Arbeidsforberedende trening",
   faneinnhold: {
+    kontaktinfo: null,
+    kontaktinfoInfoboks: null,
     forHvemInfoboks: "For hvem infoboks med alert informasjon",
     forHvem: [
       {
@@ -138,6 +150,7 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
         ],
       },
     ],
+    detaljerOgInnholdInfoboks: null,
     detaljerOgInnhold: [
       {
         children: [
@@ -250,6 +263,7 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
         style: "normal",
       },
     ],
+    pameldingOgVarighetInfoboks: null,
     pameldingOgVarighet: [
       {
         _type: "block",
@@ -294,12 +308,17 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
         _key: "f531b753b7d7",
       },
     ],
+    oppskrift: null,
+    lenker: null,
+    delMedBruker: null,
   },
   innsatsgrupper: [
     Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
     Innsatsgruppe.JOBBE_DELVIS,
     Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
   ],
+  tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+  arenakode: "ARBFORB",
   delingMedBruker:
     "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\n[Du kan lese mer om kurset på nav.no](www.nav.no/arbeidsforberedende-trening)",
   kanKombineresMed: [],

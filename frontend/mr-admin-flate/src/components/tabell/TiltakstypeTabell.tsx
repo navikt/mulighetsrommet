@@ -1,5 +1,4 @@
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { SorteringTiltakstyper } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Table } from "@navikt/ds-react";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
@@ -18,7 +17,7 @@ export function TiltakstypeTabell() {
 
     updateFilter({
       sort: {
-        sortString: `${sortKey}-${direction}` as SorteringTiltakstyper,
+        sortString: `${sortKey}-${direction}`,
         tableSort: {
           orderBy: sortKey,
           direction,

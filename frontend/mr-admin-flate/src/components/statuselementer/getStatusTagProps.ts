@@ -1,5 +1,7 @@
-import { AvtaleStatusDto, GjennomforingStatusDto, TiltakstypeStatus } from "@mr/api-client-v2";
+import { AvtaleStatusDto, GjennomforingStatusDto } from "@mr/api-client-v2";
+import { TiltakstypeStatus } from "@tiltaksadministrasjon/api-client";
 
+// TODO: flytt mappinglogikk til BE
 export function getTiltakstypeStatusTagProps(status: TiltakstypeStatus): {
   variant: "success" | "neutral";
   name: string;

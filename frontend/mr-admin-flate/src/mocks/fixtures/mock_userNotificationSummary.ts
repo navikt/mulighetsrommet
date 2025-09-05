@@ -1,4 +1,4 @@
-import { UserNotificationSummary } from "@mr/api-client-v2";
+import { UserNotificationSummary } from "@tiltaksadministrasjon/api-client";
 
 export const mockUserNotificationSummary: UserNotificationSummary = {
   readCount: 27,

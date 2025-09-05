@@ -1,4 +1,4 @@
-import { NotificationStatus } from "@mr/api-client-v2";
+import { NotificationStatus } from "@tiltaksadministrasjon/api-client";
 import { Button } from "@navikt/ds-react";
 import { Dispatch, SetStateAction } from "react";
 import { useMutateNotifications } from "@/api/notifikasjoner/useNotifications";

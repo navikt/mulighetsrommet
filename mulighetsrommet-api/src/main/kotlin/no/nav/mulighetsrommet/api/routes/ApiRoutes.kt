@@ -79,14 +79,6 @@ fun Route.apiRoutes() {
 
         route("/v1/intern") {
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-                route("openapi.yaml") {
-                    openApi(OpenApiSpec.TILTAKSADMINISTRASJON.specName)
-                }
-
-                featureTogglesRoute()
-                lagretFilterRoutes()
-                navEnhetRoutes()
-
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
                     adminflateRoutes()
                 }
@@ -96,25 +88,24 @@ fun Route.apiRoutes() {
 }
 
 fun Route.tiltaksadministrasjonRoutes() {
+    tiltakstypeRoutes()
     tilsagnRoutes()
     utbetalingRoutes()
     oppgaverRoutes()
     featureTogglesRoute()
     lagretFilterRoutes()
     navEnhetRoutes()
+    navAnsattRoutes()
+    janzzRoutes()
+    utdanningRoutes()
+    notificationRoutes()
 }
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes
 fun Route.adminflateRoutes() {
-    tiltakstypeRoutes()
     gjennomforingRoutes()
     avtaleRoutes()
-    navAnsattRoutes()
     arrangorRoutes()
-    notificationRoutes()
-    janzzRoutes()
-    utdanningRoutes()
-    oppgaverRoutes()
 }
 
 fun Route.veilederflateRoutes() {

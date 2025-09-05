@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.notifications
 
+import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -8,6 +10,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDateTime
@@ -17,7 +20,25 @@ fun Route.notificationRoutes() {
     val db: ApiDatabase by inject()
 
     route("notifications") {
-        get {
+        get({
+            tags = setOf("Notification")
+            operationId = "getNotifications"
+            request {
+                queryParameter<NotificationStatus>("status") {
+                    required = false
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Liste over brukernotifikasjoner"
+                    body<PaginatedResponse<UserNotification>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val userId = getNavIdent()
             val filter = getNotificationFilter()
 
@@ -28,7 +49,20 @@ fun Route.notificationRoutes() {
             call.respond(PaginatedResponse.of(notifications))
         }
 
-        get("summary") {
+        get("summary", {
+            tags = setOf("Notification")
+            operationId = "getNotificationSummary"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Aggregert informasjon om notifikasjoner"
+                    body<UserNotificationSummary>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val userId = getNavIdent()
 
             val summary = db.session {
@@ -38,7 +72,22 @@ fun Route.notificationRoutes() {
             call.respond(summary)
         }
 
-        post("status") {
+        post("status", {
+            tags = setOf("Notification")
+            operationId = "setNotificationStatus"
+            request {
+                body<SetNotificationStatusRequest>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Status på notifikasjoner ble oppdatert"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val userId = getNavIdent()
             val (notifikasjoner) = call.receive<SetNotificationStatusRequest>()
 

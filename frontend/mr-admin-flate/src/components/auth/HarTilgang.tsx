@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { NavAnsatt, Rolle } from "@mr/api-client-v2";
+import { NavAnsattDto, Rolle } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   children: ReactNode;
@@ -18,6 +18,6 @@ export function HarTilgang({ rolle, children, condition }: Props) {
   }
 }
 
-function harRolle(ansatt: NavAnsatt, rolle: Rolle) {
+function harRolle(ansatt: NavAnsattDto, rolle: Rolle) {
   return ansatt.roller.some((dto) => dto.rolle === rolle);
 }

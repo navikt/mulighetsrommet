@@ -1,10 +1,10 @@
-import { PaginertUserNotifications } from "@mr/api-client-v2";
+import { PaginatedResponseUserNotification } from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "./mock_avtaler";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
 const mockAvtale = mockAvtaler.at(0);
 
-export const mockNotifikasjoner: PaginertUserNotifications = {
+export const mockNotifikasjoner: PaginatedResponseUserNotification = {
   pagination: {
     totalCount: 2,
     pageSize: 50,
@@ -31,6 +31,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
       user: "B123456",
       createdAt: "2023-01-26T13:51:50.417-07:00",
       readAt: "2023-01-26T13:51:50.417-07:00",
+      metadata: null,
     },
   ],
 };

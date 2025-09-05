@@ -6,10 +6,11 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { FieldError, Rolle, ValidationError } from "@mr/api-client-v2";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
   DelutbetalingRequest,
   OpprettDelutbetalingerRequest,
+  Rolle,
   TilsagnDto,
   TilsagnStatus,
   UtbetalingDto,

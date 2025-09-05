@@ -5,8 +5,8 @@ import {
   GjennomforingStatus,
   NavEnhetDto,
   NavEnhetType,
-  TiltakstypeDto,
 } from "@mr/api-client-v2";
+import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {

@@ -1,4 +1,4 @@
-import { UserNotification } from "@mr/api-client-v2";
+import { UserNotification } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
   BodyLong,
