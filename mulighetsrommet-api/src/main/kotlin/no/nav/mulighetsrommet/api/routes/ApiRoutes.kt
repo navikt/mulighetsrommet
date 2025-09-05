@@ -99,6 +99,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     tilsagnRoutes()
     utbetalingRoutes()
     oppgaverRoutes()
+    lagretFilterRoutes()
 }
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes
