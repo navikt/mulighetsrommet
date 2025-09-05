@@ -159,6 +159,13 @@ module "mr_api_datastream" {
       view = {
         dataset_id = local.grafana_dataset_id
         project_id = var.gcp_project["project"]
+        table_id   = "tilsagn_view"
+      }
+    },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
         table_id   = "tilsagn_type_antall_view"
       }
     },
