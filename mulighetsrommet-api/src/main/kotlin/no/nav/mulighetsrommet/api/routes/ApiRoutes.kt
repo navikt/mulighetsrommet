@@ -98,6 +98,7 @@ fun Route.apiRoutes() {
 fun Route.tiltaksadministrasjonRoutes() {
     tilsagnRoutes()
     utbetalingRoutes()
+    oppgaverRoutes()
 }
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes
@@ -109,10 +110,8 @@ fun Route.adminflateRoutes() {
     arrangorRoutes()
     notificationRoutes()
     janzzRoutes()
-    tilsagnRoutes()
     utdanningRoutes()
     oppgaverRoutes()
-    utbetalingRoutes()
 }
 
 fun Route.veilederflateRoutes() {

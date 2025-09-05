@@ -1,4 +1,9 @@
-import { type Oppgave, OppgaveEnhet, OppgaveIconType, OppgaveType } from "@mr/api-client-v2";
+import {
+  type Oppgave,
+  OppgaveEnhet,
+  OppgaveIconType,
+  OppgaveType,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
@@ -35,7 +40,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
           label={oppgave.navn}
           icon={<OppgaveIcon type={iconType} />}
         />
-        <OppgaveEnhetTag enhet={oppgave.enhet} />
+        {oppgave.enhet && <OppgaveEnhetTag enhet={oppgave.enhet} />}
         <Spacer />
         <BodyShort textColor="subtle" size="small">
           Opprettet {formaterDato(createdAt)}
@@ -94,13 +99,10 @@ function OppgaveStatus({ type, label, icon }: OppgaveStatusProps) {
 }
 
 interface OppgaveEnhetTagProps {
-  enhet?: OppgaveEnhet;
+  enhet: OppgaveEnhet;
 }
 
 function OppgaveEnhetTag({ enhet }: OppgaveEnhetTagProps) {
-  if (!enhet) {
-    return null;
-  }
   return (
     <Tag size="small" variant="neutral-moderate">
       {enhet.navn}

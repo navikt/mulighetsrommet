@@ -1,7 +1,8 @@
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
 import { EmptyState } from "@/components/notifikasjoner/EmptyState";
 import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { GetOppgaverResponse, LagretFilterType } from "@mr/api-client-v2";
+import { LagretFilterType } from "@mr/api-client-v2";
+import { GetOppgaverResponse } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,

@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { OppgaverService } from "@mr/api-client-v2";
+import { OppgaverService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useGetOppgavetyper() {

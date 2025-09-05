@@ -1,9 +1,9 @@
-import { HttpResponse, PathParams, http } from "msw";
-import { Oppgave } from "@mr/api-client-v2";
+import { http, HttpResponse, PathParams } from "msw";
+import { Oppgave } from "@tiltaksadministrasjon/api-client";
 import { mockOppgaver } from "../fixtures/mock_oppgaver";
 
 export const oppgaverHandlers = [
-  http.post<PathParams, Oppgave[]>("*/api/v1/intern/oppgaver", () =>
+  http.post<PathParams, Oppgave[]>("*/api/tiltaksadministrasjon/oppgaver", () =>
     HttpResponse.json(mockOppgaver),
   ),
 ];
