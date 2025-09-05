@@ -853,62 +853,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/tiltakstyper:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstyper
-      parameters:
-        - in: query
-          name: sort
-          schema:
-            $ref: "#/components/schemas/SorteringTiltakstyper"
-      responses:
-        200:
-          description: Object of paginerte tiltakstyper.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakstypeDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tiltakstyper/{id}:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstypeById
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: the specified tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TiltakstypeDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/tiltakstyper/{id}/faneinnhold:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstypeFaneinnhold
-      parameters:
-        - $ref: "#/components/parameters/ID"
-      responses:
-        200:
-          description: Faneinnhold for the specified tiltakstype
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/VeilederflateTiltakstype"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/ansatt:
     get:
       tags:
@@ -1501,65 +1445,6 @@ components:
           items:
             $ref: "#/components/schemas/Arrangor"
 
-    TiltakskodeArena:
-      type: string
-      enum:
-        - IPSUNG
-        - INKLUTILS
-        - HOYEREUTD
-        - ENKELAMO
-        - GRUFAGYRKE
-        - ARBTREN
-        - ARBFORB
-        - MIDLONTIL
-        - TILSJOBB
-        - ENKFAGYRKE
-        - INDJOBSTOT
-        - AVKLARAG
-        - DIGIOPPARB
-        - MENTOR
-        - INDOPPFAG
-        - GRUPPEAMO
-        - VASV
-        - ARBRRHDAG
-        - JOBBK
-        - VATIAROR
-        - VARLONTIL
-        - UTVAOONAV
-
-    TiltakstypeDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        innsatsgrupper:
-          type: array
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        arenaKode:
-          $ref: "#/components/schemas/TiltakskodeArena"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type: string
-          format: date
-        status:
-          $ref: "#/components/schemas/TiltakstypeStatus"
-        sanityId:
-          type: string
-      required:
-        - id
-        - navn
-        - arenaKode
-        - startDato
-        - status
-
     GjennomforingHandling:
       type: string
       enum:
@@ -1956,16 +1841,6 @@ components:
         - arrangor-ascending
         - arrangor-descending
 
-    SorteringTiltakstyper:
-      type: string
-      enum:
-        - navn-ascending
-        - navn-descending
-        - startdato-ascending
-        - startdato-descending
-        - sluttdato-ascending
-        - sluttdato-descending
-
     SorteringGjennomforinger:
       type: string
       enum:
@@ -2355,21 +2230,6 @@ components:
         - enhetsnummer
         - navn
 
-    Innsatsgruppe:
-      type: string
-      enum:
-        - GODE_MULIGHETER
-        - TRENGER_VEILEDNING
-        - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
-        - JOBBE_DELVIS
-        - LITEN_MULIGHET_TIL_A_JOBBE
-
-    TiltakstypeStatus:
-      type: string
-      enum:
-        - AKTIV
-        - AVSLUTTET
-
     ArenaNavEnhet:
       type: object
       properties:
@@ -2550,59 +2410,6 @@ components:
       required:
         - navIdent
         - navn
-
-    VeilederflateTiltakstype:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        sanityId:
-          type: string
-        navn:
-          type: string
-        beskrivelse:
-          type: string
-        innsatsgrupper:
-          type: array
-          uniqueItems: true
-          items:
-            $ref: "#/components/schemas/Innsatsgruppe"
-        regelverkLenker:
-          type: array
-          items:
-            $ref: "#/components/schemas/RegelverkLenke"
-        faneinnhold:
-          $ref: "#/components/schemas/Faneinnhold"
-        delingMedBruker:
-          type: string
-        arenakode:
-          $ref: "#/components/schemas/TiltakskodeArena"
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        kanKombineresMed:
-          type: array
-          items:
-            type: string
-      required:
-        - id
-        - sanityId
-        - navn
-        - kanKombineresMed
-
-    RegelverkLenke:
-      type: object
-      properties:
-        _id:
-          type: string
-        regelverkUrl:
-          type: string
-        regelverkLenkeNavn:
-          type: string
-      required:
-        - _id
-        - regelverkUrl
-        - regelverkLenkeNavn
 
     PortableTextTypedObject:
       type: object

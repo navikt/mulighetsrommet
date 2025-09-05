@@ -7,6 +7,97 @@ externalDocs:
 servers: []
 tags: []
 paths:
+  /api/tiltaksadministrasjon/tiltakstyper:
+    get:
+      tags:
+      - Tiltakstype
+      operationId: getTiltakstyper
+      parameters:
+      - name: sort
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Tiltakstyper i Tiltaksadministrasjon
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakstypeDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}:
+    get:
+      tags:
+      - Tiltakstype
+      operationId: getTiltakstype
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakstypeDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltakstyper/{id}/faneinnhold:
+    get:
+      tags:
+      - Tiltakstype
+      operationId: getTiltakstypeFaneinnhold
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Faneinnhold for tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VeilederflateTiltakstype"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tilsagn:
     get:
       tags:
@@ -1039,6 +1130,273 @@ paths:
       deprecated: false
 components:
   schemas:
+    TiltakstypeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        innsatsgrupper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
+          uniqueItems: true
+        arenaKode:
+          type: string
+        tiltakskode:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Tiltakskode"
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/TiltakstypeStatus"
+        sanityId:
+          type:
+          - "null"
+          - string
+          format: uuid
+      required:
+      - arenaKode
+      - id
+      - innsatsgrupper
+      - navn
+      - sanityId
+      - sluttDato
+      - startDato
+      - status
+      - tiltakskode
+    Innsatsgruppe:
+      type: string
+      enum:
+      - GODE_MULIGHETER
+      - TRENGER_VEILEDNING
+      - TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE
+      - JOBBE_DELVIS
+      - LITEN_MULIGHET_TIL_A_JOBBE
+    Tiltakskode:
+      type: string
+      enum:
+      - AVKLARING
+      - OPPFOLGING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - JOBBKLUBB
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ARBEIDSFORBEREDENDE_TRENING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - ARBEIDSRETTET_REHABILITERING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+    TiltakstypeStatus:
+      type: string
+      enum:
+      - AKTIV
+      - AVSLUTTET
+    ProblemDetail:
+      type: object
+      additionalProperties: {}
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+      required:
+      - detail
+      - status
+      - title
+      - type
+    RegelverkLenke:
+      type: object
+      properties:
+        _id:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        regelverkUrl:
+          type:
+          - "null"
+          - string
+        regelverkLenkeNavn:
+          type:
+          - "null"
+          - string
+      required:
+      - _id
+      - beskrivelse
+      - regelverkLenkeNavn
+      - regelverkUrl
+    Faneinnhold:
+      type: object
+      properties:
+        forHvem:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        forHvemInfoboks:
+          type:
+          - "null"
+          - string
+        detaljerOgInnhold:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        detaljerOgInnholdInfoboks:
+          type:
+          - "null"
+          - string
+        pameldingOgVarighet:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        pameldingOgVarighetInfoboks:
+          type:
+          - "null"
+          - string
+        kontaktinfo:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        kontaktinfoInfoboks:
+          type:
+          - "null"
+          - string
+        oppskrift:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        lenker:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/FaneinnholdLenke"
+        delMedBruker:
+          type:
+          - "null"
+          - string
+      required:
+      - delMedBruker
+      - detaljerOgInnhold
+      - detaljerOgInnholdInfoboks
+      - forHvem
+      - forHvemInfoboks
+      - kontaktinfo
+      - kontaktinfoInfoboks
+      - lenker
+      - oppskrift
+      - pameldingOgVarighet
+      - pameldingOgVarighetInfoboks
+    PortableTextTypedObject:
+      type: object
+      additionalProperties: {}
+      properties:
+        _type:
+          type: string
+        _key:
+          type: string
+      required:
+      - _type
+    FaneinnholdLenke:
+      type: object
+      properties:
+        lenkenavn:
+          type: string
+        lenke:
+          type: string
+        apneINyFane:
+          type: boolean
+        visKunForVeileder:
+          type: boolean
+      required:
+      - apneINyFane
+      - lenke
+      - lenkenavn
+      - visKunForVeileder
+    VeilederflateTiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sanityId:
+          type: string
+        navn:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        innsatsgrupper:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
+        regelverkLenker:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/RegelverkLenke"
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        delingMedBruker:
+          type:
+          - "null"
+          - string
+        arenakode:
+          type:
+          - "null"
+          - string
+        tiltakskode:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Tiltakskode"
+        kanKombineresMed:
+          type: array
+          items:
+            type: string
+      required:
+      - arenakode
+      - beskrivelse
+      - delingMedBruker
+      - faneinnhold
+      - id
+      - innsatsgrupper
+      - kanKombineresMed
+      - navn
+      - regelverkLenker
+      - sanityId
+      - tiltakskode
     TilsagnStatus:
       type: string
       enum:
@@ -1178,25 +1536,6 @@ components:
       required:
       - columns
       - rows
-    ProblemDetail:
-      type: object
-      additionalProperties: {}
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          type: integer
-        detail:
-          type: string
-        instance:
-          type: string
-      required:
-      - detail
-      - status
-      - title
-      - type
     TilsagnDto:
       type: object
       properties:
@@ -2177,18 +2516,6 @@ components:
       - UTBETALING_RETURNERT
       - AVTALE_MANGLER_ADMINISTRATOR
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
-    Tiltakskode:
-      type: string
-      enum:
-      - AVKLARING
-      - OPPFOLGING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - JOBBKLUBB
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ARBEIDSFORBEREDENDE_TRENING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - ARBEIDSRETTET_REHABILITERING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     OppgaverFilter:
       type: object
       properties:

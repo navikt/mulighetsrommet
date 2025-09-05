@@ -96,6 +96,7 @@ fun Route.apiRoutes() {
 }
 
 fun Route.tiltaksadministrasjonRoutes() {
+    tiltakstypeRoutes()
     tilsagnRoutes()
     utbetalingRoutes()
     oppgaverRoutes()
