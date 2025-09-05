@@ -100,6 +100,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     utbetalingRoutes()
     oppgaverRoutes()
     lagretFilterRoutes()
+    navEnhetRoutes()
 }
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes

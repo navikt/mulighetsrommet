@@ -1,5 +1,5 @@
 import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
-import { NavEnhetDto } from "@mr/api-client-v2";
+import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 import { NavEnhetFilter } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";

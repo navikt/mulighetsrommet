@@ -1,4 +1,4 @@
-import { NavEnhetDto } from "@mr/api-client-v2";
+import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";

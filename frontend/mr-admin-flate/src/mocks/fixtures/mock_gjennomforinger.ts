@@ -1,11 +1,11 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
-  GjennomforingArrangorUnderenhet,
   AvbrytGjennomforingAarsak,
   Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
+  GjennomforingArrangorUnderenhet,
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingStatus,

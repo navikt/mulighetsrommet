@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { NavEnhetDto, NavRegionDto } from "@mr/api-client-v2";
+import { NavEnhetDto, NavRegionDto } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter, mockRegioner } from "../fixtures/mock_enheter";
 
 export const enhetHandlers = [

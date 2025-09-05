@@ -744,6 +744,128 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/nav-enheter:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getEnheter
+      parameters:
+      - name: statuser
+        in: query
+        description: Filtrer på status
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavEnhetStatus"
+      responses:
+        "200":
+          description: Alle Nav-enheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavEnhetDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/nav-enheter/regioner:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getRegioner
+      parameters: []
+      responses:
+        "200":
+          description: Alle Nav-enheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavRegionDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/nav-enheter/kostnadssted:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getKostnadssted
+      parameters:
+      - name: regioner
+        in: query
+        description: Hvilke regioner man henter for
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Alle kostnadssteder basert på filter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavEnhetDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/nav-enheter/{enhetsnummer}/overordnet:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getOverordnetEnhet
+      parameters:
+      - name: enhetsnummer
+        in: path
+        description: Enhetsnummer for Nav-enhet
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Overordnet Nav-enhet for gitt enhetsnummer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavEnhetDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
 components:
   schemas:
     TilsagnStatus:
@@ -2039,5 +2161,63 @@ components:
       - navn
       - sortOrder
       - type
+    NavEnhetStatus:
+      type: string
+      enum:
+      - UNDER_ETABLERING
+      - AKTIV
+      - UNDER_AVVIKLING
+      - NEDLAGT
+    NavEnhetDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        enhetsnummer:
+          type: string
+        type:
+          $ref: "#/components/schemas/NavEnhetType"
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+      required:
+      - enhetsnummer
+      - navn
+      - overordnetEnhet
+      - type
+    NavEnhetType:
+      type: string
+      enum:
+      - KO
+      - FYLKE
+      - TILTAK
+      - AAREG
+      - ALS
+      - ARK
+      - DIR
+      - DOKSENTER
+      - EKSTERN
+      - FORVALTNING
+      - FPY
+      - HELFO
+      - HMS
+      - INNKREV
+      - INTRO
+      - IT
+      - KLAGE
+      - KONTAKT
+      - KONTROLL
+      - LOKAL
+      - OKONOMI
+      - OTENESTE
+      - OPPFUTLAND
+      - OTENESE
+      - RIKSREV
+      - ROBOT
+      - ROL
+      - TILLIT
+      - UTLAND
+      - YTA
   examples: {}
 webhooks: {}

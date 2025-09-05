@@ -1,6 +1,6 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { NavEnheterService } from "@mr/api-client-v2";
+import { NavEnheterService } from "@tiltaksadministrasjon/api-client";
 
 export function useNavRegioner() {
   return useApiSuspenseQuery({
