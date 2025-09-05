@@ -176,6 +176,7 @@ object UtbetalingValidator {
 
     fun validateOpprettKravOmUtbetaling(
         request: OpprettKravOmUtbetalingRequest,
+        kontonummer: Kontonummer,
     ): Either<List<FieldError>, OpprettUtbetaling> {
         val errors = buildList {
             val start = try {
@@ -218,14 +219,6 @@ object UtbetalingValidator {
                 add(FieldError.of(OpprettKravOmUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
             }
 
-            if (Kontonummer.parse(request.kontonummer) == null) {
-                add(
-                    FieldError.of(
-                        OpprettKravOmUtbetalingRequest::kontonummer,
-                        "Ugyldig kontonummer",
-                    ),
-                )
-            }
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
                     FieldError.of(
@@ -242,7 +235,7 @@ object UtbetalingValidator {
                 periodeStart = LocalDate.parse(request.periodeStart),
                 periodeSlutt = LocalDate.parse(request.periodeSlutt),
                 belop = request.belop,
-                kontonummer = Kontonummer(request.kontonummer),
+                kontonummer = kontonummer,
                 kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
                 tilskuddstype = request.tilskuddstype,
                 beskrivelse = "",

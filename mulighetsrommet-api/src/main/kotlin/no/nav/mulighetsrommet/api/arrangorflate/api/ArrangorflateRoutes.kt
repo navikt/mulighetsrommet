@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.flatMap
 import arrow.core.getOrElse
+import arrow.core.nel
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerR
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -248,15 +250,14 @@ fun Route.arrangorflateRoutes() {
             if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
                 return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
             }
-
-            UtbetalingValidator.validateOpprettKravOmUtbetaling(request)
+            arrangorFlateService.getKontonummer(orgnr)
+                .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
+                .flatMap { UtbetalingValidator.validateOpprettKravOmUtbetaling(request, it) }
                 .flatMap { utbetalingService.opprettUtbetaling(it, Arrangor) }
                 .onLeft { errors ->
                     call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                 }
-                .onRight { utbetaling ->
-                    call.respondText(utbetaling.id.toString())
-                }
+                .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
         }
 
         route("/tilsagn") {
@@ -512,12 +513,13 @@ fun Route.arrangorflateRoutes() {
 
             arrangorFlateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->
-                    val error = when (error) {
-                        KontonummerRegisterOrganisasjonError.UgyldigInput -> BadRequest("Ugyldig input")
-                        KontonummerRegisterOrganisasjonError.FantIkkeKontonummer -> NotFound("Organisasjon mangler kontonummer")
-                        KontonummerRegisterOrganisasjonError.Error -> InternalServerError("Klarte ikke hente kontonummer for organisasjon")
-                    }
-                    call.respondWithProblemDetail(error)
+                    call.respondWithProblemDetail(
+                        when (error) {
+                            KontonummerRegisterOrganisasjonError.UgyldigInput -> BadRequest("Ugyldig input")
+                            KontonummerRegisterOrganisasjonError.FantIkkeKontonummer -> NotFound("Organisasjon mangler kontonummer")
+                            KontonummerRegisterOrganisasjonError.Error -> InternalServerError("Klarte ikke hente kontonummer for organisasjon")
+                        },
+                    )
                 }
                 .onRight { kontonummer ->
                     call.respond(KontonummerResponse(kontonummer))
@@ -531,7 +533,6 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
     var tilsagnId: UUID? = null
     var periodeStart: String? = null
     var periodeSlutt: String? = null
-    var kontonummer: String? = null
     var kidNummer: String? = null
     var belop: Int? = null
     var tilskuddstype: Tilskuddstype? = null
@@ -544,7 +545,6 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
                 when (part.name) {
                     "gjennomforingId" -> gjennomforingId = UUID.fromString(part.value)
                     "tilsagnId" -> tilsagnId = UUID.fromString(part.value)
-                    "kontonummer" -> kontonummer = part.value
                     "kidNummer" -> kidNummer = part.value
                     "belop" -> belop = part.value.toInt()
                     "periodeStart" -> periodeStart = part.value
@@ -590,7 +590,6 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
-        kontonummer = requireNotNull(kontonummer) { "Mangler kontonummer" },
         kidNummer = kidNummer,
         belop = belop ?: 0,
         tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
@@ -646,7 +645,6 @@ data class OpprettKravOmUtbetalingRequest(
     val tilsagnId: UUID,
     val periodeStart: String,
     val periodeSlutt: String,
-    val kontonummer: String,
     val kidNummer: String? = null,
     val belop: Int,
     val vedlegg: List<Vedlegg>,
