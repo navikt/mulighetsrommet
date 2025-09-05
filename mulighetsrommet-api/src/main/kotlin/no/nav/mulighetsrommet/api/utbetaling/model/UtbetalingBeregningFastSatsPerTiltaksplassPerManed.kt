@@ -33,7 +33,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
 
             val manedsverk = input.deltakelser
                 .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateManedsverkForDeltakelsesprosent(
+                    UtbetalingBeregningHelpers.calculateDeltakelseManedsverkForDeltakelsesprosent(
                         deltakelse,
                         stengtHosArrangor,
                     )

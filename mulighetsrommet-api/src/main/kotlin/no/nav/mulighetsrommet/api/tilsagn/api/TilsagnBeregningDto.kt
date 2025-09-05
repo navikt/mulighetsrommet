@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.*
-import java.math.RoundingMode
 
 @Serializable
 data class TilsagnBeregningDto(
@@ -124,9 +123,7 @@ data class TilsagnBeregningDto(
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.number(
-                                UtbetalingBeregningHelpers.calculateUkesverk(beregning.input.periode)
-                                    .setScale(2, RoundingMode.HALF_UP)
-                                    .toDouble(),
+                                UtbetalingBeregningHelpers.calculateWeeksInPeriode(beregning.input.periode).toDouble(),
                             ),
                             DataElement.text("uker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
@@ -183,9 +180,7 @@ private fun getRegnestykkeManedsverk(
         DataElement.text("per tiltaksplass per måned"),
         DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
         DataElement.number(
-            UtbetalingBeregningHelpers.calculateManedsverk(periode)
-                .setScale(2, RoundingMode.HALF_UP)
-                .toDouble(),
+            UtbetalingBeregningHelpers.calculateMonthsInPeriode(periode).toDouble(),
         ),
         DataElement.text("måneder"),
         DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),

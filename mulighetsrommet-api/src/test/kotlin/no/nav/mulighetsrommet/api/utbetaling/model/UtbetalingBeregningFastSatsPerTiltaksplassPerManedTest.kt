@@ -221,9 +221,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
         }
 
         test("månedsverk blir beregnet med tilstrekkelig presisjon") {
-            val periodeStart = LocalDate.of(2025, 6, 1)
-            val periodeMidt = LocalDate.of(2025, 6, 16)
-            val periodeSlutt = LocalDate.of(2025, 7, 1)
+            val periodeStart = LocalDate.of(2026, 1, 1)
+            val periodeMidt = LocalDate.of(2026, 1, 16)
+            val periodeSlutt = LocalDate.of(2026, 2, 1)
 
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
@@ -254,8 +254,10 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 0.38333),
-                    DeltakelseManedsverk(deltakerId2, 0.11667),
+                    // 5 / 22 * 0.5 + 6 / 22 * 1
+                    DeltakelseManedsverk(deltakerId1, 0.38636),
+                    // 6 / 22 * 0.5
+                    DeltakelseManedsverk(deltakerId2, 0.11364),
                 ),
             )
         }
@@ -272,7 +274,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 DeltakelseDeltakelsesprosentPerioder(
                     deltakelseId = deltakerId1,
                     perioder = listOf(
-                        DeltakelsesprosentPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), 100.0),
+                        DeltakelsesprosentPeriode(Periode.forMonthOf(LocalDate.of(2023, 4, 1)), 100.0),
                     ),
                 ),
             )
@@ -289,21 +291,46 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             )
         }
 
-        test("rundes opp til slutt") {
-            // 5/31 * 20205 = 3258.87
-            UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(
-                UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
-                    20205,
-                    emptySet(),
-                    setOf(
-                        DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = UUID.randomUUID(),
-                            perioder = listOf(DeltakelsesprosentPeriode(Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, 6)), 100.0)),
-                        ),
+        test("beregnet beløp rundes av til nærmeste hele krone") {
+            val deltakelse1 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 12, 1), // Mandag 1. desember
+                LocalDate.of(2025, 12, 7), // Fredag 7. desember
+            )
+            val deltakelse2 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 12, 1), // Mandag 1. desember
+                LocalDate.of(2025, 12, 8), // Mandag 8. desember
+            )
+            val deltakelseId1 = UUID.randomUUID()
+            val deltakelseId2 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 12, 1)),
+                sats = 20205,
+                stengt = emptySet(),
+                deltakelser = setOf(
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakelseId1,
+                        perioder = listOf(DeltakelsesprosentPeriode(deltakelse1, 100.0)),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakelseId2,
+                        perioder = listOf(DeltakelsesprosentPeriode(deltakelse2, 100.0)),
                     ),
                 ),
-            ).output.belop shouldBe 3259
+            )
+
+            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+
+            beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                // Rundet ned fra 9663.26086...
+                belop = 9663,
+                deltakelser = setOf(
+                    // 5 / 23 * 20205 = 4392.39130...
+                    DeltakelseManedsverk(deltakelseId1, 0.21739),
+                    // 6 / 23 *  20205 = 5270.8695...
+                    DeltakelseManedsverk(deltakelseId2, 0.26087),
+                ),
+            )
         }
 
         test("utbetaling og tilsagn er likt for forskjellige perioder av en måned") {
@@ -312,7 +339,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
                 val utbetaling = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                        periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)),
+                        periode = Periode.forMonthOf(LocalDate.of(2023, 3, 1)),
                         20205,
                         emptySet(),
                         setOf(
@@ -339,7 +366,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
     }
 
     context("periode ulik én måned") {
-        test("to deltakere over 2 måneder") {
+        test("to deltakere over 2 måneder gir fire månedsverk") {
             val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))
             val deltakerId1 = UUID.randomUUID()
             val deltakerId2 = UUID.randomUUID()
@@ -367,6 +394,92 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     DeltakelseManedsverk(deltakerId1, 2.0),
                     DeltakelseManedsverk(deltakerId2, 2.0),
                 ),
+            )
+        }
+    }
+
+    context("beregning av månedsverk før 1. august 2025") {
+        test("helgedager før og etter en periode på fem hverdager påvirker beregnet beløp") {
+            val heleUke37 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 7, 7), // Mandag
+                LocalDate.of(2025, 7, 13), // Søndag
+            )
+
+            val hverdagerUke37 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 7, 7), // Mandag
+                LocalDate.of(2025, 7, 11), // Fredag
+            )
+
+            val helgFraUke36OgHeleUke37 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 7, 5), // Lørdag
+                LocalDate.of(2025, 7, 13), // Søndag
+            )
+
+            val deltakerId1 = UUID.randomUUID()
+            val deltakerId2 = UUID.randomUUID()
+            val deltakerId3 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningPrisPerManedsverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 7, 1)),
+                sats = 100,
+                stengt = setOf(),
+                deltakelser = setOf(
+                    DeltakelsePeriode(deltakerId1, heleUke37),
+                    DeltakelsePeriode(deltakerId2, hverdagerUke37),
+                    DeltakelsePeriode(deltakerId3, helgFraUke36OgHeleUke37),
+                ),
+            )
+
+            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+
+            // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
+            beregning.output.deltakelser shouldBe setOf(
+                DeltakelseManedsverk(deltakerId1, 0.22581),
+                DeltakelseManedsverk(deltakerId2, 0.16129),
+                DeltakelseManedsverk(deltakerId3, 0.29032),
+            )
+        }
+    }
+
+    context("beregning av månedsverk etter 1. august 2025") {
+        test("helgedager før og etter en periode på fem hverdager påvirker ikke beregnet beløp") {
+            val heleUke37 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 9, 8), // Mandag
+                LocalDate.of(2025, 9, 14), // Søndag
+            )
+
+            val hverdagerUke37 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 9, 8), // Mandag
+                LocalDate.of(2025, 9, 12), // Fredag
+            )
+
+            val helgFraUke36OgHeleUke37 = Periode.fromInclusiveDates(
+                LocalDate.of(2025, 9, 6), // Lørdag
+                LocalDate.of(2025, 9, 14), // Søndag
+            )
+
+            val deltakerId1 = UUID.randomUUID()
+            val deltakerId2 = UUID.randomUUID()
+            val deltakerId3 = UUID.randomUUID()
+
+            val input = UtbetalingBeregningPrisPerManedsverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 9, 1)),
+                sats = 100,
+                stengt = setOf(),
+                deltakelser = setOf(
+                    DeltakelsePeriode(deltakerId1, heleUke37),
+                    DeltakelsePeriode(deltakerId2, hverdagerUke37),
+                    DeltakelsePeriode(deltakerId3, helgFraUke36OgHeleUke37),
+                ),
+            )
+
+            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+
+            // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
+            beregning.output.deltakelser shouldBe setOf(
+                DeltakelseManedsverk(deltakerId1, 0.22727),
+                DeltakelseManedsverk(deltakerId2, 0.22727),
+                DeltakelseManedsverk(deltakerId3, 0.22727),
             )
         }
     }

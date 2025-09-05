@@ -32,7 +32,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker {
-            val belop = UtbetalingBeregningHelpers.calculateManedsverk(input.periode)
+            val belop = UtbetalingBeregningHelpers.calculateMonthsInPeriode(input.periode)
                 .multiply(BigDecimal(input.sats))
                 .multiply(BigDecimal(input.antallPlasser))
                 .multiply(BigDecimal(input.antallTimerOppfolgingPerDeltaker))
