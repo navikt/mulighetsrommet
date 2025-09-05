@@ -998,87 +998,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/nav-enheter:
-    get:
-      tags:
-        - NavEnheter
-      operationId: getEnheter
-      responses:
-        200:
-          description: Alle enheter filterert på filter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhetDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/nav-enheter/regioner:
-    get:
-      tags:
-        - NavEnheter
-      operationId: getRegioner
-      responses:
-        200:
-          description: Liste over regioner med underenheter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavRegionDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/nav-enheter/kostnadssted:
-    get:
-      tags:
-        - NavEnheter
-      operationId: getKostnadssted
-      parameters:
-        - in: query
-          name: regioner
-          schema:
-            type: array
-            items:
-              type: string
-          description: Hvilke regioner man henter for
-      responses:
-        200:
-          description: Alle kostnadssteder filterert på filter
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NavEnhetDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/nav-enheter/{enhetsnummer}/overordnet:
-    parameters:
-      - in: "path"
-        name: enhetsnummer
-        required: true
-        description: "Enhetsnummer for Nav-enhet"
-        schema:
-          type: string
-    get:
-      tags:
-        - NavEnheter
-      operationId: getOverordnetEnhet
-      responses:
-        200:
-          description: Overordnet enhet for enhetsnummer
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NavEnhetDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/arrangorer:
     get:
       tags:
@@ -1396,35 +1315,6 @@ paths:
             text/plain:
               schema:
                 type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/features:
-    parameters:
-      - in: query
-        name: feature
-        description: Navn på feature toggle
-        required: true
-        schema:
-          $ref: "#/components/schemas/Toggles"
-
-      - in: query
-        name: tiltakskoder
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Tiltakskode"
-    get:
-      tags:
-        - FeatureToggle
-      operationId: getFeatureToggle
-      responses:
-        200:
-          description: Hent verdi for feature toggle
-          content:
-            application/json:
-              schema:
-                type: boolean
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -2612,39 +2502,6 @@ components:
         - enhetsnummer
         - type
 
-    NavRegionDto:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-        enheter:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionUnderenhetDto"
-      required:
-        - navn
-        - enhetsnummer
-        - enheter
-
-    NavRegionUnderenhetDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        enhetsnummer:
-          type: string
-        overordnetEnhet:
-          type: string
-        erStandardvalg:
-          type: boolean
-      required:
-        - navn
-        - enhetsnummer
-        - overordnetEnhet
-        - erStandardvalg
-
     AvtaleArrangorHovedenhet:
       type: object
       properties:
@@ -2926,12 +2783,36 @@ components:
     NavEnhetType:
       type: string
       enum:
-        - LOKAL
+        - KO
         - FYLKE
         - TILTAK
+        - AAREG
         - ALS
-        - KO
         - ARK
+        - DIR
+        - DOKSENTER
+        - EKSTERN
+        - FORVALTNING
+        - FPY
+        - HELFO
+        - HMS
+        - INNKREV
+        - INTRO
+        - IT
+        - KLAGE
+        - KONTAKT
+        - KONTROLL
+        - LOKAL
+        - OKONOMI
+        - OTENESTE
+        - OPPFUTLAND
+        - OTENESE
+        - RIKSREV
+        - ROBOT
+        - ROL
+        - TILLIT
+        - UTLAND
+        - YTA
 
     BrregVirksomhet:
       type: object
@@ -3166,13 +3047,6 @@ components:
       required:
         - navIdent
         - navn
-
-    Toggles:
-      type: string
-      enum:
-        - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
-        - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
-        - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
 
     PublisertRequest:
       type: object

@@ -6,7 +6,7 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { GjennomforingOppstartstype, GjennomforingStatus, Toggles } from "@mr/api-client-v2";
+import { GjennomforingOppstartstype, GjennomforingStatus } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
@@ -16,6 +16,7 @@ import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/Gj
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 function getCurrentTab(pathname: string) {
   if (pathname.includes("tilsagn")) {
@@ -39,12 +40,12 @@ export function GjennomforingPage() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
 
   const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     [gjennomforing.tiltakstype.tiltakskode],
   );
 
   const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
+    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
     [gjennomforing.tiltakstype.tiltakskode],
   );
 

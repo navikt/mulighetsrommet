@@ -1,5 +1,5 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { GjennomforingHandling, Toggles } from "@mr/api-client-v2";
+import { GjennomforingHandling } from "@mr/api-client-v2";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import {
@@ -10,6 +10,7 @@ import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLo
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -17,7 +18,7 @@ export function UtbetalingerForGjennomforingContainer() {
   const { data: handlinger } = useGjennomforingHandlinger(gjennomforingId);
   const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
   const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
+    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
     [gjennomforing.tiltakstype.tiltakskode],
   );
 
