@@ -1,6 +1,7 @@
-import { GjennomforingKontaktperson, NavAnsatt, Rolle } from "@mr/api-client-v2";
+import { GjennomforingKontaktperson } from "@mr/api-client-v2";
+import { NavAnsattDto, Rolle } from "@tiltaksadministrasjon/api-client";
 
-const bertil: NavAnsatt = {
+const bertil: NavAnsattDto = {
   entraObjectId: "0bab029e-e84e-4842-8a27-d153b29782cf",
   navIdent: "B123456",
   fornavn: "Bertil",
@@ -17,10 +18,9 @@ const bertil: NavAnsatt = {
     { rolle: Rolle.ATTESTANT_UTBETALING, navn: "Attestant - Utbetaling" },
     { rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" },
   ],
-  skalSlettesDato: null,
 };
 
-const pelle: NavAnsatt = {
+const pelle: NavAnsattDto = {
   entraObjectId: "db0d3a34-1071-42f5-aeec-38d37055271d",
   fornavn: "Pelle",
   etternavn: "Pilotbruker",
@@ -32,10 +32,9 @@ const pelle: NavAnsatt = {
   mobilnummer: null,
   epost: "pelle.pilotbruker@nav.no",
   roller: [{ rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" }],
-  skalSlettesDato: null,
 };
 
-const perRichard: NavAnsatt = {
+const perRichard: NavAnsattDto = {
   entraObjectId: "uu3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "per.richard.olsen@nav.no",
   mobilnummer: "90567894",
@@ -47,10 +46,9 @@ const perRichard: NavAnsatt = {
     navn: "IT Drift",
   },
   roller: [{ rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" }],
-  skalSlettesDato: null,
 };
 
-const nikoline: NavAnsatt = {
+const nikoline: NavAnsattDto = {
   entraObjectId: "zz3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "nikoline.madsen@nav.no",
   mobilnummer: "90764321",
@@ -62,10 +60,9 @@ const nikoline: NavAnsatt = {
     navn: "IT Drift",
   },
   roller: [{ rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" }],
-  skalSlettesDato: null,
 };
 
-const petrus: NavAnsatt = {
+const petrus: NavAnsattDto = {
   entraObjectId: "ab3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "petrus.pilsen@nav.no",
   mobilnummer: "78654323",
@@ -77,7 +74,6 @@ const petrus: NavAnsatt = {
     navn: "IT Drift",
   },
   roller: [{ rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" }],
-  skalSlettesDato: null,
 };
 
 export const petrusKontaktperson: GjennomforingKontaktperson = {
@@ -96,6 +92,6 @@ export const nikolineKontaktperson: GjennomforingKontaktperson = {
   beskrivelse: null,
 };
 
-export const mockRedaktor: NavAnsatt = bertil;
+export const mockRedaktor: NavAnsattDto = bertil;
 
-export const mockKontaktpersoner: NavAnsatt[] = [bertil, pelle, perRichard, nikoline, petrus];
+export const mockKontaktpersoner: NavAnsattDto[] = [bertil, pelle, perRichard, nikoline, petrus];

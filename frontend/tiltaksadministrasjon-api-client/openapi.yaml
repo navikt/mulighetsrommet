@@ -995,6 +995,92 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/ansatt:
+    get:
+      tags:
+      - Ansatt
+      operationId: getAnsatte
+      parameters:
+      - name: roller
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Rolle"
+      responses:
+        "200":
+          description: Nav-ansatte
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavAnsattDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/ansatt/sok:
+    get:
+      tags:
+      - Ansatt
+      operationId: sokAnsatte
+      parameters:
+      - name: q
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Nav-ansatte som matcher søket
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavAnsattDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/ansatt/me:
+    get:
+      tags:
+      - Ansatt
+      operationId: me
+      parameters: []
+      responses:
+        "200":
+          description: Innlogget bruker
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NavAnsattDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/janzz/sertifiseringer/sok:
     get:
       tags:
@@ -2723,6 +2809,71 @@ components:
       - TILLIT
       - UTLAND
       - YTA
+    Rolle:
+      type: string
+      enum:
+      - TEAM_MULIGHETSROMMET
+      - TILTAKADMINISTRASJON_GENERELL
+      - TILTAKSGJENNOMFORINGER_SKRIV
+      - AVTALER_SKRIV
+      - SAKSBEHANDLER_OKONOMI
+      - OKONOMI_LES
+      - BESLUTTER_TILSAGN
+      - ATTESTANT_UTBETALING
+      - KONTAKTPERSON
+    NavAnsattDto:
+      type: object
+      properties:
+        entraObjectId:
+          type: string
+          format: uuid
+        navIdent:
+          type: string
+        fornavn:
+          type: string
+        etternavn:
+          type: string
+        hovedenhet:
+          $ref: "#/components/schemas/NavAnsattDto.Hovedenhet"
+        mobilnummer:
+          type:
+          - "null"
+          - string
+        epost:
+          type: string
+        roller:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavAnsattRolleDto"
+      required:
+      - entraObjectId
+      - epost
+      - etternavn
+      - fornavn
+      - hovedenhet
+      - mobilnummer
+      - navIdent
+      - roller
+    NavAnsattDto.Hovedenhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    NavAnsattRolleDto:
+      type: object
+      properties:
+        rolle:
+          $ref: "#/components/schemas/Rolle"
+        navn:
+          type: string
+      required:
+      - navn
+      - rolle
     AmoKategorisering.BransjeOgYrkesrettet.Sertifisering:
       type: object
       properties:
