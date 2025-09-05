@@ -99,6 +99,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     tilsagnRoutes()
     utbetalingRoutes()
     oppgaverRoutes()
+    featureTogglesRoute()
     lagretFilterRoutes()
     navEnhetRoutes()
 }

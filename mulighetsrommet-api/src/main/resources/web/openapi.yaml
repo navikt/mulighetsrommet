@@ -1318,35 +1318,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/features:
-    parameters:
-      - in: query
-        name: feature
-        description: Navn på feature toggle
-        required: true
-        schema:
-          $ref: "#/components/schemas/Toggles"
-
-      - in: query
-        name: tiltakskoder
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/Tiltakskode"
-    get:
-      tags:
-        - FeatureToggle
-      operationId: getFeatureToggle
-      responses:
-        200:
-          description: Hent verdi for feature toggle
-          content:
-            application/json:
-              schema:
-                type: boolean
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/personopplysninger:
     get:
       tags:
@@ -3076,13 +3047,6 @@ components:
       required:
         - navIdent
         - navn
-
-    Toggles:
-      type: string
-      enum:
-        - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
-        - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
-        - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
 
     PublisertRequest:
       type: object

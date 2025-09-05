@@ -13,9 +13,9 @@ import {
   FieldError,
   Opphav,
   Rolle,
-  Toggles,
   ValidationError,
 } from "@mr/api-client-v2";
+import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
@@ -43,7 +43,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const avbrytMutation = useAvbrytAvtale();
 
   const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     [avtale.tiltakstype.tiltakskode],
   );
 

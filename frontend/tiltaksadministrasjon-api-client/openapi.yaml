@@ -663,6 +663,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/features:
+    get:
+      tags:
+      - FeatureToggle
+      operationId: getFeatureToggle
+      parameters:
+      - name: feature
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/FeatureToggle"
+      - name: tiltakskoder
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Om feature er på eller ikke
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: boolean
+        default:
+          description: En feil har oppstått
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/lagret-filter:
     post:
       tags:
@@ -2127,6 +2165,12 @@ components:
       required:
       - navn
       - type
+    FeatureToggle:
+      type: string
+      enum:
+      - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
+      - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
+      - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
     LagretFilterType:
       type: string
       enum:
