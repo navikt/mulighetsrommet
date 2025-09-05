@@ -307,11 +307,13 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
           )}
         </SkjemaKolonne>
       </TwoColumnGrid>
-      <EndreDatoAdvarselModal
-        modalRef={endreSluttDatoModalRef}
-        onCancel={() => setValue("startOgSluttDato.sluttDato", gjennomforing!.sluttDato)}
-        antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
-      />
+      {gjennomforing && (
+        <EndreDatoAdvarselModal
+          modalRef={endreSluttDatoModalRef}
+          onCancel={() => setValue("startOgSluttDato.sluttDato", gjennomforing.sluttDato)}
+          antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
+        />
+      )}
     </>
   );
 }

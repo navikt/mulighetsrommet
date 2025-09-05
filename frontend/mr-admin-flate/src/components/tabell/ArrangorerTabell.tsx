@@ -67,7 +67,7 @@ export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen 
         {arrangorer.length === 0 ? (
           <Alert variant="info">Ingen arrangører funnet</Alert>
         ) : (
-          <Table sort={sort!} onSortChange={(sortKey) => handleSort(sortKey!)}>
+          <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
             <Table.Header
               style={{
                 top: `calc(${tagsHeight}px + 7.4rem)`,

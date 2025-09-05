@@ -97,11 +97,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       });
   }
 
-  async loadStyles(
-    shadowRoot: ShadowRoot,
-    baseUrl: string,
-    assetManifest: string,
-  ): Promise<void[]> {
+  async loadStyles(shadowRoot: ShadowRoot, baseUrl: string, assetManifest: string): Promise<void> {
     const manifest: ViteAssetManifest = JSON.parse(assetManifest);
 
     const loadedCss = manifest["index.html"].css.map((css) => {
@@ -114,7 +110,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       });
     });
 
-    return await Promise.all(loadedCss);
+    await Promise.all(loadedCss);
   }
 
   renderApp(fnr?: string, enhet?: string) {

@@ -30,7 +30,7 @@ export const mockAvtaler: AvtaleDto[] = [
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -98,7 +98,7 @@ export const mockAvtaler: AvtaleDto[] = [
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -162,7 +162,7 @@ export const mockAvtaler: AvtaleDto[] = [
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -215,7 +215,7 @@ export const mockAvtaler: AvtaleDto[] = [
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -273,7 +273,7 @@ for (let i = 0; i < x; i++) {
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,

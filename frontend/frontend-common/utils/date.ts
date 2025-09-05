@@ -1,12 +1,26 @@
-import { compareAsc, isAfter, isBefore, isDate, isValid, lightFormat, parse, parseISO, ParseISOOptions, sub, Duration, max, add } from "date-fns"
-import { tz } from "@date-fns/tz"
-import { utc, UTCDate } from "@date-fns/utc"
+import {
+  compareAsc,
+  isAfter,
+  isBefore,
+  isDate,
+  isValid,
+  lightFormat,
+  parse,
+  parseISO,
+  ParseISOOptions,
+  sub,
+  Duration,
+  max,
+  add,
+} from "date-fns";
+import { tz } from "@date-fns/tz";
+import { utc, UTCDate } from "@date-fns/utc";
 
-const NORSK_TID = tz("Europe/Oslo")
-const norwegianParseContext = { in: NORSK_TID }
-const utcParseContext: ParseISOOptions<UTCDate> = { in: utc }
+const NORSK_TID = tz("Europe/Oslo");
+const norwegianParseContext = { in: NORSK_TID };
+const utcParseContext: ParseISOOptions<UTCDate> = { in: utc };
 
-type UnparsedDate = string | Date | undefined | null
+type UnparsedDate = string | Date | undefined | null;
 
 /**
  * Format: "yyyy-MM-dd" hhvis gyldig dato
@@ -14,7 +28,7 @@ type UnparsedDate = string | Date | undefined | null
  * @returns
  */
 export function yyyyMMddFormatting(dato: UnparsedDate): string | undefined {
-  const parsedDate = parseDate(dato)
+  const parsedDate = parseDate(dato);
   if (parsedDate) {
     return lightFormat(parsedDate, "yyyy-MM-dd");
   }
@@ -26,9 +40,9 @@ export function yyyyMMddFormatting(dato: UnparsedDate): string | undefined {
  * @returns
  */
 export function formaterDato(dato: UnparsedDate): string | undefined {
-  const parsedDato = parseDate(dato)
+  const parsedDato = parseDate(dato);
   if (!parsedDato) {
-    return
+    return;
   }
 
   return parsedDato.toLocaleString("no-NO", {
@@ -44,21 +58,23 @@ export function formaterDato(dato: UnparsedDate): string | undefined {
  * @returns
  */
 export function formaterDatoTid(dato: UnparsedDate): string | undefined {
-  const parsedDato = parseDate(dato)
+  const parsedDato = parseDate(dato);
   if (!parsedDato) {
     return;
   }
-  return parsedDato.toLocaleTimeString("no-NO", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).replace(",", " ")
+  return parsedDato
+    .toLocaleTimeString("no-NO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replace(",", " ");
 }
 
 type Periode = {
-  start: string
-  slutt: string
-}
+  start: string;
+  slutt: string;
+};
 
 export function formaterPeriode(periode: Periode) {
   return `${formaterPeriodeStart(periode)} - ${formaterPeriodeSlutt(periode)}`;
@@ -78,7 +94,7 @@ export function formaterPeriodeSlutt({ slutt }: Periode) {
  * @returns
  */
 export function maxOf(dates: UnparsedDate[]): Date {
-  return max(dates.map((it) => parseDate(it)).filter(isDate))
+  return max(dates.map((it) => parseDate(it)).filter(isDate));
 }
 
 /**
@@ -87,10 +103,12 @@ export function maxOf(dates: UnparsedDate[]): Date {
  * @param duration
  * @returns
  */
+export function subDuration(dato: Date, duration: Duration): Date;
+export function subDuration(dato: string | undefined | null, duration: Duration): Date | undefined;
 export function subDuration(dato: UnparsedDate, duration: Duration) {
-  const parsedDate = parseDate(dato)
+  const parsedDate = parseDate(dato);
   if (parsedDate) {
-    return sub(parsedDate, duration)
+    return sub(parsedDate, duration);
   }
 }
 
@@ -100,10 +118,12 @@ export function subDuration(dato: UnparsedDate, duration: Duration) {
  * @param duration
  * @returns
  */
-export function addDuration(dato: UnparsedDate, duration: Duration) {
-  const parsedDate = parseDate(dato)
+export function addDuration(dato: Date, duration: Duration): Date;
+export function addDuration(dato: string | undefined | null, duration: Duration): Date | undefined;
+export function addDuration(dato: UnparsedDate, duration: Duration): Date | undefined {
+  const parsedDate = parseDate(dato);
   if (parsedDate) {
-    return add(parsedDate, duration)
+    return add(parsedDate, duration);
   }
 }
 
@@ -115,12 +135,12 @@ export function addDuration(dato: UnparsedDate, duration: Duration) {
  * @returns true om **dato** er større eller lik **sammenlignet**, ellers false
  */
 export function isLaterOrSameDay(dato: UnparsedDate, sammenlignet: UnparsedDate): boolean {
-  const parsedDate = parseDate(dato)
-  const parsedComparedDate = parseDate(sammenlignet)
+  const parsedDate = parseDate(dato);
+  const parsedComparedDate = parseDate(sammenlignet);
   if (parsedDate && parsedComparedDate) {
-    return compareAsc(parsedDate, parsedComparedDate) !== -1
+    return compareAsc(parsedDate, parsedComparedDate) !== -1;
   }
-  return false
+  return false;
 }
 
 /**
@@ -129,9 +149,12 @@ export function isLaterOrSameDay(dato: UnparsedDate, sammenlignet: UnparsedDate)
  * @param param1
  * @returns
  */
-export function inBetweenInclusive(dato: UnparsedDate, { from, to }: { from: UnparsedDate, to: UnparsedDate }): boolean {
-  const parsedDato = parseDate(dato)
-  return isLaterOrSameDay(parsedDato, from) && isLaterOrSameDay(to, parsedDato)
+export function inBetweenInclusive(
+  dato: UnparsedDate,
+  { from, to }: { from: UnparsedDate; to: UnparsedDate },
+): boolean {
+  const parsedDato = parseDate(dato);
+  return isLaterOrSameDay(parsedDato, from) && isLaterOrSameDay(to, parsedDato);
 }
 
 /**
@@ -140,11 +163,17 @@ export function inBetweenInclusive(dato: UnparsedDate, { from, to }: { from: Unp
  * from < to = -1
  * @returns
  */
-export function compare(from: UnparsedDate, to: UnparsedDate): number | undefined {
-  const parsedFrom = parseDate(from)
-  const parsedTo = parseDate(to)
+export function compare(from: UnparsedDate, to: UnparsedDate): number {
+  const parsedFrom = parseDate(from);
+  const parsedTo = parseDate(to);
   if (parsedFrom && parsedTo) {
-    return compareAsc(parsedFrom, parsedTo)
+    return compareAsc(parsedFrom, parsedTo);
+  } else if (!parsedFrom && !parsedTo) {
+    return 0;
+  } else if (!parsedFrom) {
+    return -1;
+  } else {
+    return 1;
   }
 }
 /**
@@ -154,12 +183,12 @@ export function compare(from: UnparsedDate, to: UnparsedDate): number | undefine
  * @returns
  */
 export function isLater(date: UnparsedDate, compared: UnparsedDate): boolean {
-  const parsedDate = parseDate(date)
-  const parsedCompared = parseDate(compared)
+  const parsedDate = parseDate(date);
+  const parsedCompared = parseDate(compared);
   if (parsedDate && parsedCompared) {
-    return isAfter(parsedDate, parsedCompared)
+    return isAfter(parsedDate, parsedCompared);
   }
-  return false
+  return false;
 }
 
 /**
@@ -169,20 +198,20 @@ export function isLater(date: UnparsedDate, compared: UnparsedDate): boolean {
  * @returns
  */
 export function isEarlier(date: UnparsedDate, compared: UnparsedDate): boolean {
-  const parsedDate = parseDate(date)
-  const parsedCompared = parseDate(compared)
+  const parsedDate = parseDate(date);
+  const parsedCompared = parseDate(compared);
   if (parsedDate && parsedCompared) {
-    console.log(parsedDate?.toISOString(), parsedCompared?.toISOString())
-    return isBefore(parsedDate, parsedCompared)
+    console.log(parsedDate?.toISOString(), parsedCompared?.toISOString());
+    return isBefore(parsedDate, parsedCompared);
   }
-  return false
+  return false;
 }
 
 /**
  * date-fns allows years back to the start of the common era
  * The extra check for year is to not allow partial strings like '202' to be interpreted as year 202.
  */
-const validateDate = (date: Date) => isValid(date) && date.getFullYear() > 1900
+const validateDate = (date: Date) => isValid(date) && date.getFullYear() > 1900;
 
 /**
  * Parser til gyldige date objekter\
@@ -200,24 +229,24 @@ export function parseDate(date: UnparsedDate): Date | undefined {
 
   if (isDate(date)) {
     if (validateDate(date)) {
-      return date
+      return date;
     }
-    return undefined
+    return undefined;
   }
 
-  const utcDate = parseISO(date, utcParseContext)
+  const utcDate = parseISO(date, utcParseContext);
   if (validateDate(utcDate)) {
-    return NORSK_TID(utcDate)
+    return NORSK_TID(utcDate);
   }
 
-  const localDate = parse(date, "dd.MM.yyyy HH:mm", new UTCDate(), norwegianParseContext)
+  const localDate = parse(date, "dd.MM.yyyy HH:mm", new UTCDate(), norwegianParseContext);
   if (validateDate(localDate)) {
-    return localDate
+    return localDate;
   }
 
-  const utcDate2 = parse(date, "dd.MM.yyyy", new UTCDate(), norwegianParseContext)
+  const utcDate2 = parse(date, "dd.MM.yyyy", new UTCDate(), norwegianParseContext);
   if (validateDate(utcDate2)) {
-    return utcDate2
+    return utcDate2;
   }
-  return undefined
+  return undefined;
 }

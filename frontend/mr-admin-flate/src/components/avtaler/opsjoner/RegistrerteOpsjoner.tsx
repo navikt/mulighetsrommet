@@ -2,7 +2,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { compare, formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
 
@@ -35,9 +35,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
 
   const opprinneligSluttDato = avtale.opsjonerRegistrert
     .filter((o) => o.status === OpsjonStatus.OPSJON_UTLOST && !!o.forrigeSluttdato)
-    .sort(
-      (a, b) => new Date(a.forrigeSluttdato!).getTime() - new Date(b.forrigeSluttdato!).getTime(),
-    )
+    .sort((a, b) => compare(a.forrigeSluttdato, b.forrigeSluttdato))
     .at(0)?.forrigeSluttdato;
 
   return (

@@ -55,7 +55,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     setTilgjengeligForArrangorMutation.mutate(
       {
         id: gjennomforing.id,
-        dato: values.tilgjengeligForArrangorDato!,
+        dato: values.tilgjengeligForArrangorDato,
       },
       { onSuccess, onValidationError },
     );
