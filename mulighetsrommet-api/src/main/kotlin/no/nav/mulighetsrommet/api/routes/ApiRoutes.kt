@@ -79,6 +79,10 @@ fun Route.apiRoutes() {
 
         route("/v1/intern") {
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
+                featureTogglesRoute()
+                lagretFilterRoutes()
+                navEnhetRoutes()
+
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
                     adminflateRoutes()
                 }
@@ -103,9 +107,15 @@ fun Route.tiltaksadministrasjonRoutes() {
 
 // TODO: migrer disse til tiltaksadministrasjonRoutes
 fun Route.adminflateRoutes() {
+    tiltakstypeRoutes()
     gjennomforingRoutes()
     avtaleRoutes()
+    navAnsattRoutes()
     arrangorRoutes()
+    notificationRoutes()
+    janzzRoutes()
+    utdanningRoutes()
+    oppgaverRoutes()
 }
 
 fun Route.veilederflateRoutes() {
