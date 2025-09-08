@@ -1,6 +1,6 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ArrangorService } from "@mr/api-client-v2";
+import { ArrangorService } from "@tiltaksadministrasjon/api-client";
 
 export function useSyncArrangorFromBrreg(orgnr: string) {
   return useApiQuery({

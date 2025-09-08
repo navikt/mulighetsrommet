@@ -1,48 +1,64 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { Arrangor, ArrangorKontaktperson, PaginertArrangor } from "@mr/api-client-v2";
+import {
+  ArrangorDto,
+  ArrangorKontaktperson,
+  ArrangorKontonummerResponse,
+  KoblingerForKontaktperson,
+  PaginatedResponseArrangorDto,
+} from "@tiltaksadministrasjon/api-client";
 import { mockArrangorer } from "../fixtures/mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "../fixtures/mock_arrangorKontaktperson";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const arrangorHandlers = [
-  http.get<PathParams, PaginertArrangor | undefined>("*/api/v1/intern/arrangorer", () =>
-    HttpResponse.json(mockArrangorer),
+  http.post<PathParams, undefined, ArrangorDto | undefined>(
+    "*/api/tiltaksadministrasjon/arrangorer/:orgnr",
+    ({ params }) => {
+      return HttpResponse.json(
+        mockArrangorer.data.find((enhet) => enhet.organisasjonsnummer === params.orgnr),
+      );
+    },
   ),
-  http.get<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/:id", ({ params }) => {
-    return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
-  }),
-  http.post<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/:id", () => {
-    return HttpResponse.json(mockArrangorer.data[0]);
-  }),
-  http.get<PathParams, Arrangor | undefined>(
-    "*/api/v1/intern/arrangorer/hovedenhet/:id",
+
+  http.get<PathParams, undefined, PaginatedResponseArrangorDto>(
+    "*/api/tiltaksadministrasjon/arrangorer",
+    () => HttpResponse.json(mockArrangorer),
+  ),
+
+  http.get<PathParams, undefined, ArrangorDto | undefined>(
+    "*/api/tiltaksadministrasjon/arrangorer/:id",
     ({ params }) => {
       return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
     },
   ),
-  http.post<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/:orgnr", ({ params }) => {
-    return HttpResponse.json(
-      Object.values(mockArrangorer.data).find(
-        (enhet) => enhet.organisasjonsnummer === params.orgnr,
-      ),
-    );
-  }),
 
-  http.get<PathParams, Arrangor | undefined>(
-    "*/api/v1/intern/arrangorer/:orgnr/kontonummer",
+  http.get<PathParams, undefined, ArrangorKontonummerResponse>(
+    "*/api/tiltaksadministrasjon/arrangorer/:id/kontonummer",
     () => {
-      return HttpResponse.json("12345678910");
+      return HttpResponse.json({ kontonummer: "12345678910" });
     },
   ),
-  http.get<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/kontaktperson/:id", () => {
-    return HttpResponse.json({
-      avtaler: [...mockAvtaler],
-      gjennomforinger: [...mockGjennomforinger],
-    });
-  }),
-  http.get<PathParams, ArrangorKontaktperson[]>(
-    "*/api/v1/intern/arrangorer/*/kontaktpersoner",
+
+  http.get<PathParams, undefined, ArrangorDto | undefined>(
+    "*/api/tiltaksadministrasjon/arrangorer/:id/hovedenhet",
+    ({ params }) => {
+      return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
+    },
+  ),
+
+  http.get<PathParams, undefined, ArrangorKontaktperson[]>(
+    "*/api/tiltaksadministrasjon/arrangorer/:id/kontaktpersoner",
     () => HttpResponse.json(mockArrangorKontaktpersoner),
+  ),
+
+  http.get<PathParams, undefined, KoblingerForKontaktperson>(
+    "*/api/tiltaksadministrasjon/arrangorer/kontaktperson/:id",
+    () => {
+      return HttpResponse.json({
+        avtaler: mockAvtaler.map(({ id, navn }) => ({ id, navn })),
+        gjennomforinger: mockGjennomforinger.map(({ id, navn }) => ({ id, navn })),
+      });
+    },
   ),
 ];

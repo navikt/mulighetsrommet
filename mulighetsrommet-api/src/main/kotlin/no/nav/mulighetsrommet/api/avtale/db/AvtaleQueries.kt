@@ -233,7 +233,12 @@ class AvtaleQueries(private val session: Session) {
         upsertPrismodell(id, prismodell, prisbetingelser, satser)
     }
 
-    private fun Session.upsertPrismodell(id: UUID, prismodell: Prismodell, prisbetingelser: String?, satser: List<AvtaltSats>) {
+    private fun Session.upsertPrismodell(
+        id: UUID,
+        prismodell: Prismodell,
+        prisbetingelser: String?,
+        satser: List<AvtaltSats>,
+    ) {
         @Language("PostgreSQL")
         val query = """
             update avtale set
@@ -580,14 +585,14 @@ class AvtaleQueries(private val session: Session) {
         val utdanningslop = stringOrNull("utdanningslop_json")
             ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
-        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let {
+        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
             val underenheter = stringOrNull("arrangor_underenheter_json")
                 ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
                 ?: emptyList()
             val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-                ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) } ?: emptyList()
+                ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorKontaktperson>>(it) } ?: emptyList()
             AvtaleDto.ArrangorHovedenhet(
-                id = it,
+                id = id,
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
                 navn = string("arrangor_hovedenhet_navn"),
                 slettet = boolean("arrangor_hovedenhet_slettet"),

@@ -100,6 +100,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     lagretFilterRoutes()
     navEnhetRoutes()
     navAnsattRoutes()
+    arrangorRoutes()
     janzzRoutes()
     utdanningRoutes()
     notificationRoutes()

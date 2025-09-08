@@ -103,6 +103,16 @@ data class AvtaleDto(
     )
 
     @Serializable
+    data class ArrangorKontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
+    )
+
+    @Serializable
     data class Administrator(
         val navIdent: NavIdent,
         val navn: String,

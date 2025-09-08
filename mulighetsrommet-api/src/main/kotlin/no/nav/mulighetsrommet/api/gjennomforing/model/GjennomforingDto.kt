@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -77,6 +76,16 @@ data class GjennomforingDto(
         val navn: String,
         val kontaktpersoner: List<ArrangorKontaktperson>,
         val slettet: Boolean,
+    )
+
+    @Serializable
+    data class ArrangorKontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
     )
 
     @Serializable

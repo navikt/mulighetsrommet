@@ -3,8 +3,7 @@ import { Textarea, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  AvtaleArrangorHovedenhet,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
@@ -12,6 +11,8 @@ import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { AvtaleArrangorHovedenhet } from "@mr/api-client-v2";
+
 interface Props {
   arrangor: AvtaleArrangorHovedenhet;
   readOnly: boolean;

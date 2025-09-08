@@ -253,6 +253,7 @@ class GjennomforingQueriesTest : FunSpec({
                 telefon = "22222222",
                 epost = "thomas@thetrain.co.uk",
                 beskrivelse = "beskrivelse",
+                ansvarligFor = listOf(),
             )
             val jens = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
@@ -261,6 +262,7 @@ class GjennomforingQueriesTest : FunSpec({
                 telefon = "22222224",
                 epost = "jens@theshark.co.uk",
                 beskrivelse = "beskrivelse2",
+                ansvarligFor = listOf(),
             )
 
             database.runAndRollback { session ->
@@ -273,7 +275,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactly listOf(thomas)
+                    it.arrangor.kontaktpersoner shouldContainExactly listOf(toGjennomforingArrangorKontaktperson(thomas))
                 }
 
                 queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = emptyList()))
@@ -287,7 +289,10 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(thomas, jens)
+                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                        toGjennomforingArrangorKontaktperson(thomas),
+                        toGjennomforingArrangorKontaktperson(jens),
+                    )
                 }
             }
         }
@@ -331,14 +336,24 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(Oppfolging1)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(id, GjennomforingStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"))
+                queries.setStatus(
+                    id,
+                    GjennomforingStatus.AVBRUTT,
+                    tidspunkt,
+                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"),
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbruttAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.setStatus(id, GjennomforingStatus.AVLYST, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null))
+                queries.setStatus(
+                    id,
+                    GjennomforingStatus.AVLYST,
+                    tidspunkt,
+                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
@@ -795,6 +810,7 @@ class GjennomforingQueriesTest : FunSpec({
             telefon = "",
             epost = "test@test.no",
             beskrivelse = "",
+            ansvarligFor = listOf(),
         )
 
         val kontaktperson2 = ArrangorKontaktperson(
@@ -804,6 +820,7 @@ class GjennomforingQueriesTest : FunSpec({
             telefon = "",
             epost = "test@test.no",
             beskrivelse = "",
+            ansvarligFor = listOf(),
         )
 
         val testDomain = MulighetsrommetTestDomain(
@@ -841,6 +858,14 @@ class GjennomforingQueriesTest : FunSpec({
         }
     }
 })
+
+private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = GjennomforingDto.ArrangorKontaktperson(
+    id = kontaktperson.id,
+    navn = kontaktperson.navn,
+    beskrivelse = kontaktperson.beskrivelse,
+    telefon = kontaktperson.telefon,
+    epost = kontaktperson.epost,
+)
 
 private infix fun Collection<GjennomforingDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)

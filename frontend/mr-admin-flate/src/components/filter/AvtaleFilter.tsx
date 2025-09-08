@@ -11,10 +11,10 @@ import {
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { ArrangorTil } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
 import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 
 type Filters = "tiltakstype";
 
@@ -28,7 +28,7 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: enheter } = useNavEnheter();
-  const { data: arrangorData } = useArrangorer(ArrangorTil.AVTALE, {
+  const { data: arrangorData } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
   });
 

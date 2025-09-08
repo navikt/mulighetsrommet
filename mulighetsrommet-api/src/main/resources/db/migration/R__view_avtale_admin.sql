@@ -115,12 +115,10 @@ from avtale
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', avtale_arrangor_kontaktperson.arrangor_kontaktperson_id,
-                                                   'arrangorId', arrangor_kontaktperson.arrangor_id,
                                                    'navn', arrangor_kontaktperson.navn,
                                                    'telefon', arrangor_kontaktperson.telefon,
                                                    'epost', arrangor_kontaktperson.epost,
-                                                   'beskrivelse', arrangor_kontaktperson.beskrivelse,
-                                                   'ansvarligFor', arrangor_kontaktperson.ansvarlig_for
+                                                   'beskrivelse', arrangor_kontaktperson.beskrivelse
                                            )
                                    ) arrangor_kontaktpersoner_json
                             from avtale_arrangor_kontaktperson

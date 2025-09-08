@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrangorService, ProblemDetail } from "@mr/api-client-v2";
+import { ArrangorService, ProblemDetail } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
@@ -13,7 +13,7 @@ export function useDeleteArrangorKontaktperson(arrangorId: string) {
       });
     },
     onSuccess() {
-      queryClient.invalidateQueries({
+      return queryClient.invalidateQueries({
         queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId),
       });
     },

@@ -1,10 +1,10 @@
-import { ArrangorTil } from "@mr/api-client-v2";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -19,7 +19,7 @@ export function GjennomforingFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
-  const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING, {
+  const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
   const { data: tiltakstyper } = useTiltakstyper();

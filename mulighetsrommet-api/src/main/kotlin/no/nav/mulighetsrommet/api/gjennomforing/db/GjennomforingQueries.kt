@@ -6,7 +6,6 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -637,7 +636,7 @@ class GjennomforingQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
             ?: emptyList()
         val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
+            ?.let { Json.decodeFromString<List<GjennomforingDto.ArrangorKontaktperson>>(it) }
             ?: emptyList()
         val stengt = stringOrNull("stengt_perioder_json")
             ?.let { Json.decodeFromString<List<GjennomforingDto.StengtPeriode>>(it) }
