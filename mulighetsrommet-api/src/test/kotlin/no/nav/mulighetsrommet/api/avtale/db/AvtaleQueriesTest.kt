@@ -482,7 +482,7 @@ class AvtaleQueriesTest : FunSpec({
                 domain.setup(session)
 
                 val queries = AvtaleQueries(session)
-                val sats2 = AvtaltSats(Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 8, 1)), 2000)
+                val sats2 = AvtaltSats(LocalDate.of(2025, 7, 1), 2000)
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
@@ -495,8 +495,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtale.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
-                                periodeStart = LocalDate.of(2025, 7, 1),
-                                periodeSlutt = LocalDate.of(2025, 7, 31),
+                                gjelderFra = LocalDate.of(2025, 7, 1),
                                 pris = 2000,
                                 valuta = "NOK",
                             ),

@@ -131,7 +131,7 @@ class AvtaleRoutesTest : FunSpec({
                     AvtaleFixtures.AFT,
                     AvtaleFixtures.oppfolging.copy(
                         prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 1000)),
+                        satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
                     ),
                 ),
             ).initialize(database.db)
@@ -153,8 +153,7 @@ class AvtaleRoutesTest : FunSpec({
                 response1.status shouldBe HttpStatusCode.OK
                 response1.body<List<AvtaltSatsDto>>() shouldBe listOf(
                     AvtaltSatsDto(
-                        periodeStart = LocalDate.of(2025, 1, 1),
-                        periodeSlutt = LocalDate.of(2025, 12, 31),
+                        gjelderFra = LocalDate.of(2025, 1, 1),
                         pris = 20_975,
                         valuta = "NOK",
                     ),
@@ -166,8 +165,7 @@ class AvtaleRoutesTest : FunSpec({
                 response2.status shouldBe HttpStatusCode.OK
                 response2.body<List<AvtaltSatsDto>>() shouldBe listOf(
                     AvtaltSatsDto(
-                        periodeStart = LocalDate.of(2025, 1, 1),
-                        periodeSlutt = LocalDate.of(2025, 1, 31),
+                        gjelderFra = LocalDate.of(2025, 1, 1),
                         pris = 1000,
                         valuta = "NOK",
                     ),

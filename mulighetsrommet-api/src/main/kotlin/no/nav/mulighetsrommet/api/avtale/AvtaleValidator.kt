@@ -349,22 +349,11 @@ class AvtaleValidator(
         }
         for (i in satser.indices) {
             val a = satser[i]
-            if (!a.periodeStart.isBefore(a.periodeSlutt)) {
-                add(FieldError.ofPointer("/satser/$i/periodeStart", "Periodestart må være før slutt"))
-                continue
-            }
             for (j in i + 1 until satser.size) {
                 val b = satser[j]
-                if (!b.periodeStart.isBefore(b.periodeSlutt)) {
+                if (!a.gjelderFra.isBefore(b.gjelderFra)) {
                     add(FieldError.ofPointer("/satser/$j/periodeStart", "Periodestart må være før slutt"))
                     continue
-                }
-                val pA = Periode.fromInclusiveDates(a.periodeStart, a.periodeSlutt)
-                val pB = Periode.fromInclusiveDates(b.periodeStart, b.periodeSlutt)
-
-                if (pA.intersects(pB)) {
-                    add(FieldError.ofPointer("/satser/$i/periodeStart", "Overlappende perioder"))
-                    add(FieldError.ofPointer("/satser/$j/periodeStart", "Overlappende perioder"))
                 }
             }
         }

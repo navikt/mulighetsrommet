@@ -140,11 +140,8 @@ from avtale
                             group by up.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
-                                                   'periode',
-                                                   jsonb_build_object(
-                                                           'start', lower(periode),
-                                                           'slutt', upper(periode)
-                                                   ),
+                                                   'gjelderFra',
+                                                   gjelder_fra,
                                                    'sats',
                                                    sats
                                            )

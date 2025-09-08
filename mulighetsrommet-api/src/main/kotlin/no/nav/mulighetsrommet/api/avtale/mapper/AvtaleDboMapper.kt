@@ -71,7 +71,7 @@ object AvtaleDboMapper {
         prisbetingelser = request.prismodell.prisbetingelser,
         satser = request.prismodell.satser.map {
             AvtaltSats(
-                periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                gjelderFra = it.gjelderFra,
                 sats = it.pris,
             )
         },
@@ -99,7 +99,7 @@ object AvtaleDboMapper {
         prismodell = PrismodellRequest(
             type = dbo.prismodell,
             prisbetingelser = dbo.prisbetingelser,
-            satser = dbo.satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+            satser = dbo.satser.toDto(),
         ),
     )
 }
@@ -132,7 +132,7 @@ fun AvtaleDto.PrismodellDto.satser(): List<AvtaltSats> = when (this) {
 
 private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = satser.map {
     AvtaltSats(
-        periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+        gjelderFra = it.gjelderFra,
         sats = it.pris,
     )
 }

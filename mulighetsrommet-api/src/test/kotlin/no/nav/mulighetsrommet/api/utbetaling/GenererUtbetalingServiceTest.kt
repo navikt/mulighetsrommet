@@ -648,7 +648,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val avtale = AvtaleFixtures.oppfolging.copy(
             prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
-                AvtaltSats(Periode.forMonthOf(LocalDate.of(2026, 2, 1)), 100),
+                AvtaltSats(LocalDate.of(2026, 2, 1), 100),
             ),
         )
 
@@ -747,7 +747,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
-                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
             )
 
@@ -801,7 +801,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_UKESVERK,
                 satser = listOf(
-                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
             )
 
@@ -855,7 +855,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
-                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
             )
 
@@ -890,7 +890,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.ANNEN_AVTALT_PRIS,
                 satser = listOf(
-                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
             )
 
@@ -934,7 +934,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
-                    AvtaltSats(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100),
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
             )
 

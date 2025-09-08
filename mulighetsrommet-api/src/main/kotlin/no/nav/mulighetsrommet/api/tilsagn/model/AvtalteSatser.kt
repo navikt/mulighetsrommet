@@ -9,15 +9,17 @@ import java.time.LocalDate
 
 object AvtalteSatser {
     fun findSats(avtalteSatser: List<AvtaltSats>, dato: LocalDate): Int? {
-        return avtalteSatser.firstOrNull { dato in it.periode }?.sats
+        return avtalteSatser.firstOrNull { dato >= it.gjelderFra }?.sats
     }
 
     fun findSats(avtale: AvtaleDto, periode: Periode): Int? {
-        return getAvtalteSatser(avtale).firstOrNull { periode in it.periode }?.sats
-    }
-
-    fun findSats(avtale: AvtaleDto, dato: LocalDate): Int? {
-        return getAvtalteSatser(avtale).firstOrNull { dato in it.periode }?.sats
+        val satser = getAvtalteSatser(avtale)
+        val startSats = findSats(satser, periode.start)
+        val sluttSats = findSats(satser, periode.slutt)
+        if (startSats != sluttSats) {
+            return null
+        }
+        return startSats
     }
 
     fun getAvtalteSatser(avtale: AvtaleDto): List<AvtaltSats> = when (avtale.prismodell) {
@@ -34,10 +36,7 @@ object AvtalteSatser {
     object VTA {
         val satser: List<AvtaltSats> = listOf(
             AvtaltSats(
-                periode = Periode(
-                    LocalDate.of(2025, 1, 1),
-                    LocalDate.of(2026, 1, 1),
-                ),
+                gjelderFra = LocalDate.of(2025, 1, 1),
                 sats = 16_848,
             ),
         )
@@ -46,10 +45,7 @@ object AvtalteSatser {
     object AFT {
         val satser: List<AvtaltSats> = listOf(
             AvtaltSats(
-                periode = Periode(
-                    LocalDate.of(2025, 1, 1),
-                    LocalDate.of(2026, 1, 1),
-                ),
+                gjelderFra = LocalDate.of(2025, 1, 1),
                 sats = 20_975,
             ),
         )

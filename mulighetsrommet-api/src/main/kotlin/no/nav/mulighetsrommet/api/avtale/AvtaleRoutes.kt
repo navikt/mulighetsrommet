@@ -108,8 +108,7 @@ fun Route.avtaleRoutes() {
         get("forhandsgodkjente-satser") {
             val tiltakstype: Tiltakskode by call.queryParameters
 
-            val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype)
-                .map(AvtaltSatsDto::fromAvtaltSats)
+            val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype).toDto()
             call.respond(satser)
         }
     }
@@ -277,8 +276,7 @@ fun Route.avtaleRoutes() {
             val avtale = avtaler.get(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound, "Avtale med id $id finnes ikke")
 
-            val satser = AvtalteSatser.getAvtalteSatser(avtale)
-                .map { AvtaltSatsDto.fromAvtaltSats(it) }
+            val satser = AvtalteSatser.getAvtalteSatser(avtale).toDto()
 
             call.respond(satser)
         }
