@@ -91,16 +91,6 @@ export function UtbetalingPage() {
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const hasChangedStatusLinjer = linjerState.some((ls) => {
-      const found = linjer.find((linje) => linje.id == ls.id);
-      return found?.status !== ls.status;
-    });
-    if (hasChangedStatusLinjer) {
-      setLinjerState(linjer);
-    }
-  }, [linjer, linjerState]);
-
   function sendTilGodkjenning() {
     const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
       return {
