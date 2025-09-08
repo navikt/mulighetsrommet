@@ -16,6 +16,7 @@ import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
 import { isTilBeslutning } from "@/utils/totrinnskontroll";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -33,7 +34,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
       { id, body },
       {
         onSuccess: () => {
-          return queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
+          return queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling(utbetaling.id) });
         },
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
@@ -72,6 +73,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                     )}
                     {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
                       <Button
+                        key={`attester-knapp-${linje.id}`}
                         size="small"
                         type="button"
                         onClick={() => {
