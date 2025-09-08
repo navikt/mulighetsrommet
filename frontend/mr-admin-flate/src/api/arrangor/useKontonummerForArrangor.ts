@@ -1,10 +1,10 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
-import { ArrangorService } from "@mr/api-client-v2";
+import { ArrangorService } from "@tiltaksadministrasjon/api-client";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useKontonummerForArrangor(orgnr: string) {
-  return useSuspenseQuery({
-    queryKey: QueryKeys.kontonummerArrangor(orgnr),
-    queryFn: () => ArrangorService.getKontonummerForArrangor({ path: { orgnr } }),
+export function useKontonummerForArrangor(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.kontonummerArrangor(id),
+    queryFn: () => ArrangorService.getKontonummer({ path: { id } }),
   });
 }

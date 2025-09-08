@@ -6,7 +6,7 @@ import {
   ArrangorKontaktperson,
   DokumentKoblingForKontaktperson,
   ProblemDetail,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";

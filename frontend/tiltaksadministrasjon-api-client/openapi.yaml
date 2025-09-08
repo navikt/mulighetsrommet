@@ -1081,6 +1081,368 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/{orgnr}:
+    post:
+      tags:
+      - Arrangor
+      operationId: syncArrangorFromBrreg
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/arrangorer:
+    get:
+      tags:
+      - Arrangor
+      operationId: getArrangorer
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: kobling
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ArrangorKobling"
+      - name: sok
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: sort
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Tilsagn i tabellformat
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/{id}:
+    get:
+      tags:
+      - Arrangor
+      operationId: getArrangor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/{id}/kontonummer:
+    get:
+      tags:
+      - Arrangor
+      operationId: getKontonummer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Kontonummer til arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorKontonummerResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/hovedenhet/{id}:
+    get:
+      tags:
+      - Arrangor
+      operationId: getArrangorHovedenhet
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Hovedenhet til arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/{id}/kontaktpersoner:
+    get:
+      tags:
+      - Arrangor
+      operationId: getArrangorKontaktpersoner
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Kontaktpersoner lagret på arrangøren
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorKontaktperson"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    put:
+      tags:
+      - Arrangor
+      operationId: upsertArrangorKontaktperson
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArrangorKontaktpersonRequest"
+        required: false
+      responses:
+        "200":
+          description: Opprettet kontaktperson
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorKontaktperson"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/kontaktperson/{id}:
+    get:
+      tags:
+      - Arrangor
+      operationId: getKoblingerForKontaktperson
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Koblinger for kontaktperson
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KoblingerForKontaktperson"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    delete:
+      tags:
+      - Arrangor
+      operationId: deleteArrangorKontaktperson
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Kontaktpersonen ble slettet
+          headers: {}
+        "400":
+          description: Kontaktpersonen kunne ikke slettes fordi den fortsatt er koblet
+            mot enten avtale eller gjennomføring
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/brreg/sok:
+    get:
+      tags:
+      - Brreg
+      operationId: sokBrregHovedenhet
+      parameters:
+      - name: q
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Treff hos Brreg
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/brreg/{orgnr}/underenheter:
+    get:
+      tags:
+      - Brreg
+      operationId: getBrregUnderenheter
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Underenhetene til hovedenhet for gitt orgnr
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/janzz/sertifiseringer/sok:
     get:
       tags:
@@ -2874,6 +3236,176 @@ components:
       required:
       - navn
       - rolle
+    ArrangorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
+        navn:
+          type: string
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+        underenheter:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/ArrangorDto"
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - id
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
+      - slettetDato
+      - underenheter
+    ArrangorKobling:
+      type: string
+      enum:
+      - AVTALE
+      - TILTAKSGJENNOMFORING
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
+    PaginatedResponse_ArrangorDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorDto"
+      required:
+      - data
+      - pagination
+    ArrangorKontonummerResponse:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+      required:
+      - kontonummer
+    ArrangorKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        arrangorId:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        telefon:
+          type:
+          - "null"
+          - string
+        epost:
+          type: string
+        ansvarligFor:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktperson.Ansvar"
+      required:
+      - ansvarligFor
+      - arrangorId
+      - beskrivelse
+      - epost
+      - id
+      - navn
+      - telefon
+    ArrangorKontaktperson.Ansvar:
+      type: string
+      enum:
+      - AVTALE
+      - GJENNOMFORING
+      - OKONOMI
+    ArrangorKontaktpersonRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        telefon:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        epost:
+          type: string
+        ansvarligFor:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktperson.Ansvar"
+      required:
+      - ansvarligFor
+      - beskrivelse
+      - epost
+      - id
+      - navn
+      - telefon
+    DokumentKoblingForKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    KoblingerForKontaktperson:
+      type: object
+      properties:
+        gjennomforinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+        avtaler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+      required:
+      - avtaler
+      - gjennomforinger
     AmoKategorisering.BransjeOgYrkesrettet.Sertifisering:
       type: object
       properties:
@@ -2924,22 +3456,6 @@ components:
       enum:
       - READ
       - UNREAD
-    PaginationSummary:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalPages:
-          type: integer
-          format: int32
-      required:
-      - pageSize
-      - totalCount
-      - totalPages
     UserNotification:
       type: object
       properties:

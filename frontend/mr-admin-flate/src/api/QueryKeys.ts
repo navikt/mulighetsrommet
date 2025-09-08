@@ -1,5 +1,10 @@
-import { GetArrangorerData, type GetAvtalerData, GetGjennomforingerData } from "@mr/api-client-v2";
-import { Rolle, LagretFilterType, NotificationStatus } from "@tiltaksadministrasjon/api-client";
+import { type GetAvtalerData, GetGjennomforingerData } from "@mr/api-client-v2";
+import {
+  GetArrangorerData,
+  LagretFilterType,
+  NotificationStatus,
+  Rolle,
+} from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {
   beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,

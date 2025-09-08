@@ -5,8 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
@@ -47,7 +47,7 @@ class ArrangorQueries(private val session: Session) {
     }
 
     fun getAll(
-        til: ArrangorTil? = null,
+        kobling: ArrangorKobling? = null,
         sok: String? = null,
         overordnetEnhetOrgnr: Organisasjonsnummer? = null,
         slettet: Boolean? = null,
@@ -61,9 +61,9 @@ class ArrangorQueries(private val session: Session) {
             else -> "arrangor.navn asc"
         }
 
-        val isRelatedToTiltak = when (til) {
-            ArrangorTil.AVTALE -> "id in (select arrangor_hovedenhet_id from avtale) and"
-            ArrangorTil.TILTAKSGJENNOMFORING -> "id in (select arrangor_id from gjennomforing) and"
+        val isRelatedToTiltak = when (kobling) {
+            ArrangorKobling.AVTALE -> "id in (select arrangor_hovedenhet_id from avtale) and"
+            ArrangorKobling.TILTAKSGJENNOMFORING -> "id in (select arrangor_id from gjennomforing) and"
             else -> ""
         }
 
@@ -284,13 +284,13 @@ class ArrangorQueries(private val session: Session) {
         epost = string("epost"),
         beskrivelse = stringOrNull("beskrivelse"),
         ansvarligFor = arrayOrNull<String>("ansvarlig_for")
-            ?.map { ArrangorKontaktperson.AnsvarligFor.valueOf(it) }
+            ?.map { ArrangorKontaktperson.Ansvar.valueOf(it) }
             ?: emptyList(),
     )
 }
 
 fun Session.createArrayOfAnsvarligFor(
-    ansvarligFor: List<ArrangorKontaktperson.AnsvarligFor>,
+    ansvarligFor: List<ArrangorKontaktperson.Ansvar>,
 ): Array = createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", ansvarligFor)
 
 @Serializable

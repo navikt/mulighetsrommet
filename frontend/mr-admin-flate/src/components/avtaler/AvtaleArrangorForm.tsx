@@ -2,11 +2,10 @@ import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktper
 import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
 import { Alert, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
-  Arrangor,
+  ArrangorDto,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  BrregVirksomhet,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { Controller, DeepPartial, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
@@ -18,6 +17,7 @@ import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
 import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
+import { BrregVirksomhet } from "@mr/api-client-v2";
 
 export function AvtaleArrangorForm() {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
@@ -171,7 +171,7 @@ export function AvtaleArrangorForm() {
 
 function getArrangorHovedenhetOptions(
   virksomheter: BrregVirksomhet[],
-  arrangor: Arrangor | undefined,
+  arrangor: ArrangorDto | undefined,
 ) {
   const options = virksomheter
     .sort((a, b) => a.navn.localeCompare(b.navn))

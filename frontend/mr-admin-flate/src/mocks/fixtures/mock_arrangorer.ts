@@ -1,6 +1,6 @@
-import { PaginertArrangor } from "@mr/api-client-v2";
+import { PaginatedResponseArrangorDto } from "@tiltaksadministrasjon/api-client";
 
-export const mockArrangorer: PaginertArrangor = {
+export const mockArrangorer: PaginatedResponseArrangorDto = {
   pagination: {
     pageSize: 3,
     totalCount: 3,
@@ -20,6 +20,8 @@ export const mockArrangorer: PaginertArrangor = {
           organisasjonsform: "BEDR",
           navn: "FRETEX AS AVD OSLO",
           overordnetEnhet: "123456789",
+          underenheter: null,
+          slettetDato: null,
         },
         {
           id: "d9d4db51-3564-4493-b897-4fc38dc48963",
@@ -27,6 +29,8 @@ export const mockArrangorer: PaginertArrangor = {
           organisasjonsform: "BEDR",
           navn: "FRETEX AS AVD SANDNES",
           overordnetEnhet: "123456789",
+          underenheter: null,
+          slettetDato: null,
         },
         {
           id: "d9d4db51-3564-4493-b897-4ec38dc48963",
@@ -34,8 +38,11 @@ export const mockArrangorer: PaginertArrangor = {
           organisasjonsform: "BEDR",
           navn: "FRETEX AS AVD TRONDHEIM",
           overordnetEnhet: "123456789",
+          underenheter: null,
+          slettetDato: null,
         },
       ],
+      slettetDato: null,
     },
     {
       id: "2dd86798-7a93-4d51-80ce-3e63f8e2daf3",
@@ -43,6 +50,8 @@ export const mockArrangorer: PaginertArrangor = {
       organisasjonsform: "AS",
       navn: "Ikea AS",
       overordnetEnhet: null,
+      underenheter: null,
+      slettetDato: null,
     },
     {
       id: "a1a5191f-1478-4ad8-9a82-47182a28a19d",
@@ -50,6 +59,8 @@ export const mockArrangorer: PaginertArrangor = {
       organisasjonsform: "AS",
       navn: "Røde Kors AS",
       overordnetEnhet: null,
+      underenheter: null,
+      slettetDato: null,
     },
   ],
 };

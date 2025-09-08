@@ -1,5 +1,4 @@
 import { ARRANGORER_PAGE_SIZE } from "@/constants";
-import { SorteringArrangorer } from "@mr/api-client-v2";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterStateAtom } from "@/filter/filter-state";
@@ -9,7 +8,7 @@ const ArrangorerFilterSchema = z.object({
   sok: z.string(),
   page: z.number(),
   pageSize: z.number(),
-  sortering: createSorteringProps(z.custom<SorteringArrangorer>()),
+  sortering: createSorteringProps(z.string()),
 });
 
 export type ArrangorerFilterType = z.infer<typeof ArrangorerFilterSchema>;
@@ -17,7 +16,7 @@ export type ArrangorerFilterType = z.infer<typeof ArrangorerFilterSchema>;
 const defaultArrangorerFilter: ArrangorerFilterType = {
   sok: "",
   sortering: {
-    sortString: SorteringArrangorer.NAVN_ASCENDING,
+    sortString: "navn-ascending",
     tableSort: {
       orderBy: "navn",
       direction: "ascending",
