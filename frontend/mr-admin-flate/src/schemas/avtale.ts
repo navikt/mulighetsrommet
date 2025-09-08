@@ -24,12 +24,9 @@ export const PrismodellSchema = z.object({
   prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
-      periodeStart: z
+      gjelderFra: z
         .string({ error: "Du må legge inn en startdato" })
         .min(10, "Du må legge inn startdato"),
-      periodeSlutt: z
-        .string({ error: "Du må legge inn en sluttdato" })
-        .min(10, "Du må legge inn sluttdato"),
       pris: z.number({ error: "Du må legge inn en pris for perioden" }),
       valuta: z.string(),
     }),
