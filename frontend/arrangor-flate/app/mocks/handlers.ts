@@ -156,4 +156,7 @@ export const handlers = [
   http.get<PathParams, ArrangorflateArrangor[]>("*/api/arrangorflate/tilgang-arrangor", () =>
     HttpResponse.json([arrangorMock]),
   ),
+  http.get("*/api/arrangorflate/:orgnr/features", () => {
+    return HttpResponse.json(true);
+  }),
 ];
