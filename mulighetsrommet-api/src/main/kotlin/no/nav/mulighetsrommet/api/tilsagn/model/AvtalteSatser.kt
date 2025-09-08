@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 object AvtalteSatser {
     fun findSats(avtalteSatser: List<AvtaltSats>, dato: LocalDate): Int? {
-        return avtalteSatser.firstOrNull { dato >= it.gjelderFra }?.sats
+        return avtalteSatser.lastOrNull { dato >= it.gjelderFra }?.sats
     }
 
     fun findSats(avtale: AvtaleDto, periode: Periode): Int? {
