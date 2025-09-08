@@ -1958,9 +1958,6 @@ components:
         id:
           type: string
           format: uuid
-        arrangorId:
-          type: string
-          format: uuid
         navn:
           type: string
         beskrivelse:
@@ -1969,18 +1966,12 @@ components:
           type: [string, "null"]
         epost:
           type: string
-        ansvarligFor:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorKontaktpersonAnsvar"
       required:
         - id
-        - arrangorId
         - navn
         - beskrivelse
         - telefon
         - epost
-        - ansvarligFor
 
     ArrangorKontaktpersonAnsvar:
       type: string

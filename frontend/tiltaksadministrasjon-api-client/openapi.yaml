@@ -1229,7 +1229,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/arrangorer/hovedenhet/{id}:
+  /api/tiltaksadministrasjon/arrangorer/{id}/hovedenhet:
     get:
       tags:
       - Arrangor

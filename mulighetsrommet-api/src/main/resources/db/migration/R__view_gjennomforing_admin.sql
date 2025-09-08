@@ -97,7 +97,6 @@ from gjennomforing
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,
-                                                   'arrangorId', arrangor_id,
                                                    'navn', navn,
                                                    'telefon', telefon,
                                                    'epost', epost,

@@ -270,6 +270,7 @@ class AvtaleQueriesTest : FunSpec({
                 telefon = "22232322",
                 epost = "navn@gmail.com",
                 beskrivelse = "beskrivelse",
+                ansvarligFor = listOf(),
             )
             val p2 = p1.copy(
                 id = UUID.randomUUID(),
@@ -296,7 +297,7 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactly listOf(p1)
+                    it.arrangor?.kontaktpersoner shouldContainExactly listOf(toAvtaleArrangorKontaktperson(p1))
                 }
                 val avtaleMedKontaktpersoner = avtale.copy(
                     arrangor = avtale.arrangor?.copy(
@@ -307,12 +308,15 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtaleMedKontaktpersoner)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
+                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                        toAvtaleArrangorKontaktperson(p2),
+                        toAvtaleArrangorKontaktperson(p3),
+                    )
                 }
 
                 queries.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
+                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(toAvtaleArrangorKontaktperson(p2))
                 }
 
                 val avtaleUtenKontaktpersoner = avtale.copy(
@@ -390,6 +394,7 @@ class AvtaleQueriesTest : FunSpec({
                     telefon = "22232322",
                     epost = "navn@gmail.com",
                     beskrivelse = "beskrivelse",
+                    ansvarligFor = listOf(),
                 )
                 val p2 = p1.copy(
                     id = UUID.randomUUID(),
@@ -1063,6 +1068,14 @@ class AvtaleQueriesTest : FunSpec({
         }
     }
 })
+
+private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = AvtaleDto.ArrangorKontaktperson(
+    id = kontaktperson.id,
+    navn = kontaktperson.navn,
+    beskrivelse = kontaktperson.beskrivelse,
+    telefon = kontaktperson.telefon,
+    epost = kontaktperson.epost,
+)
 
 private infix fun Collection<AvtaleDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
