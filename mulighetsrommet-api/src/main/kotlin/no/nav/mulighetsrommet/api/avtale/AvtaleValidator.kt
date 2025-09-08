@@ -338,7 +338,7 @@ class AvtaleValidator(
             add(
                 FieldError.of(
                     AvtaleRequest::prismodell,
-                    "Minst én periode er påkrevd",
+                    "Minst én prisgit  er påkrevd",
                 ),
             )
         }
@@ -352,7 +352,7 @@ class AvtaleValidator(
             for (j in i + 1 until satser.size) {
                 val b = satser[j]
                 if (!a.gjelderFra.isBefore(b.gjelderFra)) {
-                    add(FieldError.ofPointer("/satser/$j/periodeStart", "Periodestart må være før slutt"))
+                    add(FieldError.ofPointer("/satser/$j/gjelderFra", "Ny pris må gjelde etter forrige pris"))
                     continue
                 }
             }

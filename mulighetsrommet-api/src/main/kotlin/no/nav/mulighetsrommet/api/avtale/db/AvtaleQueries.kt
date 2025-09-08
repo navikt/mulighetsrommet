@@ -614,7 +614,7 @@ class AvtaleQueries(private val session: Session) {
 
             Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto()
+                satser = satser.toDto(),
             )
 
             Prismodell.AVTALT_PRIS_PER_UKESVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk(
@@ -624,7 +624,7 @@ class AvtaleQueries(private val session: Session) {
 
             Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto()
+                satser = satser.toDto(),
             )
         }
 
