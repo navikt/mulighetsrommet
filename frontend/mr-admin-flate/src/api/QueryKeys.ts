@@ -64,5 +64,14 @@ export const QueryKeys = {
     "utbetaling-for-gjennomforing",
     gjennomforingId,
   ],
+  utbetaling: (utbetalingId?: string) => ["utbetaling", utbetalingId],
+  utbetalingTilsagn: (utbetalingId?: string) => ["utbetaling", utbetalingId, "tilsagn"],
+  utbetalingHistorikk: (utbetalingId?: string) => ["utbetaling", utbetalingId, "historikk"],
+  utbetalingBeregning: (filter: { navEnheter: string[] }, utbetalingId: string) => [
+    "utbetaling-beregning",
+    utbetalingId,
+    filter,
+    filter.navEnheter.join(","),
+  ],
   kontonummerArrangor: (orgnr: string) => ["kontonummer", orgnr],
 };

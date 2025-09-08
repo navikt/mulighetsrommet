@@ -51,6 +51,7 @@ import {
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
+import { QueryKeys } from "@/api/QueryKeys";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
@@ -90,6 +91,16 @@ export function UtbetalingPage() {
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    const hasChangedStatusLinjer = linjerState.some((ls) => {
+      const found = linjer.find((linje) => linje.id == ls.id);
+      return found?.status !== ls.status;
+    });
+    if (hasChangedStatusLinjer) {
+      setLinjerState(linjer);
+    }
+  }, [linjer, linjerState]);
+
   function sendTilGodkjenning() {
     const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
       return {
@@ -111,7 +122,7 @@ export function UtbetalingPage() {
     opprettMutation.mutate(body, {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["utbetaling", utbetaling.id],
+          queryKey: QueryKeys.utbetaling(utbetaling.id),
           refetchType: "all",
         });
       },
