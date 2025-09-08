@@ -1,5 +1,5 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
-import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
+import { getEmbeddedTiltakstype, mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   AvbrytGjennomforingAarsak,
   Bransje,
@@ -38,7 +38,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     antallPlasser: 50,
     arrangor,
     avtaleId: mockAvtaler[0].id,
-    tiltakstype: mockTiltakstyper.AVKLARAG,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
     administratorer: [
       {
         navIdent: "B123456",
@@ -117,7 +117,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "123456",
     deltidsprosent: 100,
     arrangor,
-    tiltakstype: mockTiltakstyper.ARBFORB,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
     sanityId: "1234",
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
@@ -147,7 +147,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     sanityId: "1234",
     deltidsprosent: 100,
     arrangor,
-    tiltakstype: mockTiltakstyper.GRUPPEAMO,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUPPEAMO),
     administratorer: [
       {
         navIdent: "B815493",
@@ -182,7 +182,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     sanityId: "1234",
     deltidsprosent: 100,
     arrangor,
-    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
@@ -210,33 +210,3 @@ export const paginertMockGjennomforinger: PaginertGjennomforing = {
   },
   data: mockGjennomforinger,
 };
-
-// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
-// at testene går gjennom.
-const x = 0;
-for (let i = 0; i < x; i++) {
-  mockGjennomforinger.push({
-    id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
-    navn: "AFT",
-    tiltaksnummer: "654434",
-    sanityId: "1234",
-    deltidsprosent: 100,
-    arrangor,
-    tiltakstype: mockTiltakstyper.ARBFORB,
-    startDato: "2022-01-01",
-    sluttDato: "2022-12-12",
-    arenaAnsvarligEnhet: mockEnheter._0313,
-    administratorer: [],
-    kontorstruktur: [],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
-    oppstart: GjennomforingOppstartstype.LOPENDE,
-    opphav: Opphav.TILTAKSADMINISTRASJON,
-    apentForPamelding: true,
-    kontaktpersoner: [],
-    publisert: false,
-
-    tilgjengeligForArrangorDato: null,
-    amoKategorisering: null,
-    stengt: [],
-  });
-}

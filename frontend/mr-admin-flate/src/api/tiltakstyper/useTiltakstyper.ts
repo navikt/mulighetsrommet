@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltakstyperService } from "@mr/api-client-v2";
+import { TiltakstypeService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { TiltakstypeFilterType } from "@/pages/tiltakstyper/filter";
 
@@ -12,6 +12,6 @@ export function useTiltakstyper(filter: TiltakstypeFilterType = {}) {
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.tiltakstyper(queryFilter),
-    queryFn: () => TiltakstyperService.getTiltakstyper(queryFilter),
+    queryFn: () => TiltakstypeService.getTiltakstyper(queryFilter),
   });
 }

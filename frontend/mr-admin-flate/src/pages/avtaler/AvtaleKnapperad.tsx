@@ -12,10 +12,9 @@ import {
   AvtaleHandling,
   FieldError,
   Opphav,
-  Rolle,
   ValidationError,
 } from "@mr/api-client-v2";
-import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
+import { FeatureToggle, Rolle } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";

@@ -1,16 +1,16 @@
 import {
   ArrangorKontaktperson,
   AvtaleDto,
-  NavAnsatt,
-  Opphav,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  Opphav,
   Utdanningslop,
   UtdanningslopDbo,
 } from "@mr/api-client-v2";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
+import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -64,7 +64,7 @@ function defaultArrangor(
 }
 
 export function defaultGjennomforingData(
-  ansatt: NavAnsatt,
+  ansatt: NavAnsattDto,
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto>,
 ): Partial<InferredGjennomforingSchema> {

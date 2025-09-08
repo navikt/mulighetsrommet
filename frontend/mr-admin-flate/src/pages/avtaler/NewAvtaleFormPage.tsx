@@ -19,7 +19,7 @@ import {
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, Rolle, ValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
+import { Rolle } from "@tiltaksadministrasjon/api-client";
 
 const steps = [
   {

@@ -3,21 +3,21 @@ import {
   ArrangorKontaktperson,
   AvtaleDto,
   AvtaltSatsDto,
-  NavAnsatt,
   Personopplysning,
   Prismodell,
   PrismodellDto,
 } from "@mr/api-client-v2";
 import z from "zod";
 import {
-  avtaleDetaljerSchema,
   arrangorSchema,
+  avtaleDetaljerSchema,
+  toUtdanningslopDbo,
   validateArrangor,
   validateAvtaledetaljer,
-  toUtdanningslopDbo,
 } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
+import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().optional(),
@@ -67,7 +67,7 @@ export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
 export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
 export function defaultAvtaleData(
-  ansatt: NavAnsatt,
+  ansatt: NavAnsattDto,
   avtale?: Partial<AvtaleDto>,
 ): DeepPartial<AvtaleFormValues> {
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];

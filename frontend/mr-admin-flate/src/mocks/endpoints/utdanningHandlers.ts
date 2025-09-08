@@ -1,8 +1,8 @@
 import { http, HttpResponse } from "msw";
-import { mockUtdanningsprogrammerOgUtdanninger } from "../fixtures/mock_utdanningsprogrammer_og_utdanninger";
+import { mockUtdanningsprogrammerOgUtdanninger } from "@/mocks/fixtures/mock_utdanningsprogrammer_og_utdanninger";
 
 export const utdanningHandlers = [
-  http.get("*/api/v1/intern/utdanninger", () => {
+  http.get("*/api/tiltaksadministrasjon/utdanninger", () => {
     return HttpResponse.json(mockUtdanningsprogrammerOgUtdanninger);
   }),
 ];

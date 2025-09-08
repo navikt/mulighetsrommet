@@ -1,9 +1,9 @@
-import { HttpResponse, PathParams, http } from "msw";
-import { NavAnsatt } from "@mr/api-client-v2";
-import { mockRedaktor, mockKontaktpersoner } from "../fixtures/mock_ansatt";
+import { http, HttpResponse, PathParams } from "msw";
+import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { mockKontaktpersoner, mockRedaktor } from "@/mocks/fixtures/mock_ansatt";
 
 export const ansattHandlers = [
-  http.get<PathParams, NavAnsatt[]>("*/api/v1/intern/ansatt", ({ request }) => {
+  http.get<PathParams, NavAnsattDto[]>("*/api/tiltaksadministrasjon/ansatt", ({ request }) => {
     const url = new URL(request.url);
     const roller = url.searchParams.getAll("roller");
     return HttpResponse.json(
@@ -11,7 +11,7 @@ export const ansattHandlers = [
     );
   }),
 
-  http.get<PathParams, NavAnsatt>("*/api/v1/intern/ansatt/me", () =>
+  http.get<PathParams, NavAnsattDto>("*/api/tiltaksadministrasjon/ansatt/me", () =>
     HttpResponse.json(mockRedaktor),
   ),
 ];

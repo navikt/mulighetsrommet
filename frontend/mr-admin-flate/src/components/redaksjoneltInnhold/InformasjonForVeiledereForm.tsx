@@ -12,7 +12,8 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { GjennomforingKontaktperson, VeilederflateTiltakstype } from "@mr/api-client-v2";
+import { GjennomforingKontaktperson } from "@mr/api-client-v2";
+import { VeilederflateTiltakstype } from "@tiltaksadministrasjon/api-client";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";

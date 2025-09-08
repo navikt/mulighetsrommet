@@ -9,7 +9,6 @@ import {
   Kurstype,
   NavEnhetDto,
   Tiltakskode,
-  TiltakskodeArena,
   ValidationError,
 } from "@mr/api-client-v2";
 import {
@@ -329,7 +328,7 @@ export function tilsagnTypeToString(type: TilsagnType): string {
   }
 }
 
-export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena): boolean {
+export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: string): boolean {
   if (tiltakskode) {
     return [
       Tiltakskode.JOBBKLUBB,
@@ -339,7 +338,8 @@ export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeA
   }
 
   if (arenaKode) {
-    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
+    // TODO: bli kvitt bruken av arenakode i frontend
+    return ["ENKELAMO", "ENKFAGYRKE"].includes(arenaKode);
   }
 
   return false;

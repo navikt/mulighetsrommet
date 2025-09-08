@@ -128,7 +128,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
             >
               <option value="">-- Velg en --</option>
               {tiltakstyper.map((type) => (
-                <option key={type.tiltakskode} value={type.tiltakskode}>
+                <option key={type.tiltakskode} value={type.tiltakskode ?? undefined}>
                   {type.navn}
                 </option>
               ))}
