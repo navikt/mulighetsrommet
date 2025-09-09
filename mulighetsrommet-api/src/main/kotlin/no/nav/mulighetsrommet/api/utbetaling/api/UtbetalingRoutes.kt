@@ -232,6 +232,28 @@ fun Route.utbetalingRoutes() {
             call.respond(tilsagn)
         }
 
+        get("/linjer", {
+            tags = setOf("Utbetaling")
+            operationId = "getUtbetalingsLinjer"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetalingslinjer til utbetaling"
+                    body<List<UtbetalingLinje>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+            val utbetalingsLinjer = utbetalingService.getUtbetalingsLinjer(id)
+            call.respond(utbetalingsLinjer)
+        }
+
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             post("/opprett-utbetaling", {
                 tags = setOf("Utbetaling")

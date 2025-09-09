@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.*
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.*
+import io.ktor.server.response.respond
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -17,9 +19,11 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.*
@@ -226,6 +230,27 @@ class UtbetalingService(
         queries.delutbetaling.getOrError(id).right()
     }
 
+    fun getUtbetalingsLinjer(utbetalingId: UUID): List<UtbetalingLinje> = db.session {
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        val utbetalingsLinjer = queries.tilsagn.getAll(
+            gjennomforingId = utbetaling.gjennomforing.id,
+            periodeIntersectsWith = utbetaling.periode,
+            typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+        ).filter { it.status === TilsagnStatus.GODKJENT }
+            .map {
+                UtbetalingLinje(
+                    id = UUID.randomUUID(),
+                    tilsagn = TilsagnDto.fromTilsagn(it),
+                    status = null,
+                    belop = 0,
+                    gjorOppTilsagn = false,
+                    opprettelse = null,
+                    handlinger = emptySet(),
+                )
+            }
+            .sortedBy { it.tilsagn.bestillingsnummer }
+        return utbetalingsLinjer
+    }
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
         val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         publishOpprettFaktura(delutbetaling)
