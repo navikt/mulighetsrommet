@@ -6,9 +6,8 @@ export function useTilsagnDefaults(request: TilsagnRequest) {
   return useApiSuspenseQuery({
     queryKey: [QueryKeys.opprettTilsagn(), request],
     queryFn: async () => {
-      return TilsagnService.getTilsagnDefaults({
-        body: request,
-      });
+      return TilsagnService.getTilsagnDefaults({ body: request });
     },
+    staleTime: 0,
   });
 }
