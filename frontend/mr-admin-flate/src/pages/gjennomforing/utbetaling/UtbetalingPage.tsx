@@ -98,8 +98,9 @@ export function UtbetalingPage() {
     action: UtbetalingLinjerStateAction,
   ): UtbetalingLinjerState {
     switch (action.type) {
-      case "RESET":
+      case "REFETCH": {
         return utbetalingsLinjeInitialState();
+      }
       case "REMOVE":
         return {
           ...state,

@@ -15,7 +15,7 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { UtbetalingLinjerStateAction } from "@/pages/gjennomforing/utbetaling/UtbetalingsLinjeState";
+import { UtbetalingLinjerStateAction } from "@/pages/gjennomforing/utbetaling/helper";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -46,7 +46,7 @@ export function RedigerUtbetalingLinjeView({ linjer, linjerDispatch, utbetaling 
     await queryClient.invalidateQueries({
       queryKey: QueryKeys.utbetalingsLinjerFraTilsagn(utbetaling.id),
     });
-    linjerDispatch({ type: "RESET" });
+    linjerDispatch({ type: "REFETCH" });
   }
 
   function fjernLinje(id: string) {
