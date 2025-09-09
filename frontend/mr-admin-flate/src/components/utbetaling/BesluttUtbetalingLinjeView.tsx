@@ -17,15 +17,13 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
 import { isTilBeslutning } from "@/utils/totrinnskontroll";
 import { QueryKeys } from "@/api/QueryKeys";
-import { UtbetalingLinjerStateAction } from "@/pages/gjennomforing/utbetaling/helper";
 
 export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
-  linjerDispatch: React.ActionDispatch<[action: UtbetalingLinjerStateAction]>;
 }
 
-export function BesluttUtbetalingLinjeView({ linjer, utbetaling, linjerDispatch }: Props) {
+export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -36,18 +34,13 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling, linjerDispatch 
       { id, body },
       {
         onSuccess: async () => {
-          return await queryClient
-            .invalidateQueries(
-              {
-                queryKey: [
-                  QueryKeys.utbetaling(utbetaling.id),
-                  QueryKeys.utbetalingsLinjer(utbetaling.id),
-                ],
-                refetchType: "all",
-              },
-              { cancelRefetch: false },
-            )
-            .then(() => linjerDispatch({ type: "RELOAD" }));
+          return await queryClient.invalidateQueries({
+            queryKey: [
+              QueryKeys.utbetaling(utbetaling.id),
+              QueryKeys.utbetalingsLinjer(utbetaling.id),
+            ],
+            refetchType: "all",
+          });
         },
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
