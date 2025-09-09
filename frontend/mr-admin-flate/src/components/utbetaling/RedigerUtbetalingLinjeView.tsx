@@ -43,10 +43,18 @@ export function RedigerUtbetalingLinjeView({ linjer, linjerDispatch, utbetaling 
   }
 
   async function oppdaterLinjer() {
-    await queryClient.invalidateQueries({
-      queryKey: QueryKeys.utbetalingsLinjer(utbetaling.id),
-    });
-    linjerDispatch({ type: "REFETCH" });
+    return await queryClient
+      .invalidateQueries(
+        {
+          queryKey: [
+            QueryKeys.utbetaling(utbetaling.id),
+            QueryKeys.utbetalingsLinjer(utbetaling.id),
+          ],
+          refetchType: "all",
+        },
+        { cancelRefetch: false },
+      )
+      .then(() => linjerDispatch({ type: "RELOAD" }));
   }
 
   function fjernLinje(id: string) {

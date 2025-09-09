@@ -56,7 +56,7 @@ function useUtbetalingPageData() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetaling } = useUtbetaling(utbetalingId);
-  const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetalingId);
+  const { data: linjer } = useUtbetalingsLinjer(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
@@ -69,7 +69,7 @@ function useUtbetalingPageData() {
     historikk,
     utbetaling: utbetaling.utbetaling,
     handlinger: utbetaling.handlinger,
-    linjer: utbetalingLinjer,
+    linjer,
     beregning,
   };
 }
@@ -89,7 +89,7 @@ export function UtbetalingPage() {
     action: UtbetalingLinjerStateAction,
   ): UtbetalingLinjerState {
     switch (action.type) {
-      case "REFETCH": {
+      case "RELOAD": {
         return utbetalingsLinjeInitialState();
       }
       case "REMOVE":
@@ -140,10 +140,15 @@ export function UtbetalingPage() {
 
     opprettMutation.mutate(body, {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: QueryKeys.utbetaling(utbetaling.id),
-          refetchType: "all",
-        });
+        return await queryClient
+          .invalidateQueries(
+            {
+              queryKey: [QueryKeys.utbetaling(utbetaling.id)],
+              refetchType: "all",
+            },
+            { cancelRefetch: false },
+          )
+          .then(() => linjerDispatch({ type: "RELOAD" }));
       },
       onValidationError: (error: ValidationError) => {
         setErrors(error.errors);
@@ -371,7 +376,11 @@ function UtbetalingLinjeView({ utbetaling, linjer, linjerDispatch }: UtbetalingL
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
       return (
         <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
-          <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
+          <BesluttUtbetalingLinjeView
+            utbetaling={utbetaling}
+            linjer={linjer}
+            linjerDispatch={linjerDispatch}
+          />
         </HarTilgang>
       );
   }

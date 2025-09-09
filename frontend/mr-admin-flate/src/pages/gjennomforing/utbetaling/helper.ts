@@ -5,6 +5,6 @@ export type UtbetalingLinjerState = {
 };
 
 export type UtbetalingLinjerStateAction =
-  | { type: "REFETCH" }
+  | { type: "RELOAD" }
   | { type: "REMOVE"; id: string }
   | { type: "UPDATE"; linje: UtbetalingLinje };
