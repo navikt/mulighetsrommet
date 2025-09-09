@@ -1,6 +1,7 @@
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
+import { AvtaleDto, OpsjonStatus } from "@mr/api-client-v2";
+import { OpprettOpsjonLoggRequest, OpsjonLoggStatus } from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
@@ -142,13 +143,13 @@ function getNesteSluttDato(
   }
 }
 
-function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
+function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonLoggStatus {
   switch (opsjonsvalg) {
     case "1":
-      return OpsjonStatus.OPSJON_UTLOST;
+      return OpsjonLoggStatus.OPSJON_UTLOST;
     case "Annet":
-      return OpsjonStatus.OPSJON_UTLOST;
+      return OpsjonLoggStatus.OPSJON_UTLOST;
     case "Opsjon_skal_ikke_utloses":
-      return OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON;
+      return OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON;
   }
 }

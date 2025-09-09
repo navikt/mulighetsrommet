@@ -1,35 +1,40 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
   AvtaleDto,
-  AvtaleHandling,
-  AvtaltSatsDto,
   EndringshistorikkEntry,
   PaginertAvtale,
   PrismodellDto,
 } from "@mr/api-client-v2";
+import { AvtaleHandling, AvtaltSatsDto } from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
 export const avtaleHandlers = [
-  http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/prismodeller", () => {
-    return HttpResponse.json([
-      {
-        type: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK",
-        beskrivelse: "Fast sats per tiltaksplass per måned",
-      },
-    ]);
-  }),
+  http.get<PathParams, PaginertAvtale | undefined>(
+    "*/api/tiltaksadministrasjon/prismodeller",
+    () => {
+      return HttpResponse.json([
+        {
+          type: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK",
+          beskrivelse: "Fast sats per tiltaksplass per måned",
+        },
+      ]);
+    },
+  ),
 
-  http.get<PathParams, AvtaleHandling[]>("*/api/v1/intern/avtaler/:id/handlinger", () => {
-    return HttpResponse.json([
-      AvtaleHandling.REDIGER,
-      AvtaleHandling.AVBRYT,
-      AvtaleHandling.OPPRETT_GJENNOMFORING,
-      AvtaleHandling.DUPLISER,
-      AvtaleHandling.REGISTRER_OPSJON,
-      AvtaleHandling.OPPDATER_PRIS,
-    ]);
-  }),
+  http.get<PathParams, AvtaleHandling[]>(
+    "*/api/tiltaksadministrasjon/avtaler/:id/handlinger",
+    () => {
+      return HttpResponse.json([
+        AvtaleHandling.REDIGER,
+        AvtaleHandling.AVBRYT,
+        AvtaleHandling.OPPRETT_GJENNOMFORING,
+        AvtaleHandling.DUPLISER,
+        AvtaleHandling.REGISTRER_OPSJON,
+        AvtaleHandling.OPPDATER_PRIS,
+      ]);
+    },
+  ),
 
   http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/avtaler", ({ request }) => {
     const url = new URL(request.url);
@@ -92,7 +97,7 @@ export const avtaleHandlers = [
   }),
 
   http.get<PathParams, AvtaltSatsDto | undefined>(
-    "/api/v1/intern/prismodeller/forhandsgodkjente-satser",
+    "/api/tiltaksadministrasjon/prismodeller/forhandsgodkjente-satser",
     () => {
       return HttpResponse.json([
         {
@@ -105,11 +110,14 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, PrismodellDto | undefined>("/api/v1/intern/prismodeller", () => {
+  http.get<PathParams, PrismodellDto | undefined>("/api/tiltaksadministrasjon/prismodeller", () => {
     return HttpResponse.json([]);
   }),
 
-  http.get<PathParams, EndringshistorikkEntry>("*/api/v1/intern/avtaler/:id/historikk", () => {
-    return HttpResponse.json(mockEndringshistorikkAvtaler);
-  }),
+  http.get<PathParams, EndringshistorikkEntry>(
+    "*/api/tiltaksadministrasjon/avtaler/:id/historikk",
+    () => {
+      return HttpResponse.json(mockEndringshistorikkAvtaler);
+    },
+  ),
 ];

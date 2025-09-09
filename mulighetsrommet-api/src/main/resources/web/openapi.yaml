@@ -25,25 +25,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/avtaler/{id}/handlinger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Avtaler
-      operationId: getAvtaleHandlinger
-      responses:
-        200:
-          description: Avtale handlinger
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaleHandling"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -340,29 +321,6 @@ paths:
             application/json:
               schema:
                 type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/avtaler/{id}/historikk:
-    get:
-      tags:
-        - Avtaler
-      operationId: getAvtaleEndringshistorikk
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ID for avtalen
-      responses:
-        200:
-          description: Endringshistorikken for avtalen
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Endringshistorikk"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -901,134 +859,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/personopplysninger:
-    get:
-      tags:
-        - Personopplysninger
-      operationId: getPersonopplysninger
-      responses:
-        200:
-          description: "Personopplysninger"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PersonopplysningData"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/avtaler/{id}/opsjoner:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    post:
-      tags:
-        - Opsjoner
-      operationId: lagreOpsjon
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/OpprettOpsjonLoggRequest"
-      responses:
-        204:
-          description: "Lagret ok"
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-    delete:
-      tags:
-        - Opsjoner
-      operationId: slettOpsjon
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SlettOpsjonLoggRequest"
-      responses:
-        204:
-          description: "Sletting ok"
-          content:
-            text/plain:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-
-  /api/v1/intern/avtaler/{id}/satser:
-    get:
-      tags:
-        - Avtaler
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      operationId: getAvtalteSatser
-      responses:
-        200:
-          description: Avtalte satser for avtale
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaltSatsDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/prismodeller:
-    get:
-      tags:
-        - Prismodell
-      parameters:
-        - in: query
-          name: tiltakstype
-          required: true
-          schema:
-            $ref: "#/components/schemas/Tiltakskode"
-      operationId: getPrismodeller
-      responses:
-        200:
-          description: Prismodeller for tiltakstype
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PrismodellOgBeskrivelse"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/prismodeller/forhandsgodkjente-satser:
-    get:
-      tags:
-        - Prismodell
-      parameters:
-        - in: query
-          name: tiltakstype
-          required: true
-          schema:
-            $ref: "#/components/schemas/Tiltakskode"
-      operationId: getForhandsgodkjenteSatser
-      responses:
-        200:
-          description: Avtalte satser for avtale
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaltSatsDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
 components:
   responses:
     ProblemDetail:
@@ -1166,16 +996,6 @@ components:
         - OPPRETT_EKSTRATILSAGN
         - OPPRETT_TILSAGN_FOR_INVESTERINGER
         - OPPRETT_KORREKSJON_PA_UTBETALING
-
-    AvtaleHandling:
-      type: string
-      enum:
-        - REDIGER
-        - AVBRYT
-        - OPPRETT_GJENNOMFORING
-        - DUPLISER
-        - REGISTRER_OPSJON
-        - OPPDATER_PRIS
 
     AvtaleDto:
       type: object
@@ -1973,13 +1793,6 @@ components:
         - telefon
         - epost
 
-    ArrangorKontaktpersonAnsvar:
-      type: string
-      enum:
-        - AVTALE
-        - GJENNOMFORING
-        - OKONOMI
-
     AvtaleAdministrator:
       type: object
       properties:
@@ -2564,20 +2377,6 @@ components:
         - kontaktpersonId
         - dokumentId
 
-    PersonopplysningData:
-      type: object
-      properties:
-        personopplysning:
-          $ref: "#/components/schemas/Personopplysning"
-        tittel:
-          type: string
-        hjelpetekst:
-          type: [string, "null"]
-      required:
-        - personopplysning
-        - tittel
-        - hjelpetekst
-
     Opsjonsmodell:
       type: object
       properties:
@@ -2602,22 +2401,6 @@ components:
         - ANNET
         - INGEN_OPSJONSMULIGHET
         - VALGFRI_SLUTTDATO
-
-    OpprettOpsjonLoggRequest:
-      type: object
-      properties:
-        nySluttdato:
-          type: [string, "null"]
-          format: date
-        forrigeSluttdato:
-          type: [string, "null"]
-          format: date
-        status:
-          $ref: "#/components/schemas/OpsjonStatus"
-      required:
-        - nySluttdato
-        - forrigeSluttdato
-        - status
 
     OpsjonStatus:
       type: string
@@ -2648,26 +2431,6 @@ components:
         - sluttDato
         - forrigeSluttdato
         - status
-
-    SlettOpsjonLoggRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-      required:
-        - id
-
-    PrismodellOgBeskrivelse:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/Prismodell"
-        beskrivelse:
-          type: string
-      required:
-        - type
-        - beskrivelse
 
     AvtaltSatsDto:
       type: object

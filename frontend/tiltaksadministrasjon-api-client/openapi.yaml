@@ -98,6 +98,315 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/personopplysninger:
+    get:
+      tags:
+      - Personopplysninger
+      operationId: getPersonopplysninger
+      parameters: []
+      responses:
+        "200":
+          description: Kodeverk over typer personopplysninger som kan deles mellom
+            Nav og arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonopplysningData"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/prismodeller:
+    get:
+      tags:
+      - Prismodell
+      operationId: getPrismodeller
+      parameters:
+      - name: tiltakstype
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Prismodeller for tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrismodellDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/prismodeller/forhandsgodkjente-satser:
+    get:
+      tags:
+      - Prismodell
+      operationId: getForhandsgodkjenteSatser
+      parameters:
+      - name: tiltakstype
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Hovedenhet til Arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaltSatsDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+    put:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/opsjoner:
+    post:
+      tags:
+      - Avtale
+      operationId: registrerOpsjon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpprettOpsjonLoggRequest"
+        required: false
+      responses:
+        "200":
+          description: Opsjon ble registrert
+          headers: {}
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/opsjoner/{opsjonId}:
+    delete:
+      tags:
+      - Avtale
+      operationId: slettOpsjon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: opsjonId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Opsjon ble slettet
+          headers: {}
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/avbryt:
+    put:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/prismodell:
+    put:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/kontaktperson:
+    delete:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/mine:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/excel:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}:
+    get:
+      tags: []
+      parameters: []
+      responses: {}
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/handlinger:
+    get:
+      tags:
+      - Avtale
+      operationId: getAvtaleHandlinger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Avtale-handlinger for innlogget bruker
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaleHandling"
+                uniqueItems: true
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/satser:
+    get:
+      tags:
+      - Avtale
+      operationId: getAvtalteSatser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Avtalte satser for avtale
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaltSatsDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/historikk:
+    get:
+      tags:
+      - Avtale
+      operationId: getAvtaleEndringshistorikk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Avtalens endringshistorikk
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndringshistorikkDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/tilsagn:
     get:
       tags:
@@ -1845,6 +2154,218 @@ components:
       - regelverkLenker
       - sanityId
       - tiltakskode
+    PersonopplysningData:
+      type: object
+      properties:
+        personopplysning:
+          $ref: "#/components/schemas/Personopplysning"
+        tittel:
+          type: string
+        hjelpetekst:
+          type:
+          - "null"
+          - string
+      required:
+      - hjelpetekst
+      - personopplysning
+      - tittel
+    Personopplysning:
+      type: string
+      enum:
+      - NAVN
+      - KJONN
+      - ADRESSE
+      - TELEFONNUMMER
+      - FOLKEREGISTER_IDENTIFIKATOR
+      - FODSELSDATO
+      - BEHOV_FOR_BISTAND_FRA_NAV
+      - YTELSER_FRA_NAV
+      - BILDE
+      - EPOST
+      - BRUKERNAVN
+      - ARBEIDSERFARING_OG_VERV
+      - SERTIFIKATER_OG_KURS
+      - UTDANNING_OG_FAGBREV
+      - IP_ADRESSE
+      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
+      - SPRAKKUNNSKAP
+      - ADFERD
+      - SOSIALE_FORHOLD
+      - HELSEOPPLYSNINGER
+      - RELIGION
+      - NASJONALITET
+      - ADRESSESPERRE
+      - VERGEMAL
+    PrismodellDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Prismodell"
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - type
+    Prismodell:
+      type: string
+      enum:
+      - ANNEN_AVTALT_PRIS
+      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    AvtaltSatsDto:
+      type: object
+      properties:
+        gjelderFra:
+          type: string
+          format: date
+        pris:
+          type: integer
+          format: int32
+        valuta:
+          type: string
+        gjelderTil:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - gjelderFra
+      - gjelderTil
+      - pris
+      - valuta
+    OpsjonLoggStatus:
+      type: string
+      enum:
+      - OPSJON_UTLOST
+      - SKAL_IKKE_UTLOSE_OPSJON
+    OpprettOpsjonLoggRequest:
+      type: object
+      properties:
+        nySluttdato:
+          type:
+          - "null"
+          - string
+          format: date
+        forrigeSluttdato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/OpsjonLoggStatus"
+      required:
+      - forrigeSluttdato
+      - nySluttdato
+      - status
+    FieldError:
+      type: object
+      properties:
+        pointer:
+          type: string
+        detail:
+          type: string
+      required:
+      - detail
+      - pointer
+    JsonElement:
+      type: object
+      properties: {}
+    Nothing:
+      type: object
+      properties: {}
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FieldError"
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        extensions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/JsonElement"
+        instance:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Nothing"
+      required:
+      - detail
+      - errors
+      - extensions
+      - instance
+      - status
+      - title
+      - type
+    AvtaleHandling:
+      type: string
+      enum:
+      - REDIGER
+      - AVBRYT
+      - OPPRETT_GJENNOMFORING
+      - DUPLISER
+      - REGISTRER_OPSJON
+      - OPPDATER_PRIS
+    EndringshistorikkDto.Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        operation:
+          type: string
+        editedAt:
+          type: string
+          format: date-time
+        editedBy:
+          $ref: "#/components/schemas/EndringshistorikkDto.User"
+      required:
+      - editedAt
+      - editedBy
+      - id
+      - operation
+    EndringshistorikkDto.User:
+      anyOf:
+      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
+      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
+    EndringshistorikkDto.NavAnsatt:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type:
+          - "null"
+          - string
+      required:
+      - navIdent
+      - navn
+    EndringshistorikkDto.Systembruker:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+      - navn
+    EndringshistorikkDto:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
+      required:
+      - entries
     TilsagnStatus:
       type: string
       enum:
@@ -2267,56 +2788,6 @@ components:
       - opprettelse
       - tilOppgjor
       - tilsagn
-    EndringshistorikkDto.Entry:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        operation:
-          type: string
-        editedAt:
-          type: string
-          format: date-time
-        editedBy:
-          $ref: "#/components/schemas/EndringshistorikkDto.User"
-      required:
-      - editedAt
-      - editedBy
-      - id
-      - operation
-    EndringshistorikkDto.User:
-      anyOf:
-      - $ref: "#/components/schemas/EndringshistorikkDto.NavAnsatt"
-      - $ref: "#/components/schemas/EndringshistorikkDto.Systembruker"
-    EndringshistorikkDto.NavAnsatt:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        navn:
-          type:
-          - "null"
-          - string
-      required:
-      - navIdent
-      - navn
-    EndringshistorikkDto.Systembruker:
-      type: object
-      properties:
-        navn:
-          type: string
-      required:
-      - navn
-    EndringshistorikkDto:
-      type: object
-      properties:
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/EndringshistorikkDto.Entry"
-      required:
-      - entries
     TilsagnBeregningRequest:
       type: object
       properties:
@@ -3086,9 +3557,6 @@ components:
       - GJENNOMFORING
       - GJENNOMFORING_MODIA
       - OPPGAVE
-    JsonElement:
-      type: object
-      properties: {}
     LagretFilter:
       type: object
       properties:

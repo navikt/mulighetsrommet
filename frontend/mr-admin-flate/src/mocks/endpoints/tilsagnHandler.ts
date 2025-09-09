@@ -1,20 +1,19 @@
-import { GetForhandsgodkjenteSatserResponse } from "@mr/api-client-v2";
-import { http, HttpResponse, PathParams } from "msw";
-import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
-import { v4 } from "uuid";
-import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import {
-  TotrinnskontrollDtoTilBeslutning,
+  DataDrivenTableDto,
+  DataElementMathOperatorType,
+  DataElementTextFormat,
+  LabeledDataElementType,
   TilsagnBeregningDto,
   TilsagnBeregningType,
   TilsagnDetaljerDto,
   TilsagnRequest,
   TilsagnType,
-  DataDrivenTableDto,
-  LabeledDataElementType,
-  DataElementTextFormat,
-  DataElementMathOperatorType,
+  TotrinnskontrollDtoTilBeslutning,
 } from "@tiltaksadministrasjon/api-client";
+import { http, HttpResponse, PathParams } from "msw";
+import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
+import { v4 } from "uuid";
+import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const tilsagnHandlers = [
   http.get<PathParams, any, DataDrivenTableDto>("*/api/tiltaksadministrasjon/tilsagn", async () => {
@@ -66,24 +65,6 @@ export const tilsagnHandlers = [
     "*/api/tiltaksadministrasjon/tilsagn/:tilsagnId/beslutt",
     async () => {
       return HttpResponse.text("OK");
-    },
-  ),
-
-  http.get<PathParams, string, GetForhandsgodkjenteSatserResponse>(
-    "*/api/tiltaksadministrasjon/prismodell/satser",
-    () => {
-      return HttpResponse.json([
-        {
-          gjelderFra: "2024-01-01",
-          pris: 20205,
-          valuta: "NOK",
-        },
-        {
-          gjelderFra: "2023-01-01",
-          pris: 19500,
-          valuta: "NOK",
-        },
-      ]);
     },
   ),
 
