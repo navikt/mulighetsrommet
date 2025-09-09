@@ -63,7 +63,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
 
   return (
     <Modal
-      width={500}
+      width={1000}
       closeOnBackdropClick
       onClose={closeAndResetForm}
       ref={modalRef}
