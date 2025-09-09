@@ -474,7 +474,7 @@ paths:
         in: query
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
           type: array
           items:

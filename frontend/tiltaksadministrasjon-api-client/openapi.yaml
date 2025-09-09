@@ -771,7 +771,7 @@ paths:
         in: query
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
           type: array
           items:
@@ -884,7 +884,7 @@ paths:
         description: Filtrer på status
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
           type: array
           items:
@@ -942,7 +942,7 @@ paths:
         description: Hvilke regioner man henter for
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
           type: array
           items:
