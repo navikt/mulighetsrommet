@@ -1,7 +1,7 @@
-import { Endringshistorikk } from "@mr/api-client-v2";
+import { EndringshistorikkDto } from "@tiltaksadministrasjon/api-client";
 import { mockRedaktor } from "./mock_ansatt";
 
-export const mockEndringshistorikkAvtaler: Endringshistorikk = {
+export const mockEndringshistorikkAvtaler: EndringshistorikkDto = {
   entries: [
     {
       editedAt: new Date(2023, 11, 17, 9, 45).toISOString(),

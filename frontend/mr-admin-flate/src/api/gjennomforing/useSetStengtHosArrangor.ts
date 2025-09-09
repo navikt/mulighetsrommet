@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
 import {
-  GjennomforingerService,
+  GjennomforingService,
   ProblemDetail,
   SetStengtHosArrangorRequest,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useSetStengtHosArrangor(gjennomforingId: string) {
@@ -12,7 +12,7 @@ export function useSetStengtHosArrangor(gjennomforingId: string) {
 
   return useApiMutation<unknown, ProblemDetail, SetStengtHosArrangorRequest>({
     mutationFn: async (data) => {
-      return GjennomforingerService.setStengtHosArrangor({
+      return GjennomforingService.setStengtHosArrangor({
         path: { id: gjennomforingId },
         body: data,
       });

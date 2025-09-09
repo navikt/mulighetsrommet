@@ -21,8 +21,8 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.brreg.BrregHovedenhet
-import no.nav.mulighetsrommet.brreg.BrregUnderenhet
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
@@ -153,7 +153,8 @@ fun Route.arrangorRoutes() {
             val id: UUID by call.parameters
             val arrangor = db.session { queries.arrangor.getById(id) }
 
-            val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+            val kontonummer =
+                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
 
             val result = kontonummer
                 .mapLeft { InternalServerError("Klarte ikke hente kontonummer for arrangør") }
@@ -310,7 +311,7 @@ fun Route.arrangorRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Treff hos Brreg"
-                    body<List<BrregHovedenhet>>()
+                    body<List<BrregHovedenhetDto>>()
                 }
                 default {
                     description = "Problem details"
@@ -331,7 +332,7 @@ fun Route.arrangorRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Underenhetene til hovedenhet for gitt orgnr"
-                    body<List<BrregUnderenhet>>()
+                    body<List<BrregUnderenhetDto>>()
                 }
                 default {
                     description = "Problem details"
