@@ -227,7 +227,7 @@ fun Route.avtaleRoutes() {
 
             delete("{id}/kontaktperson/{kontaktpersonId}", {
                 tags = setOf("Avtale")
-                operationId = "frikobleKontaktperson"
+                operationId = "frikobleAvtaleKontaktperson"
                 request {
                     pathParameterUuid("id")
                     pathParameterUuid("kontaktpersonId")
@@ -317,7 +317,7 @@ fun Route.avtaleRoutes() {
             }
             response {
                 code(HttpStatusCode.OK) {
-                    description = "Avtale-handlinger for innlogget bruker"
+                    description = "Mulige handlinger på avtaler for innlogget bruker"
                     body<Set<AvtaleHandling>>()
                 }
                 default {

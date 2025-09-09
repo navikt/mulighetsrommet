@@ -1,6 +1,6 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { BrregService } from "@mr/api-client-v2";
+import { BrregService } from "@tiltaksadministrasjon/api-client";
 
 export function useBrregUnderenheter(orgnr: string) {
   return useApiQuery({

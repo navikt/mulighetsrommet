@@ -1,14 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
-import { AvtalerService } from "@mr/api-client-v2";
+import { AvtaleService } from "@tiltaksadministrasjon/api-client";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useFrikobleArrangorKontaktpersonFraAvtale() {
   const client = useQueryClient();
   return useApiMutation({
     mutationFn: (body: { kontaktpersonId: string; dokumentId: string }) => {
-      return AvtalerService.frikobleKontaktpersonFraAvtale({
-        body: { ...body },
+      return AvtaleService.frikobleAvtaleKontaktperson({
+        path: { id: body.dokumentId, kontaktpersonId: body.kontaktpersonId },
       });
     },
     async onSuccess(_, request) {
