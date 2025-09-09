@@ -32,7 +32,7 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
   }
 
   return (
-    <div className="bg-surface-selected p-4 rounded-lg">
+    <div className="bg-surface-subtle p-4 rounded-lg">
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
         <Radio value="Opsjon_skal_ikke_utloses">Avklart at opsjon ikke skal utløses</Radio>
         <Radio

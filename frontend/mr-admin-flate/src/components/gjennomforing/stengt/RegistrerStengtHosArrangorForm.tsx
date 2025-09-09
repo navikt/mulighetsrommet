@@ -1,12 +1,11 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { FormGroup } from "@/components/skjema/FormGroup";
-import { addYear } from "@/utils/Utils";
 import { GjennomforingDto, SetStengtHosArrangorRequest, ValidationError } from "@mr/api-client-v2";
+import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
-import { Alert, Button, HGrid, TextField, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -49,8 +48,8 @@ export function RegistrerStengtHosArrangorForm({
     );
   }
 
-  const minDate = addYear(new Date(), -1);
-  const maxDate = addYear(new Date(), 5);
+  const minDate = subDuration(new Date(), { years: -1 });
+  const maxDate = addDuration(new Date(), { years: 5 });
 
   return (
     <FormProvider {...form}>
@@ -59,47 +58,57 @@ export function RegistrerStengtHosArrangorForm({
           onSubmit(values);
         })}
       >
-        <FormGroup>
-          <HGrid columns={2}>
-            <ControlledDateInput
-              label="Periode start"
-              defaultSelected={getValues("periodeStart")}
-              onChange={(val) => setValue("periodeStart", val)}
-              error={formState.errors.periodeStart?.message}
-              fromDate={minDate}
-              toDate={maxDate}
-            />
-            <ControlledDateInput
-              label="Periode slutt"
-              defaultSelected={getValues("periodeSlutt")}
-              onChange={(val) => setValue("periodeSlutt", val)}
-              error={formState.errors.periodeSlutt?.message}
-              fromDate={minDate}
-              toDate={maxDate}
-            />
-          </HGrid>
-          <HGrid columns={1}>
-            <TextField
-              size="small"
-              label="Beskrivelse"
-              style={{ width: "180px" }}
-              error={formState.errors.beskrivelse?.message as string}
-              {...register("beskrivelse")}
-            />
-          </HGrid>
-        </FormGroup>
-
-        {setStengtHosArrangor.error && (
-          <VStack className="my-5">
-            <Alert inline variant="error">
-              Klarte ikke lagre periode
-            </Alert>
-          </VStack>
-        )}
-
-        <Button size="small" icon={<FloppydiskIcon aria-hidden />} type="submit">
-          Lagre periode
-        </Button>
+        <VStack gap="2">
+          <Box
+            background="surface-subtle"
+            borderColor="border-subtle"
+            borderRadius="medium"
+            borderWidth="1"
+            padding="4"
+          >
+            <VStack gap="2">
+              <HStack gap="4">
+                <ControlledDateInput
+                  label="Periode start"
+                  defaultSelected={getValues("periodeStart")}
+                  onChange={(val) => setValue("periodeStart", val)}
+                  error={formState.errors.periodeStart?.message}
+                  fromDate={minDate}
+                  toDate={maxDate}
+                />
+                <ControlledDateInput
+                  label="Periode slutt"
+                  defaultSelected={getValues("periodeSlutt")}
+                  onChange={(val) => setValue("periodeSlutt", val)}
+                  error={formState.errors.periodeSlutt?.message}
+                  fromDate={minDate}
+                  toDate={maxDate}
+                />
+              </HStack>
+              <TextField
+                size="small"
+                label="Beskrivelse"
+                error={formState.errors.beskrivelse?.message as string}
+                {...register("beskrivelse")}
+              />
+            </VStack>
+          </Box>
+          {setStengtHosArrangor.error && (
+            <VStack className="my-5">
+              <Alert inline variant="error">
+                Klarte ikke lagre periode
+              </Alert>
+            </VStack>
+          )}
+          <Button
+            className="self-start"
+            size="small"
+            icon={<FloppydiskIcon aria-hidden />}
+            type="submit"
+          >
+            Lagre periode
+          </Button>
+        </VStack>
       </form>
     </FormProvider>
   );
