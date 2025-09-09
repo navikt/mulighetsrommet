@@ -36,7 +36,7 @@ data class AvtaleDto(
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
+    val opsjonerRegistrert: List<OpsjonLoggRegistrert>,
     val utdanningslop: UtdanningslopDto?,
     val prismodell: PrismodellDto,
 ) {

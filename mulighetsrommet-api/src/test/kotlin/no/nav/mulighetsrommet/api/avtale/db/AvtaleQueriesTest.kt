@@ -156,30 +156,38 @@ class AvtaleQueriesTest : FunSpec({
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
                 queries.setStatus(
-                    id,
-                    AvtaleStatus.AVBRUTT,
-                    tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"),
+                    id = id,
+                    status = AvtaleStatus.AVBRUTT,
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
+                    forklaring = ":)",
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
                 queries.setStatus(
-                    id,
-                    AvtaleStatus.AVBRUTT,
-                    tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    id = id,
+                    status = AvtaleStatus.AVBRUTT,
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+                queries.setStatus(
+                    id = id,
+                    status = AvtaleStatus.AVSLUTTET,
+                    tidspunkt = null,
+                    aarsaker = null,
+                    forklaring = null,
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avsluttet
             }
         }
@@ -659,10 +667,8 @@ class AvtaleQueriesTest : FunSpec({
                     avtaleAvbrutt.id,
                     AvtaleStatus.AVBRUTT,
                     LocalDateTime.now(),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                        listOf(AvbruttAarsak.FEILREGISTRERING),
-                        null,
-                    ),
+                    listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    null,
                 )
 
                 val avtaleUtkast = AvtaleFixtures.oppfolging.copy(

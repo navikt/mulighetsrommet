@@ -99,7 +99,7 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<{ id: string }, number>("*/api/v1/intern/gjennomforinger/:id/avbryt", () => {
+  http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/gjennomforinger/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
 

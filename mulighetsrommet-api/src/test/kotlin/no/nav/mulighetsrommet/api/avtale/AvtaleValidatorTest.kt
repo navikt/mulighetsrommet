@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -607,7 +608,10 @@ class AvtaleValidatorTest : FunSpec({
 
                 val request = avtaleRequest.copy(
                     avtaletype = Avtaletype.FORHANDSGODKJENT,
-                    opsjonsmodell = Opsjonsmodell(type = OpsjonsmodellType.VALGFRI_SLUTTDATO, opsjonMaksVarighet = null),
+                    opsjonsmodell = Opsjonsmodell(
+                        type = OpsjonsmodellType.VALGFRI_SLUTTDATO,
+                        opsjonMaksVarighet = null,
+                    ),
                     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 )
 
@@ -703,10 +707,8 @@ class AvtaleValidatorTest : FunSpec({
                     avtale.id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt = today.atStartOfDay(),
-                    AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbruttAarsak.BUDSJETT_HENSYN),
-                        forklaring = null,
-                    ),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
                 )
             }.initialize(database.db)
 

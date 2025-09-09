@@ -9,6 +9,9 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -20,7 +23,10 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -136,7 +142,7 @@ class AvtaleService(
             "Avtalen kan ikke avsluttes før sluttdato"
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null, null)
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avsluttet", dto, endretAv)
@@ -146,7 +152,7 @@ class AvtaleService(
         id: UUID,
         avbruttAv: NavIdent,
         tidspunkt: LocalDateTime,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
     ): Either<List<FieldError>, AvtaleDto> = db.transaction {
         val avtale = getOrError(id)
 
@@ -175,7 +181,13 @@ class AvtaleService(
             return errors.left()
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, aarsakerOgForklaring)
+        queries.avtale.setStatus(
+            id = id,
+            status = AvtaleStatus.AVBRUTT,
+            tidspunkt = tidspunkt,
+            aarsaker = aarsakerOgForklaring.aarsaker,
+            forklaring = aarsakerOgForklaring.forklaring,
+        )
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avbrutt", dto, avbruttAv)
@@ -190,8 +202,9 @@ class AvtaleService(
         if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
             val avtale = getOrError(entry.avtaleId)
 
-            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert
-                ?.any { it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON } == true
+            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert.any {
+                it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
+            }
             if (skalIkkeUtloseOpsjonerForAvtale) {
                 return FieldError.of(OpsjonLoggEntry::status, "Kan ikke utløse flere opsjoner").left()
             }
@@ -281,6 +294,7 @@ class AvtaleService(
                     AvtaleStatusDto.Utkast,
                     AvtaleStatusDto.Aktiv,
                     -> avtalerSkriv
+
                     is AvtaleStatusDto.Avbrutt,
                     AvtaleStatusDto.Avsluttet,
                     -> false
@@ -331,7 +345,7 @@ class AvtaleService(
             }
         }
         if (newStatus != currentStatus) {
-            queries.avtale.setStatus(avtaleId, newStatus, null, null)
+            queries.avtale.setStatus(avtaleId, newStatus, null, null, null)
         }
     }
 

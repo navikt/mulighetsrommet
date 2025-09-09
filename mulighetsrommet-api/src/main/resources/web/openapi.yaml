@@ -25,24 +25,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/avtaler/{id}/avbryt:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    put:
-      tags:
-        - Avtaler
-      operationId: avbrytAvtale
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AvbrytelseRequest"
-      responses:
-        200:
-          description: The specified avtale you want to 'Avbryte'
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/avtaler/{id}/prismodell:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -675,28 +657,6 @@ paths:
                 $ref: "#/components/schemas/TiltaksnummerResponse"
         204:
           description: Gjennomføringen har enda ikke tiltaksnummer.
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/gjennomforinger/{id}/avbryt:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    put:
-      tags:
-        - Gjennomforinger
-      operationId: avbrytGjennomforing
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AvbrytelseRequest"
-      responses:
-        200:
-          description: The specified gjennomføring you want to 'Avbryte'
-          content:
-            application/json:
-              schema:
-                type: string
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -1952,17 +1912,6 @@ components:
         - FEILREGISTRERING
         - AVBRUTT_I_ARENA
         - ANNET
-
-    AvbrytelseRequest:
-      type: object
-      properties:
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
-          type: [string, "null"]
-      required: [aarsaker, forklaring]
 
     GjennomforingDeltakerSummary:
       type: object
