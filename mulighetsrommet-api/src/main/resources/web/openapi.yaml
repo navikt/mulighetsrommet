@@ -112,6 +112,10 @@ paths:
           name: personvernBekreftet
           schema:
             type: boolean
+        - in: query
+          name: visMineAvtaler
+          schema:
+            type: boolean
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
@@ -139,70 +143,6 @@ paths:
                 $ref: "#/components/schemas/AvtaleDto"
         400:
           $ref: "#/components/responses/ValidationError"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/avtaler/mine:
-    get:
-      tags:
-        - Avtaler
-      operationId: getMineAvtaler
-      parameters:
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              type: string
-          description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for avtaler by the name
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
-          name: sort
-          schema:
-            $ref: "#/components/schemas/SorteringAvtaler"
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/AvtaleStatus"
-          description: Statuser for avtale
-        - in: query
-          name: navRegioner
-          schema:
-            type: array
-            items:
-              type: string
-          description: 4 digit enhetskode
-        - in: query
-          name: arrangorer
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
-          description: Id til arrangør for avtaler
-      responses:
-        200:
-          description: Object of paginated avtaler connected to specified tiltakstype-id where logged in user is responsible for avtale.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertAvtale"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -439,6 +379,10 @@ paths:
           name: avtaleId
           schema:
             type: string
+        - in: query
+          name: visMineGjennomforinger
+          schema:
+            type: boolean
       responses:
         200:
           description: Object of paginated gjennomføringer.
@@ -464,80 +408,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GjennomforingDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/gjennomforinger/mine:
-    get:
-      tags:
-        - Gjennomforinger
-      operationId: getMineGjennomforinger
-      parameters:
-        - in: query
-          name: navEnheter
-          schema:
-            type: array
-            items:
-              type: string
-          description: 4 digit enhetskode
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
-          description: Id for tiltakstype knyttet til gjennomføringer
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/GjennomforingStatus"
-          description: Status for gjennomføring
-        - in: query
-          name: navRegioner
-          schema:
-            type: array
-            items:
-              type: string
-        - in: query
-          name: arrangorer
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for gjennomføringer by the name
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
-          name: sort
-          schema:
-            $ref: "#/components/schemas/SorteringGjennomforinger"
-        - in: query
-          name: avtaleId
-          schema:
-            type: string
-      responses:
-        200:
-          description: Object of paginated gjennomføringer where logged in user is responsible for gjennomføringen.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertGjennomforing"
         default:
           $ref: "#/components/responses/ProblemDetail"
 
@@ -610,7 +480,7 @@ paths:
           schema:
             type: string
         - in: query
-          name: visMineTiltaksgjennomforinger
+          name: visMineGjennomforinger
           schema:
             type: boolean
       responses:

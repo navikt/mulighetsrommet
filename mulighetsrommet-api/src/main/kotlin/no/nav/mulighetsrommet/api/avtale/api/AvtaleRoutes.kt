@@ -408,6 +408,9 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val sortering = call.request.queryParameters["sort"]
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
     val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
+    val administratorNavIdent = call.parameters["visMineAvtaler"]
+        ?.takeIf { it == "true" }
+        ?.let { getNavIdent() }
 
     return AvtaleFilter(
         tiltakstypeIder = tiltakstypeIder,
@@ -417,7 +420,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
         navRegioner = navRegioner,
         sortering = sortering,
         arrangorIds = arrangorIds,
-        administratorNavIdent = null,
+        administratorNavIdent = administratorNavIdent,
         personvernBekreftet = personvernBekreftet,
     )
 }
