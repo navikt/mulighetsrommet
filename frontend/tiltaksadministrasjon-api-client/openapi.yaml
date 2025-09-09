@@ -2668,63 +2668,6 @@ components:
       enum:
       - TILTAK_DRIFTSTILSKUDD
       - TILTAK_INVESTERINGER
-    UtbetalingLinje:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tilsagn:
-          $ref: "#/components/schemas/TilsagnDto"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DelutbetalingStatusDto"
-        belop:
-          type: integer
-          format: int32
-        gjorOppTilsagn:
-          type: boolean
-        opprettelse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/TotrinnskontrollDto"
-        handlinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingLinjeHandling"
-          uniqueItems: true
-      required:
-      - belop
-      - gjorOppTilsagn
-      - handlinger
-      - id
-      - opprettelse
-      - status
-      - tilsagn
-    DelutbetalingStatusDto:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/DelutbetalingStatus"
-        status:
-          $ref: "#/components/schemas/DataElement.Status"
-      required:
-      - status
-      - type
-    DelutbetalingStatus:
-      type: string
-      enum:
-      - TIL_ATTESTERING
-      - GODKJENT
-      - RETURNERT
-      - UTBETALT
-      - OVERFORT_TIL_UTBETALING
-    UtbetalingLinjeHandling:
-      type: string
-      enum:
-      - ATTESTER
-      - RETURNER
     UtbetalingHandling:
       type: string
       enum:
@@ -2734,10 +2677,6 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
-        linjer:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingLinje"
         handlinger:
           type: array
           items:
@@ -2745,7 +2684,6 @@ components:
           uniqueItems: true
       required:
       - handlinger
-      - linjer
       - utbetaling
     UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed:
       type: object
@@ -2891,6 +2829,63 @@ components:
           no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri: "#/components/schemas/UtbetalingBeregningDto.Fri"
           no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerManedsverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
           no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerUkesverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
+    UtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DelutbetalingStatusDto"
+        belop:
+          type: integer
+          format: int32
+        gjorOppTilsagn:
+          type: boolean
+        opprettelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingLinjeHandling"
+          uniqueItems: true
+      required:
+      - belop
+      - gjorOppTilsagn
+      - handlinger
+      - id
+      - opprettelse
+      - status
+      - tilsagn
+    DelutbetalingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+      - status
+      - type
+    DelutbetalingStatus:
+      type: string
+      enum:
+      - TIL_ATTESTERING
+      - GODKJENT
+      - RETURNERT
+      - UTBETALT
+      - OVERFORT_TIL_UTBETALING
+    UtbetalingLinjeHandling:
+      type: string
+      enum:
+      - ATTESTER
+      - RETURNER
     OpprettUtbetalingRequest:
       type: object
       properties:

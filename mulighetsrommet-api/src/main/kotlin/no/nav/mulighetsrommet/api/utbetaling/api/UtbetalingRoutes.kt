@@ -6,7 +6,6 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -25,9 +24,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
@@ -95,53 +92,7 @@ fun Route.utbetalingRoutes() {
 
                 val navIdent = getNavIdent()
 
-                val utbetaling = db.session {
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
-                        ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
-
-                    val utbetaling = queries.utbetaling.get(id)
-                        ?: throw NotFoundException("Utbetaling id=$id finnes ikke")
-
-                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-                    val linjer = delutbetalinger.map { delutbetaling ->
-                        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
-                            TilsagnDto.fromTilsagn(it)
-                        }
-
-                        val opprettelse = queries.totrinnskontroll
-                            .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-                        val tilsagnOpprettelse = queries.totrinnskontroll
-                            .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-
-                        val erBeslutter = ansatt.hasKontorspesifikkRolle(
-                            Rolle.ATTESTANT_UTBETALING,
-                            setOf(tilsagn.kostnadssted.enhetsnummer),
-                        )
-                        val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-                        UtbetalingLinje(
-                            id = delutbetaling.id,
-                            gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-                            belop = delutbetaling.belop,
-                            status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
-                            tilsagn = tilsagn,
-                            opprettelse = opprettelse.toDto(),
-                            handlinger = setOfNotNull(
-                                UtbetalingLinjeHandling.ATTESTER.takeIf {
-                                    erBeslutter && opprettelse.behandletAv != ansatt.navIdent && tilsagnOpprettelse.besluttetAv != ansatt.navIdent
-                                },
-                                UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
-                            ),
-                        )
-                    }.sortedBy { it.tilsagn.bestillingsnummer }
-
-                    UtbetalingDetaljerDto(
-                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        linjer = linjer,
-                        handlinger = utbetalingService.handlinger(utbetaling, ansatt),
-                    )
-                }
-
+                val utbetaling = utbetalingService.getUtbetalingDetaljer(id, navIdent)
                 call.respond(utbetaling)
             }
         }
@@ -250,7 +201,8 @@ fun Route.utbetalingRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val utbetalingsLinjer = utbetalingService.getUtbetalingsLinjer(id)
+            val navIdent = getNavIdent()
+            val utbetalingsLinjer = utbetalingService.getUtbetalingLinjer(id, navIdent)
             call.respond(utbetalingsLinjer)
         }
 

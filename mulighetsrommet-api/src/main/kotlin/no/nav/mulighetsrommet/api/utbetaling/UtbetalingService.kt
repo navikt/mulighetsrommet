@@ -1,14 +1,12 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.*
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.plugins.*
-import io.ktor.server.response.respond
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -23,7 +21,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.*
@@ -83,6 +81,52 @@ class UtbetalingService(
                 type = UtbetalingType.from(utbetaling).toDto(),
             )
         }
+    }
+
+    fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
+        val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
+        val utbetaling = queries.utbetaling.getOrError(id)
+
+        return UtbetalingDetaljerDto(
+            utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
+            handlinger = handlinger(utbetaling, ansatt),
+        )
+    }
+
+    private fun QueryContext.getUtbetalingLinjer(utbetalingId: UUID, navAnsatt: NavAnsatt): List<UtbetalingLinje> {
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
+        val linjer = delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = navAnsatt) }.sortedBy { it.tilsagn.bestillingsnummer }
+        return linjer
+    }
+
+    private fun QueryContext.delutbetalingToUtbetalingLinje(delutbetaling: Delutbetaling, navAnsatt: NavAnsatt): UtbetalingLinje {
+        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+
+        val opprettelse = queries.totrinnskontroll
+            .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+        val tilsagnOpprettelse = queries.totrinnskontroll
+            .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+
+        val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
+            Rolle.ATTESTANT_UTBETALING,
+            setOf(tilsagn.kostnadssted.enhetsnummer),
+        )
+        val erSaksbehandler = navAnsatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+        return UtbetalingLinje(
+            id = delutbetaling.id,
+            gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+            belop = delutbetaling.belop,
+            status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
+            tilsagn = TilsagnDto.fromTilsagn(tilsagn),
+            opprettelse = opprettelse.toDto(),
+            handlinger = setOfNotNull(
+                UtbetalingLinjeHandling.ATTESTER.takeIf {
+                    erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent && tilsagnOpprettelse.besluttetAv != navAnsatt.navIdent
+                },
+                UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
+            ),
+        )
     }
 
     fun godkjentAvArrangor(
@@ -230,13 +274,26 @@ class UtbetalingService(
         queries.delutbetaling.getOrError(id).right()
     }
 
-    fun getUtbetalingsLinjer(utbetalingId: UUID): List<UtbetalingLinje> = db.session {
+    fun getUtbetalingLinjer(utbetalingId: UUID, navIdent: NavIdent): List<UtbetalingLinje> = db.session {
+        val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
+        val utbetalingLinjer = getUtbetalingLinjer(utbetalingId, ansatt)
+        if (utbetalingLinjer.isNotEmpty()) {
+            return utbetalingLinjer
+        }
+        if (!ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)) {
+            return emptyList()
+        }
+        return getUtbetalingsLinjerFraTilsagn(utbetalingId)
+    }
+
+    fun QueryContext.getUtbetalingsLinjerFraTilsagn(utbetalingId: UUID): List<UtbetalingLinje> {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        val utbetalingsLinjer = queries.tilsagn.getAll(
+        val tilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
             periodeIntersectsWith = utbetaling.periode,
             typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-        ).filter { it.status === TilsagnStatus.GODKJENT }
+        )
+        return tilsagn.filter { it.status === TilsagnStatus.GODKJENT }
             .map {
                 UtbetalingLinje(
                     id = UUID.randomUUID(),
@@ -249,8 +306,8 @@ class UtbetalingService(
                 )
             }
             .sortedBy { it.tilsagn.bestillingsnummer }
-        return utbetalingsLinjer
     }
+
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
         val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         publishOpprettFaktura(delutbetaling)
