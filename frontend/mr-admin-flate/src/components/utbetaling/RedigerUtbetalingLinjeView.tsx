@@ -44,7 +44,7 @@ export function RedigerUtbetalingLinjeView({ linjer, linjerDispatch, utbetaling 
 
   async function oppdaterLinjer() {
     await queryClient.invalidateQueries({
-      queryKey: QueryKeys.utbetalingsLinjerFraTilsagn(utbetaling.id),
+      queryKey: QueryKeys.utbetalingsLinjer(utbetaling.id),
     });
     linjerDispatch({ type: "REFETCH" });
   }

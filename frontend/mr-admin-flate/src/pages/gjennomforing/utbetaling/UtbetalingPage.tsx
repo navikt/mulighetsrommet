@@ -45,19 +45,18 @@ import {
   useUtbetaling,
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
-  useUtbetalingsLinjeFraTilsagn,
+  useUtbetalingsLinjer,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { QueryKeys } from "@/api/QueryKeys";
 import { UtbetalingLinjerState, UtbetalingLinjerStateAction } from "./helper";
-
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetaling } = useUtbetaling(utbetalingId);
-  const { data: utbetalingsLinjerFraTilsagn } = useUtbetalingsLinjeFraTilsagn(utbetalingId);
+  const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
@@ -68,29 +67,21 @@ function useUtbetalingPageData() {
   return {
     gjennomforing,
     historikk,
-    utbetalingsLinjerFraTilsagn,
     utbetaling: utbetaling.utbetaling,
     handlinger: utbetaling.handlinger,
-    linjer: utbetaling.linjer,
+    linjer: utbetalingLinjer,
     beregning,
   };
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId, utbetalingId } = useParams();
-  const {
-    gjennomforing,
-    historikk,
-    utbetalingsLinjerFraTilsagn,
-    utbetaling,
-    linjer,
-    beregning,
-    handlinger,
-  } = useUtbetalingPageData();
+  const { gjennomforing, historikk, utbetaling, linjer, beregning, handlinger } =
+    useUtbetalingPageData();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
   function utbetalingsLinjeInitialState() {
-    return { linjer: linjer.length === 0 ? utbetalingsLinjerFraTilsagn : linjer };
+    return { linjer: linjer };
   }
 
   function utbetalingsLinjeReducer(
