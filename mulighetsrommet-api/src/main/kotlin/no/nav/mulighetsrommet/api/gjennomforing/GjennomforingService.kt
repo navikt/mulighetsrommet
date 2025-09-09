@@ -181,7 +181,13 @@ class GjennomforingService(
             "Gjennomføringen kan ikke avsluttes før sluttdato"
         }
 
-        queries.gjennomforing.setStatus(id, GjennomforingStatus.AVSLUTTET, avsluttetTidspunkt, null)
+        queries.gjennomforing.setStatus(
+            id = id,
+            status = GjennomforingStatus.AVSLUTTET,
+            tidspunkt = avsluttetTidspunkt,
+            aarsaker = null,
+            forklaring = null,
+        )
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
@@ -224,7 +230,13 @@ class GjennomforingService(
             throw Exception("Gjennomføring allerede avsluttet")
         }
 
-        queries.gjennomforing.setStatus(id, status, tidspunkt, aarsakerOgForklaring)
+        queries.gjennomforing.setStatus(
+            id = id,
+            status = status,
+            tidspunkt = tidspunkt,
+            aarsaker = aarsakerOgForklaring.aarsaker,
+            forklaring = aarsakerOgForklaring.forklaring,
+        )
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 

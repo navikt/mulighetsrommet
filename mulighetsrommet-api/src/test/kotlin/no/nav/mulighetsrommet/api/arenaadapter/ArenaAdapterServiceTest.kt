@@ -289,7 +289,8 @@ class ArenaAdapterServiceTest : FunSpec({
                     id = gjennomforing.id,
                     status = GjennomforingStatus.AVBRUTT,
                     tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR), null),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
+                    forklaring = null,
                 )
             }.initialize(database.db)
 

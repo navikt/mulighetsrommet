@@ -10,7 +10,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -171,21 +170,24 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     id = gjennomforing1.id,
                     status = AVSLUTTET,
                     tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                    null,
+                    aarsaker = null,
+                    forklaring = null,
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing2.id,
                     status = AVLYST,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), null),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing3.id,
                     status = AVBRUTT,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE), null),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE),
+                    forklaring = null,
                 )
             }
 

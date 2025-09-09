@@ -707,10 +707,8 @@ class AvtaleValidatorTest : FunSpec({
                     avtale.id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt = today.atStartOfDay(),
-                    AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                        forklaring = null,
-                    ),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
                 )
             }.initialize(database.db)
 

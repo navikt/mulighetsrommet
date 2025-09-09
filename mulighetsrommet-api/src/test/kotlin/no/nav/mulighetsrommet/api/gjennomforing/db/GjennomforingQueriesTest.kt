@@ -13,7 +13,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -341,7 +340,8 @@ class GjennomforingQueriesTest : FunSpec({
                     id,
                     GjennomforingStatus.AVBRUTT,
                     tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.ANNET), ":)"),
+                    listOf(AvbrytGjennomforingAarsak.ANNET),
+                    ":)",
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
@@ -350,10 +350,11 @@ class GjennomforingQueriesTest : FunSpec({
                 )
 
                 queries.setStatus(
-                    id,
-                    GjennomforingStatus.AVLYST,
-                    tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), null),
+                    id = id,
+                    status = GjennomforingStatus.AVLYST,
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
                     tidspunkt = tidspunkt,
@@ -361,7 +362,13 @@ class GjennomforingQueriesTest : FunSpec({
                     forklaring = null,
                 )
 
-                queries.setStatus(id, GjennomforingStatus.GJENNOMFORES, tidspunkt, null)
+                queries.setStatus(
+                    id = id,
+                    status = GjennomforingStatus.GJENNOMFORES,
+                    tidspunkt = tidspunkt,
+                    aarsaker = null,
+                    forklaring = null,
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Gjennomfores
             }
         }

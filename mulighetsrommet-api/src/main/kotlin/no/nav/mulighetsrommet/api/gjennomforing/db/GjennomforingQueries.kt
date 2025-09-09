@@ -4,7 +4,6 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
@@ -426,7 +425,8 @@ class GjennomforingQueries(private val session: Session) {
         id: UUID,
         status: GjennomforingStatus,
         tidspunkt: LocalDateTime?,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>?,
+        aarsaker: List<AvbrytGjennomforingAarsak>?,
+        forklaring: String?,
     ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -442,8 +442,8 @@ class GjennomforingQueries(private val session: Session) {
             "id" to id,
             "status" to status.name,
             "tidspunkt" to tidspunkt,
-            "aarsaker" to aarsakerOgForklaring?.aarsaker?.let { session.createTextArray(it.map { it.name }) },
-            "forklaring" to aarsakerOgForklaring?.forklaring,
+            "aarsaker" to aarsaker?.let { session.createTextArray(it) },
+            "forklaring" to forklaring,
         )
         return update(queryOf(query, params))
     }

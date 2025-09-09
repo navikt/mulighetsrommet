@@ -105,14 +105,16 @@ class UpdateAvtaleStatusTest : FunSpec({
                 id = avtale1.id,
                 status = AvtaleStatus.AVBRUTT,
                 tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                AarsakerOgForklaringRequest(listOf(AvbrytAvtaleAarsak.FEILREGISTRERING), null),
+                aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                forklaring = null,
             )
 
             queries.avtale.setStatus(
                 id = avtale2.id,
                 status = AvtaleStatus.AVSLUTTET,
                 tidspunkt = null,
-                null,
+                aarsaker = null,
+                forklaring = null,
             )
         }
 

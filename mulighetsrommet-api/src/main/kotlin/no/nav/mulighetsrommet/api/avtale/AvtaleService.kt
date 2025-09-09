@@ -23,7 +23,10 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -139,7 +142,7 @@ class AvtaleService(
             "Avtalen kan ikke avsluttes før sluttdato"
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null, null)
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avsluttet", dto, endretAv)
@@ -178,7 +181,13 @@ class AvtaleService(
             return errors.left()
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, aarsakerOgForklaring)
+        queries.avtale.setStatus(
+            id = id,
+            status = AvtaleStatus.AVBRUTT,
+            tidspunkt = tidspunkt,
+            aarsaker = aarsakerOgForklaring.aarsaker,
+            forklaring = aarsakerOgForklaring.forklaring,
+        )
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avbrutt", dto, avbruttAv)
@@ -336,7 +345,7 @@ class AvtaleService(
             }
         }
         if (newStatus != currentStatus) {
-            queries.avtale.setStatus(avtaleId, newStatus, null, null)
+            queries.avtale.setStatus(avtaleId, newStatus, null, null, null)
         }
     }
 

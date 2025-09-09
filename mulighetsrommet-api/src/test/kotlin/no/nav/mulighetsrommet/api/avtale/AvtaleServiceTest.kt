@@ -114,10 +114,8 @@ class AvtaleServiceTest : FunSpec({
                     avbruttAvtale.id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
-                    AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                        forklaring = null,
-                    ),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
                 )
             }.initialize(database.db)
 
