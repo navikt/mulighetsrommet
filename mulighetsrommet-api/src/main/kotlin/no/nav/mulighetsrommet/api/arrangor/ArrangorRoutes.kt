@@ -150,8 +150,10 @@ fun Route.arrangorRoutes() {
                 }
             }
         }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-            val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(orgnr)
+            val id: UUID by call.parameters
+            val arrangor = db.session { queries.arrangor.getById(id) }
+
+            val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
 
             val result = kontonummer
                 .mapLeft { InternalServerError("Klarte ikke hente kontonummer for arrangør") }
