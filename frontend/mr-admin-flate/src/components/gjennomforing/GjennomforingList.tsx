@@ -2,7 +2,7 @@ import { Alert, BodyShort } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
 import { GjennomforingDto } from "@mr/api-client-v2";
 import { ReactNode } from "react";
-import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
+import { useGjennomforinger } from "@/api/gjennomforing/useGjennomforinger";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function GjennomforingList(props: Props) {
-  const { data, isError, isPending } = useAdminGjennomforinger(props.filter);
+  const { data, isError, isPending } = useGjennomforinger(props.filter);
 
   if (isError) {
     return <Alert variant="error">Vi hadde problemer med henting av tiltaksgjennomføringer</Alert>;

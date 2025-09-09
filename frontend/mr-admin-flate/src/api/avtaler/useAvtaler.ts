@@ -18,16 +18,12 @@ export function useAvtaler(filter: Partial<AvtaleFilterType>) {
       size: filter.pageSize,
       arrangorer: filter.arrangorer,
       personvernBekreftet: filter.personvernBekreftet,
+      visMineAvtaler: filter.visMineAvtaler,
     },
   };
 
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.avtaler(filter.visMineAvtaler, queryFilter),
-
-    queryFn: () => {
-      return filter.visMineAvtaler
-        ? AvtalerService.getMineAvtaler(queryFilter)
-        : AvtalerService.getAvtaler(queryFilter);
-    },
+    queryKey: QueryKeys.avtaler(queryFilter),
+    queryFn: () => AvtalerService.getAvtaler(queryFilter),
   });
 }

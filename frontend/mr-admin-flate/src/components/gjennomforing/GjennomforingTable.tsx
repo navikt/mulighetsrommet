@@ -1,4 +1,4 @@
-import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
+import { useGjennomforinger } from "@/api/gjennomforing/useGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterNavEnheter } from "@/utils/Utils";
@@ -38,7 +38,7 @@ export function GjennomforingTable({
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const { data } = useAdminGjennomforinger(filter);
+  const { data } = useGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedExcel() {

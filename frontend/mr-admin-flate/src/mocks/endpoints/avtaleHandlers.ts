@@ -50,28 +50,6 @@ export const avtaleHandlers = [
     });
   }),
 
-  http.get<PathParams, PaginertAvtale | undefined>(
-    "*/api/v1/intern/avtaler/mine",
-    ({ request }) => {
-      const url = new URL(request.url);
-      const avtalestatus = url.searchParams.get("avtalestatus");
-      const brukerident = "B123456";
-      const data = mockAvtaler.filter(
-        (a) =>
-          (a.status.type === avtalestatus || avtalestatus === null) &&
-          a.administratorer?.map((admin) => admin.navIdent).includes(brukerident),
-      );
-
-      return HttpResponse.json({
-        pagination: {
-          pageSize: 15,
-          totalCount: data.length,
-        },
-        data,
-      });
-    },
-  ),
-
   http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/avtaler/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),

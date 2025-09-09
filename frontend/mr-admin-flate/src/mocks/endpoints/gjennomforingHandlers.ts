@@ -35,23 +35,6 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, PaginertGjennomforing | { x: string }>(
-    "*/api/v1/intern/gjennomforinger/mine",
-    () => {
-      const brukerident = "B123456";
-      const data = mockGjennomforinger.filter((gj) =>
-        gj.administratorer.map((admin) => admin.navIdent).includes(brukerident),
-      );
-      return HttpResponse.json({
-        pagination: {
-          pageSize: 15,
-          totalCount: data.length,
-        },
-        data,
-      });
-    },
-  ),
-
   http.put<PathParams, GjennomforingDto>("*/api/v1/intern/gjennomforinger", () => {
     const gjennomforing = mockGjennomforinger[0];
     return HttpResponse.json({ ...gjennomforing, updatedAt: new Date().toISOString() });

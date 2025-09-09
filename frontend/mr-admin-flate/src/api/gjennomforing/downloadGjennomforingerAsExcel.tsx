@@ -19,7 +19,7 @@ function createQueryParamsForExcelDownloadForGjennomforing(
       statuser: filter.statuser,
       avtaleId: filter.avtale,
       arrangorer: filter.arrangorer,
-      visMineTiltaksgjennomforinger: filter.visMineGjennomforinger,
+      visMineGjennomforinger: filter.visMineGjennomforinger,
       size: filter.pageSize,
       sort: filter.sortering.sortString,
       publisert: getPublisertStatus(filter.publisert),

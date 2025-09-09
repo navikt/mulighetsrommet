@@ -191,31 +191,11 @@ fun Route.gjennomforingRoutes() {
             call.respond(gjennomforinger.getAll(pagination, filter))
         }
 
-        get("mine") {
-            val pagination = getPaginationParams()
-            val filter = getAdminTiltaksgjennomforingsFilter().copy(
-                administratorNavIdent = getNavIdent(),
-                koordinatorNavIdent = getNavIdent(),
-            )
-
-            call.respond(gjennomforinger.getAll(pagination, filter))
-        }
-
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
-            val navIdent = call.parameters["visMineTiltaksgjennomforinger"]?.let {
-                if (it == "true") {
-                    getNavIdent()
-                } else {
-                    null
-                }
-            }
-            val overstyrtFilter = filter.copy(
-                administratorNavIdent = navIdent,
-            )
 
-            val result = gjennomforinger.getAll(pagination, overstyrtFilter)
+            val result = gjennomforinger.getAll(pagination, filter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
@@ -313,6 +293,9 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
     val publisert = call.request.queryParameters["publisert"]?.toBoolean()
+    val administratorNavIdent = call.parameters["visMineGjennomforinger"]
+        ?.takeIf { it == "true" }
+        ?.let { getNavIdent() }
 
     return AdminTiltaksgjennomforingFilter(
         search = search,
@@ -323,6 +306,8 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
         avtaleId = avtaleId,
         arrangorIds = arrangorIds,
         publisert = publisert,
+        administratorNavIdent = administratorNavIdent,
+        koordinatorNavIdent = administratorNavIdent,
     )
 }
 
