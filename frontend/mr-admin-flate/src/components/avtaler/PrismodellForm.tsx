@@ -82,8 +82,9 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
     control,
   });
 
-  // Pluss 10 år er vilkårlig valgt. Endre ved behov
-  const toDate = addDuration(fromDate, { years: 10 });
+  // Flere aktive avtaler har start i 2001, 2010 osv, 30 år holder enn så lenge men
+  // burde ha en bedre løsning her. F. eks ikke bruk datepicker, men tekstfelt
+  const toDate = addDuration(fromDate, { years: 30 });
 
   return (
     <VStack gap="4">
