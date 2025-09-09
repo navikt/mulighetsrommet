@@ -27,7 +27,9 @@ fun Route.featureTogglesRoute() {
                 queryParameter<FeatureToggle>("feature") {
                     required = true
                 }
-                queryParameter<List<Tiltakskode>>("tiltakskoder")
+                queryParameter<List<Tiltakskode>>("tiltakskoder") {
+                    explode = true
+                }
             }
             response {
                 code(HttpStatusCode.OK) {
