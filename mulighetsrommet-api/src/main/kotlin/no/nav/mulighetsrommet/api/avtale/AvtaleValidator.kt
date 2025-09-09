@@ -338,7 +338,7 @@ class AvtaleValidator(
             add(
                 FieldError.of(
                     AvtaleRequest::prismodell,
-                    "Minst én prisgit  er påkrevd",
+                    "Minst én pris er påkrevd",
                 ),
             )
         }
