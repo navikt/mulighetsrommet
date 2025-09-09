@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { OpprettOpsjonLoggRequest, OpsjonerService } from "@mr/api-client-v2";
+import { AvtaleService, OpprettOpsjonLoggRequest } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "../QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
@@ -8,7 +8,7 @@ export function useRegistrerOpsjon(avtaleId: string) {
 
   return useApiMutation({
     mutationFn: (body: OpprettOpsjonLoggRequest) =>
-      OpsjonerService.lagreOpsjon({
+      AvtaleService.registrerOpsjon({
         path: { id: avtaleId },
         body,
       }),

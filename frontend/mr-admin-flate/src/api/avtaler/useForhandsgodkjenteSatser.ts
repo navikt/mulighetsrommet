@@ -1,5 +1,5 @@
 import { useApiQuery } from "@mr/frontend-common";
-import { PrismodellService, Tiltakskode } from "@mr/api-client-v2";
+import { PrismodellService, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "../QueryKeys";
 
 export function useForhandsgodkjenteSatser(tiltakstype: Tiltakskode) {

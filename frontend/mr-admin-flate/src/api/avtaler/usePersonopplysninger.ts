@@ -1,6 +1,6 @@
 import { useApiQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { PersonopplysningerService } from "@mr/api-client-v2";
+import { PersonopplysningerService } from "@tiltaksadministrasjon/api-client";
 
 export function usePersonopplysninger() {
   return useApiQuery({

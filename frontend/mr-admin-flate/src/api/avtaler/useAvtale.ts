@@ -1,5 +1,6 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { AvtalerService } from "@mr/api-client-v2";
+import { AvtaleService } from "@tiltaksadministrasjon/api-client";
 import { useApiQuery, useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useAvtale(id: string) {
@@ -25,7 +26,7 @@ export function useAvtaleHandlinger(id: string) {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.avtaleHandlnger(id),
     queryFn: async () => {
-      return AvtalerService.getAvtaleHandlinger({ path: { id } });
+      return AvtaleService.getAvtaleHandlinger({ path: { id } });
     },
   });
 }
