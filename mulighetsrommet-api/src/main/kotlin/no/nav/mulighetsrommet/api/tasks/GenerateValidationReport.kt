@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -225,9 +226,7 @@ fun AvtaleDto.toAvtaleRequest() = AvtaleRequest(
     utdanningslop = this.utdanningslop?.toDbo(),
     prismodell = PrismodellRequest(
         type = this.prismodell.prismodell(),
-        satser = this.prismodell.satser().map {
-            AvtaltSatsDto.fromAvtaltSats(it)
-        },
+        satser = this.prismodell.satser().toDto(),
         prisbetingelser = this.prismodell.prisbetingelser(),
     ),
 )

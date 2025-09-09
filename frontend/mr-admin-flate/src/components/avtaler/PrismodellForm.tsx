@@ -40,9 +40,9 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
           borderColor="border-subtle"
           borderRadius="large"
           borderWidth="1"
-          key={sats.periodeStart}
+          key={sats.gjelderFra}
         >
-          <HStack key={sats.periodeStart} gap="4">
+          <HStack key={sats.gjelderFra} gap="4">
             <TextField
               readOnly
               label={avtaletekster.prismodell.valuta.label}
@@ -59,13 +59,7 @@ function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) 
               readOnly
               label={avtaletekster.prismodell.periodeStart.label}
               size="small"
-              value={formaterDato(sats.periodeStart)}
-            />
-            <TextField
-              readOnly
-              label={avtaletekster.prismodell.periodeSlutt.label}
-              size="small"
-              value={formaterDato(sats.periodeSlutt)}
+              value={formaterDato(sats.gjelderFra)}
             />
           </HStack>
         </Box>
@@ -95,14 +89,14 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
     <VStack gap="4">
       {fields.map((field, index) => (
         <HStack
-          key={field.periodeStart}
+          key={field.gjelderFra}
           padding="4"
           gap="4"
           wrap={false}
           align="center"
           className="border-border-subtle border-1 rounded-lg"
         >
-          <HStack key={field.periodeStart} gap="4" align="start">
+          <HStack key={field.gjelderFra} gap="4" align="start">
             <Select readOnly label="Valuta" size="small">
               <option value={undefined}>{field.valuta}</option>
             </Select>
@@ -119,17 +113,9 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={fromDate}
               toDate={toDate}
-              onChange={(val) => setValue(`satser.${index}.periodeStart`, val)}
-              error={errors.satser?.[index]?.periodeStart?.message}
-              defaultSelected={getValues(`satser.${index}.periodeStart`)}
-            />
-            <ControlledDateInput
-              label={avtaletekster.prismodell.periodeSlutt.label}
-              fromDate={fromDate}
-              toDate={toDate}
-              onChange={(val) => setValue(`satser.${index}.periodeSlutt`, val)}
-              defaultSelected={getValues(`satser.${index}.periodeSlutt`)}
-              error={errors.satser?.[index]?.periodeSlutt?.message}
+              onChange={(val) => setValue(`satser.${index}.gjelderFra`, val)}
+              error={errors.satser?.[index]?.gjelderFra?.message}
+              defaultSelected={getValues(`satser.${index}.gjelderFra`)}
             />
           </HStack>
           <Spacer />
@@ -151,7 +137,7 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
         size="small"
         type="button"
         icon={<PlusIcon aria-hidden />}
-        onClick={() => append({ periodeStart: "", periodeSlutt: "", pris: 0, valuta: "NOK" })}
+        onClick={() => append({ gjelderFra: "", pris: 0, valuta: "NOK" })}
       >
         Legg til ny prisperiode
       </Button>

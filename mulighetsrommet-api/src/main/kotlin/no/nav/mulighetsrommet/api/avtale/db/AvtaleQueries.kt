@@ -267,8 +267,8 @@ class AvtaleQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val insertSats = """
-            insert into avtale_sats (avtale_id, periode, sats)
-            values (:avtale_id::uuid, :periode::daterange, :sats)
+            insert into avtale_sats (avtale_id, gjelder_fra, sats)
+            values (:avtale_id::uuid, :gjelder_fra::date, :sats)
         """.trimIndent()
 
         batchPreparedNamedStatement(
@@ -276,7 +276,7 @@ class AvtaleQueries(private val session: Session) {
             satser.map {
                 mapOf(
                     "avtale_id" to id,
-                    "periode" to it.periode.toDaterange(),
+                    "gjelder_fra" to it.gjelderFra,
                     "sats" to it.sats,
                 )
             },
@@ -614,17 +614,17 @@ class AvtaleQueries(private val session: Session) {
 
             Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+                satser = satser.toDto(),
             )
 
             Prismodell.AVTALT_PRIS_PER_UKESVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+                satser = satser.toDto(),
             )
 
             Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+                satser = satser.toDto(),
             )
         }
 

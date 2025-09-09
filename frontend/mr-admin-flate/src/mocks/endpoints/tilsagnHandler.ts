@@ -74,14 +74,12 @@ export const tilsagnHandlers = [
     () => {
       return HttpResponse.json([
         {
-          periodeStart: "2024-01-01",
-          periodeSlutt: "2024-12-31",
+          gjelderFra: "2024-01-01",
           pris: 20205,
           valuta: "NOK",
         },
         {
-          periodeStart: "2023-01-01",
-          periodeSlutt: "2023-12-31",
+          gjelderFra: "2023-01-01",
           pris: 19500,
           valuta: "NOK",
         },

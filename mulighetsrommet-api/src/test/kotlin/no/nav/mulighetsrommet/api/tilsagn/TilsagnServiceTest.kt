@@ -196,7 +196,7 @@ class TilsagnServiceTest : FunSpec({
                         prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(
                             AvtaltSats(
-                                periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                                gjelderFra = LocalDate.of(2025, 3, 1),
                                 sats = 2000,
                             ),
                         ),

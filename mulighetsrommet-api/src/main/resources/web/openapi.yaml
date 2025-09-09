@@ -2672,19 +2672,18 @@ components:
     AvtaltSatsDto:
       type: object
       properties:
-        periodeStart:
+        gjelderFra:
           type: string
           format: date
-        periodeSlutt:
-          type: string
+        gjelderTil:
+          type: [string, "null"]
           format: date
         pris:
           type: integer
         valuta:
           type: string
       required:
-        - periodeStart
-        - periodeSlutt
+        - gjelderFra
         - pris
         - valuta
 

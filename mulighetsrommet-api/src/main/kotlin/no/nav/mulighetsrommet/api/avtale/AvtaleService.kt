@@ -85,7 +85,7 @@ class AvtaleService(
                 request.prisbetingelser,
                 request.satser.map {
                     AvtaltSats(
-                        periode = Periode.fromInclusiveDates(it.periodeStart, it.periodeSlutt),
+                        gjelderFra = it.gjelderFra,
                         sats = it.pris,
                     )
                 },
