@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -11,8 +11,6 @@ import {
   DelutbetalingRequest,
   OpprettDelutbetalingerRequest,
   Rolle,
-  TilsagnDto,
-  TilsagnStatus,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingLinje,
@@ -44,14 +42,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import {
-  useTilsagnTilUtbetaling,
   useUtbetaling,
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
+  useUtbetalingsLinjeFraTilsagn,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
 import { QueryKeys } from "@/api/QueryKeys";
+import { UtbetalingLinjerState, UtbetalingLinjerStateAction } from "./helper";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
@@ -59,7 +57,7 @@ function useUtbetalingPageData() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetaling } = useUtbetaling(utbetalingId);
-  const { data: tilsagn } = useTilsagnTilUtbetaling(utbetalingId);
+  const { data: utbetalingsLinjerFraTilsagn } = useUtbetalingsLinjeFraTilsagn(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
@@ -70,36 +68,75 @@ function useUtbetalingPageData() {
   return {
     gjennomforing,
     historikk,
-    tilsagn,
+    utbetalingsLinjerFraTilsagn,
     utbetaling: utbetaling.utbetaling,
     handlinger: utbetaling.handlinger,
-    linjer: utbetaling.linjer.toSorted(compareUtbetalingLinje),
+    linjer: utbetaling.linjer,
     beregning,
   };
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId, utbetalingId } = useParams();
-  const { gjennomforing, historikk, tilsagn, utbetaling, linjer, beregning, handlinger } =
-    useUtbetalingPageData();
+  const {
+    gjennomforing,
+    historikk,
+    utbetalingsLinjerFraTilsagn,
+    utbetaling,
+    linjer,
+    beregning,
+    handlinger,
+  } = useUtbetalingPageData();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
-  const [linjerState, setLinjerState] = useState<UtbetalingLinje[]>(() =>
-    linjer.length === 0 ? genrererUtbetalingLinjer(tilsagn) : linjer,
+
+  function utbetalingsLinjeInitialState() {
+    return { linjer: linjer.length === 0 ? utbetalingsLinjerFraTilsagn : linjer };
+  }
+
+  function utbetalingsLinjeReducer(
+    state: UtbetalingLinjerState,
+    action: UtbetalingLinjerStateAction,
+  ): UtbetalingLinjerState {
+    switch (action.type) {
+      case "RESET":
+        return utbetalingsLinjeInitialState();
+      case "REMOVE":
+        return {
+          ...state,
+          linjer: state.linjer.filter((l: UtbetalingLinje) => l.id !== action.id),
+        };
+      case "UPDATE":
+        return {
+          ...state,
+          linjer: state.linjer.map((l: UtbetalingLinje) =>
+            l.id === action.linje.id ? action.linje : l,
+          ),
+        };
+      default:
+        return state;
+    }
+  }
+  const [linjerState, linjerDispatch] = useReducer(
+    utbetalingsLinjeReducer,
+    utbetalingsLinjeInitialState(),
   );
+
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
   function sendTilGodkjenning() {
-    const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
-      return {
-        id: linje.id,
-        belop: linje.belop,
-        gjorOppTilsagn: linje.gjorOppTilsagn,
-        tilsagnId: linje.tilsagn.id,
-      };
-    });
+    const delutbetalingReq: DelutbetalingRequest[] = linjerState.linjer.map(
+      (linje: UtbetalingLinje) => {
+        return {
+          id: linje.id,
+          belop: linje.belop,
+          gjorOppTilsagn: linje.gjorOppTilsagn,
+          tilsagnId: linje.tilsagn.id,
+        };
+      },
+    );
 
     const body: OpprettDelutbetalingerRequest = {
       utbetalingId: utbetaling.id,
@@ -123,7 +160,7 @@ export function UtbetalingPage() {
   }
 
   function utbetalesTotal(): number {
-    return linjerState.reduce((acc, d) => acc + d.belop, 0);
+    return linjerState.linjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.belop, 0);
   }
 
   const brodsmuler: Brodsmule[] = [
@@ -261,16 +298,15 @@ export function UtbetalingPage() {
                     </Accordion.Content>
                   </Accordion.Item>
                 </Accordion>
-                {tilsagn.every((t) => t.status.type !== TilsagnStatus.GODKJENT) && (
+                {!linjerState.linjer.length && (
                   <Alert variant="info">
                     Det finnes ingen godkjente tilsagn for utbetalingsperioden
                   </Alert>
                 )}
                 <UtbetalingLinjeView
                   utbetaling={utbetaling}
-                  tilsagn={tilsagn}
-                  linjer={linjerState}
-                  setLinjer={setLinjerState}
+                  linjer={linjerState.linjer}
+                  linjerDispatch={linjerDispatch}
                 />
               </>
               <VStack gap="2">
@@ -320,12 +356,11 @@ export function UtbetalingPage() {
 
 interface UtbetalingLinjeViewProps {
   utbetaling: UtbetalingDto;
-  tilsagn: TilsagnDto[];
   linjer: UtbetalingLinje[];
-  setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
+  linjerDispatch: React.ActionDispatch<[action: UtbetalingLinjerStateAction]>;
 }
 
-function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: UtbetalingLinjeViewProps) {
+function UtbetalingLinjeView({ utbetaling, linjer, linjerDispatch }: UtbetalingLinjeViewProps) {
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
       return null;
@@ -334,8 +369,7 @@ function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: Utbetal
       return (
         <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
           <RedigerUtbetalingLinjeView
-            setLinjer={setLinjer}
-            tilsagn={tilsagn}
+            linjerDispatch={linjerDispatch}
             utbetaling={utbetaling}
             linjer={linjer}
           />

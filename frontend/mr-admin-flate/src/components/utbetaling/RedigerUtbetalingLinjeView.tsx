@@ -1,6 +1,5 @@
 import { FieldError } from "@mr/api-client-v2";
 import {
-  TilsagnDto,
   TilsagnType,
   Tilskuddstype,
   UtbetalingDto,
@@ -14,24 +13,26 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@/api/QueryKeys";
+import { UtbetalingLinjerStateAction } from "@/pages/gjennomforing/utbetaling/UtbetalingsLinjeState";
 
 export interface Props {
   utbetaling: UtbetalingDto;
   linjer: UtbetalingLinje[];
-  tilsagn: TilsagnDto[];
-  setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
+  linjerDispatch: React.ActionDispatch<[action: UtbetalingLinjerStateAction]>;
 }
 
-export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tilsagn }: Props) {
+export function RedigerUtbetalingLinjeView({ linjer, linjerDispatch, utbetaling }: Props) {
   const { gjennomforingId } = useParams();
   const [error, setError] = useState<FieldError[]>([]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
   function opprettEkstraTilsagn() {
-    const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
+    const defaultTilsagn = linjer.length === 1 ? linjer[0].tilsagn : undefined;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
@@ -41,18 +42,18 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
     );
   }
 
-  function leggTilLinjer() {
-    const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
-      (linje) => !linjer.find((l) => l.tilsagn.id === linje.tilsagn.id),
-    );
-    setLinjer([...linjer, ...nyeLinjer].toSorted(compareUtbetalingLinje));
+  async function oppdaterLinjer() {
+    await queryClient.invalidateQueries({
+      queryKey: QueryKeys.utbetalingsLinjerFraTilsagn(utbetaling.id),
+    });
+    linjerDispatch({ type: "RESET" });
   }
 
   function fjernLinje(id: string) {
     setError([]);
-    const remaining = linjer.filter((d) => d.id !== id);
-    setLinjer([...remaining]);
+    linjerDispatch({ type: "REMOVE", id });
   }
+
   return (
     <VStack>
       <HStack align="end">
@@ -70,7 +71,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
             <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
               Opprett {avtaletekster.tilsagn.type(tilsagnsTypeFraTilskudd).toLowerCase()}
             </ActionMenu.Item>
-            <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
+            <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
               Hent godkjente tilsagn
             </ActionMenu.Item>
           </ActionMenu.Content>
@@ -95,9 +96,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
               }
               grayBackground
               onChange={(updated) => {
-                setLinjer((prev) =>
-                  prev.map((linje) => (linje.id === updated.id ? updated : linje)),
-                );
+                linjerDispatch({ type: "UPDATE", linje: updated });
               }}
               errors={error.filter(
                 (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),

@@ -9,10 +9,10 @@ export function useUtbetaling(id: string) {
   });
 }
 
-export function useTilsagnTilUtbetaling(id: string) {
+export function useUtbetalingsLinjeFraTilsagn(id: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.utbetalingTilsagn(id),
-    queryFn: async () => UtbetalingService.getTilsagnTilUtbetaling({ path: { id } }),
+    queryKey: QueryKeys.utbetalingsLinjerFraTilsagn(id),
+    queryFn: async () => UtbetalingService.getUtbetalingsLinjer({ path: { id } }),
   });
 }
 
