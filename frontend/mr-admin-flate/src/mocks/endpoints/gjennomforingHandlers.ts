@@ -63,10 +63,6 @@ export const gjennomforingHandlers = [
     return HttpResponse.json(gjennomforing);
   }),
 
-  http.delete("/api/v1/intern/gjennomforinger/kontaktperson", () => {
-    return HttpResponse.json();
-  }),
-
   http.get<{ id: string }, GjennomforingDto | undefined>(
     "/api/v1/intern/gjennomforinger/:id",
     ({ params }) => {

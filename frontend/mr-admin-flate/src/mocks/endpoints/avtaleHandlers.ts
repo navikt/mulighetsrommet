@@ -65,10 +65,6 @@ export const avtaleHandlers = [
     return HttpResponse.json(avtale);
   }),
 
-  http.delete("/api/v1/intern/avtaler/kontaktperson", () => {
-    return HttpResponse.json();
-  }),
-
   http.put("*/api/v1/intern/avtaler", () => {
     return HttpResponse.json(mockAvtaler[0]);
   }),

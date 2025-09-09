@@ -226,26 +226,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/avtaler/kontaktperson:
-    delete:
-      tags:
-        - Avtaler
-      operationId: frikobleKontaktpersonFraAvtale
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FrikobleKontaktpersonRequest"
-      responses:
-        200:
-          description: OK hvis frikobling gikk greit
-          content:
-            application/json:
-              schema:
-                type: string
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger/{id}/deltaker-summary:
     get:
       tags:
@@ -1836,19 +1816,6 @@ components:
         - PRAKSIS
         - ARBEIDSMARKEDSKUNNSKAP
         - NORSKOPPLAERING
-
-    FrikobleKontaktpersonRequest:
-      type: object
-      properties:
-        kontaktpersonId:
-          type: string
-          format: uuid
-        dokumentId:
-          type: string
-          format: uuid
-      required:
-        - kontaktpersonId
-        - dokumentId
 
     Opsjonsmodell:
       type: object
