@@ -593,20 +593,6 @@ components:
           items:
             $ref: "#/components/schemas/AvtaleDto"
 
-    GjennomforingHandling:
-      type: string
-      enum:
-        - PUBLISER
-        - REDIGER
-        - AVBRYT
-        - DUPLISER
-        - ENDRE_APEN_FOR_PAMELDING
-        - REGISTRER_STENGT_HOS_ARRANGOR
-        - OPPRETT_TILSAGN
-        - OPPRETT_EKSTRATILSAGN
-        - OPPRETT_TILSAGN_FOR_INVESTERINGER
-        - OPPRETT_KORREKSJON_PA_UTBETALING
-
     AvtaleDto:
       type: object
       properties:
@@ -1095,14 +1081,6 @@ components:
         - amoKategorisering
         - stengt
 
-    TiltaksnummerResponse:
-      type: object
-      properties:
-        tiltaksnummer:
-          type: string
-      required:
-        - tiltaksnummer
-
     GjennomforingRequest:
       type: object
       properties:
@@ -1530,20 +1508,6 @@ components:
         - UTLAND
         - YTA
 
-    BrregVirksomhet:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-        organisasjonsform:
-          type: string
-      required:
-        - organisasjonsnummer
-        - organisasjonsform
-        - navn
-
     AvbrytGjennomforingAarsak:
       type: string
       enum:
@@ -1612,96 +1576,6 @@ components:
         beskrivelse:
           type: [string, "null"]
       required: [navIdent, beskrivelse]
-
-    Endringshistorikk:
-      type: object
-      properties:
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/EndringshistorikkEntry"
-      required:
-        - entries
-
-    EndringshistorikkEntry:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        operation:
-          type: string
-        editedAt:
-          type: string
-          format: date-time
-        editedBy:
-          $ref: "#/components/schemas/EndringshistorikkUser"
-      required:
-        - id
-        - operation
-        - editedAt
-        - editedBy
-
-    EndringshistorikkUser:
-      oneOf:
-        - $ref: "#/components/schemas/EndringshistorikkSystembruker"
-        - $ref: "#/components/schemas/EndringshistorikkNavAnsatt"
-
-    EndringshistorikkSystembruker:
-      type: object
-      properties:
-        navn:
-          type: string
-      required:
-        - navn
-
-    EndringshistorikkNavAnsatt:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        navn:
-          type: string
-      required:
-        - navIdent
-        - navn
-
-    PublisertRequest:
-      type: object
-      properties:
-        publisert:
-          type: boolean
-      required:
-        - publisert
-
-    SetApentForPameldingRequest:
-      type: object
-      properties:
-        apentForPamelding:
-          type: boolean
-      required:
-        - apentForPamelding
-
-    SetTilgjengligForArrangorRequest:
-      type: object
-      properties:
-        tilgjengeligForArrangorDato:
-          type: string
-          format: date
-      required:
-        - tilgjengeligForArrangorDato
-
-    SetStengtHosArrangorRequest:
-      type: object
-      properties:
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        beskrivelse:
-          type: string
 
     Kontorstruktur:
       type: array

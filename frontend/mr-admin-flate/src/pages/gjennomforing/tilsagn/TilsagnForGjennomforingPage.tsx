@@ -1,6 +1,6 @@
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { GjennomforingHandling } from "@mr/api-client-v2";
+import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -9,7 +9,6 @@ import {
 } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
-import { TilsagnType } from "@tiltaksadministrasjon/api-client";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useParams();

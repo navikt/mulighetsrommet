@@ -1,11 +1,10 @@
 import { http, HttpResponse, PathParams } from "msw";
+import { AvtaleDto, PaginertAvtale, PrismodellDto } from "@mr/api-client-v2";
 import {
-  AvtaleDto,
-  EndringshistorikkEntry,
-  PaginertAvtale,
-  PrismodellDto,
-} from "@mr/api-client-v2";
-import { AvtaleHandling, AvtaltSatsDto } from "@tiltaksadministrasjon/api-client";
+  AvtaleHandling,
+  AvtaltSatsDto,
+  EndringshistorikkDto,
+} from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
@@ -74,13 +73,13 @@ export const avtaleHandlers = [
     return HttpResponse.json(mockAvtaler[0]);
   }),
 
-  http.get<PathParams, AvtaltSatsDto | undefined>(
+  http.get<PathParams, undefined, AvtaltSatsDto[]>(
     "/api/tiltaksadministrasjon/prismodeller/forhandsgodkjente-satser",
     () => {
       return HttpResponse.json([
         {
-          periodeStart: "2025-01-01",
-          periodeSlutt: "2025-12-01",
+          gjelderFra: "2025-01-01",
+          gjelderTil: null,
           pris: 23000,
           valuta: "NOK",
         },
@@ -88,11 +87,14 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, PrismodellDto | undefined>("/api/tiltaksadministrasjon/prismodeller", () => {
-    return HttpResponse.json([]);
-  }),
+  http.get<PathParams, undefined, PrismodellDto[]>(
+    "/api/tiltaksadministrasjon/prismodeller",
+    () => {
+      return HttpResponse.json([]);
+    },
+  ),
 
-  http.get<PathParams, EndringshistorikkEntry>(
+  http.get<PathParams, undefined, EndringshistorikkDto>(
     "*/api/tiltaksadministrasjon/avtaler/:id/historikk",
     () => {
       return HttpResponse.json(mockEndringshistorikkAvtaler);

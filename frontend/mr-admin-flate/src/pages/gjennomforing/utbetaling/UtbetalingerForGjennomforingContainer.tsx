@@ -1,5 +1,5 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { GjennomforingHandling } from "@mr/api-client-v2";
+import { FeatureToggle, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import {
@@ -10,7 +10,6 @@ import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLo
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);

@@ -1,16 +1,15 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
 import {
-  Endringshistorikk,
-  PaginertGjennomforing,
-  GjennomforingDto,
   GjennomforingDeltakerSummary,
-  GjennomforingHandling,
+  GjennomforingDto,
+  PaginertGjennomforing,
 } from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
+import { EndringshistorikkDto, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
 
 export const gjennomforingHandlers = [
-  http.get<{ id: string }, GjennomforingHandling[]>(
+  http.get<{ id: string }, undefined, GjennomforingHandling[]>(
     "/api/tiltaksadministrasjon/gjennomforinger/:id/handlinger",
     () => {
       return HttpResponse.json([
@@ -100,7 +99,7 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, Endringshistorikk>(
+  http.get<PathParams, undefined, EndringshistorikkDto>(
     "*/api/tiltaksadministrasjon/gjennomforinger/:id/historikk",
     () => {
       return HttpResponse.json(mockEndringshistorikkForGjennomforing);
