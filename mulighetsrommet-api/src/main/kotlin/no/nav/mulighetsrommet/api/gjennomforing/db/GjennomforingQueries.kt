@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
@@ -421,22 +422,11 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, date, id))
     }
 
-    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update gjennomforing
-            set avtale_id = ?
-            where id = ?
-        """.trimIndent()
-
-        return session.update(queryOf(query, avtaleId, gjennomforingId))
-    }
-
     fun setStatus(
         id: UUID,
         status: GjennomforingStatus,
         tidspunkt: LocalDateTime?,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>?,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>?,
     ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -654,13 +644,13 @@ class GjennomforingQueries(private val session: Session) {
 
             GjennomforingStatus.AVBRUTT -> GjennomforingStatusDto.Avbrutt(
                 tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbruttAarsak.valueOf(it) },
+                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
                 stringOrNull("avbrutt_forklaring"),
             )
 
             GjennomforingStatus.AVLYST -> GjennomforingStatusDto.Avlyst(
                 tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbruttAarsak.valueOf(it) },
+                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
                 stringOrNull("avbrutt_forklaring"),
             )
         }

@@ -203,7 +203,7 @@ class AvtaleValidator(
         arrangor: AvtaleDbo.Arrangor?,
         previous: AvtaleDto,
     ) = db.session {
-        if (previous.opsjonerRegistrert?.isNotEmpty() == true) {
+        if (previous.opsjonerRegistrert.isNotEmpty()) {
             if (request.avtaletype != previous.avtaletype) {
                 add(
                     FieldError.of(
@@ -324,6 +324,7 @@ class AvtaleValidator(
                 Prismodell.ANNEN_AVTALT_PRIS,
                 Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 -> Unit
+
                 Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 Prismodell.AVTALT_PRIS_PER_UKESVERK,
                 Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,

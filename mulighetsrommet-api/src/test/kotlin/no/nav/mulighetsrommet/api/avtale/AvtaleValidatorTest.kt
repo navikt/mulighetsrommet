@@ -608,7 +608,10 @@ class AvtaleValidatorTest : FunSpec({
 
                 val request = avtaleRequest.copy(
                     avtaletype = Avtaletype.FORHANDSGODKJENT,
-                    opsjonsmodell = Opsjonsmodell(type = OpsjonsmodellType.VALGFRI_SLUTTDATO, opsjonMaksVarighet = null),
+                    opsjonsmodell = Opsjonsmodell(
+                        type = OpsjonsmodellType.VALGFRI_SLUTTDATO,
+                        opsjonMaksVarighet = null,
+                    ),
                     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 )
 
@@ -705,7 +708,7 @@ class AvtaleValidatorTest : FunSpec({
                     AvtaleStatus.AVBRUTT,
                     tidspunkt = today.atStartOfDay(),
                     AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbruttAarsak.BUDSJETT_HENSYN),
+                        aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                         forklaring = null,
                     ),
                 )

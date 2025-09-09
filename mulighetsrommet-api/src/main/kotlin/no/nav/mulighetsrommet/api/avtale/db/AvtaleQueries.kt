@@ -6,7 +6,6 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
@@ -15,7 +14,6 @@ import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.*
-import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -418,7 +416,7 @@ class AvtaleQueries(private val session: Session) {
         id: UUID,
         status: AvtaleStatus,
         tidspunkt: LocalDateTime?,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>?,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>?,
     ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -640,7 +638,7 @@ class AvtaleQueries(private val session: Session) {
             status = AvtaleStatusDto.fromString(
                 string("status"),
                 localDateTimeOrNull("avbrutt_tidspunkt"),
-                arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbruttAarsak.valueOf(it) } ?: emptyList(),
+                arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytAvtaleAarsak.valueOf(it) } ?: emptyList(),
                 stringOrNull("avbrutt_forklaring"),
             ),
             beskrivelse = stringOrNull("beskrivelse"),

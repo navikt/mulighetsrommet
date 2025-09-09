@@ -149,7 +149,7 @@ class AvtaleService(
         id: UUID,
         avbruttAv: NavIdent,
         tidspunkt: LocalDateTime,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
     ): Either<List<FieldError>, AvtaleDto> = db.transaction {
         val avtale = getOrError(id)
 
@@ -193,8 +193,9 @@ class AvtaleService(
         if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
             val avtale = getOrError(entry.avtaleId)
 
-            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert
-                ?.any { it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON } == true
+            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert.any {
+                it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
+            }
             if (skalIkkeUtloseOpsjonerForAvtale) {
                 return FieldError.of(OpsjonLoggEntry::status, "Kan ikke utløse flere opsjoner").left()
             }
@@ -284,6 +285,7 @@ class AvtaleService(
                     AvtaleStatusDto.Utkast,
                     AvtaleStatusDto.Aktiv,
                     -> avtalerSkriv
+
                     is AvtaleStatusDto.Avbrutt,
                     AvtaleStatusDto.Avsluttet,
                     -> false

@@ -12,6 +12,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -288,7 +289,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     id = gjennomforing.id,
                     status = GjennomforingStatus.AVBRUTT,
                     tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ENDRING_HOS_ARRANGOR), null),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR), null),
                 )
             }.initialize(database.db)
 
@@ -317,7 +318,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status.shouldBe(
                     GjennomforingStatusDto.Avbrutt(
                         tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                        aarsaker = listOf(AvbruttAarsak.ENDRING_HOS_ARRANGOR),
+                        aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
                         forklaring = null,
                     ),
                 )

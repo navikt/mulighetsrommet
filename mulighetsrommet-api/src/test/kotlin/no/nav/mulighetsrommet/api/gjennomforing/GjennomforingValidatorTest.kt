@@ -10,10 +10,12 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
@@ -137,7 +139,12 @@ class GjennomforingValidatorTest : FunSpec({
 
     test("avtalen må være aktiv") {
         database.run {
-            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null))
+            queries.avtale.setStatus(
+                avtale.id,
+                AvtaleStatus.AVBRUTT,
+                LocalDateTime.now(),
+                AarsakerOgForklaringRequest(listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN), null),
+            )
         }
         createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
@@ -389,7 +396,7 @@ class GjennomforingValidatorTest : FunSpec({
                     avtale.id,
                     AvtaleStatus.AVBRUTT,
                     LocalDateTime.now(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                    AarsakerOgForklaringRequest(listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN), null),
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }
@@ -403,7 +410,7 @@ class GjennomforingValidatorTest : FunSpec({
                     id = gjennomforing.id,
                     status = GjennomforingStatus.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), null),
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }

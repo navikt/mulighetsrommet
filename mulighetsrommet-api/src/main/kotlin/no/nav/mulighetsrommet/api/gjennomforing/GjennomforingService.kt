@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -194,7 +195,7 @@ class GjennomforingService(
         id: UUID,
         avbruttAv: Agent,
         tidspunkt: LocalDateTime,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
     ): Either<List<FieldError>, GjennomforingDto> = db.transaction {
         val gjennomforing = getOrError(id)
 

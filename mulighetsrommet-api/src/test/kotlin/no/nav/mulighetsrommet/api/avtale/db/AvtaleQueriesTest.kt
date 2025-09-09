@@ -159,11 +159,11 @@ class AvtaleQueriesTest : FunSpec({
                     id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"),
+                    AarsakerOgForklaringRequest(listOf(AvbrytAvtaleAarsak.ANNET), ":)"),
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
@@ -171,11 +171,11 @@ class AvtaleQueriesTest : FunSpec({
                     id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    AarsakerOgForklaringRequest(listOf(AvbrytAvtaleAarsak.FEILREGISTRERING), null),
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
@@ -660,7 +660,7 @@ class AvtaleQueriesTest : FunSpec({
                     AvtaleStatus.AVBRUTT,
                     LocalDateTime.now(),
                     aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                        listOf(AvbruttAarsak.FEILREGISTRERING),
+                        listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                         null,
                     ),
                 )

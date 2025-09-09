@@ -14,7 +14,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.api.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -177,10 +176,30 @@ fun Route.avtaleRoutes() {
                 }
             }
 
-            put("{id}/avbryt") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            put("{id}/avbryt", {
+                tags = setOf("Avtale")
+                operationId = "avbrytAvtale"
+                request {
+                    pathParameterUuid("id")
+                    body<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Avtale ble avbrutt"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val navIdent = getNavIdent()
-                val request = call.receive<AarsakerOgForklaringRequest<AvbruttAarsak>>()
+                val request = call.receive<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
 
                 validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
                     .flatMap {
@@ -206,13 +225,30 @@ fun Route.avtaleRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            delete("kontaktperson") {
-                val request = call.receive<FrikobleKontaktpersonRequest>()
+            delete("{id}/kontaktperson/{kontaktpersonId}", {
+                tags = setOf("Avtale")
+                operationId = "frikobleKontaktperson"
+                request {
+                    pathParameterUuid("id")
+                    pathParameterUuid("kontaktpersonId")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Kontaktperson ble frikoblet fra gjennomføring"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val kontaktpersonId: UUID by call.parameters
                 val navIdent = getNavIdent()
 
                 avtaler.frikobleKontaktpersonFraAvtale(
-                    kontaktpersonId = request.kontaktpersonId,
-                    avtaleId = request.dokumentId,
+                    kontaktpersonId = kontaktpersonId,
+                    avtaleId = id,
                     navIdent = navIdent,
                 )
 

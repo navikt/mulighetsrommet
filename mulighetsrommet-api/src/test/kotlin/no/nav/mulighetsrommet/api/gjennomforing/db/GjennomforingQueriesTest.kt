@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
@@ -340,11 +341,11 @@ class GjennomforingQueriesTest : FunSpec({
                     id,
                     GjennomforingStatus.AVBRUTT,
                     tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"),
+                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.ANNET), ":)"),
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
                     forklaring = ":)",
                 )
 
@@ -352,11 +353,11 @@ class GjennomforingQueriesTest : FunSpec({
                     id,
                     GjennomforingStatus.AVLYST,
                     tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), null),
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 

@@ -17,9 +17,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus.*
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
@@ -178,14 +178,14 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     id = gjennomforing2.id,
                     status = AVLYST,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), null),
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing3.id,
                     status = AVBRUTT,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FOR_FAA_DELTAKERE), null),
+                    AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE), null),
                 )
             }
 
@@ -199,11 +199,11 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatusDto.Avlyst>()
-                        .aarsaker shouldContain AvbruttAarsak.FEILREGISTRERING
+                        .aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>()
-                        .aarsaker shouldContain AvbruttAarsak.FOR_FAA_DELTAKERE
+                        .aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()

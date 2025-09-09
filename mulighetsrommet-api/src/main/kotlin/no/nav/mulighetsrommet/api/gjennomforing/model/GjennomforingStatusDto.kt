@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import no.nav.mulighetsrommet.model.AvbruttAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
@@ -31,7 +31,7 @@ sealed class GjennomforingStatusDto {
     data class Avbrutt(
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime,
-        val aarsaker: List<AvbruttAarsak>,
+        val aarsaker: List<AvbrytGjennomforingAarsak>,
         val forklaring: String?,
     ) : GjennomforingStatusDto() {
         @Transient
@@ -43,7 +43,7 @@ sealed class GjennomforingStatusDto {
     data class Avlyst(
         @Serializable(with = LocalDateTimeSerializer::class)
         val tidspunkt: LocalDateTime,
-        val aarsaker: List<AvbruttAarsak>,
+        val aarsaker: List<AvbrytGjennomforingAarsak>,
         val forklaring: String?,
     ) : GjennomforingStatusDto() {
         @Transient

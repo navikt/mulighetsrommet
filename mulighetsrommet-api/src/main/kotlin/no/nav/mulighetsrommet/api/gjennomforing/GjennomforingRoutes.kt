@@ -1,10 +1,15 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.flatMap
+import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
+import io.github.smiley4.ktoropenapi.delete
+import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -14,16 +19,17 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
-import no.nav.mulighetsrommet.api.avtale.api.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -49,10 +55,30 @@ fun Route.gjennomforingRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            put("{id}/avbryt") {
+            put("{id}/avbryt", {
+                tags = setOf("Gjennomforing")
+                operationId = "avbrytGjennomforing"
+                request {
+                    pathParameterUuid("id")
+                    body<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Avtale ble avbrutt"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AarsakerOgForklaringRequest<AvbruttAarsak>>()
+                val request = call.receive<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
 
                 validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
                     .flatMap {
@@ -127,24 +153,34 @@ fun Route.gjennomforingRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
 
-            delete("kontaktperson") {
-                val request = call.receive<FrikobleKontaktpersonRequest>()
-                val navIdent = getNavIdent()
-                try {
-                    gjennomforinger.frikobleKontaktpersonFraGjennomforing(
-                        kontaktpersonId = request.kontaktpersonId,
-                        gjennomforingId = request.dokumentId,
-                        navIdent = navIdent,
-                    )
-                } catch (e: Throwable) {
-                    application.environment.log.error(
-                        "Klarte ikke fjerne kontaktperson fra gjennomføring: $request",
-                        e,
-                    )
-                    call.respondWithStatusResponse(
-                        InternalServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen").left(),
-                    )
+            delete("{id}/kontaktperson/{kontaktpersonId}", {
+                tags = setOf("Avtale")
+                operationId = "frikobleKontaktperson"
+                request {
+                    pathParameterUuid("id")
+                    pathParameterUuid("kontaktpersonId")
                 }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Kontaktperson ble frikoblet fra gjennomføring"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val kontaktpersonId: UUID by call.parameters
+                val navIdent = getNavIdent()
+
+                gjennomforinger.frikobleKontaktpersonFraGjennomforing(
+                    kontaktpersonId = kontaktpersonId,
+                    gjennomforingId = id,
+                    navIdent = navIdent,
+                )
+
+                call.respond(HttpStatusCode.OK)
             }
         }
 

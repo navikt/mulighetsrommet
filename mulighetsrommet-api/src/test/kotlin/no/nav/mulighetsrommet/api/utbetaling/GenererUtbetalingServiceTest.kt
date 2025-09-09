@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -448,7 +449,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     AFT1.id,
                     status = GjennomforingStatus.AVBRUTT,
                     tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN), null),
                 )
             }.initialize(database.db)
 
@@ -547,7 +548,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     AFT1.id,
                     status = GjennomforingStatus.AVBRUTT,
                     tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN), null),
                 )
             }.initialize(database.db)
 
@@ -604,7 +605,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     AFT1.id,
                     status = GjennomforingStatus.AVLYST,
                     tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                    aarsakerOgForklaring = AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN), null),
                 )
             }.initialize(database.db)
 

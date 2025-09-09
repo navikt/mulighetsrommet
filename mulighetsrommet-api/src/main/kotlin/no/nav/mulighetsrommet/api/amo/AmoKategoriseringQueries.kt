@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKurstype
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.*
@@ -135,7 +136,7 @@ class AmoKategoriseringQueries(private val session: Session) {
 
     private fun AmoKategorisering.toSqlParameters() = when (this) {
         is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
-            "kurstype" to "BRANSJE_OG_YRKESRETTET",
+            "kurstype" to AmoKurstype.BRANSJE_OG_YRKESRETTET.name,
             "bransje" to bransje.name,
             "forerkort" to session.createArrayOfForerkortKlasse(forerkort),
             "sertifiseringer" to Json.encodeToString(sertifiseringer),
@@ -143,22 +144,22 @@ class AmoKategoriseringQueries(private val session: Session) {
         )
 
         AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
-            "kurstype" to "FORBEREDENDE_OPPLAERING_FOR_VOKSNE",
+            "kurstype" to AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE.name,
         )
 
         is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
-            "kurstype" to "GRUNNLEGGENDE_FERDIGHETER",
+            "kurstype" to AmoKurstype.GRUNNLEGGENDE_FERDIGHETER.name,
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
         is AmoKategorisering.Norskopplaering -> mapOf(
-            "kurstype" to "NORSKOPPLAERING",
+            "kurstype" to AmoKurstype.NORSKOPPLAERING.name,
             "norskprove" to norskprove,
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
         AmoKategorisering.Studiespesialisering -> mapOf(
-            "kurstype" to "STUDIESPESIALISERING",
+            "kurstype" to AmoKurstype.STUDIESPESIALISERING.name,
         )
     }
 }

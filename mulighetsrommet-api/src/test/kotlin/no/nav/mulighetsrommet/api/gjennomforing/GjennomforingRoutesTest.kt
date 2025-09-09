@@ -16,13 +16,13 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
@@ -254,7 +254,7 @@ class GjennomforingRoutesTest : FunSpec({
                 avbruttGjennomforingId,
                 GjennomforingStatus.AVBRUTT,
                 LocalDateTime.now(),
-                AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                AarsakerOgForklaringRequest(listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), null),
             )
         }
 
@@ -301,7 +301,7 @@ class GjennomforingRoutesTest : FunSpec({
                     .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(AarsakerOgForklaringRequest(aarsaker = listOf(AvbruttAarsak.ANNET), forklaring = null))
+                        setBody(AarsakerOgForklaringRequest(aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET), forklaring = null))
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -322,7 +322,7 @@ class GjennomforingRoutesTest : FunSpec({
                     .put("/api/v1/intern/gjennomforinger/$avbruttGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
-                        setBody(AarsakerOgForklaringRequest(aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING), forklaring = null))
+                        setBody(AarsakerOgForklaringRequest(aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), forklaring = null))
                     }
 
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -345,7 +345,7 @@ class GjennomforingRoutesTest : FunSpec({
                 val response = client.put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(AarsakerOgForklaringRequest(aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING), forklaring = null))
+                    setBody(AarsakerOgForklaringRequest(aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING), forklaring = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -355,7 +355,7 @@ class GjennomforingRoutesTest : FunSpec({
                     queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
                         it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>().should {
                             it.type shouldBe GjennomforingStatus.AVBRUTT
-                            it.aarsaker shouldContain AvbruttAarsak.FEILREGISTRERING
+                            it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
                         }
                     }
                 }
