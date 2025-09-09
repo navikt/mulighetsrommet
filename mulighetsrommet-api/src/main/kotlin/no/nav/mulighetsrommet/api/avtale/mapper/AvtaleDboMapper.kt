@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.AvtaleStatus
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 

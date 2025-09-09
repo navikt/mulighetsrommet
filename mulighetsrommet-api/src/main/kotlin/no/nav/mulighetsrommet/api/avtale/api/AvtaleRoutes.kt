@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale
+package no.nav.mulighetsrommet.api.avtale.api
 
 import arrow.core.flatMap
 import io.github.smiley4.ktoropenapi.delete
@@ -6,7 +6,6 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -14,6 +13,8 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import no.nav.mulighetsrommet.api.avtale.api.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -21,7 +22,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
@@ -84,81 +84,6 @@ data class OpprettOpsjonLoggRequest(
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
-
-    route("personopplysninger") {
-        get({
-            tags = setOf("Personopplysninger")
-            operationId = "getPersonopplysninger"
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Kodeverk over typer personopplysninger som kan deles mellom Nav og arrangør"
-                    body<List<PersonopplysningData>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            call.respond(
-                Personopplysning
-                    .entries
-                    .sortedBy { it.sortKey }
-                    .map { it.toPersonopplysningData() },
-            )
-        }
-    }
-
-    route("prismodeller") {
-        get({
-            tags = setOf("Prismodell")
-            operationId = "getPrismodeller"
-            request {
-                queryParameter<Tiltakskode>("tiltakstype")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Prismodeller for tiltakstype"
-                    body<List<PrismodellDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltakstype: Tiltakskode by call.queryParameters
-
-            val prismodeller = Prismodeller.getPrismodellerForTiltak(tiltakstype)
-                .map { PrismodellDto(type = it, beskrivelse = it.beskrivelse) }
-
-            call.respond(prismodeller)
-        }
-
-        get("forhandsgodkjente-satser", {
-            tags = setOf("Prismodell")
-            operationId = "getForhandsgodkjenteSatser"
-            request {
-                queryParameter<Tiltakskode>("tiltakstype")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Hovedenhet til Arrangør"
-                    body<List<AvtaltSatsDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltakstype: Tiltakskode by call.queryParameters
-
-            val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype).toDto()
-
-            call.respond(satser)
-        }
-    }
 
     route("avtaler") {
         authorize(Rolle.AVTALER_SKRIV) {

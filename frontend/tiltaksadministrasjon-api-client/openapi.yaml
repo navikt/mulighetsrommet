@@ -98,93 +98,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/personopplysninger:
-    get:
-      tags:
-      - Personopplysninger
-      operationId: getPersonopplysninger
-      parameters: []
-      responses:
-        "200":
-          description: Kodeverk over typer personopplysninger som kan deles mellom
-            Nav og arrangør
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PersonopplysningData"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/prismodeller:
-    get:
-      tags:
-      - Prismodell
-      operationId: getPrismodeller
-      parameters:
-      - name: tiltakstype
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          $ref: "#/components/schemas/Tiltakskode"
-      responses:
-        "200":
-          description: Prismodeller for tiltakstype
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PrismodellDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/prismodeller/forhandsgodkjente-satser:
-    get:
-      tags:
-      - Prismodell
-      operationId: getForhandsgodkjenteSatser
-      parameters:
-      - name: tiltakstype
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          $ref: "#/components/schemas/Tiltakskode"
-      responses:
-        "200":
-          description: Hovedenhet til Arrangør
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaltSatsDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/avtaler:
     get:
       tags: []
@@ -399,6 +312,93 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/EndringshistorikkDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/prismodeller:
+    get:
+      tags:
+      - Prismodell
+      operationId: getPrismodeller
+      parameters:
+      - name: tiltakstype
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Prismodeller for tiltakstype
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PrismodellDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/prismodeller/forhandsgodkjente-satser:
+    get:
+      tags:
+      - Prismodell
+      operationId: getForhandsgodkjenteSatser
+      parameters:
+      - name: tiltakstype
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tiltakskode"
+      responses:
+        "200":
+          description: Hovedenhet til Arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AvtaltSatsDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/personopplysninger:
+    get:
+      tags:
+      - Personopplysning
+      operationId: getPersonopplysninger
+      parameters: []
+      responses:
+        "200":
+          description: Kodeverk over typer personopplysninger som kan deles mellom
+            Nav og arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonopplysningData"
         default:
           description: Problem details
           headers: {}
@@ -2154,87 +2154,6 @@ components:
       - regelverkLenker
       - sanityId
       - tiltakskode
-    PersonopplysningData:
-      type: object
-      properties:
-        personopplysning:
-          $ref: "#/components/schemas/Personopplysning"
-        tittel:
-          type: string
-        hjelpetekst:
-          type:
-          - "null"
-          - string
-      required:
-      - hjelpetekst
-      - personopplysning
-      - tittel
-    Personopplysning:
-      type: string
-      enum:
-      - NAVN
-      - KJONN
-      - ADRESSE
-      - TELEFONNUMMER
-      - FOLKEREGISTER_IDENTIFIKATOR
-      - FODSELSDATO
-      - BEHOV_FOR_BISTAND_FRA_NAV
-      - YTELSER_FRA_NAV
-      - BILDE
-      - EPOST
-      - BRUKERNAVN
-      - ARBEIDSERFARING_OG_VERV
-      - SERTIFIKATER_OG_KURS
-      - UTDANNING_OG_FAGBREV
-      - IP_ADRESSE
-      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
-      - SPRAKKUNNSKAP
-      - ADFERD
-      - SOSIALE_FORHOLD
-      - HELSEOPPLYSNINGER
-      - RELIGION
-      - NASJONALITET
-      - ADRESSESPERRE
-      - VERGEMAL
-    PrismodellDto:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/Prismodell"
-        beskrivelse:
-          type: string
-      required:
-      - beskrivelse
-      - type
-    Prismodell:
-      type: string
-      enum:
-      - ANNEN_AVTALT_PRIS
-      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_UKESVERK
-      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-    AvtaltSatsDto:
-      type: object
-      properties:
-        gjelderFra:
-          type: string
-          format: date
-        pris:
-          type: integer
-          format: int32
-        valuta:
-          type: string
-        gjelderTil:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - gjelderFra
-      - gjelderTil
-      - pris
-      - valuta
     OpsjonLoggStatus:
       type: string
       enum:
@@ -2316,6 +2235,27 @@ components:
       - DUPLISER
       - REGISTRER_OPSJON
       - OPPDATER_PRIS
+    AvtaltSatsDto:
+      type: object
+      properties:
+        gjelderFra:
+          type: string
+          format: date
+        pris:
+          type: integer
+          format: int32
+        valuta:
+          type: string
+        gjelderTil:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - gjelderFra
+      - gjelderTil
+      - pris
+      - valuta
     EndringshistorikkDto.Entry:
       type: object
       properties:
@@ -2366,6 +2306,66 @@ components:
             $ref: "#/components/schemas/EndringshistorikkDto.Entry"
       required:
       - entries
+    PrismodellDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Prismodell"
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - type
+    Prismodell:
+      type: string
+      enum:
+      - ANNEN_AVTALT_PRIS
+      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    PersonopplysningData:
+      type: object
+      properties:
+        personopplysning:
+          $ref: "#/components/schemas/Personopplysning"
+        tittel:
+          type: string
+        hjelpetekst:
+          type:
+          - "null"
+          - string
+      required:
+      - hjelpetekst
+      - personopplysning
+      - tittel
+    Personopplysning:
+      type: string
+      enum:
+      - NAVN
+      - KJONN
+      - ADRESSE
+      - TELEFONNUMMER
+      - FOLKEREGISTER_IDENTIFIKATOR
+      - FODSELSDATO
+      - BEHOV_FOR_BISTAND_FRA_NAV
+      - YTELSER_FRA_NAV
+      - BILDE
+      - EPOST
+      - BRUKERNAVN
+      - ARBEIDSERFARING_OG_VERV
+      - SERTIFIKATER_OG_KURS
+      - UTDANNING_OG_FAGBREV
+      - IP_ADRESSE
+      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
+      - SPRAKKUNNSKAP
+      - ADFERD
+      - SOSIALE_FORHOLD
+      - HELSEOPPLYSNINGER
+      - RELIGION
+      - NASJONALITET
+      - ADRESSESPERRE
+      - VERGEMAL
     TilsagnStatus:
       type: string
       enum:

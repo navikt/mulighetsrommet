@@ -6,7 +6,9 @@ import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorFeatureToggleRoutes
 import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
-import no.nav.mulighetsrommet.api.avtale.avtaleRoutes
+import no.nav.mulighetsrommet.api.avtale.api.avtaleRoutes
+import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
+import no.nav.mulighetsrommet.api.avtale.api.prismodellRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
@@ -94,6 +96,8 @@ fun Route.apiRoutes() {
 fun Route.tiltaksadministrasjonRoutes() {
     tiltakstypeRoutes()
     avtaleRoutes()
+    prismodellRoutes()
+    personopplysningRoutes()
     tilsagnRoutes()
     utbetalingRoutes()
     oppgaverRoutes()
@@ -112,6 +116,8 @@ fun Route.adminflateRoutes() {
     tiltakstypeRoutes()
     gjennomforingRoutes()
     avtaleRoutes()
+    prismodellRoutes()
+    personopplysningRoutes()
     navAnsattRoutes()
     arrangorRoutes()
     notificationRoutes()

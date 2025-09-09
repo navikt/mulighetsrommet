@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale
+package no.nav.mulighetsrommet.api.avtale.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
