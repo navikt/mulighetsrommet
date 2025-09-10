@@ -18,13 +18,18 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import {
-  UtbetalingLinjerState,
-  UtbetalingLinjerStateAction,
-} from "@/pages/gjennomforing/utbetaling/helper";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import MindreBelopModal from "./MindreBelopModal";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
+
+type UtbetalingLinjerState = {
+  linjer: UtbetalingLinje[];
+};
+
+type UtbetalingLinjerStateAction =
+  | { type: "RELOAD" }
+  | { type: "REMOVE"; id: string }
+  | { type: "UPDATE"; linje: UtbetalingLinje };
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -42,8 +47,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const [linjerLastUpdated, setLinjerLastUpdated] = useState(linjerUpdatedAt);
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
-
-  const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
   function utbetalingsLinjeReducer(
     state: UtbetalingLinjerState,
@@ -79,6 +82,8 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
     }
   }, [linjerUpdatedAt, linjerLastUpdated]);
 
+  const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
+
   function opprettEkstraTilsagn() {
     const defaultTilsagn = linjer.length === 1 ? linjer[0].tilsagn : undefined;
     return navigate(
@@ -95,11 +100,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
       queryKey: QueryKeys.utbetaling(utbetaling.id),
       type: "active",
     });
-  }
-
-  function fjernLinje(id: string) {
-    setError([]);
-    linjerDispatch({ type: "REMOVE", id });
   }
 
   function utbetalesTotal(): number {
@@ -176,7 +176,10 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                   <Button
                     size="small"
                     variant="secondary-neutral"
-                    onClick={() => fjernLinje(linje.id)}
+                    onClick={() => {
+                      setError([]);
+                      linjerDispatch({ type: "REMOVE", id: linje.id });
+                    }}
                   >
                     Fjern
                   </Button>
