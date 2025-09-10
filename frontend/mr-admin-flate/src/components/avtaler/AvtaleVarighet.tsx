@@ -136,7 +136,7 @@ export function AvtaleVarighet({ antallOpsjonerUtlost }: Props) {
             invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
             error={errors.sluttDato?.message}
           />
-          {watchedOpsjonsmodell.opsjonMaksVarighet && (
+          {opsjonsmodell.kreverMaksVarighet && (
             <ControlledDateInput
               key={watchedOpsjonsmodell.opsjonMaksVarighet}
               onChange={(val) => setValue("opsjonsmodell.opsjonMaksVarighet", val)}
