@@ -1,13 +1,12 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { max, subtractDays, subtractMonths } from "@/utils/Utils";
 import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { HarTilgang } from "@/components/auth/HarTilgang";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
 import { Rolle, SetTilgjengligForArrangorRequest } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
@@ -16,6 +15,7 @@ interface Props {
 
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
 
   const form = useForm<SetTilgjengligForArrangorRequest>({
     resolver: async (values) => ({ values, errors: {} }),
@@ -23,12 +23,6 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
       tilgjengeligForArrangorDato: gjennomforing.tilgjengeligForArrangorDato,
     },
   });
-
-  const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
-
-  const onSuccess = () => {
-    modalRef.current?.close();
-  };
 
   const onValidationError = (error: ValidationError) => {
     error.errors.forEach((error: FieldError) => {
@@ -48,7 +42,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         id: gjennomforing.id,
         dato: values.tilgjengeligForArrangorDato,
       },
-      { onSuccess, onValidationError },
+      { onSuccess: () => modalRef.current?.close(), onValidationError },
     );
   });
 
@@ -57,28 +51,27 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     modalRef.current?.close();
   };
 
-  const dagensDato = new Date();
-
+  const today = new Date();
   const gjennomforingStartDato = new Date(gjennomforing.startDato);
 
   const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato
     ? new Date(gjennomforing.tilgjengeligForArrangorDato)
-    : max(subtractDays(gjennomforingStartDato, 14), dagensDato);
+    : maxOf([subDuration(gjennomforingStartDato, { days: 14 }), today]);
 
-  const mintilgjengeligForArrangorDato = max(subtractMonths(gjennomforingStartDato, 2), dagensDato);
-
-  if (dagensDato > gjennomforingStartDato) {
-    return null;
-  }
+  const mintilgjengeligForArrangorDato = maxOf([
+    subDuration(gjennomforingStartDato, { months: 2 }),
+    today,
+  ]);
 
   return (
     <Alert variant="info">
       <Heading level="4" size="small">
         Når ser arrangør tiltaket?
       </Heading>
-
-      <TilgjengeligForArrangorInfo tilgjengeligForArrangorDato={tilgjengeligForArrangorDato} />
-
+      <p>
+        Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
+        <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
+      </p>
       <HarTilgang rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}>
         <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
           Endre dato
@@ -118,18 +111,5 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         </Modal.Footer>
       </Modal>
     </Alert>
-  );
-}
-
-function TilgjengeligForArrangorInfo({
-  tilgjengeligForArrangorDato,
-}: {
-  tilgjengeligForArrangorDato: Date;
-}) {
-  return (
-    <p>
-      Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
-      <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
-    </p>
   );
 }
