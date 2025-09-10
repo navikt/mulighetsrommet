@@ -10,7 +10,7 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
@@ -24,14 +24,15 @@ import {
 } from "@/pages/gjennomforing/utbetaling/helper";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import MindreBelopModal from "./MindreBelopModal";
+import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 
 export interface Props {
   utbetaling: UtbetalingDto;
   handlinger: UtbetalingHandling[];
-  linjer: UtbetalingLinje[];
 }
 
-export function RedigerUtbetalingLinjeView({ linjer: apiLinjer, utbetaling, handlinger }: Props) {
+export function RedigerUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
+  const { data: apiLinjer, dataUpdatedAt: linjerUpdatedAt } = useUtbetalingsLinjer(utbetaling.id);
   const { gjennomforingId } = useParams();
   const [error, setError] = useState<FieldError[]>([]);
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export function RedigerUtbetalingLinjeView({ linjer: apiLinjer, utbetaling, hand
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
-
+  const [linjerLastUpdated, setLinjerLastUpdated] = useState(linjerUpdatedAt);
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
@@ -70,6 +71,14 @@ export function RedigerUtbetalingLinjeView({ linjer: apiLinjer, utbetaling, hand
   }
   const [{ linjer }, linjerDispatch] = useReducer(utbetalingsLinjeReducer, { linjer: apiLinjer });
 
+  // Ensure that the local state of utbetalingslinjer gets updated when linjer is refetched
+  useEffect(() => {
+    if (linjerUpdatedAt > linjerLastUpdated) {
+      linjerDispatch({ type: "RELOAD" });
+      setLinjerLastUpdated(linjerUpdatedAt);
+    }
+  }, [linjerUpdatedAt, linjerLastUpdated]);
+
   function opprettEkstraTilsagn() {
     const defaultTilsagn = linjer.length === 1 ? linjer[0].tilsagn : undefined;
     return navigate(
@@ -82,12 +91,10 @@ export function RedigerUtbetalingLinjeView({ linjer: apiLinjer, utbetaling, hand
   }
 
   async function oppdaterLinjer() {
-    return await queryClient
-      .invalidateQueries({
-        queryKey: [QueryKeys.utbetaling(utbetaling.id), QueryKeys.utbetalingsLinjer(utbetaling.id)],
-        refetchType: "all",
-      })
-      .then(() => linjerDispatch({ type: "RELOAD" }));
+    await queryClient.refetchQueries({
+      queryKey: QueryKeys.utbetaling(utbetaling.id),
+      type: "active",
+    });
   }
 
   function fjernLinje(id: string) {
@@ -119,12 +126,10 @@ export function RedigerUtbetalingLinjeView({ linjer: apiLinjer, utbetaling, hand
 
     opprettMutation.mutate(body, {
       onSuccess: async () => {
-        return await queryClient
-          .invalidateQueries({
-            queryKey: [QueryKeys.utbetaling(utbetaling.id)],
-            refetchType: "all",
-          })
-          .then(() => linjerDispatch({ type: "RELOAD" }));
+        return await queryClient.refetchQueries({
+          queryKey: QueryKeys.utbetaling(utbetaling.id),
+          type: "all",
+        });
       },
       onValidationError: (error: ValidationError) => {
         setErrors(error.errors);
@@ -165,7 +170,7 @@ export function RedigerUtbetalingLinjeView({ linjer: apiLinjer, utbetaling, hand
           renderRow={(linje, index) => {
             return (
               <UtbetalingLinjeRow
-                key={linje.id}
+                key={`${linje.id}-${linje.status?.type}`}
                 linje={linje}
                 knappeColumn={
                   <Button

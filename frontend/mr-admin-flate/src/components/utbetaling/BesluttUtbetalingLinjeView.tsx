@@ -5,7 +5,6 @@ import {
   BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
   UtbetalingDto,
-  UtbetalingLinje,
   UtbetalingLinjeHandling,
 } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
@@ -17,13 +16,14 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
 import { isTilBeslutning } from "@/utils/totrinnskontroll";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 
 export interface Props {
   utbetaling: UtbetalingDto;
-  linjer: UtbetalingLinje[];
 }
 
-export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
+export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
+  const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -34,12 +34,9 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
       { id, body },
       {
         onSuccess: async () => {
-          return await queryClient.invalidateQueries({
-            queryKey: [
-              QueryKeys.utbetaling(utbetaling.id),
-              QueryKeys.utbetalingsLinjer(utbetaling.id),
-            ],
-            refetchType: "all",
+          await queryClient.refetchQueries({
+            queryKey: QueryKeys.utbetaling(utbetaling.id),
+            type: "all",
           });
         },
         onValidationError: (error: ValidationError) => {
@@ -61,7 +58,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
           return (
             <UtbetalingLinjeRow
               readOnly
-              key={linje.id}
+              key={`${linje.id}-${linje.status?.type}`}
               linje={linje}
               grayBackground
               knappeColumn={

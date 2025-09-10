@@ -10,7 +10,6 @@ import {
   Rolle,
   UtbetalingDto,
   UtbetalingHandling,
-  UtbetalingLinje,
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
@@ -30,7 +29,6 @@ import {
   useUtbetaling,
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
-  useUtbetalingsLinjer,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 function useUtbetalingPageData() {
@@ -39,7 +37,6 @@ function useUtbetalingPageData() {
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
-  const { data: linjer } = useUtbetalingsLinjer(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
@@ -52,15 +49,13 @@ function useUtbetalingPageData() {
     historikk,
     utbetaling: utbetalingDetaljer.utbetaling,
     handlinger: utbetalingDetaljer.handlinger,
-    linjer,
     beregning,
   };
 }
 
 export function UtbetalingPage() {
   const { gjennomforingId, utbetalingId } = useParams();
-  const { gjennomforing, historikk, utbetaling, handlinger, linjer, beregning } =
-    useUtbetalingPageData();
+  const { gjennomforing, historikk, utbetaling, handlinger, beregning } = useUtbetalingPageData();
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -193,11 +188,7 @@ export function UtbetalingPage() {
                   </Accordion.Content>
                 </Accordion.Item>
               </Accordion>
-              <UtbetalingLinjeView
-                utbetaling={utbetaling}
-                handlinger={handlinger}
-                linjer={linjer}
-              />
+              <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
             </VStack>
           </VStack>
         </WhitePaddedBox>
@@ -209,10 +200,9 @@ export function UtbetalingPage() {
 interface UtbetalingLinjeViewProps {
   utbetaling: UtbetalingDto;
   handlinger: UtbetalingHandling[];
-  linjer: UtbetalingLinje[];
 }
 
-function UtbetalingLinjeView({ utbetaling, handlinger, linjer }: UtbetalingLinjeViewProps) {
+function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProps) {
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
       return null;
@@ -220,18 +210,14 @@ function UtbetalingLinjeView({ utbetaling, handlinger, linjer }: UtbetalingLinje
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
       return (
         <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
-          <RedigerUtbetalingLinjeView
-            utbetaling={utbetaling}
-            handlinger={handlinger}
-            linjer={linjer}
-          />
+          <RedigerUtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
         </HarTilgang>
       );
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
       return (
         <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
-          <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
+          <BesluttUtbetalingLinjeView utbetaling={utbetaling} />
         </HarTilgang>
       );
   }

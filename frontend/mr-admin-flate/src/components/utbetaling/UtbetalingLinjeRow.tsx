@@ -65,7 +65,7 @@ export function UtbetalingLinjeRow({
       shadeOnHover={false}
       open={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
-      key={linje.id}
+      key={`${linje.id}-${linje.status?.type}`}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
         <VStack gap="4">
