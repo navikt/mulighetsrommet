@@ -130,10 +130,10 @@ dependencies {
     // Tilgangskontroll
     implementation(libs.nav.poaoTilgang.client)
     constraints {
-        implementation("org.yaml:snakeyaml:2.4") {
+        implementation("org.yaml:snakeyaml:2.5") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.10") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.11") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
