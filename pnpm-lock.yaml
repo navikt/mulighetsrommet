@@ -25,8 +25,8 @@ importers:
   frontend/api-client-v2:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.81.1
-        version: 0.81.1(typescript@5.9.2)
+        specifier: 0.82.5
+        version: 0.82.5(typescript@5.9.2)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -192,8 +192,8 @@ importers:
         version: 3.17.0
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.81.1
-        version: 0.81.1(typescript@5.9.2)
+        specifier: 0.82.5
+        version: 0.82.5(typescript@5.9.2)
       '@playwright/test':
         specifier: 1.55.0
         version: 1.55.0
@@ -685,8 +685,8 @@ importers:
         specifier: 4.10.2
         version: 4.10.2(playwright-core@1.55.0)
       '@hey-api/openapi-ts':
-        specifier: 0.81.1
-        version: 0.81.1(typescript@5.9.2)
+        specifier: 0.82.5
+        version: 0.82.5(typescript@5.9.2)
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app
@@ -745,8 +745,8 @@ importers:
   frontend/tiltaksadministrasjon-api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.81.1
-        version: 0.81.1(typescript@5.9.2)
+        specifier: 0.82.5
+        version: 0.82.5(typescript@5.9.2)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -1951,16 +1951,22 @@ packages:
   '@grafana/faro-web-sdk@1.19.0':
     resolution: {integrity: sha512-3u74mV2uBWqoF6WBx71p0vtkaS1Z0QbGoZ8tuX5yiYnIybqnhKdGkApFUi7q5se0tMPIeJdMVoRFdLU8f9hfAw==}
 
-  '@hey-api/json-schema-ref-parser@1.0.6':
-    resolution: {integrity: sha512-yktiFZoWPtEW8QKS65eqKwA5MTKp88CyiL8q72WynrBs/73SAaxlSWlA2zW/DZlywZ5hX1OYzrCC0wFdvO9c2w==}
+  '@hey-api/codegen-core@0.0.1':
+    resolution: {integrity: sha512-Q7vUF7n2gYSL6Z16XFweIm6O7uh9sBGty05X6T5lYBKTMv1K31P2iSTxyhzW04M2r/s3dAE1bCpW+h9di0Ux7w==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=22.10.0}
+    peerDependencies:
+      typescript: '>=5.5.3'
+
+  '@hey-api/json-schema-ref-parser@1.1.0':
+    resolution: {integrity: sha512-+5eg9pgAAM9oSqJQuUtfTKbLz8yieFKN91myyXiLnprqFj8ROfxUKJLr9DKq/hGKyybKT1WxFSetDqCFm80pCA==}
     engines: {node: '>= 16'}
 
-  '@hey-api/openapi-ts@0.81.1':
-    resolution: {integrity: sha512-DdLEMbfQRMRDd+cOxG91G7Ro7vUUtt/zYlBGiYTahVO/4rn1HHnYl/WHL+to5I7CTX3sVVsVrxHWcJd0Fue7wg==}
+  '@hey-api/openapi-ts@0.82.5':
+    resolution: {integrity: sha512-7K7HG2GeoYzU5Qc3Tu13P60JIz3ZdUNmCrOHf45OTp1mke9pxP6UBPU5DowxJ1kH9JJdxdRI4Z1yPiDJIrXuVg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=22.10.0}
     hasBin: true
     peerDependencies:
-      typescript: ^5.5.3
+      typescript: '>=5.5.3'
 
   '@hookform/resolvers@5.2.1':
     resolution: {integrity: sha512-u0+6X58gkjMcxur1wRWokA7XsiiBJ6aK17aPZxhkoYiK5J+HcTx0Vhu9ovXe6H+dVpO6cjrn2FkJTryXEMlryQ==}
@@ -7268,8 +7274,8 @@ packages:
   rrweb-cssom@0.8.0:
     resolution: {integrity: sha512-guoltQEx+9aMf2gDZ0s62EcV8lsXR+0w8915TC3ITdn2YueuNjdAYh/levpU9nFaoChh9RUS5ZdQMrKfVEN9tw==}
 
-  run-applescript@7.0.0:
-    resolution: {integrity: sha512-9by4Ij99JUr/MCFBUkDKLWK3G9HVXmabKz9U5MlIAIuvuzkiOicRYs8XJLxX+xahD+mLiiCYDqF9dKAgtzKP1A==}
+  run-applescript@7.1.0:
+    resolution: {integrity: sha512-DPe5pVFaAsinSaV6QjQ6gdiedWDcRCbUuiQfQa2wmWV7+xC9bGulGI8+TdRmoFkAPaBXk8CrAbnlY2ISniJ47Q==}
     engines: {node: '>=18'}
 
   run-async@4.0.6:
@@ -10255,16 +10261,21 @@ snapshots:
       ua-parser-js: 1.0.40
       web-vitals: 4.2.4
 
-  '@hey-api/json-schema-ref-parser@1.0.6':
+  '@hey-api/codegen-core@0.0.1(typescript@5.9.2)':
+    dependencies:
+      typescript: 5.9.2
+
+  '@hey-api/json-schema-ref-parser@1.1.0':
     dependencies:
       '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.0
       lodash: 4.17.21
 
-  '@hey-api/openapi-ts@0.81.1(typescript@5.9.2)':
+  '@hey-api/openapi-ts@0.82.5(typescript@5.9.2)':
     dependencies:
-      '@hey-api/json-schema-ref-parser': 1.0.6
+      '@hey-api/codegen-core': 0.0.1(typescript@5.9.2)
+      '@hey-api/json-schema-ref-parser': 1.1.0
       ansi-colors: 4.1.3
       c12: 2.0.1
       color-support: 1.1.3
@@ -12676,7 +12687,7 @@ snapshots:
 
   bundle-name@4.1.0:
     dependencies:
-      run-applescript: 7.0.0
+      run-applescript: 7.1.0
 
   bytes@3.1.2: {}
 
@@ -16413,7 +16424,7 @@ snapshots:
 
   rrweb-cssom@0.8.0: {}
 
-  run-applescript@7.0.0: {}
+  run-applescript@7.1.0: {}
 
   run-async@4.0.6: {}
 
