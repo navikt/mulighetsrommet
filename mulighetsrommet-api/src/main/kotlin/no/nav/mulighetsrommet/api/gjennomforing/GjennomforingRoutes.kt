@@ -6,6 +6,7 @@ import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
 import io.github.smiley4.ktoropenapi.delete
+import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -16,7 +17,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
@@ -93,24 +96,76 @@ fun Route.gjennomforingRoutes() {
                     }
             }
 
-            put("{id}/tilgjengelig-for-veileder") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            put("{id}/tilgjengelig-for-veileder", {
+                tags = setOf("Gjennomforing")
+                operationId = "setPublisert"
+                request {
+                    pathParameterUuid("id")
+                    body<PublisertRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Tilgjengelighet ble oppdatert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val navIdent = getNavIdent()
                 val request = call.receive<PublisertRequest>()
                 gjennomforinger.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
 
-            put("{id}/apent-for-pamelding") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            put("{id}/apent-for-pamelding", {
+                tags = setOf("Gjennomforing")
+                operationId = "setApentForPamelding"
+                request {
+                    pathParameterUuid("id")
+                    body<SetApentForPameldingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Åpent for påmelding ble oppdatert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetApentForPameldingRequest>()
                 gjennomforinger.setApentForPamelding(id, request.apentForPamelding, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
 
-            put("{id}/tilgjengelig-for-arrangor") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            put("{id}/tilgjengelig-for-arrangor", {
+                tags = setOf("Gjennomforing")
+                operationId = "setTilgjengeligForArrangor"
+                request {
+                    pathParameterUuid("id")
+                    body<SetTilgjengligForArrangorRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Tilgjengelighet ble satt"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val request = call.receive<SetTilgjengligForArrangorRequest>()
                 val navIdent = getNavIdent()
 
@@ -125,7 +180,28 @@ fun Route.gjennomforingRoutes() {
                 call.respondWithStatusResponse(response)
             }
 
-            put("{id}/stengt-hos-arrangor") {
+            put("{id}/stengt-hos-arrangor", {
+                tags = setOf("Gjennomforing")
+                operationId = "setStengtHosArrangor"
+                request {
+                    pathParameterUuid("id")
+                    body<SetStengtHosArrangorRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Perioden ble slettet"
+                        body<GjennomforingDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val id: UUID by call.pathParameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetStengtHosArrangorRequest>()
@@ -139,7 +215,23 @@ fun Route.gjennomforingRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            delete("{id}/stengt-hos-arrangor/{periodeId}") {
+            delete("{id}/stengt-hos-arrangor/{periodeId}", {
+                tags = setOf("Gjennomforing")
+                operationId = "deleteStengtHosArrangor"
+                request {
+                    pathParameterUuid("id")
+                    pathParameter<Int>("periodeId")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Perioden ble slettet"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val id: UUID by call.pathParameters
                 val periodeId: Int by call.pathParameters
                 val navIdent = getNavIdent()
@@ -150,15 +242,15 @@ fun Route.gjennomforingRoutes() {
             }
 
             delete("{id}/kontaktperson/{kontaktpersonId}", {
-                tags = setOf("Avtale")
-                operationId = "frikobleKontaktperson"
+                tags = setOf("Gjennomforing")
+                operationId = "frikobleGjennomforingKontaktperson"
                 request {
                     pathParameterUuid("id")
                     pathParameterUuid("kontaktpersonId")
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Kontaktperson ble frikoblet fra gjennomføring"
+                        description = "Kontaktperson ble frikoblet fra gjennomføringen"
                     }
                     default {
                         description = "Problem details"
@@ -215,8 +307,24 @@ fun Route.gjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
-        get("{id}/tiltaksnummer") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("{id}/tiltaksnummer", {
+            tags = setOf("Gjennomforing")
+            operationId = "getTiltaksnummer"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltaksnummer til gjennomføringen"
+                    body<TiltaksnummerResponse>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
 
             gjennomforinger.get(id)
                 ?.let { gjennomforing ->
@@ -227,7 +335,23 @@ fun Route.gjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
-        get("{id}/historikk") {
+        get("{id}/historikk", {
+            tags = setOf("Gjennomforing")
+            operationId = "getGjennomforingEndringshistorikk"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Gjennomføringens endringshistorikk"
+                    body<EndringshistorikkDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
             val historikk = gjennomforinger.getEndringshistorikk(id)
             call.respond(historikk)
@@ -254,7 +378,23 @@ fun Route.gjennomforingRoutes() {
             call.respond(summary)
         }
 
-        get("{id}/handlinger") {
+        get("{id}/handlinger", {
+            tags = setOf("Gjennomforing")
+            operationId = "getGjennomforingHandlinger"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Mulige handlinger på gjennomføringer for innlogget bruker"
+                    body<Set<GjennomforingHandling>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 

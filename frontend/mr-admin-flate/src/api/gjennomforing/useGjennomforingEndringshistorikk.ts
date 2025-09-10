@@ -1,12 +1,12 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService } from "@mr/api-client-v2";
+import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
 
 export function useGjennomforingEndringshistorikk(id: string) {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforingHistorikk(id),
     queryFn() {
-      return GjennomforingerService.getGjennomforingEndringshistorikk({
+      return GjennomforingService.getGjennomforingEndringshistorikk({
         path: { id },
       });
     },

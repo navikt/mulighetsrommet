@@ -1,19 +1,14 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { max, subtractDays, subtractMonths } from "@/utils/Utils";
-import {
-  FieldError,
-  GjennomforingDto,
-  SetTilgjengligForArrangorRequest,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { Rolle } from "@tiltaksadministrasjon/api-client";
+import { Rolle, SetTilgjengligForArrangorRequest } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   gjennomforing: GjennomforingDto;

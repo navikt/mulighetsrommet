@@ -1,12 +1,13 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { GjennomforingDto, SetStengtHosArrangorRequest, ValidationError } from "@mr/api-client-v2";
+import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { SetStengtHosArrangorRequest } from "@tiltaksadministrasjon/api-client";
 import { FormProvider, useForm } from "react-hook-form";
 
 interface RegistrerStengtHosArrangorFormProps {
