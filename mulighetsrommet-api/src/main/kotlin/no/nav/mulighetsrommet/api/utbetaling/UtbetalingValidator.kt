@@ -1,13 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.left
+import arrow.core.*
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
-import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
@@ -115,10 +112,16 @@ object UtbetalingValidator {
     ): Either<NonEmptyList<FieldError>, OpprettUtbetaling> = either {
         zipOrAccumulate(
             {
-                ensure(request.periodeStart.isBefore(request.periodeSlutt)) {
-                    FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart")
+                ensureNotNull(request.periodeStart) {
+                    FieldError.of(OpprettUtbetalingRequest::periodeStart, "Periodestart må være satt")
                 }
-                Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+                request.periodeStart
+            },
+            {
+                ensureNotNull(request.periodeSlutt) {
+                    FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være satt")
+                }
+                request.periodeSlutt
             },
             {
                 ensure(request.belop > 1) {
@@ -145,7 +148,12 @@ object UtbetalingValidator {
                     }
                 }
             },
-        ) { periode: Periode, belop, beskrivelse, kontonummer, kid ->
+        ) { start: LocalDate, slutt: LocalDate, belop, beskrivelse, kontonummer, kid ->
+            ensure(start.isBefore(slutt)) {
+                FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart").nel()
+            }
+            val periode = Periode.fromInclusiveDates(start, slutt)
+
             OpprettUtbetaling(
                 id = id,
                 gjennomforingId = request.gjennomforingId,

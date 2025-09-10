@@ -46,7 +46,7 @@ data class AvtaleRequest(
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,

@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
@@ -244,9 +241,13 @@ class GjennomforingValidator(
     }
 
     fun validateTilgjengeligForArrangorDato(
-        tilgjengeligForArrangorDato: LocalDate,
+        tilgjengeligForArrangorDato: LocalDate?,
         startDato: LocalDate,
     ): Either<List<FieldError>, LocalDate> {
+        if (tilgjengeligForArrangorDato == null) {
+            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato).nel().left()
+        }
+
         val errors = buildList {
             if (tilgjengeligForArrangorDato < LocalDate.now()) {
                 add(

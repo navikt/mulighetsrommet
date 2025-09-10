@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.flatMap
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -19,7 +16,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -432,7 +428,7 @@ data class SetStengtHosArrangorRequest(
 @Serializable
 data class SetTilgjengligForArrangorRequest(
     @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate,
+    val tilgjengeligForArrangorDato: LocalDate?,
 )
 
 @Serializable

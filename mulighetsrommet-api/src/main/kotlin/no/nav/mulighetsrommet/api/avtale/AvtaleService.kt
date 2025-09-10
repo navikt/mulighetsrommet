@@ -80,22 +80,12 @@ class AvtaleService(
         val previous = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
-        validator
+        val dbo = validator
             .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
             .bind()
 
         db.transaction {
-            queries.avtale.upsertPrismodell(
-                id,
-                request.type,
-                request.prisbetingelser,
-                request.satser.map {
-                    AvtaltSats(
-                        gjelderFra = it.gjelderFra,
-                        sats = it.pris,
-                    )
-                },
-            )
+            queries.avtale.upsertPrismodell(id, dbo)
 
             val dto = getOrError(id)
             logEndring("Prismodell oppdatert", dto, navIdent)

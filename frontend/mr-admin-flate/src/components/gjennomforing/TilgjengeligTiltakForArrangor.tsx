@@ -1,13 +1,16 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { max, subtractDays, subtractMonths } from "@/utils/Utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import {
+  FieldError,
+  GjennomforingDto,
+  SetTilgjengligForArrangorRequest,
+  ValidationError,
+} from "@mr/api-client-v2";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import z from "zod";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Rolle } from "@tiltaksadministrasjon/api-client";
@@ -16,21 +19,13 @@ interface Props {
   gjennomforing: GjennomforingDto;
 }
 
-export const EditTilgjengeligForArrangorSchema = z.object({
-  tilgjengeligForArrangorDato: z.string({ error: "Feltet er påkrevd" }).date(),
-});
-
-export type InferredEditTilgjengeligForArrangorSchema = z.infer<
-  typeof EditTilgjengeligForArrangorSchema
->;
-
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  const form = useForm<InferredEditTilgjengeligForArrangorSchema>({
-    resolver: zodResolver(EditTilgjengeligForArrangorSchema),
+  const form = useForm<SetTilgjengligForArrangorRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
     defaultValues: {
-      tilgjengeligForArrangorDato: gjennomforing.tilgjengeligForArrangorDato ?? undefined,
+      tilgjengeligForArrangorDato: gjennomforing.tilgjengeligForArrangorDato,
     },
   });
 
@@ -43,7 +38,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const onValidationError = (error: ValidationError) => {
     error.errors.forEach((error: FieldError) => {
       form.setError(
-        jsonPointerToFieldPath(error.pointer) as keyof InferredEditTilgjengeligForArrangorSchema,
+        jsonPointerToFieldPath(error.pointer) as keyof SetTilgjengligForArrangorRequest,
         {
           type: "custom",
           message: error.detail,

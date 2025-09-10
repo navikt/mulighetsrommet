@@ -44,7 +44,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               if (satser.length === 0) {
                 setValue("satser", [
                   {
-                    gjelderFra: yyyyMMddFormatting(avtaleStartDato) ?? "",
+                    gjelderFra: yyyyMMddFormatting(avtaleStartDato) ?? null,
                     pris: 0,
                     valuta: "NOK",
                   },

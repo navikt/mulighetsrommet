@@ -1012,7 +1012,7 @@ components:
                 - underenheter
                 - kontaktpersoner
         startDato:
-          type: string
+          type: [string, "null"]
           format: date
         sluttDato:
           type: [string, "null"]
@@ -1083,7 +1083,7 @@ components:
         satser:
           type: array
           items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
+            $ref: "#/components/schemas/AvtaltSatsRequest"
       required: [type, satser]
 
     Prismodell:
@@ -1906,7 +1906,7 @@ components:
       type: object
       properties:
         tilgjengeligForArrangorDato:
-          type: string
+          type: [string, "null"]
           format: date
       required:
         - tilgjengeligForArrangorDato
@@ -1915,13 +1915,14 @@ components:
       type: object
       properties:
         periodeStart:
-          type: string
+          type: [string, "null"]
           format: date
         periodeSlutt:
-          type: string
+          type: [string, "null"]
           format: date
         beskrivelse:
-          type: string
+          type: [string, "null"]
+      required: [periodeStart, periodeSlutt, beskrivelse]
 
     Kontorstruktur:
       type: array
@@ -2250,6 +2251,21 @@ components:
         - sluttDato
         - forrigeSluttdato
         - status
+
+    AvtaltSatsRequest:
+      type: object
+      properties:
+        gjelderFra:
+          type: [string, "null"]
+          format: date
+        pris:
+          type: [integer, "null"]
+        valuta:
+          type: string
+      required:
+        - gjelderFra
+        - pris
+        - valuta
 
     AvtaltSatsDto:
       type: object
