@@ -1,7 +1,12 @@
 import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
-import { AvtaleDto, AvtaleRequest, ProblemDetail, ValidationError } from "@mr/api-client-v2";
+import {
+  AvtaleRequest,
+  ProblemDetail,
+  ValidationError as LegacyValidationError,
+} from "@mr/api-client-v2";
+import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
 export async function onSubmitAvtaleForm({
@@ -14,7 +19,7 @@ export async function onSubmitAvtaleForm({
   avtale?: AvtaleDto;
   data: AvtaleFormValues;
   mutation: ApiMutationResult<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest, unknown>;
-  onValidationError: (e: ValidationError) => void;
+  onValidationError: (e: ValidationError | LegacyValidationError) => void;
   onSuccess: (dto: { data: AvtaleDto }) => void;
 }) {
   const {

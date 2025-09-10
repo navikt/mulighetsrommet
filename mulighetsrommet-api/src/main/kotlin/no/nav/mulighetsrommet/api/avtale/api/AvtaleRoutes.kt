@@ -213,9 +213,30 @@ fun Route.avtaleRoutes() {
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
 
-            put("{id}/prismodell") {
+            put("{id}/prismodell", {
+                tags = setOf("Avtale")
+                operationId = "upsertPrismodell"
+                request {
+                    pathParameterUuid("id")
+                    body<PrismodellRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert avtale"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val navIdent = getNavIdent()
-                val id = call.parameters.getOrFail<UUID>("id")
+                val id: UUID by call.parameters
                 val request = call.receive<PrismodellRequest>()
 
                 val result = avtaler.upsertPrismodell(id, request, navIdent)
@@ -313,7 +334,23 @@ fun Route.avtaleRoutes() {
             call.respondFile(file)
         }
 
-        get("{id}") {
+        get("{id}", {
+            tags = setOf("Avtale")
+            operationId = "getAvtale"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtalen"
+                    body<AvtaleDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
 
             avtaler.get(id)

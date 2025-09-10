@@ -1,7 +1,7 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 import {
+  AmoKategorisering,
   ArrangorKontaktperson,
-  AvtaleDto,
   Personopplysning,
   PrismodellType,
 } from "@mr/api-client-v2";
@@ -15,14 +15,15 @@ import {
 } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
-import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
-  prisbetingelser: z.string().optional(),
+  prisbetingelser: z.string().nullable(),
   prismodell: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
       gjelderFra: z.string().nullable(),
+      gjelderTil: z.string().nullable(),
       pris: z.number().nullable(),
       valuta: z.string(),
     }),
@@ -89,7 +90,8 @@ export function defaultAvtaleData(
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
-    amoKategorisering: avtale?.amoKategorisering ?? null,
+    // TODO: fiks typer
+    amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering) ?? null,
     opsjonsmodell: {
       type: avtale?.opsjonsmodell?.type,
       opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,

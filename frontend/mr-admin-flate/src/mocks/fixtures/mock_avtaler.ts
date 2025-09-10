@@ -1,17 +1,17 @@
-import {
-  AvtaleDto,
-  AvtaleStatusType,
-  Avtaletype,
-  DataElementStatusVariant,
-  EmbeddedTiltakstype,
-  Opphav,
-  OpsjonsmodellType,
-  PrismodellType,
-} from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import {
+  ArenaMigreringOpphav,
+  AvtaleDto,
+  AvtaleStatusType,
+  AvtaleTiltakstype,
+  Avtaletype,
+  DataElementStatusVariant,
+  OpsjonsmodellType,
+  PrismodellType,
+  TiltakstypeDto,
+} from "@tiltaksadministrasjon/api-client";
 
 export const mockAvtaler: AvtaleDto[] = [
   {
@@ -24,8 +24,11 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    opphav: Opphav.TILTAKSADMINISTRASJON,
     avtalenummer: "2021#10579",
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    sakarkivNummer: "2020/1234",
+    beskrivelse: null,
+    faneinnhold: null,
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
@@ -104,7 +107,10 @@ export const mockAvtaler: AvtaleDto[] = [
         kontaktpersoner: [],
       })),
     },
-    opphav: Opphav.ARENA,
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    sakarkivNummer: "2020/1234",
+    beskrivelse: null,
+    faneinnhold: null,
     administratorer: [
       {
         navIdent: "B123456",
@@ -146,7 +152,10 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
-    opphav: Opphav.ARENA,
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    sakarkivNummer: "2020/1234",
+    beskrivelse: null,
+    faneinnhold: null,
     administratorer: [
       {
         navIdent: "B815493",
@@ -199,7 +208,9 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
-    opphav: Opphav.TILTAKSADMINISTRASJON,
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    beskrivelse: null,
+    faneinnhold: null,
     administratorer: [
       {
         navIdent: "B123456",
@@ -253,7 +264,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
 ];
 
-export function getEmbeddedTiltakstype(dto: TiltakstypeDto): EmbeddedTiltakstype {
+export function getEmbeddedTiltakstype(dto: TiltakstypeDto): AvtaleTiltakstype {
   if (!dto.tiltakskode) {
     throw new Error("Tiltakskode mangler");
   }

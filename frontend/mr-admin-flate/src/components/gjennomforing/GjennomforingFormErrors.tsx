@@ -1,8 +1,8 @@
 import { Link } from "react-router";
-import { AvtaleDto } from "@mr/api-client-v2";
 import { BodyShort } from "@navikt/ds-react";
-import { avtaleHarRegioner } from "../../utils/Utils";
-import { PORTEN_URL } from "../../constants";
+import { avtaleHarRegioner } from "@/utils/Utils";
+import { PORTEN_URL } from "@/constants";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 const avtaleFinnesIkke = () => (
   <>

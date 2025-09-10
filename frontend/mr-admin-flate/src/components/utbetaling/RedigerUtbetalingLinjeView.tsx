@@ -1,4 +1,4 @@
-import { FieldError, ValidationError } from "@mr/api-client-v2";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   OpprettDelutbetalingerRequest,
   TilsagnType,
@@ -6,6 +6,7 @@ import {
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingLinje,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
@@ -51,7 +52,7 @@ export function RedigerUtbetalingLinjeView({
 
     opprettMutation.mutate(payload, {
       onSuccess: oppdaterLinjer,
-      onValidationError: (error: ValidationError) => {
+      onValidationError: (error: ValidationError | LegacyValidationError) => {
         setErrors(error.errors);
       },
     });

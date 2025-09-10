@@ -1,5 +1,5 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
-import { FieldError, ValidationError } from "@mr/api-client-v2";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   Besluttelse,
   BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
@@ -7,6 +7,7 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useState } from "react";
@@ -38,7 +39,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
       { id, body },
       {
         onSuccess: oppdaterLinjer,
-        onValidationError: (error: ValidationError) => {
+        onValidationError: (error: ValidationError | LegacyValidationError) => {
           setErrors(error.errors);
         },
       },

@@ -1,5 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { AvtaleDto, AvtalerService, PrismodellRequest, ProblemDetail } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  AvtaleService,
+  PrismodellRequest,
+  ProblemDetail,
+} from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
@@ -8,7 +13,7 @@ export function useUpsertPrismodell(id: string) {
 
   return useApiMutation<{ data: AvtaleDto }, ProblemDetail, PrismodellRequest>({
     mutationFn: (body: PrismodellRequest) =>
-      AvtalerService.upsertPrismodell({
+      AvtaleService.upsertPrismodell({
         path: { id },
         body,
       }),

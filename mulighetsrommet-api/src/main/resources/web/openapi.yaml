@@ -8,45 +8,6 @@ security:
   - bearerAuth: []
 
 paths:
-  /api/v1/intern/avtaler/{id}:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Avtaler
-      operationId: getAvtale
-      responses:
-        200:
-          description: The specified avtale.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AvtaleDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/avtaler/{id}/prismodell:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    put:
-      tags:
-        - Avtaler
-      operationId: upsertPrismodell
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PrismodellRequest"
-      responses:
-        200:
-          description: Avtalen
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AvtaleDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/avtaler:
     get:
       tags:
@@ -642,6 +603,7 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
+        - sakarkivNummer
         - startDato
         - avtaletype
         - status

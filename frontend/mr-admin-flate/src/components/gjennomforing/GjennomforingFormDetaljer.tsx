@@ -6,12 +6,7 @@ import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/Gj
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { isKursTiltak } from "@/utils/Utils";
-import {
-  AvtaleDto,
-  GjennomforingDto,
-  GjennomforingOppstartstype,
-  Tiltakskode,
-} from "@mr/api-client-v2";
+import { GjennomforingDto, GjennomforingOppstartstype, Tiltakskode } from "@mr/api-client-v2";
 import {
   Alert,
   DatePicker,
@@ -35,6 +30,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   gjennomforing?: GjennomforingDto;

@@ -1,16 +1,17 @@
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "@/utils/Utils";
-import { ValidationError } from "@mr/api-client-v2";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
-import {
-  ArrangorKontaktperson,
-  ArrangorKontaktpersonAnsvar,
-} from "@tiltaksadministrasjon/api-client";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 
@@ -89,7 +90,7 @@ export function ArrangorKontaktpersonForm({
           putMutation.reset();
           onSubmit();
         },
-        onValidationError: (error: ValidationError) => {
+        onValidationError: (error: ValidationError | LegacyValidationError) => {
           const errors = error.errors.reduce((errors: Record<string, string>, error) => {
             return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
           }, {});

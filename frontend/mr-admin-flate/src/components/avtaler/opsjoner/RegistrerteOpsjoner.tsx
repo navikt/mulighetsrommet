@@ -1,10 +1,10 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { OpsjonLoggDto, OpsjonStatus } from "@mr/api-client-v2";
 import { compare, formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
+import { AvtaleOpsjonLoggDto, OpsjonLoggStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   readOnly: boolean;
@@ -16,7 +16,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon(avtale.id);
 
-  function kanSletteOpsjon(opsjon: OpsjonLoggDto): boolean {
+  function kanSletteOpsjon(opsjon: AvtaleOpsjonLoggDto): boolean {
     const sisteUtlosteOpsjon = logg.at(-1);
 
     return opsjon.id === sisteUtlosteOpsjon?.id;
@@ -31,7 +31,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   }
 
   const opprinneligSluttDato = avtale.opsjonerRegistrert
-    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLOST && !!o.forrigeSluttDato)
+    .filter((o) => o.status === OpsjonLoggStatus.OPSJON_UTLOST && !!o.forrigeSluttDato)
     .sort((a, b) => compare(a.forrigeSluttDato, b.forrigeSluttDato))
     .at(0)?.forrigeSluttDato;
 
@@ -55,7 +55,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {logg.map((log: OpsjonLoggDto) => {
+          {logg.map((log) => {
             return (
               <Table.Row key={log.id}>
                 <Table.DataCell>{formaterDato(log.createdAt)}</Table.DataCell>
@@ -84,11 +84,11 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   );
 }
 
-function formaterStatus(log: OpsjonLoggDto): string {
+function formaterStatus(log: AvtaleOpsjonLoggDto): string {
   switch (log.status) {
-    case OpsjonStatus.OPSJON_UTLOST:
+    case OpsjonLoggStatus.OPSJON_UTLOST:
       return formaterDato(log.sluttDato) ?? "-";
-    case OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON:
+    case OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON:
       return "Avklart at opsjon ikke skal utløses";
   }
 }
