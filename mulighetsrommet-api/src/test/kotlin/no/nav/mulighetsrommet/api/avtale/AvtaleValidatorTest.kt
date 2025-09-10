@@ -13,7 +13,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
@@ -458,8 +457,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 row(
-                    avtaleRequest.copy(
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                    forhaandsgodkjent.copy(
                         prismodell = PrismodellRequest(
                             type = Prismodell.ANNEN_AVTALT_PRIS,
                             prisbetingelser = null,
@@ -472,8 +470,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 row(
-                    avtaleRequest.copy(
-                        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                    gruppeAmo.copy(
                         prismodell = PrismodellRequest(
                             type = Prismodell.AVTALT_PRIS_PER_UKESVERK,
                             prisbetingelser = null,

@@ -138,7 +138,7 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
         size="small"
         type="button"
         icon={<PlusIcon aria-hidden />}
-        onClick={() => append({ gjelderFra: "", pris: 0, valuta: "NOK" })}
+        onClick={() => append({ gjelderFra: null, pris: 0, valuta: "NOK" })}
       >
         Legg til ny prisperiode
       </Button>

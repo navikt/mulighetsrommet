@@ -9,7 +9,7 @@ export type Opsjonsvalg = z.infer<typeof opsjonsvalg>;
 export const RegistrerOpsjonSchema = z
   .object({
     opsjonsvalg,
-    opsjonsdatoValgt: z.string({ error: "Ny sluttdato for avtalen må settes" }).optional(),
+    opsjonsdatoValgt: z.string({ error: "Ny sluttdato for avtalen må settes" }).nullable(),
   })
   .check((ctx) => {
     if (ctx.value.opsjonsvalg === "Annet") {

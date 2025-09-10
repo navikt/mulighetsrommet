@@ -758,7 +758,7 @@ components:
                 - underenheter
                 - kontaktpersoner
         startDato:
-          type: string
+          type: [string, "null"]
           format: date
         sluttDato:
           type: [string, "null"]
@@ -829,7 +829,7 @@ components:
         satser:
           type: array
           items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
+            $ref: "#/components/schemas/AvtaltSatsRequest"
       required: [type, satser]
 
     Prismodell:
@@ -1871,6 +1871,21 @@ components:
         - sluttDato
         - forrigeSluttdato
         - status
+
+    AvtaltSatsRequest:
+      type: object
+      properties:
+        gjelderFra:
+          type: [string, "null"]
+          format: date
+        pris:
+          type: [integer, "null"]
+        valuta:
+          type: string
+      required:
+        - gjelderFra
+        - pris
+        - valuta
 
     AvtaltSatsDto:
       type: object

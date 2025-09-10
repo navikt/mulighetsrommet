@@ -24,10 +24,8 @@ export const PrismodellSchema = z.object({
   prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
-      gjelderFra: z
-        .string({ error: "Du må legge inn en startdato" })
-        .min(10, "Du må legge inn startdato"),
-      pris: z.number({ error: "Du må legge inn en pris for perioden" }),
+      gjelderFra: z.string().nullable(),
+      pris: z.number().nullable(),
       valuta: z.string(),
     }),
   ),
@@ -86,9 +84,9 @@ export function defaultAvtaleData(
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
       avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    startDato: avtale?.startDato,
-    sluttDato: avtale?.sluttDato,
-    sakarkivNummer: avtale?.sakarkivNummer,
+    startDato: avtale?.startDato ?? null,
+    sluttDato: avtale?.sluttDato ?? null,
+    sakarkivNummer: avtale?.sakarkivNummer ?? null,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,

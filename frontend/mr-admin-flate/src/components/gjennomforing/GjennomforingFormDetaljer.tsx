@@ -171,7 +171,11 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
                 defaultSelected={getValues("startOgSluttDato.startDato")}
-                onChange={(val) => setValue("startOgSluttDato.startDato", val)}
+                onChange={(val) =>
+                  setValue("startOgSluttDato.startDato", (val ?? undefined) as unknown as never, {
+                    shouldValidate: true,
+                  })
+                }
                 error={errors.startOgSluttDato?.startDato?.message}
               />
               <ControlledDateInput

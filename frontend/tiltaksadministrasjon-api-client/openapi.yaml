@@ -2809,7 +2809,9 @@ components:
       type: object
       properties:
         tilgjengeligForArrangorDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
       required:
       - tilgjengeligForArrangorDato
@@ -4429,10 +4431,14 @@ components:
           type: string
           format: uuid
         periodeStart:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         periodeSlutt:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         beskrivelse:
           type: string

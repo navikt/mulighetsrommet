@@ -226,8 +226,8 @@ class AvtaleQueries(private val session: Session) {
         upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
     }
 
-    fun upsertPrismodell(id: UUID, prismodell: Prismodell, prisbetingelser: String?, satser: List<AvtaltSats>) = withTransaction(session) {
-        upsertPrismodell(id, prismodell, prisbetingelser, satser)
+    fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+        upsertPrismodell(id, prismodell = dbo.prismodell, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
     }
 
     private fun Session.upsertPrismodell(

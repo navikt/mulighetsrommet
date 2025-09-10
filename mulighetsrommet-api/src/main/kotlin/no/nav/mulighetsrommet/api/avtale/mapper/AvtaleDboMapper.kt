@@ -2,9 +2,11 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.LocalDate
 import java.util.UUID
 
 object AvtaleDboMapper {
@@ -43,6 +45,8 @@ object AvtaleDboMapper {
 
     fun fromAvtaleRequest(
         request: AvtaleRequest,
+        startDato: LocalDate,
+        prismodellDbo: PrismodellDbo,
         arrangor: AvtaleDbo.Arrangor?,
         status: AvtaleStatus,
         tiltakstypeId: UUID,
@@ -53,7 +57,7 @@ object AvtaleDboMapper {
         sakarkivNummer = request.sakarkivNummer,
         tiltakstypeId = tiltakstypeId,
         arrangor = arrangor,
-        startDato = request.startDato,
+        startDato = startDato,
         sluttDato = request.sluttDato,
         status = status,
         avtaletype = request.avtaletype,
@@ -66,14 +70,9 @@ object AvtaleDboMapper {
         amoKategorisering = request.amoKategorisering,
         opsjonsmodell = request.opsjonsmodell,
         utdanningslop = request.utdanningslop,
-        prismodell = request.prismodell.type,
-        prisbetingelser = request.prismodell.prisbetingelser,
-        satser = request.prismodell.satser.map {
-            AvtaltSats(
-                gjelderFra = it.gjelderFra,
-                sats = it.pris,
-            )
-        },
+        prismodell = prismodellDbo.prismodell,
+        prisbetingelser = prismodellDbo.prisbetingelser,
+        satser = prismodellDbo.satser,
     )
 
     fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: AvtaleRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
@@ -98,7 +97,13 @@ object AvtaleDboMapper {
         prismodell = PrismodellRequest(
             type = dbo.prismodell,
             prisbetingelser = dbo.prisbetingelser,
-            satser = dbo.satser.toDto(),
+            satser = dbo.satser.map {
+                AvtaltSatsRequest(
+                    pris = it.sats,
+                    valuta = "NOK",
+                    gjelderFra = it.gjelderFra,
+                )
+            },
         ),
     )
 }

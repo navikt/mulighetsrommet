@@ -25,28 +25,21 @@ export function RegistrerStengtHosArrangorForm({
   const { register, handleSubmit, formState, setError, getValues, setValue } = form;
 
   function onSubmit(data: SetStengtHosArrangorRequest) {
-    setStengtHosArrangor.mutate(
-      {
-        beskrivelse: data.beskrivelse,
-        periodeStart: data.periodeStart,
-        periodeSlutt: data.periodeSlutt,
+    setStengtHosArrangor.mutate(data, {
+      onSuccess: async () => {
+        form.reset();
+        await queryClient.invalidateQueries({
+          queryKey: QueryKeys.gjennomforing(gjennomforing.id),
+          refetchType: "all",
+        });
       },
-      {
-        onSuccess: async () => {
-          form.reset();
-          await queryClient.invalidateQueries({
-            queryKey: QueryKeys.gjennomforing(gjennomforing.id),
-            refetchType: "all",
-          });
-        },
-        onValidationError: (error: ValidationError) => {
-          error.errors.forEach((error) => {
-            const name = jsonPointerToFieldPath(error.pointer) as keyof SetStengtHosArrangorRequest;
-            setError(name, { type: "custom", message: error.detail });
-          });
-        },
+      onValidationError: (error: ValidationError) => {
+        error.errors.forEach((error) => {
+          const name = jsonPointerToFieldPath(error.pointer) as keyof SetStengtHosArrangorRequest;
+          setError(name, { type: "custom", message: error.detail });
+        });
       },
-    );
+    });
   }
 
   const minDate = subDuration(new Date(), { years: -1 });
