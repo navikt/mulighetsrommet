@@ -265,6 +265,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
               name="administratorer"
               render={({ field }) => (
                 <UNSAFE_Combobox
+                  size="small"
                   id="administratorer"
                   label={
                     <LabelWithHelpText
