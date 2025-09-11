@@ -86,6 +86,7 @@ export function AvtaleArrangorForm() {
           name="arrangorUnderenheter"
           render={({ field }) => (
             <UNSAFE_Combobox
+              size="small"
               id="arrangorUnderenheter"
               label={
                 <LabelWithHelpText
@@ -125,6 +126,7 @@ export function AvtaleArrangorForm() {
                 label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
                 placeholder="Velg kontaktpersoner"
                 isMultiSelect
+                size="small"
                 selectedOptions={arrangorKontaktpersonOptions.filter((v) =>
                   field.value?.includes(v.value),
                 )}
