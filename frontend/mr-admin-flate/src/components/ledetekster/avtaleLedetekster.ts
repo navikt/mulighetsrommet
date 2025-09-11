@@ -7,10 +7,15 @@ export const avtaletekster = {
   tiltakstypeLabel: "Tiltakstype",
   avtaletypeLabel: "Avtaletype",
   startdatoLabel: "Startdato",
-  sluttdatoLabel: (opsjonerRegistrert: boolean) =>
-    opsjonerRegistrert ? "Sluttdato*" : "Sluttdato",
-  valgfriSluttdatoLabel: (avtaletype: Avtaletype) =>
-    avtaletype === Avtaletype.FORHANDSGODKJENT ? "Sluttdato (valgfri)" : "Sluttdato",
+  sluttdatoLabel: (avtaletype: Avtaletype, opsjonerRegistrert: boolean) => {
+    if (opsjonerRegistrert) {
+      return "Sluttdato*";
+    }
+    if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
+      return "Sluttdato (valgfri)";
+    }
+    return "Sluttdato";
+  },
   maksVarighetLabel: "Maks varighet inkl. opsjon",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",

@@ -9,18 +9,16 @@ export type Opsjonsvalg = z.infer<typeof opsjonsvalg>;
 export const RegistrerOpsjonSchema = z
   .object({
     opsjonsvalg,
-    opsjonsdatoValgt: z.string({ error: "Ny sluttdato for avtalen må settes" }).nullable(),
+    opsjonsdatoValgt: z.string().nullish(),
   })
   .check((ctx) => {
-    if (ctx.value.opsjonsvalg === "Annet") {
-      if (!ctx.value.opsjonsdatoValgt) {
-        ctx.issues.push({
-          code: "custom",
-          path: ["opsjonsdatoValgt"],
-          message: "Ny sluttdato for avtalen må settes",
-          input: ctx.value,
-        });
-      }
+    if (ctx.value.opsjonsvalg === "Annet" && !ctx.value.opsjonsdatoValgt) {
+      ctx.issues.push({
+        code: "custom",
+        path: ["opsjonsdatoValgt"],
+        message: "Ny sluttdato for avtalen må settes",
+        input: ctx.value,
+      });
     }
   });
 
