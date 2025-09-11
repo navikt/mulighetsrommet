@@ -32,8 +32,7 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = dto.stedForGjennomforing,
-        faneinnhold = dto.faneinnhold,
-        beskrivelse = dto.beskrivelse,
+        redaksjoneltInnhold = dto.redaksjoneltInnhold,
         deltidsprosent = dto.deltidsprosent,
         estimertVentetidVerdi = dto.estimertVentetid?.verdi,
         estimertVentetidEnhet = dto.estimertVentetid?.enhet,
@@ -63,8 +62,7 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = request.stedForGjennomforing,
-        faneinnhold = request.faneinnhold,
-        beskrivelse = request.beskrivelse,
+        redaksjoneltInnhold = request.redaksjoneltInnhold,
         deltidsprosent = request.deltidsprosent,
         estimertVentetidVerdi = request.estimertVentetid?.verdi,
         estimertVentetidEnhet = request.estimertVentetid?.enhet,

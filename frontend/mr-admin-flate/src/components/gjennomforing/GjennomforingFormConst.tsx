@@ -98,8 +98,10 @@ export function defaultGjennomforingData(
     stedForGjennomforing: gjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
       gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
-    faneinnhold: gjennomforing?.faneinnhold ?? avtale.faneinnhold,
+    beskrivelse:
+      gjennomforing?.redaksjoneltInnhold?.beskrivelse ?? avtale.redaksjoneltInnhold.beskrivelse,
+    faneinnhold:
+      gjennomforing?.redaksjoneltInnhold?.faneinnhold ?? avtale.redaksjoneltInnhold.faneinnhold,
     opphav: gjennomforing?.opphav ?? Opphav.TILTAKSADMINISTRASJON,
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,

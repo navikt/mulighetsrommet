@@ -14,6 +14,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.avtale.model.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -36,6 +37,7 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Faneinnhold
 import java.time.LocalDate
 import java.util.*
 
@@ -90,8 +92,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
                     it.stedForGjennomforing shouldBe "Oslo"
-                    it.faneinnhold shouldBe null
-                    it.beskrivelse shouldBe null
+                    it.redaksjoneltInnhold shouldBe RedaksjoneltInnhold(null, null)
                 }
 
                 queries.delete(Oppfolging1.id)
@@ -399,10 +400,11 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val queries = GjennomforingQueries(session)
 
-                queries.upsert(Oppfolging1.copy(faneinnhold = faneinnhold))
+                queries.upsert(Oppfolging1.copy(redaksjoneltInnhold = RedaksjoneltInnhold("Test", faneinnhold)))
 
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.faneinnhold.shouldNotBeNull().forHvem shouldBe faneinnhold.forHvem
+                    it.redaksjoneltInnhold.beskrivelse shouldBe "Test"
+                    it.redaksjoneltInnhold.faneinnhold.shouldNotBeNull().forHvem shouldBe faneinnhold.forHvem
                 }
             }
         }

@@ -23,9 +23,9 @@ export function GjennomforingInformasjonForVeiledereForm({
 
   const { setValue, watch } = useFormContext<InferredGjennomforingSchema>();
 
-  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
-    setValue("beskrivelse", beskrivelse ?? null);
-    setValue("faneinnhold", faneinnhold ?? null);
+  function kopierRedaksjoneltInnhold({ redaksjoneltInnhold }: GjennomforingDto | AvtaleDto) {
+    setValue("beskrivelse", redaksjoneltInnhold.beskrivelse);
+    setValue("faneinnhold", redaksjoneltInnhold.faneinnhold);
     // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
     // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
     setKey(key + 1);

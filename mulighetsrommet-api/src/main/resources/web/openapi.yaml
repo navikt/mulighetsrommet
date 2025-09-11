@@ -611,10 +611,8 @@ components:
           $ref: "#/components/schemas/Kontorstruktur"
         opphav:
           $ref: "#/components/schemas/Opphav"
-        beskrivelse:
-          type: string
-        faneinnhold:
-          $ref: "#/components/schemas/Faneinnhold"
+        redaksjoneltInnhold:
+          $ref: "#/components/schemas/RedaksjoneltInnhold"
         personopplysninger:
           type: array
           items:
@@ -654,6 +652,7 @@ components:
         - opsjonerRegistrert
         - utdanningslop
         - prismodell
+        - redaksjoneltInnhold
 
     PrismodellDto:
       oneOf:
@@ -775,12 +774,8 @@ components:
           type: array
           items:
             type: string
-        beskrivelse:
-          type: [string, "null"]
-        faneinnhold:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/FaneinnholdRequest"
+        redaksjoneltInnhold:
+          $ref: "#/components/schemas/RedaksjoneltInnhold"
         personopplysninger:
           type: array
           items:
@@ -823,7 +818,7 @@ components:
       type: object
       properties:
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
         type:
           $ref: "#/components/schemas/Prismodell"
         satser:
@@ -1013,10 +1008,8 @@ components:
             $ref: "#/components/schemas/GjennomforingKontaktperson"
         stedForGjennomforing:
           type: string
-        faneinnhold:
-          $ref: "#/components/schemas/Faneinnhold"
-        beskrivelse:
-          type: string
+        redaksjoneltInnhold:
+          $ref: "#/components/schemas/RedaksjoneltInnhold"
         publisert:
           type: boolean
         deltidsprosent:
@@ -1060,6 +1053,7 @@ components:
         - tilgjengeligForArrangorDato
         - amoKategorisering
         - stengt
+        - redaksjoneltInnhold
 
     GjennomforingRequest:
       type: object
@@ -1107,12 +1101,8 @@ components:
             $ref: "#/components/schemas/GjennomforingKontaktpersonRequest"
         stedForGjennomforing:
           type: [string, "null"]
-        faneinnhold:
-          anyOf:
-            - type: ["null"]
-            - $ref: "#/components/schemas/FaneinnholdRequest"
-        beskrivelse:
-          type: [string, "null"]
+        redaksjoneltInnhold:
+          $ref: "#/components/schemas/RedaksjoneltInnhold"
         deltidsprosent:
           type: number
         estimertVentetid:
@@ -1383,9 +1373,94 @@ components:
         - navIdent
         - navn
 
+    RedaksjoneltInnhold:
+      type: object
+      properties:
+        beskrivelse:
+          type: [string, "null"]
+        faneinnhold:
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/Faneinnhold"
+      required:
+        - beskrivelse
+        - faneinnhold
+
+    Faneinnhold:
+      type: object
+      properties:
+        forHvem:
+          type:
+            - "null"
+            - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        forHvemInfoboks:
+          type:
+            - "null"
+            - string
+        detaljerOgInnhold:
+          type:
+            - "null"
+            - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        detaljerOgInnholdInfoboks:
+          type:
+            - "null"
+            - string
+        pameldingOgVarighet:
+          type:
+            - "null"
+            - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        pameldingOgVarighetInfoboks:
+          type:
+            - "null"
+            - string
+        kontaktinfo:
+          type:
+            - "null"
+            - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        kontaktinfoInfoboks:
+          type:
+            - "null"
+            - string
+        oppskrift:
+          type:
+            - "null"
+            - array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
+        lenker:
+          type:
+            - "null"
+            - array
+          items:
+            $ref: "#/components/schemas/FaneinnholdLenke"
+        delMedBruker:
+          type:
+            - "null"
+            - string
+      required:
+        - delMedBruker
+        - detaljerOgInnhold
+        - detaljerOgInnholdInfoboks
+        - forHvem
+        - forHvemInfoboks
+        - kontaktinfo
+        - kontaktinfoInfoboks
+        - lenker
+        - oppskrift
+        - pameldingOgVarighet
+        - pameldingOgVarighetInfoboks
+
     PortableTextTypedObject:
       type: object
-      additionalProperties: true
+      additionalProperties: {}
       properties:
         _type:
           type: string
@@ -1394,65 +1469,22 @@ components:
       required:
         - _type
 
-    Faneinnhold:
+    FaneinnholdLenke:
       type: object
       properties:
-        forHvemInfoboks:
+        lenkenavn:
           type: string
-        forHvem:
-          type: array
-          items:
-            $ref: "#/components/schemas/PortableTextTypedObject"
-        detaljerOgInnholdInfoboks:
+        lenke:
           type: string
-        detaljerOgInnhold:
-          type: array
-          items:
-            $ref: "#/components/schemas/PortableTextTypedObject"
-        pameldingOgVarighetInfoboks:
-          type: string
-        pameldingOgVarighet:
-          type: array
-          items:
-            $ref: "#/components/schemas/PortableTextTypedObject"
-        kontaktinfo:
-          type: array
-          items:
-            $ref: "#/components/schemas/PortableTextTypedObject"
-        kontaktinfoInfoboks:
-          type: string
-        oppskrift:
-          type: array
-          items:
-            $ref: "#/components/schemas/PortableTextTypedObject"
-        lenker:
-          type: array
-          items:
-            $ref: "#/components/schemas/Lenke"
-        delMedBruker:
-          type: string
-
-    FaneinnholdRequest:
-      type: object
-      properties:
-        forHvemInfoboks:
-          type: [string, "null"]
-        forHvem:
-          type: object
-        detaljerOgInnholdInfoboks:
-          type: [string, "null"]
-        detaljerOgInnhold:
-          type: object
-        pameldingOgVarighetInfoboks:
-          type: [string, "null"]
-        pameldingOgVarighet:
-          type: object
-        kontaktinfo:
-          type: object
-        kontaktinfoInfoboks:
-          type: [string, "null"]
-        delMedBruker:
-          type: [string, "null"]
+        apneINyFane:
+          type: boolean
+        visKunForVeileder:
+          type: boolean
+      required:
+        - apneINyFane
+        - lenke
+        - lenkenavn
+        - visKunForVeileder
 
     NavEnhetType:
       type: string
@@ -1607,24 +1639,6 @@ components:
         - start
         - slutt
         - beskrivelse
-
-    Lenke:
-      type: object
-      properties:
-        lenkenavn:
-          type: string
-        lenke:
-          type: string
-          format: uri
-        apneINyFane:
-          type: boolean
-        visKunForVeileder:
-          type: boolean
-      required:
-        - lenkenavn
-        - lenke
-        - apneINyFane
-        - visKunForVeileder
 
     Tiltakskode:
       type: string

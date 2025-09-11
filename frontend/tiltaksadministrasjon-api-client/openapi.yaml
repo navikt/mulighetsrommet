@@ -3065,6 +3065,20 @@ components:
       - mobilnummer
       - navIdent
       - navn
+    RedaksjoneltInnhold:
+      type: object
+      properties:
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+      required:
+      - beskrivelse
+      - faneinnhold
     GjennomforingDto.EstimertVentetid:
       type: object
       properties:
@@ -3309,14 +3323,8 @@ components:
           type:
           - "null"
           - string
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        beskrivelse:
-          type:
-          - "null"
-          - string
+        redaksjoneltInnhold:
+          $ref: "#/components/schemas/RedaksjoneltInnhold"
         opprettetTidspunkt:
           type: string
           format: date-time
@@ -3357,10 +3365,8 @@ components:
       - arenaAnsvarligEnhet
       - arrangor
       - avtaleId
-      - beskrivelse
       - deltidsprosent
       - estimertVentetid
-      - faneinnhold
       - id
       - kontaktpersoner
       - kontorstruktur
@@ -3371,6 +3377,7 @@ components:
       - opprettetTidspunkt
       - oppstart
       - publisert
+      - redaksjoneltInnhold
       - sluttDato
       - startDato
       - status

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.db
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -21,8 +22,7 @@ data class AvtaleDbo(
     val navEnheter: Set<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val administratorer: List<NavIdent>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
+    val redaksjoneltInnhold: RedaksjoneltInnhold,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,

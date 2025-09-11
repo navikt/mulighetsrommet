@@ -52,8 +52,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
     const duplisert: Partial<GjennomforingDto> = {
       opphav: Opphav.TILTAKSADMINISTRASJON,
       avtaleId: gjennomforing.avtaleId,
-      beskrivelse: gjennomforing.beskrivelse,
-      faneinnhold: gjennomforing.faneinnhold,
+      redaksjoneltInnhold: gjennomforing.redaksjoneltInnhold,
     };
 
     setGjennomforingDetaljerTab("detaljer");

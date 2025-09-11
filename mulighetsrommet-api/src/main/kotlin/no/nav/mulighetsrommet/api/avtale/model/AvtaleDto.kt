@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
@@ -30,8 +29,7 @@ data class AvtaleDto(
     val administratorer: List<Administrator>,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
+    val redaksjoneltInnhold: RedaksjoneltInnhold,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,

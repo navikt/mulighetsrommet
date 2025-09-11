@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 object AvtaleDboMapper {
     fun fromAvtaleDto(dto: AvtaleDto) = AvtaleDbo(
@@ -31,8 +31,7 @@ object AvtaleDboMapper {
         }.toSet(),
         avtaletype = dto.avtaletype,
         administratorer = dto.administratorer.map { it.navIdent },
-        beskrivelse = null,
-        faneinnhold = null,
+        redaksjoneltInnhold = dto.redaksjoneltInnhold,
         personopplysninger = dto.personopplysninger,
         personvernBekreftet = dto.personvernBekreftet,
         amoKategorisering = dto.amoKategorisering,
@@ -63,8 +62,7 @@ object AvtaleDboMapper {
         avtaletype = request.avtaletype,
         administratorer = request.administratorer,
         navEnheter = request.navEnheter.toSet(),
-        beskrivelse = request.beskrivelse,
-        faneinnhold = request.faneinnhold,
+        redaksjoneltInnhold = request.redaksjoneltInnhold,
         personopplysninger = request.personopplysninger,
         personvernBekreftet = request.personvernBekreftet,
         amoKategorisering = request.amoKategorisering,
@@ -87,8 +85,7 @@ object AvtaleDboMapper {
         avtaletype = dbo.avtaletype,
         administratorer = dbo.administratorer,
         navEnheter = dbo.navEnheter.toList(),
-        beskrivelse = dbo.beskrivelse,
-        faneinnhold = dbo.faneinnhold,
+        redaksjoneltInnhold = dbo.redaksjoneltInnhold,
         personopplysninger = dbo.personopplysninger,
         personvernBekreftet = dbo.personvernBekreftet,
         amoKategorisering = dbo.amoKategorisering,

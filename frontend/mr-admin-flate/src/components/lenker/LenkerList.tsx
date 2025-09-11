@@ -1,9 +1,9 @@
-import { Lenke } from "@mr/api-client-v2";
+import { FaneinnholdLenke } from "@mr/api-client-v2";
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
 import { List, VStack } from "@navikt/ds-react";
 
 interface Props {
-  lenker: Lenke[];
+  lenker: FaneinnholdLenke[];
 }
 
 export function LenkerList({ lenker }: Props) {

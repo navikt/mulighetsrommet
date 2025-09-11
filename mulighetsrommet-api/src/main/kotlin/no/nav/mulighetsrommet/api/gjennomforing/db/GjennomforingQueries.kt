@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -605,8 +606,8 @@ class GjennomforingQueries(private val session: Session) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "sted_for_gjennomforing" to stedForGjennomforing,
-        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
-        "beskrivelse" to beskrivelse,
+        "faneinnhold" to redaksjoneltInnhold.faneinnhold?.let { Json.encodeToString(it) },
+        "beskrivelse" to redaksjoneltInnhold.beskrivelse,
         "deltidsprosent" to deltidsprosent,
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
@@ -668,8 +669,10 @@ class GjennomforingQueries(private val session: Session) {
             avtaleId = uuidOrNull("avtale_id"),
             oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            beskrivelse = stringOrNull("beskrivelse"),
-            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            redaksjoneltInnhold = RedaksjoneltInnhold(
+                beskrivelse = stringOrNull("beskrivelse"),
+                faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            ),
             opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
             oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
             deltidsprosent = double("deltidsprosent"),

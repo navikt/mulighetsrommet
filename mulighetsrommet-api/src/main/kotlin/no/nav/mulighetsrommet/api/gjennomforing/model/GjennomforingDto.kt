@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.avtale.model.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -38,8 +39,7 @@ data class GjennomforingDto(
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
+    val redaksjoneltInnhold: RedaksjoneltInnhold,
     @Serializable(with = LocalDateTimeSerializer::class)
     val opprettetTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)

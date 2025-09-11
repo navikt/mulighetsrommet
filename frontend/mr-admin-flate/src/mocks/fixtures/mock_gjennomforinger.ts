@@ -63,49 +63,57 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     publisert: true,
-    beskrivelse: "bla bla bla beskrivelse",
-    faneinnhold: {
-      forHvem: [
-        {
-          _type: "block",
-          children: [
-            {
-              text: 'Richard had a difficult and often reactionary personality, and was defiantly Northern English in outlook. Brix said that he carried "a chip on both shoulders. I remember him talking about fucking southern bastards a lot and not wanting to come to London. He hated London intensely.Skriver noe mer fornuftig her',
-              _type: "span",
-            },
-          ],
-          markDefs: [],
-        },
-      ],
-      pameldingOgVarighet: [
-        {
-          _key: "eb83652d429d",
-          _type: "block",
-          style: "normal",
-          children: [
-            {
-              _key: "34b0c44b289b0",
-              text: "Nulla lacinia lorem erat, ut sollicitudin ex commodo in. Maecenas ac purus at urna accumsan sagittis. Aenean ornare massa lacus, non tempor orci venenatis in.",
-              _type: "span",
-              marks: [],
-            },
-          ],
-          markDefs: [],
-        },
-      ],
-      detaljerOgInnholdInfoboks:
-        "Phasellus a urna eget augue pharetra posuere. Aenean malesuada tortor eros, ut ullamcorper nisi facilisis eget. ",
-      pameldingOgVarighetInfoboks:
-        "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
-      lenker: [
-        {
-          lenke:
-            "https://www.google.comgesgsegrdgrdiogjrdiughrduihgrdhgiurdhgudirhgidruhgudirhgurdhguirdhgiurdhugdhrguirdhuuhuiehfuirdhgiurdhghrduighdriughrduighrdiughdruighduir",
-          lenkenavn: "Google.com",
-          apneINyFane: false,
-          visKunForVeileder: false,
-        },
-      ],
+    redaksjoneltInnhold: {
+      beskrivelse: "bla bla bla beskrivelse",
+      faneinnhold: {
+        forHvemInfoboks: null,
+        forHvem: [
+          {
+            _type: "block",
+            children: [
+              {
+                text: 'Richard had a difficult and often reactionary personality, and was defiantly Northern English in outlook. Brix said that he carried "a chip on both shoulders. I remember him talking about fucking southern bastards a lot and not wanting to come to London. He hated London intensely.Skriver noe mer fornuftig her',
+                _type: "span",
+              },
+            ],
+            markDefs: [],
+          },
+        ],
+        pameldingOgVarighet: [
+          {
+            _key: "eb83652d429d",
+            _type: "block",
+            style: "normal",
+            children: [
+              {
+                _key: "34b0c44b289b0",
+                text: "Nulla lacinia lorem erat, ut sollicitudin ex commodo in. Maecenas ac purus at urna accumsan sagittis. Aenean ornare massa lacus, non tempor orci venenatis in.",
+                _type: "span",
+                marks: [],
+              },
+            ],
+            markDefs: [],
+          },
+        ],
+        detaljerOgInnholdInfoboks:
+          "Phasellus a urna eget augue pharetra posuere. Aenean malesuada tortor eros, ut ullamcorper nisi facilisis eget. ",
+        detaljerOgInnhold: null,
+        pameldingOgVarighetInfoboks:
+          "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
+        kontaktinfoInfoboks: null,
+        kontaktinfo: null,
+        oppskrift: null,
+        delMedBruker: null,
+        lenker: [
+          {
+            lenke:
+              "https://www.google.comgesgsegrdgrdiogjrdiughrduihgrdhgiurdhgudirhgidruhgudirhgurdhguirdhgiurdhugdhrguirdhuuhuiehfuirdhgiurdhghrduighdriughrduighrdiughdruighduir",
+            lenkenavn: "Google.com",
+            apneINyFane: false,
+            visKunForVeileder: false,
+          },
+        ],
+      },
     },
     tilgjengeligForArrangorDato: null,
     amoKategorisering: null,
@@ -122,6 +130,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
+    redaksjoneltInnhold: { beskrivelse: null, faneinnhold: null },
     administratorer: [],
     kontorstruktur: [],
     status: {
@@ -158,6 +167,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [],
+    redaksjoneltInnhold: { beskrivelse: null, faneinnhold: null },
     status: { type: GjennomforingStatus.GJENNOMFORES },
     oppstart: GjennomforingOppstartstype.FELLES,
     opphav: Opphav.TILTAKSADMINISTRASJON,
@@ -195,7 +205,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     apentForPamelding: true,
     kontaktpersoner: [],
     publisert: false,
-
+    redaksjoneltInnhold: { beskrivelse: null, faneinnhold: null },
     tilgjengeligForArrangorDato: null,
     amoKategorisering: null,
     stengt: [],

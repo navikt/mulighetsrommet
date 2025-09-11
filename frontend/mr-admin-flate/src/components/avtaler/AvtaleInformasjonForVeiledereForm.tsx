@@ -25,9 +25,9 @@ export function AvtaleInformasjonForVeiledereForm() {
 
   const tiltakId = tiltakstyper.find((type) => type.tiltakskode === tiltakskode)?.id;
 
-  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
-    setValue("beskrivelse", beskrivelse ?? null);
-    setValue("faneinnhold", faneinnhold ?? null);
+  function kopierRedaksjoneltInnhold({ redaksjoneltInnhold }: AvtaleDto) {
+    setValue("beskrivelse", redaksjoneltInnhold.beskrivelse);
+    setValue("faneinnhold", redaksjoneltInnhold.faneinnhold);
   }
 
   const regionerOptions = enheter

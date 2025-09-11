@@ -105,8 +105,10 @@ export function GjennomforingFormContainer({
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
-      beskrivelse: data.beskrivelse,
-      faneinnhold: data.faneinnhold ?? null,
+      redaksjoneltInnhold: {
+        beskrivelse: data.beskrivelse,
+        faneinnhold: data.faneinnhold,
+      },
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,

@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.flatMap
+import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -17,6 +20,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.avtale.model.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -489,8 +493,7 @@ data class GjennomforingRequest(
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
+    val redaksjoneltInnhold: RedaksjoneltInnhold,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)

@@ -23,8 +23,8 @@ import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
-  beskrivelse?: string;
-  faneinnhold?: Faneinnhold;
+  beskrivelse?: string | null;
+  faneinnhold?: Faneinnhold | null;
   kontorstruktur: Kontorstruktur;
   kontaktpersoner: GjennomforingKontaktperson[];
 }
@@ -32,15 +32,15 @@ interface RedaksjoneltInnholdPreviewProps {
 export function RedaksjoneltInnholdPreview() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: avtale } = useAvtale(avtaleId);
-  const { tiltakstype, beskrivelse, faneinnhold, kontorstruktur } = avtale;
+  const { tiltakstype, redaksjoneltInnhold, kontorstruktur } = avtale;
 
   return (
     <Suspense fallback={<Laster tekst="Laster innhold" />}>
       <RedaksjoneltInnhold
         tiltakstype={tiltakstype}
         kontorstruktur={kontorstruktur}
-        beskrivelse={beskrivelse}
-        faneinnhold={faneinnhold}
+        beskrivelse={redaksjoneltInnhold.beskrivelse}
+        faneinnhold={redaksjoneltInnhold.faneinnhold}
         kontaktpersoner={[]}
       />
     </Suspense>
@@ -177,7 +177,7 @@ function someValuesExists(params: any[]): boolean {
 }
 
 interface DetaljerFaneProps {
-  gjennomforingAlert?: string;
+  gjennomforingAlert?: string | null;
   tiltakstypeAlert?: string | null;
   gjennomforing?: any;
   tiltakstype?: any;

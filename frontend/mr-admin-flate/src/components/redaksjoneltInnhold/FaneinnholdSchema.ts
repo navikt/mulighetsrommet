@@ -9,22 +9,21 @@ export const FaneinnholdLenkerSchema = z
   })
   .array()
   .nullable()
-  .optional();
+  .default(null);
 
 export const FaneinnholdSchema = z.object(
   {
-    forHvemInfoboks: z.string().nullish(),
-    forHvem: z.any().nullish(),
-    detaljerOgInnholdInfoboks: z.string().nullish(),
-    detaljerOgInnhold: z.any().nullish(),
-    pameldingOgVarighetInfoboks: z.string().nullish(),
-    pameldingOgVarighet: z.any().nullish(),
-    kontaktinfo: z.any().nullish(),
-    kontaktinfoInfoboks: z.string().nullish(),
+    forHvemInfoboks: z.string().nullable().default(null),
+    forHvem: z.any().nullable().default(null),
+    detaljerOgInnholdInfoboks: z.string().nullable().default(null),
+    detaljerOgInnhold: z.any().nullable().default(null),
+    pameldingOgVarighetInfoboks: z.string().nullable().default(null),
+    pameldingOgVarighet: z.any().nullable().default(null),
+    kontaktinfo: z.any().nullable().default(null),
+    kontaktinfoInfoboks: z.string().nullable().default(null),
     lenker: FaneinnholdLenkerSchema,
-    delMedBruker: z.string().nullish(),
+    delMedBruker: z.string().nullable().default(null),
+    oppskrift: z.any().nullable().default(null),
   },
   { error: "Det redaksjonelle innholdet må settes på avtalen" },
 );
-
-export type InferredFaneinnholdSchema = z.infer<typeof FaneinnholdSchema>;

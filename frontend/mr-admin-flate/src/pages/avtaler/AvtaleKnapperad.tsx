@@ -52,9 +52,8 @@ export function AvtaleKnapperad({ avtale }: Props) {
           opphav: Opphav.TILTAKSADMINISTRASJON,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
-          beskrivelse: avtale.beskrivelse,
-          faneinnhold: avtale.faneinnhold,
           opsjonsmodell: avtale.opsjonsmodell,
+          redaksjoneltInnhold: avtale.redaksjoneltInnhold,
         },
       },
     });
