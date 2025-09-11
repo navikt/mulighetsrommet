@@ -7,10 +7,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Beslu
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
@@ -65,30 +62,16 @@ fun Totrinnskontroll.toDto() = when {
     )
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-@JsonClassDiscriminator("type")
-sealed class AgentDto {
-    @Serializable
-    data class NavAnsatt(
-        val navIdent: NavIdent,
-        val navn: String?,
-    ) : AgentDto()
-
-    @Serializable
-    data object Arrangor : AgentDto()
-
-    @Serializable
-    data class System(
-        val navn: String,
-    ) : AgentDto()
-
+data class AgentDto(
+    val navn: String,
+) {
     companion object {
         fun fromAgent(agent: Agent, navAnsattNavn: String?) = when (agent) {
-            is no.nav.mulighetsrommet.model.Arrangor -> Arrangor
-            is Tiltaksadministrasjon -> System("Tiltaksadministrasjon")
-            is Arena -> System("Arena")
-            is NavIdent -> NavAnsatt(agent, navAnsattNavn)
+            is Arrangor -> AgentDto("Arrangør")
+            is Tiltaksadministrasjon -> AgentDto("Tiltaksadministrasjon")
+            is Arena -> AgentDto("Arena")
+            is NavIdent -> AgentDto(navAnsattNavn ?: agent.value)
         }
     }
 }

@@ -3782,32 +3782,6 @@ components:
       - besluttetTidspunkt
       - forklaring
     AgentDto:
-      anyOf:
-      - $ref: "#/components/schemas/AgentDto.Arrangor"
-      - $ref: "#/components/schemas/AgentDto.NavAnsatt"
-      - $ref: "#/components/schemas/AgentDto.System"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.Arrangor: "#/components/schemas/AgentDto.Arrangor"
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt: "#/components/schemas/AgentDto.NavAnsatt"
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.System: "#/components/schemas/AgentDto.System"
-    AgentDto.Arrangor:
-      type: object
-      properties: {}
-    AgentDto.NavAnsatt:
-      type: object
-      properties:
-        navIdent:
-          type: string
-        navn:
-          type:
-          - "null"
-          - string
-      required:
-      - navIdent
-      - navn
-    AgentDto.System:
       type: object
       properties:
         navn:
