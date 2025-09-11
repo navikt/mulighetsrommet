@@ -1,4 +1,4 @@
-import { useApiQuery, useDebounce } from "@mr/frontend-common";
+import { useApiSuspenseQuery, useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { type GetGjennomforingerData, GjennomforingerService } from "@mr/api-client-v2";
 import { getPublisertStatus } from "@/utils/Utils";
@@ -23,7 +23,7 @@ export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
     },
   };
 
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforinger(queryFilter),
     queryFn: () => GjennomforingerService.getGjennomforinger(queryFilter),
   });
