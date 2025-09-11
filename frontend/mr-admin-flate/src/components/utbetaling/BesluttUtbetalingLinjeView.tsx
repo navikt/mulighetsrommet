@@ -17,6 +17,7 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
 import { isTilBeslutning } from "@/utils/totrinnskontroll";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -24,6 +25,7 @@ export interface Props {
 }
 
 export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -56,6 +58,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
             <UtbetalingLinjeRow
               readOnly
               key={linje.id}
+              gjennomforingId={gjennomforingId}
               linje={linje}
               grayBackground
               knappeColumn={

@@ -1,18 +1,6 @@
-import { useParams } from "react-router";
-
-export function useGetAvtaleIdFromUrl() {
-  const { avtaleId } = useParams<{
-    avtaleId: string;
-  }>();
-  return avtaleId;
-}
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function useGetAvtaleIdFromUrlOrThrow(): string {
-  const { avtaleId } = useParams<{ avtaleId: string }>();
-
-  if (!avtaleId) {
-    throw Error("AvtaleId er ikke satt i URL");
-  }
-
+  const { avtaleId } = useRequiredParams(["avtaleId"]);
   return avtaleId;
 }
