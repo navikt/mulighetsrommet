@@ -22,7 +22,7 @@ class TilsagnValidatorTest : FunSpec({
                 tiltakstypeNavn = "AFT",
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
-                FieldError.of(TilsagnRequest::id, "Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg"),
+                FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id),
             )
         }
 
