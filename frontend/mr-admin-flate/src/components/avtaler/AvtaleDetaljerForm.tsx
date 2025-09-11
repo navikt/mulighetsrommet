@@ -153,7 +153,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
           ) : null}
         </FormGroup>
         <FormGroup>
-          <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
+          <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />
         </FormGroup>
       </VStack>
       <VStack>
