@@ -45,7 +45,7 @@ export function TilsagnForm(props: Props) {
   const mutation = useOpprettTilsagn();
 
   const forhandsvalgKostnadssted =
-    kostnadssteder?.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
+    kostnadssteder.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
   const form = useForm<TilsagnRequest>({
     resolver: async (values) => ({ values, errors: {} }),
     defaultValues: {

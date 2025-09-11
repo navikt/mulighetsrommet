@@ -4,11 +4,8 @@ import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 export function AdministratorOptions(
   ansatt: NavAnsattDto,
   administratorer: string[],
-  eksisterendeAdministratorer?: NavAnsattDto[],
+  eksisterendeAdministratorer: NavAnsattDto[],
 ): SelectOption[] {
-  if (!eksisterendeAdministratorer) {
-    return [{ value: "", label: "Laster..." }];
-  }
   const adminMap = new Map(eksisterendeAdministratorer.map((a) => [a.navIdent, a]));
 
   const options = [
