@@ -5,7 +5,7 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   Avtaletype,
-  OpsjonLoggRegistrert,
+  OpsjonLoggDto,
   OpsjonsmodellType,
   OpsjonStatus,
   Tiltakskode,
@@ -23,7 +23,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 
 interface AvtaleDetaljerFormProps {
-  opsjonerRegistrert?: OpsjonLoggRegistrert[];
+  opsjonerRegistrert?: OpsjonLoggDto[];
 }
 
 export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormProps) {

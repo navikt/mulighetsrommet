@@ -630,7 +630,7 @@ components:
         opsjonerRegistrert:
           type: array
           items:
-            $ref: "#/components/schemas/OpsjonLoggRegistrert"
+            $ref: "#/components/schemas/OpsjonLoggDto"
         utdanningslop:
           anyOf:
             - type: ["null"]
@@ -1848,28 +1848,28 @@ components:
         - OPSJON_UTLOST
         - SKAL_IKKE_UTLOSE_OPSJON
 
-    OpsjonLoggRegistrert:
+    OpsjonLoggDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        registrertDato:
+        createdAt:
           type: string
-          format: date
+          format: date-time
         sluttDato:
           type: [string, "null"]
           format: date
-        forrigeSluttdato:
+        forrigeSluttDato:
           type: [string, "null"]
           format: date
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - id
-        - registrertDato
+        - createdAt
         - sluttDato
-        - forrigeSluttdato
+        - forrigeSluttDato
         - status
 
     AvtaltSatsRequest:

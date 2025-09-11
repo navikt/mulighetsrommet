@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
@@ -345,6 +346,62 @@ class AvtaleValidator(
             satser = request.satser.map {
                 AvtaltSats(gjelderFra = it.gjelderFra!!, sats = it.pris!!)
             },
+        ).right()
+    }
+
+    fun validateOpprettOpsjonLoggRequest(
+        request: OpprettOpsjonLoggRequest,
+        avtale: AvtaleDto,
+        navIdent: NavIdent,
+    ): Either<NonEmptyList<FieldError>, OpsjonLoggDbo> {
+        requireNotNull(avtale.sluttDato) {
+            "avtalen mangler sluttdato"
+        }
+        val nySluttDato = when (request.type) {
+            OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE -> {
+                request.nySluttDato
+            }
+            OpprettOpsjonLoggRequest.Type.ETT_AAR -> {
+                avtale.sluttDato.plusYears(1).minusDays(1)
+            }
+            OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> {
+                null
+            }
+        }
+
+        val errors: List<FieldError> = buildList {
+            if (request.type == OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE && nySluttDato == null) {
+                add(
+                    FieldError.of(
+                        OpprettOpsjonLoggRequest::nySluttDato,
+                        "Ny sluttdato må være satt",
+                    ),
+                )
+            }
+
+            val maksVarighet = avtale.opsjonsmodell.opsjonMaksVarighet
+            if (nySluttDato != null && maksVarighet != null && nySluttDato.isAfter(maksVarighet)) {
+                add(
+                    FieldError.of(
+                        OpprettOpsjonLoggRequest::nySluttDato,
+                        "Ny sluttdato er forbi maks varighet av avtalen",
+                    ),
+                )
+            }
+            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert.any {
+                it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
+            }
+            if (skalIkkeUtloseOpsjonerForAvtale) {
+                add(FieldError.of(OpprettOpsjonLoggRequest::type, "Kan ikke utløse flere opsjoner"))
+            }
+        }
+
+        return errors.toNonEmptyListOrNull()?.left() ?: OpsjonLoggDbo(
+            avtaleId = avtale.id,
+            sluttDato = nySluttDato,
+            forrigeSluttDato = avtale.sluttDato,
+            status = OpsjonLoggStatus.fromType(request.type),
+            registrertAv = navIdent,
         ).right()
     }
 

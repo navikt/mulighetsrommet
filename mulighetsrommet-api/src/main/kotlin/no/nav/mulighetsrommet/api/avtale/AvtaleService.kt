@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -186,45 +187,37 @@ class AvtaleService(
     }
 
     fun registrerOpsjon(
-        entry: OpsjonLoggEntry,
+        avtaleId: UUID,
+        request: OpprettOpsjonLoggRequest,
+        navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<FieldError, AvtaleDto> = db.transaction {
-        if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
-            val avtale = getOrError(entry.avtaleId)
-
-            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert.any {
-                it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
-            }
-            if (skalIkkeUtloseOpsjonerForAvtale) {
-                return FieldError.of(OpsjonLoggEntry::status, "Kan ikke utløse flere opsjoner").left()
+    ): Either<List<FieldError>, AvtaleDto> = either {
+        db.transaction {
+            val avtale = getOrError(avtaleId)
+            requireNotNull(avtale.sluttDato) {
+                "Sluttdato på avtalen er null"
             }
 
-            val maksVarighet = avtale.opsjonsmodell.opsjonMaksVarighet
-            if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
-                return FieldError.of(
-                    OpsjonLoggEntry::sluttdato,
-                    "Ny sluttdato er forbi maks varighet av avtalen",
-                ).left()
+            val dbo = validator.validateOpprettOpsjonLoggRequest(
+                request,
+                avtale,
+                navIdent,
+            ).bind()
+
+            queries.opsjoner.insert(dbo)
+
+            if (dbo.sluttDato != null) {
+                updateAvtaleVarighet(avtaleId, dbo.sluttDato, today)
             }
 
-            if (entry.forrigeSluttdato == null) {
-                return FieldError.of(OpsjonLoggEntry::forrigeSluttdato, "Forrige sluttdato må være satt").left()
+            val operation = when (request.type) {
+                OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
+                OpprettOpsjonLoggRequest.Type.ETT_AAR,
+                -> "Opsjon registrert"
+                OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
             }
+            logEndring(operation, getOrError(avtaleId), navIdent)
         }
-
-        queries.opsjoner.insert(entry)
-
-        if (entry.sluttdato != null) {
-            updateAvtaleVarighet(entry.avtaleId, entry.sluttdato, today)
-        }
-
-        val avtale = getOrError(entry.avtaleId)
-        val operation = when (entry.status) {
-            OpsjonLoggStatus.OPSJON_UTLOST -> "Opsjon registrert"
-            OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
-        }
-        logEndring(operation, avtale, entry.registrertAv)
-        avtale.right()
     }
 
     fun slettOpsjon(
@@ -241,8 +234,7 @@ class AvtaleService(
         }
 
         if (sisteOpsjon.status == OpsjonLoggStatus.OPSJON_UTLOST) {
-            val nySluttDato = sisteOpsjon.forrigeSluttdato
-                ?: return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
+            val nySluttDato = sisteOpsjon.forrigeSluttDato
             updateAvtaleVarighet(avtaleId, nySluttDato, today)
         }
 
@@ -365,7 +357,7 @@ class AvtaleService(
         operation: String,
         dto: AvtaleDto,
         endretAv: Agent,
-    ) {
+    ): AvtaleDto {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
@@ -375,6 +367,7 @@ class AvtaleService(
         ) {
             Json.encodeToJsonElement(dto)
         }
+        return dto
     }
 }
 
