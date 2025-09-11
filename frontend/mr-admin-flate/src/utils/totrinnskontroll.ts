@@ -1,5 +1,4 @@
 import {
-  AgentDto,
   TotrinnskontrollDto,
   TotrinnskontrollDtoBesluttet,
   TotrinnskontrollDtoTilBeslutning,
@@ -21,17 +20,4 @@ export function isTilBeslutning(
     totrinnskontroll?.type ===
     "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning"
   );
-}
-
-export function getAgentDisplayName(agent: AgentDto): string {
-  switch (agent.type) {
-    case "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt":
-      return agent.navn || agent.navIdent;
-    case "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.System":
-      return agent.navn;
-    case "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.Arrangor":
-      return "Tiltaksarrangør";
-    case undefined:
-      throw new Error(`Unrecognized type of agent`);
-  }
 }
