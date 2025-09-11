@@ -319,8 +319,8 @@ fun Route.arrangorRoutes() {
                 }
             }
         }) {
-            val sok: String by call.request.queryParameters
-            call.respondWithStatusResponse(arrangorService.brregSok(sok))
+            val q: String by call.request.queryParameters
+            call.respondWithStatusResponse(arrangorService.brregSok(sok = q))
         }
 
         get("{orgnr}/underenheter", {
