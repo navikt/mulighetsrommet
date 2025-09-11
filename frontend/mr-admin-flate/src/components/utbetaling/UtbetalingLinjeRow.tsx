@@ -26,35 +26,35 @@ import { isBesluttet } from "@/utils/totrinnskontroll";
 interface Props {
   readOnly?: boolean;
   linje: UtbetalingLinje;
+  textInput?: React.ReactNode | null;
+  checkboxInput?: React.ReactNode | null;
   knappeColumn?: React.ReactNode;
   onChange?: (linje: UtbetalingLinje) => void;
   errors?: FieldError[];
   grayBackground?: boolean;
+  rowOpen?: boolean;
 }
 
 export function UtbetalingLinjeRow({
   linje,
   errors = [],
-  onChange,
   knappeColumn,
+  textInput = null,
+  checkboxInput = null,
   readOnly = false,
   grayBackground = false,
+  rowOpen = false,
 }: Props) {
   const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>();
-  const skalApneRad = filterBelopErrors(errors).length > 0 || isBesluttet(linje.opprettelse);
-  const [openRow, setOpenRow] = useState(skalApneRad);
+  const [openRow, setOpenRow] = useState(rowOpen);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
 
-  function filterBelopErrors(errors: FieldError[]) {
-    return errors.filter((e) => !e.pointer.includes("belop"));
-  }
-
   useEffect(() => {
-    if (skalApneRad) {
-      setOpenRow(skalApneRad);
+    if (rowOpen) {
+      setOpenRow(rowOpen);
     }
-  }, [skalApneRad]);
+  }, [rowOpen]);
 
   useEffect(() => {
     setBelopError(errors.find((e) => e.pointer.includes("belop"))?.detail);
@@ -123,49 +123,30 @@ export function UtbetalingLinjeRow({
         {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
       <Table.DataCell>
-        <HStack gap="2">
-          <Checkbox
-            hideLabel
-            readOnly={readOnly}
-            checked={linje.gjorOppTilsagn}
-            onChange={(e) => {
-              onChange?.({
-                ...linje,
-                gjorOppTilsagn: e.target.checked,
-              });
-            }}
-          >
-            Gjør opp tilsagn
-          </Checkbox>
-          <HelpText>
-            Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
-            utbetalinger på tilsagnet etter at denne utbetalingen er attestert
-          </HelpText>
-        </HStack>
+        {checkboxInput || (
+          <HStack gap="2">
+            <Checkbox hideLabel readOnly={readOnly} checked={linje.gjorOppTilsagn}>
+              Gjør opp tilsagn
+            </Checkbox>
+            <HelpText>
+              Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
+              utbetalinger på tilsagnet etter at denne utbetalingen er attestert
+            </HelpText>
+          </HStack>
+        )}
       </Table.DataCell>
       <Table.DataCell>
-        <TextField
-          size="small"
-          style={{ maxWidth: "6rem" }}
-          error={belopError}
-          label="Utbetales"
-          readOnly={readOnly}
-          hideLabel
-          inputMode="numeric"
-          onChange={(e) => {
-            setBelopError(undefined);
-            const num = Number(e.target.value);
-            if (isNaN(num)) {
-              setBelopError("Må være et tall");
-            } else {
-              onChange?.({
-                ...linje,
-                belop: num,
-              });
-            }
-          }}
-          value={linje.belop}
-        />
+        {textInput || (
+          <TextField
+            size="small"
+            style={{ maxWidth: "6rem" }}
+            label="Utbetales"
+            readOnly={readOnly}
+            hideLabel
+            inputMode="numeric"
+            value={linje.belop}
+          />
+        )}
       </Table.DataCell>
       <Table.DataCell>
         {linje.status && <DelutbetalingStatusTag status={linje.status} />}

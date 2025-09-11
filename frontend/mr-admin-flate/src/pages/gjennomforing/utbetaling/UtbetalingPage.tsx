@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -17,8 +17,7 @@ import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
-import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
+
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
@@ -29,11 +28,15 @@ import {
   useUtbetaling,
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
+  useUtbetalingsLinjer,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
+import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "@/api/QueryKeys";
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
-
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
@@ -203,6 +206,25 @@ interface UtbetalingLinjeViewProps {
 }
 
 function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProps) {
+  const [reloadLinjer, setReloadLinjer] = useState<boolean>();
+  const { data: utbetalingLinjer, isRefetching } = useUtbetalingsLinjer(utbetaling.id);
+  const queryClient = useQueryClient();
+
+  const linjerIsUpdated = !isRefetching && reloadLinjer;
+
+  useEffect(() => {
+    if (linjerIsUpdated) {
+      setReloadLinjer(false);
+    }
+  }, [linjerIsUpdated, setReloadLinjer]);
+
+  async function oppdaterLinjer() {
+    await queryClient.refetchQueries({
+      queryKey: QueryKeys.utbetaling(utbetaling.id),
+    });
+    setReloadLinjer(true);
+  }
+
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
       return null;
@@ -210,14 +232,20 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
       return (
         <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
-          <RedigerUtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
+          <RedigerUtbetalingLinjeView
+            utbetaling={utbetaling}
+            handlinger={handlinger}
+            utbetalingLinjer={utbetalingLinjer}
+            oppdaterLinjer={oppdaterLinjer}
+            reloadLinjer={linjerIsUpdated}
+          />
         </HarTilgang>
       );
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
       return (
         <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
-          <BesluttUtbetalingLinjeView utbetaling={utbetaling} />
+          <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />
         </HarTilgang>
       );
   }

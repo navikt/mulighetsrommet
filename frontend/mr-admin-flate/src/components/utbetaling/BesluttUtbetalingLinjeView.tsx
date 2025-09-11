@@ -8,24 +8,22 @@ import {
   UtbetalingLinjeHandling,
 } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
-import { isTilBeslutning } from "@/utils/totrinnskontroll";
-import { QueryKeys } from "@/api/QueryKeys";
+import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 
 export interface Props {
   utbetaling: UtbetalingDto;
+  oppdaterLinjer: () => Promise<void>;
 }
 
-export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
+export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props) {
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
-  const queryClient = useQueryClient();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const besluttMutation = useBesluttDelutbetaling();
 
@@ -33,12 +31,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
     besluttMutation.mutate(
       { id, body },
       {
-        onSuccess: async () => {
-          await queryClient.refetchQueries({
-            queryKey: QueryKeys.utbetaling(utbetaling.id),
-            type: "all",
-          });
-        },
+        onSuccess: oppdaterLinjer,
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
         },
@@ -61,6 +54,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
               key={`${linje.id}-${linje.status?.type}`}
               linje={linje}
               grayBackground
+              rowOpen={isBesluttet(linje.opprettelse)}
               knappeColumn={
                 isTilBeslutning(linje.opprettelse) && (
                   <HStack gap="4">
