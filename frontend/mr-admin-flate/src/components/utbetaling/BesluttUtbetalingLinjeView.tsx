@@ -5,6 +5,7 @@ import {
   BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
   UtbetalingDto,
+  UtbetalingLinje,
   UtbetalingLinjeHandling,
 } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
@@ -15,6 +16,9 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
+import { utbetalingTekster } from "./UtbetalingTekster";
+import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
+import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -39,6 +43,21 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
     );
   }
 
+  function openRow(linje: UtbetalingLinje): boolean {
+    const hasNonBelopErrors = errors.filter((e) => !e.pointer.includes("belop"));
+    return hasNonBelopErrors.length > 0 || isBesluttet(linje.opprettelse);
+  }
+
+  const returnerAarsakValg = [
+    DelutbetalingReturnertAarsak.FEIL_BELOP,
+    DelutbetalingReturnertAarsak.ANNET,
+  ].map((val) => {
+    return {
+      value: val,
+      label: utbetalingTekster.delutbetaling.aarsak.fraRetunertAarsak(val),
+    };
+  });
+
   return (
     <VStack gap="2">
       <Heading spacing size="medium">
@@ -50,11 +69,12 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
         renderRow={(linje) => {
           return (
             <UtbetalingLinjeRow
-              readOnly
               key={`${linje.id}-${linje.status?.type}`}
               linje={linje}
               grayBackground
-              rowOpen={isBesluttet(linje.opprettelse)}
+              rowOpen={openRow(linje)}
+              checkboxInput={<GjorOppTilsagnCheckbox linje={linje} />}
+              textInput={<UtbetalingBelopInput linje={linje} />}
               knappeColumn={
                 isTilBeslutning(linje.opprettelse) && (
                   <HStack gap="4">
@@ -84,19 +104,16 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                       </Button>
                     )}
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
+                      header={utbetalingTekster.delutbetaling.aarsak.modal.header}
                       ingress={
                         <BodyShort>
-                          Ved å sende en linje i retur vil andre linjer også returneres
+                          {utbetalingTekster.delutbetaling.aarsak.modal.ingress}
                         </BodyShort>
                       }
                       open={avvisModalOpen}
-                      header="Send i retur med forklaring"
-                      buttonLabel="Send i retur"
+                      buttonLabel={utbetalingTekster.delutbetaling.aarsak.modal.button.label}
                       errors={errors}
-                      aarsaker={[
-                        { value: DelutbetalingReturnertAarsak.FEIL_BELOP, label: "Feil beløp" },
-                        { value: DelutbetalingReturnertAarsak.ANNET, label: "Annet" },
-                      ]}
+                      aarsaker={returnerAarsakValg}
                       onClose={() => {
                         setAvvisModalOpen(false);
                         setErrors([]);

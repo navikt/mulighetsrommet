@@ -2,18 +2,7 @@ import { delutbetalingAarsakTilTekst, tilsagnTypeToString } from "@/utils/Utils"
 import { FieldError } from "@mr/api-client-v2";
 import { DelutbetalingReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import {
-  Alert,
-  BodyShort,
-  Checkbox,
-  Heading,
-  HelpText,
-  HStack,
-  List,
-  Table,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, BodyShort, Heading, HStack, List, Table, VStack } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
@@ -24,7 +13,6 @@ import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
-  readOnly?: boolean;
   linje: UtbetalingLinje;
   textInput?: React.ReactNode | null;
   checkboxInput?: React.ReactNode | null;
@@ -41,7 +29,6 @@ export function UtbetalingLinjeRow({
   knappeColumn,
   textInput = null,
   checkboxInput = null,
-  readOnly = false,
   grayBackground = false,
   rowOpen = false,
 }: Props) {
@@ -122,32 +109,8 @@ export function UtbetalingLinjeRow({
       <Table.DataCell className={grayBgClass}>
         {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
-      <Table.DataCell>
-        {checkboxInput || (
-          <HStack gap="2">
-            <Checkbox hideLabel readOnly={readOnly} checked={linje.gjorOppTilsagn}>
-              Gjør opp tilsagn
-            </Checkbox>
-            <HelpText>
-              Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
-              utbetalinger på tilsagnet etter at denne utbetalingen er attestert
-            </HelpText>
-          </HStack>
-        )}
-      </Table.DataCell>
-      <Table.DataCell>
-        {textInput || (
-          <TextField
-            size="small"
-            style={{ maxWidth: "6rem" }}
-            label="Utbetales"
-            readOnly={readOnly}
-            hideLabel
-            inputMode="numeric"
-            value={linje.belop}
-          />
-        )}
-      </Table.DataCell>
+      <Table.DataCell>{checkboxInput}</Table.DataCell>
+      <Table.DataCell>{textInput}</Table.DataCell>
       <Table.DataCell>
         {linje.status && <DelutbetalingStatusTag status={linje.status} />}
       </Table.DataCell>

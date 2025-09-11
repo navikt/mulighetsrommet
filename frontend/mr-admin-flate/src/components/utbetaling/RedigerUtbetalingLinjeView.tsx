@@ -1,6 +1,5 @@
 import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
-  DelutbetalingRequest,
   OpprettDelutbetalingerRequest,
   TilsagnType,
   Tilskuddstype,
@@ -9,18 +8,7 @@ import {
   UtbetalingLinje,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import {
-  ActionMenu,
-  Alert,
-  Button,
-  Checkbox,
-  Heading,
-  HelpText,
-  HStack,
-  Spacer,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
+import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
@@ -29,48 +17,11 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import MindreBelopModal from "./MindreBelopModal";
-import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { isBesluttet } from "@/utils/totrinnskontroll";
-
-type FormValues = {
-  formLinjer: UtbetalingLinje[];
-};
-
-type UpdatedLinje = { index: number; linje: UtbetalingLinje };
-
-function getUpdatedLinjer(
-  formList: UtbetalingLinje[],
-  apiLinjer: UtbetalingLinje[],
-): UpdatedLinje[] {
-  return formList.flatMap((linje, index) => {
-    const apiLinje = apiLinjer.find(({ id }) => id === linje.id);
-
-    if (!apiLinje || apiLinje.status == linje.status) {
-      return [];
-    } else {
-      return [
-        { index, linje: { ...apiLinje, belop: linje.belop, gjorOppTilsagn: linje.gjorOppTilsagn } },
-      ];
-    }
-  });
-}
-function getChangeSet(
-  formList: UtbetalingLinje[],
-  apiLinjer: UtbetalingLinje[],
-): { updatedLinjer: UpdatedLinje[]; newLinjer: UtbetalingLinje[] } {
-  const updatedLinjer = getUpdatedLinjer(formList, apiLinjer);
-  const newLinjer = apiLinjer.filter((apiLinje) => !formList.some(({ id }) => id === apiLinje.id));
-  return { updatedLinjer, newLinjer };
-}
-
-function toDelutbetaling(linje: UtbetalingLinje): DelutbetalingRequest {
-  return {
-    id: linje.id,
-    tilsagnId: linje.tilsagn.id,
-    belop: linje.belop,
-    gjorOppTilsagn: linje.gjorOppTilsagn,
-  };
-}
+import { getChangeSet, RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
+import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
+import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -105,11 +56,11 @@ export function RedigerUtbetalingLinjeView({
     });
   }
 
-  const form = useForm<FormValues>({
+  const form = useForm<RedigerUtbetalingLinjeFormValues>({
     defaultValues: { formLinjer: apiLinjer },
     mode: "onSubmit",
   });
-  const { append, update } = useFieldArray<FormValues>({
+  const { append, update } = useFieldArray<RedigerUtbetalingLinjeFormValues>({
     name: "formLinjer",
     control: form.control,
   });
@@ -144,7 +95,7 @@ export function RedigerUtbetalingLinjeView({
     return formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.belop, 0);
   }
 
-  function submitHandler(data?: FormValues) {
+  function submitHandler(data?: RedigerUtbetalingLinjeFormValues) {
     if (utbetalesTotal() < utbetaling.belop) {
       setMindreBelopModalOpen(true);
     } else {
@@ -200,7 +151,7 @@ export function RedigerUtbetalingLinjeView({
                 key={`${linje.id}-${linje.status?.type}`}
                 linje={linje}
                 textInput={<UtbetalingBelopInput index={index} />}
-                checkboxInput={<GjorOppTilsagnCheckbox index={index} />}
+                checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
                 knappeColumn={<FjernUtbetalingLinje index={index} />}
                 grayBackground
                 errors={errors.filter(
@@ -259,7 +210,7 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
 }
 
 function FjernUtbetalingLinje({ index }: { index: number }) {
-  const { remove } = useFieldArray<FormValues>({ name: "formLinjer" });
+  const { remove } = useFieldArray<RedigerUtbetalingLinjeFormValues>({ name: "formLinjer" });
   return (
     <Button
       size="small"
@@ -271,36 +222,5 @@ function FjernUtbetalingLinje({ index }: { index: number }) {
     >
       Fjern
     </Button>
-  );
-}
-
-function UtbetalingBelopInput({ index }: { index: number }) {
-  const { register } = useFormContext<FormValues>();
-  const options = {};
-  return (
-    <TextField
-      size="small"
-      style={{ maxWidth: "6rem" }}
-      label="Utbetales"
-      hideLabel
-      inputMode="numeric"
-      {...register(`formLinjer.${index}.belop`, options)}
-    />
-  );
-}
-
-function GjorOppTilsagnCheckbox({ index }: { index: number }) {
-  const { register } = useFormContext<FormValues>();
-  const options = {};
-  return (
-    <HStack gap="2">
-      <Checkbox hideLabel {...register(`formLinjer.${index}.gjorOppTilsagn`, options)}>
-        Gjør opp tilsagn
-      </Checkbox>
-      <HelpText>
-        Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
-        utbetalinger på tilsagnet etter at denne utbetalingen er attestert
-      </HelpText>
-    </HStack>
   );
 }
