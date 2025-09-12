@@ -300,7 +300,7 @@ class AvtaleServiceTest : FunSpec({
                 type = OpprettOpsjonLoggRequest.Type.ETT_AAR,
             )
             avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight().should {
-                it.sluttDato shouldBe sluttDato.plusYears(1).minusDays(1)
+                it.sluttDato shouldBe sluttDato.plusYears(1)
             }
         }
 

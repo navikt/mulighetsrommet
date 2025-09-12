@@ -362,7 +362,7 @@ class AvtaleValidator(
                 request.nySluttDato
             }
             OpprettOpsjonLoggRequest.Type.ETT_AAR -> {
-                avtale.sluttDato.plusYears(1).minusDays(1)
+                avtale.sluttDato.plusYears(1)
             }
             OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> {
                 null
