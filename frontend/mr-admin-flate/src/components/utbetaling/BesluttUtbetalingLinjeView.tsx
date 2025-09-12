@@ -85,7 +85,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                         type="button"
                         onClick={() => setAvvisModalOpen(true)}
                       >
-                        Send i retur
+                        {utbetalingTekster.delutbetaling.handlinger.returner}
                       </Button>
                     )}
                     {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
@@ -100,7 +100,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                           modal.showModal();
                         }}
                       >
-                        Attester
+                        {utbetalingTekster.delutbetaling.handlinger.attester}
                       </Button>
                     )}
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>

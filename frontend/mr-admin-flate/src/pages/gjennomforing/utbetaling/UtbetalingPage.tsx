@@ -75,12 +75,12 @@ export function UtbetalingPage() {
 
   return (
     <>
-      <title>Utbetalinger</title>
+      <title>{utbetalingTekster.title}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HStack gap="2" className="bg-white border-b-2 border-gray-200 p-2">
         <BankNoteFillIcon color="#2AA758" className="w-10 h-10" />
         <Heading size="large" level="1">
-          Utbetaling for {gjennomforing.navn}
+          {utbetalingTekster.header(gjennomforing.navn)}
         </Heading>
       </HStack>
       <ContentBox>
@@ -96,42 +96,45 @@ export function UtbetalingPage() {
               <HGrid columns="1fr 1fr 0.25fr">
                 <VStack>
                   <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
-                    Til utbetaling
+                    {utbetalingTekster.metadata.header}
                   </Heading>
                   <VStack gap="2">
                     <MetadataHorisontal
-                      header="Status"
+                      header={utbetalingTekster.metadata.status}
                       value={<UtbetalingStatusTag status={utbetaling.status} />}
                     />
 
                     <MetadataHorisontal
-                      header="Utbetalingsperiode"
+                      header={utbetalingTekster.metadata.periode}
                       value={formaterPeriode(utbetaling.periode)}
                     />
                     {utbetaling.type.tagName && (
                       <MetadataHorisontal
-                        header="Type"
+                        header={utbetalingTekster.metadata.type}
                         value={<UtbetalingTypeText type={utbetaling.type} />}
                       />
                     )}
                     <MetadataHorisontal
-                      header="Dato innsendt"
+                      header={utbetalingTekster.metadata.innsendtDato}
                       value={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
                     />
-                    <MetadataHorisontal header="Innsendt av" value={utbetaling.innsendtAv} />
+                    <MetadataHorisontal
+                      header={utbetalingTekster.metadata.innsendtAv}
+                      value={utbetaling.innsendtAv}
+                    />
                     <MetadataHorisontal
                       header={utbetalingTekster.beregning.belop.label}
                       value={formaterNOK(utbetaling.belop)}
                     />
                     {utbetaling.beskrivelse && (
                       <MetadataFritekstfelt
-                        header="Begrunnelse for utbetaling"
+                        header={utbetalingTekster.metadata.beskrivelse}
                         value={utbetaling.beskrivelse}
                       />
                     )}
                     {utbetaling.begrunnelseMindreBetalt && (
                       <MetadataFritekstfelt
-                        header="Begrunnelse for mindre utbetalt"
+                        header={utbetalingTekster.metadata.begrunnelseMindreBetalt}
                         value={utbetaling.begrunnelseMindreBetalt}
                       />
                     )}

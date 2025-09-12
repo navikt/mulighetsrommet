@@ -13,8 +13,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import MindreBelopModal from "./MindreBelopModal";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
@@ -23,6 +21,7 @@ import { getChangeSet, RedigerUtbetalingLinjeFormValues, toDelutbetaling } from 
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 import { utbetalingTekster } from "./UtbetalingTekster";
+import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -46,7 +45,7 @@ export function RedigerUtbetalingLinjeView({
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
 
-  function sendTilGodkjenning(payload: OpprettDelutbetalingerRequest) {
+  function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
     setErrors([]);
 
     opprettMutation.mutate(payload, {
@@ -92,19 +91,13 @@ export function RedigerUtbetalingLinjeView({
     );
   }
 
-  function utbetalesTotal(): number {
-    return formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.belop, 0);
-  }
-
-  function submitHandler(data?: RedigerUtbetalingLinjeFormValues) {
-    if (utbetalesTotal() < utbetaling.belop) {
+  function submitHandler(data: RedigerUtbetalingLinjeFormValues) {
+    if (utbetalesTotal(data.formLinjer) < utbetaling.belop) {
       setMindreBelopModalOpen(true);
     } else {
-      const formLinjer = data?.formLinjer.length ? data.formLinjer : form.getValues("formLinjer");
-
-      sendTilGodkjenning({
+      sendTilAttestering({
         utbetalingId: utbetaling.id,
-        delutbetalinger: formLinjer.map(toDelutbetaling),
+        delutbetalinger: data.formLinjer.map(toDelutbetaling),
         begrunnelseMindreBetalt,
       });
     }
@@ -120,7 +113,7 @@ export function RedigerUtbetalingLinjeView({
       <form onSubmit={form.handleSubmit(submitHandler)}>
         <VStack gap="2">
           {!formLinjer.length && (
-            <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
+            <Alert variant="info">{utbetalingTekster.delutbetaling.alert.ingenTilsagn}</Alert>
           )}
           <HStack align="end">
             <Heading spacing size="medium" level="2">
@@ -130,15 +123,17 @@ export function RedigerUtbetalingLinjeView({
             <ActionMenu>
               <ActionMenu.Trigger>
                 <Button variant="secondary" size="small">
-                  Handlinger
+                  {utbetalingTekster.delutbetaling.handlinger.button.label}
                 </Button>
               </ActionMenu.Trigger>
               <ActionMenu.Content>
                 <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-                  Opprett {avtaletekster.tilsagn.type(tilsagnsTypeFraTilskudd).toLowerCase()}
+                  {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(
+                    tilsagnsTypeFraTilskudd,
+                  )}
                 </ActionMenu.Item>
                 <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
-                  Hent godkjente tilsagn
+                  {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
                 </ActionMenu.Item>
               </ActionMenu.Content>
             </ActionMenu>
@@ -167,7 +162,7 @@ export function RedigerUtbetalingLinjeView({
           <HStack justify="end">
             {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
               <Button size="small" type="submit">
-                Send til attestering
+                {utbetalingTekster.delutbetaling.handlinger.sendTilAttestering}
               </Button>
             )}
           </HStack>
@@ -186,19 +181,23 @@ export function RedigerUtbetalingLinjeView({
             setMindreBelopModalOpen(false);
             const formLinjer = form.getValues("formLinjer");
 
-            sendTilGodkjenning({
+            sendTilAttestering({
               utbetalingId: utbetaling.id,
               delutbetalinger: formLinjer.map(toDelutbetaling),
               begrunnelseMindreBetalt,
             });
           }}
           begrunnelseOnChange={(e: any) => setBegrunnelseMindreBetalt(e.target.value)}
-          belopUtbetaling={utbetalesTotal()}
+          belopUtbetaling={utbetalesTotal(formLinjer)}
           belopInnsendt={utbetaling.belop}
         />
       </form>
     </FormProvider>
   );
+}
+
+function utbetalesTotal(formLinjer: UtbetalingLinje[]): number {
+  return formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.belop, 0);
 }
 
 function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
@@ -221,7 +220,7 @@ function FjernUtbetalingLinje({ index }: { index: number }) {
         remove(index);
       }}
     >
-      Fjern
+      {utbetalingTekster.delutbetaling.handlinger.fjern}
     </Button>
   );
 }

@@ -1,6 +1,19 @@
-import { DelutbetalingReturnertAarsak } from "@tiltaksadministrasjon/api-client";
+import { DelutbetalingReturnertAarsak, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 export const utbetalingTekster = {
+  title: "Utbetalinger",
+  header: (gjennomforingNavn: string) => `Utbetaling for ${gjennomforingNavn}`,
+  metadata: {
+    header: "Til utbetaling",
+    status: "Status",
+    periode: "Utbetalingsperiode",
+    type: "Type",
+    innsendtDato: "Dato innsendt",
+    innsendtAv: "Innsendt av",
+    beskrivelse: "Begrunnelse for utbetaling",
+    begrunnelseMindreBetalt: "Begrunnelse for mindre utbetalt",
+  },
   periode: {
     label: "Periode",
     start: {
@@ -22,6 +35,20 @@ export const utbetalingTekster = {
     header: "Utbetalingslinjer",
     alert: {
       ingenTilsagn: "Det finnes ingen godkjente tilsagn for utbetalingsperioden",
+    },
+    handlinger: {
+      button: {
+        label: "Handlinger",
+      },
+      opprettTilsagn: (tilsagnsType: TilsagnType) => {
+        const typeTekst = avtaletekster.tilsagn.type(tilsagnsType);
+        return `Opprett ${typeTekst}`;
+      },
+      hentGodkjenteTilsagn: "Hent godkjente tilsagn",
+      sendTilAttestering: "Send til attestering",
+      fjern: "Fjern",
+      returner: "Send i retur",
+      attester: "Attester",
     },
     aarsak: {
       modal: {
