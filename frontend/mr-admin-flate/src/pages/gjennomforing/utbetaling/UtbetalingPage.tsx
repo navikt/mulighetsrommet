@@ -7,7 +7,6 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import {
-  Rolle,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
@@ -22,7 +21,6 @@ import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import {
   useUtbetaling,
   useUtbetalingBeregning,
@@ -234,22 +232,16 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.RETURNERT:
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
       return (
-        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
-          <RedigerUtbetalingLinjeView
-            utbetaling={utbetaling}
-            handlinger={handlinger}
-            utbetalingLinjer={utbetalingLinjer}
-            oppdaterLinjer={oppdaterLinjer}
-            reloadLinjer={linjerIsUpdated}
-          />
-        </HarTilgang>
+        <RedigerUtbetalingLinjeView
+          utbetaling={utbetaling}
+          handlinger={handlinger}
+          utbetalingLinjer={utbetalingLinjer}
+          oppdaterLinjer={oppdaterLinjer}
+          reloadLinjer={linjerIsUpdated}
+        />
       );
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
-      return (
-        <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
-          <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />
-        </HarTilgang>
-      );
+      return <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />;
   }
 }
