@@ -15,7 +15,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingStatusTag } from "./DelutbetalingStatusTag";
@@ -25,6 +25,7 @@ import { isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
   readOnly?: boolean;
+  gjennomforingId: string;
   linje: UtbetalingLinje;
   knappeColumn?: React.ReactNode;
   onChange?: (linje: UtbetalingLinje) => void;
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export function UtbetalingLinjeRow({
+  gjennomforingId,
   linje,
   errors = [],
   onChange,
@@ -40,7 +42,6 @@ export function UtbetalingLinjeRow({
   readOnly = false,
   grayBackground = false,
 }: Props) {
-  const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>();
   const skalApneRad = filterBelopErrors(errors).length > 0 || isBesluttet(linje.opprettelse);
   const [openRow, setOpenRow] = useState(skalApneRad);
