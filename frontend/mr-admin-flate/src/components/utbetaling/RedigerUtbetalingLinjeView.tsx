@@ -22,6 +22,7 @@ import { isBesluttet } from "@/utils/totrinnskontroll";
 import { getChangeSet, RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
+import { utbetalingTekster } from "./UtbetalingTekster";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -117,13 +118,13 @@ export function RedigerUtbetalingLinjeView({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(submitHandler)}>
-        {!formLinjer.length && (
-          <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
-        )}
-        <VStack>
+        <VStack gap="2">
+          {!formLinjer.length && (
+            <Alert variant="info">Det finnes ingen godkjente tilsagn for utbetalingsperioden</Alert>
+          )}
           <HStack align="end">
             <Heading spacing size="medium" level="2">
-              Utbetalingslinjer
+              {utbetalingTekster.delutbetaling.header}
             </Heading>
             <Spacer />
             <ActionMenu>
@@ -150,7 +151,7 @@ export function RedigerUtbetalingLinjeView({
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
                 linje={linje}
-                textInput={<UtbetalingBelopInput index={index} />}
+                textInput={<UtbetalingBelopInput type="form" index={index} />}
                 checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
                 knappeColumn={<FjernUtbetalingLinje index={index} />}
                 grayBackground

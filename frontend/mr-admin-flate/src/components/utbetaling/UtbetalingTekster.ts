@@ -19,6 +19,10 @@ export const utbetalingTekster = {
     },
   },
   delutbetaling: {
+    header: "Utbetalingslinjer",
+    alert: {
+      ingenTilsagn: "Det finnes ingen godkjente tilsagn for utbetalingsperioden",
+    },
     aarsak: {
       modal: {
         header: "Send i retur med forklaring",

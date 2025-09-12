@@ -7,22 +7,21 @@ import { utbetalingTekster } from "./UtbetalingTekster";
 export type UtbetalingBelopInputProps = FormVariant | DisplayVariant;
 
 interface FormVariant {
+  type: "form";
   index: number;
 }
 
 interface DisplayVariant {
+  type: "readOnly";
   linje: UtbetalingLinje;
 }
 
-function isFormVariant(props: UtbetalingBelopInputProps): props is FormVariant {
-  return "index" in props;
-}
-
 export function UtbetalingBelopInput(props: UtbetalingBelopInputProps) {
-  if (isFormVariant(props)) {
-    return <UtbetalingBelopFormInput {...props} />;
-  } else {
-    return <UtbetalingBelopDisplayInput {...props} />;
+  switch (props.type) {
+    case "form":
+      return <UtbetalingBelopFormInput {...props} />;
+    case "readOnly":
+      return <UtbetalingBelopDisplayInput {...props} />;
   }
 }
 

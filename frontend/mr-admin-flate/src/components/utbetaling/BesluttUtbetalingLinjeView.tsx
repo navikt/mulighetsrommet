@@ -61,7 +61,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
   return (
     <VStack gap="2">
       <Heading spacing size="medium">
-        Utbetalingslinjer
+        {utbetalingTekster.delutbetaling.header}
       </Heading>
       <UtbetalingLinjeTable
         linjer={linjer}
@@ -74,7 +74,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
               grayBackground
               rowOpen={openRow(linje)}
               checkboxInput={<GjorOppTilsagnCheckbox linje={linje} />}
-              textInput={<UtbetalingBelopInput linje={linje} />}
+              textInput={<UtbetalingBelopInput type="readOnly" linje={linje} />}
               knappeColumn={
                 isTilBeslutning(linje.opprettelse) && (
                   <HStack gap="4">
