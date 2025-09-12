@@ -509,13 +509,11 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 )
                 queries.opsjoner.insert(
-                    OpsjonLoggEntry(
-                        id = UUID.randomUUID(),
+                    OpsjonLoggDbo(
                         avtaleId = AvtaleFixtures.gruppeAmo.id,
-                        sluttdato = avtaleRequest.sluttDato?.plusYears(1),
-                        forrigeSluttdato = avtaleRequest.sluttDato,
+                        sluttDato = avtaleRequest.sluttDato?.plusYears(1),
+                        forrigeSluttDato = avtaleRequest.sluttDato!!,
                         status = OpsjonLoggStatus.OPSJON_UTLOST,
-                        registretDato = LocalDate.of(2024, 7, 6),
                         registrertAv = NavIdent("M123456"),
                     ),
                 )

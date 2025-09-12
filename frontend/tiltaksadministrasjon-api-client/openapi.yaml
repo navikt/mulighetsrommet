@@ -2626,30 +2626,25 @@ components:
       - regelverkLenker
       - sanityId
       - tiltakskode
-    OpsjonLoggStatus:
+    OpprettOpsjonLoggRequest.Type:
       type: string
       enum:
-      - OPSJON_UTLOST
+      - CUSTOM_LENGDE
+      - ETT_AAR
       - SKAL_IKKE_UTLOSE_OPSJON
     OpprettOpsjonLoggRequest:
       type: object
       properties:
-        nySluttdato:
+        nySluttDato:
           type:
           - "null"
           - string
           format: date
-        forrigeSluttdato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/OpsjonLoggStatus"
+        type:
+          $ref: "#/components/schemas/OpprettOpsjonLoggRequest.Type"
       required:
-      - forrigeSluttdato
-      - nySluttdato
-      - status
+      - nySluttDato
+      - type
     FieldError:
       type: object
       properties:

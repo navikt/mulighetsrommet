@@ -113,44 +113,44 @@ object UtbetalingValidator {
         zipOrAccumulate(
             {
                 ensureNotNull(request.periodeStart) {
-                    FieldError.of(OpprettUtbetalingRequest::periodeStart, "Periodestart må være satt")
+                    FieldError.of("Periodestart må være satt", OpprettUtbetalingRequest::periodeStart)
                 }
                 request.periodeStart
             },
             {
                 ensureNotNull(request.periodeSlutt) {
-                    FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være satt")
+                    FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt)
                 }
                 request.periodeSlutt
             },
             {
                 ensure(request.belop > 1) {
-                    FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt")
+                    FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop)
                 }
                 request.belop
             },
             {
                 ensure(request.beskrivelse.length > 10) {
-                    FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse")
+                    FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse)
                 }
                 request.beskrivelse
             },
             {
                 ensure(request.kontonummer.value.length == 11) {
-                    FieldError.of(OpprettUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn")
+                    FieldError.of("Kontonummer må være 11 tegn", OpprettUtbetalingRequest::kontonummer)
                 }
                 request.kontonummer
             },
             {
                 request.kidNummer?.let { raw ->
                     ensureNotNull(Kid.parse(raw)) {
-                        FieldError.of(OpprettUtbetalingRequest::kidNummer, "Ugyldig kid")
+                        FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
                     }
                 }
             },
         ) { start: LocalDate, slutt: LocalDate, belop, beskrivelse, kontonummer, kid ->
             ensure(start.isBefore(slutt)) {
-                FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart").nel()
+                FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt).nel()
             }
             val periode = Periode.fromInclusiveDates(start, slutt)
 
@@ -192,8 +192,8 @@ object UtbetalingValidator {
             } catch (t: DateTimeParseException) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::periodeStart,
                         "Dato må være på formatet 'yyyy-mm-dd'",
+                        OpprettKravOmUtbetalingRequest::periodeStart,
                     ),
                 )
                 null
@@ -203,8 +203,8 @@ object UtbetalingValidator {
             } catch (t: DateTimeParseException) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::periodeSlutt,
                         "Dato må være på formatet 'yyyy-mm-dd'",
+                        OpprettKravOmUtbetalingRequest::periodeSlutt,
                     ),
                 )
                 null
@@ -213,25 +213,25 @@ object UtbetalingValidator {
             if (slutt != null && start != null && slutt.isBefore(start)) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::periodeStart,
                         "Periodeslutt må være etter periodestart",
+                        OpprettKravOmUtbetalingRequest::periodeStart,
                     ),
                 )
             }
 
             if (request.belop < 1) {
-                add(FieldError.of(OpprettKravOmUtbetalingRequest::belop, "Beløp må være positivt"))
+                add(FieldError.of("Beløp må være positivt", OpprettKravOmUtbetalingRequest::belop))
             }
 
             if (request.vedlegg.isEmpty()) {
-                add(FieldError.of(OpprettKravOmUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
+                add(FieldError.of("Du må legge ved vedlegg", OpprettKravOmUtbetalingRequest::vedlegg))
             }
 
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::kidNummer,
                         "Ugyldig kid",
+                        OpprettKravOmUtbetalingRequest::kidNummer,
                     ),
                 )
             }
@@ -291,8 +291,8 @@ object UtbetalingValidator {
             if (request.kid != null && Kid.parse(request.kid) == null) {
                 add(
                     FieldError.of(
-                        GodkjennUtbetaling::kid,
                         "Ugyldig kid",
+                        GodkjennUtbetaling::kid,
                     ),
                 )
             }
