@@ -40,7 +40,6 @@ export function RedigerUtbetalingLinjeView({
   reloadLinjer,
 }: Props) {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
@@ -161,14 +160,17 @@ export function RedigerUtbetalingLinjeView({
             )}
           />
         </VStack>
+
         <VStack gap="2" className="mt-2">
-          <HStack justify="end">
-            {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
-              <Button size="small" type="submit">
-                {utbetalingTekster.delutbetaling.handlinger.sendTilAttestering}
-              </Button>
-            )}
-          </HStack>
+          {!!formLinjer.length && (
+            <HStack justify="end">
+              {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
+                <Button size="small" type="submit">
+                  {utbetalingTekster.delutbetaling.handlinger.sendTilAttestering}
+                </Button>
+              )}
+            </HStack>
+          )}
           <VStack gap="2" align="end">
             {errors.map((error) => (
               <Alert variant="error" size="small">
@@ -177,6 +179,7 @@ export function RedigerUtbetalingLinjeView({
             ))}
           </VStack>
         </VStack>
+
         <MindreBelopModal
           open={mindreBelopModalOpen}
           handleClose={() => setMindreBelopModalOpen(false)}
