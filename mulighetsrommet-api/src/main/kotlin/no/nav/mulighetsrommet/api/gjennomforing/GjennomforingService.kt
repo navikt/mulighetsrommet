@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -321,7 +322,7 @@ class GjennomforingService(
 
     fun handlinger(gjennomforing: GjennomforingDto, navIdent: NavIdent): Set<GjennomforingHandling> {
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-            ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
+            ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
         val gjennomforingSkriv = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
         val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)

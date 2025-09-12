@@ -1,25 +1,41 @@
-import { TilsagnDto, TilsagnStatus, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
-import { v4 as uuidv4 } from "uuid";
+import { DelutbetalingRequest, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 
-export function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
-  return tilsagn
-    .filter((t) => t.status.type === TilsagnStatus.GODKJENT)
-    .map((t) => toEmptyUtbetalingLinje(t))
-    .toSorted(compareUtbetalingLinje);
+export type RedigerUtbetalingLinjeFormValues = {
+  formLinjer: UtbetalingLinje[];
+};
+
+export type UpdatedLinje = { index: number; linje: UtbetalingLinje };
+
+export function getUpdatedLinjer(
+  formList: UtbetalingLinje[],
+  apiLinjer: UtbetalingLinje[],
+): UpdatedLinje[] {
+  return formList.flatMap((linje, index) => {
+    const apiLinje = apiLinjer.find(({ id }) => id === linje.id);
+
+    if (!apiLinje || apiLinje.status == linje.status) {
+      return [];
+    } else {
+      return [
+        { index, linje: { ...apiLinje, belop: linje.belop, gjorOppTilsagn: linje.gjorOppTilsagn } },
+      ];
+    }
+  });
+}
+export function getChangeSet(
+  formList: UtbetalingLinje[],
+  apiLinjer: UtbetalingLinje[],
+): { updatedLinjer: UpdatedLinje[]; newLinjer: UtbetalingLinje[] } {
+  const updatedLinjer = getUpdatedLinjer(formList, apiLinjer);
+  const newLinjer = apiLinjer.filter((apiLinje) => !formList.some(({ id }) => id === apiLinje.id));
+  return { updatedLinjer, newLinjer };
 }
 
-function toEmptyUtbetalingLinje(tilsagn: TilsagnDto): UtbetalingLinje {
+export function toDelutbetaling(linje: UtbetalingLinje): DelutbetalingRequest {
   return {
-    id: uuidv4(),
-    belop: 0,
-    tilsagn: tilsagn,
-    gjorOppTilsagn: false,
-    status: null,
-    opprettelse: null,
-    handlinger: [],
+    id: linje.id,
+    tilsagnId: linje.tilsagn.id,
+    belop: linje.belop,
+    gjorOppTilsagn: linje.gjorOppTilsagn,
   };
-}
-
-export function compareUtbetalingLinje(linje1: UtbetalingLinje, linje2: UtbetalingLinje): number {
-  return linje1.tilsagn.bestillingsnummer.localeCompare(linje2.tilsagn.bestillingsnummer);
 }

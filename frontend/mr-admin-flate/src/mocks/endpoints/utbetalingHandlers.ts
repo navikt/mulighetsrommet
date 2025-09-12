@@ -4,6 +4,7 @@ import {
   UtbetalingDetaljerDto,
   UtbetalingKompaktDto,
   UtbetalingHandling,
+  UtbetalingLinje,
 } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import {
@@ -28,21 +29,28 @@ export const utbetalingHandlers = [
       const mockUtbetaling = mockUtbetalinger.find((u) => u.id === id);
       if (!mockUtbetaling) throw Error(`Fant ikke mocket utbetaling med id: ${id}`);
 
-      // Find matching linjer for this utbetaling based on periode
-      const matchingLinjer = mockUtbetalingLinjer.filter(
-        (linje) =>
-          linje.tilsagn.periode.start === mockUtbetaling.periode.start &&
-          linje.tilsagn.periode.slutt === mockUtbetaling.periode.slutt,
-      );
-
       return HttpResponse.json({
         utbetaling: mockUtbetaling,
-        linjer: matchingLinjer,
         handlinger:
           mockUtbetaling.status.type === "KLAR_TIL_BEHANDLING"
             ? [UtbetalingHandling.SEND_TIL_ATTESTERING]
             : [],
       });
+    },
+  ),
+  http.get<PathParams, PathParams, UtbetalingLinje[]>(
+    "*/api/tiltaksadministrasjon/utbetaling/:id/linjer",
+    ({ params }) => {
+      const { id } = params;
+      const mockUtbetaling = mockUtbetalinger.find((u) => u.id === id);
+      if (!mockUtbetaling) throw Error(`Fant ikke mocket utbetaling med id: ${id}`);
+
+      const matchingLinjer = mockUtbetalingLinjer.filter(
+        (linje) =>
+          linje.tilsagn.periode.start === mockUtbetaling.periode.start &&
+          linje.tilsagn.periode.slutt === mockUtbetaling.periode.slutt,
+      );
+      return HttpResponse.json(matchingLinjer);
     },
   ),
   http.get<PathParams, PathParams, UtbetalingBeregningDto>(
