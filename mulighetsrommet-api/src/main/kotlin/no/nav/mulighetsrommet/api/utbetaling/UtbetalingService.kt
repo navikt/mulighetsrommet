@@ -83,8 +83,6 @@ class UtbetalingService(
         }
     }
 
-
-
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,

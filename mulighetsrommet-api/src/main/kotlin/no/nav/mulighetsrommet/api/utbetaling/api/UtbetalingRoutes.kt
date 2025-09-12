@@ -106,7 +106,7 @@ fun Route.utbetalingRoutes() {
 
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = utbetalingService.handlinger(utbetaling, ansatt)
+                        handlinger = utbetalingService.handlinger(utbetaling, ansatt),
                     )
                 }
                 call.respond(utbetaling)
@@ -231,7 +231,6 @@ fun Route.utbetalingRoutes() {
                 if (utbetalingLinjer.isNotEmpty()) {
                     return@session utbetalingLinjer
                 }
-
 
                 val utbetaling = queries.utbetaling.getOrError(id)
                 val tilsagn = queries.tilsagn.getAll(
