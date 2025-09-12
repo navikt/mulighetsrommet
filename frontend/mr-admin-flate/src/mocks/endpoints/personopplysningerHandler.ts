@@ -1,7 +1,7 @@
 import { HttpResponse, PathParams, http } from "msw";
 
 export const personopplysningerHandlers = [
-  http.get<PathParams>("*/api/v1/intern/personopplysninger", () =>
+  http.get<PathParams>("*/api/tiltaksadministrasjon/personopplysninger", () =>
     HttpResponse.json([
       {
         personopplysning: "NAVN",

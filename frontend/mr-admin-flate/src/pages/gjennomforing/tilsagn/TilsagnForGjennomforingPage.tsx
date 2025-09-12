@@ -1,21 +1,18 @@
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { GjennomforingHandling } from "@mr/api-client-v2";
+import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { Button, Dropdown } from "@navikt/ds-react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import {
   useAdminGjennomforingById,
   useGjennomforingHandlinger,
 } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
-import { TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function TilsagnForGjennomforingPage() {
-  const { gjennomforingId } = useParams();
-  if (!gjennomforingId) {
-    throw Error("Fant ikke gjennomforingId i url");
-  }
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId);

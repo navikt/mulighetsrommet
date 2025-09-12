@@ -1,17 +1,16 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
 import {
-  Endringshistorikk,
-  PaginertGjennomforing,
-  GjennomforingDto,
   GjennomforingDeltakerSummary,
-  GjennomforingHandling,
+  GjennomforingDto,
+  PaginertGjennomforing,
 } from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
+import { EndringshistorikkDto, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
 
 export const gjennomforingHandlers = [
-  http.get<{ id: string }, GjennomforingHandling[]>(
-    "/api/v1/intern/gjennomforinger/:id/handlinger",
+  http.get<{ id: string }, undefined, GjennomforingHandling[]>(
+    "/api/tiltaksadministrasjon/gjennomforinger/:id/handlinger",
     () => {
       return HttpResponse.json([
         GjennomforingHandling.PUBLISER,
@@ -32,23 +31,6 @@ export const gjennomforingHandlers = [
     "*/api/v1/intern/gjennomforinger",
     () => {
       return HttpResponse.json(paginertMockGjennomforinger);
-    },
-  ),
-
-  http.get<PathParams, PaginertGjennomforing | { x: string }>(
-    "*/api/v1/intern/gjennomforinger/mine",
-    () => {
-      const brukerident = "B123456";
-      const data = mockGjennomforinger.filter((gj) =>
-        gj.administratorer.map((admin) => admin.navIdent).includes(brukerident),
-      );
-      return HttpResponse.json({
-        pagination: {
-          pageSize: 15,
-          totalCount: data.length,
-        },
-        data,
-      });
     },
   ),
 
@@ -81,10 +63,6 @@ export const gjennomforingHandlers = [
     return HttpResponse.json(gjennomforing);
   }),
 
-  http.delete("/api/v1/intern/gjennomforinger/kontaktperson", () => {
-    return HttpResponse.json();
-  }),
-
   http.get<{ id: string }, GjennomforingDto | undefined>(
     "/api/v1/intern/gjennomforinger/:id",
     ({ params }) => {
@@ -99,61 +77,30 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<{ id: string }, number>("*/api/v1/intern/gjennomforinger/:id/avbryt", () => {
+  http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/gjennomforinger/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
 
   http.put<{ id: string }, number>(
-    "*/api/v1/intern/gjennomforinger/:id/tilgjengelig-for-veileder",
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/tilgjengelig-for-veileder",
     () => {
       return HttpResponse.text();
     },
   ),
 
   http.put<{ id: string }, number>(
-    "*/api/v1/intern/gjennomforinger/:id/apent-for-pamelding",
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/apent-for-pamelding",
     () => {
       return HttpResponse.text();
     },
   ),
 
-  http.get<{ id: string }, PaginertGjennomforing | undefined>(
-    "*/api/v1/intern/gjennomforinger/tiltakstype/:id",
-    ({ params }) => {
-      const { id } = params;
-
-      const gjennomforinger = mockGjennomforinger.filter((gj) => gj.tiltakstype.id === id);
-
-      return HttpResponse.json({
-        pagination: {
-          totalCount: gjennomforinger.length,
-          pageSize: 50,
-        },
-        data: gjennomforinger,
-      });
+  http.get<PathParams, undefined, EndringshistorikkDto>(
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/historikk",
+    () => {
+      return HttpResponse.json(mockEndringshistorikkForGjennomforing);
     },
   ),
-
-  http.get<{ enhet: string }, PaginertGjennomforing>(
-    "*/api/v1/intern/gjennomforinger/enhet/:enhet",
-    ({ params }) => {
-      const { enhet } = params;
-      const gjennomforinger = mockGjennomforinger.filter(
-        (gj) => gj.arenaAnsvarligEnhet?.enhetsnummer === enhet,
-      );
-      return HttpResponse.json({
-        pagination: {
-          totalCount: gjennomforinger.length,
-          pageSize: 50,
-        },
-        data: gjennomforinger,
-      });
-    },
-  ),
-
-  http.get<PathParams, Endringshistorikk>("*/api/v1/intern/gjennomforinger/:id/historikk", () => {
-    return HttpResponse.json(mockEndringshistorikkForGjennomforing);
-  }),
 
   http.get<PathParams, GjennomforingDeltakerSummary>(
     "*/api/v1/intern/gjennomforinger/:id/deltaker-summary",

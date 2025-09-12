@@ -10,16 +10,15 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.GjennomforingStatus.*
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import java.time.LocalDate
@@ -171,21 +170,24 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     id = gjennomforing1.id,
                     status = AVSLUTTET,
                     tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
-                    null,
+                    aarsaker = null,
+                    forklaring = null,
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing2.id,
                     status = AVLYST,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
 
                 queries.gjennomforing.setStatus(
                     id = gjennomforing3.id,
                     status = AVBRUTT,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FOR_FAA_DELTAKERE), null),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE),
+                    forklaring = null,
                 )
             }
 
@@ -199,11 +201,11 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 }
                 queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatusDto.Avlyst>()
-                        .aarsaker shouldContain AvbruttAarsak.FEILREGISTRERING
+                        .aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>()
-                        .aarsaker shouldContain AvbruttAarsak.FOR_FAA_DELTAKERE
+                        .aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()

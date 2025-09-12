@@ -9,12 +9,11 @@ import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
-  AvtaleHandling,
   FieldError,
   Opphav,
   ValidationError,
 } from "@mr/api-client-v2";
-import { FeatureToggle, Rolle } from "@tiltaksadministrasjon/api-client";
+import { AvtaleHandling, FeatureToggle, Rolle } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";

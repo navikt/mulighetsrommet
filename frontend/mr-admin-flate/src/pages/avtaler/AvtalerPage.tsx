@@ -10,11 +10,12 @@ import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,
+  ListSkeleton,
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { AvtaleFilterSchema, avtalerFilterStateAtom } from "@/pages/avtaler/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
@@ -73,12 +74,14 @@ export function AvtalerPage() {
             }
             buttons={<AvtaleFilterButtons />}
             table={
-              <AvtaleTabell
-                filter={filter.values}
-                updateFilter={updateFilter}
-                tagsHeight={tagsHeight}
-                filterOpen={filterOpen}
-              />
+              <Suspense fallback={<ListSkeleton />}>
+                <AvtaleTabell
+                  filter={filter.values}
+                  updateFilter={updateFilter}
+                  tagsHeight={tagsHeight}
+                  filterOpen={filterOpen}
+                />
+              </Suspense>
             }
             setFilterOpen={setFilterOpen}
             filterOpen={filterOpen}

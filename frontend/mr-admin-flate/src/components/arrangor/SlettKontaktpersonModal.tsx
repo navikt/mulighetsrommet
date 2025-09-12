@@ -119,7 +119,7 @@ interface DokumentKoblingerProps {
   kontaktperson: ArrangorKontaktperson;
   baseUrl: "gjennomforinger" | "avtaler";
   frikobleMutation: UseMutationResult<
-    { data: string },
+    unknown,
     ProblemDetail,
     {
       kontaktpersonId: string;

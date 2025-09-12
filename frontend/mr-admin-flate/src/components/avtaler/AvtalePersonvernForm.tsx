@@ -15,7 +15,6 @@ import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { PersonopplysningData } from "@mr/api-client-v2";
 
 export function AvtalePersonvernForm() {
   const { register, control, setValue } = useFormContext<AvtaleFormValues>();
@@ -43,7 +42,7 @@ export function AvtalePersonvernForm() {
             onChange={onChange}
             value={value}
           >
-            {personopplysninger.map((p: PersonopplysningData) => (
+            {personopplysninger.map((p) => (
               <Checkbox key={p.personopplysning} value={p.personopplysning} size="small">
                 <HStack gap="2" align="center">
                   {p.tittel}

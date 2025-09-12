@@ -15,7 +15,6 @@ import {
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
-import { useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
@@ -33,10 +32,12 @@ import {
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
-import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
+
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
+
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
@@ -57,18 +58,17 @@ function useUtbetalingPageData() {
 }
 
 export function UtbetalingPage() {
-  const { gjennomforingId, utbetalingId } = useParams();
   const { gjennomforing, historikk, utbetaling, handlinger, beregning } = useUtbetalingPageData();
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Utbetalinger",
-      lenke: `/gjennomforinger/${gjennomforingId}/utbetalinger`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
     },
     { tittel: "Utbetaling" },
   ];
@@ -188,8 +188,8 @@ export function UtbetalingPage() {
                 <Accordion.Item>
                   <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
                   <Accordion.Content>
-                    {utbetalingId && (
-                      <UtbetalingBeregningView utbetalingId={utbetalingId} beregning={beregning} />
+                    {utbetaling.id && (
+                      <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
                     )}
                   </Accordion.Content>
                 </Accordion.Item>

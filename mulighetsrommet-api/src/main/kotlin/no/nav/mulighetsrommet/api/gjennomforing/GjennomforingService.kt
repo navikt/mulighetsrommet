@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -143,7 +144,7 @@ class GjennomforingService(
 
     fun setTilgjengeligForArrangorDato(
         id: UUID,
-        tilgjengeligForArrangorDato: LocalDate,
+        tilgjengeligForArrangorDato: LocalDate?,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Unit> = db.transaction {
         val gjennomforing = getOrError(id)
@@ -154,10 +155,7 @@ class GjennomforingService(
                 gjennomforing.startDato,
             )
             .map {
-                queries.gjennomforing.setTilgjengeligForArrangorDato(
-                    id,
-                    tilgjengeligForArrangorDato,
-                )
+                queries.gjennomforing.setTilgjengeligForArrangorDato(id, it)
                 val dto = getOrError(id)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent)
@@ -181,7 +179,13 @@ class GjennomforingService(
             "Gjennomføringen kan ikke avsluttes før sluttdato"
         }
 
-        queries.gjennomforing.setStatus(id, GjennomforingStatus.AVSLUTTET, avsluttetTidspunkt, null)
+        queries.gjennomforing.setStatus(
+            id = id,
+            status = GjennomforingStatus.AVSLUTTET,
+            tidspunkt = avsluttetTidspunkt,
+            aarsaker = null,
+            forklaring = null,
+        )
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
@@ -195,7 +199,7 @@ class GjennomforingService(
         id: UUID,
         avbruttAv: Agent,
         tidspunkt: LocalDateTime,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>,
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
     ): Either<List<FieldError>, GjennomforingDto> = db.transaction {
         val gjennomforing = getOrError(id)
 
@@ -224,7 +228,13 @@ class GjennomforingService(
             throw Exception("Gjennomføring allerede avsluttet")
         }
 
-        queries.gjennomforing.setStatus(id, status, tidspunkt, aarsakerOgForklaring)
+        queries.gjennomforing.setStatus(
+            id = id,
+            status = status,
+            tidspunkt = tidspunkt,
+            aarsaker = aarsakerOgForklaring.aarsaker,
+            forklaring = aarsakerOgForklaring.forklaring,
+        )
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 

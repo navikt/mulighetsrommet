@@ -15,7 +15,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforing }: Props) {
   const queryClient = useQueryClient();
 
   return (
-    <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }}>
+    <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }} width={1000}>
       <Modal.Body className="prose">
         <div>
           <p>Her kan du styre om tiltaket skal være åpent for påmelding i Modia.</p>

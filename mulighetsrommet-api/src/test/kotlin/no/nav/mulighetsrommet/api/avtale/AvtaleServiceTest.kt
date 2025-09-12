@@ -26,7 +26,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -112,10 +114,8 @@ class AvtaleServiceTest : FunSpec({
                     avbruttAvtale.id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
-                    AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbruttAarsak.BUDSJETT_HENSYN),
-                        forklaring = null,
-                    ),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
                 )
             }.initialize(database.db)
 
@@ -124,7 +124,7 @@ class AvtaleServiceTest : FunSpec({
                 tidspunkt = LocalDateTime.now(),
                 avbruttAv = bertilNavIdent,
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    aarsaker = listOf(AvbruttAarsak.BUDSJETT_HENSYN),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 ),
             ).shouldBeLeft(
@@ -134,7 +134,7 @@ class AvtaleServiceTest : FunSpec({
                 avsluttetAvtale.id,
                 tidspunkt = LocalDateTime.now(),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    listOf(AvbruttAarsak.BUDSJETT_HENSYN),
+                    listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 ),
                 avbruttAv = bertilNavIdent,
@@ -163,7 +163,7 @@ class AvtaleServiceTest : FunSpec({
                 avtale.id,
                 tidspunkt = LocalDateTime.now(),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    listOf(AvbruttAarsak.ANNET),
+                    listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = null,
                 ),
                 avbruttAv = bertilNavIdent,
@@ -188,7 +188,7 @@ class AvtaleServiceTest : FunSpec({
                 avtale.id,
                 tidspunkt = LocalDateTime.now(),
                 aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 ),
                 avbruttAv = bertilNavIdent,

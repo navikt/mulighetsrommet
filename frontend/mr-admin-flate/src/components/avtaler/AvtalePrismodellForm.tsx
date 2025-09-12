@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
-import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
+import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
 import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 
@@ -44,7 +44,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               if (satser.length === 0) {
                 setValue("satser", [
                   {
-                    gjelderFra: yyyyMMddFormatting(avtaleStartDato) ?? "",
+                    gjelderFra: yyyyMMddFormatting(avtaleStartDato) ?? null,
                     pris: 0,
                     valuta: "NOK",
                   },

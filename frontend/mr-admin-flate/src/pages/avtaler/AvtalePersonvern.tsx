@@ -1,7 +1,7 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { PersonopplysningData } from "@mr/api-client-v2";
+import { PersonopplysningData } from "@tiltaksadministrasjon/api-client";
 import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 
 export function AvtalePersonvern() {

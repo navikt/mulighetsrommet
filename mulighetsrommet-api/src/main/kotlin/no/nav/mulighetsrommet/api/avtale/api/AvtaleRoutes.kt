@@ -1,8 +1,11 @@
-package no.nav.mulighetsrommet.api.avtale
+package no.nav.mulighetsrommet.api.avtale.api
 
 import arrow.core.flatMap
+import io.github.smiley4.ktoropenapi.delete
+import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
+import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -10,11 +13,14 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.model.*
+import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
@@ -40,7 +46,7 @@ data class AvtaleRequest(
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
@@ -75,43 +81,8 @@ data class OpprettOpsjonLoggRequest(
     val status: OpsjonLoggStatus,
 )
 
-@Serializable
-data class SlettOpsjonLoggRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-)
-
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
-
-    route("personopplysninger") {
-        get {
-            call.respond(
-                Personopplysning
-                    .entries
-                    .sortedBy { it.sortKey }
-                    .map { it.toPersonopplysningData() },
-            )
-        }
-    }
-
-    route("prismodeller") {
-        get {
-            val tiltakstype: Tiltakskode by call.queryParameters
-
-            val prismodeller = Prismodeller.getPrismodellerForTiltak(tiltakstype)
-                .map { PrismodellDto(type = it, beskrivelse = it.beskrivelse) }
-
-            call.respond(prismodeller)
-        }
-
-        get("forhandsgodkjente-satser") {
-            val tiltakstype: Tiltakskode by call.queryParameters
-
-            val satser = AvtalteSatser.getForhandsgodkjenteSatser(tiltakstype).toDto()
-            call.respond(satser)
-        }
-    }
 
     route("avtaler") {
         authorize(Rolle.AVTALER_SKRIV) {
@@ -126,7 +97,27 @@ fun Route.avtaleRoutes() {
             }
 
             route("{id}/opsjoner") {
-                post {
+                post({
+                    tags = setOf("Avtale")
+                    operationId = "registrerOpsjon"
+                    request {
+                        pathParameterUuid("id")
+                        body<OpprettOpsjonLoggRequest>()
+                    }
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Opsjon ble registrert"
+                        }
+                        code(HttpStatusCode.BadRequest) {
+                            description = "Valideringsfeil"
+                            body<ValidationError>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                }) {
                     val id: UUID by call.parameters
                     val request = call.receive<OpprettOpsjonLoggRequest>()
                     val userId = getNavIdent()
@@ -147,15 +138,35 @@ fun Route.avtaleRoutes() {
                     call.respondWithStatusResponse(result)
                 }
 
-                delete {
+                delete("{opsjonId}", {
+                    tags = setOf("Avtale")
+                    operationId = "slettOpsjon"
+                    request {
+                        pathParameterUuid("id")
+                        pathParameterUuid("opsjonId")
+                    }
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Opsjon ble slettet"
+                        }
+                        code(HttpStatusCode.BadRequest) {
+                            description = "Valideringsfeil"
+                            body<ValidationError>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                }) {
                     val id: UUID by call.parameters
-                    val request = call.receive<SlettOpsjonLoggRequest>()
+                    val opsjonId: UUID by call.parameters
                     val userId = getNavIdent()
 
                     val result = avtaler
                         .slettOpsjon(
                             avtaleId = id,
-                            opsjonId = request.id,
+                            opsjonId = opsjonId,
                             slettesAv = userId,
                         )
                         .mapLeft { ValidationError("Klarte ikke slette opsjon", listOf(it)) }
@@ -165,10 +176,30 @@ fun Route.avtaleRoutes() {
                 }
             }
 
-            put("{id}/avbryt") {
-                val id = call.parameters.getOrFail<UUID>("id")
+            put("{id}/avbryt", {
+                tags = setOf("Avtale")
+                operationId = "avbrytAvtale"
+                request {
+                    pathParameterUuid("id")
+                    body<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Avtale ble avbrutt"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
                 val navIdent = getNavIdent()
-                val request = call.receive<AarsakerOgForklaringRequest<AvbruttAarsak>>()
+                val request = call.receive<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
 
                 validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
                     .flatMap {
@@ -194,13 +225,30 @@ fun Route.avtaleRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            delete("kontaktperson") {
-                val request = call.receive<FrikobleKontaktpersonRequest>()
+            delete("{id}/kontaktperson/{kontaktpersonId}", {
+                tags = setOf("Avtale")
+                operationId = "frikobleAvtaleKontaktperson"
+                request {
+                    pathParameterUuid("id")
+                    pathParameterUuid("kontaktpersonId")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Kontaktperson ble frikoblet fra gjennomføring"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val kontaktpersonId: UUID by call.parameters
                 val navIdent = getNavIdent()
 
                 avtaler.frikobleKontaktpersonFraAvtale(
-                    kontaktpersonId = request.kontaktpersonId,
-                    avtaleId = request.dokumentId,
+                    kontaktpersonId = kontaktpersonId,
+                    avtaleId = id,
                     navIdent = navIdent,
                 )
 
@@ -261,8 +309,24 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
-        get("{id}/handlinger") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("{id}/handlinger", {
+            tags = setOf("Avtale")
+            operationId = "getAvtaleHandlinger"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Mulige handlinger på avtaler for innlogget bruker"
+                    body<Set<AvtaleHandling>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
             val navIdent = getNavIdent()
 
             avtaler.get(id)
@@ -270,7 +334,23 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
-        get("{id}/satser") {
+        get("{id}/satser", {
+            tags = setOf("Avtale")
+            operationId = "getAvtalteSatser"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtalte satser for avtale"
+                    body<List<AvtaltSatsDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
 
             val avtale = avtaler.get(id)
@@ -281,7 +361,23 @@ fun Route.avtaleRoutes() {
             call.respond(satser)
         }
 
-        get("{id}/historikk") {
+        get("{id}/historikk", {
+            tags = setOf("Avtale")
+            operationId = "getAvtaleEndringshistorikk"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtalens endringshistorikk"
+                    body<EndringshistorikkDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
             val historikk = avtaler.getEndringshistorikk(id)
             call.respond(historikk)
@@ -312,6 +408,9 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val sortering = call.request.queryParameters["sort"]
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
     val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
+    val administratorNavIdent = call.parameters["visMineAvtaler"]
+        ?.takeIf { it == "true" }
+        ?.let { getNavIdent() }
 
     return AvtaleFilter(
         tiltakstypeIder = tiltakstypeIder,
@@ -321,7 +420,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
         navRegioner = navRegioner,
         sortering = sortering,
         arrangorIds = arrangorIds,
-        administratorNavIdent = null,
+        administratorNavIdent = administratorNavIdent,
         personvernBekreftet = personvernBekreftet,
     )
 }

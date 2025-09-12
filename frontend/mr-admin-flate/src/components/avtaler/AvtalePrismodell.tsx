@@ -1,4 +1,3 @@
-import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import {
   AvtaleDto,
   Prismodell,
@@ -10,8 +9,9 @@ import { Metadata } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { PrisOgBetaingsbetingelser } from "../detaljside/PrisOgBetaingsbetingelser";
+import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
+import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);

@@ -1,4 +1,4 @@
-import { GjennomforingerService } from "@mr/api-client-v2";
+import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useQuery } from "@tanstack/react-query";
 
 const FANT_IKKE_TILTAKSNUMMER_MESSAGE = "Fant ikke tiltaksnummer";
@@ -11,7 +11,7 @@ export function usePollTiltaksnummer(id: string) {
   const tiltaksnummer = useQuery({
     queryKey: ["tiltakgjennomforing", id, "tiltaksnummer"],
     async queryFn() {
-      const { data: tiltaksnummer } = await GjennomforingerService.getTiltaksnummer({
+      const { data: tiltaksnummer } = await GjennomforingService.getTiltaksnummer({
         path: { id },
       });
 

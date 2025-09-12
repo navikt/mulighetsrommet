@@ -47,6 +47,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
           name="arrangorId"
           render={({ field }) => (
             <UNSAFE_Combobox
+              size="small"
               id="arrangorId"
               label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               placeholder="Velg underenhet for tiltaksarrangør"
@@ -73,6 +74,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
             name="arrangorKontaktpersoner"
             render={({ field }) => (
               <UNSAFE_Combobox
+                size="small"
                 id="arrangorKontaktpersoner"
                 label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
                 placeholder="Velg kontaktpersoner"

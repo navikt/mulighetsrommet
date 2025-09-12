@@ -4,7 +4,7 @@ import { DelutbetalingReturnertAarsak, UtbetalingLinje } from "@tiltaksadministr
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Heading, HStack, List, Table, VStack } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
+import { Link } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { DelutbetalingStatusTag } from "./DelutbetalingStatusTag";
@@ -13,6 +13,7 @@ import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
+  gjennomforingId: string;
   linje: UtbetalingLinje;
   textInput?: React.ReactNode | null;
   checkboxInput?: React.ReactNode | null;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export function UtbetalingLinjeRow({
+  gjennomforingId,
   linje,
   errors = [],
   knappeColumn,
@@ -32,7 +34,6 @@ export function UtbetalingLinjeRow({
   grayBackground = false,
   rowOpen = false,
 }: Props) {
-  const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>();
   const [openRow, setOpenRow] = useState(rowOpen);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";

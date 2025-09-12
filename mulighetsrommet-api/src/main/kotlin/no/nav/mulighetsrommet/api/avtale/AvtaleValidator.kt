@@ -5,7 +5,9 @@ import arrow.core.raise.either
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.navenhet.*
@@ -48,6 +50,10 @@ class AvtaleValidator(
         }
 
         val errors = buildList {
+            if (request.startDato == null) {
+                add(FieldError.of(AvtaleRequest::navn, "Du må legge inn startdato for avtalen"))
+            }
+
             if (request.navn.length < 5 && previous?.opphav != ArenaMigrering.Opphav.ARENA) {
                 add(FieldError.of(AvtaleRequest::navn, "Avtalenavn må være minst 5 tegn langt"))
             }
@@ -147,15 +153,17 @@ class AvtaleValidator(
             } else {
                 validateUpdateAvtale(request, arrangor, previous)
             }
-
-            validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn)
-                .onLeft { addAll(it) }
+        }
+        if (errors.isNotEmpty()) {
+            return errors.left()
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left()
-            ?: AvtaleDboMapper
-                .fromAvtaleRequest(request, arrangor, resolveStatus(request, previous, LocalDate.now()), tiltakstype.id)
-                .copy(navEnheter = sanitizeNavEnheter(request.navEnheter)).right()
+        return validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn)
+            .map {
+                AvtaleDboMapper
+                    .fromAvtaleRequest(request, request.startDato!!, it, arrangor, resolveStatus(request, previous, LocalDate.now()), tiltakstype.id)
+                    .copy(navEnheter = sanitizeNavEnheter(request.navEnheter))
+            }
     }
 
     private fun MutableList<FieldError>.validateCreateAvtale(
@@ -202,7 +210,7 @@ class AvtaleValidator(
         arrangor: AvtaleDbo.Arrangor?,
         previous: AvtaleDto,
     ) = db.session {
-        if (previous.opsjonerRegistrert?.isNotEmpty() == true) {
+        if (previous.opsjonerRegistrert.isNotEmpty()) {
             if (request.avtaletype != previous.avtaletype) {
                 add(
                     FieldError.of(
@@ -309,7 +317,7 @@ class AvtaleValidator(
         request: PrismodellRequest,
         tiltakskode: Tiltakskode,
         tiltakstypeNavn: String,
-    ): Either<NonEmptyList<FieldError>, PrismodellRequest> {
+    ): Either<NonEmptyList<FieldError>, PrismodellDbo> {
         val errors: List<FieldError> = buildList {
             if (request.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
                 add(
@@ -323,6 +331,7 @@ class AvtaleValidator(
                 Prismodell.ANNEN_AVTALT_PRIS,
                 Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 -> Unit
+
                 Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 Prismodell.AVTALT_PRIS_PER_UKESVERK,
                 Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
@@ -330,10 +339,16 @@ class AvtaleValidator(
             }
         }
 
-        return errors.toNonEmptyListOrNull()?.left() ?: request.right()
+        return errors.toNonEmptyListOrNull()?.left() ?: PrismodellDbo(
+            prismodell = request.type,
+            prisbetingelser = request.prisbetingelser,
+            satser = request.satser.map {
+                AvtaltSats(gjelderFra = it.gjelderFra!!, sats = it.pris!!)
+            },
+        ).right()
     }
 
-    private fun MutableList<FieldError>.validateSatser(satser: List<AvtaltSatsDto>) {
+    private fun MutableList<FieldError>.validateSatser(satser: List<AvtaltSatsRequest>) {
         if (satser.isEmpty()) {
             add(
                 FieldError.of(
@@ -343,12 +358,16 @@ class AvtaleValidator(
             )
         }
         satser.forEachIndexed { index, sats ->
-            if (sats.pris <= 0) {
+            if (sats.pris == null || sats.pris <= 0) {
                 add(FieldError.ofPointer("/satser/$index/pris", "Pris må være positiv"))
             }
         }
         for (i in satser.indices) {
             val a = satser[i]
+            if (a.gjelderFra == null) {
+                add(FieldError.ofPointer("/satser/$i/gjelderFra", "Gjelder fra må være satt"))
+                continue
+            }
             for (j in i + 1 until satser.size) {
                 val b = satser[j]
                 if (!a.gjelderFra.isBefore(b.gjelderFra)) {

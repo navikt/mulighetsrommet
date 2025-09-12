@@ -1,9 +1,8 @@
-package no.nav.mulighetsrommet.model
+package no.nav.mulighetsrommet.api.avtale.model
 
-enum class AvbruttAarsak {
+enum class AvbrytAvtaleAarsak {
     ENDRING_HOS_ARRANGOR,
     BUDSJETT_HENSYN,
-    FOR_FAA_DELTAKERE,
     FEILREGISTRERING,
     AVBRUTT_I_ARENA,
     ANNET,

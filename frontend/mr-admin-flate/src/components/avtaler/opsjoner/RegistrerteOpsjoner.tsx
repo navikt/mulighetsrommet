@@ -23,14 +23,11 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   }
 
   function fjernOpsjon(id: string) {
-    mutation.mutate(
-      { id },
-      {
-        onSuccess: () => {
-          mutation.reset();
-        },
+    mutation.mutate(id, {
+      onSuccess: () => {
+        mutation.reset();
       },
-    );
+    });
   }
 
   const opprinneligSluttDato = avtale.opsjonerRegistrert

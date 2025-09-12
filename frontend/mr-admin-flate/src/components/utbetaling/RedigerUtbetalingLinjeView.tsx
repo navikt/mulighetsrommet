@@ -10,7 +10,7 @@ import {
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
@@ -22,6 +22,7 @@ import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -38,7 +39,8 @@ export function RedigerUtbetalingLinjeView({
   oppdaterLinjer,
   reloadLinjer,
 }: Props) {
-  const { gjennomforingId } = useParams();
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
@@ -145,6 +147,7 @@ export function RedigerUtbetalingLinjeView({
             renderRow={(linje: UtbetalingLinje, index: number) => (
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
+                gjennomforingId={gjennomforingId}
                 linje={linje}
                 textInput={<UtbetalingBelopInput type="form" index={index} />}
                 checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}

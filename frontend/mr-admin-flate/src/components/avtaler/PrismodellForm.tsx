@@ -1,13 +1,13 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { memo } from "react";
-import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { VStack, Box, HStack, TextField, Select, Button, Textarea, Spacer } from "@navikt/ds-react";
+import { Box, Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
+import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -82,8 +82,9 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
     control,
   });
 
-  // Pluss 10 år er vilkårlig valgt. Endre ved behov
-  const toDate = addDuration(fromDate, { years: 10 });
+  // Flere aktive avtaler har start i 2001, 2010 osv, 30 år holder enn så lenge men
+  // burde ha en bedre løsning her. F. eks ikke bruk datepicker, men tekstfelt
+  const toDate = addDuration(fromDate, { years: 30 });
 
   return (
     <VStack gap="4">
@@ -137,7 +138,7 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
         size="small"
         type="button"
         icon={<PlusIcon aria-hidden />}
-        onClick={() => append({ gjelderFra: "", pris: 0, valuta: "NOK" })}
+        onClick={() => append({ gjelderFra: null, pris: 0, valuta: "NOK" })}
       >
         Legg til ny prisperiode
       </Button>

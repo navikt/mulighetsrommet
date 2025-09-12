@@ -1,10 +1,10 @@
-import { useApiQuery, useDebounce } from "@mr/frontend-common";
+import { useApiSuspenseQuery, useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { type GetGjennomforingerData, GjennomforingerService } from "@mr/api-client-v2";
 import { getPublisertStatus } from "@/utils/Utils";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 
-export function useAdminGjennomforinger(filter: Partial<GjennomforingFilterType>) {
+export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
 
   const queryFilter: Pick<GetGjennomforingerData, "query"> = {
@@ -19,14 +19,12 @@ export function useAdminGjennomforinger(filter: Partial<GjennomforingFilterType>
       avtaleId: filter.avtale ? filter.avtale : undefined,
       publisert: getPublisertStatus(filter.publisert),
       arrangorer: filter.arrangorer,
+      visMineGjennomforinger: filter.visMineGjennomforinger,
     },
   };
 
-  return useApiQuery({
-    queryKey: QueryKeys.gjennomforinger(filter.visMineGjennomforinger, queryFilter),
-    queryFn: () =>
-      filter.visMineGjennomforinger
-        ? GjennomforingerService.getMineGjennomforinger(queryFilter)
-        : GjennomforingerService.getGjennomforinger(queryFilter),
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.gjennomforinger(queryFilter),
+    queryFn: () => GjennomforingerService.getGjennomforinger(queryFilter),
   });
 }

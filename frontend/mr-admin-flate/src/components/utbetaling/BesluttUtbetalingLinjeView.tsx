@@ -19,6 +19,7 @@ import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalin
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
 import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -26,6 +27,7 @@ export interface Props {
 }
 
 export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props) {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -70,6 +72,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
           return (
             <UtbetalingLinjeRow
               key={`${linje.id}-${linje.status?.type}`}
+              gjennomforingId={gjennomforingId}
               linje={linje}
               grayBackground
               rowOpen={openRow(linje)}
