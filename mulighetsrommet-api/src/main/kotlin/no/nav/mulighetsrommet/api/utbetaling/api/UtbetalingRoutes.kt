@@ -12,10 +12,13 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -23,10 +26,14 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -92,7 +99,16 @@ fun Route.utbetalingRoutes() {
 
                 val navIdent = getNavIdent()
 
-                val utbetaling = utbetalingService.getUtbetalingDetaljer(id, navIdent)
+                val utbetaling = db.session {
+                    val ansatt =
+                        queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                    val utbetaling = queries.utbetaling.getOrError(id)
+
+                    UtbetalingDetaljerDto(
+                        utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
+                        handlinger = utbetalingService.handlinger(utbetaling, ansatt)
+                    )
+                }
                 call.respond(utbetaling)
             }
         }
@@ -202,7 +218,41 @@ fun Route.utbetalingRoutes() {
         }) {
             val id: UUID by call.parameters
             val navIdent = getNavIdent()
-            val utbetalingsLinjer = utbetalingService.getUtbetalingLinjer(id, navIdent)
+
+            val utbetalingsLinjer = db.session {
+                val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                if (!ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)) {
+                    return@session emptyList()
+                }
+                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
+                val utbetalingLinjer =
+                    delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
+
+                if (utbetalingLinjer.isNotEmpty()) {
+                    return@session utbetalingLinjer
+                }
+
+
+                val utbetaling = queries.utbetaling.getOrError(id)
+                val tilsagn = queries.tilsagn.getAll(
+                    gjennomforingId = utbetaling.gjennomforing.id,
+                    periodeIntersectsWith = utbetaling.periode,
+                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                )
+                return@session tilsagn.filter { it.status === TilsagnStatus.GODKJENT }
+                    .map {
+                        UtbetalingLinje(
+                            id = UUID.randomUUID(),
+                            tilsagn = TilsagnDto.fromTilsagn(it),
+                            status = null,
+                            belop = 0,
+                            gjorOppTilsagn = false,
+                            opprettelse = null,
+                            handlinger = emptySet(),
+                        )
+                    }
+            }.sortedBy { it.tilsagn.bestillingsnummer }
+
             call.respond(utbetalingsLinjer)
         }
 
@@ -302,6 +352,36 @@ fun Route.utbetalingRoutes() {
             }
         }
     }
+}
+
+private fun QueryContext.delutbetalingToUtbetalingLinje(delutbetaling: Delutbetaling, navAnsatt: NavAnsatt): UtbetalingLinje {
+    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+
+    val opprettelse = queries.totrinnskontroll
+        .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+    val tilsagnOpprettelse = queries.totrinnskontroll
+        .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+
+    val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
+        Rolle.ATTESTANT_UTBETALING,
+        setOf(tilsagn.kostnadssted.enhetsnummer),
+    )
+    val erSaksbehandler = navAnsatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+    return UtbetalingLinje(
+        id = delutbetaling.id,
+        gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
+        belop = delutbetaling.belop,
+        status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
+        tilsagn = TilsagnDto.fromTilsagn(tilsagn),
+        opprettelse = opprettelse.toDto(),
+        handlinger = setOfNotNull(
+            UtbetalingLinjeHandling.ATTESTER.takeIf {
+                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent && tilsagnOpprettelse.besluttetAv != navAnsatt.navIdent
+            },
+            UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
+        ),
+    )
 }
 
 @Serializable

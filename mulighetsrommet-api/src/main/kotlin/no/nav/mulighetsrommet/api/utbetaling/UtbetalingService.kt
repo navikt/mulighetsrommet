@@ -83,51 +83,7 @@ class UtbetalingService(
         }
     }
 
-    fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
-        val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
-        val utbetaling = queries.utbetaling.getOrError(id)
 
-        return UtbetalingDetaljerDto(
-            utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-            handlinger = handlinger(utbetaling, ansatt),
-        )
-    }
-
-    private fun QueryContext.getUtbetalingLinjer(utbetalingId: UUID, navAnsatt: NavAnsatt): List<UtbetalingLinje> {
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetalingId)
-        val linjer = delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = navAnsatt) }.sortedBy { it.tilsagn.bestillingsnummer }
-        return linjer
-    }
-
-    private fun QueryContext.delutbetalingToUtbetalingLinje(delutbetaling: Delutbetaling, navAnsatt: NavAnsatt): UtbetalingLinje {
-        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
-
-        val opprettelse = queries.totrinnskontroll
-            .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-        val tilsagnOpprettelse = queries.totrinnskontroll
-            .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-
-        val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
-            Rolle.ATTESTANT_UTBETALING,
-            setOf(tilsagn.kostnadssted.enhetsnummer),
-        )
-        val erSaksbehandler = navAnsatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-        return UtbetalingLinje(
-            id = delutbetaling.id,
-            gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
-            belop = delutbetaling.belop,
-            status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
-            tilsagn = TilsagnDto.fromTilsagn(tilsagn),
-            opprettelse = opprettelse.toDto(),
-            handlinger = setOfNotNull(
-                UtbetalingLinjeHandling.ATTESTER.takeIf {
-                    erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent && tilsagnOpprettelse.besluttetAv != navAnsatt.navIdent
-                },
-                UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
-            ),
-        )
-    }
 
     fun godkjentAvArrangor(
         utbetalingId: UUID,
@@ -272,40 +228,6 @@ class UtbetalingService(
         }
 
         queries.delutbetaling.getOrError(id).right()
-    }
-
-    fun getUtbetalingLinjer(utbetalingId: UUID, navIdent: NavIdent): List<UtbetalingLinje> = db.session {
-        val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
-        val utbetalingLinjer = getUtbetalingLinjer(utbetalingId, ansatt)
-        if (utbetalingLinjer.isNotEmpty()) {
-            return utbetalingLinjer
-        }
-        if (!ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)) {
-            return emptyList()
-        }
-        return getUtbetalingsLinjerFraTilsagn(utbetalingId)
-    }
-
-    fun QueryContext.getUtbetalingsLinjerFraTilsagn(utbetalingId: UUID): List<UtbetalingLinje> {
-        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
-        val tilsagn = queries.tilsagn.getAll(
-            gjennomforingId = utbetaling.gjennomforing.id,
-            periodeIntersectsWith = utbetaling.periode,
-            typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-        )
-        return tilsagn.filter { it.status === TilsagnStatus.GODKJENT }
-            .map {
-                UtbetalingLinje(
-                    id = UUID.randomUUID(),
-                    tilsagn = TilsagnDto.fromTilsagn(it),
-                    status = null,
-                    belop = 0,
-                    gjorOppTilsagn = false,
-                    opprettelse = null,
-                    handlinger = emptySet(),
-                )
-            }
-            .sortedBy { it.tilsagn.bestillingsnummer }
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
