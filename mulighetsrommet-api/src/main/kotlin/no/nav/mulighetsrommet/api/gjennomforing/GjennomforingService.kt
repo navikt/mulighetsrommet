@@ -268,8 +268,8 @@ class GjennomforingService(
         }.mapLeft {
             if (it is IntegrityConstraintViolation.ExclusionViolation) {
                 FieldError.of(
-                    SetStengtHosArrangorRequest::periodeStart,
                     "Perioden kan ikke overlappe med andre perioder",
+                    SetStengtHosArrangorRequest::periodeStart,
                 ).nel()
             } else {
                 throw it.error

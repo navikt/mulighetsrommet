@@ -35,10 +35,6 @@ data class FieldError(
     val detail: String,
 ) {
     companion object {
-        fun of(property: KProperty1<*, *>, detail: String): FieldError {
-            return FieldError(pointer = "/${property.name}", detail = detail)
-        }
-
         fun ofPointer(pointer: String, detail: String): FieldError {
             return FieldError(pointer = pointer, detail = detail)
         }

@@ -528,8 +528,8 @@ data class SetStengtHosArrangorRequest(
             {
                 ensure(!beskrivelse.isNullOrBlank()) {
                     FieldError.of(
-                        SetStengtHosArrangorRequest::beskrivelse,
                         detail = "Du må legge inn en beskrivelse",
+                        SetStengtHosArrangorRequest::beskrivelse,
                     )
                 }
                 beskrivelse
@@ -537,24 +537,24 @@ data class SetStengtHosArrangorRequest(
             {
                 ensureNotNull(periodeStart) {
                     FieldError.of(
-                        SetStengtHosArrangorRequest::periodeStart,
                         detail = "Du må legge inn start på perioden",
+                        SetStengtHosArrangorRequest::periodeStart,
                     )
                 }
             },
             {
                 ensureNotNull(periodeSlutt) {
                     FieldError.of(
-                        SetStengtHosArrangorRequest::periodeSlutt,
                         detail = "Du må legge inn slutt på perioden",
+                        SetStengtHosArrangorRequest::periodeSlutt,
                     )
                 }
             },
         ) { beskrivelse, start, slutt ->
             ensure(!slutt.isBefore(start)) {
                 FieldError.of(
-                    SetStengtHosArrangorRequest::periodeStart,
                     detail = "Start må være før slutt",
+                    SetStengtHosArrangorRequest::periodeStart,
                 ).nel()
             }
 
