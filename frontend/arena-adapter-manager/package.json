@@ -24,14 +24,14 @@
     "react-dom": "19.0.0",
     "react-hot-toast": "2.6.0",
     "react-icons": "5.5.0",
-    "react-router": "7.8.2",
+    "react-router": "7.9.1",
     "uuid": "13.0.0"
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
-    "@vitejs/plugin-react": "5.0.1",
+    "@vitejs/plugin-react": "5.0.2",
     "typescript": "5.9.2",
     "vite": "7.1.5"
   }
