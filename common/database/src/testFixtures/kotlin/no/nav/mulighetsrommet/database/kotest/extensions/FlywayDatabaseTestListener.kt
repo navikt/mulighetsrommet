@@ -29,7 +29,7 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpe
     override suspend fun beforeSpec(spec: Spec) {
         // It's not optimal to force a sequential test order, but since tests (for now) all share the same database
         // instance they can't be run in parallel
-        spec.testOrder = TestCaseOrder.Sequential
+        spec.testCaseOrder = TestCaseOrder.Sequential
 
         delegate = Database(config)
 
