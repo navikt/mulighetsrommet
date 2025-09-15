@@ -319,8 +319,8 @@ fun Route.arrangorRoutes() {
                 }
             }
         }) {
-            val sok: String by call.request.queryParameters
-            call.respondWithStatusResponse(arrangorService.brregSok(sok))
+            val q: String by call.request.queryParameters
+            call.respondWithStatusResponse(arrangorService.brregSok(sok = q))
         }
 
         get("{orgnr}/underenheter", {
@@ -379,13 +379,13 @@ data class ArrangorKontaktpersonRequest(
 
         val errors = buildList {
             if (navn.isEmpty()) {
-                add(FieldError.of(ArrangorKontaktperson::navn, "Navn er påkrevd"))
+                add(FieldError.of("Navn er påkrevd", ArrangorKontaktperson::navn))
             }
             if (epost.isEmpty()) {
-                add(FieldError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
+                add(FieldError.of("E-post er påkrevd", ArrangorKontaktperson::epost))
             }
             if (ansvarligFor.isEmpty()) {
-                add(FieldError.of(ArrangorKontaktperson::ansvarligFor, "Du må velge minst ett ansvarsområde"))
+                add(FieldError.of("Du må velge minst ett ansvarsområde", ArrangorKontaktperson::ansvarligFor))
             }
         }
 

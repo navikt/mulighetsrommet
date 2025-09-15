@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.flatMap
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -531,8 +528,8 @@ data class SetStengtHosArrangorRequest(
             {
                 ensure(!beskrivelse.isNullOrBlank()) {
                     FieldError.of(
-                        SetStengtHosArrangorRequest::beskrivelse,
                         detail = "Du må legge inn en beskrivelse",
+                        SetStengtHosArrangorRequest::beskrivelse,
                     )
                 }
                 beskrivelse
@@ -540,24 +537,24 @@ data class SetStengtHosArrangorRequest(
             {
                 ensureNotNull(periodeStart) {
                     FieldError.of(
-                        SetStengtHosArrangorRequest::periodeStart,
                         detail = "Du må legge inn start på perioden",
+                        SetStengtHosArrangorRequest::periodeStart,
                     )
                 }
             },
             {
                 ensureNotNull(periodeSlutt) {
                     FieldError.of(
-                        SetStengtHosArrangorRequest::periodeSlutt,
                         detail = "Du må legge inn slutt på perioden",
+                        SetStengtHosArrangorRequest::periodeSlutt,
                     )
                 }
             },
         ) { beskrivelse, start, slutt ->
             ensure(!slutt.isBefore(start)) {
                 FieldError.of(
-                    SetStengtHosArrangorRequest::periodeStart,
                     detail = "Start må være før slutt",
+                    SetStengtHosArrangorRequest::periodeStart,
                 ).nel()
             }
 
@@ -571,7 +568,7 @@ data class SetStengtHosArrangorRequest(
 @Serializable
 data class SetTilgjengligForArrangorRequest(
     @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate,
+    val tilgjengeligForArrangorDato: LocalDate?,
 )
 
 @Serializable

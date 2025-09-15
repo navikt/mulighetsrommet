@@ -32,7 +32,7 @@ class UtbetalingValidatorTest : FunSpec({
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
             periodeStart = LocalDate.now(),
-            periodeSlutt = LocalDate.now().minusDays(1),
+            periodeSlutt = null,
             beskrivelse = "Bla bla bla beskrivelse",
             kontonummer = Kontonummer(value = "12345678910"),
             kidNummer = "asdf",
@@ -41,9 +41,9 @@ class UtbetalingValidatorTest : FunSpec({
 
         val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
-            FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart"),
-            FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt"),
-            FieldError.of(OpprettUtbetalingRequest::kidNummer, "Ugyldig kid"),
+            FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt),
+            FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop),
+            FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer),
         )
     }
 
@@ -62,8 +62,8 @@ class UtbetalingValidatorTest : FunSpec({
         result.shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError.of(
-                    OpprettUtbetalingRequest::periodeSlutt,
                     "Periodeslutt må være etter periodestart",
+                    OpprettUtbetalingRequest::periodeSlutt,
                 ),
             ),
         )
@@ -83,7 +83,7 @@ class UtbetalingValidatorTest : FunSpec({
         val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
-                FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt"),
+                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop),
             ),
         )
     }
@@ -102,7 +102,7 @@ class UtbetalingValidatorTest : FunSpec({
         val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
-                FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse"),
+                FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse),
             ),
         )
     }

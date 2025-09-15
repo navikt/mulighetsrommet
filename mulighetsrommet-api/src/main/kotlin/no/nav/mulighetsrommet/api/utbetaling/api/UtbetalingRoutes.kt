@@ -360,9 +360,9 @@ data class OpprettUtbetalingRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
+    val periodeStart: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
+    val periodeSlutt: LocalDate?,
     val beskrivelse: String,
     val kontonummer: Kontonummer,
     val kidNummer: String? = null,

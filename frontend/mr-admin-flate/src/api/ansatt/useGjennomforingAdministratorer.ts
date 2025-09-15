@@ -1,9 +1,9 @@
-import { useApiQuery } from "@mr/frontend-common";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { AnsattService, Rolle } from "@tiltaksadministrasjon/api-client";
 
 export function useGjennomforingAdministratorer() {
-  return useApiQuery({
+  return useApiSuspenseQuery({
     queryKey: QueryKeys.navansatt(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
     queryFn: () =>
       AnsattService.getAnsatte({

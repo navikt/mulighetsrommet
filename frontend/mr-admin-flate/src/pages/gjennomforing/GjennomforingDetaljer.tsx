@@ -225,7 +225,9 @@ export function GjennomforingDetaljer() {
               </>
             )}
           </VStack>
-          <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
+          {new Date() < new Date(gjennomforing.startDato) && (
+            <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
+          )}
         </VStack>
       </TwoColumnGrid>
       <NokkeltallDeltakere gjennomforingId={gjennomforing.id} />

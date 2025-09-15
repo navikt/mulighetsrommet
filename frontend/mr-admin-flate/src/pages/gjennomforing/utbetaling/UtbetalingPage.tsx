@@ -30,7 +30,6 @@ import {
   HStack,
   VStack,
 } from "@navikt/ds-react";
-import { useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
@@ -79,7 +78,6 @@ function useUtbetalingPageData() {
 }
 
 export function UtbetalingPage() {
-  const { gjennomforingId, utbetalingId } = useParams();
   const { gjennomforing, historikk, tilsagn, utbetaling, linjer, beregning, handlinger } =
     useUtbetalingPageData();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
@@ -130,11 +128,11 @@ export function UtbetalingPage() {
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Utbetalinger",
-      lenke: `/gjennomforinger/${gjennomforingId}/utbetalinger`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
     },
     { tittel: "Utbetaling" },
   ];
@@ -252,9 +250,9 @@ export function UtbetalingPage() {
                   <Accordion.Item>
                     <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
                     <Accordion.Content>
-                      {utbetalingId && (
+                      {utbetaling.id && (
                         <UtbetalingBeregningView
-                          utbetalingId={utbetalingId}
+                          utbetalingId={utbetaling.id}
                           beregning={beregning}
                         />
                       )}

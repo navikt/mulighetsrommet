@@ -9,12 +9,13 @@ import {
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -24,7 +25,7 @@ export interface Props {
 }
 
 export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tilsagn }: Props) {
-  const { gjennomforingId } = useParams();
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const [error, setError] = useState<FieldError[]>([]);
   const navigate = useNavigate();
 
@@ -84,6 +85,7 @@ export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tils
             <UtbetalingLinjeRow
               key={linje.id}
               linje={linje}
+              gjennomforingId={gjennomforingId}
               knappeColumn={
                 <Button
                   size="small"

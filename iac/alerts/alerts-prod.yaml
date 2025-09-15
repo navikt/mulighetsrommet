@@ -101,7 +101,7 @@ spec:
       rules:
         - alert: "Stale Kafka consumer records detected"
           expr: max by (app) (kafka_consumer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
-          for: 5m
+          for: 30m
           annotations:
             summary: |
               '{{ $labels.app }}' har {{ $value }} uprosesserte meldinger i tabellen 'kafka_consumer_record'.

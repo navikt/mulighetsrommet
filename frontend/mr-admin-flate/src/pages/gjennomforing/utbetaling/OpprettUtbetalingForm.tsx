@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
 import { OpprettUtbetalingRequest } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -15,7 +14,6 @@ import {
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import z from "zod";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -31,50 +29,9 @@ interface Props {
 const MIN_BEGRUNNELSE_LENGDE = 10;
 const MAKS_BEGRUNNELSE_LENGDE = 300;
 
-const Schema = z
-  .object({
-    periodeStart: z.string({ error: "Du må sette startdato for perioden" }),
-    periodeSlutt: z.string({ error: "Du må sette sluttdato for perioden" }),
-    beskrivelse: z
-      .string({ error: "Du må oppgi en begrunnelse for utbetalingen" })
-      .min(MIN_BEGRUNNELSE_LENGDE, {
-        error: `Begrunnelsen er for kort (minimum ${MIN_BEGRUNNELSE_LENGDE} tegn).`,
-      })
-      .max(MAKS_BEGRUNNELSE_LENGDE, {
-        error: `Begrunnelsen er for lang (maks ${MAKS_BEGRUNNELSE_LENGDE} tegn).`,
-      }),
-    kontonummer: z
-      .string({ error: "Du må skrive inn kontonummer" })
-      .regex(/^\d{11}$/, { error: "Kontonummer må være 11 siffer" }),
-    kidNummer: z.string().optional(),
-    belop: z
-      .number({ error: "Du må skrive inn et beløp" })
-      .min(1, { error: "Du må skrive inn et beløp" }),
-  })
-  .refine(
-    (data) => {
-      return !!data.periodeStart;
-    },
-    {
-      error: "Du må sette startdato for perioden",
-      path: ["periodeStart"],
-    },
-  )
-  .refine(
-    (data) => {
-      return !!data.periodeSlutt;
-    },
-    {
-      error: "Du må sette sluttdato for perioden",
-      path: ["periodeSlutt"],
-    },
-  );
-
-type InferredOpprettUtbetalingFormSchema = z.infer<typeof Schema>;
-
 export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
-  const form = useForm<InferredOpprettUtbetalingFormSchema>({
-    resolver: zodResolver(Schema),
+  const form = useForm<OpprettUtbetalingRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
     defaultValues: { kontonummer },
   });
   const navigate = useNavigate();
@@ -84,7 +41,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
 
   const mutation = useOpprettUtbetaling(utbetalingId.current);
 
-  function postData(data: InferredOpprettUtbetalingFormSchema) {
+  function postData(data: OpprettUtbetalingRequest) {
     mutation.mutate(
       {
         ...data,

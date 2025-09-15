@@ -5,7 +5,7 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   Avtaletype,
-  OpsjonLoggRegistrert,
+  OpsjonLoggDto,
   OpsjonsmodellType,
   OpsjonStatus,
   Tiltakskode,
@@ -23,7 +23,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 
 interface AvtaleDetaljerFormProps {
-  opsjonerRegistrert?: OpsjonLoggRegistrert[];
+  opsjonerRegistrert?: OpsjonLoggDto[];
 }
 
 export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormProps) {
@@ -153,7 +153,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
           ) : null}
         </FormGroup>
         <FormGroup>
-          <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
+          <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />
         </FormGroup>
       </VStack>
       <VStack>
@@ -163,6 +163,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
             name="administratorer"
             render={({ field }) => (
               <UNSAFE_Combobox
+                size="small"
                 id="administratorer"
                 label={
                   <LabelWithHelpText

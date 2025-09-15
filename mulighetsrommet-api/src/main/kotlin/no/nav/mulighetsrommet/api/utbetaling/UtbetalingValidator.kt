@@ -1,13 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.NonEmptyList
-import arrow.core.left
+import arrow.core.*
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
-import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
@@ -115,37 +112,48 @@ object UtbetalingValidator {
     ): Either<NonEmptyList<FieldError>, OpprettUtbetaling> = either {
         zipOrAccumulate(
             {
-                ensure(request.periodeStart.isBefore(request.periodeSlutt)) {
-                    FieldError.of(OpprettUtbetalingRequest::periodeSlutt, "Periodeslutt må være etter periodestart")
+                ensureNotNull(request.periodeStart) {
+                    FieldError.of("Periodestart må være satt", OpprettUtbetalingRequest::periodeStart)
                 }
-                Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+                request.periodeStart
+            },
+            {
+                ensureNotNull(request.periodeSlutt) {
+                    FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt)
+                }
+                request.periodeSlutt
             },
             {
                 ensure(request.belop > 1) {
-                    FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt")
+                    FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop)
                 }
                 request.belop
             },
             {
                 ensure(request.beskrivelse.length > 10) {
-                    FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse")
+                    FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse)
                 }
                 request.beskrivelse
             },
             {
                 ensure(request.kontonummer.value.length == 11) {
-                    FieldError.of(OpprettUtbetalingRequest::kontonummer, "Kontonummer må være 11 tegn")
+                    FieldError.of("Kontonummer må være 11 tegn", OpprettUtbetalingRequest::kontonummer)
                 }
                 request.kontonummer
             },
             {
                 request.kidNummer?.let { raw ->
                     ensureNotNull(Kid.parse(raw)) {
-                        FieldError.of(OpprettUtbetalingRequest::kidNummer, "Ugyldig kid")
+                        FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
                     }
                 }
             },
-        ) { periode: Periode, belop, beskrivelse, kontonummer, kid ->
+        ) { start: LocalDate, slutt: LocalDate, belop, beskrivelse, kontonummer, kid ->
+            ensure(start.isBefore(slutt)) {
+                FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt).nel()
+            }
+            val periode = Periode.fromInclusiveDates(start, slutt)
+
             OpprettUtbetaling(
                 id = id,
                 gjennomforingId = request.gjennomforingId,
@@ -184,8 +192,8 @@ object UtbetalingValidator {
             } catch (t: DateTimeParseException) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::periodeStart,
                         "Dato må være på formatet 'yyyy-mm-dd'",
+                        OpprettKravOmUtbetalingRequest::periodeStart,
                     ),
                 )
                 null
@@ -195,8 +203,8 @@ object UtbetalingValidator {
             } catch (t: DateTimeParseException) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::periodeSlutt,
                         "Dato må være på formatet 'yyyy-mm-dd'",
+                        OpprettKravOmUtbetalingRequest::periodeSlutt,
                     ),
                 )
                 null
@@ -205,25 +213,25 @@ object UtbetalingValidator {
             if (slutt != null && start != null && slutt.isBefore(start)) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::periodeStart,
                         "Periodeslutt må være etter periodestart",
+                        OpprettKravOmUtbetalingRequest::periodeStart,
                     ),
                 )
             }
 
             if (request.belop < 1) {
-                add(FieldError.of(OpprettKravOmUtbetalingRequest::belop, "Beløp må være positivt"))
+                add(FieldError.of("Beløp må være positivt", OpprettKravOmUtbetalingRequest::belop))
             }
 
             if (request.vedlegg.isEmpty()) {
-                add(FieldError.of(OpprettKravOmUtbetalingRequest::vedlegg, "Du må legge ved vedlegg"))
+                add(FieldError.of("Du må legge ved vedlegg", OpprettKravOmUtbetalingRequest::vedlegg))
             }
 
             if (request.kidNummer != null && Kid.parse(request.kidNummer) == null) {
                 add(
                     FieldError.of(
-                        OpprettKravOmUtbetalingRequest::kidNummer,
                         "Ugyldig kid",
+                        OpprettKravOmUtbetalingRequest::kidNummer,
                     ),
                 )
             }
@@ -283,8 +291,8 @@ object UtbetalingValidator {
             if (request.kid != null && Kid.parse(request.kid) == null) {
                 add(
                     FieldError.of(
-                        GodkjennUtbetaling::kid,
                         "Ugyldig kid",
+                        GodkjennUtbetaling::kid,
                     ),
                 )
             }

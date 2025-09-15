@@ -46,7 +46,7 @@ data class AvtaleRequest(
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
@@ -75,11 +75,15 @@ data class AvtaleRequest(
 @Serializable
 data class OpprettOpsjonLoggRequest(
     @Serializable(with = LocalDateSerializer::class)
-    val nySluttdato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val forrigeSluttdato: LocalDate?,
-    val status: OpsjonLoggStatus,
-)
+    val nySluttDato: LocalDate? = null,
+    val type: Type,
+) {
+    enum class Type {
+        CUSTOM_LENGDE,
+        ETT_AAR,
+        SKAL_IKKE_UTLOSE_OPSJON,
+    }
+}
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
@@ -120,19 +124,9 @@ fun Route.avtaleRoutes() {
                 }) {
                     val id: UUID by call.parameters
                     val request = call.receive<OpprettOpsjonLoggRequest>()
-                    val userId = getNavIdent()
 
-                    val opsjonLoggEntry = OpsjonLoggEntry(
-                        id = UUID.randomUUID(),
-                        avtaleId = id,
-                        sluttdato = request.nySluttdato,
-                        forrigeSluttdato = request.forrigeSluttdato,
-                        status = request.status,
-                        registretDato = LocalDate.now(),
-                        registrertAv = userId,
-                    )
-                    val result = avtaler.registrerOpsjon(opsjonLoggEntry)
-                        .mapLeft { ValidationError("Klarte ikke registrere opsjon", listOf(it)) }
+                    val result = avtaler.registrerOpsjon(id, request, getNavIdent())
+                        .mapLeft { ValidationError("Klarte ikke registrere opsjon", it) }
                         .map { HttpStatusCode.OK }
 
                     call.respondWithStatusResponse(result)

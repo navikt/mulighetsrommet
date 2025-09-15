@@ -226,8 +226,8 @@ class AvtaleQueries(private val session: Session) {
         upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
     }
 
-    fun upsertPrismodell(id: UUID, prismodell: Prismodell, prisbetingelser: String?, satser: List<AvtaltSats>) = withTransaction(session) {
-        upsertPrismodell(id, prismodell, prisbetingelser, satser)
+    fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+        upsertPrismodell(id, prismodell = dbo.prismodell, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
     }
 
     private fun Session.upsertPrismodell(
@@ -569,7 +569,7 @@ class AvtaleQueries(private val session: Session) {
         val kontorstruktur = fromNavEnheter(navEnheter)
 
         val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
-            ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggRegistrert>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggDto>>(it) }
             ?: emptyList()
 
         val opsjonsmodell = Opsjonsmodell(
@@ -660,7 +660,7 @@ class AvtaleQueries(private val session: Session) {
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
             opsjonsmodell = opsjonsmodell,
-            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
+            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
             prismodell = prismodell,

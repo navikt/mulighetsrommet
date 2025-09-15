@@ -630,7 +630,7 @@ components:
         opsjonerRegistrert:
           type: array
           items:
-            $ref: "#/components/schemas/OpsjonLoggRegistrert"
+            $ref: "#/components/schemas/OpsjonLoggDto"
         utdanningslop:
           anyOf:
             - type: ["null"]
@@ -758,7 +758,7 @@ components:
                 - underenheter
                 - kontaktpersoner
         startDato:
-          type: string
+          type: [string, "null"]
           format: date
         sluttDato:
           type: [string, "null"]
@@ -829,7 +829,7 @@ components:
         satser:
           type: array
           items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
+            $ref: "#/components/schemas/AvtaltSatsRequest"
       required: [type, satser]
 
     Prismodell:
@@ -1848,29 +1848,44 @@ components:
         - OPSJON_UTLOST
         - SKAL_IKKE_UTLOSE_OPSJON
 
-    OpsjonLoggRegistrert:
+    OpsjonLoggDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        registrertDato:
+        createdAt:
           type: string
-          format: date
+          format: date-time
         sluttDato:
           type: [string, "null"]
           format: date
-        forrigeSluttdato:
+        forrigeSluttDato:
           type: [string, "null"]
           format: date
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - id
-        - registrertDato
+        - createdAt
         - sluttDato
-        - forrigeSluttdato
+        - forrigeSluttDato
         - status
+
+    AvtaltSatsRequest:
+      type: object
+      properties:
+        gjelderFra:
+          type: [string, "null"]
+          format: date
+        pris:
+          type: [integer, "null"]
+        valuta:
+          type: string
+      required:
+        - gjelderFra
+        - pris
+        - valuta
 
     AvtaltSatsDto:
       type: object

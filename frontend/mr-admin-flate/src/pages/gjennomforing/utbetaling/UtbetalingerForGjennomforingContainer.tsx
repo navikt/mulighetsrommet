@@ -50,7 +50,7 @@ export function UtbetalingerForGjennomforingContainer() {
         </Dropdown>
       </KnapperadContainer>
       {utbetalinger.length > 0 ? (
-        <UtbetalingTable utbetalinger={utbetalinger} />
+        <UtbetalingTable gjennomforingId={gjennomforingId} utbetalinger={utbetalinger} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen utbetalinger for dette tiltaket

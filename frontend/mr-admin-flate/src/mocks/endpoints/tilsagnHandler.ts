@@ -75,9 +75,7 @@ export const tilsagnHandlers = [
 
 const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
   behandletAv: {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Per Haraldsen",
-    navIdent: "P654321",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],

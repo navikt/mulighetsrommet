@@ -143,7 +143,7 @@ class GjennomforingService(
 
     fun setTilgjengeligForArrangorDato(
         id: UUID,
-        tilgjengeligForArrangorDato: LocalDate,
+        tilgjengeligForArrangorDato: LocalDate?,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Unit> = db.transaction {
         val gjennomforing = getOrError(id)
@@ -154,10 +154,7 @@ class GjennomforingService(
                 gjennomforing.startDato,
             )
             .map {
-                queries.gjennomforing.setTilgjengeligForArrangorDato(
-                    id,
-                    tilgjengeligForArrangorDato,
-                )
+                queries.gjennomforing.setTilgjengeligForArrangorDato(id, it)
                 val dto = getOrError(id)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent)
@@ -271,8 +268,8 @@ class GjennomforingService(
         }.mapLeft {
             if (it is IntegrityConstraintViolation.ExclusionViolation) {
                 FieldError.of(
-                    SetStengtHosArrangorRequest::periodeStart,
                     "Perioden kan ikke overlappe med andre perioder",
+                    SetStengtHosArrangorRequest::periodeStart,
                 ).nel()
             } else {
                 throw it.error
