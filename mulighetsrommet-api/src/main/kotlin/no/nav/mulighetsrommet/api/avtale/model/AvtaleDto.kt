@@ -24,7 +24,7 @@ data class AvtaleDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
-    val status: AvtaleStatusDto,
+    val status: Status,
     val administratorer: List<Avtale.Administrator>,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
@@ -37,4 +37,10 @@ data class AvtaleDto(
     val opsjonerRegistrert: List<Avtale.OpsjonLoggDto>,
     val utdanningslop: UtdanningslopDto?,
     val prismodell: Avtale.PrismodellDto,
-)
+) {
+    @Serializable
+    data class Status(
+        val type: AvtaleStatusType,
+        val status: DataElement.Status,
+    )
+}

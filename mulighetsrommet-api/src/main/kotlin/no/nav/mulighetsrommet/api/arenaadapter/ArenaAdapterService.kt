@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -201,10 +201,10 @@ private fun Avtale.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
             avtaletype = avtaletype,
             avslutningsstatus = when (status) {
-                is AvtaleStatusDto.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
-                is AvtaleStatusDto.Avbrutt -> Avslutningsstatus.AVBRUTT
-                is AvtaleStatusDto.Avsluttet -> Avslutningsstatus.AVSLUTTET
-                is AvtaleStatusDto.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.Avbrutt -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatus.Avsluttet -> Avslutningsstatus.AVSLUTTET
+                is AvtaleStatus.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
             },
             prisbetingelser = prismodell.prisbetingelser(),
         )

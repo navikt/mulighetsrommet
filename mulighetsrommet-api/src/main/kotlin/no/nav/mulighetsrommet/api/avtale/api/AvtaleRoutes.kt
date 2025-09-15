@@ -411,7 +411,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
     val statuser = call.parameters.getAll("statuser")
-        ?.map { status -> AvtaleStatus.valueOf(status) }
+        ?.map { status -> AvtaleStatusType.valueOf(status) }
         ?: emptyList()
     val avtaletyper = call.parameters.getAll("avtaletyper")
         ?.map { type -> Avtaletype.valueOf(type) }
@@ -440,7 +440,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
 data class AvtaleFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
-    val statuser: List<AvtaleStatus> = emptyList(),
+    val statuser: List<AvtaleStatusType> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
     val navRegioner: List<NavEnhetNummer> = emptyList(),
     val sortering: String? = null,

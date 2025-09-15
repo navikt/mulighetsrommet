@@ -70,7 +70,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/AvtaleStatus"
+              $ref: "#/components/schemas/AvtaleStatusType"
           description: Statuser for avtale
         - in: query
           name: avtaletyper
@@ -169,7 +169,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/AvtaleStatus"
+              $ref: "#/components/schemas/AvtaleStatusType"
           description: Statuser for avtale
         - in: query
           name: avtaletyper
@@ -865,73 +865,51 @@ components:
         - FORHANDSGODKJENT
         - OFFENTLIG_OFFENTLIG
 
-    AvtaleStatus:
+    AvtaleStatusType:
       type: string
       enum:
+        - UTKAST
         - AKTIV
         - AVSLUTTET
         - AVBRUTT
-        - UTKAST
 
     AvtaleStatusDto:
-      oneOf:
-        - $ref: "#/components/schemas/AvtaleStatusUtkast"
-        - $ref: "#/components/schemas/AvtaleStatusAktiv"
-        - $ref: "#/components/schemas/AvtaleStatusAvbrutt"
-        - $ref: "#/components/schemas/AvtaleStatusAvsluttet"
-      discriminator:
-        propertyName: type
-        mapping:
-          UTKAST: "#/components/schemas/AvtaleStatusUtkast"
-          AKTIV: "#/components/schemas/AvtaleStatusAktiv"
-          AVBRUTT: "#/components/schemas/AvtaleStatusAvbrutt"
-          AVSLUTTET: "#/components/schemas/AvtaleStatusAvsluttet"
-
-    AvtaleStatusAktiv:
       type: object
       properties:
         type:
-          type: string
-          const: AKTIV
+          $ref: "#/components/schemas/AvtaleStatusType"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
       required:
         - type
+        - status
 
-    AvtaleStatusUtkast:
+    DataElement.Status:
       type: object
       properties:
-        type:
+        value:
           type: string
-          const: UTKAST
+        variant:
+          $ref: "#/components/schemas/DataElement.Status.Variant"
+        description:
+          type:
+            - "null"
+            - string
       required:
-        - type
+        - description
+        - value
+        - variant
 
-    AvtaleStatusAvsluttet:
-      type: object
-      properties:
-        type:
-          type: string
-          const: AVSLUTTET
-      required:
-        - type
-
-    AvtaleStatusAvbrutt:
-      type: object
-      properties:
-        type:
-          type: string
-          const: AVBRUTT
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          $ref: "#/components/schemas/AvbrytAvtaleAarsak"
-        beskrivelse:
-          type: string
-      required:
-        - type
-        - tidspunkt
-        - aarsak
-        - beskrivelse
+    DataElement.Status.Variant:
+      type: string
+      enum:
+        - neutral
+        - alt
+        - success
+        - warning
+        - error
+        - error-border
+        - error-border-strikethrough
 
     SorteringAvtaler:
       type: string

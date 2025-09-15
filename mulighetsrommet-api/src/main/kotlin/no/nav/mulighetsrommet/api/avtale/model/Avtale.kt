@@ -27,7 +27,7 @@ data class Avtale(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
-    val status: AvtaleStatusDto,
+    val status: AvtaleStatus,
     val administratorer: List<Administrator>,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,

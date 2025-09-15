@@ -348,7 +348,7 @@ class AvtaleQueries(private val session: Session) {
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<AvtaleStatus> = emptyList(),
+        statuser: List<AvtaleStatusType> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<NavEnhetNummer> = emptyList(),
         sortering: String? = null,
@@ -413,7 +413,7 @@ class AvtaleQueries(private val session: Session) {
 
     fun setStatus(
         id: UUID,
-        status: AvtaleStatus,
+        status: AvtaleStatusType,
         tidspunkt: LocalDateTime?,
         aarsaker: List<AvbrytAvtaleAarsak>?,
         forklaring: String?,
@@ -533,9 +533,9 @@ class AvtaleQueries(private val session: Session) {
             "start_dato" to startDato,
             "slutt_dato" to sluttDato,
             "status" to when (avslutningsstatus) {
-                Avslutningsstatus.IKKE_AVSLUTTET -> AvtaleStatus.AKTIV
-                Avslutningsstatus.AVSLUTTET -> AvtaleStatus.AVSLUTTET
-                Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvtaleStatus.AVBRUTT
+                Avslutningsstatus.IKKE_AVSLUTTET -> AvtaleStatusType.AKTIV
+                Avslutningsstatus.AVSLUTTET -> AvtaleStatusType.AVSLUTTET
+                Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvtaleStatusType.AVBRUTT
             }.name,
             "opsjonsmodell" to when (avtaletype) {
                 Avtaletype.FORHANDSGODKJENT, Avtaletype.OFFENTLIG_OFFENTLIG -> OpsjonsmodellType.VALGFRI_SLUTTDATO
@@ -626,6 +626,18 @@ class AvtaleQueries(private val session: Session) {
             )
         }
 
+        val status = when (AvtaleStatusType.valueOf(string("status"))) {
+            AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
+            AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
+            AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
+            AvtaleStatusType.AVBRUTT -> {
+                AvtaleStatus.Avbrutt(
+                    localDateTime("avbrutt_tidspunkt"),
+                    arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytAvtaleAarsak.valueOf(it) } ?: emptyList(),
+                    stringOrNull("avbrutt_forklaring"),
+                )
+            }
+        }
         return Avtale(
             id = uuid("id"),
             navn = string("navn"),
@@ -635,12 +647,7 @@ class AvtaleQueries(private val session: Session) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            status = AvtaleStatusDto.fromString(
-                string("status"),
-                localDateTimeOrNull("avbrutt_tidspunkt"),
-                arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytAvtaleAarsak.valueOf(it) } ?: emptyList(),
-                stringOrNull("avbrutt_forklaring"),
-            ),
+            status = status,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
@@ -669,7 +676,7 @@ class AvtaleQueries(private val session: Session) {
 }
 
 fun Session.createArrayOfAvtaleStatus(
-    avtaletypes: List<AvtaleStatus>,
+    avtaletypes: List<AvtaleStatusType>,
 ): Array = createArrayOf("avtale_status", avtaletypes)
 
 fun Session.createArrayOfAvtaletype(

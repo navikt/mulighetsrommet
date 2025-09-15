@@ -8,13 +8,13 @@ import { Header } from "@/components/detaljside/Header";
 import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -90,7 +90,7 @@ export function AvtaleFormPage() {
         <Heading size="large" level="2">
           Redigerer {avtale.navn}
         </Heading>
-        <AvtaleStatusMedAarsakTag status={avtale.status} />
+        <DataElementStatusTag {...avtale.status.status} />
       </Header>
       <RedigerAvtaleContainer avtale={avtale}>
         <Tabs value={currentTab}>

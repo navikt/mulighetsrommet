@@ -162,7 +162,14 @@ class AvtaleValidator(
         return validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn)
             .map {
                 AvtaleDboMapper
-                    .fromAvtaleRequest(request, request.startDato!!, it, arrangor, resolveStatus(request, previous, LocalDate.now()), tiltakstype.id)
+                    .fromAvtaleRequest(
+                        request,
+                        request.startDato!!,
+                        it,
+                        arrangor,
+                        resolveStatus(request, previous, LocalDate.now()),
+                        tiltakstype.id,
+                    )
                     .copy(navEnheter = sanitizeNavEnheter(request.navEnheter))
             }
     }

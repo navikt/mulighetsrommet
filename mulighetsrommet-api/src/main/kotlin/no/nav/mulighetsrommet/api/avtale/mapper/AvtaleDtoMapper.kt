@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.DataElement
 
 object AvtaleDtoMapper {
     fun fromAvtale(avtale: Avtale) = AvtaleDto(
@@ -15,7 +17,7 @@ object AvtaleDtoMapper {
         sluttDato = avtale.sluttDato,
         arenaAnsvarligEnhet = avtale.arenaAnsvarligEnhet,
         avtaletype = avtale.avtaletype,
-        status = avtale.status,
+        status = fromAvtaleStatus(avtale.status),
         administratorer = avtale.administratorer,
         opphav = avtale.opphav,
         kontorstruktur = avtale.kontorstruktur,
@@ -29,4 +31,18 @@ object AvtaleDtoMapper {
         utdanningslop = avtale.utdanningslop,
         prismodell = avtale.prismodell,
     )
+
+    private fun fromAvtaleStatus(status: AvtaleStatus): AvtaleDto.Status {
+        val variant = when (status) {
+            AvtaleStatus.Utkast, AvtaleStatus.Avsluttet -> DataElement.Status.Variant.NEUTRAL
+            AvtaleStatus.Aktiv -> DataElement.Status.Variant.SUCCESS
+            is AvtaleStatus.Avbrutt -> DataElement.Status.Variant.ERROR
+        }
+        val description = when (status) {
+            AvtaleStatus.Utkast, AvtaleStatus.Avsluttet, AvtaleStatus.Aktiv -> null
+            is AvtaleStatus.Avbrutt -> status.forklaring
+        }
+        val element = DataElement.Status(status.type.beskrivelse, variant, description)
+        return AvtaleDto.Status(status.type, element)
+    }
 }

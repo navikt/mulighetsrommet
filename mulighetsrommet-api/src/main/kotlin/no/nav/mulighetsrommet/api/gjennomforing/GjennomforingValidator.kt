@@ -7,7 +7,7 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
@@ -314,7 +314,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (avtale.status != AvtaleStatusDto.Aktiv) {
+        if (avtale.status != AvtaleStatus.Aktiv) {
             add(
                 FieldError.of(
                     "Avtalen må være aktiv for å kunne opprette tiltak",

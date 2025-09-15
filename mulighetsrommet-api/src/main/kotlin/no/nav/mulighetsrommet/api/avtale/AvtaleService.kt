@@ -9,7 +9,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
@@ -21,11 +20,9 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -104,7 +101,7 @@ class AvtaleService(
     fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
         val avtale = getOrError(id)
 
-        check(avtale.status == AvtaleStatusDto.Aktiv) {
+        check(avtale.status == AvtaleStatus.Aktiv) {
             "Avtalen må være aktiv for å kunne avsluttes"
         }
 
@@ -113,7 +110,7 @@ class AvtaleService(
             "Avtalen kan ikke avsluttes før sluttdato"
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null, null)
+        queries.avtale.setStatus(id, AvtaleStatusType.AVSLUTTET, null, null, null)
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avsluttet", dto, endretAv)
@@ -129,9 +126,9 @@ class AvtaleService(
 
         val errors = buildList {
             when (avtale.status) {
-                is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
-                is AvtaleStatusDto.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
-                is AvtaleStatusDto.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
+                is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
+                is AvtaleStatus.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
+                is AvtaleStatus.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
             }
 
             val (_, gjennomforinger) = queries.gjennomforing.getAll(
@@ -154,7 +151,7 @@ class AvtaleService(
 
         queries.avtale.setStatus(
             id = id,
-            status = AvtaleStatus.AVBRUTT,
+            status = AvtaleStatusType.AVBRUTT,
             tidspunkt = tidspunkt,
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
@@ -194,6 +191,7 @@ class AvtaleService(
                 OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
                 OpprettOpsjonLoggRequest.Type.ETT_AAR,
                 -> "Opsjon registrert"
+
                 OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
             }
             logEndring(operation, getOrError(avtaleId), navIdent)
@@ -253,21 +251,21 @@ class AvtaleService(
         return setOfNotNull(
             AvtaleHandling.AVBRYT.takeIf {
                 when (avtale.status) {
-                    AvtaleStatusDto.Utkast,
-                    AvtaleStatusDto.Aktiv,
+                    AvtaleStatus.Utkast,
+                    AvtaleStatus.Aktiv,
                     -> avtalerSkriv
 
-                    is AvtaleStatusDto.Avbrutt,
-                    AvtaleStatusDto.Avsluttet,
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
                     -> false
                 }
             },
             AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
                 when (avtale.status) {
-                    AvtaleStatusDto.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
-                    is AvtaleStatusDto.Avbrutt,
-                    AvtaleStatusDto.Avsluttet,
-                    AvtaleStatusDto.Utkast,
+                    AvtaleStatus.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
+                    AvtaleStatus.Utkast,
                     -> false
                 }
             },
@@ -299,11 +297,11 @@ class AvtaleService(
 
         val currentStatus = getOrError(avtaleId).status.type
         val newStatus = when (currentStatus) {
-            AvtaleStatus.UTKAST, AvtaleStatus.AVBRUTT -> currentStatus
-            AvtaleStatus.AKTIV, AvtaleStatus.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
-                AvtaleStatus.AKTIV
+            AvtaleStatusType.UTKAST, AvtaleStatusType.AVBRUTT -> currentStatus
+            AvtaleStatusType.AKTIV, AvtaleStatusType.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
+                AvtaleStatusType.AKTIV
             } else {
-                AvtaleStatus.AVSLUTTET
+                AvtaleStatusType.AVSLUTTET
             }
         }
         if (newStatus != currentStatus) {
@@ -355,12 +353,12 @@ fun resolveStatus(
     request: AvtaleRequest,
     previous: Avtale?,
     today: LocalDate,
-): AvtaleStatus = if (request.arrangor == null) {
-    AvtaleStatus.UTKAST
-} else if (previous?.status is AvtaleStatusDto.Avbrutt) {
+): AvtaleStatusType = if (request.arrangor == null) {
+    AvtaleStatusType.UTKAST
+} else if (previous?.status?.type == AvtaleStatusType.AVBRUTT) {
     previous.status.type
 } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
-    AvtaleStatus.AKTIV
+    AvtaleStatusType.AKTIV
 } else {
-    AvtaleStatus.AVSLUTTET
+    AvtaleStatusType.AVSLUTTET
 }

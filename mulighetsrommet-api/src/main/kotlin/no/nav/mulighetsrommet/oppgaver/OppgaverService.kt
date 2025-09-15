@@ -139,7 +139,7 @@ class OppgaverService(val db: ApiDatabase) {
             .getAll(
                 tiltakstypeIder = tiltakstypeIds,
                 navRegioner = regioner.toList(),
-                statuser = listOf(AvtaleStatus.UTKAST, AvtaleStatus.AKTIV),
+                statuser = listOf(AvtaleStatusType.UTKAST, AvtaleStatusType.AKTIV),
             )
             .items
             .flatMap { toOppgaver(it) }

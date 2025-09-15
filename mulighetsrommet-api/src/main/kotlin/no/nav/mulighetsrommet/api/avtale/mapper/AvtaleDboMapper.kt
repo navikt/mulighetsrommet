@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.*
@@ -48,7 +48,7 @@ object AvtaleDboMapper {
         startDato: LocalDate,
         prismodellDbo: PrismodellDbo,
         arrangor: AvtaleDbo.Arrangor?,
-        status: AvtaleStatus,
+        status: AvtaleStatusType,
         tiltakstypeId: UUID,
     ): AvtaleDbo = AvtaleDbo(
         id = request.id,

@@ -12,7 +12,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -81,7 +80,7 @@ class AvtaleQueriesTest : FunSpec({
                     it.startDato shouldBe arenaAvtale.startDato
                     it.sluttDato shouldBe arenaAvtale.sluttDato
                     it.avtaletype shouldBe arenaAvtale.avtaletype
-                    it.status shouldBe AvtaleStatusDto.Aktiv
+                    it.status.type shouldBe AvtaleStatusType.AKTIV
                     it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 }
             }
@@ -157,12 +156,12 @@ class AvtaleQueriesTest : FunSpec({
                 val tidspunkt = LocalDate.now().atStartOfDay()
                 queries.setStatus(
                     id = id,
-                    status = AvtaleStatus.AVBRUTT,
+                    status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
@@ -170,12 +169,12 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.setStatus(
                     id = id,
-                    status = AvtaleStatus.AVBRUTT,
+                    status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
@@ -183,12 +182,12 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.setStatus(
                     id = id,
-                    status = AvtaleStatus.AVSLUTTET,
+                    status = AvtaleStatusType.AVSLUTTET,
                     tidspunkt = null,
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avsluttet
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avsluttet
             }
         }
 
@@ -649,13 +648,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 val avtaleAktiv = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    status = AvtaleStatus.AKTIV,
+                    status = AvtaleStatusType.AKTIV,
                 )
                 queries.upsert(avtaleAktiv)
 
                 val avtaleAvsluttet = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    status = AvtaleStatus.AVSLUTTET,
+                    status = AvtaleStatusType.AVSLUTTET,
                 )
                 queries.upsert(avtaleAvsluttet)
 
@@ -665,7 +664,7 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtaleAvbrutt)
                 queries.setStatus(
                     avtaleAvbrutt.id,
-                    AvtaleStatus.AVBRUTT,
+                    AvtaleStatusType.AVBRUTT,
                     LocalDateTime.now(),
                     listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     null,
@@ -673,17 +672,17 @@ class AvtaleQueriesTest : FunSpec({
 
                 val avtaleUtkast = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    status = AvtaleStatus.UTKAST,
+                    status = AvtaleStatusType.UTKAST,
                 )
                 queries.upsert(avtaleUtkast)
 
                 forAll(
-                    row(listOf(AvtaleStatus.UTKAST), listOf(avtaleUtkast.id)),
-                    row(listOf(AvtaleStatus.AKTIV), listOf(avtaleAktiv.id)),
-                    row(listOf(AvtaleStatus.AVBRUTT), listOf(avtaleAvbrutt.id)),
-                    row(listOf(AvtaleStatus.AVSLUTTET), listOf(avtaleAvsluttet.id)),
+                    row(listOf(AvtaleStatusType.UTKAST), listOf(avtaleUtkast.id)),
+                    row(listOf(AvtaleStatusType.AKTIV), listOf(avtaleAktiv.id)),
+                    row(listOf(AvtaleStatusType.AVBRUTT), listOf(avtaleAvbrutt.id)),
+                    row(listOf(AvtaleStatusType.AVSLUTTET), listOf(avtaleAvsluttet.id)),
                     row(
-                        listOf(AvtaleStatus.AVBRUTT, AvtaleStatus.AVSLUTTET),
+                        listOf(AvtaleStatusType.AVBRUTT, AvtaleStatusType.AVSLUTTET),
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->

@@ -1,7 +1,8 @@
 import {
-  AvbrytAvtaleAarsak,
   AvtaleDto,
+  AvtaleStatusType,
   Avtaletype,
+  DataElementStatusVariant,
   EmbeddedTiltakstype,
   Opphav,
   OpsjonsmodellType,
@@ -48,7 +49,10 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2021-08-02",
     sluttDato: "2023-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0300,
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
@@ -109,11 +113,13 @@ export const mockAvtaler: AvtaleDto[] = [
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: {
-      type: "AVBRUTT",
-      aarsak: AvbrytAvtaleAarsak.FEILREGISTRERING,
-      beskrivelse:
-        "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-      tidspunkt: "2020-03-04T12:00:00",
+      type: AvtaleStatusType.AVBRUTT,
+      status: {
+        value: "Avbrutt",
+        variant: DataElementStatusVariant.SUCCESS,
+        description:
+          "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      },
     },
     arenaAnsvarligEnhet: mockEnheter._0400,
     kontorstruktur: [
@@ -161,7 +167,10 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
@@ -210,7 +219,10 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
@@ -264,7 +276,10 @@ for (let i = 0; i < x; i++) {
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
