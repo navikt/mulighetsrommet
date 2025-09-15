@@ -73,8 +73,8 @@ importers:
         specifier: 7.8.2
         version: 7.8.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       uuid:
-        specifier: 11.1.0
-        version: 11.1.0
+        specifier: 13.0.0
+        version: 13.0.0
     devDependencies:
       '@mr/eslint-config-react-app':
         specifier: workspace:*
@@ -185,8 +185,8 @@ importers:
         specifier: 7.8.2
         version: 7.8.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       uuid:
-        specifier: 11.1.0
-        version: 11.1.0
+        specifier: 13.0.0
+        version: 13.0.0
       winston:
         specifier: 3.17.0
         version: 3.17.0
@@ -472,8 +472,8 @@ importers:
         specifier: 1.8.1
         version: 1.8.1(react@19.0.0)
       uuid:
-        specifier: 11.1.0
-        version: 11.1.0
+        specifier: 13.0.0
+        version: 13.0.0
       zod:
         specifier: 4.1.1
         version: 4.1.1
@@ -675,8 +675,8 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
       uuid:
-        specifier: 11.1.0
-        version: 11.1.0
+        specifier: 13.0.0
+        version: 13.0.0
       zod:
         specifier: 4.1.1
         version: 4.1.1
@@ -8298,6 +8298,10 @@ packages:
 
   uuid@11.1.0:
     resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
+  uuid@13.0.0:
+    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
     hasBin: true
 
   uuid@8.3.2:
@@ -17667,6 +17671,8 @@ snapshots:
   utils-merge@1.0.1: {}
 
   uuid@11.1.0: {}
+
+  uuid@13.0.0: {}
 
   uuid@8.3.2: {}
 
