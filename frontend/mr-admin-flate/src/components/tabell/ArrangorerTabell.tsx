@@ -1,5 +1,5 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { ArrangorTil, SorteringArrangorer } from "@mr/api-client-v2";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { Link } from "react-router";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
@@ -18,7 +18,7 @@ interface Props {
 
 export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
   const sort = filter.sortering.tableSort;
-  const { data } = useArrangorer(ArrangorTil.AVTALE, filter);
+  const { data } = useArrangorer(ArrangorKobling.AVTALE, filter);
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
@@ -31,7 +31,7 @@ export function ArrangorerTabell({ filter, updateFilter, tagsHeight, filterOpen 
 
     updateFilter({
       sortering: {
-        sortString: `${sortKey}-${direction}` as SorteringArrangorer,
+        sortString: `${sortKey}-${direction}`,
         tableSort: { orderBy: sortKey, direction },
       },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,

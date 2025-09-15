@@ -1,14 +1,11 @@
-import { NavAnsatt } from "@mr/api-client-v2";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
+import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export function AdministratorOptions(
-  ansatt: NavAnsatt,
+  ansatt: NavAnsattDto,
   administratorer: string[],
-  eksisterendeAdministratorer?: NavAnsatt[],
+  eksisterendeAdministratorer: NavAnsattDto[],
 ): SelectOption[] {
-  if (!eksisterendeAdministratorer) {
-    return [{ value: "", label: "Laster..." }];
-  }
   const adminMap = new Map(eksisterendeAdministratorer.map((a) => [a.navIdent, a]));
 
   const options = [
@@ -31,10 +28,8 @@ export function AdministratorOptions(
     });
 
   eksisterendeAdministratorer
-    .filter(
-      (b: NavAnsatt) => b.navIdent !== ansatt.navIdent && !administratorer.includes(b.navIdent),
-    )
-    .forEach((b: NavAnsatt) => {
+    .filter((b) => b.navIdent !== ansatt.navIdent && !administratorer.includes(b.navIdent))
+    .forEach((b) => {
       options.push({
         value: b.navIdent,
         label: `${b.fornavn} ${b.etternavn} - ${b.navIdent}`,

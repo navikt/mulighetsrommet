@@ -27,7 +27,7 @@ import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { getAgentDisplayName, isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import {
   MetadataFritekstfelt,
@@ -41,11 +41,11 @@ import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { DataDetails } from "@/components/data-element/DataDetails";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
-  TilsagnStatus,
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   Besluttelse,
   BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
   TilsagnHandling,
+  TilsagnStatus,
   TilsagnStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 
@@ -198,7 +198,7 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
           tekster={[
-            `${getAgentDisplayName(annullering.behandletAv)} sendte tilsagnet til annullering den ${formaterDato(
+            `${annullering.behandletAv.navn} sendte tilsagnet til annullering den ${formaterDato(
               annullering.behandletTidspunkt,
             )}.`,
           ]}
@@ -212,7 +212,7 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Annullering avvist"
           tekster={[
-            `${getAgentDisplayName(annullering.besluttetAv)} avviste annullering den ${formaterDato(
+            `${annullering.besluttetAv.navn} avviste annullering den ${formaterDato(
               annullering.behandletTidspunkt,
             )}.`,
           ]}
@@ -227,7 +227,7 @@ export function TilsagnDetaljer() {
           heading="Tilsagnet gjøres opp"
           ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
           tekster={[
-            `${getAgentDisplayName(tilOppgjor.behandletAv)} sendte tilsagnet til oppgjør den ${formaterDato(
+            `${tilOppgjor.behandletAv.navn} sendte tilsagnet til oppgjør den ${formaterDato(
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}
@@ -241,7 +241,7 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Oppgjør avvist"
           tekster={[
-            `${getAgentDisplayName(tilOppgjor.besluttetAv)} avviste oppgjør den ${formaterDato(
+            `${tilOppgjor.besluttetAv.navn} avviste oppgjør den ${formaterDato(
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}

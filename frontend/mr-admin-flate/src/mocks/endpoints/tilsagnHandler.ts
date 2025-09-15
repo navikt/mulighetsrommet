@@ -1,20 +1,19 @@
-import { GetForhandsgodkjenteSatserResponse } from "@mr/api-client-v2";
-import { http, HttpResponse, PathParams } from "msw";
-import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
-import { v4 } from "uuid";
-import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import {
-  TotrinnskontrollDtoTilBeslutning,
+  DataDrivenTableDto,
+  DataElementMathOperatorType,
+  DataElementTextFormat,
+  LabeledDataElementType,
   TilsagnBeregningDto,
   TilsagnBeregningType,
   TilsagnDetaljerDto,
   TilsagnRequest,
   TilsagnType,
-  DataDrivenTableDto,
-  LabeledDataElementType,
-  DataElementTextFormat,
-  DataElementMathOperatorType,
+  TotrinnskontrollDtoTilBeslutning,
 } from "@tiltaksadministrasjon/api-client";
+import { http, HttpResponse, PathParams } from "msw";
+import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
+import { v4 } from "uuid";
+import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const tilsagnHandlers = [
   http.get<PathParams, any, DataDrivenTableDto>("*/api/tiltaksadministrasjon/tilsagn", async () => {
@@ -69,26 +68,6 @@ export const tilsagnHandlers = [
     },
   ),
 
-  http.get<PathParams, string, GetForhandsgodkjenteSatserResponse>(
-    "*/api/tiltaksadministrasjon/prismodell/satser",
-    () => {
-      return HttpResponse.json([
-        {
-          periodeStart: "2024-01-01",
-          periodeSlutt: "2024-12-31",
-          pris: 20205,
-          valuta: "NOK",
-        },
-        {
-          periodeStart: "2023-01-01",
-          periodeSlutt: "2023-12-31",
-          pris: 19500,
-          valuta: "NOK",
-        },
-      ]);
-    },
-  ),
-
   http.delete<PathParams, any, string>("*/api/tiltaksadministrasjon/tilsagn/:id", () => {
     return HttpResponse.text("Ok");
   }),
@@ -96,9 +75,7 @@ export const tilsagnHandlers = [
 
 const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
   behandletAv: {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
     navn: "Per Haraldsen",
-    navIdent: "P654321",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
   aarsaker: [],

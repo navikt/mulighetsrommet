@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
+import arrow.core.*
 import arrow.core.raise.either
-import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
@@ -31,15 +28,15 @@ class GjennomforingValidator(
         var next = dbo
 
         val avtale = db.session { queries.avtale.get(next.avtaleId) }
-            ?: raise(FieldError.of(GjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
+            ?: raise(FieldError.of("Avtalen finnes ikke", GjennomforingDbo::avtaleId).nel())
 
         val navEnheter = sanitizeNavEnheter(next.navEnheter)
         val errors = buildList {
             if (avtale.tiltakstype.id != next.tiltakstypeId) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tiltakstypeId,
                         "Tiltakstypen må være den samme som for avtalen",
+                        GjennomforingDbo::tiltakstypeId,
                     ),
                 )
             }
@@ -47,8 +44,8 @@ class GjennomforingValidator(
             if (next.administratorer.isEmpty()) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::administratorer,
                         "Du må velge minst én administrator",
+                        GjennomforingDbo::administratorer,
                     ),
                 )
             }
@@ -56,21 +53,21 @@ class GjennomforingValidator(
             if (avtale.avtaletype != Avtaletype.FORHANDSGODKJENT && next.sluttDato == null) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::sluttDato,
                         "Du må legge inn sluttdato for gjennomføringen",
+                        GjennomforingDbo::sluttDato,
                     ),
                 )
             }
 
             if (next.sluttDato != null && next.startDato.isAfter(next.sluttDato)) {
-                add(FieldError.of(GjennomforingDbo::startDato, "Startdato må være før sluttdato"))
+                add(FieldError.of("Startdato må være før sluttdato", GjennomforingDbo::startDato))
             }
 
             if (next.antallPlasser <= 0) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::antallPlasser,
                         "Du må legge inn antall plasser større enn 0",
+                        GjennomforingDbo::antallPlasser,
                     ),
                 )
             }
@@ -81,8 +78,8 @@ class GjennomforingValidator(
                 if (next.oppstart == GjennomforingOppstartstype.FELLES) {
                     add(
                         FieldError.of(
-                            GjennomforingDbo::oppstart,
                             "Tiltaket må ha løpende oppstartstype",
+                            GjennomforingDbo::oppstart,
                         ),
                     )
                 }
@@ -93,7 +90,7 @@ class GjennomforingValidator(
             } ?: false
 
             if (!avtaleHasArrangor) {
-                add(FieldError.of(GjennomforingDbo::arrangorId, "Du må velge en arrangør fra avtalen"))
+                add(FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingDbo::arrangorId))
             }
 
             if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
@@ -109,8 +106,8 @@ class GjennomforingValidator(
                 if (next.amoKategorisering == null) {
                     add(
                         FieldError.of(
-                            GjennomforingDbo::amoKategorisering,
                             "Du må velge et kurselement for gjennomføringen",
+                            GjennomforingDbo::amoKategorisering,
                         ),
                     )
                 }
@@ -121,22 +118,22 @@ class GjennomforingValidator(
                 if (utdanningslop == null) {
                     add(
                         FieldError.of(
-                            GjennomforingDbo::utdanningslop,
                             "Du må velge utdanningsprogram og lærefag på avtalen",
+                            GjennomforingDbo::utdanningslop,
                         ),
                     )
                 } else if (utdanningslop.utdanninger.isEmpty()) {
                     add(
                         FieldError.of(
-                            GjennomforingDbo::utdanningslop,
                             "Du må velge minst ett lærefag",
+                            GjennomforingDbo::utdanningslop,
                         ),
                     )
                 } else if (utdanningslop.utdanningsprogram != avtale.utdanningslop?.utdanningsprogram?.id) {
                     add(
                         FieldError.of(
-                            GjennomforingDbo::utdanningslop,
                             "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
+                            GjennomforingDbo::utdanningslop,
                         ),
                     )
                 } else {
@@ -144,8 +141,8 @@ class GjennomforingValidator(
                     if (!avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
                         add(
                             FieldError.of(
-                                GjennomforingDbo::utdanningslop,
                                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
+                                GjennomforingDbo::utdanningslop,
                             ),
                         )
                     }
@@ -176,8 +173,8 @@ class GjennomforingValidator(
         if (avtaleRegioner.intersect(navEnheter).isEmpty()) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::navEnheter,
                     "Du må velge minst én Nav-region fra avtalen",
+                    GjennomforingDbo::navEnheter,
                 ),
             )
         }
@@ -186,13 +183,13 @@ class GjennomforingValidator(
         if (avtaleNavKontorer.intersect(navEnheter).isEmpty()) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::navEnheter,
                     "Du må velge minst én Nav-enhet fra avtalen",
+                    GjennomforingDbo::navEnheter,
                 ),
             )
         }
         navEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
-            add(FieldError.of(GjennomforingDbo::navEnheter, "Nav-enhet $enhetsnummer mangler i avtalen"))
+            add(FieldError.of("Nav-enhet $enhetsnummer mangler i avtalen", GjennomforingDbo::navEnheter))
         }
     }
 
@@ -208,8 +205,8 @@ class GjennomforingValidator(
         if (slettedeNavIdenter.isNotEmpty()) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::kontaktpersoner,
                     "Kontaktpersonene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
+                    GjennomforingDbo::kontaktpersoner,
                 ),
             )
         }
@@ -227,8 +224,8 @@ class GjennomforingValidator(
         if (slettedeNavIdenter.isNotEmpty()) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::administratorer,
                     "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
+                    GjennomforingDbo::administratorer,
                 ),
             )
         }
@@ -244,22 +241,26 @@ class GjennomforingValidator(
     }
 
     fun validateTilgjengeligForArrangorDato(
-        tilgjengeligForArrangorDato: LocalDate,
+        tilgjengeligForArrangorDato: LocalDate?,
         startDato: LocalDate,
     ): Either<List<FieldError>, LocalDate> {
+        if (tilgjengeligForArrangorDato == null) {
+            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato).nel().left()
+        }
+
         val errors = buildList {
             if (tilgjengeligForArrangorDato < LocalDate.now()) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tilgjengeligForArrangorDato,
                         "Du må velge en dato som er etter dagens dato",
+                        GjennomforingDbo::tilgjengeligForArrangorDato,
                     ),
                 )
             } else if (tilgjengeligForArrangorDato < startDato.minusMonths(2)) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tilgjengeligForArrangorDato,
                         "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
+                        GjennomforingDbo::tilgjengeligForArrangorDato,
                     ),
                 )
             }
@@ -267,8 +268,8 @@ class GjennomforingValidator(
             if (tilgjengeligForArrangorDato > startDato) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::tilgjengeligForArrangorDato,
                         "Du må velge en dato som er før gjennomføringens oppstartsdato",
+                        GjennomforingDbo::tilgjengeligForArrangorDato,
                     ),
                 )
             }
@@ -285,8 +286,8 @@ class GjennomforingValidator(
         if (arrangor.slettetDato != null) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::arrangorId,
                     "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
+                    GjennomforingDbo::arrangorId,
                 ),
             )
         }
@@ -294,8 +295,8 @@ class GjennomforingValidator(
         if (gjennomforing.startDato.isBefore(avtale.startDato)) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::startDato,
                     "Du må legge inn en startdato som er etter avtalens startdato",
+                    GjennomforingDbo::startDato,
                 ),
             )
         }
@@ -303,8 +304,8 @@ class GjennomforingValidator(
         if (gjennomforing.stedForGjennomforing != null && gjennomforing.stedForGjennomforing.length > maksAntallTegnStedForGjennomforing) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::stedForGjennomforing,
                     "Du kan bare skrive $maksAntallTegnStedForGjennomforing tegn i \"Sted for gjennomføring\"",
+                    GjennomforingDbo::stedForGjennomforing,
                 ),
             )
         }
@@ -312,8 +313,8 @@ class GjennomforingValidator(
         if (avtale.status != AvtaleStatusDto.Aktiv) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::avtaleId,
                     "Avtalen må være aktiv for å kunne opprette tiltak",
+                    GjennomforingDbo::avtaleId,
                 ),
             )
         }
@@ -321,8 +322,8 @@ class GjennomforingValidator(
         if (gjennomforing.status != GjennomforingStatus.GJENNOMFORES) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::navn,
                     "Du kan ikke opprette en gjennomføring som er ${gjennomforing.status.name.lowercase()}",
+                    GjennomforingDbo::navn,
                 ),
             )
         }
@@ -336,8 +337,8 @@ class GjennomforingValidator(
         if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::navn,
                     "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.type.name.lowercase()}",
+                    GjennomforingDbo::navn,
                 ),
             )
         }
@@ -345,8 +346,8 @@ class GjennomforingValidator(
         if (gjennomforing.arrangorId != previous.arrangor.id) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::arrangorId,
                     "Du kan ikke endre arrangør når gjennomføringen er aktiv",
+                    GjennomforingDbo::arrangorId,
                 ),
             )
         }
@@ -355,8 +356,8 @@ class GjennomforingValidator(
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::avtaleId,
                         "Du kan ikke endre avtalen når gjennomføringen er aktiv",
+                        GjennomforingDbo::avtaleId,
                     ),
                 )
             }
@@ -364,8 +365,8 @@ class GjennomforingValidator(
             if (gjennomforing.startDato.isBefore(avtale.startDato)) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::startDato,
                         "Du må legge inn en startdato som er etter avtalens startdato",
+                        GjennomforingDbo::startDato,
                     ),
                 )
             }
@@ -376,8 +377,8 @@ class GjennomforingValidator(
             ) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::sluttDato,
                         "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
+                        GjennomforingDbo::sluttDato,
                     ),
                 )
             }
@@ -390,8 +391,8 @@ class GjennomforingValidator(
             if (gjennomforing.oppstart != previous.oppstart) {
                 add(
                     FieldError.of(
-                        GjennomforingDbo::oppstart,
                         "Oppstartstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
+                        GjennomforingDbo::oppstart,
                     ),
                 )
             }
@@ -402,15 +403,15 @@ class GjennomforingValidator(
         if (dbo.deltidsprosent <= 0) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::deltidsprosent,
                     "Du må velge en deltidsprosent større enn 0",
+                    GjennomforingDbo::deltidsprosent,
                 ),
             )
         } else if (dbo.deltidsprosent > 100) {
             add(
                 FieldError.of(
-                    GjennomforingDbo::deltidsprosent,
                     "Du må velge en deltidsprosent mindre enn 100",
+                    GjennomforingDbo::deltidsprosent,
                 ),
             )
         }

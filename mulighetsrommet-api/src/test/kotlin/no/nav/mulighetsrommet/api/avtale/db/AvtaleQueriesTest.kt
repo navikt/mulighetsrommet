@@ -156,30 +156,38 @@ class AvtaleQueriesTest : FunSpec({
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
                 queries.setStatus(
-                    id,
-                    AvtaleStatus.AVBRUTT,
-                    tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"),
+                    id = id,
+                    status = AvtaleStatus.AVBRUTT,
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
+                    forklaring = ":)",
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
                 queries.setStatus(
-                    id,
-                    AvtaleStatus.AVBRUTT,
-                    tidspunkt,
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    id = id,
+                    status = AvtaleStatus.AVBRUTT,
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+                queries.setStatus(
+                    id = id,
+                    status = AvtaleStatus.AVSLUTTET,
+                    tidspunkt = null,
+                    aarsaker = null,
+                    forklaring = null,
+                )
                 queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avsluttet
             }
         }
@@ -270,6 +278,7 @@ class AvtaleQueriesTest : FunSpec({
                 telefon = "22232322",
                 epost = "navn@gmail.com",
                 beskrivelse = "beskrivelse",
+                ansvarligFor = listOf(),
             )
             val p2 = p1.copy(
                 id = UUID.randomUUID(),
@@ -296,7 +305,7 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactly listOf(p1)
+                    it.arrangor?.kontaktpersoner shouldContainExactly listOf(toAvtaleArrangorKontaktperson(p1))
                 }
                 val avtaleMedKontaktpersoner = avtale.copy(
                     arrangor = avtale.arrangor?.copy(
@@ -307,12 +316,15 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtaleMedKontaktpersoner)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
+                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                        toAvtaleArrangorKontaktperson(p2),
+                        toAvtaleArrangorKontaktperson(p3),
+                    )
                 }
 
                 queries.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
+                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(toAvtaleArrangorKontaktperson(p2))
                 }
 
                 val avtaleUtenKontaktpersoner = avtale.copy(
@@ -390,6 +402,7 @@ class AvtaleQueriesTest : FunSpec({
                     telefon = "22232322",
                     epost = "navn@gmail.com",
                     beskrivelse = "beskrivelse",
+                    ansvarligFor = listOf(),
                 )
                 val p2 = p1.copy(
                     id = UUID.randomUUID(),
@@ -477,7 +490,7 @@ class AvtaleQueriesTest : FunSpec({
                 domain.setup(session)
 
                 val queries = AvtaleQueries(session)
-                val sats2 = AvtaltSats(Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 8, 1)), 2000)
+                val sats2 = AvtaltSats(LocalDate.of(2025, 7, 1), 2000)
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
@@ -490,8 +503,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtale.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
-                                periodeStart = LocalDate.of(2025, 7, 1),
-                                periodeSlutt = LocalDate.of(2025, 7, 31),
+                                gjelderFra = LocalDate.of(2025, 7, 1),
                                 pris = 2000,
                                 valuta = "NOK",
                             ),
@@ -655,10 +667,8 @@ class AvtaleQueriesTest : FunSpec({
                     avtaleAvbrutt.id,
                     AvtaleStatus.AVBRUTT,
                     LocalDateTime.now(),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                        listOf(AvbruttAarsak.FEILREGISTRERING),
-                        null,
-                    ),
+                    listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    null,
                 )
 
                 val avtaleUtkast = AvtaleFixtures.oppfolging.copy(
@@ -1063,6 +1073,14 @@ class AvtaleQueriesTest : FunSpec({
         }
     }
 })
+
+private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = AvtaleDto.ArrangorKontaktperson(
+    id = kontaktperson.id,
+    navn = kontaktperson.navn,
+    beskrivelse = kontaktperson.beskrivelse,
+    telefon = kontaktperson.telefon,
+    epost = kontaktperson.epost,
+)
 
 private infix fun Collection<AvtaleDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)

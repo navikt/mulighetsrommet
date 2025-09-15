@@ -1,11 +1,15 @@
 package no.nav.mulighetsrommet.api.tiltakstype
 
+import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
+import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -14,7 +18,23 @@ fun Route.tiltakstypeRoutes() {
     val veilederflateService: VeilederflateService by inject()
 
     route("tiltakstyper") {
-        get {
+        get({
+            tags = setOf("Tiltakstype")
+            operationId = "getTiltakstyper"
+            request {
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltakstyper i Tiltaksadministrasjon"
+                    body<List<TiltakstypeDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val filter = getTiltakstypeFilter()
 
             val tiltakstyper = tiltakstypeService.getAll(filter)
@@ -22,8 +42,25 @@ fun Route.tiltakstypeRoutes() {
             call.respond(tiltakstyper)
         }
 
-        get("{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+        get("{id}", {
+            tags = setOf("Tiltakstype")
+            operationId = "getTiltakstype"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Tiltakstype"
+                    body<TiltakstypeDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+
             val tiltakstype = tiltakstypeService.getById(id) ?: return@get call.respondText(
                 "Det finnes ikke noe tiltakstype med id $id",
                 status = HttpStatusCode.NotFound,
@@ -32,7 +69,23 @@ fun Route.tiltakstypeRoutes() {
             call.respond(tiltakstype)
         }
 
-        get("{id}/faneinnhold") {
+        get("{id}/faneinnhold", {
+            tags = setOf("Tiltakstype")
+            operationId = "getTiltakstypeFaneinnhold"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Faneinnhold for tiltakstype"
+                    body<VeilederflateTiltakstype>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val tiltakstype = tiltakstypeService.getById(id) ?: return@get call.respondText(
                 "Det finnes ikke noe tiltakstype med id $id",

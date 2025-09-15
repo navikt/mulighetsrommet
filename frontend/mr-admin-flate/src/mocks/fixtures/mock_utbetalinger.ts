@@ -225,8 +225,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
       behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
@@ -268,14 +266,10 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
       behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
       besluttetAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2024-01-02T10:00:00",
@@ -317,14 +311,10 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
       behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2024-01-01T22:00:00",
       besluttetAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2024-01-02T10:00:00",
@@ -368,8 +358,6 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
       behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2025-01-01T10:00:00",
@@ -410,16 +398,12 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
     opprettelse: {
       type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
       behandletAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
       behandletTidspunkt: "2025-01-01T10:00:00",
       aarsaker: [],
       forklaring: "Utbetaling for første halvår 2025",
       besluttetAv: {
-        type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto.NavAnsatt",
-        navIdent: "P654321",
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2025-01-01T10:00:00",

@@ -1,5 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { AvbrytAvtaleAarsak, AvtalerService, ProblemDetail } from "@mr/api-client-v2";
+import {
+  AvbrytAvtaleAarsak,
+  AvtaleService,
+  ProblemDetail,
+} from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
@@ -16,7 +20,7 @@ export function useAvbrytAvtale() {
       aarsaker: AvbrytAvtaleAarsak[];
       forklaring: string | null;
     }) => {
-      return AvtalerService.avbrytAvtale({
+      return AvtaleService.avbrytAvtale({
         path: { id: data.id },
         body: { aarsaker: data.aarsaker, forklaring: data.forklaring },
       });

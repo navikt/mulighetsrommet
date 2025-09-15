@@ -20,6 +20,7 @@ fun Route.navEnhetRoutes() {
             request {
                 queryParameter<List<NavEnhetStatus>>("statuser") {
                     description = "Filtrer på status"
+                    explode = true
                 }
             }
             response {
@@ -70,6 +71,7 @@ fun Route.navEnhetRoutes() {
             request {
                 queryParameter<List<NavEnhetNummer>>("regioner") {
                     description = "Hvilke regioner man henter for"
+                    explode = true
                 }
             }
             response {

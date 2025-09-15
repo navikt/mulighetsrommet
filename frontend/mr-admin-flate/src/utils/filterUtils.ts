@@ -1,12 +1,11 @@
 import {
-  Arrangor,
   AvtaleStatus,
   Avtaletype,
   GjennomforingStatus,
   NavEnhetDto,
   NavEnhetType,
-  TiltakstypeDto,
 } from "@mr/api-client-v2";
+import { ArrangorDto, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
@@ -86,7 +85,7 @@ export function tiltakstypeOptions(tiltakstyper: TiltakstypeDto[]) {
   }));
 }
 
-export function arrangorOptions(arrangorer: Arrangor[]) {
+export function arrangorOptions(arrangorer: ArrangorDto[]) {
   return arrangorer.sort().map((arrangor) => ({
     label: arrangor.navn,
     value: arrangor.id,

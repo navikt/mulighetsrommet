@@ -15,9 +15,7 @@ export const avtaleDetaljerSchema = z.object({
   avtaletype: z.enum(Avtaletype, {
     error: "Du må velge en avtaletype",
   }),
-  startDato: z
-    .string({ error: "Du må legge inn startdato for avtalen" })
-    .min(10, "Du må legge inn startdato for avtalen"),
+  startDato: z.string().nullable(),
   sluttDato: z.string().optional().nullable(),
   opsjonsmodell: z.object({
     type: z.enum(OpsjonsmodellType, {
@@ -85,7 +83,7 @@ export const validateAvtaledetaljer = (
       });
     }
   }
-  if (data.sluttDato && data.startDato >= data.sluttDato) {
+  if (data.sluttDato && data.startDato && data.startDato >= data.sluttDato) {
     ctx.addIssue({
       code: "custom",
       message: "Startdato må være før sluttdato",

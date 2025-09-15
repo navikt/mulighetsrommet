@@ -13,8 +13,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -457,8 +457,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 row(
-                    avtaleRequest.copy(
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                    forhaandsgodkjent.copy(
                         prismodell = PrismodellRequest(
                             type = Prismodell.ANNEN_AVTALT_PRIS,
                             prisbetingelser = null,
@@ -471,8 +470,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 row(
-                    avtaleRequest.copy(
-                        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                    gruppeAmo.copy(
                         prismodell = PrismodellRequest(
                             type = Prismodell.AVTALT_PRIS_PER_UKESVERK,
                             prisbetingelser = null,
@@ -511,13 +509,11 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 )
                 queries.opsjoner.insert(
-                    OpsjonLoggEntry(
-                        id = UUID.randomUUID(),
+                    OpsjonLoggDbo(
                         avtaleId = AvtaleFixtures.gruppeAmo.id,
-                        sluttdato = avtaleRequest.sluttDato?.plusYears(1),
-                        forrigeSluttdato = avtaleRequest.sluttDato,
+                        sluttDato = avtaleRequest.sluttDato?.plusYears(1),
+                        forrigeSluttDato = avtaleRequest.sluttDato!!,
                         status = OpsjonLoggStatus.OPSJON_UTLOST,
-                        registretDato = LocalDate.of(2024, 7, 6),
                         registrertAv = NavIdent("M123456"),
                     ),
                 )
@@ -607,7 +603,10 @@ class AvtaleValidatorTest : FunSpec({
 
                 val request = avtaleRequest.copy(
                     avtaletype = Avtaletype.FORHANDSGODKJENT,
-                    opsjonsmodell = Opsjonsmodell(type = OpsjonsmodellType.VALGFRI_SLUTTDATO, opsjonMaksVarighet = null),
+                    opsjonsmodell = Opsjonsmodell(
+                        type = OpsjonsmodellType.VALGFRI_SLUTTDATO,
+                        opsjonMaksVarighet = null,
+                    ),
                     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 )
 
@@ -703,10 +702,8 @@ class AvtaleValidatorTest : FunSpec({
                     avtale.id,
                     AvtaleStatus.AVBRUTT,
                     tidspunkt = today.atStartOfDay(),
-                    AarsakerOgForklaringRequest(
-                        aarsaker = listOf(AvbruttAarsak.BUDSJETT_HENSYN),
-                        forklaring = null,
-                    ),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
                 )
             }.initialize(database.db)
 

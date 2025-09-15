@@ -9,8 +9,6 @@ import {
   AvbrytGjennomforingAarsak,
   FieldError,
   GjennomforingDto,
-  GjennomforingHandling,
-  NavAnsatt,
   Opphav,
   ValidationError,
 } from "@mr/api-client-v2";
@@ -25,9 +23,10 @@ import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomfori
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { GjennomforingHandling, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  ansatt: NavAnsatt;
+  ansatt: NavAnsattDto;
   gjennomforing: GjennomforingDto;
 }
 

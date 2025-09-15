@@ -1,5 +1,5 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { PrismodellService, Tiltakskode } from "@mr/api-client-v2";
+import { PrismodellService, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 export function usePrismodeller(tiltakstype: Tiltakskode) {
   return useApiSuspenseQuery({

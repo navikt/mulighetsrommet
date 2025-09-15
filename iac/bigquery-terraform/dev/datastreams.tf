@@ -139,63 +139,21 @@ module "mr_api_datastream" {
       view = {
         dataset_id = local.grafana_dataset_id
         project_id = var.gcp_project["project"]
-        table_id   = "tilsagn_type_antall_view"
+        table_id   = "tilsagn_view"
       }
     },
     {
       view = {
         dataset_id = local.grafana_dataset_id
         project_id = var.gcp_project["project"]
-        table_id   = "tilsagn_status_antall_view"
+        table_id   = "utbetaling_view"
       }
     },
     {
       view = {
         dataset_id = local.grafana_dataset_id
         project_id = var.gcp_project["project"]
-        table_id   = "tilsagn_nye_siste_maaned_view"
-      }
-    },
-    {
-      view = {
-        dataset_id = local.grafana_dataset_id
-        project_id = var.gcp_project["project"]
-        table_id   = "tilsagn_feilet_view"
-      }
-    },
-    {
-      view = {
-        dataset_id = local.grafana_dataset_id
-        project_id = var.gcp_project["project"]
-        table_id   = "utbetaling_arrangor_innsending_stats_view"
-      }
-    },
-    {
-      view = {
-        dataset_id = local.grafana_dataset_id
-        project_id = var.gcp_project["project"]
-        table_id   = "utbetaling_arrangor_utestaende_innsendinger_view"
-      }
-    },
-    {
-      view = {
-        dataset_id = local.grafana_dataset_id
-        project_id = var.gcp_project["project"]
-        table_id   = "utbetaling_antall_godkjente_per_prosess_view"
-      }
-    },
-    {
-      view = {
-        dataset_id = local.grafana_dataset_id
-        project_id = var.gcp_project["project"]
-        table_id   = "utbetaling_feilet_view"
-      }
-    },
-    {
-      view = {
-        dataset_id = local.grafana_dataset_id
-        project_id = var.gcp_project["project"]
-        table_id   = "utbetaling_admin_korreksjoner_view"
+        table_id   = "delutbetaling_view"
       }
     },
   ]

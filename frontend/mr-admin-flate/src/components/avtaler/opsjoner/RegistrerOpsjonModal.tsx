@@ -1,18 +1,16 @@
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, OpprettOpsjonLoggRequest, OpsjonStatus } from "@mr/api-client-v2";
+import { AvtaleDto, OpsjonStatus, ValidationError } from "@mr/api-client-v2";
+import {
+  OpprettOpsjonLoggRequest,
+  OpprettOpsjonLoggRequestType,
+} from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { RegistrerteOpsjoner } from "./RegistrerteOpsjoner";
 import { RegistrerOpsjonForm } from "./RegistrerOpsjonForm";
-import {
-  InferredRegistrerOpsjonSchema,
-  Opsjonsvalg,
-  RegistrerOpsjonSchema,
-} from "./RegistrerOpsjonSchema";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -21,21 +19,24 @@ interface Props {
 
 export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   const mutation = useRegistrerOpsjon(avtale.id);
-  const form = useForm<InferredRegistrerOpsjonSchema>({
-    resolver: zodResolver(RegistrerOpsjonSchema),
-    defaultValues: { opsjonsvalg: "1" },
+  const form = useForm<OpprettOpsjonLoggRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
+    defaultValues: {
+      type: OpprettOpsjonLoggRequestType.ETT_AAR,
+    },
   });
+  const { setError } = form;
 
-  const postData: SubmitHandler<InferredRegistrerOpsjonSchema> = async (data): Promise<void> => {
-    const request: OpprettOpsjonLoggRequest = {
-      nySluttdato: getNesteSluttDato(data.opsjonsvalg, avtale.sluttDato, data.opsjonsdatoValgt),
-      forrigeSluttdato: avtale.sluttDato || null,
-      status: getStatus(data.opsjonsvalg),
-    };
-
-    mutation.mutate(request, {
+  const postData: SubmitHandler<OpprettOpsjonLoggRequest> = async (data): Promise<void> => {
+    mutation.mutate(data, {
       onSuccess: () => {
         closeAndResetForm();
+      },
+      onValidationError: (error: ValidationError) => {
+        error.errors.forEach((error: { pointer: string; detail: string }) => {
+          const name = jsonPointerToFieldPath(error.pointer) as keyof OpprettOpsjonLoggRequest;
+          setError(name, { type: "custom", message: error.detail });
+        });
       },
     });
   };
@@ -63,7 +64,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
 
   return (
     <Modal
-      width={500}
+      width={1000}
       closeOnBackdropClick
       onClose={closeAndResetForm}
       ref={modalRef}
@@ -75,10 +76,6 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
             <VStack gap="5">
               <BodyLong as="div">
                 {!avtaleSkalIkkeUtloseOpsjoner && <RegistrerOpsjonForm avtale={avtale} />}
-
-                {mutation.isError && (
-                  <Alert variant="error">Noe gikk galt ved registrering av opsjon</Alert>
-                )}
               </BodyLong>
               {avtale.opsjonerRegistrert.length > 0 ? (
                 <RegistrerteOpsjoner readOnly={false} />
@@ -86,9 +83,11 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
             </VStack>
           </Modal.Body>
           <Modal.Footer>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Lagrer..." : "Bekreft"}
-            </Button>
+            {!avtaleSkalIkkeUtloseOpsjoner && (
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Lagrer..." : "Bekreft"}
+              </Button>
+            )}
             <Button type="button" variant="tertiary" onClick={closeAndResetForm}>
               Avbryt
             </Button>
@@ -123,32 +122,4 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({ modalRef }: ModalProps) 
       }
     />
   );
-}
-
-function getNesteSluttDato(
-  opsjonsvalg: Opsjonsvalg,
-  avtaleSluttDato?: string | null,
-  customSluttDato?: string | null,
-): string | null {
-  switch (opsjonsvalg) {
-    case "1":
-      return avtaleSluttDato
-        ? (yyyyMMddFormatting(addDuration(new Date(avtaleSluttDato), { years: 1 })) ?? null)
-        : null;
-    case "Annet":
-      return customSluttDato || null;
-    case "Opsjon_skal_ikke_utloses":
-      return null;
-  }
-}
-
-function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
-  switch (opsjonsvalg) {
-    case "1":
-      return OpsjonStatus.OPSJON_UTLOST;
-    case "Annet":
-      return OpsjonStatus.OPSJON_UTLOST;
-    case "Opsjon_skal_ikke_utloses":
-      return OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON;
-  }
 }

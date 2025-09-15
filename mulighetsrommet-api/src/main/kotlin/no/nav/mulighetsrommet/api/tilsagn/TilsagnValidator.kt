@@ -75,22 +75,22 @@ object TilsagnValidator {
             },
             {
                 ensure(!arrangorSlettet) {
-                    FieldError.of(TilsagnRequest::id, "Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg")
+                    FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id)
                 }
             },
             {
                 ensure(previous == null || previous.status == TilsagnStatus.RETURNERT) {
-                    FieldError.of(TilsagnRequest::id, "Tilsagnet kan ikke endres.")
+                    FieldError.of("Tilsagnet kan ikke endres.", TilsagnRequest::id)
                 }
             },
             {
                 ensure((next.kommentar?.length ?: 0) <= 500) {
-                    FieldError.of(TilsagnRequest::kommentar, "Kommentar kan ikke inneholde mer enn 500 tegn")
+                    FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
                 }
             },
             {
                 ensureNotNull(next.kostnadssted) {
-                    FieldError.of(TilsagnRequest::kostnadssted, "Du må velge et kostnadssted")
+                    FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted)
                 }
             },
             {
@@ -143,7 +143,7 @@ object TilsagnValidator {
             },
             {
                 ensure(step1.periodeStart.year == step1.periodeSlutt.year) {
-                    FieldError.of(TilsagnRequest::periodeSlutt, "Tilsagnsperioden kan ikke vare utover årsskiftet")
+                    FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt)
                 }
             },
         ) { periode, _, _, _, _ ->

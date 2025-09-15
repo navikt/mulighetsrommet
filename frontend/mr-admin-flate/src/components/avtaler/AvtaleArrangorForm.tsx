@@ -2,11 +2,12 @@ import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktper
 import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
 import { Alert, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
-  Arrangor,
+  ArrangorDto,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  BrregVirksomhet,
-} from "@mr/api-client-v2";
+  BrregHovedenhetDto,
+  BrregUnderenhetDto,
+} from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { Controller, DeepPartial, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
@@ -85,6 +86,7 @@ export function AvtaleArrangorForm() {
           name="arrangorUnderenheter"
           render={({ field }) => (
             <UNSAFE_Combobox
+              size="small"
               id="arrangorUnderenheter"
               label={
                 <LabelWithHelpText
@@ -124,6 +126,7 @@ export function AvtaleArrangorForm() {
                 label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
                 placeholder="Velg kontaktpersoner"
                 isMultiSelect
+                size="small"
                 selectedOptions={arrangorKontaktpersonOptions.filter((v) =>
                   field.value?.includes(v.value),
                 )}
@@ -170,8 +173,8 @@ export function AvtaleArrangorForm() {
 }
 
 function getArrangorHovedenhetOptions(
-  virksomheter: BrregVirksomhet[],
-  arrangor: Arrangor | undefined,
+  virksomheter: BrregHovedenhetDto[],
+  arrangor: ArrangorDto | undefined,
 ) {
   const options = virksomheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
@@ -190,7 +193,7 @@ function getArrangorHovedenhetOptions(
   return options;
 }
 
-function getArrangorUnderenhetOptions(underenheter: BrregVirksomhet[]): SelectOption[] {
+function getArrangorUnderenhetOptions(underenheter: BrregUnderenhetDto[]): SelectOption[] {
   return underenheter.map((virksomet) => ({
     value: virksomet.organisasjonsnummer,
     label: `${virksomet.navn} - ${virksomet.organisasjonsnummer}`,

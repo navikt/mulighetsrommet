@@ -7,13 +7,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvbruttAarsak
 import no.nav.mulighetsrommet.model.AvtaleStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -105,14 +105,16 @@ class UpdateAvtaleStatusTest : FunSpec({
                 id = avtale1.id,
                 status = AvtaleStatus.AVBRUTT,
                 tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                forklaring = null,
             )
 
             queries.avtale.setStatus(
                 id = avtale2.id,
                 status = AvtaleStatus.AVSLUTTET,
                 tidspunkt = null,
-                null,
+                aarsaker = null,
+                forklaring = null,
             )
         }
 
@@ -124,7 +126,7 @@ class UpdateAvtaleStatusTest : FunSpec({
             queries.avtale.get(avtale1.id).shouldNotBeNull().should {
                 it.status shouldBe AvtaleStatusDto.Avbrutt(
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
             }

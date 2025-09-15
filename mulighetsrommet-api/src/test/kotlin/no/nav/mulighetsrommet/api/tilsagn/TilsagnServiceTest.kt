@@ -125,8 +125,11 @@ class TilsagnServiceTest : FunSpec({
             )
 
             service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
-                FieldError.of(TilsagnRequest::periodeSlutt, "Tilsagnsperioden kan ikke vare utover årsskiftet"),
-                FieldError.of(TilsagnRequest::periodeSlutt, "Maksimum sluttdato for tilsagn til ${TiltakstypeFixtures.AFT.navn} er ${gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}"),
+                FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt),
+                FieldError.of(
+                    "Maksimum sluttdato for tilsagn til ${TiltakstypeFixtures.AFT.navn} er ${gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                    TilsagnRequest::periodeSlutt,
+                ),
             )
         }
 
@@ -196,7 +199,7 @@ class TilsagnServiceTest : FunSpec({
                         prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(
                             AvtaltSats(
-                                periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                                gjelderFra = LocalDate.of(2025, 3, 1),
                                 sats = 2000,
                             ),
                         ),

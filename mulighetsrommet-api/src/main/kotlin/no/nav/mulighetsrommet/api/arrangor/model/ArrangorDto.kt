@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-enum class ArrangorTil {
+enum class ArrangorKobling {
     AVTALE,
     TILTAKSGJENNOMFORING,
 }

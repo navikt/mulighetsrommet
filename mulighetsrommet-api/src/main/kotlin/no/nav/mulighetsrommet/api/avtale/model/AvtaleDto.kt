@@ -2,13 +2,14 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -36,7 +37,7 @@ data class AvtaleDto(
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
+    val opsjonerRegistrert: List<OpsjonLoggDto>,
     val utdanningslop: UtdanningslopDto?,
     val prismodell: PrismodellDto,
 ) {
@@ -103,21 +104,31 @@ data class AvtaleDto(
     )
 
     @Serializable
+    data class ArrangorKontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
+    )
+
+    @Serializable
     data class Administrator(
         val navIdent: NavIdent,
         val navn: String,
     )
 
     @Serializable
-    data class OpsjonLoggRegistrert(
+    data class OpsjonLoggDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        @Serializable(with = LocalDateSerializer::class)
-        val registrertDato: LocalDate,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val createdAt: LocalDateTime,
         @Serializable(with = LocalDateSerializer::class)
         val sluttDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
-        val forrigeSluttdato: LocalDate?,
+        val forrigeSluttDato: LocalDate,
         val status: OpsjonLoggStatus,
     )
 }

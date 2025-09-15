@@ -7,13 +7,3 @@ export function useGetGjennomforingIdFromUrl(): string | undefined {
 
   return gjennomforingId;
 }
-
-export function useGetGjennomforingIdFromUrlOrThrow(): string {
-  const id = useGetGjennomforingIdFromUrl();
-
-  if (!id) {
-    throw Error("GjennomføringId er ikke satt i URL");
-  }
-
-  return id;
-}

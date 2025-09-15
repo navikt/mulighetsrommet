@@ -3,34 +3,29 @@ import {
   ArrangorKontaktperson,
   AvtaleDto,
   AvtaltSatsDto,
-  NavAnsatt,
   Personopplysning,
   Prismodell,
   PrismodellDto,
 } from "@mr/api-client-v2";
 import z from "zod";
 import {
-  avtaleDetaljerSchema,
   arrangorSchema,
+  avtaleDetaljerSchema,
+  toUtdanningslopDbo,
   validateArrangor,
   validateAvtaledetaljer,
-  toUtdanningslopDbo,
 } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
+import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().optional(),
   prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
-      periodeStart: z
-        .string({ error: "Du må legge inn en startdato" })
-        .min(10, "Du må legge inn startdato"),
-      periodeSlutt: z
-        .string({ error: "Du må legge inn en sluttdato" })
-        .min(10, "Du må legge inn sluttdato"),
-      pris: z.number({ error: "Du må legge inn en pris for perioden" }),
+      gjelderFra: z.string().nullable(),
+      pris: z.number().nullable(),
       valuta: z.string(),
     }),
   ),
@@ -67,7 +62,7 @@ export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
 export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
 export function defaultAvtaleData(
-  ansatt: NavAnsatt,
+  ansatt: NavAnsattDto,
   avtale?: Partial<AvtaleDto>,
 ): DeepPartial<AvtaleFormValues> {
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
@@ -89,9 +84,9 @@ export function defaultAvtaleData(
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
       avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    startDato: avtale?.startDato,
-    sluttDato: avtale?.sluttDato,
-    sakarkivNummer: avtale?.sakarkivNummer,
+    startDato: avtale?.startDato ?? null,
+    sluttDato: avtale?.sluttDato ?? null,
+    sakarkivNummer: avtale?.sakarkivNummer ?? null,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,

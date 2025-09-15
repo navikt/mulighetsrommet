@@ -65,7 +65,7 @@ export function AvtaleDetaljer() {
   const varighet: Definition[] = [
     { key: avtaletekster.startdatoLabel, value: formaterDato(startDato) },
     {
-      key: avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0),
+      key: avtaletekster.sluttdatoLabel(avtaletype, avtale.opsjonerRegistrert.length > 0),
       value: sluttDato ? formaterDato(sluttDato) : "-",
     },
     ...(avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT

@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
   AvbrytGjennomforingAarsak,
-  GjennomforingerService,
+  GjennomforingService,
   ProblemDetail,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
@@ -20,7 +20,7 @@ export function useAvbrytGjennomforing() {
       aarsaker: AvbrytGjennomforingAarsak[];
       forklaring: string | null;
     }) => {
-      return GjennomforingerService.avbrytGjennomforing({
+      return GjennomforingService.avbrytGjennomforing({
         path: { id: data.id },
         body: { aarsaker: data.aarsaker, forklaring: data.forklaring },
       });

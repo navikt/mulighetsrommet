@@ -8,13 +8,13 @@ import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.avtale.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.mapper.prismodell
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
-import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
@@ -226,7 +225,11 @@ fun AvtaleDto.toAvtaleRequest() = AvtaleRequest(
     prismodell = PrismodellRequest(
         type = this.prismodell.prismodell(),
         satser = this.prismodell.satser().map {
-            AvtaltSatsDto.fromAvtaltSats(it)
+            AvtaltSatsRequest(
+                pris = it.sats,
+                gjelderFra = it.gjelderFra,
+                valuta = "NOK",
+            )
         },
         prisbetingelser = this.prismodell.prisbetingelser(),
     ),

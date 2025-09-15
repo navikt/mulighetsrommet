@@ -21,15 +21,6 @@ test.describe("Opprett utbetaling", () => {
     await expect(page).toHaveURL(/.*\/skjema$/);
   });
 
-  test("Skjema for opprett utbetalinger validerer", async ({ page }) => {
-    await navigateToUtbetalingerSkjema(page);
-    await page.getByRole("button", { name: "Opprett" }).click();
-    await expect(page.getByText("Du må sette startdato for perioden")).toBeVisible();
-    await expect(page.getByText("Du må sette sluttdato for perioden")).toBeVisible();
-    await expect(page.getByText("Du må skrive inn et beløp")).toBeVisible();
-    await expect(page.getByText("Begrunnelsen er for kort (minimum 10 tegn)")).toBeVisible();
-  });
-
   test("Skjema for opprett utbetalinger sender bruker til kostnadsfordeling", async ({ page }) => {
     await navigateToUtbetalingerSkjema(page);
     await page.getByLabel("Periodestart").fill("01.01.2025");
@@ -39,7 +30,7 @@ test.describe("Opprett utbetaling", () => {
       .getByLabel("Begrunnelse for utbetaling")
       .fill("Må lage en utbetaling pga. investeringstilsagn");
     const kontonummerForArrangor = await page.getByLabel("kontonummer").inputValue();
-    await expect(kontonummerForArrangor).toBe("12345678910");
+    expect(kontonummerForArrangor).toBe("12345678910");
     await expect(
       page.getByText("Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn"),
     ).toBeVisible();

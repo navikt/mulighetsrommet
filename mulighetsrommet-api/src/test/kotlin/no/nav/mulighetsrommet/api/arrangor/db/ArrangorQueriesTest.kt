@@ -9,8 +9,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorTil
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -166,10 +166,10 @@ class ArrangorQueriesTest : FunSpec({
                 val queries = ArrangorQueries(session)
 
                 queries.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
-                queries.getAll(til = ArrangorTil.AVTALE).should {
+                queries.getAll(kobling = ArrangorKobling.AVTALE).should {
                     it.items shouldContainExactlyIds listOf(hovedenhet.id)
                 }
-                queries.getAll(til = ArrangorTil.TILTAKSGJENNOMFORING).should {
+                queries.getAll(kobling = ArrangorKobling.TILTAKSGJENNOMFORING).should {
                     it.items shouldContainExactlyIds listOf(underenhet.id)
                 }
             }
@@ -209,6 +209,7 @@ class ArrangorQueriesTest : FunSpec({
                 telefon = "322232323",
                 epost = "fredrik@gmail.com",
                 beskrivelse = null,
+                ansvarligFor = listOf(),
             )
 
             val kontaktperson2 = ArrangorKontaktperson(
@@ -218,6 +219,7 @@ class ArrangorQueriesTest : FunSpec({
                 telefon = "232232323",
                 epost = "trond@gmail.com",
                 beskrivelse = "Adm. dir.",
+                ansvarligFor = listOf(),
             )
 
             val domain = MulighetsrommetTestDomain(

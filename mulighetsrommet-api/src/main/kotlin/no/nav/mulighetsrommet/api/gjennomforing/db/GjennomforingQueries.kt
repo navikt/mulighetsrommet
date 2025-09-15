@@ -4,13 +4,12 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
@@ -422,22 +421,12 @@ class GjennomforingQueries(private val session: Session) {
         return session.update(queryOf(query, date, id))
     }
 
-    fun setAvtaleId(gjennomforingId: UUID, avtaleId: UUID?): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update gjennomforing
-            set avtale_id = ?
-            where id = ?
-        """.trimIndent()
-
-        return session.update(queryOf(query, avtaleId, gjennomforingId))
-    }
-
     fun setStatus(
         id: UUID,
         status: GjennomforingStatus,
         tidspunkt: LocalDateTime?,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>?,
+        aarsaker: List<AvbrytGjennomforingAarsak>?,
+        forklaring: String?,
     ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -453,8 +442,8 @@ class GjennomforingQueries(private val session: Session) {
             "id" to id,
             "status" to status.name,
             "tidspunkt" to tidspunkt,
-            "aarsaker" to aarsakerOgForklaring?.aarsaker?.let { session.createTextArray(it.map { it.name }) },
-            "forklaring" to aarsakerOgForklaring?.forklaring,
+            "aarsaker" to aarsaker?.let { session.createTextArray(it) },
+            "forklaring" to forklaring,
         )
         return update(queryOf(query, params))
     }
@@ -637,7 +626,7 @@ class GjennomforingQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
             ?: emptyList()
         val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
+            ?.let { Json.decodeFromString<List<GjennomforingDto.ArrangorKontaktperson>>(it) }
             ?: emptyList()
         val stengt = stringOrNull("stengt_perioder_json")
             ?.let { Json.decodeFromString<List<GjennomforingDto.StengtPeriode>>(it) }
@@ -655,13 +644,13 @@ class GjennomforingQueries(private val session: Session) {
 
             GjennomforingStatus.AVBRUTT -> GjennomforingStatusDto.Avbrutt(
                 tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbruttAarsak.valueOf(it) },
+                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
                 stringOrNull("avbrutt_forklaring"),
             )
 
             GjennomforingStatus.AVLYST -> GjennomforingStatusDto.Avlyst(
                 tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbruttAarsak.valueOf(it) },
+                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
                 stringOrNull("avbrutt_forklaring"),
             )
         }

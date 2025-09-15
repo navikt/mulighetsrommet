@@ -1,4 +1,3 @@
-import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import {
   AvtaleDto,
   Prismodell,
@@ -10,8 +9,9 @@ import { Metadata } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
 import { PrisOgBetaingsbetingelser } from "../detaljside/PrisOgBetaingsbetingelser";
+import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
+import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
@@ -40,7 +40,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
             <Metadata header={avtaletekster.prismodell.label} value={beskrivelse} />
             {avtale.prismodell.satser.map((sats) => (
               <Box
-                key={sats.periodeStart}
+                key={sats.gjelderFra}
                 borderColor="border-subtle"
                 padding="2"
                 borderWidth="1"
@@ -54,12 +54,14 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
                   />
                   <Metadata
                     header={avtaletekster.prismodell.periodeStart.label}
-                    value={formaterDato(sats.periodeStart)}
+                    value={formaterDato(sats.gjelderFra)}
                   />
-                  <Metadata
-                    header={avtaletekster.prismodell.periodeSlutt.label}
-                    value={formaterDato(sats.periodeSlutt)}
-                  />
+                  {sats.gjelderTil && (
+                    <Metadata
+                      header={avtaletekster.prismodell.periodeSlutt.label}
+                      value={formaterDato(sats.gjelderTil)}
+                    />
+                  )}
                 </HStack>
               </Box>
             ))}
@@ -86,13 +88,13 @@ function AvtalteSatser({
         <Metadata header={avtaletekster.prismodell.label} value={prismodellBeskrivelse} />
         {satser.map((sats) => (
           <Box
-            key={sats.periodeStart}
+            key={sats.gjelderFra}
             borderColor="border-subtle"
             padding="2"
             borderWidth="1"
             borderRadius="medium"
           >
-            <HStack gap="4" key={sats.periodeStart}>
+            <HStack gap="4" key={sats.gjelderFra}>
               <Metadata header={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
               <Metadata
                 header={avtaletekster.prismodell.sats.label}
@@ -100,12 +102,14 @@ function AvtalteSatser({
               />
               <Metadata
                 header={avtaletekster.prismodell.periodeStart.label}
-                value={formaterDato(sats.periodeStart)}
+                value={formaterDato(sats.gjelderFra)}
               />
-              <Metadata
-                header={avtaletekster.prismodell.periodeSlutt.label}
-                value={formaterDato(sats.periodeSlutt)}
-              />
+              {sats.gjelderTil && (
+                <Metadata
+                  header={avtaletekster.prismodell.periodeSlutt.label}
+                  value={formaterDato(sats.gjelderTil)}
+                />
+              )}
             </HStack>
           </Box>
         ))}

@@ -6,7 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { useFindAvtaltSats } from "@/api/tilsagn/useFindAvtaltSats";
+import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
 
 interface Props {
   gjennomforing: GjennomforingDto;

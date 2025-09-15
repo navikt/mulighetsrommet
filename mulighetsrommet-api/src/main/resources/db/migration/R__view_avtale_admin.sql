@@ -72,10 +72,10 @@ from avtale
                             where avtale_nav_enhet.avtale_id = avtale.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object('id', avtale_opsjon_logg.id,
-                                                              'registrertDato', avtale_opsjon_logg.registrert_dato,
+                                                              'createdAt', avtale_opsjon_logg.created_at::timestamp,
                                                               'sluttDato', avtale_opsjon_logg.sluttdato,
                                                               'status', avtale_opsjon_logg.status,
-                                                              'forrigeSluttdato', avtale_opsjon_logg.forrige_sluttdato
+                                                              'forrigeSluttDato', avtale_opsjon_logg.forrige_sluttdato
                                            )) as opsjon_logg_json
                             from avtale_opsjon_logg
                             where avtale_id = avtale.id) on true
@@ -115,12 +115,10 @@ from avtale
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', avtale_arrangor_kontaktperson.arrangor_kontaktperson_id,
-                                                   'arrangorId', arrangor_kontaktperson.arrangor_id,
                                                    'navn', arrangor_kontaktperson.navn,
                                                    'telefon', arrangor_kontaktperson.telefon,
                                                    'epost', arrangor_kontaktperson.epost,
-                                                   'beskrivelse', arrangor_kontaktperson.beskrivelse,
-                                                   'ansvarligFor', arrangor_kontaktperson.ansvarlig_for
+                                                   'beskrivelse', arrangor_kontaktperson.beskrivelse
                                            )
                                    ) arrangor_kontaktpersoner_json
                             from avtale_arrangor_kontaktperson
@@ -142,11 +140,8 @@ from avtale
                             group by up.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
-                                                   'periode',
-                                                   jsonb_build_object(
-                                                           'start', lower(periode),
-                                                           'slutt', upper(periode)
-                                                   ),
+                                                   'gjelderFra',
+                                                   gjelder_fra,
                                                    'sats',
                                                    sats
                                            )

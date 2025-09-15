@@ -64,9 +64,11 @@ export const tilsagnTekster = {
         case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
           return "Avtalt pris per oppfølgingstime";
         case TilsagnBeregningType.PRIS_PER_UKESVERK:
+          return "Avtalt ukespris";
         case TilsagnBeregningType.FRI:
-        case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
           return "Avtalt pris";
+        case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
+          return "Avtalt månedspris";
       }
     },
   },

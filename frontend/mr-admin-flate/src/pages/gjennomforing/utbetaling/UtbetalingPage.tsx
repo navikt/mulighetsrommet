@@ -6,10 +6,11 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { FieldError, Rolle, ValidationError } from "@mr/api-client-v2";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
   DelutbetalingRequest,
   OpprettDelutbetalingerRequest,
+  Rolle,
   TilsagnDto,
   TilsagnStatus,
   UtbetalingDto,
@@ -29,7 +30,6 @@ import {
   HStack,
   VStack,
 } from "@navikt/ds-react";
-import { useParams } from "react-router";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
@@ -50,6 +50,7 @@ import {
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
+import { QueryKeys } from "@/api/QueryKeys";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
@@ -77,7 +78,6 @@ function useUtbetalingPageData() {
 }
 
 export function UtbetalingPage() {
-  const { gjennomforingId, utbetalingId } = useParams();
   const { gjennomforing, historikk, tilsagn, utbetaling, linjer, beregning, handlinger } =
     useUtbetalingPageData();
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
@@ -110,7 +110,7 @@ export function UtbetalingPage() {
     opprettMutation.mutate(body, {
       onSuccess: async () => {
         await queryClient.invalidateQueries({
-          queryKey: ["utbetaling", utbetaling.id],
+          queryKey: QueryKeys.utbetaling(utbetaling.id),
           refetchType: "all",
         });
       },
@@ -128,11 +128,11 @@ export function UtbetalingPage() {
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
     {
       tittel: "Gjennomføring",
-      lenke: `/gjennomforinger/${gjennomforingId}`,
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
     },
     {
       tittel: "Utbetalinger",
-      lenke: `/gjennomforinger/${gjennomforingId}/utbetalinger`,
+      lenke: `/gjennomforinger/${gjennomforing.id}/utbetalinger`,
     },
     { tittel: "Utbetaling" },
   ];
@@ -250,9 +250,9 @@ export function UtbetalingPage() {
                   <Accordion.Item>
                     <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
                     <Accordion.Content>
-                      {utbetalingId && (
+                      {utbetaling.id && (
                         <UtbetalingBeregningView
-                          utbetalingId={utbetalingId}
+                          utbetalingId={utbetaling.id}
                           beregning={beregning}
                         />
                       )}
