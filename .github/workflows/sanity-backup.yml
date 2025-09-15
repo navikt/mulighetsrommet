@@ -12,18 +12,18 @@ jobs:
       id-token: "write" # Used to authenticate with Google Cloud
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: npm install @sanity/cli sanity --//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Hent dagens dato
         id: date
         run: echo "dagens_dato=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       - name: Export dataset
+        working-directory: ./frontend/mulighetsrommet-cms
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_READ_TOKEN_FOR_BACKUP_JOB }}
-        run: cd frontend/mulighetsrommet-cms && npx sanity dataset export production backups/backup-production-${{ env.dagens_dato }}.tar.gz --overwrite && npx sanity dataset export test backups/backup-test-${{ env.dagens_dato }}.tar.gz --overwrite
+        run: npx sanity dataset export production backups/backup-production-${{ env.dagens_dato }}.tar.gz --overwrite && npx sanity dataset export test backups/backup-test-${{ env.dagens_dato }}.tar.gz --overwrite
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
