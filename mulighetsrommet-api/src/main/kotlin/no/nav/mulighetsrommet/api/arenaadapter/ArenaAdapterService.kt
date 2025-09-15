@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
@@ -19,7 +19,10 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -36,7 +39,7 @@ class ArenaAdapterService(
         val topic: String,
     )
 
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.transaction {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
         syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
 
         val previous = queries.avtale.get(avtale.id)
@@ -154,7 +157,7 @@ class ArenaAdapterService(
         queries.kafkaProducerRecord.storeRecord(record)
     }
 
-    private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) {
+    private fun QueryContext.logUpdateAvtale(dto: Avtale) {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             "Endret i Arena",
@@ -185,7 +188,7 @@ class ArenaAdapterService(
     }
 }
 
-private fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
+private fun Avtale.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
     return arrangor?.organisasjonsnummer?.value?.let {
         ArenaAvtaleDbo(
             id = id,

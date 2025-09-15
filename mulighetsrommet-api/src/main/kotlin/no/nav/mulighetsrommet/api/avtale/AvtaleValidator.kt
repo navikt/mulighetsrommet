@@ -32,7 +32,7 @@ class AvtaleValidator(
 
     suspend fun validate(
         request: AvtaleRequest,
-        previous: AvtaleDto?,
+        previous: Avtale?,
     ): Either<List<FieldError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getByTiltakskode(request.tiltakskode)
         val tiltakskode = tiltakstype.tiltakskode
@@ -209,7 +209,7 @@ class AvtaleValidator(
     private fun MutableList<FieldError>.validateUpdateAvtale(
         request: AvtaleRequest,
         arrangor: AvtaleDbo.Arrangor?,
-        previous: AvtaleDto,
+        previous: Avtale,
     ) = db.session {
         if (previous.opsjonerRegistrert.isNotEmpty()) {
             if (request.avtaletype != previous.avtaletype) {
@@ -351,7 +351,7 @@ class AvtaleValidator(
 
     fun validateOpprettOpsjonLoggRequest(
         request: OpprettOpsjonLoggRequest,
-        avtale: AvtaleDto,
+        avtale: Avtale,
         navIdent: NavIdent,
     ): Either<NonEmptyList<FieldError>, OpsjonLoggDbo> {
         requireNotNull(avtale.sluttDato) {

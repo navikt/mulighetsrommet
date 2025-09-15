@@ -1,9 +1,12 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -167,7 +170,7 @@ class GjennomforingValidator(
 
     private fun MutableList<FieldError>.validateNavEnheter(
         navEnheter: Set<NavEnhetNummer>,
-        avtale: AvtaleDto,
+        avtale: Avtale,
     ) {
         val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
         if (avtaleRegioner.intersect(navEnheter).isEmpty()) {
@@ -245,7 +248,8 @@ class GjennomforingValidator(
         startDato: LocalDate,
     ): Either<List<FieldError>, LocalDate> {
         if (tilgjengeligForArrangorDato == null) {
-            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato).nel().left()
+            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato)
+                .nel().left()
         }
 
         val errors = buildList {
@@ -280,7 +284,7 @@ class GjennomforingValidator(
 
     private fun MutableList<FieldError>.validateCreateGjennomforing(
         gjennomforing: GjennomforingDbo,
-        avtale: AvtaleDto,
+        avtale: Avtale,
     ) {
         val arrangor = db.session { queries.arrangor.getById(gjennomforing.arrangorId) }
         if (arrangor.slettetDato != null) {
@@ -332,7 +336,7 @@ class GjennomforingValidator(
     private fun MutableList<FieldError>.validateUpdateGjennomforing(
         gjennomforing: GjennomforingDbo,
         previous: GjennomforingDto,
-        avtale: AvtaleDto,
+        avtale: Avtale,
     ) {
         if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
             add(

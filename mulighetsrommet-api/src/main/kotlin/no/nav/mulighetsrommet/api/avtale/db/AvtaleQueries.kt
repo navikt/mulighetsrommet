@@ -333,7 +333,7 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
     }
 
-    fun get(id: UUID): AvtaleDto? = with(session) {
+    fun get(id: UUID): Avtale? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -341,7 +341,7 @@ class AvtaleQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toAvtaleDto() }
+        return single(queryOf(query, id)) { it.toAvtale() }
     }
 
     fun getAll(
@@ -355,7 +355,7 @@ class AvtaleQueries(private val session: Session) {
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
         personvernBekreftet: Boolean? = null,
-    ): PaginatedResult<AvtaleDto> = with(session) {
+    ): PaginatedResult<Avtale> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -407,7 +407,7 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toAvtaleDto() }
+            .mapPaginated { it.toAvtale() }
             .runWithSession(this)
     }
 
@@ -554,14 +554,14 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    private fun Row.toAvtaleDto(): AvtaleDto {
+    private fun Row.toAvtale(): Avtale {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
         val personopplysninger = stringOrNull("personopplysninger_json")
             ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
             ?: emptyList()
         val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<AvtaleDto.Administrator>>(it) }
+            ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
             ?: emptyList()
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
@@ -569,7 +569,7 @@ class AvtaleQueries(private val session: Session) {
         val kontorstruktur = fromNavEnheter(navEnheter)
 
         val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
-            ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggDto>>(it) }
+            ?.let { Json.decodeFromString<List<Avtale.OpsjonLoggDto>>(it) }
             ?: emptyList()
 
         val opsjonsmodell = Opsjonsmodell(
@@ -585,11 +585,11 @@ class AvtaleQueries(private val session: Session) {
 
         val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
             val underenheter = stringOrNull("arrangor_underenheter_json")
-                ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
+                ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
                 ?: emptyList()
             val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-                ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorKontaktperson>>(it) } ?: emptyList()
-            AvtaleDto.ArrangorHovedenhet(
+                ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) } ?: emptyList()
+            Avtale.ArrangorHovedenhet(
                 id = id,
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
                 navn = string("arrangor_hovedenhet_navn"),
@@ -604,29 +604,29 @@ class AvtaleQueries(private val session: Session) {
             ?: emptyList()
 
         val prismodell = when (Prismodell.valueOf(string("prismodell"))) {
-            Prismodell.ANNEN_AVTALT_PRIS -> AvtaleDto.PrismodellDto.AnnenAvtaltPris(
+            Prismodell.ANNEN_AVTALT_PRIS -> Avtale.PrismodellDto.AnnenAvtaltPris(
                 prisbetingelser = stringOrNull("prisbetingelser"),
             )
 
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk
 
-            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk(
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
-
-            Prismodell.AVTALT_PRIS_PER_UKESVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk(
+            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> Avtale.PrismodellDto.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
 
-            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+            Prismodell.AVTALT_PRIS_PER_UKESVERK -> Avtale.PrismodellDto.AvtaltPrisPerUkesverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.toDto(),
+            )
+
+            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
         }
 
-        return AvtaleDto(
+        return Avtale(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
@@ -652,7 +652,7 @@ class AvtaleQueries(private val session: Session) {
                     enhetsnummer = it,
                 )
             },
-            tiltakstype = AvtaleDto.Tiltakstype(
+            tiltakstype = Avtale.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),

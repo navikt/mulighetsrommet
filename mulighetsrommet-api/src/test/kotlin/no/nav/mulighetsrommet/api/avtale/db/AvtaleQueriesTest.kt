@@ -208,13 +208,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(avtale1)
                 queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
-                    AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+                    Avtale.Administrator(ansatt1.navIdent, "Donald Duck"),
                 )
 
                 queries.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
                 queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
-                    AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
-                    AvtaleDto.Administrator(ansatt2.navIdent, "Mikke Mus"),
+                    Avtale.Administrator(ansatt1.navIdent, "Donald Duck"),
+                    Avtale.Administrator(ansatt2.navIdent, "Mikke Mus"),
                 )
 
                 queries.upsert(avtale1.copy(administratorer = listOf()))
@@ -500,7 +500,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
-                    avtale.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
+                    avtale.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
                                 gjelderFra = LocalDate.of(2025, 7, 1),
@@ -518,7 +518,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
+                    it.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
                 }
 
                 queries.upsert(
@@ -528,7 +528,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
+                    it.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
                 }
             }
         }
@@ -995,7 +995,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Sortering på arrangør sorterer korrekt") {
-            val alvdal = AvtaleDto.ArrangorHovedenhet(
+            val alvdal = Avtale.ArrangorHovedenhet(
                 id = arrangorA.id,
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
                 navn = "alvdal",
@@ -1003,7 +1003,7 @@ class AvtaleQueriesTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val bjarne = AvtaleDto.ArrangorHovedenhet(
+            val bjarne = Avtale.ArrangorHovedenhet(
                 id = arrangorB.id,
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "bjarne",
@@ -1011,7 +1011,7 @@ class AvtaleQueriesTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val chris = AvtaleDto.ArrangorHovedenhet(
+            val chris = Avtale.ArrangorHovedenhet(
                 id = arrangorC.id,
                 organisasjonsnummer = Organisasjonsnummer("999888777"),
                 navn = "chris",
@@ -1074,7 +1074,7 @@ class AvtaleQueriesTest : FunSpec({
     }
 })
 
-private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = AvtaleDto.ArrangorKontaktperson(
+private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = Avtale.ArrangorKontaktperson(
     id = kontaktperson.id,
     navn = kontaktperson.navn,
     beskrivelse = kontaktperson.beskrivelse,
@@ -1082,7 +1082,7 @@ private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) 
     epost = kontaktperson.epost,
 )
 
-private infix fun Collection<AvtaleDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<Avtale>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }
 

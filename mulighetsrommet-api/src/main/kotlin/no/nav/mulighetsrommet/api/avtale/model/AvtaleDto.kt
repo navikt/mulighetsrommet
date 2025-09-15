@@ -1,26 +1,23 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
 data class AvtaleDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: Tiltakstype,
+    val tiltakstype: Avtale.Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
-    val arrangor: ArrangorHovedenhet?,
+    val arrangor: Avtale.ArrangorHovedenhet?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -28,7 +25,7 @@ data class AvtaleDto(
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
     val status: AvtaleStatusDto,
-    val administratorer: List<Administrator>,
+    val administratorer: List<Avtale.Administrator>,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String?,
@@ -37,98 +34,7 @@ data class AvtaleDto(
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<OpsjonLoggDto>,
+    val opsjonerRegistrert: List<Avtale.OpsjonLoggDto>,
     val utdanningslop: UtdanningslopDto?,
-    val prismodell: PrismodellDto,
-) {
-    @Serializable
-    sealed class PrismodellDto {
-        @Serializable
-        @SerialName("ANNEN_AVTALT_PRIS")
-        data class AnnenAvtaltPris(
-            val prisbetingelser: String?,
-        ) : PrismodellDto()
-
-        @Serializable
-        @SerialName("FORHANDSGODKJENT_PRIS_PER_MANEDSVERK")
-        data object ForhandsgodkjentPrisPerManedsverk : PrismodellDto()
-
-        @Serializable
-        @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
-        data class AvtaltPrisPerManedsverk(
-            val prisbetingelser: String?,
-            val satser: List<AvtaltSatsDto>,
-        ) : PrismodellDto()
-
-        @Serializable
-        @SerialName("AVTALT_PRIS_PER_UKESVERK")
-        data class AvtaltPrisPerUkesverk(
-            val prisbetingelser: String?,
-            val satser: List<AvtaltSatsDto>,
-        ) : PrismodellDto()
-
-        @Serializable
-        @SerialName("AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER")
-        data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
-            val prisbetingelser: String?,
-            val satser: List<AvtaltSatsDto>,
-        ) : PrismodellDto()
-    }
-
-    @Serializable
-    data class Tiltakstype(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val tiltakskode: Tiltakskode,
-    )
-
-    @Serializable
-    data class ArrangorHovedenhet(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val navn: String,
-        val slettet: Boolean,
-        val underenheter: List<ArrangorUnderenhet>,
-        val kontaktpersoner: List<ArrangorKontaktperson>,
-    )
-
-    @Serializable
-    data class ArrangorUnderenhet(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val navn: String,
-        val slettet: Boolean,
-    )
-
-    @Serializable
-    data class ArrangorKontaktperson(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val beskrivelse: String?,
-        val telefon: String?,
-        val epost: String,
-    )
-
-    @Serializable
-    data class Administrator(
-        val navIdent: NavIdent,
-        val navn: String,
-    )
-
-    @Serializable
-    data class OpsjonLoggDto(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val createdAt: LocalDateTime,
-        @Serializable(with = LocalDateSerializer::class)
-        val sluttDato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
-        val forrigeSluttDato: LocalDate,
-        val status: OpsjonLoggStatus,
-    )
-}
+    val prismodell: Avtale.PrismodellDto,
+)

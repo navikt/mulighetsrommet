@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.mapper.prismodell
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
@@ -112,7 +112,7 @@ class GenerateValidationReport(
         return workbook
     }
 
-    private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
+    private suspend fun validateAvtaler(): Map<Avtale, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
                 avtaleValidator.validate(dto.toAvtaleRequest(), dto).onLeft { validationErrors ->
@@ -124,7 +124,7 @@ class GenerateValidationReport(
 
     private fun createAvtalerSheet(
         workbook: XSSFWorkbook,
-        result: Map<AvtaleDto, List<FieldError>>,
+        result: Map<Avtale, List<FieldError>>,
     ) {
         val workSheet = workbook.createSheet("Avtaler")
         createHeader(workSheet)
@@ -197,7 +197,7 @@ class GenerateValidationReport(
     }
 }
 
-fun AvtaleDto.toAvtaleRequest() = AvtaleRequest(
+fun Avtale.toAvtaleRequest() = AvtaleRequest(
     id = this.id,
     navn = this.navn,
     tiltakskode = this.tiltakstype.tiltakskode,

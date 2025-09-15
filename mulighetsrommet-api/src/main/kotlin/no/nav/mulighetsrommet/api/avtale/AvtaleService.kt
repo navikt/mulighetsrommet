@@ -43,14 +43,14 @@ class AvtaleService(
     suspend fun upsert(
         request: AvtaleRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, AvtaleDto> = either {
+    ): Either<List<FieldError>, Avtale> = either {
         val previous = get(request.id)
 
         val dbo = validator
             .validate(request, previous)
             .bind()
 
-        if (previous != null && AvtaleDboMapper.fromAvtaleDto(previous) == dbo) {
+        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
             return@either previous
         }
 
@@ -77,7 +77,7 @@ class AvtaleService(
         id: UUID,
         request: PrismodellRequest,
         navIdent: NavIdent,
-    ): Either<NonEmptyList<FieldError>, AvtaleDto> = either {
+    ): Either<NonEmptyList<FieldError>, Avtale> = either {
         val previous = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
@@ -97,28 +97,8 @@ class AvtaleService(
         }
     }
 
-    fun get(id: UUID): AvtaleDto? = db.session {
+    fun get(id: UUID): Avtale? = db.session {
         queries.avtale.get(id)
-    }
-
-    fun getAll(
-        filter: AvtaleFilter,
-        pagination: Pagination,
-    ): PaginatedResponse<AvtaleDto> = db.session {
-        val (totalCount, items) = queries.avtale.getAll(
-            pagination = pagination,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            search = filter.search,
-            statuser = filter.statuser,
-            avtaletyper = filter.avtaletyper,
-            navRegioner = filter.navRegioner,
-            sortering = filter.sortering,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            personvernBekreftet = filter.personvernBekreftet,
-        )
-
-        PaginatedResponse.of(pagination, totalCount, items)
     }
 
     fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
@@ -144,7 +124,7 @@ class AvtaleService(
         avbruttAv: NavIdent,
         tidspunkt: LocalDateTime,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
-    ): Either<List<FieldError>, AvtaleDto> = db.transaction {
+    ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
 
         val errors = buildList {
@@ -191,7 +171,7 @@ class AvtaleService(
         request: OpprettOpsjonLoggRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, AvtaleDto> = either {
+    ): Either<List<FieldError>, Avtale> = either {
         db.transaction {
             val avtale = getOrError(avtaleId)
             requireNotNull(avtale.sluttDato) {
@@ -225,7 +205,7 @@ class AvtaleService(
         opsjonId: UUID,
         slettesAv: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<FieldError, AvtaleDto> = db.transaction {
+    ): Either<FieldError, Avtale> = db.transaction {
         val opsjoner = queries.opsjoner.getByAvtaleId(avtaleId)
 
         val sisteOpsjon = opsjoner.firstOrNull()
@@ -264,7 +244,7 @@ class AvtaleService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
-    fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): Set<AvtaleHandling> {
+    fun handlinger(avtale: Avtale, navIdent: NavIdent): Set<AvtaleHandling> {
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
             ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
 
@@ -306,7 +286,7 @@ class AvtaleService(
         )
     }
 
-    private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
+    private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {
         gjennomforingPublisher.schedule(
             input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
             id = dto.id,
@@ -331,7 +311,7 @@ class AvtaleService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): AvtaleDto {
+    private fun QueryContext.getOrError(id: UUID): Avtale {
         val dto = queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
@@ -355,9 +335,9 @@ class AvtaleService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: AvtaleDto,
+        dto: Avtale,
         endretAv: Agent,
-    ): AvtaleDto {
+    ): Avtale {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
@@ -373,7 +353,7 @@ class AvtaleService(
 
 fun resolveStatus(
     request: AvtaleRequest,
-    previous: AvtaleDto?,
+    previous: Avtale?,
     today: LocalDate,
 ): AvtaleStatus = if (request.arrangor == null) {
     AvtaleStatus.UTKAST
