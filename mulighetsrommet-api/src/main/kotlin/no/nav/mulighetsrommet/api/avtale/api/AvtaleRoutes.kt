@@ -258,27 +258,11 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
-        get("mine") {
-            val pagination = getPaginationParams()
-            val filter = getAvtaleFilter().copy(administratorNavIdent = getNavIdent())
-            val result = avtaler.getAll(filter, pagination)
-
-            call.respond(result)
-        }
-
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
-            val navIdent = call.parameters["visMineAvtaler"]?.let {
-                if (it == "true") {
-                    getNavIdent()
-                } else {
-                    null
-                }
-            }
             val overstyrtFilter = filter.copy(
                 sortering = "tiltakstype_navn-ascending",
-                administratorNavIdent = navIdent,
             )
             val result = avtaler.getAll(overstyrtFilter, pagination)
             val file = ExcelService.createExcelFileForAvtale(result.data)
