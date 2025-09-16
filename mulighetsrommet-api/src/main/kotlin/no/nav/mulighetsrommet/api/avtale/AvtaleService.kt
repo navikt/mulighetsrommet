@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.*
 import arrow.core.raise.either
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -401,28 +400,6 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
         return dto
-    }
-
-    suspend fun foo(request: AvtaleRequest.Arrangor): Either<List<FieldError>, AvtaleDbo.Arrangor?> = either {
-        val hovedenhet = arrangorService.getArrangorOrSyncFromBrreg(request.hovedenhet).mapLeft {
-            FieldError.ofPointer(
-                "/arrangorHovedenhet",
-                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-            ).nel()
-        }.bind()
-        val underenheter = request.underenheter.map {
-            arrangorService.getArrangorOrSyncFromBrreg(it).mapLeft {
-                FieldError.ofPointer(
-                    "/arrangorUnderenhet",
-                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                ).nel()
-            }.bind()
-        }
-        AvtaleDbo.Arrangor(
-            hovedenhet = hovedenhet.id,
-            underenheter = underenheter.map { underenhet -> underenhet.id },
-            kontaktpersoner = request.kontaktpersoner,
-        )
     }
 
     // Filtrer vekk underenheter uten fylke

@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.left
-import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -13,13 +12,11 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -39,16 +36,10 @@ import java.util.*
 class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    mockkObject(AvtaleValidator)
-
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
         domain.initialize(database.db)
-
-        coEvery { AvtaleValidator.validate(any(), any()) } answers {
-            firstArg<AvtaleDbo>().right()
-        }
     }
 
     afterEach {
@@ -60,38 +51,26 @@ class AvtaleServiceTest : FunSpec({
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
         arrangorService: ArrangorService = mockk(relaxed = true),
+        navEnhetService: NavEnhetService = NavEnhetService(db = database.db),
     ) = AvtaleService(
         database.db,
         gjennomforingPublisher,
         arrangorService,
-        navEnhetService = mockk<NavEnhetService>(relaxed = true),
+        navEnhetService,
     )
 
     context("Upsert avtale") {
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(gjennomforingPublisher)
 
-        test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
-            val request = AvtaleFixtures.avtaleRequest
-
-            coEvery { AvtaleValidator.validate(any(), any()) } returns listOf(
-                FieldError("navn", "Dårlig navn"),
-            ).left()
-
-            avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
-                listOf(FieldError("navn", "Dårlig navn")),
-            )
-        }
-
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.avtaleRequest
 
-            coEvery { AvtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolgingDbo.right()
-            avtaleService.upsert(request, bertilNavIdent)
+            avtaleService.upsert(request, bertilNavIdent).shouldBeRight()
 
             verify {
                 gjennomforingPublisher.schedule(
-                    InitialLoadGjennomforinger.Input(avtaleId = AvtaleFixtures.oppfolgingDbo.id),
+                    InitialLoadGjennomforinger.Input(avtaleId = AvtaleFixtures.avtaleRequest.id),
                     any(),
                     any(),
                 )
@@ -209,10 +188,8 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { AvtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolgingDbo
                 .copy(administratorer = listOf(identAnsatt1))
-                .right()
-            avtaleService.upsert(avtale, identAnsatt1)
+            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldBeEmpty()
@@ -224,10 +201,8 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { AvtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolgingDbo
                 .copy(administratorer = listOf(identAnsatt2))
-                .right()
-            avtaleService.upsert(avtale, identAnsatt1)
+            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldHaveSize(1).first().should {

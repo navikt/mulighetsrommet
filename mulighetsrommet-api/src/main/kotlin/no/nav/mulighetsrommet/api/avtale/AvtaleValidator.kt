@@ -179,22 +179,20 @@ object AvtaleValidator {
             }
     }
 
-    private fun MutableList<FieldError>.validateCreateAvtale(
-        ctx: Ctx.Arrangor?,
-    ) {
-        if (ctx == null) {
+    private fun MutableList<FieldError>.validateCreateAvtale(arrangor: Ctx.Arrangor?) {
+        if (arrangor == null) {
             return
         }
-        if (ctx.hovedenhet.slettetDato != null) {
+        if (arrangor.hovedenhet.slettetDato != null) {
             add(
                 FieldError.ofPointer(
                     "/arrangorHovedenhet",
-                    "Arrangøren ${ctx.hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                    "Arrangøren ${arrangor.hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
                 ),
             )
         }
 
-        ctx.underenheter.forEach {
+        arrangor.underenheter.forEach {
             if (it.slettetDato != null) {
                 add(
                     FieldError.ofPointer(
@@ -203,11 +201,11 @@ object AvtaleValidator {
                     ),
                 )
             }
-            if (it.overordnetEnhet != ctx.hovedenhet.organisasjonsnummer) {
+            if (it.overordnetEnhet != arrangor.hovedenhet.organisasjonsnummer) {
                 add(
                     FieldError.ofPointer(
                         "/arrangorUnderenheter",
-                        "Arrangøren ${it.navn} er ikke en gyldig underenhet til hovedenheten ${ctx.hovedenhet.navn}.",
+                        "Arrangøren ${it.navn} er ikke en gyldig underenhet til hovedenheten ${arrangor.hovedenhet.navn}.",
                     ),
                 )
             }
@@ -444,14 +442,14 @@ object AvtaleValidator {
     private fun MutableList<FieldError>.validateAdministratorer(
         administratorer: List<NavAnsatt>,
     ) {
-        val slettedeNavIdenter = administratorer.map {
-            it.takeIf { it.skalSlettesDato != null }?.navIdent?.value
+        val slettedeNavIdenter = administratorer.filter {
+            it.skalSlettesDato != null
         }
 
         if (slettedeNavIdenter.isNotEmpty()) {
             add(
                 FieldError.of(
-                    "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
+                    "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") { it.navIdent.value } + " er slettet og må fjernes",
                     AvtaleRequest::administratorer,
                 ),
             )
