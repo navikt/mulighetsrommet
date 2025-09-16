@@ -27,9 +27,9 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -58,14 +58,14 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.get(Oppfolging1.id) should {
                     it.shouldNotBeNull()
                     it.id shouldBe Oppfolging1.id
-                    it.tiltakstype shouldBe GjennomforingDto.Tiltakstype(
+                    it.tiltakstype shouldBe Gjennomforing.Tiltakstype(
                         id = TiltakstypeFixtures.Oppfolging.id,
                         navn = TiltakstypeFixtures.Oppfolging.navn,
                         tiltakskode = Tiltakskode.OPPFOLGING,
                     )
                     it.navn shouldBe Oppfolging1.navn
                     it.tiltaksnummer shouldBe null
-                    it.arrangor shouldBe GjennomforingDto.ArrangorUnderenhet(
+                    it.arrangor shouldBe Gjennomforing.ArrangorUnderenhet(
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
@@ -75,12 +75,12 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
                     it.arenaAnsvarligEnhet shouldBe null
-                    it.status.type shouldBe GjennomforingStatus.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.administratorer shouldBe listOf(
-                        GjennomforingDto.Administrator(
+                        Gjennomforing.Administrator(
                             navIdent = NavIdent("DD1"),
                             navn = "Donald Duck",
                         ),
@@ -112,7 +112,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(gjennomforing)
 
                 queries.get(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                    GjennomforingDto.Administrator(
+                    Gjennomforing.Administrator(
                         navIdent = NavAnsattFixture.DonaldDuck.navIdent,
                         navn = "Donald Duck",
                     ),
@@ -338,12 +338,12 @@ class GjennomforingQueriesTest : FunSpec({
                 val tidspunkt = LocalDate.now().atStartOfDay()
                 queries.setStatus(
                     id,
-                    GjennomforingStatus.AVBRUTT,
+                    GjennomforingStatusType.AVBRUTT,
                     tidspunkt,
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
                     forklaring = ":)",
@@ -351,12 +351,12 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.setStatus(
                     id = id,
-                    status = GjennomforingStatus.AVLYST,
+                    status = GjennomforingStatusType.AVLYST,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Avlyst(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
@@ -364,12 +364,12 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.setStatus(
                     id = id,
-                    status = GjennomforingStatus.GJENNOMFORES,
+                    status = GjennomforingStatusType.GJENNOMFORES,
                     tidspunkt = tidspunkt,
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Gjennomfores
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Gjennomfores
             }
         }
 
@@ -457,19 +457,19 @@ class GjennomforingQueriesTest : FunSpec({
                 )
 
                 queries.get(Oppfolging1.id).shouldNotBeNull().stengt shouldContainExactly listOf(
-                    GjennomforingDto.StengtPeriode(
+                    Gjennomforing.StengtPeriode(
                         3,
                         LocalDate.of(2024, 12, 1),
                         LocalDate.of(2024, 12, 31),
                         "Forrige juleferie",
                     ),
-                    GjennomforingDto.StengtPeriode(
+                    Gjennomforing.StengtPeriode(
                         1,
                         LocalDate.of(2025, 1, 1),
                         LocalDate.of(2025, 1, 31),
                         "Januarferie",
                     ),
-                    GjennomforingDto.StengtPeriode(
+                    Gjennomforing.StengtPeriode(
                         2,
                         LocalDate.of(2025, 7, 1),
                         LocalDate.of(2025, 7, 31),
@@ -867,7 +867,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 })
 
-private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = GjennomforingDto.ArrangorKontaktperson(
+private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = Gjennomforing.ArrangorKontaktperson(
     id = kontaktperson.id,
     navn = kontaktperson.navn,
     beskrivelse = kontaktperson.beskrivelse,
@@ -875,6 +875,6 @@ private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktp
     epost = kontaktperson.epost,
 )
 
-private infix fun Collection<GjennomforingDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<Gjennomforing>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }

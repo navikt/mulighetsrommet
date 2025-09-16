@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -130,11 +130,11 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolgingDbo
             val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                status = GjennomforingStatus.GJENNOMFORES,
+                status = GjennomforingStatusType.GJENNOMFORES,
             )
             val oppfolging2 = GjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                status = GjennomforingStatus.GJENNOMFORES,
+                status = GjennomforingStatusType.GJENNOMFORES,
             )
 
             MulighetsrommetTestDomain(
@@ -159,7 +159,7 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolgingDbo
             val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                status = GjennomforingStatus.AVBRUTT,
+                status = GjennomforingStatusType.AVBRUTT,
             )
 
             MulighetsrommetTestDomain(

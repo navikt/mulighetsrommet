@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
@@ -105,7 +105,10 @@ class AvtaleService(
                     AvtaleValidator.Ctx.Gjennomforing(
                         startDato = it.startDato,
                         utdanningslop = it.utdanningslop,
-                        arrangor = it.arrangor,
+                        arrangor = AvtaleValidator.Ctx.Gjennomforing.Arrangor(
+                            navn = it.arrangor.navn,
+                            id = it.arrangor.id,
+                        ),
                     )
                 },
                 arrangor = arrangorHovedenhet?.let {
@@ -187,7 +190,7 @@ class AvtaleService(
 
             val (_, gjennomforinger) = queries.gjennomforing.getAll(
                 avtaleId = id,
-                statuser = listOf(GjennomforingStatus.GJENNOMFORES),
+                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
             )
             if (gjennomforinger.isNotEmpty()) {
                 val message = listOf(

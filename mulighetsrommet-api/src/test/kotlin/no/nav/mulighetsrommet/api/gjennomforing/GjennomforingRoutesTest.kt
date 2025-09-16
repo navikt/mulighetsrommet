@@ -17,13 +17,13 @@ import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -243,7 +243,7 @@ class GjennomforingRoutesTest : FunSpec({
                     id = aktivGjennomforingId,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now(),
-                    status = GjennomforingStatus.GJENNOMFORES,
+                    status = GjennomforingStatusType.GJENNOMFORES,
                 ),
                 GjennomforingFixtures.Oppfolging1.copy(
                     id = avbruttGjennomforingId,
@@ -252,7 +252,7 @@ class GjennomforingRoutesTest : FunSpec({
         ) {
             queries.gjennomforing.setStatus(
                 id = avbruttGjennomforingId,
-                status = GjennomforingStatus.AVBRUTT,
+                status = GjennomforingStatusType.AVBRUTT,
                 tidspunkt = LocalDateTime.now(),
                 aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                 forklaring = null,
@@ -369,8 +369,8 @@ class GjennomforingRoutesTest : FunSpec({
 
                 database.run {
                     queries.gjennomforing.get(aktivGjennomforingId).shouldNotBeNull().should {
-                        it.status.shouldBeTypeOf<GjennomforingStatusDto.Avbrutt>().should {
-                            it.type shouldBe GjennomforingStatus.AVBRUTT
+                        it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>().should {
+                            it.type shouldBe GjennomforingStatusType.AVBRUTT
                             it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
                         }
                     }

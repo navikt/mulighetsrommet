@@ -1,7 +1,7 @@
 import { QueryKeys } from "../query-keys";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
-  GjennomforingStatus,
+  GjennomforingStatusType,
   VeilederflateTiltak,
   VeilederflateTiltakEgenRegi,
   VeilederflateTiltakEnkeltplass,
@@ -18,7 +18,7 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
 }
 
 export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
-  return !isTiltakGruppe(tiltak) || tiltak.status.type === GjennomforingStatus.GJENNOMFORES;
+  return !isTiltakGruppe(tiltak) || tiltak.status.type === GjennomforingStatusType.GJENNOMFORES;
 }
 
 export function isTiltakEgenRegi(

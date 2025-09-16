@@ -6,17 +6,17 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { GjennomforingOppstartstype, GjennomforingStatus } from "@mr/api-client-v2";
+import { GjennomforingOppstartstype, GjennomforingStatusType } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 function getCurrentTab(pathname: string) {
   if (pathname.includes("tilsagn")) {
@@ -79,9 +79,9 @@ export function GjennomforingPage() {
                 {gjennomforing.navn}
               </Heading>
             </VStack>
-            <GjennomforingStatusMedAarsakTag status={gjennomforing.status} />
+            <DataElementStatusTag {...gjennomforing.status.status} />
           </div>
-          {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
+          {gjennomforing.status.type === GjennomforingStatusType.GJENNOMFORES && (
             <div className="pr-2">
               <Lenkeknapp
                 size="small"

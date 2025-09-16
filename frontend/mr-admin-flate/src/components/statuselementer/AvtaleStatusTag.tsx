@@ -1,8 +1,8 @@
-import { AvtaleStatusDto } from "@mr/api-client-v2";
+import { AvtaleDtoStatus } from "@mr/api-client-v2";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 interface Props {
-  status: AvtaleStatusDto;
+  status: AvtaleDtoStatus;
 }
 
 export function AvtaleStatusTag({ status }: Props) {

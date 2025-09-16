@@ -2857,7 +2857,7 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    GjennomforingDto.Tiltakstype:
+    Gjennomforing.Tiltakstype:
       type: object
       properties:
         id:
@@ -2871,7 +2871,7 @@ components:
       - id
       - navn
       - tiltakskode
-    GjennomforingDto.ArrangorUnderenhet:
+    Gjennomforing.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -2884,7 +2884,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.ArrangorKontaktperson"
+            $ref: "#/components/schemas/Gjennomforing.ArrangorKontaktperson"
         slettet:
           type: boolean
       required:
@@ -2893,7 +2893,7 @@ components:
       - navn
       - organisasjonsnummer
       - slettet
-    GjennomforingDto.ArrangorKontaktperson:
+    Gjennomforing.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -2929,55 +2929,49 @@ components:
       required:
       - enhetsnummer
       - navn
-    GjennomforingStatusDto:
-      anyOf:
-      - $ref: "#/components/schemas/AVBRUTT"
-      - $ref: "#/components/schemas/AVLYST"
-      - $ref: "#/components/schemas/AVSLUTTET"
-      - $ref: "#/components/schemas/GJENNOMFORES"
-    AVBRUTT:
+    GjennomforingDto.Status:
       type: object
       properties:
-        tidspunkt:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+      - status
+      - type
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    DataElement.Status:
+      type: object
+      properties:
+        value:
           type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
+        variant:
+          $ref: "#/components/schemas/DataElement.Status.Variant"
+        description:
           type:
           - "null"
           - string
       required:
-      - aarsaker
-      - forklaring
-      - tidspunkt
-    AVLYST:
-      type: object
-      properties:
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - forklaring
-      - tidspunkt
-    AVSLUTTET:
-      type: object
-      properties: {}
-    GJENNOMFORES:
-      type: object
-      properties: {}
-    GjennomforingDto.Administrator:
+      - description
+      - value
+      - variant
+    DataElement.Status.Variant:
+      type: string
+      enum:
+      - neutral
+      - alt
+      - success
+      - warning
+      - error
+      - error-border
+      - error-border-strikethrough
+    Gjennomforing.Administrator:
       type: object
       properties:
         navIdent:
@@ -3086,7 +3080,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    GjennomforingDto.EstimertVentetid:
+    Gjennomforing.EstimertVentetid:
       type: object
       properties:
         verdi:
@@ -3249,7 +3243,7 @@ components:
       required:
       - id
       - navn
-    GjennomforingDto.StengtPeriode:
+    Gjennomforing.StengtPeriode:
       type: object
       properties:
         id:
@@ -3275,7 +3269,7 @@ components:
           type: string
           format: uuid
         tiltakstype:
-          $ref: "#/components/schemas/GjennomforingDto.Tiltakstype"
+          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
         navn:
           type: string
         tiltaksnummer:
@@ -3285,7 +3279,7 @@ components:
         lopenummer:
           type: string
         arrangor:
-          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
+          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -3299,7 +3293,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/GjennomforingStatusDto"
+          $ref: "#/components/schemas/GjennomforingDto.Status"
         apentForPamelding:
           type: boolean
         antallPlasser:
@@ -3313,7 +3307,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.Administrator"
+            $ref: "#/components/schemas/Gjennomforing.Administrator"
         kontorstruktur:
           type: array
           items:
@@ -3352,7 +3346,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/GjennomforingDto.EstimertVentetid"
+          - $ref: "#/components/schemas/Gjennomforing.EstimertVentetid"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -3369,7 +3363,7 @@ components:
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
+            $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
       required:
       - administratorer
       - amoKategorisering
@@ -3564,31 +3558,6 @@ components:
       required:
       - slutt
       - start
-    DataElement.Status:
-      type: object
-      properties:
-        value:
-          type: string
-        variant:
-          $ref: "#/components/schemas/DataElement.Status.Variant"
-        description:
-          type:
-          - "null"
-          - string
-      required:
-      - description
-      - value
-      - variant
-    DataElement.Status.Variant:
-      type: string
-      enum:
-      - neutral
-      - alt
-      - success
-      - warning
-      - error
-      - error-border
-      - error-border-strikethrough
     DataElement.Text:
       type: object
       properties:

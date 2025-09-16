@@ -18,7 +18,7 @@ data class TiltaksgjennomforingEksternV1Dto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingStatus,
+    val status: GjennomforingStatusType,
     val virksomhetsnummer: String,
     val oppstart: GjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)

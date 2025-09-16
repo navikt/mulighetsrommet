@@ -1,6 +1,6 @@
 import {
   GjennomforingOppstartstype,
-  GjennomforingStatus,
+  GjennomforingStatusType,
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakGruppe,
@@ -14,7 +14,7 @@ export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   oppstartsdato: "2024-01-01",
   navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
   status: {
-    type: GjennomforingStatus.GJENNOMFORES,
+    type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
   },
   oppstart: GjennomforingOppstartstype.LOPENDE,
@@ -151,7 +151,7 @@ export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
   id: "00097090-1ba8-47a4-a82f-6aaad488994e",
   status: {
-    type: GjennomforingStatus.GJENNOMFORES,
+    type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
   },
   personvernBekreftet: true,
@@ -271,7 +271,7 @@ export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   id: "3b597090-1ba8-47a4-a82f-6aaad488994e",
   navn: "VTA hos Fretex",
   status: {
-    type: GjennomforingStatus.GJENNOMFORES,
+    type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
   },
   stedForGjennomforing: "2050",
@@ -377,7 +377,7 @@ export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Jobbklubb (med Lars Monsen)",
   status: {
-    type: GjennomforingStatus.GJENNOMFORES,
+    type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
   },
   stedForGjennomforing: "Kautokeino",
@@ -444,7 +444,7 @@ export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   navn: "AFT",
   stedForGjennomforing: "Sinsen",
   status: {
-    type: GjennomforingStatus.GJENNOMFORES,
+    type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
   },
   apentForPamelding: true,
@@ -495,7 +495,7 @@ export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe =
   navn: "Oppfølging",
   stedForGjennomforing: "Sinsen",
   status: {
-    type: GjennomforingStatus.GJENNOMFORES,
+    type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
   },
   apentForPamelding: true,

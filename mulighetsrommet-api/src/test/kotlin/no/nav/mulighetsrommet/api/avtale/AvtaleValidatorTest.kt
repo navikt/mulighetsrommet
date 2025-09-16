@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -481,12 +480,9 @@ class AvtaleValidatorTest : FunSpec({
                             AvtaleValidator.Ctx.Gjennomforing(
                                 utdanningslop = null,
                                 startDato = startDatoForGjennomforing,
-                                arrangor = GjennomforingDto.ArrangorUnderenhet(
+                                arrangor = AvtaleValidator.Ctx.Gjennomforing.Arrangor(
                                     id = ArrangorFixtures.underenhet2.id,
-                                    organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
                                     navn = ArrangorFixtures.underenhet2.navn,
-                                    kontaktpersoner = emptyList(),
-                                    slettet = false,
                                 ),
                             ),
                         ),

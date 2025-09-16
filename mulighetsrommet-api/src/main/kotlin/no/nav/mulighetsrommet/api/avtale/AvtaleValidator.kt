@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.*
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -35,10 +34,15 @@ object AvtaleValidator {
         val status: AvtaleStatusType,
     ) {
         data class Gjennomforing(
-            val arrangor: GjennomforingDto.ArrangorUnderenhet,
+            val arrangor: Arrangor,
             val startDato: LocalDate,
             val utdanningslop: UtdanningslopDto?,
-        )
+        ) {
+            data class Arrangor(
+                val navn: String,
+                val id: UUID,
+            )
+        }
         data class Arrangor(
             val hovedenhet: ArrangorDto,
             val underenheter: List<ArrangorDto>,

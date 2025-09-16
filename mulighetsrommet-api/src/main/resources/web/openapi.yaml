@@ -285,7 +285,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/GjennomforingStatus"
+              $ref: "#/components/schemas/GjennomforingStatusType"
           description: Status for gjennomføring
         - in: query
           name: navRegioner
@@ -385,7 +385,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/GjennomforingStatus"
+              $ref: "#/components/schemas/GjennomforingStatusType"
           description: Status for gjennomføring
         - in: query
           name: navRegioner
@@ -598,7 +598,7 @@ components:
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
-          $ref: "#/components/schemas/AvtaleStatusDto"
+          $ref: "#/components/schemas/AvtaleDtoStatus"
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         administratorer:
@@ -873,7 +873,7 @@ components:
         - AVSLUTTET
         - AVBRUTT
 
-    AvtaleStatusDto:
+    AvtaleDtoStatus:
       type: object
       properties:
         type:
@@ -964,7 +964,7 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/GjennomforingStatusDto"
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
         apentForPamelding:
           type: boolean
         antallPlasser:
@@ -1136,79 +1136,24 @@ components:
         - amoKategorisering
         - utdanningslop
 
-    GjennomforingStatusDto:
-      oneOf:
-        - $ref: "#/components/schemas/GjennomforingStatusGjennomfores"
-        - $ref: "#/components/schemas/GjennomforingStatusAvsluttet"
-        - $ref: "#/components/schemas/GjennomforingStatusAvbrutt"
-        - $ref: "#/components/schemas/GjennomforingStatusAvlyst"
-      discriminator:
-        propertyName: type
-        mapping:
-          GJENNOMFORES: "#/components/schemas/GjennomforingStatusGjennomfores"
-          AVSLUTTET: "#/components/schemas/GjennomforingStatusAvsluttet"
-          AVBRUTT: "#/components/schemas/GjennomforingStatusAvbrutt"
-          AVLYST: "#/components/schemas/GjennomforingStatusAvlyst"
-
-    GjennomforingStatusGjennomfores:
-      type: object
-      properties:
-        type:
-          const: GJENNOMFORES
-      required:
-        - type
-
-    GjennomforingStatusAvsluttet:
-      type: object
-      properties:
-        type:
-          const: AVSLUTTET
-      required:
-        - type
-
-    GjennomforingStatusAvbrutt:
-      type: object
-      properties:
-        type:
-          const: AVBRUTT
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        beskrivelse:
-          type: string
-      required:
-        - type
-        - tidspunkt
-        - aarsak
-        - beskrivelse
-
-    GjennomforingStatusAvlyst:
-      type: object
-      properties:
-        type:
-          const: AVLYST
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        beskrivelse:
-          type: string
-      required:
-        - type
-        - tidspunkt
-        - aarsak
-        - beskrivelse
-
-    GjennomforingStatus:
+    GjennomforingStatusType:
       type: string
       enum:
         - GJENNOMFORES
         - AVBRUTT
         - AVLYST
         - AVSLUTTET
+
+    GjennomforingDtoStatus:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+        - type
+        - status
 
     GjennomforingOppstartstype:
       type: string
