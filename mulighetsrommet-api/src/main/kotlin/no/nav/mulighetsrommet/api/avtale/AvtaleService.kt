@@ -7,6 +7,7 @@ import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
@@ -266,7 +267,7 @@ class AvtaleService(
 
     fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): Set<AvtaleHandling> {
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-            ?: throw NotFoundException("Fant ikke ansatt med navIdent $navIdent")
+            ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
         val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
 

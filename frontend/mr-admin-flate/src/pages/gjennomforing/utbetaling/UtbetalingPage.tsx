@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -6,59 +6,39 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
-  DelutbetalingRequest,
-  OpprettDelutbetalingerRequest,
-  Rolle,
-  TilsagnDto,
-  TilsagnStatus,
   UtbetalingDto,
   UtbetalingHandling,
-  UtbetalingLinje,
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
-import {
-  Accordion,
-  Alert,
-  Button,
-  CopyButton,
-  Heading,
-  HGrid,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
-import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
+
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeText } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
-import { useQueryClient } from "@tanstack/react-query";
-import MindreBelopModal from "@/components/utbetaling/MindreBelopModal";
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import {
-  useTilsagnTilUtbetaling,
   useUtbetaling,
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
+  useUtbetalingsLinjer,
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { compareUtbetalingLinje, genrererUtbetalingLinjer } from "@/components/utbetaling/helpers";
+import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
+import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
 
   const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
-  const { data: utbetaling } = useUtbetaling(utbetalingId);
-  const { data: tilsagn } = useTilsagnTilUtbetaling(utbetalingId);
+  const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
 
   // @todo: This is quickfix. Figure out why it scrolls to the bottom on page load as a part of the broader frontend improvements
@@ -69,60 +49,14 @@ function useUtbetalingPageData() {
   return {
     gjennomforing,
     historikk,
-    tilsagn,
-    utbetaling: utbetaling.utbetaling,
-    handlinger: utbetaling.handlinger,
-    linjer: utbetaling.linjer.toSorted(compareUtbetalingLinje),
+    utbetaling: utbetalingDetaljer.utbetaling,
+    handlinger: utbetalingDetaljer.handlinger,
     beregning,
   };
 }
 
 export function UtbetalingPage() {
-  const { gjennomforing, historikk, tilsagn, utbetaling, linjer, beregning, handlinger } =
-    useUtbetalingPageData();
-  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
-  const [linjerState, setLinjerState] = useState<UtbetalingLinje[]>(() =>
-    linjer.length === 0 ? genrererUtbetalingLinjer(tilsagn) : linjer,
-  );
-  const [errors, setErrors] = useState<FieldError[]>([]);
-  const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
-  const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
-  const queryClient = useQueryClient();
-
-  function sendTilGodkjenning() {
-    const delutbetalingReq: DelutbetalingRequest[] = linjerState.map((linje) => {
-      return {
-        id: linje.id,
-        belop: linje.belop,
-        gjorOppTilsagn: linje.gjorOppTilsagn,
-        tilsagnId: linje.tilsagn.id,
-      };
-    });
-
-    const body: OpprettDelutbetalingerRequest = {
-      utbetalingId: utbetaling.id,
-      delutbetalinger: delutbetalingReq,
-      begrunnelseMindreBetalt,
-    };
-
-    setErrors([]);
-
-    opprettMutation.mutate(body, {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: QueryKeys.utbetaling(utbetaling.id),
-          refetchType: "all",
-        });
-      },
-      onValidationError: (error: ValidationError) => {
-        setErrors(error.errors);
-      },
-    });
-  }
-
-  function utbetalesTotal(): number {
-    return linjerState.reduce((acc, d) => acc + d.belop, 0);
-  }
+  const { gjennomforing, historikk, utbetaling, handlinger, beregning } = useUtbetalingPageData();
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Gjennomføringer", lenke: `/gjennomforinger` },
@@ -139,12 +73,12 @@ export function UtbetalingPage() {
 
   return (
     <>
-      <title>Utbetalinger</title>
+      <title>{utbetalingTekster.title}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HStack gap="2" className="bg-white border-b-2 border-gray-200 p-2">
         <BankNoteFillIcon color="#2AA758" className="w-10 h-10" />
         <Heading size="large" level="1">
-          Utbetaling for {gjennomforing.navn}
+          {utbetalingTekster.header(gjennomforing.navn)}
         </Heading>
       </HStack>
       <ContentBox>
@@ -160,42 +94,45 @@ export function UtbetalingPage() {
               <HGrid columns="1fr 1fr 0.25fr">
                 <VStack>
                   <Heading size="medium" level="2" spacing data-testid="utbetaling-til-utbetaling">
-                    Til utbetaling
+                    {utbetalingTekster.metadata.header}
                   </Heading>
                   <VStack gap="2">
                     <MetadataHorisontal
-                      header="Status"
+                      header={utbetalingTekster.metadata.status}
                       value={<UtbetalingStatusTag status={utbetaling.status} />}
                     />
 
                     <MetadataHorisontal
-                      header="Utbetalingsperiode"
+                      header={utbetalingTekster.metadata.periode}
                       value={formaterPeriode(utbetaling.periode)}
                     />
                     {utbetaling.type.tagName && (
                       <MetadataHorisontal
-                        header="Type"
+                        header={utbetalingTekster.metadata.type}
                         value={<UtbetalingTypeText type={utbetaling.type} />}
                       />
                     )}
                     <MetadataHorisontal
-                      header="Dato innsendt"
+                      header={utbetalingTekster.metadata.innsendtDato}
                       value={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
                     />
-                    <MetadataHorisontal header="Innsendt av" value={utbetaling.innsendtAv} />
+                    <MetadataHorisontal
+                      header={utbetalingTekster.metadata.innsendtAv}
+                      value={utbetaling.innsendtAv}
+                    />
                     <MetadataHorisontal
                       header={utbetalingTekster.beregning.belop.label}
                       value={formaterNOK(utbetaling.belop)}
                     />
                     {utbetaling.beskrivelse && (
                       <MetadataFritekstfelt
-                        header="Begrunnelse for utbetaling"
+                        header={utbetalingTekster.metadata.beskrivelse}
                         value={utbetaling.beskrivelse}
                       />
                     )}
                     {utbetaling.begrunnelseMindreBetalt && (
                       <MetadataFritekstfelt
-                        header="Begrunnelse for mindre utbetalt"
+                        header={utbetalingTekster.metadata.begrunnelseMindreBetalt}
                         value={utbetaling.begrunnelseMindreBetalt}
                       />
                     )}
@@ -245,106 +182,66 @@ export function UtbetalingPage() {
                   </EndringshistorikkPopover>
                 </HStack>
               </HGrid>
-              <>
-                <Accordion>
-                  <Accordion.Item>
-                    <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
-                    <Accordion.Content>
-                      {utbetaling.id && (
-                        <UtbetalingBeregningView
-                          utbetalingId={utbetaling.id}
-                          beregning={beregning}
-                        />
-                      )}
-                    </Accordion.Content>
-                  </Accordion.Item>
-                </Accordion>
-                {tilsagn.every((t) => t.status.type !== TilsagnStatus.GODKJENT) && (
-                  <Alert variant="info">
-                    Det finnes ingen godkjente tilsagn for utbetalingsperioden
-                  </Alert>
-                )}
-                <UtbetalingLinjeView
-                  utbetaling={utbetaling}
-                  tilsagn={tilsagn}
-                  linjer={linjerState}
-                  setLinjer={setLinjerState}
-                />
-              </>
-              <VStack gap="2">
-                <HStack justify="end">
-                  {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
-                    <Button
-                      size="small"
-                      type="button"
-                      onClick={() => {
-                        if (utbetalesTotal() < utbetaling.belop) {
-                          setMindreBelopModalOpen(true);
-                        } else {
-                          sendTilGodkjenning();
-                        }
-                      }}
-                    >
-                      Send til attestering
-                    </Button>
-                  )}
-                </HStack>
-                <VStack gap="2" align="end">
-                  {errors.map((error) => (
-                    <Alert variant="error" size="small">
-                      {error.detail}
-                    </Alert>
-                  ))}
-                </VStack>
-              </VStack>
+              <Accordion>
+                <Accordion.Item>
+                  <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
+                  <Accordion.Content>
+                    {utbetaling.id && (
+                      <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
+                    )}
+                  </Accordion.Content>
+                </Accordion.Item>
+              </Accordion>
+              <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
             </VStack>
           </VStack>
         </WhitePaddedBox>
       </ContentBox>
-      <MindreBelopModal
-        open={mindreBelopModalOpen}
-        handleClose={() => setMindreBelopModalOpen(false)}
-        onConfirm={() => {
-          setMindreBelopModalOpen(false);
-          sendTilGodkjenning();
-        }}
-        begrunnelseOnChange={(e: any) => setBegrunnelseMindreBetalt(e.target.value)}
-        belopUtbetaling={utbetalesTotal()}
-        belopInnsendt={utbetaling.belop}
-      />
     </>
   );
 }
 
 interface UtbetalingLinjeViewProps {
   utbetaling: UtbetalingDto;
-  tilsagn: TilsagnDto[];
-  linjer: UtbetalingLinje[];
-  setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
+  handlinger: UtbetalingHandling[];
 }
 
-function UtbetalingLinjeView({ utbetaling, tilsagn, linjer, setLinjer }: UtbetalingLinjeViewProps) {
+function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProps) {
+  const [reloadLinjer, setReloadLinjer] = useState<boolean>();
+  const { data: utbetalingLinjer, isRefetching } = useUtbetalingsLinjer(utbetaling.id);
+  const queryClient = useQueryClient();
+
+  const linjerIsUpdated = !isRefetching && reloadLinjer;
+
+  useEffect(() => {
+    if (linjerIsUpdated) {
+      setReloadLinjer(false);
+    }
+  }, [linjerIsUpdated, setReloadLinjer]);
+
+  async function oppdaterLinjer() {
+    await queryClient.refetchQueries({
+      queryKey: QueryKeys.utbetaling(utbetaling.id),
+    });
+    setReloadLinjer(true);
+  }
+
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
       return null;
     case UtbetalingStatusDtoType.RETURNERT:
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
       return (
-        <HarTilgang rolle={Rolle.SAKSBEHANDLER_OKONOMI}>
-          <RedigerUtbetalingLinjeView
-            setLinjer={setLinjer}
-            tilsagn={tilsagn}
-            utbetaling={utbetaling}
-            linjer={linjer}
-          />
-        </HarTilgang>
+        <RedigerUtbetalingLinjeView
+          utbetaling={utbetaling}
+          handlinger={handlinger}
+          utbetalingLinjer={utbetalingLinjer}
+          oppdaterLinjer={oppdaterLinjer}
+          reloadLinjer={linjerIsUpdated}
+        />
       );
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
-      return (
-        <HarTilgang rolle={Rolle.ATTESTANT_UTBETALING}>
-          <BesluttUtbetalingLinjeView utbetaling={utbetaling} linjer={linjer} />
-        </HarTilgang>
-      );
+      return <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />;
   }
 }
