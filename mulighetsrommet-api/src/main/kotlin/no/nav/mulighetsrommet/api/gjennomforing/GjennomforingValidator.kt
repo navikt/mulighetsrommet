@@ -1,12 +1,15 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -23,7 +26,7 @@ class GjennomforingValidator(
 
     fun validate(
         dbo: GjennomforingDbo,
-        previous: GjennomforingDto?,
+        previous: Gjennomforing?,
     ): Either<List<FieldError>, GjennomforingDbo> = either {
         var next = dbo
 
@@ -167,7 +170,7 @@ class GjennomforingValidator(
 
     private fun MutableList<FieldError>.validateNavEnheter(
         navEnheter: Set<NavEnhetNummer>,
-        avtale: AvtaleDto,
+        avtale: Avtale,
     ) {
         val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
         if (avtaleRegioner.intersect(navEnheter).isEmpty()) {
@@ -245,7 +248,8 @@ class GjennomforingValidator(
         startDato: LocalDate,
     ): Either<List<FieldError>, LocalDate> {
         if (tilgjengeligForArrangorDato == null) {
-            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato).nel().left()
+            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato)
+                .nel().left()
         }
 
         val errors = buildList {
@@ -280,7 +284,7 @@ class GjennomforingValidator(
 
     private fun MutableList<FieldError>.validateCreateGjennomforing(
         gjennomforing: GjennomforingDbo,
-        avtale: AvtaleDto,
+        avtale: Avtale,
     ) {
         val arrangor = db.session { queries.arrangor.getById(gjennomforing.arrangorId) }
         if (arrangor.slettetDato != null) {
@@ -310,7 +314,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (avtale.status != AvtaleStatusDto.Aktiv) {
+        if (avtale.status != AvtaleStatus.Aktiv) {
             add(
                 FieldError.of(
                     "Avtalen må være aktiv for å kunne opprette tiltak",
@@ -319,7 +323,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (gjennomforing.status != GjennomforingStatus.GJENNOMFORES) {
+        if (gjennomforing.status != GjennomforingStatusType.GJENNOMFORES) {
             add(
                 FieldError.of(
                     "Du kan ikke opprette en gjennomføring som er ${gjennomforing.status.name.lowercase()}",
@@ -331,10 +335,10 @@ class GjennomforingValidator(
 
     private fun MutableList<FieldError>.validateUpdateGjennomforing(
         gjennomforing: GjennomforingDbo,
-        previous: GjennomforingDto,
-        avtale: AvtaleDto,
+        previous: Gjennomforing,
+        avtale: Avtale,
     ) {
-        if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type != GjennomforingStatusType.GJENNOMFORES) {
             add(
                 FieldError.of(
                     "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.type.name.lowercase()}",
@@ -352,7 +356,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (previous.status.type == GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type == GjennomforingStatusType.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     FieldError.of(

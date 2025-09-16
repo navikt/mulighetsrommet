@@ -20,7 +20,11 @@ export const mockTilsagn: TilsagnDto[] = [
     bestillingsnummer: "A-2025/11133-23",
     status: {
       type: TilsagnStatus.TIL_GODKJENNING,
-      status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+      status: {
+        value: "Til godkjenning",
+        variant: DataElementStatusVariant.WARNING,
+        description: null,
+      },
     },
     kommentar: null,
   },
@@ -40,7 +44,11 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     status: {
       type: TilsagnStatus.TIL_GODKJENNING,
-      status: { value: "Til annullering", variant: DataElementStatusVariant.ERROR_BORDER },
+      status: {
+        value: "Til annullering",
+        variant: DataElementStatusVariant.ERROR_BORDER,
+        description: null,
+      },
     },
     bestillingsnummer: "A-2024/123",
     kommentar: null,
@@ -61,7 +69,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     status: {
       type: TilsagnStatus.GODKJENT,
-      status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+      status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
     },
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
@@ -82,7 +90,11 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     status: {
       type: TilsagnStatus.ANNULLERT,
-      status: { value: "Annullert", variant: DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH },
+      status: {
+        value: "Annullert",
+        variant: DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH,
+        description: null,
+      },
     },
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
@@ -103,7 +115,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     status: {
       type: TilsagnStatus.RETURNERT,
-      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
@@ -198,6 +210,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
         type: "no.nav.mulighetsrommet.model.DataElement.Status",
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
+        description: null,
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
@@ -245,6 +258,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
         type: "no.nav.mulighetsrommet.model.DataElement.Status",
         value: "Returnert",
         variant: DataElementStatusVariant.ERROR,
+        description: null,
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
@@ -292,6 +306,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
         type: "no.nav.mulighetsrommet.model.DataElement.Status",
         value: "Til oppgjør",
         variant: DataElementStatusVariant.ERROR_BORDER,
+        description: null,
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
@@ -339,6 +354,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
         type: "no.nav.mulighetsrommet.model.DataElement.Status",
         value: "Godkjent",
         variant: DataElementStatusVariant.SUCCESS,
+        description: null,
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
@@ -386,6 +402,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
         type: "no.nav.mulighetsrommet.model.DataElement.Status",
         value: "Godkjent",
         variant: DataElementStatusVariant.SUCCESS,
+        description: null,
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",

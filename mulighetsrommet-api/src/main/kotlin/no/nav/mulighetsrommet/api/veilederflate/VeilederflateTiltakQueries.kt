@@ -86,7 +86,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
         ?: emptyList()
 
-    val status = GjennomforingStatus.valueOf(string("status"))
+    val status = GjennomforingStatusType.valueOf(string("status"))
 
     return VeilederflateTiltakGruppe(
         id = uuid("id"),

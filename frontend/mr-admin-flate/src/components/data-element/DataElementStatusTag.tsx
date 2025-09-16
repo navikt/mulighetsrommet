@@ -1,19 +1,29 @@
 import { DataElementStatusVariant } from "@tiltaksadministrasjon/api-client";
-import { StatusTag } from "@mr/frontend-common";
+import { ExpandableStatusTag, StatusTag } from "@mr/frontend-common";
 import { TagProps } from "@navikt/ds-react";
 
 interface DataElementStatusTagProps {
   value: string;
   variant: DataElementStatusVariant;
+  description?: string | null;
 }
 
 export function DataElementStatusTag(props: DataElementStatusTagProps) {
   const { variant, className } = getStatusTagStyles(props.variant);
-  return (
-    <StatusTag variant={variant} className={className}>
-      {props.value}
-    </StatusTag>
-  );
+  if (props.description) {
+    const label = `${props.value} - ${props.description}`;
+    return (
+      <ExpandableStatusTag variant={variant} className={className}>
+        {label}
+      </ExpandableStatusTag>
+    );
+  } else {
+    return (
+      <StatusTag variant={variant} className={className}>
+        {props.value}
+      </StatusTag>
+    );
+  }
 }
 
 function getStatusTagStyles(variant: DataElementStatusVariant): {

@@ -1,14 +1,13 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 import { getEmbeddedTiltakstype, mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
-  AvbrytGjennomforingAarsak,
   Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
   GjennomforingArrangorUnderenhet,
   GjennomforingDto,
   GjennomforingOppstartstype,
-  GjennomforingStatus,
+  GjennomforingStatusType,
   InnholdElement,
   Kurstype,
   Opphav,
@@ -17,6 +16,7 @@ import {
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
+import { DataElementStatusVariant } from "@tiltaksadministrasjon/api-client";
 
 const arrangor: GjennomforingArrangorUnderenhet = {
   id: "d9d4db51-3564-4493-b897-4fc38dc48965",
@@ -56,7 +56,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
         kontorer: [mockEnheter._0313, mockEnheter._0318, mockEnheter._0315, mockEnheter._0330],
       },
     ],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
+    status: {
+      type: GjennomforingStatusType.GJENNOMFORES,
+      status: {
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
+    },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: false,
@@ -125,11 +132,13 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     administratorer: [],
     kontorstruktur: [],
     status: {
-      type: GjennomforingStatus.AVLYST,
-      aarsak: AvbrytGjennomforingAarsak.FEILREGISTRERING,
-      beskrivelse:
-        "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-      tidspunkt: "2020-03-04T12:00:00",
+      type: GjennomforingStatusType.AVLYST,
+      status: {
+        value: "Avlyst",
+        variant: DataElementStatusVariant.SUCCESS,
+        description:
+          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      },
     },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
@@ -158,7 +167,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
+    status: {
+      type: GjennomforingStatusType.GJENNOMFORES,
+      status: {
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
+    },
     oppstart: GjennomforingOppstartstype.FELLES,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,
@@ -189,7 +205,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     kontorstruktur: [],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
+    status: {
+      type: GjennomforingStatusType.GJENNOMFORES,
+      status: {
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
+    },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,

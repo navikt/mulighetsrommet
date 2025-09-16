@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.datavarehus.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -44,7 +44,7 @@ sealed class DatavarehusTiltak {
         val opprettetTidspunkt: LocalDateTime,
         @Serializable(with = LocalDateTimeSerializer::class)
         val oppdatertTidspunkt: LocalDateTime,
-        val status: GjennomforingStatus,
+        val status: GjennomforingStatusType,
         val arena: ArenaData?,
     )
 

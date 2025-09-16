@@ -74,6 +74,7 @@ sealed class DataElement {
     data class Status(
         val value: String,
         val variant: Variant,
+        val description: String? = null,
     ) : DataElement() {
         enum class Variant {
             @SerialName("neutral")

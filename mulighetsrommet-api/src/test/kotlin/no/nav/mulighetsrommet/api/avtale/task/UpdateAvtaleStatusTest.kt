@@ -5,16 +5,15 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -35,19 +34,19 @@ class UpdateAvtaleStatusTest : FunSpec({
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = LocalDate.of(2025, 5, 31),
-        status = AvtaleStatus.AKTIV,
+        status = AvtaleStatusType.AKTIV,
     )
     val avtale2 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = LocalDate.of(2025, 6, 30),
-        status = AvtaleStatus.AKTIV,
+        status = AvtaleStatusType.AKTIV,
     )
     val avtale3 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = null,
-        status = AvtaleStatus.AKTIV,
+        status = AvtaleStatusType.AKTIV,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -70,13 +69,13 @@ class UpdateAvtaleStatusTest : FunSpec({
 
         database.run {
             queries.avtale.get(avtale1.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Aktiv
+                it.status.type shouldBe AvtaleStatusType.AKTIV
             }
             queries.avtale.get(avtale2.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Aktiv
+                it.status.type shouldBe AvtaleStatusType.AKTIV
             }
             queries.avtale.get(avtale3.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Aktiv
+                it.status.type shouldBe AvtaleStatusType.AKTIV
             }
         }
     }
@@ -88,13 +87,13 @@ class UpdateAvtaleStatusTest : FunSpec({
 
         database.run {
             queries.avtale.get(avtale1.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Avsluttet
+                it.status.type shouldBe AvtaleStatusType.AVSLUTTET
             }
             queries.avtale.get(avtale2.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Avsluttet
+                it.status.type shouldBe AvtaleStatusType.AVSLUTTET
             }
             queries.avtale.get(avtale3.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Aktiv
+                it.status.type shouldBe AvtaleStatusType.AKTIV
             }
         }
     }
@@ -103,7 +102,7 @@ class UpdateAvtaleStatusTest : FunSpec({
         database.run {
             queries.avtale.setStatus(
                 id = avtale1.id,
-                status = AvtaleStatus.AVBRUTT,
+                status = AvtaleStatusType.AVBRUTT,
                 tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
                 aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                 forklaring = null,
@@ -111,7 +110,7 @@ class UpdateAvtaleStatusTest : FunSpec({
 
             queries.avtale.setStatus(
                 id = avtale2.id,
-                status = AvtaleStatus.AVSLUTTET,
+                status = AvtaleStatusType.AVSLUTTET,
                 tidspunkt = null,
                 aarsaker = null,
                 forklaring = null,
@@ -124,17 +123,17 @@ class UpdateAvtaleStatusTest : FunSpec({
 
         database.run {
             queries.avtale.get(avtale1.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Avbrutt(
+                it.status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
             }
             queries.avtale.get(avtale2.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Avsluttet
+                it.status shouldBe AvtaleStatus.Avsluttet
             }
             queries.avtale.get(avtale3.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatusDto.Aktiv
+                it.status shouldBe AvtaleStatus.Aktiv
             }
         }
     }

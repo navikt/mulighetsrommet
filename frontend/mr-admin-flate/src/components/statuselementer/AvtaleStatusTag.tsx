@@ -1,16 +1,10 @@
-import { AvtaleStatusDto } from "@mr/api-client-v2";
-import { StatusTag } from "@mr/frontend-common";
-import { getAvtaleStatusTagProps } from "@/components/statuselementer/getStatusTagProps";
+import { AvtaleDtoStatus } from "@mr/api-client-v2";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 interface Props {
-  status: AvtaleStatusDto;
+  status: AvtaleDtoStatus;
 }
 
 export function AvtaleStatusTag({ status }: Props) {
-  const { variant, name } = getAvtaleStatusTagProps(status.type);
-  return (
-    <StatusTag aria-label={`Status for avtale: ${name}`} variant={variant}>
-      {name}
-    </StatusTag>
-  );
+  return <DataElementStatusTag value={status.status.value} variant={status.status.variant} />;
 }

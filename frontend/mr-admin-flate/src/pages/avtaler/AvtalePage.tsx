@@ -5,7 +5,6 @@ import { Heading, HStack, Tabs } from "@navikt/ds-react";
 import { useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { AvtaleStatusMedAarsakTag } from "@/components/statuselementer/AvtaleStatusMedAarsakTag";
 import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { AvtalePersonvern } from "./AvtalePersonvern";
@@ -13,6 +12,7 @@ import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerFo
 import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -94,7 +94,7 @@ export function AvtalePage() {
           <Heading size="large" level="2">
             {avtale.navn}
           </Heading>
-          <AvtaleStatusMedAarsakTag status={avtale.status} />
+          <DataElementStatusTag {...avtale.status.status} />
         </HStack>
       </Header>
       <Tabs value={currentTab}>

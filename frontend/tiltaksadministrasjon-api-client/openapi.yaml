@@ -268,12 +268,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/avtaler/mine:
-    get:
-      tags: []
-      parameters: []
-      responses: {}
-      deprecated: false
   /api/tiltaksadministrasjon/avtaler/excel:
     get:
       tags: []
@@ -1341,6 +1335,38 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/linjer:
+    get:
+      tags:
+      - Utbetaling
+      operationId: getUtbetalingsLinjer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Utbetalingslinjer til utbetaling
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtbetalingLinje"
         default:
           description: Problem details
           headers: {}
@@ -2831,7 +2857,7 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    GjennomforingDto.Tiltakstype:
+    Gjennomforing.Tiltakstype:
       type: object
       properties:
         id:
@@ -2845,7 +2871,7 @@ components:
       - id
       - navn
       - tiltakskode
-    GjennomforingDto.ArrangorUnderenhet:
+    Gjennomforing.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -2858,7 +2884,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.ArrangorKontaktperson"
+            $ref: "#/components/schemas/Gjennomforing.ArrangorKontaktperson"
         slettet:
           type: boolean
       required:
@@ -2867,7 +2893,7 @@ components:
       - navn
       - organisasjonsnummer
       - slettet
-    GjennomforingDto.ArrangorKontaktperson:
+    Gjennomforing.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -2903,55 +2929,49 @@ components:
       required:
       - enhetsnummer
       - navn
-    GjennomforingStatusDto:
-      anyOf:
-      - $ref: "#/components/schemas/AVBRUTT"
-      - $ref: "#/components/schemas/AVLYST"
-      - $ref: "#/components/schemas/AVSLUTTET"
-      - $ref: "#/components/schemas/GJENNOMFORES"
-    AVBRUTT:
+    GjennomforingDto.Status:
       type: object
       properties:
-        tidspunkt:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+      - status
+      - type
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    DataElement.Status:
+      type: object
+      properties:
+        value:
           type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
+        variant:
+          $ref: "#/components/schemas/DataElement.Status.Variant"
+        description:
           type:
           - "null"
           - string
       required:
-      - aarsaker
-      - forklaring
-      - tidspunkt
-    AVLYST:
-      type: object
-      properties:
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - forklaring
-      - tidspunkt
-    AVSLUTTET:
-      type: object
-      properties: {}
-    GJENNOMFORES:
-      type: object
-      properties: {}
-    GjennomforingDto.Administrator:
+      - description
+      - value
+      - variant
+    DataElement.Status.Variant:
+      type: string
+      enum:
+      - neutral
+      - alt
+      - success
+      - warning
+      - error
+      - error-border
+      - error-border-strikethrough
+    Gjennomforing.Administrator:
       type: object
       properties:
         navIdent:
@@ -3060,7 +3080,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    GjennomforingDto.EstimertVentetid:
+    Gjennomforing.EstimertVentetid:
       type: object
       properties:
         verdi:
@@ -3223,7 +3243,7 @@ components:
       required:
       - id
       - navn
-    GjennomforingDto.StengtPeriode:
+    Gjennomforing.StengtPeriode:
       type: object
       properties:
         id:
@@ -3249,7 +3269,7 @@ components:
           type: string
           format: uuid
         tiltakstype:
-          $ref: "#/components/schemas/GjennomforingDto.Tiltakstype"
+          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
         navn:
           type: string
         tiltaksnummer:
@@ -3259,7 +3279,7 @@ components:
         lopenummer:
           type: string
         arrangor:
-          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
+          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -3273,7 +3293,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/GjennomforingStatusDto"
+          $ref: "#/components/schemas/GjennomforingDto.Status"
         apentForPamelding:
           type: boolean
         antallPlasser:
@@ -3287,7 +3307,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.Administrator"
+            $ref: "#/components/schemas/Gjennomforing.Administrator"
         kontorstruktur:
           type: array
           items:
@@ -3326,7 +3346,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/GjennomforingDto.EstimertVentetid"
+          - $ref: "#/components/schemas/Gjennomforing.EstimertVentetid"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -3343,7 +3363,7 @@ components:
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
+            $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
       required:
       - administratorer
       - amoKategorisering
@@ -3538,26 +3558,6 @@ components:
       required:
       - slutt
       - start
-    DataElement.Status:
-      type: object
-      properties:
-        value:
-          type: string
-        variant:
-          $ref: "#/components/schemas/DataElement.Status.Variant"
-      required:
-      - value
-      - variant
-    DataElement.Status.Variant:
-      type: string
-      enum:
-      - neutral
-      - alt
-      - success
-      - warning
-      - error
-      - error-border
-      - error-border-strikethrough
     DataElement.Text:
       type: object
       properties:
@@ -4170,63 +4170,6 @@ components:
       enum:
       - TILTAK_DRIFTSTILSKUDD
       - TILTAK_INVESTERINGER
-    UtbetalingLinje:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tilsagn:
-          $ref: "#/components/schemas/TilsagnDto"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DelutbetalingStatusDto"
-        belop:
-          type: integer
-          format: int32
-        gjorOppTilsagn:
-          type: boolean
-        opprettelse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/TotrinnskontrollDto"
-        handlinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingLinjeHandling"
-          uniqueItems: true
-      required:
-      - belop
-      - gjorOppTilsagn
-      - handlinger
-      - id
-      - opprettelse
-      - status
-      - tilsagn
-    DelutbetalingStatusDto:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/DelutbetalingStatus"
-        status:
-          $ref: "#/components/schemas/DataElement.Status"
-      required:
-      - status
-      - type
-    DelutbetalingStatus:
-      type: string
-      enum:
-      - TIL_ATTESTERING
-      - GODKJENT
-      - RETURNERT
-      - UTBETALT
-      - OVERFORT_TIL_UTBETALING
-    UtbetalingLinjeHandling:
-      type: string
-      enum:
-      - ATTESTER
-      - RETURNER
     UtbetalingHandling:
       type: string
       enum:
@@ -4236,10 +4179,6 @@ components:
       properties:
         utbetaling:
           $ref: "#/components/schemas/UtbetalingDto"
-        linjer:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingLinje"
         handlinger:
           type: array
           items:
@@ -4247,7 +4186,6 @@ components:
           uniqueItems: true
       required:
       - handlinger
-      - linjer
       - utbetaling
     UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed:
       type: object
@@ -4393,6 +4331,63 @@ components:
           no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri: "#/components/schemas/UtbetalingBeregningDto.Fri"
           no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerManedsverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
           no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerUkesverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
+    UtbetalingLinje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilsagn:
+          $ref: "#/components/schemas/TilsagnDto"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DelutbetalingStatusDto"
+        belop:
+          type: integer
+          format: int32
+        gjorOppTilsagn:
+          type: boolean
+        opprettelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingLinjeHandling"
+          uniqueItems: true
+      required:
+      - belop
+      - gjorOppTilsagn
+      - handlinger
+      - id
+      - opprettelse
+      - status
+      - tilsagn
+    DelutbetalingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/DelutbetalingStatus"
+        status:
+          $ref: "#/components/schemas/DataElement.Status"
+      required:
+      - status
+      - type
+    DelutbetalingStatus:
+      type: string
+      enum:
+      - TIL_ATTESTERING
+      - GODKJENT
+      - RETURNERT
+      - UTBETALT
+      - OVERFORT_TIL_UTBETALING
+    UtbetalingLinjeHandling:
+      type: string
+      enum:
+      - ATTESTER
+      - RETURNER
     OpprettUtbetalingRequest:
       type: object
       properties:

@@ -61,6 +61,7 @@ dependencies {
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.assertions.arrow)
+    testImplementation(libs.kotest.assertions.table)
     testImplementation(libs.mockk)
     testImplementation(libs.assertj.db)
     testImplementation(libs.nav.mockOauth2Server)

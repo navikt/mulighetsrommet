@@ -17,7 +17,7 @@ data class AvtaleDbo(
     val arrangor: Arrangor?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
-    val status: AvtaleStatus,
+    val status: AvtaleStatusType,
     val navEnheter: Set<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val administratorer: List<NavIdent>,

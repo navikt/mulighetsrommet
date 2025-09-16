@@ -7,11 +7,11 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -19,7 +19,10 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -36,7 +39,7 @@ class ArenaAdapterService(
         val topic: String,
     )
 
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto = db.transaction {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
         syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
 
         val previous = queries.avtale.get(avtale.id)
@@ -136,13 +139,13 @@ class ArenaAdapterService(
 
     private fun hasRelevantChanges(
         arenaGjennomforing: ArenaGjennomforingDbo,
-        current: GjennomforingDto,
+        current: Gjennomforing,
     ): Boolean {
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
     }
 
-    private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
-        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto)
+    private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {
+        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforing(gjennomforing)
 
         val record = StoredProducerRecord(
             config.topic,
@@ -154,38 +157,38 @@ class ArenaAdapterService(
         queries.kafkaProducerRecord.storeRecord(record)
     }
 
-    private fun QueryContext.logUpdateAvtale(dto: AvtaleDto) {
+    private fun QueryContext.logUpdateAvtale(avtale: Avtale) {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             "Endret i Arena",
             Arena,
-            dto.id,
+            avtale.id,
             LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(dto) }
+        ) { Json.encodeToJsonElement(avtale) }
     }
 
-    private fun QueryContext.logUpdateGjennomforing(dto: GjennomforingDto) {
+    private fun QueryContext.logUpdateGjennomforing(gjennomforing: Gjennomforing) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Endret i Arena",
             Arena,
-            dto.id,
+            gjennomforing.id,
             LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(dto) }
+        ) { Json.encodeToJsonElement(gjennomforing) }
     }
 
-    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: GjennomforingDto) {
+    private fun QueryContext.logTiltaksnummerHentetFraArena(gjennomforing: Gjennomforing) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             Tiltaksadministrasjon,
-            dto.id,
+            gjennomforing.id,
             LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(dto) }
+        ) { Json.encodeToJsonElement(gjennomforing) }
     }
 }
 
-private fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
+private fun Avtale.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
     return arrangor?.organisasjonsnummer?.value?.let {
         ArenaAvtaleDbo(
             id = id,
@@ -198,10 +201,10 @@ private fun AvtaleDto.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
             avtaletype = avtaletype,
             avslutningsstatus = when (status) {
-                is AvtaleStatusDto.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
-                is AvtaleStatusDto.Avbrutt -> Avslutningsstatus.AVBRUTT
-                is AvtaleStatusDto.Avsluttet -> Avslutningsstatus.AVSLUTTET
-                is AvtaleStatusDto.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.Avbrutt -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatus.Avsluttet -> Avslutningsstatus.AVSLUTTET
+                is AvtaleStatus.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
             },
             prisbetingelser = prismodell.prisbetingelser(),
         )
