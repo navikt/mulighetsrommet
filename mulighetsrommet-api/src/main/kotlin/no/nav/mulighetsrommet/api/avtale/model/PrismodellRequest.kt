@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 @Serializable
 data class PrismodellRequest(
-    val type: Prismodell,
+    val type: PrismodellType,
     val prisbetingelser: String?,
     val satser: List<AvtaltSatsRequest>,
 )

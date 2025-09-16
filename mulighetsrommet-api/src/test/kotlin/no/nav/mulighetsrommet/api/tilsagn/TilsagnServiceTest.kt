@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -196,7 +196,7 @@ class TilsagnServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     AvtaleFixtures.ARR.copy(
-                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(
                             AvtaltSats(
                                 gjelderFra = LocalDate.of(2025, 3, 1),

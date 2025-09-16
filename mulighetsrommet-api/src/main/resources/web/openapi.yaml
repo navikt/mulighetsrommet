@@ -825,14 +825,14 @@ components:
         prisbetingelser:
           type: [ string, "null" ]
         type:
-          $ref: "#/components/schemas/Prismodell"
+          $ref: "#/components/schemas/PrismodellType"
         satser:
           type: array
           items:
             $ref: "#/components/schemas/AvtaltSatsRequest"
       required: [type, satser]
 
-    Prismodell:
+    PrismodellType:
       type: string
       enum:
         - ANNEN_AVTALT_PRIS

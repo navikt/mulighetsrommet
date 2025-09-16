@@ -1,7 +1,7 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { memo } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
+import { PrismodellType, Tiltakskode } from "@mr/api-client-v2";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Box, Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
@@ -11,19 +11,19 @@ import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSa
 
 interface Props {
   tiltakskode: Tiltakskode;
-  prismodell?: Prismodell;
+  prismodell?: PrismodellType;
   avtaleStartDato: Date;
 }
 
 const PrismodellForm = memo(({ tiltakskode, prismodell, avtaleStartDato }: Props) => {
   switch (prismodell) {
-    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
       return <ForhandsgodkjenteSatser tiltakskode={tiltakskode} />;
-    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
-    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
-    case Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
+    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
       return <AvtalteSatser fromDate={avtaleStartDato} />;
-    case Prismodell.ANNEN_AVTALT_PRIS:
+    case PrismodellType.ANNEN_AVTALT_PRIS:
     case undefined:
       return <PrisbetingelserTextArea />;
   }

@@ -4,7 +4,7 @@ import {
   AvtaleDto,
   AvtaltSatsDto,
   Personopplysning,
-  Prismodell,
+  PrismodellType,
   PrismodellDto,
 } from "@mr/api-client-v2";
 import z from "zod";
@@ -21,7 +21,7 @@ import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().optional(),
-  prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
+  prismodell: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
       gjelderFra: z.string().nullable(),
@@ -98,7 +98,7 @@ export function defaultAvtaleData(
       customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell?.type as Prismodell | undefined,
+    prismodell: avtale?.prismodell?.type as PrismodellType | undefined,
     satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell

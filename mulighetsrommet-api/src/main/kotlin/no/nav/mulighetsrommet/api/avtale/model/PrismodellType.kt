@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import no.nav.mulighetsrommet.model.Tiltakskode
 
-enum class Prismodell(val beskrivelse: String) {
+enum class PrismodellType(val beskrivelse: String) {
     ANNEN_AVTALT_PRIS("Annen avtalt pris"),
     FORHANDSGODKJENT_PRIS_PER_MANEDSVERK("Fast sats per tiltaksplass per måned"),
     AVTALT_PRIS_PER_MANEDSVERK("Avtalt månedspris per tiltaksplass"),
@@ -11,11 +11,11 @@ enum class Prismodell(val beskrivelse: String) {
 }
 
 object Prismodeller {
-    fun getPrismodellerForTiltak(tiltakskode: Tiltakskode): List<Prismodell> = when (tiltakskode) {
+    fun getPrismodellerForTiltak(tiltakskode: Tiltakskode): List<PrismodellType> = when (tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         -> listOf(
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         )
 
         Tiltakskode.AVKLARING,
@@ -24,16 +24,16 @@ object Prismodeller {
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         -> listOf(
-            Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-            Prismodell.AVTALT_PRIS_PER_UKESVERK,
-            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            Prismodell.ANNEN_AVTALT_PRIS,
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            PrismodellType.ANNEN_AVTALT_PRIS,
         )
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         -> listOf(
-            Prismodell.ANNEN_AVTALT_PRIS,
+            PrismodellType.ANNEN_AVTALT_PRIS,
         )
     }
 }

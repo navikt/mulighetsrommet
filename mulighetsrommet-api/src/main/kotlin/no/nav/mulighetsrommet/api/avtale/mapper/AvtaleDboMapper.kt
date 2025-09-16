@@ -38,7 +38,7 @@ object AvtaleDboMapper {
         amoKategorisering = avtale.amoKategorisering,
         opsjonsmodell = avtale.opsjonsmodell,
         utdanningslop = avtale.utdanningslop?.toDbo(),
-        prismodell = avtale.prismodell.prismodell(),
+        prismodell = avtale.prismodell.type,
         prisbetingelser = avtale.prismodell.prisbetingelser(),
         satser = avtale.prismodell.satser(),
     )
@@ -108,30 +108,22 @@ object AvtaleDboMapper {
     )
 }
 
-fun Avtale.PrismodellDto.prismodell(): Prismodell = when (this) {
-    is Avtale.PrismodellDto.AnnenAvtaltPris -> Prismodell.ANNEN_AVTALT_PRIS
-    is Avtale.PrismodellDto.AvtaltPrisPerManedsverk -> Prismodell.AVTALT_PRIS_PER_MANEDSVERK
-    is Avtale.PrismodellDto.AvtaltPrisPerUkesverk -> Prismodell.AVTALT_PRIS_PER_UKESVERK
-    is Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-    is Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+fun PrismodellDto.prisbetingelser(): String? = when (this) {
+    is PrismodellDto.AnnenAvtaltPris -> prisbetingelser
+    is PrismodellDto.AvtaltPrisPerManedsverk -> prisbetingelser
+    is PrismodellDto.AvtaltPrisPerUkesverk -> prisbetingelser
+    is PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
+    PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
 }
 
-fun Avtale.PrismodellDto.prisbetingelser(): String? = when (this) {
-    is Avtale.PrismodellDto.AnnenAvtaltPris -> prisbetingelser
-    is Avtale.PrismodellDto.AvtaltPrisPerManedsverk -> prisbetingelser
-    is Avtale.PrismodellDto.AvtaltPrisPerUkesverk -> prisbetingelser
-    is Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-    Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
-}
-
-fun Avtale.PrismodellDto.satser(): List<AvtaltSats> = when (this) {
-    is Avtale.PrismodellDto.AnnenAvtaltPris,
-    is Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
+fun PrismodellDto.satser(): List<AvtaltSats> = when (this) {
+    is PrismodellDto.AnnenAvtaltPris,
+    is PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
     -> emptyList()
 
-    is Avtale.PrismodellDto.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
-    is Avtale.PrismodellDto.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
-    is Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
+    is PrismodellDto.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
+    is PrismodellDto.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
+    is PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
 }
 
 private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = satser.map {

@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellInfo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
 import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
@@ -24,7 +24,7 @@ fun Route.prismodellRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Prismodeller for tiltakstype"
-                    body<List<PrismodellDto>>()
+                    body<List<PrismodellInfo>>()
                 }
                 default {
                     description = "Problem details"
@@ -35,7 +35,7 @@ fun Route.prismodellRoutes() {
             val tiltakstype: Tiltakskode by call.queryParameters
 
             val prismodeller = Prismodeller.getPrismodellerForTiltak(tiltakstype)
-                .map { PrismodellDto(type = it, beskrivelse = it.beskrivelse) }
+                .map { PrismodellInfo(type = it, beskrivelse = it.beskrivelse) }
 
             call.respond(prismodeller)
         }

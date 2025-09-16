@@ -1,8 +1,8 @@
 import {
   AvtaleDto,
-  Prismodell,
   PrismodellDto,
   PrismodellDtoAnnenAvtaltPris,
+  PrismodellType,
 } from "@mr/api-client-v2";
 import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Metadata } from "../detaljside/Metadata";
@@ -142,4 +142,4 @@ export function AnnenAvtaltPrismodell({
 }
 
 const isAnnenAvtaltPrismodell = (obj: PrismodellDto): obj is PrismodellDtoAnnenAvtaltPris =>
-  obj.type === Prismodell.ANNEN_AVTALT_PRIS;
+  obj.type === PrismodellType.ANNEN_AVTALT_PRIS;

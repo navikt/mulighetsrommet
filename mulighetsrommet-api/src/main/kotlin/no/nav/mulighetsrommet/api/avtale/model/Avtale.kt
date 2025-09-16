@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -41,39 +40,6 @@ data class Avtale(
     val utdanningslop: UtdanningslopDto?,
     val prismodell: PrismodellDto,
 ) {
-    @Serializable
-    sealed class PrismodellDto {
-        @Serializable
-        @SerialName("ANNEN_AVTALT_PRIS")
-        data class AnnenAvtaltPris(
-            val prisbetingelser: String?,
-        ) : PrismodellDto()
-
-        @Serializable
-        @SerialName("FORHANDSGODKJENT_PRIS_PER_MANEDSVERK")
-        data object ForhandsgodkjentPrisPerManedsverk : PrismodellDto()
-
-        @Serializable
-        @SerialName("AVTALT_PRIS_PER_MANEDSVERK")
-        data class AvtaltPrisPerManedsverk(
-            val prisbetingelser: String?,
-            val satser: List<AvtaltSatsDto>,
-        ) : PrismodellDto()
-
-        @Serializable
-        @SerialName("AVTALT_PRIS_PER_UKESVERK")
-        data class AvtaltPrisPerUkesverk(
-            val prisbetingelser: String?,
-            val satser: List<AvtaltSatsDto>,
-        ) : PrismodellDto()
-
-        @Serializable
-        @SerialName("AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER")
-        data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
-            val prisbetingelser: String?,
-            val satser: List<AvtaltSatsDto>,
-        ) : PrismodellDto()
-    }
 
     @Serializable
     data class Tiltakstype(

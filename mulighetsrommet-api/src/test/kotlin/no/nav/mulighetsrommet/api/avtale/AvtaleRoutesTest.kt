@@ -10,7 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.*
@@ -130,7 +129,7 @@ class AvtaleRoutesTest : FunSpec({
                 avtaler = listOf(
                     AvtaleFixtures.AFT,
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
                     ),
                 ),

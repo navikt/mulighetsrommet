@@ -1,6 +1,6 @@
 import { Box, Select, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
+import { PrismodellType, Tiltakskode } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
@@ -33,14 +33,15 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     >
       <VStack gap="2">
         <Select
-          readOnly={prismodell === Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
+          readOnly={prismodell === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
           label={avtaletekster.prismodell.label}
           size="small"
           error={errors.prismodell?.message}
           value={prismodell}
           onChange={(e) => {
-            setValue("prismodell", e.target.value as Prismodell);
-            if (erPrismodellMedAvtalteSatser(e.target.value as Prismodell)) {
+            const type = e.target.value as PrismodellType;
+            setValue("prismodell", type);
+            if (erPrismodellMedAvtalteSatser(type)) {
               if (satser.length === 0) {
                 setValue("satser", [
                   {
@@ -74,10 +75,10 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
   );
 }
 
-function erPrismodellMedAvtalteSatser(prismodell: Prismodell) {
+function erPrismodellMedAvtalteSatser(prismodell: PrismodellType) {
   return [
-    Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-    Prismodell.AVTALT_PRIS_PER_UKESVERK,
-    Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+    PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+    PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
   ].includes(prismodell);
 }

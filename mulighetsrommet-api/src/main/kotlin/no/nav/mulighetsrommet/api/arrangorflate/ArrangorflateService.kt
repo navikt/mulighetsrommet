@@ -5,7 +5,7 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -221,7 +221,7 @@ class ArrangorflateService(
 
     fun getGjennomforinger(
         orgnr: Organisasjonsnummer,
-        prismodeller: List<Prismodell>,
+        prismodeller: List<PrismodellType>,
     ): List<ArrangorflateGjennomforing> = db.session {
         queries.gjennomforing
             .getAll(

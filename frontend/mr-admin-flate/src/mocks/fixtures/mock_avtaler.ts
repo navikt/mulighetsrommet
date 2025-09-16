@@ -6,7 +6,7 @@ import {
   EmbeddedTiltakstype,
   Opphav,
   OpsjonsmodellType,
-  Prismodell,
+  PrismodellType,
 } from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
@@ -72,7 +72,7 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
       prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
         10 deltakere:
@@ -136,7 +136,7 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
       prisbetingelser: "Maskert prisbetingelser",
     },
   },
@@ -187,7 +187,7 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
       prisbetingelser: "Maskert prisbetingelser",
     },
   },
@@ -239,7 +239,7 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
       prisbetingelser: "Maskert prisbetingelser",
     },
   },
@@ -296,7 +296,7 @@ for (let i = 0; i < x; i++) {
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
       prisbetingelser: "Maskert prisbetingelser",
     },
   });

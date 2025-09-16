@@ -772,7 +772,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PrismodellDto"
+                  $ref: "#/components/schemas/PrismodellInfo"
         default:
           description: Problem details
           headers: {}
@@ -3415,17 +3415,17 @@ components:
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_KORREKSJON_PA_UTBETALING
-    PrismodellDto:
+    PrismodellInfo:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/Prismodell"
+          $ref: "#/components/schemas/PrismodellType"
         beskrivelse:
           type: string
       required:
       - beskrivelse
       - type
-    Prismodell:
+    PrismodellType:
       type: string
       enum:
       - ANNEN_AVTALT_PRIS
