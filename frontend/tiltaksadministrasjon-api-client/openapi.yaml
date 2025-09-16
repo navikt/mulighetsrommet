@@ -3571,7 +3571,12 @@ components:
           type: string
         variant:
           $ref: "#/components/schemas/DataElement.Status.Variant"
+        description:
+          type:
+          - "null"
+          - string
       required:
+      - description
       - value
       - variant
     DataElement.Status.Variant:

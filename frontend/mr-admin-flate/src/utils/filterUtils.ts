@@ -1,5 +1,5 @@
 import {
-  AvtaleStatus,
+  AvtaleStatusType,
   Avtaletype,
   GjennomforingStatus,
   NavEnhetDto,
@@ -30,22 +30,22 @@ export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
   },
 ];
 
-export const AVTALE_STATUS_OPTIONS: { label: string; value: AvtaleStatus }[] = [
+export const AVTALE_STATUS_OPTIONS: { label: string; value: AvtaleStatusType }[] = [
   {
     label: "Aktiv",
-    value: AvtaleStatus.AKTIV,
+    value: AvtaleStatusType.AKTIV,
   },
   {
     label: "Avsluttet",
-    value: AvtaleStatus.AVSLUTTET,
+    value: AvtaleStatusType.AVSLUTTET,
   },
   {
     label: "Avbrutt",
-    value: AvtaleStatus.AVBRUTT,
+    value: AvtaleStatusType.AVBRUTT,
   },
   {
     label: "Utkast",
-    value: AvtaleStatus.UTKAST,
+    value: AvtaleStatusType.UTKAST,
   },
 ];
 

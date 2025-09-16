@@ -564,15 +564,15 @@ class OppgaverServiceTest : FunSpec({
                 avtaler = listOf(
                     AvtaleFixtures.AFT.copy(
                         administratorer = listOf(),
-                        status = AvtaleStatus.AKTIV,
+                        status = AvtaleStatusType.AKTIV,
                     ),
                     AvtaleFixtures.gruppeAmo.copy(
                         administratorer = listOf(),
-                        status = AvtaleStatus.AVSLUTTET,
+                        status = AvtaleStatusType.AVSLUTTET,
                     ),
                     AvtaleFixtures.VTA.copy(
                         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                        status = AvtaleStatus.AKTIV,
+                        status = AvtaleStatusType.AKTIV,
                     ),
                 ),
             ).initialize(database.db)

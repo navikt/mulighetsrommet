@@ -11,9 +11,11 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -21,6 +23,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
@@ -87,6 +90,7 @@ data class OpprettOpsjonLoggRequest(
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
+    val db: ApiDatabase by inject()
 
     route("avtaler") {
         authorize(Rolle.AVTALER_SKRIV) {
@@ -96,6 +100,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaler.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -253,7 +258,23 @@ fun Route.avtaleRoutes() {
         get {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
-            val result = avtaler.getAll(filter, pagination)
+
+            val result = db.session {
+                val (totalCount, items) = queries.avtale.getAll(
+                    pagination = pagination,
+                    tiltakstypeIder = filter.tiltakstypeIder,
+                    search = filter.search,
+                    statuser = filter.statuser,
+                    avtaletyper = filter.avtaletyper,
+                    navRegioner = filter.navRegioner,
+                    sortering = filter.sortering,
+                    arrangorIds = filter.arrangorIds,
+                    administratorNavIdent = filter.administratorNavIdent,
+                    personvernBekreftet = filter.personvernBekreftet,
+                )
+
+                PaginatedResponse.of(pagination, totalCount, items.map { AvtaleDtoMapper.fromAvtale(it) })
+            }
 
             call.respond(result)
         }
@@ -261,11 +282,24 @@ fun Route.avtaleRoutes() {
         get("/excel") {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
-            val overstyrtFilter = filter.copy(
-                sortering = "tiltakstype_navn-ascending",
-            )
-            val result = avtaler.getAll(overstyrtFilter, pagination)
-            val file = ExcelService.createExcelFileForAvtale(result.data)
+
+            val avtaler = db.session {
+                queries.avtale.getAll(
+                    pagination = pagination,
+                    tiltakstypeIder = filter.tiltakstypeIder,
+                    search = filter.search,
+                    statuser = filter.statuser,
+                    avtaletyper = filter.avtaletyper,
+                    navRegioner = filter.navRegioner,
+                    sortering = "tiltakstype_navn-ascending",
+                    arrangorIds = filter.arrangorIds,
+                    administratorNavIdent = filter.administratorNavIdent,
+                    personvernBekreftet = filter.personvernBekreftet,
+                )
+            }
+
+            val file = ExcelService.createExcelFileForAvtale(avtaler.items)
+
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
@@ -280,10 +314,10 @@ fun Route.avtaleRoutes() {
         }
 
         get("{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+            val id: UUID by call.parameters
 
             avtaler.get(id)
-                ?.let { call.respond(it) }
+                ?.let { call.respond(AvtaleDtoMapper.fromAvtale(it)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
@@ -377,7 +411,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
     val statuser = call.parameters.getAll("statuser")
-        ?.map { status -> AvtaleStatus.valueOf(status) }
+        ?.map { status -> AvtaleStatusType.valueOf(status) }
         ?: emptyList()
     val avtaletyper = call.parameters.getAll("avtaletyper")
         ?.map { type -> Avtaletype.valueOf(type) }
@@ -406,7 +440,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
 data class AvtaleFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
-    val statuser: List<AvtaleStatus> = emptyList(),
+    val statuser: List<AvtaleStatusType> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
     val navRegioner: List<NavEnhetNummer> = emptyList(),
     val sortering: String? = null,

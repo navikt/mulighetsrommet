@@ -140,7 +140,7 @@ class GjennomforingValidatorTest : FunSpec({
         database.run {
             queries.avtale.setStatus(
                 id = avtale.id,
-                status = AvtaleStatus.AVBRUTT,
+                status = AvtaleStatusType.AVBRUTT,
                 tidspunkt = LocalDateTime.now(),
                 aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                 forklaring = null,
@@ -151,7 +151,7 @@ class GjennomforingValidatorTest : FunSpec({
         )
 
         database.run {
-            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVSLUTTET, null, null, null)
+            queries.avtale.setStatus(avtale.id, AvtaleStatusType.AVSLUTTET, null, null, null)
         }
         createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
@@ -394,7 +394,7 @@ class GjennomforingValidatorTest : FunSpec({
             val previous = database.run {
                 queries.avtale.setStatus(
                     id = avtale.id,
-                    status = AvtaleStatus.AVBRUTT,
+                    status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
                     aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                     forklaring = null,

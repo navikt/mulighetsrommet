@@ -42,7 +42,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
-      status: { value: "Venter på arrangør", variant: DataElementStatusVariant.ALT },
+      status: {
+        value: "Venter på arrangør",
+        variant: DataElementStatusVariant.ALT,
+        description: null,
+      },
     },
     createdAt: "2024-01-01T10:00:00",
     godkjentAvArrangorTidspunkt: null,
@@ -66,7 +70,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.TIL_ATTESTERING,
-      status: { value: "Til attestering", variant: DataElementStatusVariant.WARNING },
+      status: {
+        value: "Til attestering",
+        variant: DataElementStatusVariant.WARNING,
+        description: null,
+      },
     },
     createdAt: "2024-07-01T14:30:00",
     godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
@@ -90,7 +98,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.RETURNERT,
-      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: null,
@@ -114,7 +122,11 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING,
-      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+      status: {
+        value: "Overført til utbetaling",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
     },
     createdAt: "2025-01-01T08:00:00",
     godkjentAvArrangorTidspunkt: null,
@@ -141,7 +153,11 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.VENTER_PA_ARRANGOR,
-      status: { value: "Venter på arrangør", variant: DataElementStatusVariant.ALT },
+      status: {
+        value: "Venter på arrangør",
+        variant: DataElementStatusVariant.ALT,
+        description: null,
+      },
     },
     belopUtbetalt: null,
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
@@ -156,7 +172,11 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.TIL_ATTESTERING,
-      status: { value: "Til attestering", variant: DataElementStatusVariant.WARNING },
+      status: {
+        value: "Til attestering",
+        variant: DataElementStatusVariant.WARNING,
+        description: null,
+      },
     },
     belopUtbetalt: null,
     type: utbetalingType.INNSENDING,
@@ -171,7 +191,11 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     belopUtbetalt: 13400,
     status: {
       type: UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING,
-      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+      status: {
+        value: "Overført til utbetaling",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
     },
     type: utbetalingType.INNSENDING,
   },
@@ -183,7 +207,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     },
     status: {
       type: UtbetalingStatusDtoType.RETURNERT,
-      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     kostnadssteder: [mockEnheter._0105, mockEnheter._0106],
     belopUtbetalt: null,
@@ -211,14 +235,22 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: {
         type: TilsagnStatus.TIL_GODKJENNING,
-        status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+        status: {
+          value: "Til godkjenning",
+          variant: DataElementStatusVariant.WARNING,
+          description: null,
+        },
       },
       bestillingsnummer: "A-2024/123",
       kommentar: "Min kommentar",
     },
     status: {
       type: DelutbetalingStatus.TIL_ATTESTERING,
-      status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+      status: {
+        value: "Til godkjenning",
+        variant: DataElementStatusVariant.WARNING,
+        description: null,
+      },
     },
     belop: 5000,
     gjorOppTilsagn: true,
@@ -252,14 +284,18 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: {
         type: TilsagnStatus.TIL_ANNULLERING,
-        status: { value: "Til annullering", variant: DataElementStatusVariant.ERROR_BORDER },
+        status: {
+          value: "Til annullering",
+          variant: DataElementStatusVariant.ERROR_BORDER,
+          description: null,
+        },
       },
       bestillingsnummer: "A-2024/123",
       kommentar: "Min kommentar",
     },
     status: {
       type: DelutbetalingStatus.RETURNERT,
-      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     belop: 7500,
     gjorOppTilsagn: false,
@@ -297,14 +333,14 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: {
         type: TilsagnStatus.GODKJENT,
-        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
       },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
     },
     status: {
       type: DelutbetalingStatus.RETURNERT,
-      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR },
+      status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     belop: 3000,
     gjorOppTilsagn: true,
@@ -343,7 +379,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: {
         type: TilsagnStatus.GODKJENT,
-        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
       },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
@@ -351,7 +387,11 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
 
     status: {
       type: DelutbetalingStatus.TIL_ATTESTERING,
-      status: { value: "Til godkjenning", variant: DataElementStatusVariant.WARNING },
+      status: {
+        value: "Til godkjenning",
+        variant: DataElementStatusVariant.WARNING,
+        description: null,
+      },
     },
     belop: 3000,
     gjorOppTilsagn: false,
@@ -384,14 +424,18 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       belopGjenstaende: 10_000,
       status: {
         type: TilsagnStatus.GODKJENT,
-        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS },
+        status: { value: "Godkjent", variant: DataElementStatusVariant.SUCCESS, description: null },
       },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
     },
     status: {
       type: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-      status: { value: "Overført til utbetaling", variant: DataElementStatusVariant.SUCCESS },
+      status: {
+        value: "Overført til utbetaling",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
     },
     belop: 3000,
     gjorOppTilsagn: false,

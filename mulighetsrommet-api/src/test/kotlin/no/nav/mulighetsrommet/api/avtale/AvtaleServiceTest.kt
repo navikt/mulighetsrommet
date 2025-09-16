@@ -30,7 +30,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
@@ -109,7 +109,7 @@ class AvtaleServiceTest : FunSpec({
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
-                status = AvtaleStatus.AVSLUTTET,
+                status = AvtaleStatusType.AVSLUTTET,
             )
 
             MulighetsrommetTestDomain(
@@ -117,7 +117,7 @@ class AvtaleServiceTest : FunSpec({
             ) {
                 queries.avtale.setStatus(
                     avbruttAvtale.id,
-                    AvtaleStatus.AVBRUTT,
+                    AvtaleStatusType.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
                     aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
@@ -198,7 +198,7 @@ class AvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
-                it.status.shouldBeTypeOf<AvtaleStatusDto.Avbrutt>().forklaring shouldBe ":)"
+                it.status.shouldBeTypeOf<AvtaleStatus.Avbrutt>().forklaring shouldBe ":)"
             }
         }
     }
@@ -256,7 +256,7 @@ class AvtaleServiceTest : FunSpec({
         val avtale = AvtaleFixtures.oppfolging.copy(
             startDato = yesterday,
             sluttDato = yesterday,
-            status = AvtaleStatus.AVSLUTTET,
+            status = AvtaleStatusType.AVSLUTTET,
             opsjonsmodell = Opsjonsmodell(
                 type = OpsjonsmodellType.TO_PLUSS_EN,
                 opsjonMaksVarighet = theDayAfterTomorrow,
@@ -315,16 +315,17 @@ class AvtaleServiceTest : FunSpec({
             )
             val dto = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
             dto.should {
-                it.status.type shouldBe AvtaleStatus.AKTIV
+                it.status.type shouldBe AvtaleStatusType.AKTIV
                 it.sluttDato shouldBe tomorrow
                 it.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
             }
 
-            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight().should {
-                it.status.type shouldBe AvtaleStatus.AVSLUTTET
-                it.sluttDato shouldBe yesterday
-                it.opsjonerRegistrert.shouldBeEmpty()
-            }
+            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight()
+                .should {
+                    it.status.type shouldBe AvtaleStatusType.AVSLUTTET
+                    it.sluttDato shouldBe yesterday
+                    it.opsjonerRegistrert.shouldBeEmpty()
+                }
         }
 
         test("opsjon kan bare slettes hvis den er den siste registrerte") {

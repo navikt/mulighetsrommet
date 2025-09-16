@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
@@ -22,11 +21,9 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.AvtaleStatus
+import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -44,14 +41,14 @@ class AvtaleService(
     suspend fun upsert(
         request: AvtaleRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, AvtaleDto> = either {
+    ): Either<List<FieldError>, Avtale> = either {
         val previous = get(request.id)
 
         val dbo = validator
             .validate(request, previous)
             .bind()
 
-        if (previous != null && AvtaleDboMapper.fromAvtaleDto(previous) == dbo) {
+        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
             return@either previous
         }
 
@@ -78,7 +75,7 @@ class AvtaleService(
         id: UUID,
         request: PrismodellRequest,
         navIdent: NavIdent,
-    ): Either<NonEmptyList<FieldError>, AvtaleDto> = either {
+    ): Either<NonEmptyList<FieldError>, Avtale> = either {
         val previous = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
@@ -98,34 +95,14 @@ class AvtaleService(
         }
     }
 
-    fun get(id: UUID): AvtaleDto? = db.session {
+    fun get(id: UUID): Avtale? = db.session {
         queries.avtale.get(id)
-    }
-
-    fun getAll(
-        filter: AvtaleFilter,
-        pagination: Pagination,
-    ): PaginatedResponse<AvtaleDto> = db.session {
-        val (totalCount, items) = queries.avtale.getAll(
-            pagination = pagination,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            search = filter.search,
-            statuser = filter.statuser,
-            avtaletyper = filter.avtaletyper,
-            navRegioner = filter.navRegioner,
-            sortering = filter.sortering,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            personvernBekreftet = filter.personvernBekreftet,
-        )
-
-        PaginatedResponse.of(pagination, totalCount, items)
     }
 
     fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
         val avtale = getOrError(id)
 
-        check(avtale.status == AvtaleStatusDto.Aktiv) {
+        check(avtale.status == AvtaleStatus.Aktiv) {
             "Avtalen må være aktiv for å kunne avsluttes"
         }
 
@@ -134,7 +111,7 @@ class AvtaleService(
             "Avtalen kan ikke avsluttes før sluttdato"
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null, null)
+        queries.avtale.setStatus(id, AvtaleStatusType.AVSLUTTET, null, null, null)
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avsluttet", dto, endretAv)
@@ -145,14 +122,14 @@ class AvtaleService(
         avbruttAv: NavIdent,
         tidspunkt: LocalDateTime,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
-    ): Either<List<FieldError>, AvtaleDto> = db.transaction {
+    ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
 
         val errors = buildList {
             when (avtale.status) {
-                is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
-                is AvtaleStatusDto.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
-                is AvtaleStatusDto.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
+                is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
+                is AvtaleStatus.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
+                is AvtaleStatus.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
             }
 
             val (_, gjennomforinger) = queries.gjennomforing.getAll(
@@ -175,7 +152,7 @@ class AvtaleService(
 
         queries.avtale.setStatus(
             id = id,
-            status = AvtaleStatus.AVBRUTT,
+            status = AvtaleStatusType.AVBRUTT,
             tidspunkt = tidspunkt,
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
@@ -192,7 +169,7 @@ class AvtaleService(
         request: OpprettOpsjonLoggRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, AvtaleDto> = either {
+    ): Either<List<FieldError>, Avtale> = either {
         db.transaction {
             val avtale = getOrError(avtaleId)
             requireNotNull(avtale.sluttDato) {
@@ -215,6 +192,7 @@ class AvtaleService(
                 OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
                 OpprettOpsjonLoggRequest.Type.ETT_AAR,
                 -> "Opsjon registrert"
+
                 OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
             }
             logEndring(operation, getOrError(avtaleId), navIdent)
@@ -226,7 +204,7 @@ class AvtaleService(
         opsjonId: UUID,
         slettesAv: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<FieldError, AvtaleDto> = db.transaction {
+    ): Either<FieldError, Avtale> = db.transaction {
         val opsjoner = queries.opsjoner.getByAvtaleId(avtaleId)
 
         val sisteOpsjon = opsjoner.firstOrNull()
@@ -265,7 +243,7 @@ class AvtaleService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
-    fun handlinger(avtale: AvtaleDto, navIdent: NavIdent): Set<AvtaleHandling> {
+    fun handlinger(avtale: Avtale, navIdent: NavIdent): Set<AvtaleHandling> {
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
             ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
@@ -274,21 +252,21 @@ class AvtaleService(
         return setOfNotNull(
             AvtaleHandling.AVBRYT.takeIf {
                 when (avtale.status) {
-                    AvtaleStatusDto.Utkast,
-                    AvtaleStatusDto.Aktiv,
+                    AvtaleStatus.Utkast,
+                    AvtaleStatus.Aktiv,
                     -> avtalerSkriv
 
-                    is AvtaleStatusDto.Avbrutt,
-                    AvtaleStatusDto.Avsluttet,
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
                     -> false
                 }
             },
             AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
                 when (avtale.status) {
-                    AvtaleStatusDto.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
-                    is AvtaleStatusDto.Avbrutt,
-                    AvtaleStatusDto.Avsluttet,
-                    AvtaleStatusDto.Utkast,
+                    AvtaleStatus.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
+                    AvtaleStatus.Utkast,
                     -> false
                 }
             },
@@ -307,7 +285,7 @@ class AvtaleService(
         )
     }
 
-    private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
+    private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {
         gjennomforingPublisher.schedule(
             input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
             id = dto.id,
@@ -320,11 +298,11 @@ class AvtaleService(
 
         val currentStatus = getOrError(avtaleId).status.type
         val newStatus = when (currentStatus) {
-            AvtaleStatus.UTKAST, AvtaleStatus.AVBRUTT -> currentStatus
-            AvtaleStatus.AKTIV, AvtaleStatus.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
-                AvtaleStatus.AKTIV
+            AvtaleStatusType.UTKAST, AvtaleStatusType.AVBRUTT -> currentStatus
+            AvtaleStatusType.AKTIV, AvtaleStatusType.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
+                AvtaleStatusType.AKTIV
             } else {
-                AvtaleStatus.AVSLUTTET
+                AvtaleStatusType.AVSLUTTET
             }
         }
         if (newStatus != currentStatus) {
@@ -332,7 +310,7 @@ class AvtaleService(
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): AvtaleDto {
+    private fun QueryContext.getOrError(id: UUID): Avtale {
         val dto = queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
@@ -356,9 +334,9 @@ class AvtaleService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: AvtaleDto,
+        dto: Avtale,
         endretAv: Agent,
-    ): AvtaleDto {
+    ): Avtale {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
@@ -374,14 +352,14 @@ class AvtaleService(
 
 fun resolveStatus(
     request: AvtaleRequest,
-    previous: AvtaleDto?,
+    previous: Avtale?,
     today: LocalDate,
-): AvtaleStatus = if (request.arrangor == null) {
-    AvtaleStatus.UTKAST
-} else if (previous?.status is AvtaleStatusDto.Avbrutt) {
+): AvtaleStatusType = if (request.arrangor == null) {
+    AvtaleStatusType.UTKAST
+} else if (previous?.status?.type == AvtaleStatusType.AVBRUTT) {
     previous.status.type
 } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
-    AvtaleStatus.AKTIV
+    AvtaleStatusType.AKTIV
 } else {
-    AvtaleStatus.AVSLUTTET
+    AvtaleStatusType.AVSLUTTET
 }
