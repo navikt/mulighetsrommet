@@ -33,7 +33,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
 
         MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolging),
+            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
             gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         ).initialize(database.db)
 

@@ -37,7 +37,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
     ),
     val avtaler: List<AvtaleDbo> = listOf(
-        AvtaleFixtures.oppfolging,
+        AvtaleFixtures.oppfolgingDbo,
         AvtaleFixtures.VTA,
         AvtaleFixtures.AFT,
         AvtaleFixtures.jobbklubb,

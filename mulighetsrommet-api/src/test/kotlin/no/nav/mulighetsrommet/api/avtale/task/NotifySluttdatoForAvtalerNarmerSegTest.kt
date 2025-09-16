@@ -21,37 +21,37 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
         avtaler = listOf(
-            AvtaleFixtures.oppfolging.copy(
+            AvtaleFixtures.oppfolgingDbo.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusMonths(8),
                 administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
-            AvtaleFixtures.oppfolging.copy(
+            AvtaleFixtures.oppfolgingDbo.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusMonths(6),
                 administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
-            AvtaleFixtures.oppfolging.copy(
+            AvtaleFixtures.oppfolgingDbo.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusMonths(3),
                 administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
-            AvtaleFixtures.oppfolging.copy(
+            AvtaleFixtures.oppfolgingDbo.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusDays(14),
                 administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
-            AvtaleFixtures.oppfolging.copy(
+            AvtaleFixtures.oppfolgingDbo.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2021, 1, 1),
                 sluttDato = currentDate.plusDays(7),
                 administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
             ),
-            AvtaleFixtures.oppfolging.copy(
+            AvtaleFixtures.oppfolgingDbo.copy(
                 id = UUID.randomUUID(),
                 startDato = LocalDate.of(2022, 6, 7),
                 sluttDato = LocalDate.of(2024, 1, 1),

@@ -173,7 +173,7 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
             ).initialize(database.db)
         }
 
@@ -224,7 +224,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 ),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
                 gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
@@ -283,7 +283,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 ),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
                 gjennomforinger = listOf(gjennomforing),
             ) {
                 queries.gjennomforing.setStatus(
@@ -334,7 +334,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
                 gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 

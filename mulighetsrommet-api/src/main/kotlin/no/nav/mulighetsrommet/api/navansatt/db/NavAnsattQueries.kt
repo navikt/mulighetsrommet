@@ -182,7 +182,7 @@ class NavAnsattQueries(private val session: Session) {
 private fun Row.toNavAnsattDto(): NavAnsatt {
     val roller = stringOrNull("roller_json")
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<NavAnsattRolle>>(it) }
-        ?: setOf<NavAnsattRolle>()
+        ?: setOf()
     return NavAnsatt(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
