@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -51,6 +52,8 @@ fun Route.gjennomforingRoutes() {
 
                 val result = gjennomforinger.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
+                    .map { GjennomforingDtoMapper.fromGjennomforing(it) }
+
                 call.respondWithStatusResponse(result)
             }
 
@@ -211,6 +214,7 @@ fun Route.gjennomforingRoutes() {
                         gjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
+                    .map { GjennomforingDtoMapper.fromGjennomforing(it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -276,7 +280,9 @@ fun Route.gjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(gjennomforinger.getAll(pagination, filter))
+            val result = gjennomforinger.getAll(pagination, filter)
+
+            call.respond(result)
         }
 
         get("/excel") {
@@ -303,7 +309,7 @@ fun Route.gjennomforingRoutes() {
             val id = call.parameters.getOrFail<UUID>("id")
 
             gjennomforinger.get(id)
-                ?.let { call.respond(it) }
+                ?.let { call.respond(GjennomforingDtoMapper.fromGjennomforing(it)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
@@ -409,7 +415,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<GjennomforingStatus> = emptyList(),
+    val statuser: List<GjennomforingStatusType> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
@@ -423,7 +429,7 @@ fun RoutingContext.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomfor
     val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { GjennomforingStatus.valueOf(it) }
+        ?.map { GjennomforingStatusType.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }

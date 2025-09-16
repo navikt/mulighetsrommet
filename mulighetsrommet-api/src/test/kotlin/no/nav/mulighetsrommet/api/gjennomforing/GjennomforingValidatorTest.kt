@@ -169,10 +169,10 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke bare opprettes med status GJENNOMFORES") {
-        val gjennomfores = gjennomforing.copy(status = GjennomforingStatus.GJENNOMFORES)
-        val avsluttet = gjennomforing.copy(status = GjennomforingStatus.AVSLUTTET)
-        val avbrutt = gjennomforing.copy(status = GjennomforingStatus.AVBRUTT)
-        val avlyst = gjennomforing.copy(status = GjennomforingStatus.AVLYST)
+        val gjennomfores = gjennomforing.copy(status = GjennomforingStatusType.GJENNOMFORES)
+        val avsluttet = gjennomforing.copy(status = GjennomforingStatusType.AVSLUTTET)
+        val avbrutt = gjennomforing.copy(status = GjennomforingStatusType.AVBRUTT)
+        val avlyst = gjennomforing.copy(status = GjennomforingStatusType.AVLYST)
 
         createValidator().validate(gjennomfores, null).shouldBeRight()
         createValidator().validate(avsluttet, null).shouldBeLeft(
@@ -409,7 +409,7 @@ class GjennomforingValidatorTest : FunSpec({
             val previous = database.run {
                 queries.gjennomforing.setStatus(
                     id = gjennomforing.id,
-                    status = GjennomforingStatus.AVBRUTT,
+                    status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
@@ -426,7 +426,7 @@ class GjennomforingValidatorTest : FunSpec({
             val previous = database.run {
                 queries.gjennomforing.setStatus(
                     id = gjennomforing.id,
-                    status = GjennomforingStatus.AVSLUTTET,
+                    status = GjennomforingStatusType.AVSLUTTET,
                     tidspunkt = LocalDateTime.now(),
                     aarsaker = null,
                     forklaring = null,

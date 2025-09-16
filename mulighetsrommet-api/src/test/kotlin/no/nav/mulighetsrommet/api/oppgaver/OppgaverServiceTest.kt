@@ -602,17 +602,17 @@ class OppgaverServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
                     AFT1.copy(
-                        status = GjennomforingStatus.GJENNOMFORES,
+                        status = GjennomforingStatusType.GJENNOMFORES,
                         administratorer = listOf(),
                     ),
                     AFT1.copy(
                         id = avsluttetGjennomforing,
-                        status = GjennomforingStatus.AVSLUTTET,
+                        status = GjennomforingStatusType.AVSLUTTET,
                         administratorer = listOf(),
                     ),
                     AFT1.copy(
                         id = UUID.randomUUID(),
-                        status = GjennomforingStatus.GJENNOMFORES,
+                        status = GjennomforingStatusType.GJENNOMFORES,
                         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                     ),
                 ),

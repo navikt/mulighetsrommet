@@ -3,46 +3,46 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDboMapper {
-    fun fromGjennomforingDto(dto: GjennomforingDto) = GjennomforingDbo(
-        id = dto.id,
-        navn = dto.navn,
-        tiltakstypeId = dto.tiltakstype.id,
-        arrangorId = dto.arrangor.id,
-        arrangorKontaktpersoner = dto.arrangor.kontaktpersoner.map { it.id },
-        startDato = dto.startDato,
-        sluttDato = dto.sluttDato,
-        status = dto.status.type,
-        antallPlasser = dto.antallPlasser,
-        avtaleId = dto.avtaleId ?: dto.id,
-        administratorer = dto.administratorer.map { it.navIdent },
-        navEnheter = dto.kontorstruktur
+    fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(
+        id = gjennomforing.id,
+        navn = gjennomforing.navn,
+        tiltakstypeId = gjennomforing.tiltakstype.id,
+        arrangorId = gjennomforing.arrangor.id,
+        arrangorKontaktpersoner = gjennomforing.arrangor.kontaktpersoner.map { it.id },
+        startDato = gjennomforing.startDato,
+        sluttDato = gjennomforing.sluttDato,
+        status = gjennomforing.status.type,
+        antallPlasser = gjennomforing.antallPlasser,
+        avtaleId = gjennomforing.avtaleId ?: gjennomforing.id,
+        administratorer = gjennomforing.administratorer.map { it.navIdent },
+        navEnheter = gjennomforing.kontorstruktur
             .flatMap { (region, kontorer) ->
                 kontorer.map { kontor -> kontor.enhetsnummer } + region.enhetsnummer
             }
             .toSet(),
-        oppstart = dto.oppstart,
-        kontaktpersoner = dto.kontaktpersoner.map {
+        oppstart = gjennomforing.oppstart,
+        kontaktpersoner = gjennomforing.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
                 beskrivelse = it.beskrivelse,
             )
         },
-        stedForGjennomforing = dto.stedForGjennomforing,
-        faneinnhold = dto.faneinnhold,
-        beskrivelse = dto.beskrivelse,
-        deltidsprosent = dto.deltidsprosent,
-        estimertVentetidVerdi = dto.estimertVentetid?.verdi,
-        estimertVentetidEnhet = dto.estimertVentetid?.enhet,
-        tilgjengeligForArrangorDato = dto.tilgjengeligForArrangorDato,
-        amoKategorisering = dto.amoKategorisering,
-        utdanningslop = dto.utdanningslop?.toDbo(),
+        stedForGjennomforing = gjennomforing.stedForGjennomforing,
+        faneinnhold = gjennomforing.faneinnhold,
+        beskrivelse = gjennomforing.beskrivelse,
+        deltidsprosent = gjennomforing.deltidsprosent,
+        estimertVentetidVerdi = gjennomforing.estimertVentetid?.verdi,
+        estimertVentetidEnhet = gjennomforing.estimertVentetid?.enhet,
+        tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
+        amoKategorisering = gjennomforing.amoKategorisering,
+        utdanningslop = gjennomforing.utdanningslop?.toDbo(),
     )
 
-    fun fromGjennomforingRequest(request: GjennomforingRequest, status: GjennomforingStatus) = GjennomforingDbo(
+    fun fromGjennomforingRequest(request: GjennomforingRequest, status: GjennomforingStatusType) = GjennomforingDbo(
         id = request.id,
         navn = request.navn,
         tiltakstypeId = request.tiltakstypeId,

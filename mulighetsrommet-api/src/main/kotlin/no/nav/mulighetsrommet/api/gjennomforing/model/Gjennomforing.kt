@@ -14,25 +14,25 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class GjennomforingDto(
+data class Gjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: Gjennomforing.Tiltakstype,
+    val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
     val lopenummer: String,
-    val arrangor: Gjennomforing.ArrangorUnderenhet,
+    val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
-    val status: Status,
+    val status: GjennomforingStatus,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val administratorer: List<Gjennomforing.Administrator>,
+    val administratorer: List<Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
@@ -46,16 +46,61 @@ data class GjennomforingDto(
     val oppdatertTidspunkt: LocalDateTime,
     val publisert: Boolean,
     val deltidsprosent: Double,
-    val estimertVentetid: Gjennomforing.EstimertVentetid?,
+    val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
-    val stengt: List<Gjennomforing.StengtPeriode>,
+    val stengt: List<StengtPeriode>,
 ) {
+
     @Serializable
-    data class Status(
-        val type: GjennomforingStatusType,
-        val status: DataElement.Status,
+    data class Tiltakstype(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val tiltakskode: Tiltakskode,
+    )
+
+    @Serializable
+    data class Administrator(
+        val navIdent: NavIdent,
+        val navn: String,
+    )
+
+    @Serializable
+    data class ArrangorUnderenhet(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val organisasjonsnummer: Organisasjonsnummer,
+        val navn: String,
+        val kontaktpersoner: List<ArrangorKontaktperson>,
+        val slettet: Boolean,
+    )
+
+    @Serializable
+    data class ArrangorKontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
+    )
+
+    @Serializable
+    data class EstimertVentetid(
+        val verdi: Int,
+        val enhet: String,
+    )
+
+    @Serializable
+    data class StengtPeriode(
+        val id: Int,
+        @Serializable(with = LocalDateSerializer::class)
+        val start: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val slutt: LocalDate,
+        val beskrivelse: String,
     )
 }

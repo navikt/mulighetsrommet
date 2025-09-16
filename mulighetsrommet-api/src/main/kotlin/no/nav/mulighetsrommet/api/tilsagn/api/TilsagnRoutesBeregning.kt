@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.*
@@ -197,7 +197,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Avtale.PrismodellDto): T
 fun resolveTilsagnDefaults(
     config: OkonomiConfig,
     prismodell: Avtale.PrismodellDto,
-    gjennomforing: GjennomforingDto,
+    gjennomforing: Gjennomforing,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
     val periode = when (prismodell) {
@@ -233,7 +233,7 @@ fun resolveTilsagnDefaults(
 
 private fun getForhandsgodkjentTiltakPeriode(
     config: OkonomiConfig,
-    gjennomforing: GjennomforingDto,
+    gjennomforing: Gjennomforing,
     tilsagn: Tilsagn?,
 ): Periode {
     val periodeStart = listOfNotNull(
@@ -255,7 +255,7 @@ private fun getForhandsgodkjentTiltakPeriode(
 
 private fun getAnskaffetTiltakPeriode(
     config: OkonomiConfig,
-    gjennomforing: GjennomforingDto,
+    gjennomforing: Gjennomforing,
     tilsagn: Tilsagn?,
 ): Periode {
     val firstDayOfCurrentMonth = now().withDayOfMonth(1)
@@ -276,7 +276,7 @@ private fun getAnskaffetTiltakPeriode(
 
 private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
-    gjennomforing: GjennomforingDto,
+    gjennomforing: Gjennomforing,
     prismodell: Avtale.PrismodellDto,
 ): TilsagnRequest {
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
