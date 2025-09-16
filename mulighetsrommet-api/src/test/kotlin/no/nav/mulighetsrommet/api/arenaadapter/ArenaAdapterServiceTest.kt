@@ -9,11 +9,10 @@ import io.mockk.clearAllMocks
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -21,7 +20,9 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -252,7 +253,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.tiltaksnummer shouldBe "2024#2024"
                     it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
-                    it.status.type shouldBe GjennomforingStatus.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn
@@ -270,7 +271,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 4, 1),
-                status = GjennomforingStatus.GJENNOMFORES,
+                status = GjennomforingStatusType.GJENNOMFORES,
             )
 
             MulighetsrommetTestDomain(
@@ -287,7 +288,7 @@ class ArenaAdapterServiceTest : FunSpec({
             ) {
                 queries.gjennomforing.setStatus(
                     id = gjennomforing.id,
-                    status = GjennomforingStatus.AVBRUTT,
+                    status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                     aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
                     forklaring = null,
@@ -317,7 +318,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing.id).shouldNotBeNull().status.shouldBe(
-                    GjennomforingStatusDto.Avbrutt(
+                    GjennomforingStatus.Avbrutt(
                         tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                         aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
                         forklaring = null,

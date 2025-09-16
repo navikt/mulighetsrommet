@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.Person
@@ -402,9 +402,9 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
     return Details(entries)
 }
 
-private fun toArrangorflateGjennomforing(dto: GjennomforingDto): ArrangorflateGjennomforing = ArrangorflateGjennomforing(
-    id = dto.id,
-    navn = dto.navn,
-    startDato = dto.startDato,
-    sluttDato = dto.sluttDato,
+private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
+    id = gjennomforing.id,
+    navn = gjennomforing.navn,
+    startDato = gjennomforing.startDato,
+    sluttDato = gjennomforing.sluttDato,
 )

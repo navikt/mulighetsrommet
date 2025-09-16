@@ -1,5 +1,5 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
-import { AvtaleDto, AvtaleStatus } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleStatusType } from "@mr/api-client-v2";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useSetAtom } from "jotai";
 import { HarTilgang } from "@/components/auth/HarTilgang";
@@ -22,7 +22,7 @@ export function GjennomforingFilterButtons({ avtale }: Props) {
         alignItems: "center",
       }}
     >
-      {avtale?.status.type === AvtaleStatus.AKTIV && (
+      {avtale?.status.type === AvtaleStatusType.AKTIV && (
         <div
           style={{
             display: "flex",

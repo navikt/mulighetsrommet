@@ -666,13 +666,13 @@ class AvtaleValidatorTest : FunSpec({
     context("status endringer") {
         test("status blir UTKAST når avtalen lagres uten en arrangør") {
             createValidator().validate(avtaleRequest.copy(arrangor = null), null).shouldBeRight().should {
-                it.status shouldBe AvtaleStatus.UTKAST
+                it.status shouldBe AvtaleStatusType.UTKAST
             }
         }
 
         test("status blir AKTIV når avtalen lagres med sluttdato i fremtiden") {
             createValidator().validate(avtaleRequest, null).shouldBeRight().should {
-                it.status shouldBe AvtaleStatus.AKTIV
+                it.status shouldBe AvtaleStatusType.AKTIV
             }
         }
 
@@ -686,7 +686,7 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             createValidator().validate(request, null).shouldBeRight().should {
-                it.status shouldBe AvtaleStatus.AVSLUTTET
+                it.status shouldBe AvtaleStatusType.AVSLUTTET
             }
         }
 
@@ -700,7 +700,7 @@ class AvtaleValidatorTest : FunSpec({
             ) {
                 queries.avtale.setStatus(
                     avtale.id,
-                    AvtaleStatus.AVBRUTT,
+                    AvtaleStatusType.AVBRUTT,
                     tidspunkt = today.atStartOfDay(),
                     aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
@@ -715,7 +715,7 @@ class AvtaleValidatorTest : FunSpec({
             val previous = database.run { queries.avtale.get(avtale.id) }
 
             createValidator().validate(request, previous).shouldBeRight().should {
-                it.status shouldBe AvtaleStatus.AVBRUTT
+                it.status shouldBe AvtaleStatusType.AVBRUTT
             }
         }
     }

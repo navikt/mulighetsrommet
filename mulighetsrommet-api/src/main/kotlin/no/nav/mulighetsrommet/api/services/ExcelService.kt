@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -19,7 +19,7 @@ object ExcelService {
         return tempFile.toFile()
     }
 
-    fun createExcelFileForAvtale(result: List<AvtaleDto>): File = createExcelFile {
+    fun createExcelFileForAvtale(result: List<Avtale>): File = createExcelFile {
         val sheet = this.createSheet()
 
         val headerRow = sheet.createRow(0)

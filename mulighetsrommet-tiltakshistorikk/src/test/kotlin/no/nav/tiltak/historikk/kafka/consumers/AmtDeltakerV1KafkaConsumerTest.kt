@@ -33,7 +33,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             virksomhetsnummer = "123123123",
             startDato = LocalDate.now(),
             sluttDato = null,
-            status = GjennomforingStatus.GJENNOMFORES,
+            status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,

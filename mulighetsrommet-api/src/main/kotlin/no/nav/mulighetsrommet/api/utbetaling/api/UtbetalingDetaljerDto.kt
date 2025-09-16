@@ -11,7 +11,6 @@ import java.util.*
 @Serializable
 data class UtbetalingDetaljerDto(
     val utbetaling: UtbetalingDto,
-    val linjer: List<UtbetalingLinje>,
     val handlinger: Set<UtbetalingHandling>,
 )
 

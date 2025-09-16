@@ -1978,13 +1978,13 @@ components:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/GjennomforingStatus"
+          $ref: "#/components/schemas/GjennomforingStatusType"
         beskrivelse:
           type: string
       required:
       - beskrivelse
       - type
-    GjennomforingStatus:
+    GjennomforingStatusType:
       type: string
       enum:
       - GJENNOMFORES
