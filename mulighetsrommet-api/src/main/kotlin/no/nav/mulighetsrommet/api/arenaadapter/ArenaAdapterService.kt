@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -139,13 +139,13 @@ class ArenaAdapterService(
 
     private fun hasRelevantChanges(
         arenaGjennomforing: ArenaGjennomforingDbo,
-        current: GjennomforingDto,
+        current: Gjennomforing,
     ): Boolean {
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
     }
 
-    private fun QueryContext.publishToKafka(dto: GjennomforingDto) {
-        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforingDto(dto)
+    private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {
+        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforing(gjennomforing)
 
         val record = StoredProducerRecord(
             config.topic,
@@ -157,34 +157,34 @@ class ArenaAdapterService(
         queries.kafkaProducerRecord.storeRecord(record)
     }
 
-    private fun QueryContext.logUpdateAvtale(dto: Avtale) {
+    private fun QueryContext.logUpdateAvtale(avtale: Avtale) {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             "Endret i Arena",
             Arena,
-            dto.id,
+            avtale.id,
             LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(dto) }
+        ) { Json.encodeToJsonElement(avtale) }
     }
 
-    private fun QueryContext.logUpdateGjennomforing(dto: GjennomforingDto) {
+    private fun QueryContext.logUpdateGjennomforing(gjennomforing: Gjennomforing) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Endret i Arena",
             Arena,
-            dto.id,
+            gjennomforing.id,
             LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(dto) }
+        ) { Json.encodeToJsonElement(gjennomforing) }
     }
 
-    private fun QueryContext.logTiltaksnummerHentetFraArena(dto: GjennomforingDto) {
+    private fun QueryContext.logTiltaksnummerHentetFraArena(gjennomforing: Gjennomforing) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
             Tiltaksadministrasjon,
-            dto.id,
+            gjennomforing.id,
             LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(dto) }
+        ) { Json.encodeToJsonElement(gjennomforing) }
     }
 }
 

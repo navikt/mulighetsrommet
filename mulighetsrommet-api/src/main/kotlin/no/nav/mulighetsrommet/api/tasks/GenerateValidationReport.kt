@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
@@ -137,7 +137,7 @@ class GenerateValidationReport(
         }
     }
 
-    private suspend fun validateGjennomforinger(): Map<GjennomforingDto, List<FieldError>> = db.session {
+    private suspend fun validateGjennomforinger(): Map<Gjennomforing, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
                 queries.gjennomforing.getAll(
@@ -145,7 +145,7 @@ class GenerateValidationReport(
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                val dbo = GjennomforingDboMapper.fromGjennomforingDto(it)
+                val dbo = GjennomforingDboMapper.fromGjennomforing(it)
                 gjennomforingValidator.validate(dbo, it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
@@ -155,7 +155,7 @@ class GenerateValidationReport(
 
     private fun createGjennomforingerSheet(
         workbook: XSSFWorkbook,
-        result: Map<GjennomforingDto, List<FieldError>>,
+        result: Map<Gjennomforing, List<FieldError>>,
     ) {
         val workSheet = workbook.createSheet("Gjennomføringer")
         createHeader(workSheet)

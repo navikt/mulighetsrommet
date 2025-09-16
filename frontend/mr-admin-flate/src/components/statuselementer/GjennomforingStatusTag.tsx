@@ -1,16 +1,10 @@
-import { GjennomforingStatusDto } from "@mr/api-client-v2";
-import { StatusTag } from "@mr/frontend-common";
-import { getGjennomforingStatusTagsProps } from "@/components/statuselementer/getStatusTagProps";
+import { GjennomforingDtoStatus } from "@mr/api-client-v2";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 interface Props {
-  status: GjennomforingStatusDto;
+  status: GjennomforingDtoStatus;
 }
 
 export function GjennomforingStatusTag({ status }: Props) {
-  const { variant, name } = getGjennomforingStatusTagsProps(status.type);
-  return (
-    <StatusTag variant={variant} aria-label={`Status for gjennomføring: ${name}`}>
-      {name}
-    </StatusTag>
-  );
+  return <DataElementStatusTag value={status.status.value} variant={status.status.variant} />;
 }

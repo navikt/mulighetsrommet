@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.databaseConfig
@@ -39,7 +39,7 @@ class SisteTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
             virksomhetsnummer = "123123123",
             startDato = LocalDate.now(),
             sluttDato = null,
-            status = GjennomforingStatus.GJENNOMFORES,
+            status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,

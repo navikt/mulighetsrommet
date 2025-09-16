@@ -1,7 +1,7 @@
 import {
   AvtaleStatusType,
   Avtaletype,
-  GjennomforingStatus,
+  GjennomforingStatusType,
   NavEnhetDto,
   NavEnhetType,
 } from "@mr/api-client-v2";
@@ -10,23 +10,23 @@ import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
   label: string;
-  value: GjennomforingStatus;
+  value: GjennomforingStatusType;
 }[] = [
   {
     label: "Gjennomføres",
-    value: GjennomforingStatus.GJENNOMFORES,
+    value: GjennomforingStatusType.GJENNOMFORES,
   },
   {
     label: "Avlyst",
-    value: GjennomforingStatus.AVLYST,
+    value: GjennomforingStatusType.AVLYST,
   },
   {
     label: "Avsluttet",
-    value: GjennomforingStatus.AVSLUTTET,
+    value: GjennomforingStatusType.AVSLUTTET,
   },
   {
     label: "Avbrutt",
-    value: GjennomforingStatus.AVBRUTT,
+    value: GjennomforingStatusType.AVBRUTT,
   },
 ];
 

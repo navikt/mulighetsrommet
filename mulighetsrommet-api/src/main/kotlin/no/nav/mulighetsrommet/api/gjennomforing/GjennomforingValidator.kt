@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -26,7 +26,7 @@ class GjennomforingValidator(
 
     fun validate(
         dbo: GjennomforingDbo,
-        previous: GjennomforingDto?,
+        previous: Gjennomforing?,
     ): Either<List<FieldError>, GjennomforingDbo> = either {
         var next = dbo
 
@@ -323,7 +323,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (gjennomforing.status != GjennomforingStatus.GJENNOMFORES) {
+        if (gjennomforing.status != GjennomforingStatusType.GJENNOMFORES) {
             add(
                 FieldError.of(
                     "Du kan ikke opprette en gjennomføring som er ${gjennomforing.status.name.lowercase()}",
@@ -335,10 +335,10 @@ class GjennomforingValidator(
 
     private fun MutableList<FieldError>.validateUpdateGjennomforing(
         gjennomforing: GjennomforingDbo,
-        previous: GjennomforingDto,
+        previous: Gjennomforing,
         avtale: Avtale,
     ) {
-        if (previous.status.type != GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type != GjennomforingStatusType.GJENNOMFORES) {
             add(
                 FieldError.of(
                     "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.type.name.lowercase()}",
@@ -356,7 +356,7 @@ class GjennomforingValidator(
             )
         }
 
-        if (previous.status.type == GjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.type == GjennomforingStatusType.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     FieldError.of(

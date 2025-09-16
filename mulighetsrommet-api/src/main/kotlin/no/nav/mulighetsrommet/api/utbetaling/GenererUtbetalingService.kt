@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
@@ -116,7 +116,7 @@ class GenererUtbetalingService(
     private suspend fun QueryContext.generateUtbetalingForPrismodell(
         utbetalingId: UUID,
         prismodell: Prismodell,
-        gjennomforing: GjennomforingDto,
+        gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingDbo? {
         val beregning = when (prismodell) {
@@ -151,7 +151,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolveFastSatsPerTiltaksplassPerManedInput(
-        gjennomforing: GjennomforingDto,
+        gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
@@ -166,7 +166,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolvePrisPerManedsverkInput(
-        gjennomforing: GjennomforingDto,
+        gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
@@ -181,7 +181,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolvePrisPerUkesverkInput(
-        gjennomforing: GjennomforingDto,
+        gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
@@ -197,7 +197,7 @@ class GenererUtbetalingService(
 
     private suspend fun QueryContext.createUtbetaling(
         utbetalingId: UUID,
-        gjennomforing: GjennomforingDto,
+        gjennomforing: Gjennomforing,
         periode: Periode,
         beregning: UtbetalingBeregning,
     ): UtbetalingDbo {
@@ -218,7 +218,7 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveAvtaltSats(gjennomforing: GjennomforingDto, periode: Periode): Int {
+    private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
         return AvtalteSatser.findSats(avtale, periode)
             ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$periode")
@@ -282,7 +282,7 @@ class GenererUtbetalingService(
 
     private fun resolveStengtHosArrangor(
         periode: Periode,
-        stengtPerioder: List<GjennomforingDto.StengtPeriode>,
+        stengtPerioder: List<Gjennomforing.StengtPeriode>,
     ): Set<StengtPeriode> {
         return stengtPerioder
             .mapNotNull { stengt ->

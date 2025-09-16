@@ -15,7 +15,7 @@ import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { GjennomforingStatusMedAarsakTag } from "@/components/statuselementer/GjennomforingStatusMedAarsakTag";
+import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 function useGjennomforingFormData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -64,7 +64,7 @@ export function GjennomforingFormPage() {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring"}
         </Heading>
-        <GjennomforingStatusMedAarsakTag status={gjennomforing.status} />
+        <DataElementStatusTag {...gjennomforing.status.status} />
       </Header>
       <ContentBox>
         <Box padding="4" background="bg-default">

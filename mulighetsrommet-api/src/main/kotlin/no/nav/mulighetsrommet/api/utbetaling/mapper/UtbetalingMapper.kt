@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import java.time.LocalDateTime
 
 object UtbetalingMapper {
-    fun toUtbetaling(dbo: UtbetalingDbo, gjennomforing: GjennomforingDto): Utbetaling {
+    fun toUtbetaling(dbo: UtbetalingDbo, gjennomforing: Gjennomforing): Utbetaling {
         return Utbetaling(
             id = dbo.id,
             status = dbo.status,
