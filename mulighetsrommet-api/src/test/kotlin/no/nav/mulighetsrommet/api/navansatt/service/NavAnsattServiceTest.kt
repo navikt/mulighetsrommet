@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.navansatt.service
 
-import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
@@ -8,6 +7,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
 
 class NavAnsattServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -252,7 +253,7 @@ class NavAnsattServiceTest : FunSpec({
             adGruppeKontaktperson,
         )
 
-        test("should resolve all roles from the specified groups") {
+        test("should resolve all roles from the specified groups").config(blockingTest = true, timeout = 10.seconds) {
             forAll(
                 row(
                     setOf(rolleMappingGenerell),

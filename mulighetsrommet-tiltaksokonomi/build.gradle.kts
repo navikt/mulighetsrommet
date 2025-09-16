@@ -70,6 +70,7 @@ dependencies {
     // Test
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.assertions.table)
     testImplementation(libs.kotest.assertions.arrow)
     testImplementation(libs.mockk)
     testImplementation(libs.assertj.db)
