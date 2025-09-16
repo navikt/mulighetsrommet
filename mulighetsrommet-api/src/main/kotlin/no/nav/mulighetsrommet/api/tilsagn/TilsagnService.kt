@@ -53,20 +53,6 @@ class TilsagnService(
         }
         val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
 
-        val totrinnskontroll = Totrinnskontroll(
-            id = UUID.randomUUID(),
-            entityId = request.id,
-            behandletAv = navIdent,
-            aarsaker = emptyList(),
-            forklaring = null,
-            type = Totrinnskontroll.Type.OPPRETT,
-            behandletTidspunkt = LocalDateTime.now(),
-            besluttelse = null,
-            besluttetAv = null,
-            besluttetTidspunkt = null,
-            besluttetAvNavn = null,
-            behandletAvNavn = null,
-        )
         val previous = queries.tilsagn.get(request.id)
         return TilsagnValidator
             .validate(
@@ -78,7 +64,7 @@ class TilsagnService(
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
             )
-            .map { step3 ->
+            .map { validated ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
@@ -89,18 +75,33 @@ class TilsagnService(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periode = step3.step2.periode,
+                    periode = validated.periode,
                     lopenummer = lopenummer,
-                    kostnadssted = step3.step2.step1.kostnadssted,
+                    kostnadssted = validated.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
-                    beregning = step3.beregning,
+                    beregning = validated.beregning,
                     kommentar = request.kommentar,
                 )
             }
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
+
+                val totrinnskontroll = Totrinnskontroll(
+                    id = UUID.randomUUID(),
+                    entityId = request.id,
+                    behandletAv = navIdent,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                    type = Totrinnskontroll.Type.OPPRETT,
+                    behandletTidspunkt = LocalDateTime.now(),
+                    besluttelse = null,
+                    besluttetAv = null,
+                    besluttetTidspunkt = null,
+                    besluttetAvNavn = null,
+                    behandletAvNavn = null,
+                )
                 queries.totrinnskontroll.upsert(totrinnskontroll)
 
                 val dto = queries.tilsagn.getOrError(dbo.id)

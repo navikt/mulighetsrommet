@@ -13,6 +13,13 @@ import java.time.LocalDate
 
 object TilsagnValidator {
     private const val TILSAGN_BESKRIVELSE_MAX_LENDE = 100
+
+    data class ValidatedTilsagnRequest(
+        val kostnadssted: NavEnhetNummer,
+        val periode: Periode,
+        val beregning: TilsagnBeregning,
+    )
+
     fun validate(
         next: TilsagnRequest,
         previous: Tilsagn?,
@@ -21,7 +28,7 @@ object TilsagnValidator {
         gyldigTilsagnPeriode: Periode?,
         gjennomforingSluttDato: LocalDate?,
         avtalteSatser: List<AvtaltSats>,
-    ): Either<NonEmptyList<FieldError>, Step3> {
+    ): Either<NonEmptyList<FieldError>, ValidatedTilsagnRequest> {
         return validateStep1(
             next,
             previous,
@@ -41,14 +48,14 @@ object TilsagnValidator {
             }
     }
 
-    data class Step1(
+    private data class Step1(
         val periodeStart: LocalDate,
         val periodeSlutt: LocalDate,
         val kostnadssted: NavEnhetNummer,
         val gyldigTilsagnPeriode: Periode,
     )
 
-    fun validateStep1(
+    private fun validateStep1(
         next: TilsagnRequest,
         previous: Tilsagn?,
         tiltakstypeNavn: String,
@@ -109,12 +116,12 @@ object TilsagnValidator {
         }
     }
 
-    data class Step2(
+    private data class Step2(
         val step1: Step1,
         val periode: Periode,
     )
 
-    fun validateStep2(
+    private fun validateStep2(
         step1: Step1,
         gjennomforingSluttDato: LocalDate?,
         tiltakstypeNavn: String,
@@ -151,16 +158,11 @@ object TilsagnValidator {
         }
     }
 
-    data class Step3(
-        val step2: Step2,
-        val beregning: TilsagnBeregning,
-    )
-
-    fun validateStep3(
+    private fun validateStep3(
         step2: Step2,
         request: TilsagnBeregningRequest,
         avtalteSatser: List<AvtaltSats>,
-    ): Either<NonEmptyList<FieldError>, Step3> {
+    ): Either<NonEmptyList<FieldError>, ValidatedTilsagnRequest> {
         val sats = AvtalteSatser.findSats(avtalteSatser, step2.periode.start)
         return validateBeregning(
             request = request,
@@ -168,7 +170,13 @@ object TilsagnValidator {
             sats = sats,
             avtalteSatser,
         )
-            .map { Step3(step2, it) }
+            .map {
+                ValidatedTilsagnRequest(
+                    kostnadssted = step2.step1.kostnadssted,
+                    periode = step2.periode,
+                    beregning = it,
+                )
+            }
     }
 
     fun validateAvtaltSats(
@@ -364,7 +372,7 @@ object TilsagnValidator {
                     add(
                         FieldError.ofPointer(
                             pointer = "beregning/linjer/$index/beskrivelse",
-                            detail = "Beskrivelsen kan ikke inneholde mer enn ${TILSAGN_BESKRIVELSE_MAX_LENDE} tegn",
+                            detail = "Beskrivelsen kan ikke inneholde mer enn $TILSAGN_BESKRIVELSE_MAX_LENDE tegn",
                         ),
                     )
                 }

@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
@@ -35,5 +38,19 @@ object NavAnsattFixture {
         mobilnummer = "48243214",
         epost = "fetter.anton@nav.no",
         skalSlettesDato = null,
+    )
+    val DonaldDuckDto: NavAnsatt = NavAnsatt(
+        navIdent = NavIdent("DD1"),
+        fornavn = "Donald",
+        etternavn = "Duck",
+        hovedenhet = NavAnsatt.Hovedenhet(
+            enhetsnummer = NavEnhetNummer("0400"),
+            navn = "Innlandet",
+        ),
+        entraObjectId = UUID.randomUUID(),
+        mobilnummer = "12345678",
+        epost = "donald.duck@nav.no",
+        skalSlettesDato = null,
+        roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
     )
 }
