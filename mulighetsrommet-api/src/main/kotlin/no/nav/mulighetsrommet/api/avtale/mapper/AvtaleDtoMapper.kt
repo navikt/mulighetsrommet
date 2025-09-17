@@ -4,6 +4,8 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.toDto
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.model.DataElement
 
 object AvtaleDtoMapper {
@@ -30,7 +32,7 @@ object AvtaleDtoMapper {
         opsjonsmodell = avtale.opsjonsmodell,
         opsjonerRegistrert = avtale.opsjonerRegistrert,
         utdanningslop = avtale.utdanningslop,
-        prismodell = fromPrismodell(avtale.prismodell),
+        prismodell = fromPrismodell(avtale),
     )
 
     private fun fromAvtaleStatus(status: AvtaleStatus): AvtaleDto.Status {
@@ -47,11 +49,14 @@ object AvtaleDtoMapper {
         return AvtaleDto.Status(status.type, element)
     }
 
-    private fun fromPrismodell(prismodell: Prismodell): AvtaleDto.Prismodell {
+    private fun fromPrismodell(avtale: Avtale): AvtaleDto.Prismodell {
+        val prismodell = avtale.prismodell
+
         val satser = when (prismodell) {
-            is Prismodell.AnnenAvtaltPris,
+            is Prismodell.AnnenAvtaltPris -> null
+
             is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-            -> null
+            -> AvtalteSatser.getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode).toDto()
 
             is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser
             is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
