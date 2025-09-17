@@ -2,17 +2,10 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.tiltak.historikk.ApplicationKt")
-}
-
-tasks.shadowJar {
-    // Trengs for å få med implementasjonen av services fra bl.a. flyway
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    mergeServiceFiles()
 }
 
 dependencies {
