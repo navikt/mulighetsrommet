@@ -146,13 +146,7 @@ fun Route.tilsagnRoutesBeregning() {
 }
 
 fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequest {
-    val (beregningType, prisbetingelser) = when (prismodell) {
-        is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
-        is Prismodell.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
-        is Prismodell.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
-        Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
-    }
+    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
@@ -174,6 +168,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
                         antall = it.antall,
                     )
                 }
+
             else -> emptyList()
         },
         antallTimerOppfolgingPerDeltaker = when (tilsagn.beregning) {
