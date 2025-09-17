@@ -35,7 +35,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(Innlandet, Gjovik, Oslo),
             tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo, AvtaleFixtures.AFT),
+            avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
             gjennomforinger = listOf(Oppfolging1, AFT1),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
@@ -288,7 +288,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(Oppfolging1),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))

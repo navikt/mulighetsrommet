@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tasks
 
-import arrow.core.flatMap
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
@@ -9,7 +8,6 @@ import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
@@ -39,7 +37,7 @@ import kotlin.io.path.outputStream
 class GenerateValidationReport(
     private val config: Config,
     private val db: ApiDatabase,
-    private val avtaleService: AvtaleService,
+    private val avtaleValidator: AvtaleValidator,
     private val gjennomforingValidator: GjennomforingValidator,
 ) {
 
@@ -117,14 +115,9 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler(): Map<Avtale, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
-                val request = dto.toAvtaleRequest()
-                avtaleService.getValidationCtx(request)
-                    .flatMap {
-                        AvtaleValidator.validate(dto.toAvtaleRequest(), it)
-                    }
-                    .onLeft { validationErrors ->
-                        put(dto, validationErrors)
-                    }
+                avtaleValidator.validate(dto.toAvtaleRequest(), dto).onLeft { validationErrors ->
+                    put(dto, validationErrors)
+                }
             }
         }
     }

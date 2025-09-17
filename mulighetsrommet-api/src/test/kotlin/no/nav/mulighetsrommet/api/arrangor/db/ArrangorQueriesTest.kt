@@ -156,7 +156,7 @@ class ArrangorQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(hovedenhet, underenhet),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             )
 
@@ -182,7 +182,7 @@ class ArrangorQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(hovedenhet, underenhet),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             )
 

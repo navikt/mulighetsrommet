@@ -46,7 +46,7 @@ object AvtaleDboMapper {
     fun fromAvtaleRequest(
         request: AvtaleRequest,
         startDato: LocalDate,
-        prismodell: PrismodellDbo,
+        prismodellDbo: PrismodellDbo,
         arrangor: AvtaleDbo.Arrangor?,
         status: AvtaleStatusType,
         tiltakstypeId: UUID,
@@ -70,9 +70,9 @@ object AvtaleDboMapper {
         amoKategorisering = request.amoKategorisering,
         opsjonsmodell = request.opsjonsmodell,
         utdanningslop = request.utdanningslop,
-        prismodell = prismodell.prismodell,
-        prisbetingelser = prismodell.prisbetingelser,
-        satser = prismodell.satser,
+        prismodell = prismodellDbo.prismodell,
+        prisbetingelser = prismodellDbo.prisbetingelser,
+        satser = prismodellDbo.satser,
     )
 
     fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: AvtaleRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(

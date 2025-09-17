@@ -113,12 +113,12 @@ class GjennomforingRoutesTest : FunSpec({
             ansatte = listOf(ansatt),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(
-                AvtaleFixtures.oppfolgingDbo.copy(
+                AvtaleFixtures.oppfolging.copy(
                     navEnheter = setOf(
                         NavEnhetFixtures.Oslo.enhetsnummer,
                         NavEnhetFixtures.Sagene.enhetsnummer,
                     ),
-                    arrangor = AvtaleFixtures.oppfolgingDbo.arrangor?.copy(
+                    arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
                         underenheter = listOf(ArrangorFixtures.underenhet1.id),
                     ),
                 ),
@@ -209,7 +209,7 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
-                val avtale = AvtaleFixtures.oppfolgingDbo
+                val avtale = AvtaleFixtures.oppfolging
 
                 val response = client.put("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -237,7 +237,7 @@ class GjennomforingRoutesTest : FunSpec({
 
         val domain = MulighetsrommetTestDomain(
             ansatte = listOf(ansatt),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 GjennomforingFixtures.Oppfolging1.copy(
                     id = aktivGjennomforingId,

@@ -44,7 +44,7 @@ class GjennomforingQueriesTest : FunSpec({
 
     context("CRUD") {
         val domain = MulighetsrommetTestDomain(
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
         )
 
         test("lagre gjennomføring") {
@@ -125,7 +125,7 @@ class GjennomforingQueriesTest : FunSpec({
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, Oslo),
                     arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
                 val queries = GjennomforingQueries(session)
@@ -168,7 +168,7 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
                 val queries = GjennomforingQueries(session)
@@ -268,7 +268,7 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     arrangorKontaktpersoner = listOf(thomas, jens),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
                 val queries = GjennomforingQueries(session)
@@ -513,7 +513,7 @@ class GjennomforingQueriesTest : FunSpec({
                         ArrangorFixtures.underenhet1,
                         ArrangorFixtures.underenhet2,
                     ),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
                         Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
@@ -546,7 +546,7 @@ class GjennomforingQueriesTest : FunSpec({
                         ArrangorFixtures.underenhet1.copy(navn = "Underenhet Bergen"),
                         ArrangorFixtures.underenhet2.copy(navn = "Underenhet Ålesund"),
                     ),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
                         Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
@@ -573,7 +573,7 @@ class GjennomforingQueriesTest : FunSpec({
                         ArrangorFixtures.hovedenhet,
                         ArrangorFixtures.underenhet1,
                     ),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
                     ),
@@ -592,7 +592,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("skal migreres henter kun der tiltakstypen har egen tiltakskode") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo, AvtaleFixtures.EnkelAmo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.EnkelAmo),
                     gjennomforinger = listOf(Oppfolging1, EnkelAmo1),
                 ).setup(session)
 
@@ -608,13 +608,13 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på avtale") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo, AvtaleFixtures.AFT),
+                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(Oppfolging1, AFT1),
                 ).setup(session)
 
                 val queries = GjennomforingQueries(session)
 
-                queries.getAll(avtaleId = AvtaleFixtures.oppfolgingDbo.id)
+                queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id)
                     .items.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
                 queries.getAll(avtaleId = AvtaleFixtures.AFT.id)
@@ -625,7 +625,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrer vekk gjennomføringer basert på sluttdato") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(sluttDato = LocalDate.of(2023, 12, 31)),
                         Oppfolging1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 6, 29)),
@@ -652,7 +652,7 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Lillehammer, Gjovik),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(
                             id = UUID.randomUUID(),
@@ -684,7 +684,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("administrator og koordinator filtrering") {
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(
                             id = UUID.randomUUID(),
@@ -722,7 +722,7 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på tiltakstype") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
                 ).setup(session)
 
@@ -747,7 +747,7 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
-                    avtaler = listOf(AvtaleFixtures.oppfolgingDbo, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer)),
                         VTA1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
@@ -780,7 +780,7 @@ class GjennomforingQueriesTest : FunSpec({
     test("pagination") {
         database.runAndRollback { session ->
             MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
             ).setup(session)
 
             val queries = GjennomforingQueries(session)
@@ -834,7 +834,7 @@ class GjennomforingQueriesTest : FunSpec({
         val testDomain = MulighetsrommetTestDomain(
             arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 Oppfolging1.copy(arrangorKontaktpersoner = listOf(kontaktperson1.id)),
                 Oppfolging2.copy(arrangorKontaktpersoner = listOf(kontaktperson2.id)),

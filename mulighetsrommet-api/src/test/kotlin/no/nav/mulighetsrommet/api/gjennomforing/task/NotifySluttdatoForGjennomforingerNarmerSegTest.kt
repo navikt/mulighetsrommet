@@ -21,7 +21,7 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-        avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(
             Oppfolging1.copy(
                 id = UUID.randomUUID(),

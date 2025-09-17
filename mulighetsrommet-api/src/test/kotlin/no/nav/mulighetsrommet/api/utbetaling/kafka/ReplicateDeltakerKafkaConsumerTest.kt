@@ -69,7 +69,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo, AvtaleFixtures.AFT, AvtaleFixtures.VTA),
+            avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT, AvtaleFixtures.VTA),
             gjennomforinger = listOf(Oppfolging1, AFT1, VTA1),
         )
 
@@ -133,7 +133,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     AvtaleFixtures.AFT,
-                    AvtaleFixtures.oppfolgingDbo,
+                    AvtaleFixtures.oppfolging,
                 ),
             ).initialize(database.db)
 
