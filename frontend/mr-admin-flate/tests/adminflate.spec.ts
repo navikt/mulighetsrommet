@@ -32,7 +32,7 @@ test.describe("Smoketest og UU", () => {
     await page.getByTestId("avtaletabell_tittel").first().click();
     await page.getByTestId("gjennomforinger-tab").click();
     await expect(page.getByTestId("gjennomforing-tabell")).toBeVisible();
-    await sjekkUU(page, "opprett-ny-tiltaksgjenomforing_knapp");
+    await sjekkUU(page, "gjennomforing-tabell");
   });
 
   test("Gjennomføringer", async ({ page }) => {

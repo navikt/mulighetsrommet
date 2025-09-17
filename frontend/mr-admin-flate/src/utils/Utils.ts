@@ -1,5 +1,4 @@
 import {
-  AvbrytAvtaleAarsak,
   AvtaleDto,
   Avtaletype,
   Bransje,
@@ -157,21 +156,6 @@ export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): 
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
-  }
-}
-
-export function avbrytAvtaleAarsakToString(aarsak: AvbrytAvtaleAarsak | string): string {
-  switch (aarsak) {
-    case AvbrytAvtaleAarsak.AVBRUTT_I_ARENA:
-      return "Avbrutt i Arena";
-    case AvbrytAvtaleAarsak.BUDSJETT_HENSYN:
-      return "Budsjetthensyn";
-    case AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR:
-      return "Endring hos arrangør";
-    case AvbrytAvtaleAarsak.FEILREGISTRERING:
-      return "Feilregistrering";
-    default:
-      return aarsak;
   }
 }
 

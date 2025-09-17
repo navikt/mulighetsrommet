@@ -6,14 +6,8 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import {
-  AvbrytAvtaleAarsak,
-  AvtaleDto,
-  FieldError,
-  Opphav,
-  ValidationError,
-} from "@mr/api-client-v2";
-import { AvtaleHandling, Rolle } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, FieldError, Opphav, ValidationError } from "@mr/api-client-v2";
+import { AvbrytAvtaleAarsak, AvtaleHandling, Rolle } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";

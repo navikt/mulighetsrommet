@@ -1,5 +1,4 @@
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
-import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
@@ -46,7 +45,7 @@ export function GjennomforingerForAvtalePage() {
             setTagsHeight={setTagsHeight}
           />
         }
-        buttons={<GjennomforingFilterButtons avtale={avtale} />}
+        buttons={null}
         table={
           <GjennomforingTable
             skjulKolonner={{

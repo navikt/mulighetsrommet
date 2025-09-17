@@ -1364,25 +1364,6 @@ components:
         - UTLAND
         - YTA
 
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-        - ENDRING_HOS_ARRANGOR
-        - BUDSJETT_HENSYN
-        - FOR_FAA_DELTAKERE
-        - FEILREGISTRERING
-        - AVBRUTT_I_ARENA
-        - ANNET
-
-    AvbrytAvtaleAarsak:
-      type: string
-      enum:
-        - ENDRING_HOS_ARRANGOR
-        - BUDSJETT_HENSYN
-        - FEILREGISTRERING
-        - AVBRUTT_I_ARENA
-        - ANNET
-
     GjennomforingDeltakerSummary:
       type: object
       properties:
