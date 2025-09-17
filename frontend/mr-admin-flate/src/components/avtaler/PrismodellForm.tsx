@@ -1,72 +1,31 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { memo } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
+import { PrismodellType } from "@mr/api-client-v2";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Box, Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
-import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
+import { addDuration } from "@mr/frontend-common/utils/date";
 
 interface Props {
-  tiltakskode: Tiltakskode;
-  prismodell?: Prismodell;
+  prismodell?: PrismodellType;
   avtaleStartDato: Date;
 }
 
-const PrismodellForm = memo(({ tiltakskode, prismodell, avtaleStartDato }: Props) => {
+const PrismodellForm = memo(({ prismodell, avtaleStartDato }: Props) => {
   switch (prismodell) {
-    case Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-      return <ForhandsgodkjenteSatser tiltakskode={tiltakskode} />;
-    case Prismodell.AVTALT_PRIS_PER_MANEDSVERK:
-    case Prismodell.AVTALT_PRIS_PER_UKESVERK:
-    case Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return null;
+    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
+    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
       return <AvtalteSatser fromDate={avtaleStartDato} />;
-    case Prismodell.ANNEN_AVTALT_PRIS:
+    case PrismodellType.ANNEN_AVTALT_PRIS:
     case undefined:
       return <PrisbetingelserTextArea />;
   }
 });
-
-function ForhandsgodkjenteSatser({ tiltakskode }: { tiltakskode: Tiltakskode }) {
-  const { data: satser = [] } = useForhandsgodkjenteSatser(tiltakskode);
-  if (satser.length === 0) return null;
-  return (
-    <VStack gap="4">
-      {satser.map((sats) => (
-        <Box
-          padding="4"
-          borderColor="border-subtle"
-          borderRadius="large"
-          borderWidth="1"
-          key={sats.gjelderFra}
-        >
-          <HStack key={sats.gjelderFra} gap="4">
-            <TextField
-              readOnly
-              label={avtaletekster.prismodell.valuta.label}
-              size="small"
-              value={sats.valuta}
-            />
-            <TextField
-              readOnly
-              label={avtaletekster.prismodell.sats.label}
-              size="small"
-              value={sats.pris}
-            />
-            <TextField
-              readOnly
-              label={avtaletekster.prismodell.periodeStart.label}
-              size="small"
-              value={formaterDato(sats.gjelderFra)}
-            />
-          </HStack>
-        </Box>
-      ))}
-    </VStack>
-  );
-}
 
 function AvtalteSatser({ fromDate }: { fromDate: Date }) {
   const {

@@ -22,7 +22,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -167,7 +167,7 @@ fun Route.arrangorflateRoutes() {
             operationId = "getArrangorflateGjennomforinger"
             request {
                 pathParameter<Organisasjonsnummer>("orgnr")
-                queryParameter<List<Prismodell>>("prismodeller") {
+                queryParameter<List<PrismodellType>>("prismodeller") {
                     explode = true
                 }
             }
@@ -186,7 +186,7 @@ fun Route.arrangorflateRoutes() {
             requireTilgangHosArrangor(orgnr)
 
             val prismodeller = call.parameters.getAll("prismodeller")
-                ?.map { Prismodell.valueOf(it) }
+                ?.map { PrismodellType.valueOf(it) }
                 ?: emptyList()
 
             call.respond(arrangorFlateService.getGjennomforinger(orgnr, prismodeller))

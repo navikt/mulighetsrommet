@@ -493,13 +493,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(sats2),
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
-                    avtale.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
+                    avtale.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
                                 gjelderFra = LocalDate.of(2025, 7, 1),
@@ -512,22 +512,22 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
+                    it.prismodell.shouldBeTypeOf<Prismodell.ForhandsgodkjentPrisPerManedsverk>()
                 }
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                        prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
+                    it.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
                 }
             }
         }

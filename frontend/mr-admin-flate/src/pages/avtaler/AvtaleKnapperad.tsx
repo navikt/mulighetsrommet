@@ -13,14 +13,13 @@ import {
   Opphav,
   ValidationError,
 } from "@mr/api-client-v2";
-import { AvtaleHandling, FeatureToggle, Rolle } from "@tiltaksadministrasjon/api-client";
+import { AvtaleHandling, Rolle } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 
@@ -39,11 +38,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [oppdaterPrisModalOpen, setOppdaterPrisModalOpen] = useState<boolean>(false);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
-
-  const { data: enableTilsagn } = useFeatureToggle(
-    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [avtale.tiltakstype.tiltakskode],
-  );
 
   function dupliserAvtale() {
     navigate(`/avtaler/skjema`, {
@@ -116,7 +110,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && enableTilsagn && (
+              {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
                   Oppdater pris
                 </Dropdown.Menu.GroupedList.Item>

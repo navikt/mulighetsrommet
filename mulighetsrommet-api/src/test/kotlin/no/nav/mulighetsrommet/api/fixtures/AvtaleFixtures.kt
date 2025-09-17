@@ -4,8 +4,8 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -36,7 +36,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -65,7 +65,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -94,7 +94,7 @@ object AvtaleFixtures {
         amoKategorisering = AmoKategorisering.Studiespesialisering,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -123,7 +123,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -152,7 +152,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         utdanningslop = null,
-        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         satser = listOf(),
     )
 
@@ -181,7 +181,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         utdanningslop = null,
-        prismodell = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         satser = listOf(),
     )
 
@@ -210,7 +210,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -239,7 +239,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 
@@ -267,7 +267,7 @@ object AvtaleFixtures {
         ),
         utdanningslop = null,
         prismodell = PrismodellRequest(
-            type = Prismodell.ANNEN_AVTALT_PRIS,
+            type = PrismodellType.ANNEN_AVTALT_PRIS,
             prisbetingelser = null,
             satser = listOf(),
         ),
@@ -301,7 +301,7 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.ANNEN_AVTALT_PRIS,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
         satser = listOf(),
     )
 }

@@ -232,7 +232,7 @@ class AvtaleQueries(private val session: Session) {
 
     private fun Session.upsertPrismodell(
         id: UUID,
-        prismodell: Prismodell,
+        prismodell: PrismodellType,
         prisbetingelser: String?,
         satser: List<AvtaltSats>,
     ) {
@@ -547,8 +547,8 @@ class AvtaleQueries(private val session: Session) {
             "avbrutt_aarsaker" to if (avbruttTidspunkt != null) session.createTextArray(listOf("AVBRUTT_I_ARENA")) else null,
             "avbrutt_forklaring" to null,
             "prismodell" to when (avtaletype) {
-                Avtaletype.FORHANDSGODKJENT -> Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-                else -> Prismodell.ANNEN_AVTALT_PRIS
+                Avtaletype.FORHANDSGODKJENT -> PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                else -> PrismodellType.ANNEN_AVTALT_PRIS
             }.name,
             "prisbetingelser" to prisbetingelser,
         )
@@ -603,24 +603,24 @@ class AvtaleQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
             ?: emptyList()
 
-        val prismodell = when (Prismodell.valueOf(string("prismodell"))) {
-            Prismodell.ANNEN_AVTALT_PRIS -> Avtale.PrismodellDto.AnnenAvtaltPris(
+        val prismodell = when (PrismodellType.valueOf(string("prismodell"))) {
+            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
                 prisbetingelser = stringOrNull("prisbetingelser"),
             )
 
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk
 
-            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> Avtale.PrismodellDto.AvtaltPrisPerManedsverk(
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
-
-            Prismodell.AVTALT_PRIS_PER_UKESVERK -> Avtale.PrismodellDto.AvtaltPrisPerUkesverk(
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
 
-            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.toDto(),
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )

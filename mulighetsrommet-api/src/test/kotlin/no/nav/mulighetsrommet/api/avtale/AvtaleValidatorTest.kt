@@ -76,7 +76,7 @@ class AvtaleValidatorTest : FunSpec({
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
         prismodell = PrismodellRequest(
-            type = Prismodell.ANNEN_AVTALT_PRIS,
+            type = PrismodellType.ANNEN_AVTALT_PRIS,
             prisbetingelser = null,
             satser = listOf(),
         ),
@@ -446,7 +446,7 @@ class AvtaleValidatorTest : FunSpec({
                     avtaleRequest.copy(
                         tiltakskode = Tiltakskode.OPPFOLGING,
                         prismodell = PrismodellRequest(
-                            type = Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                             prisbetingelser = null,
                             satser = emptyList(),
                         ),
@@ -459,7 +459,7 @@ class AvtaleValidatorTest : FunSpec({
                 row(
                     forhaandsgodkjent.copy(
                         prismodell = PrismodellRequest(
-                            type = Prismodell.ANNEN_AVTALT_PRIS,
+                            type = PrismodellType.ANNEN_AVTALT_PRIS,
                             prisbetingelser = null,
                             satser = emptyList(),
                         ),
@@ -472,7 +472,7 @@ class AvtaleValidatorTest : FunSpec({
                 row(
                     gruppeAmo.copy(
                         prismodell = PrismodellRequest(
-                            type = Prismodell.AVTALT_PRIS_PER_UKESVERK,
+                            type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                             prisbetingelser = null,
                             satser = emptyList(),
                         ),
@@ -488,7 +488,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val fri = avtaleRequest.copy(
                 prismodell = PrismodellRequest(
-                    type = Prismodell.ANNEN_AVTALT_PRIS,
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
                     prisbetingelser = null,
                     satser = emptyList(),
                 ),

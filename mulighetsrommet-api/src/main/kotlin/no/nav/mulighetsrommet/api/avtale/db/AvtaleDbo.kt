@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.avtale.db
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -28,7 +28,7 @@ data class AvtaleDbo(
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: Prismodell,
+    val prismodell: PrismodellType,
     val prisbetingelser: String?,
     val satser: List<AvtaltSats>,
 ) {

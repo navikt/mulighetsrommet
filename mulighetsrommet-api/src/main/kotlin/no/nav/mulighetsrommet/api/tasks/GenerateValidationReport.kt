@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
-import no.nav.mulighetsrommet.api.avtale.mapper.prismodell
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
@@ -223,7 +222,7 @@ fun Avtale.toAvtaleRequest() = AvtaleRequest(
     amoKategorisering = this.amoKategorisering,
     utdanningslop = this.utdanningslop?.toDbo(),
     prismodell = PrismodellRequest(
-        type = this.prismodell.prismodell(),
+        type = this.prismodell.type,
         satser = this.prismodell.satser().map {
             AvtaltSatsRequest(
                 pris = it.sats,

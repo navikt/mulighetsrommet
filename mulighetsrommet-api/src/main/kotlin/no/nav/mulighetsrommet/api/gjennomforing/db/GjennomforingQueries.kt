@@ -7,7 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -284,7 +284,7 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toGjennomforingDto() }
     }
 
-    fun getPrismodell(id: UUID): Prismodell? {
+    fun getPrismodell(id: UUID): PrismodellType? {
         @Language("PostgreSQL")
         val query = """
             select avtale.prismodell
@@ -294,7 +294,7 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { row ->
-            Prismodell.valueOf(row.string("prismodell"))
+            PrismodellType.valueOf(row.string("prismodell"))
         }
     }
 
@@ -312,7 +312,7 @@ class GjennomforingQueries(private val session: Session) {
         administratorNavIdent: NavIdent? = null,
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
-        prismodeller: List<Prismodell> = emptyList(),
+        prismodeller: List<PrismodellType> = emptyList(),
     ): PaginatedResult<Gjennomforing> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),

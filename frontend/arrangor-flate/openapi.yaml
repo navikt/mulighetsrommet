@@ -84,7 +84,7 @@ paths:
         schema:
           type: array
           items:
-            $ref: "#/components/schemas/Prismodell"
+            $ref: "#/components/schemas/PrismodellType"
       responses:
         "200":
           description: Arrangør sine gjennomføringer
@@ -560,7 +560,7 @@ components:
           type: string
       required:
       - kontonummer
-    Prismodell:
+    PrismodellType:
       type: string
       enum:
       - ANNEN_AVTALT_PRIS
