@@ -10,10 +10,14 @@ export interface Props {
   renderRow: (linje: UtbetalingLinje, index: number) => React.ReactNode;
 }
 
+function sum(numbers: number[]): number {
+  return numbers.reduce((acc, d) => acc + (Number(d) || 0), 0);
+}
+
 export function UtbetalingLinjeTable({ linjer, utbetaling, renderRow }: Props) {
-  const utbetalesTotal = linjer.reduce((acc, d) => acc + d.belop, 0);
-  const totalGjenstaendeBelop = linjer.reduce((acc, l) => acc + l.tilsagn.belopGjenstaende, 0);
-  const differanse = utbetaling.belop - utbetalesTotal;
+  const utbetalesTotal = sum(linjer.map((l) => l.belop));
+  const totalGjenstaendeBelop = sum(linjer.map((l) => l.tilsagn.belopGjenstaende));
+  const differanse = Number(utbetaling.belop) - utbetalesTotal;
 
   return (
     <Box className="overflow-x-scroll">
