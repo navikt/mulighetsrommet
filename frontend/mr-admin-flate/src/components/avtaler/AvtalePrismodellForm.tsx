@@ -64,11 +64,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           ))}
         </Select>
         {avtaleStartDato && (
-          <PrismodellForm
-            prismodell={prismodell}
-            tiltakskode={tiltakskode}
-            avtaleStartDato={avtaleStartDato}
-          />
+          <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
         )}
       </VStack>
     </Box>
