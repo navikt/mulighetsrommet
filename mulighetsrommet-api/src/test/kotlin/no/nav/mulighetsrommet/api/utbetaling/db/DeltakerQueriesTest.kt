@@ -20,7 +20,7 @@ class DeltakerQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
-        avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.Oppfolging2),
     )
 

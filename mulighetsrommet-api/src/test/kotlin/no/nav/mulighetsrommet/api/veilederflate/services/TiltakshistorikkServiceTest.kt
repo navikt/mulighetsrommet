@@ -184,7 +184,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 TiltakstypeFixtures.Avklaring,
                 TiltakstypeFixtures.Arbeidstrening,
             ),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(gjennomforing),
         ).initialize(database.db)
     }

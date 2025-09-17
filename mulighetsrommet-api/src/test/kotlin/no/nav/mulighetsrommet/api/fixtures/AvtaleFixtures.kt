@@ -2,14 +2,16 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.arena.ArenaMigrering
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
 
 object AvtaleFixtures {
-    val oppfolgingDbo = AvtaleDbo(
+    val oppfolging = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
@@ -36,45 +38,6 @@ object AvtaleFixtures {
         utdanningslop = null,
         prismodell = Prismodell.ANNEN_AVTALT_PRIS,
         satser = listOf(),
-    )
-
-    val oppfolging = Avtale(
-        id = UUID.randomUUID(),
-        navn = "Avtalenavn",
-        avtalenummer = "2023#1",
-        sakarkivNummer = SakarkivNummer("24/1234"),
-        arrangor = Avtale.ArrangorHovedenhet(
-            id = ArrangorFixtures.hovedenhet.id,
-            organisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-            navn = ArrangorFixtures.hovedenhet.navn,
-            slettet = ArrangorFixtures.hovedenhet.slettetDato != null,
-            underenheter = emptyList(),
-            kontaktpersoner = emptyList(),
-        ),
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.now().plusMonths(3),
-        status = AvtaleStatus.Aktiv,
-        avtaletype = Avtaletype.RAMMEAVTALE,
-        administratorer = emptyList(),
-        beskrivelse = null,
-        faneinnhold = null,
-        personopplysninger = emptyList(),
-        personvernBekreftet = false,
-        amoKategorisering = null,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        utdanningslop = null,
-        prismodell = Avtale.PrismodellDto.AnnenAvtaltPris(
-            prisbetingelser = null,
-        ),
-        tiltakstype = Avtale.Tiltakstype(
-            id = TiltakstypeFixtures.Oppfolging.id,
-            navn = TiltakstypeFixtures.Oppfolging.navn,
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-        ),
-        arenaAnsvarligEnhet = null,
-        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
-        kontorstruktur = emptyList(),
-        opsjonerRegistrert = emptyList(),
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(

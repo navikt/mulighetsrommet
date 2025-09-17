@@ -61,7 +61,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         )
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 gjennomforing1,
                 gjennomforing2,
@@ -222,7 +222,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
         val domain = MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolgingDbo),
+            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(gjennomforing),
         )
 

@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
@@ -20,9 +19,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
@@ -38,21 +34,21 @@ import java.util.*
 
 class AvtaleService(
     private val db: ApiDatabase,
+    private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
-    private val arrangorService: ArrangorService,
-    private val navEnhetService: NavEnhetService,
 ) {
     suspend fun upsert(
         request: AvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val validationCtx = getValidationCtx(request).bind()
-        val dbo = AvtaleValidator
-            .validate(request, validationCtx)
+        val previous = get(request.id)
+
+        val dbo = validator
+            .validate(request, previous)
             .bind()
 
-        if (validationCtx.previous != null && AvtaleDboMapper.fromAvtale(validationCtx.previous) == dbo) {
-            return@either validationCtx.previous
+        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
+            return@either previous
         }
 
         db.transaction {
@@ -61,7 +57,7 @@ class AvtaleService(
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
             val dto = getOrError(dbo.id)
-            val operation = if (validationCtx.previous == null) {
+            val operation = if (previous == null) {
                 "Opprettet avtale"
             } else {
                 "Redigerte avtale"
@@ -74,56 +70,6 @@ class AvtaleService(
         }
     }
 
-    suspend fun getValidationCtx(request: AvtaleRequest): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
-        db.session {
-            val previous = get(request.id)
-            val arrangorHovedenhet = request.arrangor?.let {
-                arrangorService.getArrangorOrSyncFromBrreg(it.hovedenhet).mapLeft {
-                    FieldError.ofPointer(
-                        "/arrangorHovedenhet",
-                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                    ).nel()
-                }.bind()
-            }
-            val arrangorUnderenheter = request.arrangor?.underenheter?.map {
-                arrangorService.getArrangorOrSyncFromBrreg(it).mapLeft {
-                    FieldError.ofPointer(
-                        "/arrangorUnderenhet",
-                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                    ).nel()
-                }.bind()
-            } ?: emptyList()
-            val tiltakstype = requireNotNull(db.session { queries.tiltakstype.getByTiltakskode(request.tiltakskode) }) {
-                "Fant ikke tiltakstype"
-            }
-
-            AvtaleValidator.Ctx(
-                previous = previous,
-                navEnheter = sanitizeNavEnheter(request.navEnheter.mapNotNull { navEnhetService.hentEnhet(it) }),
-                administratorer = request.administratorer.mapNotNull { ident -> queries.ansatt.getByNavIdent(ident) },
-                gjennomforinger = queries.gjennomforing.getAll(avtaleId = request.id).items.map {
-                    AvtaleValidator.Ctx.Gjennomforing(
-                        startDato = it.startDato,
-                        utdanningslop = it.utdanningslop,
-                        arrangor = AvtaleValidator.Ctx.Gjennomforing.Arrangor(
-                            navn = it.arrangor.navn,
-                            id = it.arrangor.id,
-                        ),
-                    )
-                },
-                arrangor = arrangorHovedenhet?.let {
-                    AvtaleValidator.Ctx.Arrangor(
-                        hovedenhet = it,
-                        underenheter = arrangorUnderenheter,
-                        kontaktpersoner = request.arrangor.kontaktpersoner,
-                    )
-                },
-                tiltakstypeId = tiltakstype.id,
-                status = resolveStatus(request, previous, LocalDate.now()),
-            )
-        }
-    }
-
     fun upsertPrismodell(
         id: UUID,
         request: PrismodellRequest,
@@ -132,11 +78,8 @@ class AvtaleService(
         val previous = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
-        val dbo = AvtaleValidator
-            .validatePrismodell(
-                request,
-                tiltakskode = previous.tiltakstype.tiltakskode,
-            )
+        val dbo = validator
+            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
             .bind()
 
         db.transaction {
@@ -232,7 +175,7 @@ class AvtaleService(
                 "Sluttdato på avtalen er null"
             }
 
-            val dbo = AvtaleValidator.validateOpprettOpsjonLoggRequest(
+            val dbo = validator.validateOpprettOpsjonLoggRequest(
                 request,
                 avtale,
                 navIdent,
@@ -403,15 +346,6 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
         return dto
-    }
-
-    // Filtrer vekk underenheter uten fylke
-    fun sanitizeNavEnheter(navEnheter: List<NavEnhetDto>): List<NavEnhetDto> {
-        val set = NavEnhetHelpers.buildNavRegioner(navEnheter)
-            .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
-            .toSet()
-
-        return navEnheter.filter { it.enhetsnummer in set }
     }
 }
 

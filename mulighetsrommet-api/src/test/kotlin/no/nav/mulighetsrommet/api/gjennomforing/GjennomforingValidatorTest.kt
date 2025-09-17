@@ -30,11 +30,11 @@ class GjennomforingValidatorTest : FunSpec({
 
     val avtaleStartDato = LocalDate.now()
     val avtaleSluttDato = LocalDate.now().plusMonths(1)
-    val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+    val avtale = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        arrangor = AvtaleFixtures.oppfolgingDbo.arrangor?.copy(
+        arrangor = AvtaleFixtures.oppfolging.arrangor?.copy(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
         ),
@@ -91,7 +91,7 @@ class GjennomforingValidatorTest : FunSpec({
         avtaler = listOf(
             avtale,
             AvtaleFixtures.oppfolgingMedAvtale,
-            AvtaleFixtures.oppfolgingDbo,
+            AvtaleFixtures.oppfolging,
             AvtaleFixtures.gruppeAmo,
             AvtaleFixtures.jobbklubb,
             AvtaleFixtures.VTA,

@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.*
@@ -128,7 +129,7 @@ class AvtaleRoutesTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     AvtaleFixtures.AFT,
-                    AvtaleFixtures.oppfolgingDbo.copy(
+                    AvtaleFixtures.oppfolging.copy(
                         prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                         satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
                     ),
@@ -158,7 +159,7 @@ class AvtaleRoutesTest : FunSpec({
                     ),
                 )
 
-                val response2 = client.get("/api/v1/intern/avtaler/${AvtaleFixtures.oppfolgingDbo.id}/satser") {
+                val response2 = client.get("/api/v1/intern/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response2.status shouldBe HttpStatusCode.OK

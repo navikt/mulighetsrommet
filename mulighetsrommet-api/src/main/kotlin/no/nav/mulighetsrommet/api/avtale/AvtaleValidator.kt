@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.*
 import arrow.core.raise.either
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
@@ -9,57 +11,51 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.*
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
-import java.util.*
 
-object AvtaleValidator {
+class AvtaleValidator(
+    private val db: ApiDatabase,
+    private val tiltakstyper: TiltakstypeService,
+    private val arrangorService: ArrangorService,
+    private val navEnheterService: NavEnhetService,
+) {
     private val opsjonsmodellerUtenValidering = listOf(
         OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
         OpsjonsmodellType.VALGFRI_SLUTTDATO,
     )
 
-    data class Ctx(
-        val previous: Avtale?,
-        val arrangor: Arrangor?,
-        val gjennomforinger: List<Gjennomforing>,
-        val administratorer: List<NavAnsatt>,
-        val tiltakstypeId: UUID,
-        val navEnheter: List<NavEnhetDto>,
-        val status: AvtaleStatusType,
-    ) {
-        data class Gjennomforing(
-            val arrangor: Arrangor,
-            val startDato: LocalDate,
-            val utdanningslop: UtdanningslopDto?,
-        ) {
-            data class Arrangor(
-                val navn: String,
-                val id: UUID,
+    suspend fun validate(
+        request: AvtaleRequest,
+        previous: Avtale?,
+    ): Either<List<FieldError>, AvtaleDbo> = either {
+        val tiltakstype = tiltakstyper.getByTiltakskode(request.tiltakskode)
+        val tiltakskode = tiltakstype.tiltakskode
+            ?: return FieldError.of("Tiltakstypen mangler tiltalkskode", AvtaleRequest::tiltakskode).nel().left()
+
+        val arrangor = request.arrangor?.let {
+            val (arrangor, underenheter) = syncArrangorerFromBrreg(
+                it.hovedenhet,
+                it.underenheter,
+            ).bind()
+            AvtaleDbo.Arrangor(
+                hovedenhet = arrangor.id,
+                underenheter = underenheter.map { underenhet -> underenhet.id },
+                kontaktpersoner = it.kontaktpersoner,
             )
         }
-        data class Arrangor(
-            val hovedenhet: ArrangorDto,
-            val underenheter: List<ArrangorDto>,
-            val kontaktpersoner: List<UUID>,
-        )
-    }
 
-    fun validate(
-        request: AvtaleRequest,
-        ctx: Ctx,
-    ): Either<List<FieldError>, AvtaleDbo> = either {
         val errors = buildList {
             if (request.startDato == null) {
                 add(FieldError.of("Du må legge inn startdato for avtalen", AvtaleRequest::navn))
             }
 
-            if (request.navn.length < 5 && ctx.previous?.opphav != ArenaMigrering.Opphav.ARENA) {
+            if (request.navn.length < 5 && previous?.opphav != ArenaMigrering.Opphav.ARENA) {
                 add(FieldError.of("Avtalenavn må være minst 5 tegn langt", AvtaleRequest::navn))
             }
 
@@ -84,10 +80,10 @@ object AvtaleValidator {
                 add(FieldError.of("Du må skrive inn saksnummer til avtalesaken", AvtaleRequest::sakarkivNummer))
             }
 
-            if (request.avtaletype !in Avtaletyper.getAvtaletyperForTiltak(request.tiltakskode)) {
+            if (request.avtaletype !in Avtaletyper.getAvtaletyperForTiltak(tiltakskode)) {
                 add(
                     FieldError.of(
-                        "${request.avtaletype.beskrivelse} er ikke tillatt for tiltakstypen",
+                        "${request.avtaletype.beskrivelse} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
                         AvtaleRequest::avtaletype,
                     ),
                 )
@@ -132,11 +128,11 @@ object AvtaleValidator {
                 }
             }
 
-            if (request.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && request.amoKategorisering == null) {
+            if (tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && request.amoKategorisering == null) {
                 add(FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
 
-            if (request.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+            if (tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
                 val utdanninger = request.utdanningslop
                 if (utdanninger == null) {
                     add(
@@ -150,78 +146,78 @@ object AvtaleValidator {
                 }
             }
 
-            validateNavEnheter(ctx.navEnheter)
-            validateAdministratorer(ctx.administratorer)
+            validateNavEnheter(request.navEnheter)
+            validateAdministratorer(request)
 
-            if (ctx.previous == null) {
-                validateCreateAvtale(ctx.arrangor)
+            if (previous == null) {
+                validateCreateAvtale(arrangor)
             } else {
-                validateUpdateAvtale(request, ctx.arrangor, ctx.gjennomforinger, ctx.previous)
+                validateUpdateAvtale(request, arrangor, previous)
             }
         }
         if (errors.isNotEmpty()) {
             return errors.left()
         }
 
-        return validatePrismodell(request.prismodell, request.tiltakskode)
+        return validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn)
             .map {
-                AvtaleDboMapper.fromAvtaleRequest(
-                    request = request
-                        .copy(navEnheter = ctx.navEnheter.map { it.enhetsnummer }),
-                    startDato = request.startDato!!,
-                    prismodell = it,
-                    arrangor = ctx.arrangor?.let {
-                        AvtaleDbo.Arrangor(
-                            hovedenhet = it.hovedenhet.id,
-                            underenheter = it.underenheter.map { it.id },
-                            kontaktpersoner = it.kontaktpersoner,
-                        )
-                    },
-                    status = ctx.status,
-                    tiltakstypeId = ctx.tiltakstypeId,
-                )
+                AvtaleDboMapper
+                    .fromAvtaleRequest(
+                        request,
+                        request.startDato!!,
+                        it,
+                        arrangor,
+                        resolveStatus(request, previous, LocalDate.now()),
+                        tiltakstype.id,
+                    )
+                    .copy(navEnheter = sanitizeNavEnheter(request.navEnheter))
             }
     }
 
-    private fun MutableList<FieldError>.validateCreateAvtale(arrangor: Ctx.Arrangor?) {
-        if (arrangor == null) {
-            return
-        }
-        if (arrangor.hovedenhet.slettetDato != null) {
-            add(
-                FieldError.ofPointer(
-                    "/arrangorHovedenhet",
-                    "Arrangøren ${arrangor.hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
-                ),
-            )
-        }
+    private fun MutableList<FieldError>.validateCreateAvtale(
+        arrangor: AvtaleDbo.Arrangor?,
+    ) = db.session {
+        if (arrangor?.hovedenhet != null) {
+            val hovedenhet = queries.arrangor.getById(arrangor.hovedenhet)
 
-        arrangor.underenheter.forEach {
-            if (it.slettetDato != null) {
+            if (hovedenhet.slettetDato != null) {
                 add(
                     FieldError.ofPointer(
-                        "/arrangorUnderenheter",
-                        "Arrangøren ${it.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                        "/arrangorHovedenhet",
+                        "Arrangøren ${hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
                     ),
                 )
             }
-            if (it.overordnetEnhet != arrangor.hovedenhet.organisasjonsnummer) {
-                add(
-                    FieldError.ofPointer(
-                        "/arrangorUnderenheter",
-                        "Arrangøren ${it.navn} er ikke en gyldig underenhet til hovedenheten ${arrangor.hovedenhet.navn}.",
-                    ),
-                )
+
+            arrangor.underenheter.forEach { underenhetId ->
+                val underenhet = queries.arrangor.getById(underenhetId)
+
+                if (underenhet.slettetDato != null) {
+                    add(
+                        FieldError.ofPointer(
+                            "/arrangorUnderenheter",
+                            "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                        ),
+                    )
+                }
+
+                if (underenhet.overordnetEnhet != hovedenhet.organisasjonsnummer) {
+                    add(
+                        FieldError.ofPointer(
+                            "/arrangorUnderenheter",
+                            "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${hovedenhet.navn}.",
+                        ),
+                    )
+                }
             }
         }
     }
 
     private fun MutableList<FieldError>.validateUpdateAvtale(
         request: AvtaleRequest,
-        arrangor: Ctx.Arrangor?,
-        gjennomforinger: List<Ctx.Gjennomforing>,
+        arrangor: AvtaleDbo.Arrangor?,
         previous: Avtale,
-    ) {
+    ) = db.session {
         if (previous.opsjonerRegistrert.isNotEmpty()) {
             if (request.avtaletype != previous.avtaletype) {
                 add(
@@ -250,6 +246,8 @@ object AvtaleValidator {
             )
         }
 
+        val (numGjennomforinger, gjennomforinger) = queries.gjennomforing.getAll(avtaleId = request.id)
+
         /**
          * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
          *
@@ -257,7 +255,7 @@ object AvtaleValidator {
          * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
          * gjennomføringer på avtalen eller ikke...
          */
-        if (gjennomforinger.isNotEmpty()) {
+        if (numGjennomforinger > 0) {
             if (request.tiltakskode != previous.tiltakstype.tiltakskode) {
                 add(
                     FieldError.of(
@@ -288,7 +286,7 @@ object AvtaleValidator {
                             AvtaleRequest.Arrangor::hovedenhet,
                         ),
                     )
-                } else if (arrangor?.underenheter?.all { it.id != arrangorId } == true) {
+                } else if (arrangor?.underenheter?.contains(arrangorId) != true) {
                     add(
                         FieldError.ofPointer(
                             "/arrangorUnderenheter",
@@ -326,12 +324,13 @@ object AvtaleValidator {
     fun validatePrismodell(
         request: PrismodellRequest,
         tiltakskode: Tiltakskode,
+        tiltakstypeNavn: String,
     ): Either<NonEmptyList<FieldError>, PrismodellDbo> {
         val errors: List<FieldError> = buildList {
             if (request.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
                 add(
                     FieldError.of(
-                        "${request.type.beskrivelse} er ikke tillatt for tiltakstypen",
+                        "${request.type.beskrivelse} er ikke tillatt for tiltakstype $tiltakstypeNavn",
                         AvtaleRequest::prismodell,
                     ),
                 )
@@ -444,29 +443,72 @@ object AvtaleValidator {
     }
 
     private fun MutableList<FieldError>.validateAdministratorer(
-        administratorer: List<NavAnsatt>,
+        request: AvtaleRequest,
     ) {
-        val slettedeNavIdenter = administratorer.filter {
-            it.skalSlettesDato != null
+        val slettedeNavIdenter = db.session {
+            request.administratorer.mapNotNull { ident ->
+                queries.ansatt.getByNavIdent(ident)?.takeIf { it.skalSlettesDato != null }?.navIdent?.value
+            }
         }
 
         if (slettedeNavIdenter.isNotEmpty()) {
             add(
                 FieldError.of(
-                    "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") { it.navIdent.value } + " er slettet og må fjernes",
+                    "Administratorene med Nav ident " + slettedeNavIdenter.joinToString(", ") + " er slettet og må fjernes",
                     AvtaleRequest::administratorer,
                 ),
             )
         }
     }
 
-    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<NavEnhetDto>) {
-        if (!navEnheter.any { it.type == NavEnhetType.FYLKE }) {
+    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<NavEnhetNummer>) {
+        val actualNavEnheter = resolveNavEnheter(navEnheter)
+
+        if (!actualNavEnheter.any { it.value.type == NavEnhetType.FYLKE }) {
             add(FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region"))
         }
 
-        if (!navEnheter.any { it.type != NavEnhetType.FYLKE }) {
+        if (!actualNavEnheter.any { it.value.type != NavEnhetType.FYLKE }) {
             add(FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet"))
         }
     }
+
+    private fun resolveNavEnheter(enhetsnummer: List<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDto> {
+        val navEnheter = enhetsnummer.mapNotNull { navEnheterService.hentEnhet(it) }
+        return navEnheter
+            .filter { it.type == NavEnhetType.FYLKE }
+            .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
+            .associateBy { it.enhetsnummer }
+    }
+
+    fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): Set<NavEnhetNummer> {
+        // Filtrer vekk underenheter uten fylke
+        return NavEnhetHelpers.buildNavRegioner(
+            navEnheter.mapNotNull { navEnheterService.hentEnhet(it) },
+        )
+            .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
+            .toSet()
+    }
+
+    private suspend fun syncArrangorerFromBrreg(
+        orgnr: Organisasjonsnummer,
+        underenheterOrgnummere: List<Organisasjonsnummer>,
+    ): Either<List<FieldError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
+        val arrangor = syncArrangorFromBrreg(orgnr).bind()
+        val underenheter = underenheterOrgnummere.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+            syncArrangorFromBrreg(it).bind()
+        }.bind()
+        Pair(arrangor, underenheter)
+    }
+
+    private suspend fun syncArrangorFromBrreg(
+        orgnr: Organisasjonsnummer,
+    ): Either<List<FieldError>, ArrangorDto> = arrangorService
+        .getArrangorOrSyncFromBrreg(orgnr)
+        .mapLeft {
+            FieldError.ofPointer(
+                "/arrangorHovedenhet",
+                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+            ).nel()
+        }
 }

@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
@@ -650,7 +651,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("rekalkulering av utbetalinger") {
         val service = createUtbetalingService()
 
-        val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+        val avtale = AvtaleFixtures.oppfolging.copy(
             prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2026, 2, 1), 100),
@@ -749,7 +750,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val oppfolging = GjennomforingFixtures.Oppfolging1
 
         test("genererer en utbetaling for avtalt pris per månedsverk med riktig periode, stengt, sats og deltakere som input") {
-            val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 1, 1), 100),
@@ -803,7 +804,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("genererer en utbetaling for avtalt pris per ukesverk med riktig periode, stengt, sats og deltakere som input") {
-            val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_UKESVERK,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 1, 1), 100),
@@ -857,7 +858,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
-            val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 1, 1), 100),
@@ -892,7 +893,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("innsendt fri utbetaling blir ikke slettet hvis avtalens prismodell endres") {
-            val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.ANNEN_AVTALT_PRIS,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 1, 1), 100),
@@ -936,7 +937,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("utbetalinger slettes når prismodell ikke lengre kan genereres av systemet") {
-            val avtale = AvtaleFixtures.oppfolgingDbo.copy(
+            val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 1, 1), 100),

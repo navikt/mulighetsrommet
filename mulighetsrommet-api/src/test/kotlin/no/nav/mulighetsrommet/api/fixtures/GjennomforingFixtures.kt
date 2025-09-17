@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -13,8 +14,8 @@ object GjennomforingFixtures {
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolgingDbo.startDato,
-        sluttDato = AvtaleFixtures.oppfolgingDbo.sluttDato,
+        startDato = AvtaleFixtures.oppfolging.startDato,
+        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
         status = GjennomforingStatusType.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
@@ -23,7 +24,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.oppfolgingDbo.id,
+        avtaleId = AvtaleFixtures.oppfolging.id,
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
@@ -39,8 +40,8 @@ object GjennomforingFixtures {
         navn = "EnkelAmo 1",
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
         arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolgingDbo.startDato,
-        sluttDato = AvtaleFixtures.oppfolgingDbo.sluttDato,
+        startDato = AvtaleFixtures.oppfolging.startDato,
+        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
         status = GjennomforingStatusType.GJENNOMFORES,
         antallPlasser = 12,
         administratorer = listOf(NavIdent("DD1")),
@@ -102,7 +103,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.oppfolgingDbo.id,
+        avtaleId = AvtaleFixtures.oppfolging.id,
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
