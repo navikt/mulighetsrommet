@@ -396,7 +396,7 @@ data class DelutbetalingRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
-    val belop: Int,
+    val belop: Int?,
     val gjorOppTilsagn: Boolean,
 )
 

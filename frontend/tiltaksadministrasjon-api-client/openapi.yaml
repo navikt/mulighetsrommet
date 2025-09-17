@@ -4433,7 +4433,9 @@ components:
           type: string
           format: uuid
         belop:
-          type: integer
+          type:
+          - "null"
+          - integer
           format: int32
         gjorOppTilsagn:
           type: boolean
