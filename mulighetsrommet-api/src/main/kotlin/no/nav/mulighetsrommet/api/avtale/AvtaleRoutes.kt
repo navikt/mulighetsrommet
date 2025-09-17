@@ -33,10 +33,16 @@ import java.util.*
 data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val detaljer: AvtaleDetaljerRequest,
+    val personvern: AvtalePersonvernRequest,
+    val veilederinformasjon: AvtaleVeilederinfoRequest,
+)
+
+@Serializable
+data class AvtaleDetaljerRequest(
     val navn: String,
     val tiltakKode: Tiltakskode,
-    val arrangor: Arrangor?,
-    val avtalenummer: String?,
+    val arrangor: AvtaleArrangor,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -44,26 +50,34 @@ data class AvtaleRequest(
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
-    val navEnheter: List<NavEnhetNummer>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: PrismodellRequest,
-) {
-    @Serializable
-    data class Arrangor(
-        val hovedenhet: Organisasjonsnummer,
-        val underenheter: List<Organisasjonsnummer>,
-        val kontaktpersoner: List<
-            @Serializable(with = UUIDSerializer::class)
-            UUID,
-            >,
-    )
-}
+)
+@Serializable
+data class AvtaleArrangor(
+    val hovedenhet: Organisasjonsnummer,
+    val underenheter: List<Organisasjonsnummer>,
+    val kontaktpersoner: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
+)
+
+
+@Serializable
+data class AvtalePersonvernRequest(
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
+)
+
+@Serializable
+data class AvtaleVeilederinfoRequest(
+    val navEnheter: List<NavEnhetNummer>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+)
 
 @Serializable
 data class OpprettOpsjonLoggRequest(
@@ -119,7 +133,40 @@ fun Route.avtaleRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<AvtaleRequest>()
 
-                val result = avtaler.upsert(request, navIdent)
+                val result = avtaler.create(request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            patch("{id}/detaljer") {
+                val id: UUID by call.parameters
+                val request = call.receive<AvtaleDetaljerRequest>()
+                val navIdent = getNavIdent()
+
+                val result = avtaler.updateDetaljer(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            patch("{id}/personvern") {
+                val id: UUID by call.parameters
+                val request = call.receive<AvtalePersonvernRequest>()
+                val navIdent = getNavIdent()
+
+                val result = avtaler.updatePersonvern(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            patch("{id}/veilederinformasjon") {
+                val id: UUID by call.parameters
+                val request = call.receive<AvtaleVeilederinfoRequest>()
+                val navIdent = getNavIdent()
+
+                val result = avtaler.updateVeilederinfo(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)

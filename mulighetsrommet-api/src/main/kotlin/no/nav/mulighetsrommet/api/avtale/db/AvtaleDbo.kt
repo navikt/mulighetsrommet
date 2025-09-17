@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
@@ -10,32 +10,54 @@ import java.util.*
 
 data class AvtaleDbo(
     val id: UUID,
+    val status: AvtaleStatus,
+    val avtalenummer: String?,
+    val detaljer: DetaljerDbo,
+    val veilederinformasjon: VeilederinformasjonDbo,
+    val personvern: PersonvernDbo,
+)
+
+data class DetaljerDbo(
     val navn: String,
     val tiltakstypeId: UUID,
-    val avtalenummer: String?,
-    val sakarkivNummer: SakarkivNummer?,
-    val arrangor: Arrangor?,
+    val sakarkivnummer: String?,
+    val arrangor: ArrangorDbo?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
-    val status: AvtaleStatus,
-    val navEnheter: List<NavEnhetNummer>,
     val avtaletype: Avtaletype,
-    val antallPlasser: Int?,
     val administratorer: List<NavIdent>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodell: Opsjonsmodell,
+    val opsjonsmodell: OpsjonsmodellDbo,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: Prismodell,
     val prisbetingelser: String?,
     val satser: List<AvtaltSats>,
-) {
-    data class Arrangor(
-        val hovedenhet: UUID,
-        val underenheter: List<UUID>,
-        val kontaktpersoner: List<UUID>,
-    )
-}
+)
+data class ArrangorDbo(
+    val hovedenhet: UUID,
+    val underenheter: List<UUID>,
+    val kontaktpersoner: List<UUID>,
+)
+
+
+data class OpsjonsmodellDbo(
+    val type: OpsjonsmodellType,
+    val maksVarighet: LocalDate?,
+    val customNavn: String?,
+)
+
+data class VeilederinformasjonDbo(
+    val redaksjoneltInnhold: RedaksjoneltInnholdDbo?,
+    val navEnheter: List<NavEnhetNummer>,
+)
+
+data class RedaksjoneltInnholdDbo(
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+)
+
+data class PersonvernDbo(
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
+)
+

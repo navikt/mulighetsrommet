@@ -8,8 +8,8 @@ import java.time.LocalDate
 data class Opsjonsmodell(
     val type: OpsjonsmodellType,
     @Serializable(with = LocalDateSerializer::class)
-    val opsjonMaksVarighet: LocalDate?,
-    val customOpsjonsmodellNavn: String? = null,
+    val maksVarighet: LocalDate?,
+    val customNavn: String? = null,
 )
 
 @Serializable

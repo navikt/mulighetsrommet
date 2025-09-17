@@ -9,7 +9,8 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
@@ -37,46 +38,124 @@ class AvtaleService(
     private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
-    suspend fun upsert(
+    suspend fun create(
         request: AvtaleRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, AvtaleDto> = either {
+        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.detaljer.tiltakKode).id
+        val status = AvtaleStatus.AKTIV // Hva med utkast
+
+        val arrangor = request.detaljer.arrangor?.let {
+            val (arrangor, underenheter) = syncArrangorerFromBrreg(
+                it.hovedenhet,
+                it.underenheter,
+            ).bind()
+            ArrangorDbo(
+                hovedenhet = arrangor.id,
+                underenheter = underenheter.map { underenhet -> underenhet.id },
+                kontaktpersoner = it.kontaktpersoner,
+            )
+        }
+
+        val avtaleDbo = validator
+            .validateCreateAvtale(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status, tiltakstypeId))
+            .bind()
+
+        db.transaction {
+            queries.avtale.insert(avtaleDbo)
+
+            dispatchNotificationToNewAdministrators(avtaleDbo.id, avtaleDbo.detaljer.administratorer, avtaleDbo.detaljer.navn, navIdent)
+
+            val dto = getOrError(avtaleDbo.id)
+
+            logEndring("Opprettet avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    suspend fun updateDetaljer(
+        avtaleId: UUID,
+        request: AvtaleDetaljerRequest,
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, AvtaleDto> = either {
-        val previous = get(request.id)
+        val previous = get(avtaleId)
+        require(previous != null) { "Kan ikke oppdatere detaljer på avtale som ikke finnes" }
 
         val arrangor = request.arrangor?.let {
             val (arrangor, underenheter) = syncArrangorerFromBrreg(
                 it.hovedenhet,
                 it.underenheter,
             ).bind()
-            AvtaleDbo.Arrangor(
+            ArrangorDbo(
                 hovedenhet = arrangor.id,
                 underenheter = underenheter.map { underenhet -> underenhet.id },
                 kontaktpersoner = it.kontaktpersoner,
             )
         }
         val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.tiltakKode).id
-        val status = resolveStatus(request, previous, today)
         val dbo = validator
-            .validate(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status, tiltakstypeId), previous)
+            .validateUpdateDetaljer(avtaleId, request.toDbo(tiltakstypeId, arrangor), previous)
             .bind()
 
-        if (previous != null && AvtaleDboMapper.fromAvtaleDto(previous) == dbo) {
-            return@either previous
+        db.transaction {
+            queries.avtale.updateDetaljer(avtaleId, dbo)
+
+            dispatchNotificationToNewAdministrators(avtaleId, dbo.administratorer, dbo.navn, navIdent)
+
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
         }
+    }
+
+    suspend fun updatePersonvern(
+        avtaleId: UUID,
+        request: AvtalePersonvernRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, AvtaleDto> = either {
+        val previous = get(avtaleId)
+        require(previous != null) { "Kan ikke oppdatere personvern på avtale som ikke finnes" }
+
+        val administratorer = previous.administratorer.map { it.navIdent }
 
         db.transaction {
-            queries.avtale.upsert(dbo)
+            // queries.avtale.updatePersonvern(avtaleId, previous.administratorer)
 
-            dispatchNotificationToNewAdministrators(dbo, navIdent)
+            dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
 
-            val dto = getOrError(dbo.id)
-            val operation = if (previous == null) {
-                "Opprettet avtale"
-            } else {
-                "Redigerte avtale"
-            }
-            logEndring(operation, dto, navIdent)
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    suspend fun updateVeilederinfo(
+        avtaleId: UUID,
+        request: AvtaleVeilederinfoRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, AvtaleDto> = either {
+        val previous = get(avtaleId)
+        require(previous != null) { "Kan ikke oppdatere veilederinfo på avtale som ikke finnes" }
+
+        val administratorer = previous.administratorer.map { it.navIdent }
+
+        db.transaction {
+            // queries.avtale.updateVeilederinfo(avtaleId, dbo)
+
+            dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
+
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 
@@ -180,7 +259,7 @@ class AvtaleService(
                 return FieldError.of(OpsjonLoggEntry::status, "Kan ikke utløse flere opsjoner").left()
             }
 
-            val maksVarighet = avtale.opsjonsmodell.opsjonMaksVarighet
+            val maksVarighet = avtale.opsjonsmodell.maksVarighet
             if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
                 return FieldError.of(
                     OpsjonLoggEntry::sluttdato,
@@ -279,20 +358,21 @@ class AvtaleService(
         .mapLeft {
             FieldError.of(
                 "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                AvtaleRequest::arrangor,
-                AvtaleRequest.Arrangor::hovedenhet,
+                AvtaleDetaljerRequest::arrangor,
+                AvtaleArrangor::hovedenhet,
             ).nel()
         }
 
     private fun resolveStatus(
-        request: AvtaleRequest,
+        sluttdato: LocalDate?,
+        arrangor: AvtaleArrangor?,
         previous: AvtaleDto?,
         today: LocalDate,
-    ): AvtaleStatus = if (request.arrangor == null) {
+    ): AvtaleStatus = if (arrangor == null) {
         AvtaleStatus.UTKAST
     } else if (previous?.status is AvtaleStatusDto.Avbrutt) {
         previous.status.type
-    } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+    } else if (sluttdato == null || !sluttdato.isBefore(today)) {
         AvtaleStatus.AKTIV
     } else {
         AvtaleStatus.AVSLUTTET
@@ -321,16 +401,18 @@ class AvtaleService(
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: AvtaleDbo,
+        avtaleId: UUID,
+        administratorer: List<NavIdent>,
+        avtalenavn: String,
         navIdent: NavIdent,
     ) {
-        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+        val currentAdministratorer = get(avtaleId)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
-            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
+            (administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
-            title = "Du har blitt satt som administrator på avtalen \"${dbo.navn}\"",
+            title = "Du har blitt satt som administrator på avtalen \"${avtalenavn}\"",
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )

@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.amo
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.model.AmoKategorisering
@@ -21,11 +20,11 @@ class AmoKategoriseringQueries(private val session: Session) {
         }
     }
 
-    fun upsert(dbo: AvtaleDbo) {
-        if (dbo.amoKategorisering == null) {
-            delete(dbo.id, ForeignIdType.AVTALE)
+    fun upsert(avtaleId: UUID, dbo: AmoKategorisering?) {
+        if (dbo == null) {
+            delete(avtaleId, ForeignIdType.AVTALE)
         } else {
-            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.AVTALE)
+            upsert(dbo, avtaleId, ForeignIdType.AVTALE)
         }
     }
 

@@ -110,7 +110,7 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
-                avtaleValidator.validate(AvtaleDboMapper.fromAvtaleDto(it), it).onLeft { validationErrors ->
+                avtaleValidator.validateCreateAvtale(AvtaleDboMapper.fromAvtaleDto(it)).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
             }
