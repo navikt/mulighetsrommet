@@ -28,11 +28,6 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
         rolle = Rolle.SAKSBEHANDLER_OKONOMI,
         kategori = Kategori.UTBETALING,
     ),
-    UTBETALING_TIL_AVBRYTELSE(
-        navn = "Utbetaling til avbrytelse",
-        rolle = Rolle.ATTESTANT_UTBETALING,
-        kategori = Kategori.UTBETALING,
-    ),
     UTBETALING_TIL_ATTESTERING(
         navn = "Utbetaling til attestering",
         rolle = Rolle.ATTESTANT_UTBETALING,
