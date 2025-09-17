@@ -499,7 +499,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
-                    avtale.prismodell.shouldBeTypeOf<PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
+                    avtale.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
                                 gjelderFra = LocalDate.of(2025, 7, 1),
@@ -517,7 +517,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
+                    it.prismodell.shouldBeTypeOf<Prismodell.ForhandsgodkjentPrisPerManedsverk>()
                 }
 
                 queries.upsert(
@@ -527,7 +527,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
+                    it.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
                 }
             }
         }

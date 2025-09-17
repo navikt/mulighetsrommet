@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
@@ -24,7 +24,7 @@ object AvtalteSatser {
     }
 
     fun getAvtalteSatser(avtale: Avtale): List<AvtaltSats> = when (avtale.prismodell) {
-        is PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode)
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode)
         else -> avtale.prismodell.satser()
     }
 

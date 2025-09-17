@@ -5,21 +5,21 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
-sealed class PrismodellDto {
+sealed class Prismodell {
     abstract val type: PrismodellType
 
     @Serializable
     @SerialName("ANNEN_AVTALT_PRIS")
     data class AnnenAvtaltPris(
         val prisbetingelser: String?,
-    ) : PrismodellDto() {
+    ) : Prismodell() {
         @Transient
         override val type = PrismodellType.ANNEN_AVTALT_PRIS
     }
 
     @Serializable
     @SerialName("FORHANDSGODKJENT_PRIS_PER_MANEDSVERK")
-    data object ForhandsgodkjentPrisPerManedsverk : PrismodellDto() {
+    data object ForhandsgodkjentPrisPerManedsverk : Prismodell() {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
     }
@@ -29,7 +29,7 @@ sealed class PrismodellDto {
     data class AvtaltPrisPerManedsverk(
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : PrismodellDto() {
+    ) : Prismodell() {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
     }
@@ -39,7 +39,7 @@ sealed class PrismodellDto {
     data class AvtaltPrisPerUkesverk(
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : PrismodellDto() {
+    ) : Prismodell() {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_UKESVERK
     }
@@ -49,7 +49,7 @@ sealed class PrismodellDto {
     data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : PrismodellDto() {
+    ) : Prismodell() {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     }

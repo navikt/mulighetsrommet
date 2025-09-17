@@ -604,23 +604,23 @@ class AvtaleQueries(private val session: Session) {
             ?: emptyList()
 
         val prismodell = when (PrismodellType.valueOf(string("prismodell"))) {
-            PrismodellType.ANNEN_AVTALT_PRIS -> PrismodellDto.AnnenAvtaltPris(
+            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
                 prisbetingelser = stringOrNull("prisbetingelser"),
             )
 
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> PrismodellDto.ForhandsgodkjentPrisPerManedsverk
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk
 
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> PrismodellDto.AvtaltPrisPerManedsverk(
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> PrismodellDto.AvtaltPrisPerUkesverk(
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
 
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.toDto(),
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )

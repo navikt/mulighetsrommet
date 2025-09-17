@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.DataElement
 
 object AvtaleDtoMapper {
@@ -29,7 +30,7 @@ object AvtaleDtoMapper {
         opsjonsmodell = avtale.opsjonsmodell,
         opsjonerRegistrert = avtale.opsjonerRegistrert,
         utdanningslop = avtale.utdanningslop,
-        prismodell = avtale.prismodell,
+        prismodell = fromPrismodell(avtale.prismodell),
     )
 
     private fun fromAvtaleStatus(status: AvtaleStatus): AvtaleDto.Status {
@@ -44,5 +45,31 @@ object AvtaleDtoMapper {
         }
         val element = DataElement.Status(status.type.beskrivelse, variant, description)
         return AvtaleDto.Status(status.type, element)
+    }
+
+    private fun fromPrismodell(prismodell: Prismodell): AvtaleDto.Prismodell {
+        val satser = when (prismodell) {
+            is Prismodell.AnnenAvtaltPris,
+            is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            -> null
+
+            is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser
+            is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
+            is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser
+        }
+        val prisbetingelser = when (prismodell) {
+            Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            -> null
+
+            is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
+        }
+        return AvtaleDto.Prismodell(
+            type = prismodell.type,
+            satser = satser,
+            prisbetingelser = prisbetingelser,
+        )
     }
 }

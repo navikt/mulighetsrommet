@@ -636,7 +636,7 @@ components:
             - type: ["null"]
             - $ref: "#/components/schemas/Utdanningslop"
         prismodell:
-          $ref: "#/components/schemas/PrismodellDto"
+          $ref: "#/components/schemas/AvtaleDtoPrismodell"
       required:
         - id
         - tiltakstype
@@ -655,73 +655,26 @@ components:
         - utdanningslop
         - prismodell
 
-    PrismodellDto:
-      oneOf:
-        - $ref: "#/components/schemas/PrismodellDtoAnnenAvtaltPris"
-        - $ref: "#/components/schemas/PrismodellDtoForhandsgodkjentPrisPerManedsverk"
-        - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerManedsverk"
-        - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerUkesverk"
-        - $ref: "#/components/schemas/PrismodellDtoAvtaltPrisPerTimeOppfolgingPerDeltaker"
-
-    PrismodellDtoAnnenAvtaltPris:
+    AvtaleDtoPrismodell:
       type: object
       properties:
         type:
+          $ref: "#/components/schemas/PrismodellType"
+        beskrivelse:
           type: string
-          const: ANNEN_AVTALT_PRIS
-        prisbetingelser:
-          type: [string, "null"]
-      required: [type, prisbetingelser]
-
-    PrismodellDtoForhandsgodkjentPrisPerManedsverk:
-      type: object
-      properties:
-        type:
-          type: string
-          const: FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-      required: [type]
-
-    PrismodellDtoAvtaltPrisPerManedsverk:
-      type: object
-      properties:
-        type:
-          type: string
-          const: AVTALT_PRIS_PER_MANEDSVERK
         prisbetingelser:
           type: [string, "null"]
         satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
-      required: [type, prisbetingelser, satser]
-
-    PrismodellDtoAvtaltPrisPerUkesverk:
-      type: object
-      properties:
-        type:
-          type: string
-          const: AVTALT_PRIS_PER_UKESVERK
-        prisbetingelser:
-          type: [string, "null"]
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
-      required: [type, prisbetingelser, satser]
-
-    PrismodellDtoAvtaltPrisPerTimeOppfolgingPerDeltaker:
-      type: object
-      properties:
-        type:
-          type: string
-          const: AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-        prisbetingelser:
-          type: [string, "null"]
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaltSatsDto"
-      required: [type, prisbetingelser, satser]
+          oneOf:
+            - type: "null"
+            - type: array
+              items:
+                $ref: "#/components/schemas/AvtaltSatsDto"
+      required:
+        - type
+        - beskrivelse
+        - prisbetingelser
+        - satser
 
     AvtaleRequest:
       type: object
@@ -823,7 +776,7 @@ components:
       type: object
       properties:
         prisbetingelser:
-          type: [ string, "null" ]
+          type: [string, "null"]
         type:
           $ref: "#/components/schemas/PrismodellType"
         satser:

@@ -1,9 +1,10 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { AvtaleDto, PaginertAvtale, PrismodellDto } from "@mr/api-client-v2";
+import { AvtaleDto, PaginertAvtale } from "@mr/api-client-v2";
 import {
   AvtaleHandling,
   AvtaltSatsDto,
   EndringshistorikkDto,
+  PrismodellInfo,
 } from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
@@ -83,7 +84,7 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, PrismodellDto[]>(
+  http.get<PathParams, undefined, PrismodellInfo[]>(
     "/api/tiltaksadministrasjon/prismodeller",
     () => {
       return HttpResponse.json([]);

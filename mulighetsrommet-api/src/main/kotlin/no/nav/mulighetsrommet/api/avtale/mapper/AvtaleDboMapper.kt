@@ -108,22 +108,22 @@ object AvtaleDboMapper {
     )
 }
 
-fun PrismodellDto.prisbetingelser(): String? = when (this) {
-    is PrismodellDto.AnnenAvtaltPris -> prisbetingelser
-    is PrismodellDto.AvtaltPrisPerManedsverk -> prisbetingelser
-    is PrismodellDto.AvtaltPrisPerUkesverk -> prisbetingelser
-    is PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-    PrismodellDto.ForhandsgodkjentPrisPerManedsverk -> null
+fun Prismodell.prisbetingelser(): String? = when (this) {
+    is Prismodell.AnnenAvtaltPris -> prisbetingelser
+    is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
+    is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
+    is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
+    Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
 }
 
-fun PrismodellDto.satser(): List<AvtaltSats> = when (this) {
-    is PrismodellDto.AnnenAvtaltPris,
-    is PrismodellDto.ForhandsgodkjentPrisPerManedsverk,
+fun Prismodell.satser(): List<AvtaltSats> = when (this) {
+    is Prismodell.AnnenAvtaltPris,
+    is Prismodell.ForhandsgodkjentPrisPerManedsverk,
     -> emptyList()
 
-    is PrismodellDto.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
-    is PrismodellDto.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
-    is PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
+    is Prismodell.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
+    is Prismodell.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
+    is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
 }
 
 private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = satser.map {

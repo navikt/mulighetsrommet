@@ -2,10 +2,8 @@ import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdS
 import {
   ArrangorKontaktperson,
   AvtaleDto,
-  AvtaltSatsDto,
   Personopplysning,
   PrismodellType,
-  PrismodellDto,
 } from "@mr/api-client-v2";
 import z from "zod";
 import {
@@ -99,22 +97,10 @@ export function defaultAvtaleData(
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     prismodell: avtale?.prismodell?.type as PrismodellType | undefined,
-    satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
+    satser: avtale?.prismodell?.satser ?? [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell
         ? (avtale.prismodell.prisbetingelser ?? undefined)
         : undefined,
   };
-}
-
-function satser(prismodell: PrismodellDto): AvtaltSatsDto[] {
-  switch (prismodell.type) {
-    case "ANNEN_AVTALT_PRIS":
-    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
-      return [];
-    case "AVTALT_PRIS_PER_MANEDSVERK":
-    case "AVTALT_PRIS_PER_UKESVERK":
-    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
-      return prismodell.satser;
-  }
 }

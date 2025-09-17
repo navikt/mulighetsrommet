@@ -1,23 +1,13 @@
-import {
-  AvtaleDto,
-  PrismodellDto,
-  PrismodellDtoAnnenAvtaltPris,
-  PrismodellType,
-} from "@mr/api-client-v2";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
-import { Metadata } from "../detaljside/Metadata";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { Metadata } from "@/components/detaljside/Metadata";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { PrisOgBetaingsbetingelser } from "../detaljside/PrisOgBetaingsbetingelser";
-import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
+import { PrisOgBetaingsbetingelser } from "@/components/detaljside/PrisOgBetaingsbetingelser";
 import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
-  const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
-
-  const beskrivelse = prismodeller.find(({ type }) => type === avtale.prismodell.type)?.beskrivelse;
-
   switch (avtale.prismodell.type) {
     case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
       return (
@@ -25,7 +15,10 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
           <Heading level="3" size="small" spacing>
             {avtaletekster.prismodell.heading}
           </Heading>
-          <AvtalteSatser avtale={avtale} prismodellBeskrivelse={beskrivelse} />
+          <ForhandsgodkjenteSatser
+            avtale={avtale}
+            prismodellBeskrivelse={avtale.prismodell.beskrivelse}
+          />
         </Box>
       );
     case "AVTALT_PRIS_PER_MANEDSVERK":
@@ -37,8 +30,11 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
             {avtaletekster.prismodell.heading}
           </Heading>
           <VStack gap="4">
-            <Metadata header={avtaletekster.prismodell.label} value={beskrivelse} />
-            {avtale.prismodell.satser.map((sats) => (
+            <Metadata
+              header={avtaletekster.prismodell.label}
+              value={avtale.prismodell.beskrivelse}
+            />
+            {(avtale.prismodell.satser ?? []).map((sats) => (
               <Box
                 key={sats.gjelderFra}
                 borderColor="border-subtle"
@@ -70,11 +66,24 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         </Box>
       );
     case "ANNEN_AVTALT_PRIS":
-      return <AnnenAvtaltPrismodell avtale={avtale} prismodellBeskrivelse={beskrivelse} />;
+      return (
+        <Box>
+          <Heading level="3" size="small" spacing>
+            {avtaletekster.prismodell.heading}
+          </Heading>
+          <VStack gap="4">
+            <Metadata
+              header={avtaletekster.prismodell.label}
+              value={avtale.prismodell.beskrivelse}
+            />
+            <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
+          </VStack>
+        </Box>
+      );
   }
 }
 
-function AvtalteSatser({
+function ForhandsgodkjenteSatser({
   avtale,
   prismodellBeskrivelse,
 }: {
@@ -117,29 +126,3 @@ function AvtalteSatser({
     </Box>
   );
 }
-
-export function AnnenAvtaltPrismodell({
-  avtale,
-  prismodellBeskrivelse,
-}: {
-  avtale: AvtaleDto;
-  prismodellBeskrivelse: string | undefined;
-}) {
-  if (!isAnnenAvtaltPrismodell(avtale.prismodell)) {
-    return null;
-  }
-  return (
-    <Box>
-      <Heading level="3" size="small" spacing>
-        {avtaletekster.prismodell.heading}
-      </Heading>
-      <VStack gap="4">
-        <Metadata header={avtaletekster.prismodell.label} value={prismodellBeskrivelse} />
-        <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
-      </VStack>
-    </Box>
-  );
-}
-
-const isAnnenAvtaltPrismodell = (obj: PrismodellDto): obj is PrismodellDtoAnnenAvtaltPris =>
-  obj.type === PrismodellType.ANNEN_AVTALT_PRIS;
