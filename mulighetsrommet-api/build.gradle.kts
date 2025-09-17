@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.openapi.generator)
-    alias(libs.plugins.shadow)
 }
 
 application {
@@ -48,15 +47,6 @@ val validateOpenapiSpecs = tasks.register<Task>("validateOpenapiSpecs") {
 
 tasks.build {
     dependsOn(validateOpenapiSpecs.name)
-}
-
-tasks.shadowJar {
-    // Gjør det mulig å bygge zip-filer med mer enn 65535 filer
-    isZip64 = true
-
-    // Trengs for å få med implementasjonen av services fra bl.a. flyway
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    mergeServiceFiles()
 }
 
 dependencies {
