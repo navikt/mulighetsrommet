@@ -7,7 +7,6 @@ import {
   Utdanningslop,
 } from "@mr/api-client-v2";
 import z from "zod";
-import { okonomiSchema } from "./okonomi";
 import { AvtaleFormValues } from "./avtale";
 
 export const avtaleDetaljerSchema = z.object({
@@ -16,9 +15,7 @@ export const avtaleDetaljerSchema = z.object({
   avtaletype: z.enum(Avtaletype, {
     error: "Du må velge en avtaletype",
   }),
-  startDato: z
-    .string({ error: "Du må legge inn startdato for avtalen" })
-    .min(10, "Du må legge inn startdato for avtalen"),
+  startDato: z.string().nullable(),
   sluttDato: z.string().optional().nullable(),
   opsjonsmodell: z.object({
     type: z.enum(OpsjonsmodellType, {
@@ -86,7 +83,7 @@ export const validateAvtaledetaljer = (
       });
     }
   }
-  if (data.sluttDato && data.startDato >= data.sluttDato) {
+  if (data.sluttDato && data.startDato && data.startDato >= data.sluttDato) {
     ctx.addIssue({
       code: "custom",
       message: "Startdato må være før sluttdato",
@@ -104,7 +101,6 @@ export const validateAvtaledetaljer = (
 
 export const avtaleDetaljerFormSchema = avtaleDetaljerSchema
   .extend(arrangorSchema.shape)
-  .extend(okonomiSchema.shape)
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);

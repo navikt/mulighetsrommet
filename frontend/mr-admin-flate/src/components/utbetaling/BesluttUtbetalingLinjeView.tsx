@@ -1,40 +1,43 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
   Besluttelse,
-  BesluttTotrinnskontrollRequest,
+  BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
-  DelutbetalingStatus,
-  FieldError,
   UtbetalingDto,
   UtbetalingLinje,
-  ValidationError,
-} from "@mr/api-client-v2";
+  UtbetalingLinjeHandling,
+} from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
+import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
+import { utbetalingTekster } from "./UtbetalingTekster";
+import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
+import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
   utbetaling: UtbetalingDto;
-  linjer: UtbetalingLinje[];
+  oppdaterLinjer: () => Promise<void>;
 }
 
-export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
+export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props) {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
-  const queryClient = useQueryClient();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const besluttMutation = useBesluttDelutbetaling();
 
-  function beslutt(id: string, body: BesluttTotrinnskontrollRequest) {
+  function beslutt(id: string, body: BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak) {
     besluttMutation.mutate(
       { id, body },
       {
-        onSuccess: () => {
-          return queryClient.invalidateQueries({ queryKey: ["utbetaling"] });
-        },
+        onSuccess: oppdaterLinjer,
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
         },
@@ -42,10 +45,25 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
     );
   }
 
+  function openRow(linje: UtbetalingLinje): boolean {
+    const hasNonBelopErrors = errors.filter((e) => !e.pointer.includes("belop"));
+    return hasNonBelopErrors.length > 0 || isBesluttet(linje.opprettelse);
+  }
+
+  const returnerAarsakValg = [
+    DelutbetalingReturnertAarsak.FEIL_BELOP,
+    DelutbetalingReturnertAarsak.ANNET,
+  ].map((val) => {
+    return {
+      value: val,
+      label: utbetalingTekster.delutbetaling.aarsak.fraRetunertAarsak(val),
+    };
+  });
+
   return (
     <VStack gap="2">
       <Heading spacing size="medium">
-        Utbetalingslinjer
+        {utbetalingTekster.delutbetaling.header}
       </Heading>
       <UtbetalingLinjeTable
         linjer={linjer}
@@ -53,23 +71,29 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
         renderRow={(linje) => {
           return (
             <UtbetalingLinjeRow
-              readOnly
-              key={linje.id}
+              key={`${linje.id}-${linje.status?.type}`}
+              gjennomforingId={gjennomforingId}
               linje={linje}
               grayBackground
+              rowOpen={openRow(linje)}
+              checkboxInput={<GjorOppTilsagnCheckbox linje={linje} />}
+              textInput={<UtbetalingBelopInput type="readOnly" linje={linje} />}
               knappeColumn={
-                linje.status === DelutbetalingStatus.TIL_ATTESTERING && (
+                isTilBeslutning(linje.opprettelse) && (
                   <HStack gap="4">
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      type="button"
-                      onClick={() => setAvvisModalOpen(true)}
-                    >
-                      Send i retur
-                    </Button>
-                    {linje.opprettelse?.kanBesluttes && (
+                    {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
                       <Button
+                        variant="secondary"
+                        size="small"
+                        type="button"
+                        onClick={() => setAvvisModalOpen(true)}
+                      >
+                        {utbetalingTekster.delutbetaling.handlinger.returner}
+                      </Button>
+                    )}
+                    {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
+                      <Button
+                        key={`attester-knapp-${linje.id}`}
                         size="small"
                         type="button"
                         onClick={() => {
@@ -79,23 +103,20 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                           modal.showModal();
                         }}
                       >
-                        Attester
+                        {utbetalingTekster.delutbetaling.handlinger.attester}
                       </Button>
                     )}
                     <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
+                      header={utbetalingTekster.delutbetaling.aarsak.modal.header}
                       ingress={
                         <BodyShort>
-                          Ved å sende en linje i retur vil andre linjer også returneres
+                          {utbetalingTekster.delutbetaling.aarsak.modal.ingress}
                         </BodyShort>
                       }
                       open={avvisModalOpen}
-                      header="Send i retur med forklaring"
-                      buttonLabel="Send i retur"
+                      buttonLabel={utbetalingTekster.delutbetaling.aarsak.modal.button.label}
                       errors={errors}
-                      aarsaker={[
-                        { value: DelutbetalingReturnertAarsak.FEIL_BELOP, label: "Feil beløp" },
-                        { value: DelutbetalingReturnertAarsak.ANNET, label: "Annet" },
-                      ]}
+                      aarsaker={returnerAarsakValg}
                       onClose={() => {
                         setAvvisModalOpen(false);
                         setErrors([]);
@@ -106,6 +127,7 @@ export function BesluttUtbetalingLinjeView({ linjer, utbetaling }: Props) {
                           aarsaker,
                           forklaring: forklaring ?? null,
                         });
+                        setAvvisModalOpen(false);
                       }}
                     />
                     <AttesterDelutbetalingModal

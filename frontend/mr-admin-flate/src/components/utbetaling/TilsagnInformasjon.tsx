@@ -1,7 +1,7 @@
-import { TilsagnDto } from "@mr/api-client-v2";
 import { HStack } from "@navikt/ds-react";
 import { Metadata } from "../detaljside/Metadata";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { TilsagnDto } from "@tiltaksadministrasjon/api-client";
 
 interface TilsagnInformasjonProps {
   tilsagn: TilsagnDto;
@@ -10,7 +10,7 @@ interface TilsagnInformasjonProps {
 export function TilsagnInformasjon({ tilsagn }: TilsagnInformasjonProps) {
   return (
     <HStack gap="4">
-      <Metadata header="Totalbeløp på tilsagn" verdi={formaterNOK(tilsagn.beregning.belop)} />
+      <Metadata header="Totalbeløp på tilsagn" value={formaterNOK(tilsagn.belop)} />
     </HStack>
   );
 }

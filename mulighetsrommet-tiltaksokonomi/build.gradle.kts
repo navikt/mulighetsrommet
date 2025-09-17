@@ -2,17 +2,10 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.shadow)
 }
 
 application {
     mainClass.set("no.nav.tiltak.okonomi.ApplicationKt")
-}
-
-tasks.shadowJar {
-    // Trengs for å få med implementasjonen av services fra bl.a. flyway
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    mergeServiceFiles()
 }
 
 dependencies {
@@ -35,7 +28,7 @@ dependencies {
     implementation(libs.shedlock.jdbc)
 
     // FTP
-    implementation("com.github.mwiede:jsch:2.27.2")
+    implementation("com.github.mwiede:jsch:2.27.3")
     testImplementation("com.github.stefanbirkner:fake-sftp-server-lambda:2.0.0")
 
     // Cache
@@ -70,6 +63,7 @@ dependencies {
     // Test
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotest.assertions.table)
     testImplementation(libs.kotest.assertions.arrow)
     testImplementation(libs.mockk)
     testImplementation(libs.assertj.db)

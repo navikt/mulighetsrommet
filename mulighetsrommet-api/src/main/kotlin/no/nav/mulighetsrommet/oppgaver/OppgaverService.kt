@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingOppgaveData
 import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
@@ -139,7 +139,7 @@ class OppgaverService(val db: ApiDatabase) {
             .getAll(
                 tiltakstypeIder = tiltakstypeIds,
                 navRegioner = regioner.toList(),
-                statuser = listOf(AvtaleStatus.UTKAST, AvtaleStatus.AKTIV),
+                statuser = listOf(AvtaleStatusType.UTKAST, AvtaleStatusType.AKTIV),
             )
             .items
             .flatMap { toOppgaver(it) }
@@ -356,7 +356,7 @@ private fun toOppgave(utbetaling: Utbetaling): Oppgave? = when (utbetaling.statu
         ).takeIf { utbetaling.innsender == Arrangor }
 }
 
-private fun QueryContext.toOppgaver(avtale: AvtaleDto): List<Oppgave> = buildList {
+private fun QueryContext.toOppgaver(avtale: Avtale): List<Oppgave> = buildList {
     if (avtale.administratorer.isEmpty()) {
         val updatedAt = queries.avtale.getUpdatedAt(avtale.id)
         add(

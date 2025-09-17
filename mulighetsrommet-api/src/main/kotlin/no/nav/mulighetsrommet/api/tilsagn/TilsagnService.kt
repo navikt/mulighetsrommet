@@ -10,19 +10,17 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
@@ -50,6 +48,10 @@ class TilsagnService(
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId)) {
             "Avtalen finnes ikke"
         }
+        requireNotNull(request.id) {
+            "id mangler"
+        }
+        val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -65,20 +67,18 @@ class TilsagnService(
             besluttetAvNavn = null,
             behandletAvNavn = null,
         )
-
         val previous = queries.tilsagn.get(request.id)
         return TilsagnValidator
             .validate(
                 next = request,
                 previous = previous,
-                gjennomforingSluttDato = gjennomforing.sluttDato,
                 tiltakstypeNavn = gjennomforing.tiltakstype.navn,
                 arrangorSlettet = gjennomforing.arrangor.slettet,
-                minimumTilsagnPeriodeStart = config.okonomiConfig.minimumTilsagnPeriodeStart[gjennomforing.tiltakstype.tiltakskode],
+                gyldigTilsagnPeriode = config.okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                gjennomforingSluttDato = gjennomforing.sluttDato,
+                avtalteSatser = avtalteSatser,
             )
-            .flatMap { TilsagnValidator.validateAvtaltSats(request.beregning, avtale) }
-            .flatMap { beregnTilsagn(request.beregning) }
-            .map { beregning ->
+            .map { step3 ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
@@ -89,13 +89,14 @@ class TilsagnService(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt),
+                    periode = step3.step2.periode,
                     lopenummer = lopenummer,
-                    kostnadssted = request.kostnadssted,
+                    kostnadssted = step3.step2.step1.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
-                    beregning = beregning,
+                    beregning = step3.beregning,
+                    kommentar = request.kommentar,
                 )
             }
             .map { dbo ->
@@ -130,30 +131,134 @@ class TilsagnService(
         Unit.right()
     }
 
-    fun tilAnnulleringRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
+    fun tilAnnulleringRequest(
+        id: UUID,
+        navIdent: NavIdent,
+        request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
+    ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun tilGjorOppRequest(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>): Tilsagn = db.transaction {
+    fun tilGjorOppRequest(
+        id: UUID,
+        navIdent: NavIdent,
+        request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
+    ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
-    fun beregnTilsagn(input: TilsagnBeregningInput): Either<List<FieldError>, TilsagnBeregning> {
-        return TilsagnValidator.validateBeregningInput(input)
-            .map {
-                when (input) {
-                    is TilsagnBeregningFri.Input -> TilsagnBeregningFri.beregn(input)
-                    is TilsagnBeregningPrisPerManedsverk.Input -> TilsagnBeregningPrisPerManedsverk.beregn(input)
-                    is TilsagnBeregningPrisPerUkesverk.Input -> TilsagnBeregningPrisPerUkesverk.beregn(input)
+    fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
+        return try {
+            when (request.beregning.type) {
+                TilsagnBeregningType.FRI ->
+                    TilsagnBeregningFri.beregn(
+                        TilsagnBeregningFri.Input(
+                            linjer = request.beregning.linjer.orEmpty().map {
+                                TilsagnBeregningFri.InputLinje(
+                                    id = it.id,
+                                    beskrivelse = it.beskrivelse ?: "",
+                                    belop = it.belop ?: 0,
+                                    antall = it.antall ?: 0,
+                                )
+                            },
+                            prisbetingelser = request.beregning.prisbetingelser,
+                        ),
+                    )
+
+                TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
+                            TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                            ),
+                        )
+                    }
+
+                TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerManedsverk.beregn(
+                            TilsagnBeregningPrisPerManedsverk.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                            ),
+                        )
+                    }
+                TilsagnBeregningType.PRIS_PER_UKESVERK ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerUkesverk.beregn(
+                            TilsagnBeregningPrisPerUkesverk.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                            ),
+                        )
+                    }
+                TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+                -> beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                            periode = fallback.periode,
+                            sats = fallback.sats,
+                            antallPlasser = fallback.antallPlasser,
+                            prisbetingelser = fallback.prisbetingelser,
+                            antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
+                        ),
+                    )
                 }
             }
+        } catch (a: ArithmeticException) {
+            null
+        }
     }
 
-    fun beslutt(id: UUID, request: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
+    private data class TilsagnBeregningFallbackResolver(
+        val sats: Int,
+        val periode: Periode,
+        val antallPlasser: Int,
+        val antallTimerOppfolgingPerDeltaker: Int,
+        val prisbetingelser: String?,
+    )
+
+    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
+        if (request.periodeStart == null || request.periodeSlutt == null || request.periodeSlutt <= request.periodeStart) {
+            return null
+        }
+        val antallPlasserFallback = request.beregning.antallPlasser ?: 0
+        val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
+
+        val periode =
+            Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+        val sats =
+            queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
+                queries.avtale.get(it)
+            }?.let { avtale ->
+                val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
+                AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
+            } ?: 0
+
+        return TilsagnBeregningFallbackResolver(
+            sats = sats,
+            periode = periode,
+            antallPlasser = antallPlasserFallback,
+            antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
+            prisbetingelser = request.beregning.prisbetingelser,
+        )
+    }
+
+    fun beslutt(
+        id: UUID,
+        request: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
@@ -213,6 +318,28 @@ class TilsagnService(
             // TODO returner valideringsfeil i stedet for å kaste exception
             throw IllegalStateException(it.first().detail)
         }
+    }
+
+    fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
+        val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))
+        val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        val tilOppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+
+        return setOfNotNull(
+            TilsagnHandling.REDIGER.takeIf { tilsagn.status == TilsagnStatus.RETURNERT && saksbehandler },
+            TilsagnHandling.SLETT.takeIf { tilsagn.status == TilsagnStatus.RETURNERT && saksbehandler },
+            TilsagnHandling.ANNULLER.takeIf { tilsagn.status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt == 0 && saksbehandler },
+            TilsagnHandling.GJOR_OPP.takeIf { tilsagn.status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt > 0 && saksbehandler },
+            TilsagnHandling.GODKJENN.takeIf { tilsagn.status == TilsagnStatus.TIL_GODKJENNING && beslutter && opprettelse.behandletAv != ansatt.navIdent },
+            TilsagnHandling.RETURNER.takeIf { tilsagn.status == TilsagnStatus.TIL_GODKJENNING && (beslutter || saksbehandler) },
+            TilsagnHandling.AVSLA_ANNULLERING.takeIf { tilsagn.status == TilsagnStatus.TIL_ANNULLERING && (beslutter || saksbehandler) },
+            TilsagnHandling.GODKJENN_ANNULLERING.takeIf { tilsagn.status == TilsagnStatus.TIL_ANNULLERING && beslutter && annullering?.behandletAv != ansatt.navIdent },
+            TilsagnHandling.AVSLA_OPPGJOR.takeIf { tilsagn.status == TilsagnStatus.TIL_OPPGJOR && beslutter },
+            TilsagnHandling.GODKJENN_OPPGJOR.takeIf { tilsagn.status == TilsagnStatus.TIL_OPPGJOR && beslutter && tilOppgjor?.behandletAv != ansatt.navIdent },
+        )
     }
 
     private fun QueryContext.godkjennTilsagn(

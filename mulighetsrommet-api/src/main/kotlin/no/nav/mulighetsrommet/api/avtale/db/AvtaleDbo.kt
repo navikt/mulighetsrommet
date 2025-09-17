@@ -10,7 +10,7 @@ import java.util.*
 
 data class AvtaleDbo(
     val id: UUID,
-    val status: AvtaleStatus,
+    val status: AvtaleStatusType,
     val avtalenummer: String?,
     val detaljer: DetaljerDbo,
     val veilederinformasjon: VeilederinformasjonDbo,
@@ -24,6 +24,7 @@ data class DetaljerDbo(
     val arrangor: ArrangorDbo?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
+    val navEnheter: Set<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val administratorer: List<NavIdent>,
     val amoKategorisering: AmoKategorisering?,
@@ -38,7 +39,6 @@ data class ArrangorDbo(
     val underenheter: List<UUID>,
     val kontaktpersoner: List<UUID>,
 )
-
 
 data class OpsjonsmodellDbo(
     val type: OpsjonsmodellType,

@@ -4,6 +4,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
+import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -26,6 +28,25 @@ class UtbetalingValidatorTest : FunSpec({
         result.shouldBeRight()
     }
 
+    test("valider opprett utbetaling akumulerer feil") {
+        val request = OpprettUtbetalingRequest(
+            gjennomforingId = UUID.randomUUID(),
+            periodeStart = LocalDate.now(),
+            periodeSlutt = null,
+            beskrivelse = "Bla bla bla beskrivelse",
+            kontonummer = Kontonummer(value = "12345678910"),
+            kidNummer = "asdf",
+            belop = -5,
+        )
+
+        val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
+        result.shouldBeLeft().shouldContainAll(
+            FieldError.of("Periodeslutt må være satt", OpprettUtbetalingRequest::periodeSlutt),
+            FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop),
+            FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer),
+        )
+    }
+
     test("Periodeslutt må være etter periodestart") {
         val request = OpprettUtbetalingRequest(
             gjennomforingId = UUID.randomUUID(),
@@ -41,8 +62,8 @@ class UtbetalingValidatorTest : FunSpec({
         result.shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError.of(
-                    OpprettUtbetalingRequest::periodeSlutt,
                     "Periodeslutt må være etter periodestart",
+                    OpprettUtbetalingRequest::periodeSlutt,
                 ),
             ),
         )
@@ -62,7 +83,7 @@ class UtbetalingValidatorTest : FunSpec({
         val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
-                FieldError.of(OpprettUtbetalingRequest::belop, "Beløp må være positivt"),
+                FieldError.of("Beløp må være positivt", OpprettUtbetalingRequest::belop),
             ),
         )
     }
@@ -81,7 +102,26 @@ class UtbetalingValidatorTest : FunSpec({
         val result = UtbetalingValidator.validateOpprettUtbetalingRequest(UUID.randomUUID(), request)
         result.shouldBeLeft().shouldContainAll(
             listOf(
-                FieldError.of(OpprettUtbetalingRequest::beskrivelse, "Du må fylle ut beskrivelse"),
+                FieldError.of("Du må fylle ut beskrivelse", OpprettUtbetalingRequest::beskrivelse),
+            ),
+        )
+    }
+
+    test("Kan ikke godkjenne før periode er passert") {
+        val request = GodkjennUtbetaling(
+            digest = "asdf",
+            kid = null,
+        )
+
+        val result = UtbetalingValidator.validerGodkjennUtbetaling(
+            request = request,
+            utbetaling = UtbetalingFixtures.utbetalingDto1,
+            advarsler = emptyList(),
+            today = UtbetalingFixtures.utbetalingDto1.periode.start,
+        )
+        result.shouldBeLeft().shouldContainAll(
+            listOf(
+                FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert"),
             ),
         )
     }

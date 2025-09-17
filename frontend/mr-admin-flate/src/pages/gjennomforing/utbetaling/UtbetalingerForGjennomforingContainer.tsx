@@ -1,27 +1,27 @@
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { Toggles } from "@mr/api-client-v2";
+import { FeatureToggle, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { utbetalingerByGjennomforingQuery } from "./utbetalingerForGjennomforingLoader";
+import { useNavigate } from "react-router";
+import {
+  useAdminGjennomforingById,
+  useGjennomforingHandlinger,
+} from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLoader";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function UtbetalingerForGjennomforingContainer() {
-  const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const navigate = useNavigate();
-
-  const { data: utbetalinger } = useSuspenseQuery({
-    ...utbetalingerByGjennomforingQuery(gjennomforingId),
-  });
-
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforingId);
+  const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
   const { data: enableOkonomi } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
+    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
     [gjennomforing.tiltakstype.tiltakskode],
   );
+
+  const navigate = useNavigate();
 
   if (!enableOkonomi) {
     return null;
@@ -30,13 +30,13 @@ export function UtbetalingerForGjennomforingContainer() {
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Økonomi">
-          <Dropdown>
-            <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-              Handlinger
-            </Button>
-            <Dropdown.Menu>
-              <Dropdown.Menu.GroupedList>
+        <Dropdown>
+          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
+            Handlinger
+          </Button>
+          <Dropdown.Menu>
+            <Dropdown.Menu.GroupedList>
+              {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     navigate(`skjema`);
@@ -44,13 +44,13 @@ export function UtbetalingerForGjennomforingContainer() {
                 >
                   Opprett korreksjon på utbetaling
                 </Dropdown.Menu.GroupedList.Item>
-              </Dropdown.Menu.GroupedList>
-            </Dropdown.Menu>
-          </Dropdown>
-        </HarSkrivetilgang>
+              )}
+            </Dropdown.Menu.GroupedList>
+          </Dropdown.Menu>
+        </Dropdown>
       </KnapperadContainer>
-      {utbetalinger.data.length > 0 ? (
-        <UtbetalingTable utbetalinger={utbetalinger.data} />
+      {utbetalinger.length > 0 ? (
+        <UtbetalingTable gjennomforingId={gjennomforingId} utbetalinger={utbetalinger} />
       ) : (
         <Alert style={{ marginTop: "1rem" }} variant="info">
           Det finnes ingen utbetalinger for dette tiltaket

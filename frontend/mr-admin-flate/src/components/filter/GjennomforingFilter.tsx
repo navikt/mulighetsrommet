@@ -8,7 +8,7 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { ArrangorTil, AvtaleDto } from "@mr/api-client-v2";
+import { AvtaleDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
@@ -17,6 +17,7 @@ import {
   gjennomforingFilterAccordionAtom,
   GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 
 type Filters = "tiltakstype";
 
@@ -32,7 +33,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: enheter } = useNavEnheter();
   const { data: regioner } = useNavRegioner();
-  const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING, {
+  const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
 

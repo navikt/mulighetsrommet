@@ -1,0 +1,40 @@
+package no.nav.mulighetsrommet.api.tilsagn.model
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
+import no.nav.mulighetsrommet.model.Periode
+import java.math.BigDecimal
+import java.math.RoundingMode
+
+@Serializable
+@SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+data class TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+    override val input: Input,
+    override val output: Output,
+) : TilsagnBeregning() {
+
+    @Serializable
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+    data class Input(
+        val periode: Periode,
+        val sats: Int,
+        val antallPlasser: Int,
+    ) : TilsagnBeregningInput()
+
+    @Serializable
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+    data class Output(
+        override val belop: Int,
+    ) : TilsagnBeregningOutput()
+
+    companion object {
+        fun beregn(input: Input): TilsagnBeregningFastSatsPerTiltaksplassPerManed {
+            val (periode, sats, antallPlasser) = input
+
+            val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, sats, antallPlasser)
+
+            return TilsagnBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop = belop))
+        }
+    }
+}

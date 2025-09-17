@@ -6,12 +6,15 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.utbetaling.api.ArrangorUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
@@ -24,9 +27,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val utbetaling = ArrFlateUtbetaling(
+    val utbetaling = ArrangorflateUtbetalingDto(
         id = UUID.randomUUID(),
-        status = ArrFlateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+        status = ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         kanViseBeregning = false,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
@@ -40,11 +43,11 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             navn = "Nav",
         ),
-        beregning = ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder(
+        beregning = ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
             belop = 100,
             digest = "digest",
             deltakelser = listOf(
-                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2025, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
@@ -55,13 +58,13 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = ArrFlateBeregningDeltakelse.ArrFlatePerson(
+                    person = ArrangorflatePerson(
                         navn = "Ola Nordmann",
                         foedselsdato = LocalDate.of(1989, 1, 1),
                     ),
                     status = null,
                 ),
-                ArrFlateBeregningDeltakelse.PrisPerManedsverkMedDeltakelsesmengder(
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
                     id = UUID.randomUUID(),
                     deltakerStartDato = LocalDate.of(2024, 1, 1),
                     periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
@@ -76,7 +79,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = ArrFlateBeregningDeltakelse.ArrFlatePerson(
+                    person = ArrangorflatePerson(
                         navn = "Kari Nordmann",
                         foedselsdato = LocalDate.of(1989, 1, 1),
                     ),
@@ -92,16 +95,16 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             antallManedsverk = 1.0,
             sats = 34,
         ),
-        betalingsinformasjon = Utbetaling.Betalingsinformasjon(
+        betalingsinformasjon = ArrangorflateBetalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
             kid = null,
         ),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-        type = null,
+        type = UtbetalingType.INNSENDING.toDto(),
         linjer = listOf(
-            ArrangorUtbetalingLinje(
+            ArrangforflateUtbetalingLinje(
                 id = UUID.randomUUID(),
-                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                tilsagn = ArrangorflateTilsagnSummary(
                     id = UUID.randomUUID(),
                     bestillingsnummer = "A-1-1",
                 ),
@@ -109,9 +112,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 belop = 99,
                 statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
             ),
-            ArrangorUtbetalingLinje(
+            ArrangforflateUtbetalingLinje(
                 id = UUID.randomUUID(),
-                tilsagn = ArrangorUtbetalingLinje.Tilsagn(
+                tilsagn = ArrangorflateTilsagnSummary(
                     id = UUID.randomUUID(),
                     bestillingsnummer = "A-1-2",
                 ),

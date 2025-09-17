@@ -19,7 +19,7 @@ export function useDelTiltakMedBruker({ onSuccess, onError }: Props) {
       DelMedBrukerService.delTiltakMedBruker({ body }),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: QueryKeys.DeltMedBrukerStatus });
-      onSuccess(response.data!);
+      onSuccess(response.data);
     },
     onError: () => onError(),
   });

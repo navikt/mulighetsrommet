@@ -1,13 +1,7 @@
 import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
-import {
-  AvtaleDto,
-  AvtaleRequest,
-  Prismodell,
-  ProblemDetail,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleRequest, ProblemDetail, ValidationError } from "@mr/api-client-v2";
 import { v4 } from "uuid";
 
 export async function onSubmitAvtaleForm({
@@ -46,7 +40,7 @@ export async function onSubmitAvtaleForm({
     startDato,
     sakarkivNummer: data.sakarkivNummer || null,
     sluttDato: data.sluttDato || null,
-    navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navAndreEnheter),
+    navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
     avtalenummer: avtale?.avtalenummer ?? null,
     arrangor:
       data.arrangorHovedenhet && data.arrangorUnderenheter
@@ -56,7 +50,7 @@ export async function onSubmitAvtaleForm({
             kontaktpersoner: data.arrangorKontaktpersoner || [],
           }
         : null,
-    tiltakKode: data.tiltakskode,
+    tiltakskode: data.tiltakskode,
     amoKategorisering: data.amoKategorisering || null,
     opsjonsmodell: {
       type: data.opsjonsmodell.type,
@@ -65,7 +59,7 @@ export async function onSubmitAvtaleForm({
     },
     utdanningslop: getUtdanningslop(data),
     prismodell: {
-      type: data.prismodell ?? Prismodell.ANNEN_AVTALT_PRIS,
+      type: data.prismodell,
       prisbetingelser: data.prisbetingelser || null,
       satser,
     },
@@ -82,7 +76,7 @@ export function mapNameToSchemaPropertyName(name: string) {
     opsjonsmodell: "opsjonsmodell.type",
     opsjonMaksVarighet: "opsjonsmodell.opsjonMaksVarighet",
     customOpsjonsmodellNavn: "opsjonsmodell.customOpsjonsmodellNavn",
-    tiltakstypeId: "tiltakstype",
+    tiltakstypeId: "tiltakskode",
     utdanningslop: "utdanningslop.utdanninger",
   };
   return (mapping[name] ?? name) as keyof AvtaleFormValues;

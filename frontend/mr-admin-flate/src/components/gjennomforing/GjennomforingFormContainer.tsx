@@ -2,18 +2,17 @@ import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertGjennomforing } from "@/api/gjennomforing/useUpsertGjennomforing";
 import { Laster } from "@/components/laster/Laster";
 import {
-  InferredGjennomforingSchema,
   GjennomforingSchema,
+  InferredGjennomforingSchema,
 } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingRequest,
-  NavEnhetDto,
-  Tiltakskode,
   ValidationError,
 } from "@mr/api-client-v2";
+import { NavEnhetDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Spacer, Tabs } from "@navikt/ds-react";
@@ -101,7 +100,7 @@ export function GjennomforingFormContainer({
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== "")
           .map((kontakt) => ({
-            navIdent: kontakt.navIdent!,
+            navIdent: kontakt.navIdent,
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,

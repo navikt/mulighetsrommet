@@ -1,4 +1,9 @@
+import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
+
 export const tilsagnTekster = {
+  kommentar: {
+    label: "Kommentar",
+  },
   bestillingsnummer: {
     label: "Tilsagnsnummer",
   },
@@ -29,8 +34,43 @@ export const tilsagnTekster = {
   antallPlasser: {
     label: "Antall plasser",
   },
+  antallTimerOppfolgingPerDeltaker: {
+    label: "Antall oppfølgingstimer per deltaker",
+  },
+  prismodell: {
+    label: "Prismodell",
+    sats: {
+      label: (type: TilsagnBeregningType) => {
+        switch (type) {
+          case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
+            return "Fast sats per tiltaksplass per måned";
+          case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
+            return "Avtalt månedspris per tiltaksplass";
+          case TilsagnBeregningType.PRIS_PER_UKESVERK:
+            return "Avtalt ukespris per tiltaksplass";
+          case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
+            return "Avtalt pris per time oppfølging per deltaker";
+          case TilsagnBeregningType.FRI:
+            return "Annen avtalt pris";
+        }
+      },
+    },
+  },
   sats: {
-    label: "Sats",
+    label: (type: TilsagnBeregningType) => {
+      switch (type) {
+        case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
+          return "Sats";
+        case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
+          return "Avtalt pris per oppfølgingstime";
+        case TilsagnBeregningType.PRIS_PER_UKESVERK:
+          return "Avtalt ukespris";
+        case TilsagnBeregningType.FRI:
+          return "Avtalt pris";
+        case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
+          return "Avtalt månedspris";
+      }
+    },
   },
   beregning: {
     belop: {

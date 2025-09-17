@@ -1,4 +1,4 @@
-import { ArrangorKontaktpersonAnsvar } from "@mr/api-client-v2";
+import { ArrangorKontaktpersonAnsvar } from "@tiltaksadministrasjon/api-client";
 
 export function navnForAnsvar(
   ansvar: ArrangorKontaktpersonAnsvar,

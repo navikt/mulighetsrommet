@@ -1,7 +1,7 @@
 import { deltakelserAktive } from "@/mock/fixtures/mockDeltakelserAktive";
 import {
   Brukerdata,
-  BrukerVarsel,
+  BrukerdataVarsel,
   Deltakelse,
   DeltakelserMelding,
   GetAktivDeltakelseForBrukerRequest,
@@ -37,7 +37,7 @@ export const brukerHandlers = [
             type: NavEnhetType.LOKAL,
           },
         ],
-        varsler: [BrukerVarsel.LOKAL_OPPFOLGINGSENHET],
+        varsler: [BrukerdataVarsel.LOKAL_OPPFOLGINGSENHET],
         fornavn: "IHERDIG",
         manuellStatus: {
           erUnderManuellOppfolging: false,

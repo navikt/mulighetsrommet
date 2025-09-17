@@ -11,12 +11,14 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -106,6 +108,11 @@ val ApplicationConfigDev = AppConfig(
                 rolle = Rolle.AVTALER_SKRIV,
             ),
 
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "b78d7080-aed9-490b-bd38-2ef3a283cd1a".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_lesetilgang-økonomi",
+                rolle = Rolle.OKONOMI_LES,
+            ),
             EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "d776c0f9-9c8a-4299-8d34-aa563925b00b".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi",
@@ -373,6 +380,9 @@ val ApplicationConfigDev = AppConfig(
         generateUtbetaling = GenerateUtbetaling.Config(
             cronPattern = "0 0 5 7 * *",
         ),
+        beregnUtbetaling = BeregnUtbetaling.Config(
+            bucketName = "mulighetsrommet-api-uploads-dev",
+        ),
     ),
     slack = SlackConfig(
         token = System.getenv("SLACK_TOKEN"),
@@ -380,7 +390,7 @@ val ApplicationConfigDev = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = Tiltakskode.entries.associateWith { LocalDate.of(2025, 1, 1) },
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith { Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)) },
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

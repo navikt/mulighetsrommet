@@ -76,7 +76,7 @@ class UtbetalingQueries(private val session: Session) {
             "periode" to dbo.periode.toDaterange(),
             "beregning_type" to when (dbo.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
-                is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER
+                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
                 is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
             }.name,
@@ -95,7 +95,7 @@ class UtbetalingQueries(private val session: Session) {
         when (dbo.beregning) {
             is UtbetalingBeregningFri -> Unit
 
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder -> {
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
                 upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
                 upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
@@ -297,7 +297,7 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setBegrunnelseMindreBetalt(id: UUID, begrunnelse: String) {
+    fun setBegrunnelseMindreBetalt(id: UUID, begrunnelse: String?) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling set
@@ -384,6 +384,19 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetaling() }
     }
 
+    fun getByPeriode(periode: Periode): List<Utbetaling> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from utbetaling_dto_view
+            where periode = :periode::daterange
+        """.trimIndent()
+
+        val params = mapOf("periode" to periode.toDaterange())
+
+        return session.list(queryOf(query, params)) { it.toUtbetaling() }
+    }
+
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? {
         @Language("PostgreSQL")
         val query = """
@@ -449,8 +462,8 @@ class UtbetalingQueries(private val session: Session) {
     private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {
         return when (beregning) {
             UtbetalingBeregningType.FRI -> getBeregningFri(id)
-            UtbetalingBeregningType.PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER -> {
-                getBeregningPrisPerManedsverkMedDeltakelsesmengder(id)
+            UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> {
+                getBeregningFastSatsPerTiltaksplassPerManed(id)
             }
 
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
@@ -478,23 +491,23 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningPrisPerManedsverkMedDeltakelsesmengder(id: UUID): UtbetalingBeregning {
+    private fun getBeregningFastSatsPerTiltaksplassPerManed(id: UUID): UtbetalingBeregning {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_utbetaling_beregning_manedsverk_med_deltakelsesmengder
+            from view_utbetaling_beregning_manedsverk_fast_sats_admin
             where id = ?::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
-            UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-                input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+            UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                     periode = row.periode("periode"),
                     sats = row.int("sats"),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
-                output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                     belop = row.int("belop_beregnet"),
                     deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
                 ),

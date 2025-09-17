@@ -12,7 +12,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -81,7 +80,7 @@ class AvtaleQueriesTest : FunSpec({
                     it.startDato shouldBe arenaAvtale.startDato
                     it.sluttDato shouldBe arenaAvtale.sluttDato
                     it.avtaletype shouldBe arenaAvtale.avtaletype
-                    it.status shouldBe AvtaleStatusDto.Aktiv
+                    it.status.type shouldBe AvtaleStatusType.AKTIV
                     it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 }
             }
@@ -100,11 +99,11 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging.copy(id = avtale2Id, avtalenummer = null))
 
                 val avtale1Avtalenummer = queries.get(avtale1Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
-                avtale1Avtalenummer.substring(0, 4).toInt() shouldBe LocalDate.now().year
+                avtale1Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeGreaterThanOrEqual 10_000
 
                 val avtale2Avtalenummer = queries.get(avtale2Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
-                avtale2Avtalenummer.substring(0, 4).toInt() shouldBe LocalDate.now().year
+                avtale2Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeLessThan avtale2Avtalenummer.substring(5).toInt()
             }
         }
@@ -155,22 +154,40 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(AvtaleFixtures.oppfolging)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"))
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
+                queries.setStatus(
+                    id = id,
+                    status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
+                    forklaring = ":)",
+                )
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avbrutt(
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null))
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avbrutt(
+                queries.setStatus(
+                    id = id,
+                    status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    forklaring = null,
+                )
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avbrutt(
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatusDto.Avsluttet
+                queries.setStatus(
+                    id = id,
+                    status = AvtaleStatusType.AVSLUTTET,
+                    tidspunkt = null,
+                    aarsaker = null,
+                    forklaring = null,
+                )
+                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avsluttet
             }
         }
 
@@ -190,13 +207,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.upsert(avtale1)
                 queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
-                    AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+                    Avtale.Administrator(ansatt1.navIdent, "Donald Duck"),
                 )
 
                 queries.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
                 queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
-                    AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
-                    AvtaleDto.Administrator(ansatt2.navIdent, "Mikke Mus"),
+                    Avtale.Administrator(ansatt1.navIdent, "Donald Duck"),
+                    Avtale.Administrator(ansatt2.navIdent, "Mikke Mus"),
                 )
 
                 queries.upsert(avtale1.copy(administratorer = listOf()))
@@ -206,7 +223,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("avtalens nav-enheter hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer),
+                navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer),
             )
 
             database.runAndRollback { session ->
@@ -230,7 +247,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("Nav-enheter uten overordnet enhet hentes med riktig kontorstruktur") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Oslo.enhetsnummer),
+                navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Oslo.enhetsnummer),
             )
 
             database.runAndRollback { session ->
@@ -260,6 +277,7 @@ class AvtaleQueriesTest : FunSpec({
                 telefon = "22232322",
                 epost = "navn@gmail.com",
                 beskrivelse = "beskrivelse",
+                ansvarligFor = listOf(),
             )
             val p2 = p1.copy(
                 id = UUID.randomUUID(),
@@ -286,7 +304,7 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactly listOf(p1)
+                    it.arrangor?.kontaktpersoner shouldContainExactly listOf(toAvtaleArrangorKontaktperson(p1))
                 }
                 val avtaleMedKontaktpersoner = avtale.copy(
                     arrangor = avtale.arrangor?.copy(
@@ -297,12 +315,15 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtaleMedKontaktpersoner)
 
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2, p3)
+                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                        toAvtaleArrangorKontaktperson(p2),
+                        toAvtaleArrangorKontaktperson(p3),
+                    )
                 }
 
                 queries.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
                 queries.get(avtale.id).shouldNotBeNull().should {
-                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2)
+                    it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(toAvtaleArrangorKontaktperson(p2))
                 }
 
                 val avtaleUtenKontaktpersoner = avtale.copy(
@@ -380,6 +401,7 @@ class AvtaleQueriesTest : FunSpec({
                     telefon = "22232322",
                     epost = "navn@gmail.com",
                     beskrivelse = "beskrivelse",
+                    ansvarligFor = listOf(),
                 )
                 val p2 = p1.copy(
                     id = UUID.randomUUID(),
@@ -467,7 +489,7 @@ class AvtaleQueriesTest : FunSpec({
                 domain.setup(session)
 
                 val queries = AvtaleQueries(session)
-                val sats2 = AvtaltSats(Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 8, 1)), 2000)
+                val sats2 = AvtaltSats(LocalDate.of(2025, 7, 1), 2000)
 
                 queries.upsert(
                     AvtaleFixtures.oppfolging.copy(
@@ -476,12 +498,11 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk>() should {
+                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
+                    avtale.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.AvtaltPrisPerManedsverk>() should { it ->
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
-                                periodeStart = LocalDate.of(2025, 7, 1),
-                                periodeSlutt = LocalDate.of(2025, 7, 31),
+                                gjelderFra = LocalDate.of(2025, 7, 1),
                                 pris = 2000,
                                 valuta = "NOK",
                             ),
@@ -496,7 +517,17 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
+                    it.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk>()
+                }
+
+                queries.upsert(
+                    AvtaleFixtures.oppfolging.copy(
+                        prismodell = Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                    ),
+                )
+
+                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
+                    it.prismodell.shouldBeTypeOf<Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
                 }
             }
         }
@@ -617,13 +648,13 @@ class AvtaleQueriesTest : FunSpec({
 
                 val avtaleAktiv = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    status = AvtaleStatus.AKTIV,
+                    status = AvtaleStatusType.AKTIV,
                 )
                 queries.upsert(avtaleAktiv)
 
                 val avtaleAvsluttet = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    status = AvtaleStatus.AVSLUTTET,
+                    status = AvtaleStatusType.AVSLUTTET,
                 )
                 queries.upsert(avtaleAvsluttet)
 
@@ -633,27 +664,25 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsert(avtaleAvbrutt)
                 queries.setStatus(
                     avtaleAvbrutt.id,
-                    AvtaleStatus.AVBRUTT,
+                    AvtaleStatusType.AVBRUTT,
                     LocalDateTime.now(),
-                    aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                        listOf(AvbruttAarsak.FEILREGISTRERING),
-                        null,
-                    ),
+                    listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    null,
                 )
 
                 val avtaleUtkast = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    status = AvtaleStatus.UTKAST,
+                    status = AvtaleStatusType.UTKAST,
                 )
                 queries.upsert(avtaleUtkast)
 
                 forAll(
-                    row(listOf(AvtaleStatus.UTKAST), listOf(avtaleUtkast.id)),
-                    row(listOf(AvtaleStatus.AKTIV), listOf(avtaleAktiv.id)),
-                    row(listOf(AvtaleStatus.AVBRUTT), listOf(avtaleAvbrutt.id)),
-                    row(listOf(AvtaleStatus.AVSLUTTET), listOf(avtaleAvsluttet.id)),
+                    row(listOf(AvtaleStatusType.UTKAST), listOf(avtaleUtkast.id)),
+                    row(listOf(AvtaleStatusType.AKTIV), listOf(avtaleAktiv.id)),
+                    row(listOf(AvtaleStatusType.AVBRUTT), listOf(avtaleAvbrutt.id)),
+                    row(listOf(AvtaleStatusType.AVSLUTTET), listOf(avtaleAvsluttet.id)),
                     row(
-                        listOf(AvtaleStatus.AVBRUTT, AvtaleStatus.AVSLUTTET),
+                        listOf(AvtaleStatusType.AVBRUTT, AvtaleStatusType.AVSLUTTET),
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
@@ -672,9 +701,9 @@ class AvtaleQueriesTest : FunSpec({
                     TiltakstypeFixtures.VTA,
                 ),
                 avtaler = listOf(
-                    AvtaleFixtures.oppfolging.copy(navEnheter = listOf()),
-                    AvtaleFixtures.AFT.copy(navEnheter = listOf()),
-                    AvtaleFixtures.VTA.copy(navEnheter = listOf()),
+                    AvtaleFixtures.oppfolging.copy(navEnheter = setOf()),
+                    AvtaleFixtures.AFT.copy(navEnheter = setOf()),
+                    AvtaleFixtures.VTA.copy(navEnheter = setOf()),
                 ),
             )
 
@@ -709,12 +738,12 @@ class AvtaleQueriesTest : FunSpec({
                 ),
                 avtaler = listOf(
                     AvtaleFixtures.oppfolging.copy(
-                        navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
                     ),
                     AvtaleFixtures.AFT.copy(
-                        navEnheter = listOf(Innlandet.enhetsnummer, Sel.enhetsnummer),
+                        navEnheter = setOf(Innlandet.enhetsnummer, Sel.enhetsnummer),
                     ),
-                    AvtaleFixtures.VTA.copy(navEnheter = listOf(Innlandet.enhetsnummer)),
+                    AvtaleFixtures.VTA.copy(navEnheter = setOf(Innlandet.enhetsnummer)),
                 ),
             )
 
@@ -965,7 +994,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Sortering på arrangør sorterer korrekt") {
-            val alvdal = AvtaleDto.ArrangorHovedenhet(
+            val alvdal = Avtale.ArrangorHovedenhet(
                 id = arrangorA.id,
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
                 navn = "alvdal",
@@ -973,7 +1002,7 @@ class AvtaleQueriesTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val bjarne = AvtaleDto.ArrangorHovedenhet(
+            val bjarne = Avtale.ArrangorHovedenhet(
                 id = arrangorB.id,
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "bjarne",
@@ -981,7 +1010,7 @@ class AvtaleQueriesTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val chris = AvtaleDto.ArrangorHovedenhet(
+            val chris = Avtale.ArrangorHovedenhet(
                 id = arrangorC.id,
                 organisasjonsnummer = Organisasjonsnummer("999888777"),
                 navn = "chris",
@@ -1044,7 +1073,15 @@ class AvtaleQueriesTest : FunSpec({
     }
 })
 
-private infix fun Collection<AvtaleDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = Avtale.ArrangorKontaktperson(
+    id = kontaktperson.id,
+    navn = kontaktperson.navn,
+    beskrivelse = kontaktperson.beskrivelse,
+    telefon = kontaktperson.telefon,
+    epost = kontaktperson.epost,
+)
+
+private infix fun Collection<Avtale>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }
 

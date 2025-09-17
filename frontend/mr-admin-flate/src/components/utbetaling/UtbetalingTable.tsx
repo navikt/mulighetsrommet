@@ -1,10 +1,11 @@
 import { formaterNavEnheter } from "@/utils/Utils";
-import { NavEnhetDto, UtbetalingKompaktDto, UtbetalingStatusDto } from "@mr/api-client-v2";
+import { NavEnhetDto } from "@mr/api-client-v2";
+import { UtbetalingKompaktDto, UtbetalingStatusDto } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useMemo } from "react";
-import { Link, useParams } from "react-router";
+import { Link } from "react-router";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
@@ -12,6 +13,7 @@ import { useSortableData } from "@mr/frontend-common";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 
 interface Props {
+  gjennomforingId: string;
   utbetalinger: UtbetalingKompaktDto[];
 }
 
@@ -22,8 +24,7 @@ interface UtbetalingRow {
   kostnadssteder: NavEnhetDto[];
 }
 
-export function UtbetalingTable({ utbetalinger }: Props) {
-  const { gjennomforingId } = useParams();
+export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
   const { sortedData, sort, toggleSort } = useSortableData(
     useMemo(() => {
       return utbetalinger.map((u) => ({
@@ -34,7 +35,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
     }, [utbetalinger]),
   );
 
-  const harUtbetalingsType = sortedData.some((utbetaling) => utbetaling.type);
+  const harUtbetalingsTypeTag = sortedData.some((utbetaling) => utbetaling.type.tagName);
 
   return (
     <Table
@@ -60,7 +61,7 @@ export function UtbetalingTable({ utbetalinger }: Props) {
           <TableColumnHeader sortKey="status" sortable align="right">
             Status
           </TableColumnHeader>
-          <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsType}>
+          <TableColumnHeader align="right" className="max-w-6" hidden={!harUtbetalingsTypeTag}>
             <HStack gap="2">
               Type
               <HelpText title="Hva betyr forkortelsene?">
@@ -105,9 +106,9 @@ export function UtbetalingTable({ utbetalinger }: Props) {
               <Table.DataCell align="right">
                 <UtbetalingStatusTag status={status} />
               </Table.DataCell>
-              {harUtbetalingsType && (
+              {harUtbetalingsTypeTag && (
                 <Table.DataCell align="left">
-                  {type && <UtbetalingTypeTag type={type} />}
+                  <UtbetalingTypeTag type={type} />
                 </Table.DataCell>
               )}
               <Table.DataCell>

@@ -1,4 +1,4 @@
-import { Arrangor, ArrangorflateService } from "api-client";
+import { ArrangorflateArrangor, ArrangorflateService } from "api-client";
 import {
   isRouteErrorResponse,
   Links,
@@ -50,7 +50,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export type LoaderData = {
   dekorator: DekoratorElements | null;
-  arrangortilganger: Arrangor[];
+  arrangortilganger: ArrangorflateArrangor[];
 };
 
 function App() {
@@ -70,7 +70,7 @@ function Dokument({
 }: {
   dekorator?: DekoratorElements;
   children: ReactNode;
-  arrangorer: Arrangor[];
+  arrangorer: ArrangorflateArrangor[];
 }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (

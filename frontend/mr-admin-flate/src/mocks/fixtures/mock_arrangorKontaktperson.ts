@@ -1,4 +1,7 @@
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client-v2";
+import {
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+} from "@tiltaksadministrasjon/api-client";
 
 export const mockArrangorKontaktpersoner: ArrangorKontaktperson[] = [
   {

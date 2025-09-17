@@ -1,10 +1,10 @@
-import { ArrangorflateTilsagn } from "api-client";
+import { ArrangorflateTilsagnDto } from "api-client";
 import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 
 interface Props {
-  tilsagn: ArrangorflateTilsagn;
+  tilsagn: ArrangorflateTilsagnDto;
   minimal?: boolean;
   headingLevel?: "3" | "4";
 }

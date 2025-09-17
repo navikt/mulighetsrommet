@@ -1,17 +1,15 @@
 import { Select } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
-import { Arrangor } from "api-client";
+import { ArrangorflateArrangor } from "api-client";
 import { pathByOrgnr } from "~/utils/navigation";
 
 interface Props {
-  arrangorer: Arrangor[];
+  arrangorer: ArrangorflateArrangor[];
 }
 
 export function Arrangorvelger({ arrangorer }: Props) {
   const navigate = useNavigate();
   const { orgnr } = useParams();
-
-  const alfabetisk = (a: Arrangor, b: Arrangor) => a.navn.localeCompare(b.navn);
 
   return (
     <Select
@@ -24,7 +22,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
       }}
       className="w-80"
     >
-      {arrangorer.sort(alfabetisk).map((arrangor) => (
+      {arrangorer.sort(compareByName).map((arrangor) => (
         <option
           key={arrangor.organisasjonsnummer}
           value={arrangor.organisasjonsnummer}
@@ -35,4 +33,8 @@ export function Arrangorvelger({ arrangorer }: Props) {
       ))}
     </Select>
   );
+}
+
+function compareByName(a: ArrangorflateArrangor, b: ArrangorflateArrangor) {
+  return a.navn.localeCompare(b.navn);
 }

@@ -1,4 +1,3 @@
-import { usePrismodeller } from "@/api/tilsagn/usePrismodeller";
 import {
   AvtaleDto,
   Prismodell,
@@ -10,9 +9,9 @@ import { Metadata } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import Prisbetingelser from "../utbetaling/Prisbetingelser";
-import { useForhandsgodkjenteSatser } from "@/api/tilsagn/useForhandsgodkjenteSatser";
+import { PrisOgBetaingsbetingelser } from "../detaljside/PrisOgBetaingsbetingelser";
+import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
+import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   const { data: prismodeller = [] } = usePrismodeller(avtale.tiltakstype.tiltakskode);
@@ -31,52 +30,42 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
       );
     case "AVTALT_PRIS_PER_MANEDSVERK":
     case "AVTALT_PRIS_PER_UKESVERK":
+    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
       return (
         <Box>
           <Heading level="3" size="small" spacing>
             {avtaletekster.prismodell.heading}
           </Heading>
           <VStack gap="4">
-            <Metadata header={avtaletekster.prismodell.label} verdi={beskrivelse} />
+            <Metadata header={avtaletekster.prismodell.label} value={beskrivelse} />
             {avtale.prismodell.satser.map((sats) => (
               <Box
-                key={sats.periodeStart}
+                key={sats.gjelderFra}
                 borderColor="border-subtle"
                 padding="2"
                 borderWidth="1"
                 borderRadius="medium"
               >
                 <HStack gap="4">
-                  <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+                  <Metadata header={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
                   <Metadata
                     header={avtaletekster.prismodell.pris.label}
-                    verdi={formaterTall(sats.pris)}
+                    value={formaterTall(sats.pris)}
                   />
                   <Metadata
                     header={avtaletekster.prismodell.periodeStart.label}
-                    verdi={formaterDato(sats.periodeStart)}
+                    value={formaterDato(sats.gjelderFra)}
                   />
-                  <Metadata
-                    header={avtaletekster.prismodell.periodeSlutt.label}
-                    verdi={formaterDato(sats.periodeSlutt)}
-                  />
+                  {sats.gjelderTil && (
+                    <Metadata
+                      header={avtaletekster.prismodell.periodeSlutt.label}
+                      value={formaterDato(sats.gjelderTil)}
+                    />
+                  )}
                 </HStack>
               </Box>
             ))}
-            <Definisjonsliste
-              columns={1}
-              headingLevel="4"
-              definitions={[
-                {
-                  key: avtaletekster.prisOgBetalingLabel,
-                  value: avtale.prismodell.prisbetingelser ? (
-                    <Prisbetingelser value={avtale.prismodell.prisbetingelser} />
-                  ) : (
-                    "-"
-                  ),
-                },
-              ]}
-            />
+            <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
           </VStack>
         </Box>
       );
@@ -96,29 +85,31 @@ function AvtalteSatser({
   return (
     <Box>
       <VStack gap="4">
-        <Metadata header={avtaletekster.prismodell.label} verdi={prismodellBeskrivelse} />
+        <Metadata header={avtaletekster.prismodell.label} value={prismodellBeskrivelse} />
         {satser.map((sats) => (
           <Box
-            key={sats.periodeStart}
+            key={sats.gjelderFra}
             borderColor="border-subtle"
             padding="2"
             borderWidth="1"
             borderRadius="medium"
           >
-            <HStack gap="4" key={sats.periodeStart}>
-              <Metadata header={avtaletekster.prismodell.valuta.label} verdi={sats.valuta} />
+            <HStack gap="4" key={sats.gjelderFra}>
+              <Metadata header={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
               <Metadata
                 header={avtaletekster.prismodell.sats.label}
-                verdi={formaterTall(sats.pris)}
+                value={formaterTall(sats.pris)}
               />
               <Metadata
                 header={avtaletekster.prismodell.periodeStart.label}
-                verdi={formaterDato(sats.periodeStart)}
+                value={formaterDato(sats.gjelderFra)}
               />
-              <Metadata
-                header={avtaletekster.prismodell.periodeSlutt.label}
-                verdi={formaterDato(sats.periodeSlutt)}
-              />
+              {sats.gjelderTil && (
+                <Metadata
+                  header={avtaletekster.prismodell.periodeSlutt.label}
+                  value={formaterDato(sats.gjelderTil)}
+                />
+              )}
             </HStack>
           </Box>
         ))}
@@ -143,17 +134,8 @@ export function AnnenAvtaltPrismodell({
         {avtaletekster.prismodell.heading}
       </Heading>
       <VStack gap="4">
-        <Metadata header={avtaletekster.prismodell.label} verdi={prismodellBeskrivelse} />
-        <Definisjonsliste
-          columns={1}
-          headingLevel="4"
-          definitions={[
-            {
-              key: avtaletekster.prisOgBetalingLabel,
-              value: <Prisbetingelser value={avtale.prismodell.prisbetingelser ?? "-"} />,
-            },
-          ]}
-        />
+        <Metadata header={avtaletekster.prismodell.label} value={prismodellBeskrivelse} />
+        <PrisOgBetaingsbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
       </VStack>
     </Box>
   );

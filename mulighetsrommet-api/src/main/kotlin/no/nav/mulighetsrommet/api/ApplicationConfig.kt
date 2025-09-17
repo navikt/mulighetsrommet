@@ -11,17 +11,18 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
-import java.time.LocalDate
 import java.util.*
 
 data class AppConfig(
@@ -58,7 +59,7 @@ data class AppConfig(
 )
 
 data class OkonomiConfig(
-    val minimumTilsagnPeriodeStart: Map<Tiltakskode, LocalDate>,
+    val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
 )
 
 data class AuthConfig(
@@ -172,6 +173,7 @@ data class TaskConfig(
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForPamelding: UpdateApentForPamelding.Config = UpdateApentForPamelding.Config(),
     val generateUtbetaling: GenerateUtbetaling.Config,
+    val beregnUtbetaling: BeregnUtbetaling.Config = BeregnUtbetaling.Config(),
 )
 
 data class SlackConfig(

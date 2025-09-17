@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.Input
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.Output
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -38,6 +40,11 @@ class TilsagnQueries(private val session: Session) {
                 belop_brukt,
                 belop_beregnet,
                 beregning_type,
+                beregning_sats,
+                beregning_antall_plasser,
+                beregning_antall_timer_oppfolging_per_deltaker,
+                beregning_prisbetingelser,
+                kommentar,
                 datastream_periode_start,
                 datastream_periode_slutt
             ) values (
@@ -53,6 +60,11 @@ class TilsagnQueries(private val session: Session) {
                 :belop_brukt,
                 :belop_beregnet,
                 :beregning_type::tilsagn_beregning_type,
+                :beregning_sats,
+                :beregning_antall_plasser,
+                :beregning_antall_timer_oppfolging_per_deltaker,
+                :beregning_prisbetingelser,
+                :kommentar,
                 :datastream_periode_start,
                 :datastream_periode_slutt
             )
@@ -68,6 +80,11 @@ class TilsagnQueries(private val session: Session) {
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
                 beregning_type                          = excluded.beregning_type,
+                beregning_sats                                 = excluded.beregning_sats,
+                beregning_antall_plasser                       = excluded.beregning_antall_plasser,
+                beregning_antall_timer_oppfolging_per_deltaker = excluded.beregning_antall_timer_oppfolging_per_deltaker,
+                beregning_prisbetingelser                      = excluded.beregning_prisbetingelser,
+                kommentar                               = excluded.kommentar,
                 datastream_periode_start                = excluded.datastream_periode_start,
                 datastream_periode_slutt                = excluded.datastream_periode_slutt
         """.trimIndent()
@@ -86,89 +103,50 @@ class TilsagnQueries(private val session: Session) {
             "belop_beregnet" to dbo.beregning.output.belop,
             "beregning_type" to when (dbo.beregning) {
                 is TilsagnBeregningFri -> TilsagnBeregningType.FRI
+                is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
                 is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK
+                is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
             }.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
+            "kommentar" to dbo.kommentar,
         )
-
-        execute(queryOf(query, params))
-
-        when (dbo.beregning) {
-            is TilsagnBeregningFri -> {
-                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
-                upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
-            }
-
-            is TilsagnBeregningPrisPerManedsverk -> {
-                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
-                upsertTilsagnBeregningSats(
-                    dbo.id,
-                    dbo.beregning.input.sats,
-                    dbo.beregning.input.antallPlasser,
-                )
-            }
-
-            is TilsagnBeregningPrisPerUkesverk -> {
-                upsertTilsagnBeregningPrisbetingelser(dbo.id, dbo.beregning.input.prisbetingelser)
-                upsertTilsagnBeregningSats(
-                    dbo.id,
-                    dbo.beregning.input.sats,
-                    dbo.beregning.input.antallPlasser,
-                )
-            }
-        }
-    }
-
-    private fun TransactionalSession.upsertTilsagnBeregningSats(
-        id: UUID,
-        sats: Int,
-        antallPlasser: Int,
-    ) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into tilsagn_beregning_sats (
-                tilsagn_id,
-                sats,
-                antall_plasser
-            ) values (
-                :tilsagn_id::uuid,
-                :sats,
-                :antall_plasser
+        val beregningParams = when (dbo.beregning) {
+            is TilsagnBeregningFri -> mapOf(
+                "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
             )
-            on conflict (tilsagn_id) do update set
-                sats = excluded.sats,
-                antall_plasser = excluded.antall_plasser
-        """.trimIndent()
 
-        val params = mapOf(
-            "tilsagn_id" to id,
-            "sats" to sats,
-            "antall_plasser" to antallPlasser,
-        )
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> mapOf(
+                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
+            )
 
-        execute(queryOf(query, params))
-    }
+            is TilsagnBeregningPrisPerManedsverk -> mapOf(
+                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
+                "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
+            )
 
-    private fun TransactionalSession.upsertTilsagnBeregningPrisbetingelser(
-        id: UUID,
-        prisbetingelser: String?,
-    ) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into tilsagn_prisbetingelser (
-                    tilsagn_id,
-                    prisbetingelser
-                ) values (
-                    :tilsagn_id::uuid,
-                    :prisbetingelser
-                )
-            on conflict (tilsagn_id) do update set
-                prisbetingelser = excluded.prisbetingelser;
-        """.trimIndent()
+            is TilsagnBeregningPrisPerUkesverk -> mapOf(
+                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
+                "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
+            )
 
-        execute(queryOf(query, mapOf("tilsagn_id" to id, "prisbetingelser" to prisbetingelser)))
+            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> mapOf(
+                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
+                "beregning_antall_timer_oppfolging_per_deltaker" to dbo.beregning.input.antallTimerOppfolgingPerDeltaker,
+                "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
+            )
+        }
+
+        execute(queryOf(query, params + beregningParams))
+
+        if (dbo.beregning is TilsagnBeregningFri) {
+            upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
+        }
     }
 
     private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
@@ -366,87 +344,75 @@ class TilsagnQueries(private val session: Session) {
             ),
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
+            kommentar = stringOrNull("kommentar"),
         )
     }
 
-    private fun getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
+    private fun Row.getBeregning(id: UUID, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
-            TilsagnBeregningType.FRI -> getBeregningFri(id)
-
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK -> getBeregningSats(id) { row ->
-                TilsagnBeregningPrisPerManedsverk(
-                    input = TilsagnBeregningPrisPerManedsverk.Input(
-                        periode = row.periode("periode"),
-                        sats = row.int("sats"),
-                        antallPlasser = row.int("antall_plasser"),
-                        prisbetingelser = row.stringOrNull("prisbetingelser"),
+            TilsagnBeregningType.FRI -> {
+                TilsagnBeregningFri(
+                    input = Input(
+                        linjer = getTilsagnBeregningFriLinjer(id),
+                        prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     ),
-                    output = TilsagnBeregningPrisPerManedsverk.Output(
-                        belop = row.int("belop_beregnet"),
+                    output = Output(
+                        belop = int("belop_beregnet"),
                     ),
                 )
             }
 
-            TilsagnBeregningType.PRIS_PER_UKESVERK -> getBeregningSats(id) { row ->
-                TilsagnBeregningPrisPerUkesverk(
-                    input = TilsagnBeregningPrisPerUkesverk.Input(
-                        periode = row.periode("periode"),
-                        sats = row.int("sats"),
-                        antallPlasser = row.int("antall_plasser"),
-                        prisbetingelser = row.stringOrNull("prisbetingelser"),
-                    ),
-                    output = TilsagnBeregningPrisPerUkesverk.Output(
-                        belop = row.int("belop_beregnet"),
-                    ),
-                )
-            }
-        }
-    }
-
-    private fun getBeregningSats(id: UUID, toTilsagnBeregning: (Row) -> TilsagnBeregning): TilsagnBeregning {
-        @Language("PostgreSQL")
-        val query = """
-            select tilsagn.periode,
-                   tilsagn.belop_beregnet,
-                   beregning.sats,
-                   beregning.antall_plasser,
-                   tilsagn_prisbetingelser.prisbetingelser
-            from tilsagn join tilsagn_beregning_sats beregning on tilsagn.id = beregning.tilsagn_id
-                left join tilsagn_prisbetingelser on tilsagn_prisbetingelser.tilsagn_id = tilsagn.id
-            where tilsagn.id = ?::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { toTilsagnBeregning(it) }
-    }
-
-    private fun getBeregningFri(id: UUID): TilsagnBeregningFri {
-        val friBeregningLinjer = getBeregningFriLinjerForTilsagn(id)
-
-        @Language("PostgreSQL")
-        val query = """
-            select
-                t.belop_beregnet, tfp.prisbetingelser
-            from tilsagn t
-                left join tilsagn_prisbetingelser tfp
-                    on tfp.tilsagn_id = t.id
-            where
-                t.id = ?::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) {
-            TilsagnBeregningFri(
-                input = TilsagnBeregningFri.Input(
-                    prisbetingelser = it.stringOrNull("prisbetingelser"),
-                    linjer = friBeregningLinjer,
+            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+                input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                    periode = periode("periode"),
+                    sats = int("beregning_sats"),
+                    antallPlasser = int("beregning_antall_plasser"),
                 ),
-                output = TilsagnBeregningFri.Output(
-                    belop = it.int("belop_beregnet"),
+                output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    belop = int("belop_beregnet"),
+                ),
+            )
+
+            TilsagnBeregningType.PRIS_PER_MANEDSVERK -> TilsagnBeregningPrisPerManedsverk(
+                input = TilsagnBeregningPrisPerManedsverk.Input(
+                    periode = periode("periode"),
+                    sats = int("beregning_sats"),
+                    antallPlasser = int("beregning_antall_plasser"),
+                    prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                ),
+                output = TilsagnBeregningPrisPerManedsverk.Output(
+                    belop = int("belop_beregnet"),
+                ),
+            )
+
+            TilsagnBeregningType.PRIS_PER_UKESVERK -> TilsagnBeregningPrisPerUkesverk(
+                input = TilsagnBeregningPrisPerUkesverk.Input(
+                    periode = periode("periode"),
+                    sats = int("beregning_sats"),
+                    antallPlasser = int("beregning_antall_plasser"),
+                    prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                ),
+                output = TilsagnBeregningPrisPerUkesverk.Output(
+                    belop = int("belop_beregnet"),
+                ),
+            )
+
+            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
+                input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                    periode = periode("periode"),
+                    sats = int("beregning_sats"),
+                    antallPlasser = int("beregning_antall_plasser"),
+                    antallTimerOppfolgingPerDeltaker = int("beregning_antall_timer_oppfolging_per_deltaker"),
+                    prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                ),
+                output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
+                    belop = int("belop_beregnet"),
                 ),
             )
         }
     }
 
-    private fun getBeregningFriLinjerForTilsagn(tilsagnId: UUID): List<TilsagnBeregningFri.InputLinje> {
+    private fun getTilsagnBeregningFriLinjer(tilsagnId: UUID): List<TilsagnBeregningFri.InputLinje> {
         @Language("PostgreSQL")
         val query = """
             select *

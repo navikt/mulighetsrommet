@@ -1,6 +1,6 @@
 import { Heading, HeadingProps, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 
 export interface Definition {
   key: string;
@@ -8,7 +8,7 @@ export interface Definition {
   format?: DefinitionFormat | null;
 }
 
-export type DefinitionFormat = "NOK";
+export type DefinitionFormat = "NOK" | "NUMBER";
 
 interface Props {
   title?: string;
@@ -46,10 +46,9 @@ function getFormattedValue(definition: Definition) {
 
 function formatValue(value: string, format: DefinitionFormat) {
   switch (format) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     case "NOK":
       return formaterNOK(Number(value));
-    default:
-      throw Error("unsupported format");
+    case "NUMBER":
+      return formaterTall(Number(value));
   }
 }

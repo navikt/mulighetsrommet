@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService } from "@mr/api-client-v2";
+import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useDeleteStengtHosArrangor(gjennomforingId: string) {
@@ -8,7 +8,7 @@ export function useDeleteStengtHosArrangor(gjennomforingId: string) {
 
   return useApiMutation({
     mutationFn: async (periodeId: number) => {
-      return GjennomforingerService.deleteStengtHosArrangor({
+      return GjennomforingService.deleteStengtHosArrangor({
         path: { id: gjennomforingId, periodeId },
       });
     },

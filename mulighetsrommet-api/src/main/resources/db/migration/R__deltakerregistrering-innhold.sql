@@ -77,8 +77,7 @@ on conflict (innholdskode, tiltakskode) do nothing;
 --- Sett innhold for Avklaring (AVKLARING)
 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidspraksis', 'AVKLARING'::tiltakskode),
-             ('karriereveiledning', 'AVKLARING'::tiltakskode),
+from (values ('karriereveiledning', 'AVKLARING'::tiltakskode),
              ('kartlegge-helse', 'AVKLARING'::tiltakskode),
              ('kartlegge-forventninger', 'AVKLARING'::tiltakskode),
              ('kartlegge-arbeidsplassen', 'AVKLARING'::tiltakskode),

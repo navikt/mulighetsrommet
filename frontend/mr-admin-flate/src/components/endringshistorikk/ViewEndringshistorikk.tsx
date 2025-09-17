@@ -1,13 +1,13 @@
 import type {
-  Endringshistorikk,
-  EndringshistorikkNavAnsatt,
-  EndringshistorikkUser,
-} from "@mr/api-client-v2";
+  EndringshistorikkDto,
+  EndringshistorikkDtoNavAnsatt,
+  EndringshistorikkDtoUser,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterDatoTid } from "@mr/frontend-common/utils/date";
 import classNames from "classnames";
 
 export interface ViewEndringshistorikkProps {
-  historikk: Endringshistorikk;
+  historikk: EndringshistorikkDto;
 }
 
 export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
@@ -39,6 +39,6 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
   );
 }
 
-function isNavAnsatt(user: EndringshistorikkUser): user is EndringshistorikkNavAnsatt {
+function isNavAnsatt(user: EndringshistorikkDtoUser): user is EndringshistorikkDtoNavAnsatt {
   return "navIdent" in user;
 }

@@ -35,14 +35,18 @@ describe("date.ts", () => {
       expect(parseDate(new Date("2025-02-28"))?.toISOString()).toBe("2025-02-28T00:00:00.000Z");
     });
     test("valid date-string to date", () => {
-      expect(parseDate("2025-02-28")?.toISOString()).toBe("2025-02-28T00:00:00.000Z");
+      expect(parseDate("2025-02-28")?.toISOString()).toBe("2025-02-28T01:00:00.000+01:00");
     });
     test("valid norwegian date-string to date", () => {
-      expect(parseDate("28.02.2025")?.toISOString()).toBe("2025-02-28T00:00:00.000Z");
+      expect(parseDate("28.02.2025")?.toISOString()).toBe("2025-02-28T00:00:00.000+01:00");
     });
     test("valid norwegian date-time-string to date", () => {
       expect(parseDate("28.02.2025 10:30")?.toISOString()).toBe("2025-02-28T10:30:00.000+01:00");
     });
+    test("valid norwegian iso time to norwegian iso time", () => {
+      // T00:00:000Z
+      expect(parseDate("2025-02-28T01:00:00.000+01:00")?.toISOString()).toBe("2025-02-28T01:00:00.000+01:00")
+    })
   });
 
   describe("yyyyMMddFormatting()", () => {
@@ -58,12 +62,21 @@ describe("date.ts", () => {
     test("invalid yyyy-MM-dd to undefined", () => {
       expect(yyyyMMddFormatting("2025-12-3")).toBe(undefined);
     });
-    test("valid date to yyyy-MM-dd", () => {
+    test("valid date to yyyy-MM-dd end of year", () => {
       expect(yyyyMMddFormatting(new Date(2025, 12 - 1, 31))).toBe("2025-12-31");
+    });
+    test("valid date to yyyy-MM-dd start of year", () => {
+      expect(yyyyMMddFormatting(new Date(2025, 0, 1))).toBe("2025-01-01");
     });
     test("invalid datestring to undefined", () => {
       // Javascripts Date objekt støtter ikke norskt format dd.MM.yyyy
       expect(yyyyMMddFormatting(new Date("31.12.2025"))).toBe(undefined);
+    });
+    test("valid leap year date", () => {
+      expect(yyyyMMddFormatting("2024-02-29")).toBe("2024-02-29");
+    });
+    test("invalid leap year date to undefined", () => {
+      expect(yyyyMMddFormatting("2025-02-29")).toBe(undefined);
     });
     test("null to undefined", () => {
       expect(yyyyMMddFormatting(null)).toBe(undefined);

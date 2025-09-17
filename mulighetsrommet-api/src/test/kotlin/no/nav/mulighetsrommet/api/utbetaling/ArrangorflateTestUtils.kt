@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.ktor.client.engine.mock.*
+import io.ktor.client.request.*
 import io.ktor.http.content.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
@@ -8,6 +9,7 @@ import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedPartyType
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -81,13 +83,14 @@ object ArrangorflateTestUtils {
         type = TilsagnType.TILSAGN,
         belopBrukt = 0,
         bestillingStatus = BestillingStatusType.AKTIV,
+        kommentar = null,
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-            input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 stengt = setOf(),
@@ -103,7 +106,7 @@ object ArrangorflateTestUtils {
                     ),
                 ),
             ),
-            output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 10000,
                 deltakelser = setOf(
                     DeltakelseManedsverk(
@@ -202,6 +205,18 @@ object ArrangorflateTestUtils {
         }
     }
 
+    fun mockKontoregisterOrganisasjon(builder: MockEngineBuilder) {
+        val path = Regex(""".*/kontoregister/api/v1/hent-kontonummer-for-organisasjon/.*""")
+        builder.get(path) {
+            respondJson(
+                KontonummerResponse(
+                    kontonr = "12345678901",
+                    mottaker = "asdf",
+                ),
+            )
+        }
+    }
+
     fun mockClamAvScan(builder: MockEngineBuilder) {
         builder.post("/scan") {
             respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
@@ -214,6 +229,7 @@ object ArrangorflateTestUtils {
             mockAltinnAuthorizedParties(this)
             mockJournalpost(this)
             mockClamAvScan(this)
+            mockKontoregisterOrganisasjon(this)
         },
     ) = createTestApplicationConfig().copy(
         database = databaseConfig,

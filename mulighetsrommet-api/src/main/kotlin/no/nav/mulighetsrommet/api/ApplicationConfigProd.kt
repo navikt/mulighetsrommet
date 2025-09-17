@@ -11,11 +11,13 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -99,6 +101,11 @@ val ApplicationConfigProd = AppConfig(
                 rolle = Rolle.AVTALER_SKRIV,
             ),
 
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "36a01430-170d-4c1e-a672-1856587514be".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_lesetilgang-økonomi",
+                rolle = Rolle.OKONOMI_LES,
+            ),
             EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "a54fd054-4047-46a6-be7c-f1b69f346be8".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi",
@@ -356,6 +363,9 @@ val ApplicationConfigProd = AppConfig(
         generateUtbetaling = GenerateUtbetaling.Config(
             cronPattern = "0 0 5 7 * *",
         ),
+        beregnUtbetaling = BeregnUtbetaling.Config(
+            bucketName = "mulighetsrommet-api-uploads-prod",
+        ),
     ),
     slack = SlackConfig(
         token = System.getenv("SLACK_TOKEN"),
@@ -363,10 +373,14 @@ val ApplicationConfigProd = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        minimumTilsagnPeriodeStart = mapOf(
+        gyldigTilsagnPeriode = mapOf(
             // Forhåndsgodkjente tiltak
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to LocalDate.of(2025, 7, 1),
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to LocalDate.of(2025, 7, 1),
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
+            // Anskaffede tiltak
+            Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     clamav = HttpClientConfig(

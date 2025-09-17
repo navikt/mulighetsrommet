@@ -1,129 +1,209 @@
-import { utbetalingLinjeCompareFn } from "@/utils/Utils";
+import { FieldError, ValidationError } from "@mr/api-client-v2";
 import {
-  FieldError,
-  TilsagnDto,
-  TilsagnStatus,
+  OpprettDelutbetalingerRequest,
   TilsagnType,
   Tilskuddstype,
   UtbetalingDto,
+  UtbetalingHandling,
   UtbetalingLinje,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { ActionMenu, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { useNavigate, useParams } from "react-router";
+import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
+import MindreBelopModal from "./MindreBelopModal";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
+import { isBesluttet } from "@/utils/totrinnskontroll";
+import { getChangeSet, RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
+import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
+import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
+import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
   utbetaling: UtbetalingDto;
-  linjer: UtbetalingLinje[];
-  tilsagn: TilsagnDto[];
-  setLinjer: React.Dispatch<React.SetStateAction<UtbetalingLinje[]>>;
+  handlinger: UtbetalingHandling[];
+  utbetalingLinjer: UtbetalingLinje[];
+  oppdaterLinjer: () => Promise<void>;
+  reloadLinjer?: boolean;
 }
 
-function genrererUtbetalingLinjer(tilsagn: TilsagnDto[]): UtbetalingLinje[] {
-  return tilsagn
-    .filter((t) => t.status === TilsagnStatus.GODKJENT)
-    .map((t) => ({
-      belop: 0,
-      tilsagn: t,
-      gjorOppTilsagn: false,
-      id: uuidv4(),
-    }))
-    .toSorted(utbetalingLinjeCompareFn);
-}
-
-export function RedigerUtbetalingLinjeView({ linjer, setLinjer, utbetaling, tilsagn }: Props) {
-  const { gjennomforingId } = useParams();
-  const [error, setError] = useState<FieldError[]>([]);
+export function RedigerUtbetalingLinjeView({
+  utbetaling,
+  handlinger,
+  utbetalingLinjer: apiLinjer,
+  oppdaterLinjer,
+  reloadLinjer,
+}: Props) {
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState<FieldError[]>([]);
+  const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
+  const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
+  const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+
+  function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
+    setErrors([]);
+
+    opprettMutation.mutate(payload, {
+      onSuccess: oppdaterLinjer,
+      onValidationError: (error: ValidationError) => {
+        setErrors(error.errors);
+      },
+    });
+  }
+
+  const form = useForm<RedigerUtbetalingLinjeFormValues>({
+    defaultValues: { formLinjer: apiLinjer },
+    mode: "onSubmit",
+  });
+  const { append, update } = useFieldArray<RedigerUtbetalingLinjeFormValues>({
+    name: "formLinjer",
+    control: form.control,
+  });
+  const formLinjer = form.watch("formLinjer");
+
+  useEffect(() => {
+    if (reloadLinjer) {
+      const { updatedLinjer, newLinjer } = getChangeSet(formLinjer, apiLinjer);
+      updatedLinjer.forEach(({ index, linje }) => {
+        update(index, linje);
+      });
+      newLinjer.forEach((linje) => {
+        append(linje);
+      });
+    }
+  }, [reloadLinjer, apiLinjer, formLinjer, append, update]);
 
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
   function opprettEkstraTilsagn() {
-    const defaultTilsagn = tilsagn.length === 1 ? tilsagn[0] : undefined;
-    const defaultBelop = tilsagn.length === 0 ? utbetaling.belop : 0;
+    const defaultTilsagn = apiLinjer.length === 1 ? apiLinjer[0].tilsagn : undefined;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
-        `&belop=${defaultBelop}` +
         `&periodeStart=${utbetaling.periode.start}` +
         `&periodeSlutt=${yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 }))}` +
         `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
     );
   }
 
-  function leggTilLinjer() {
-    const nyeLinjer = genrererUtbetalingLinjer(tilsagn).filter(
-      (linje) => !linjer.find((l) => l.tilsagn.id === linje.tilsagn.id),
-    );
-    setLinjer([...linjer, ...nyeLinjer].toSorted(utbetalingLinjeCompareFn));
+  function submitHandler(data: RedigerUtbetalingLinjeFormValues) {
+    if (utbetalesTotal(data.formLinjer) < utbetaling.belop) {
+      setMindreBelopModalOpen(true);
+    } else {
+      sendTilAttestering({
+        utbetalingId: utbetaling.id,
+        delutbetalinger: data.formLinjer.map(toDelutbetaling),
+        begrunnelseMindreBetalt,
+      });
+    }
   }
 
-  function fjernLinje(id: string) {
-    setError([]);
-    const remaining = linjer.filter((d) => d.id !== id);
-    setLinjer([...remaining]);
+  function openRow(linje: UtbetalingLinje): boolean {
+    const hasNonBelopErrors = errors.filter((e) => !e.pointer.includes("belop"));
+    return hasNonBelopErrors.length > 0 || isBesluttet(linje.opprettelse);
   }
+
   return (
-    <VStack>
-      <HStack align="end">
-        <Heading spacing size="medium" level="2">
-          Utbetalingslinjer
-        </Heading>
-        <Spacer />
-        <ActionMenu>
-          <ActionMenu.Trigger>
-            <Button variant="secondary" size="small">
-              Handlinger
-            </Button>
-          </ActionMenu.Trigger>
-          <ActionMenu.Content>
-            <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
-              Opprett {avtaletekster.tilsagn.type(tilsagnsTypeFraTilskudd).toLowerCase()}
-            </ActionMenu.Item>
-            <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={leggTilLinjer}>
-              Hent godkjente tilsagn
-            </ActionMenu.Item>
-          </ActionMenu.Content>
-        </ActionMenu>
-      </HStack>
-      <UtbetalingLinjeTable
-        utbetaling={utbetaling}
-        linjer={linjer}
-        renderRow={(linje, index) => {
-          return (
-            <UtbetalingLinjeRow
-              key={linje.id}
-              linje={linje}
-              knappeColumn={
-                <Button
-                  size="small"
-                  variant="secondary-neutral"
-                  onClick={() => fjernLinje(linje.id)}
-                >
-                  Fjern
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(submitHandler)}>
+        <VStack gap="2">
+          {!formLinjer.length && (
+            <Alert variant="info">{utbetalingTekster.delutbetaling.alert.ingenTilsagn}</Alert>
+          )}
+          <HStack align="end">
+            <Heading spacing size="medium" level="2">
+              {utbetalingTekster.delutbetaling.header}
+            </Heading>
+            <Spacer />
+            <ActionMenu>
+              <ActionMenu.Trigger>
+                <Button variant="secondary" size="small">
+                  {utbetalingTekster.delutbetaling.handlinger.button.label}
                 </Button>
-              }
-              grayBackground
-              onChange={(updated) => {
-                setLinjer((prev: UtbetalingLinje[]) =>
-                  prev.map((linje) => (linje.id === updated.id ? updated : linje)),
-                );
-              }}
-              errors={error.filter(
-                (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),
+              </ActionMenu.Trigger>
+              <ActionMenu.Content>
+                <ActionMenu.Item icon={<PiggybankIcon />} onSelect={opprettEkstraTilsagn}>
+                  {utbetalingTekster.delutbetaling.handlinger.opprettTilsagn(
+                    tilsagnsTypeFraTilskudd,
+                  )}
+                </ActionMenu.Item>
+                <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
+                  {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
+                </ActionMenu.Item>
+              </ActionMenu.Content>
+            </ActionMenu>
+          </HStack>
+
+          <UtbetalingLinjeTable
+            utbetaling={utbetaling}
+            linjer={formLinjer}
+            renderRow={(linje: UtbetalingLinje, index: number) => (
+              <UtbetalingLinjeRow
+                key={`${linje.id}-${linje.status?.type}`}
+                gjennomforingId={gjennomforingId}
+                linje={linje}
+                textInput={<UtbetalingBelopInput type="form" index={index} />}
+                checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
+                knappeColumn={<FjernUtbetalingLinje index={index} />}
+                grayBackground
+                errors={errors.filter(
+                  (f) => f.pointer.startsWith(`/${index}`) || f.pointer.includes("totalbelop"),
+                )}
+                rowOpen={openRow(linje)}
+              />
+            )}
+          />
+        </VStack>
+
+        <VStack gap="2" className="mt-2">
+          {!!formLinjer.length && (
+            <HStack justify="end">
+              {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
+                <Button size="small" type="submit">
+                  {utbetalingTekster.delutbetaling.handlinger.sendTilAttestering}
+                </Button>
               )}
-            />
-          );
-        }}
-      />
-    </VStack>
+            </HStack>
+          )}
+          <VStack gap="2" align="end">
+            {errors.map((error) => (
+              <Alert variant="error" size="small">
+                {error.detail}
+              </Alert>
+            ))}
+          </VStack>
+        </VStack>
+
+        <MindreBelopModal
+          open={mindreBelopModalOpen}
+          handleClose={() => setMindreBelopModalOpen(false)}
+          onConfirm={() => {
+            setMindreBelopModalOpen(false);
+            const formLinjer = form.getValues("formLinjer");
+
+            sendTilAttestering({
+              utbetalingId: utbetaling.id,
+              delutbetalinger: formLinjer.map(toDelutbetaling),
+              begrunnelseMindreBetalt,
+            });
+          }}
+          begrunnelseOnChange={(e: any) => setBegrunnelseMindreBetalt(e.target.value)}
+          belopUtbetaling={utbetalesTotal(formLinjer)}
+          belopInnsendt={utbetaling.belop}
+        />
+      </form>
+    </FormProvider>
   );
+}
+
+function utbetalesTotal(formLinjer: UtbetalingLinje[]): number {
+  return formLinjer.reduce((acc: number, d: UtbetalingLinje) => acc + d.belop, 0);
 }
 
 function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
@@ -133,4 +213,20 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
     case Tilskuddstype.TILTAK_INVESTERINGER:
       return TilsagnType.INVESTERING;
   }
+}
+
+function FjernUtbetalingLinje({ index }: { index: number }) {
+  const { remove } = useFieldArray<RedigerUtbetalingLinjeFormValues>({ name: "formLinjer" });
+  return (
+    <Button
+      size="small"
+      variant="secondary-neutral"
+      type="button"
+      onClick={() => {
+        remove(index);
+      }}
+    >
+      {utbetalingTekster.delutbetaling.handlinger.fjern}
+    </Button>
+  );
 }

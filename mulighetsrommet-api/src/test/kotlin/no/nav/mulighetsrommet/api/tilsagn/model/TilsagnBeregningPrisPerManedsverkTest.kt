@@ -66,12 +66,13 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
     test("skuddår/ikke skuddår") {
         val ikkeSkuddar = TilsagnBeregningPrisPerManedsverk.Input(
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 2, 28)),
-            sats = 19500,
+            sats = 20205,
             antallPlasser = 1,
             prisbetingelser = null,
         )
 
-        TilsagnBeregningPrisPerManedsverk.beregn(ikkeSkuddar).output.belop shouldBe 19500
+        // 28 / 28 * 20205 = 20205
+        TilsagnBeregningPrisPerManedsverk.beregn(ikkeSkuddar).output.belop shouldBe 20205
 
         val skuddar = TilsagnBeregningPrisPerManedsverk.Input(
             periode = Periode.fromInclusiveDates(LocalDate.of(2024, 2, 1), LocalDate.of(2024, 2, 28)),
@@ -80,18 +81,8 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             prisbetingelser = null,
         )
 
+        // 28 / 29 * 20205 = 19508.27...
         TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.belop shouldBe 19508
-    }
-
-    test("én dag") {
-        val input = TilsagnBeregningPrisPerManedsverk.Input(
-            periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
-            sats = 20205,
-            antallPlasser = 1,
-            prisbetingelser = null,
-        )
-
-        TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 652
     }
 
     test("overflow kaster exception") {
@@ -120,15 +111,31 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
         }
     }
 
-    test("reelt eksempel nr 1") {
-        val input = TilsagnBeregningPrisPerManedsverk.Input(
-            periode = Periode(LocalDate.of(2024, 9, 15), LocalDate.of(2025, 1, 1)),
-            sats = 20205,
-            antallPlasser = 24,
-            prisbetingelser = null,
-        )
+    context("beregning av månedsverk før 1. august 2025") {
+        test("én virkedag tilsvarer beløpet for en dag i løpet av perioden") {
+            val input = TilsagnBeregningPrisPerManedsverk.Input(
+                periode = Periode(LocalDate.of(2023, 1, 2), LocalDate.of(2023, 1, 3)),
+                sats = 20205,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            )
 
-        // Merk at dette er annerledes (mer mer presisjon) enn det Arena ville lagd = 1_711_768
-        TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 1_713_384
+            // 1/31 * 20205 = 651.7
+            TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 652
+        }
+    }
+
+    context("beregning av månedsverk etter 1. august 2025") {
+        test("én virkedag tilsvarer beløpet for en ukedag i løpet av perioden") {
+            val input = TilsagnBeregningPrisPerManedsverk.Input(
+                periode = Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 2)),
+                sats = 20205,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            )
+
+            // 1/21 * 20205 = 962.1
+            TilsagnBeregningPrisPerManedsverk.beregn(input).output.belop shouldBe 962
+        }
     }
 })

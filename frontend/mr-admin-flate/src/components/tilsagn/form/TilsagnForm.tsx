@@ -1,11 +1,20 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
-import { InferredTilsagn, TilsagnSchema } from "@/components/tilsagn/form/TilsagnSchema";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingDto, TilsagnRequest, TilsagnType, ValidationError } from "@mr/api-client-v2";
+import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import { TilsagnRequest, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Alert, Box, Button, Heading, HGrid, HStack, TextField, VStack } from "@navikt/ds-react";
-import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import {
+  Alert,
+  Box,
+  Button,
+  Heading,
+  HGrid,
+  HStack,
+  Textarea,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
+import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { ReactElement } from "react";
@@ -14,14 +23,15 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { addDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
+import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
+import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
 
 interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<InferredTilsagn>;
+  defaultValues: TilsagnRequest;
   regioner: string[];
   beregningInput: ReactElement;
-  beregningOutput: ReactElement;
   gjennomforing: GjennomforingDto;
 }
 
@@ -35,36 +45,34 @@ export function TilsagnForm(props: Props) {
   const mutation = useOpprettTilsagn();
 
   const forhandsvalgKostnadssted =
-    kostnadssteder?.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
-  const form = useForm<InferredTilsagn>({
-    resolver: zodResolver(TilsagnSchema),
+    kostnadssteder.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
+  const form = useForm<TilsagnRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
     defaultValues: {
       ...defaultValues,
       kostnadssted: forhandsvalgKostnadssted,
-    },
+    } as TilsagnRequest,
   });
 
   const {
     handleSubmit,
     setError,
+    register,
     formState: { errors },
   } = form;
 
-  const postData: SubmitHandler<InferredTilsagn> = async (data): Promise<void> => {
+  const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
-      beregning: {
-        ...data.beregning,
-        prisbetingelser: data.beregning.prisbetingelser ?? null,
-      },
+      kommentar: data.kommentar ?? null,
     };
 
     mutation.mutate(request, {
       onSuccess: onSuccess,
       onValidationError: (error: ValidationError) => {
         error.errors.forEach((error: { pointer: string; detail: string }) => {
-          const name = jsonPointerToFieldPath(error.pointer) as keyof InferredTilsagn;
+          const name = jsonPointerToFieldPath(error.pointer) as keyof TilsagnRequest;
           setError(name, { type: "custom", message: error.detail });
         });
       },
@@ -109,12 +117,20 @@ export function TilsagnForm(props: Props) {
                 </HGrid>
                 <VelgKostnadssted kostnadssteder={kostnadssteder} />
                 {props.beregningInput}
+                <Textarea
+                  size="small"
+                  error={errors.kommentar?.message}
+                  label={tilsagnTekster.kommentar.label}
+                  maxLength={500}
+                  {...register("kommentar")}
+                />
               </VStack>
-              {props.beregningOutput}
+              <TilsagnBeregningPreview />
             </TwoColumnGrid>
           </Box>
           <VStack gap="2">
             <HStack gap="2" justify={"end"}>
+              <ValideringsfeilOppsummering />
               <Button onClick={onAvbryt} size="small" type="button" variant="tertiary">
                 Avbryt
               </Button>

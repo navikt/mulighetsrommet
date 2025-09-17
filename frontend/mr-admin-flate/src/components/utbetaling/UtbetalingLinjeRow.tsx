@@ -1,59 +1,48 @@
 import { delutbetalingAarsakTilTekst, tilsagnTypeToString } from "@/utils/Utils";
-import { DelutbetalingReturnertAarsak, FieldError, UtbetalingLinje } from "@mr/api-client-v2";
+import { FieldError } from "@mr/api-client-v2";
+import { DelutbetalingReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import {
-  Alert,
-  BodyShort,
-  Checkbox,
-  Heading,
-  HelpText,
-  HStack,
-  List,
-  Table,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
-import { AarsakerOgForklaring } from "../../pages/gjennomforing/tilsagn/AarsakerOgForklaring";
+import { Alert, BodyShort, Heading, HStack, List, Table, VStack } from "@navikt/ds-react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
+import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
-import { DelutbetalingTag } from "./DelutbetalingTag";
+import { DelutbetalingStatusTag } from "./DelutbetalingStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
-  readOnly?: boolean;
+  gjennomforingId: string;
   linje: UtbetalingLinje;
+  textInput?: React.ReactNode | null;
+  checkboxInput?: React.ReactNode | null;
   knappeColumn?: React.ReactNode;
   onChange?: (linje: UtbetalingLinje) => void;
   errors?: FieldError[];
   grayBackground?: boolean;
+  rowOpen?: boolean;
 }
 
 export function UtbetalingLinjeRow({
+  gjennomforingId,
   linje,
   errors = [],
-  onChange,
   knappeColumn,
-  readOnly = false,
+  textInput = null,
+  checkboxInput = null,
   grayBackground = false,
+  rowOpen = false,
 }: Props) {
-  const { gjennomforingId } = useParams();
   const [belopError, setBelopError] = useState<string | undefined>();
-  const skalApneRad =
-    filterBelopErrors(errors).length > 0 || Boolean(linje.opprettelse?.type === "BESLUTTET");
-  const [openRow, setOpenRow] = useState(skalApneRad);
+  const [openRow, setOpenRow] = useState(rowOpen);
   const grayBgClass = grayBackground ? "bg-gray-100" : "";
 
-  function filterBelopErrors(errors: FieldError[]) {
-    return errors.filter((e) => !e.pointer.includes("belop"));
-  }
-
   useEffect(() => {
-    if (skalApneRad) {
-      setOpenRow(skalApneRad);
+    if (rowOpen) {
+      setOpenRow(rowOpen);
     }
-  }, [skalApneRad]);
+  }, [rowOpen]);
 
   useEffect(() => {
     setBelopError(errors.find((e) => e.pointer.includes("belop"))?.detail);
@@ -64,11 +53,11 @@ export function UtbetalingLinjeRow({
       shadeOnHover={false}
       open={openRow}
       onOpenChange={() => setOpenRow(!openRow)}
-      key={linje.id}
+      key={`${linje.id}-${linje.status?.type}`}
       className={`${grayBackground ? "[&>td:first-child]:bg-gray-100" : ""}`}
       content={
         <VStack gap="4">
-          {linje.opprettelse?.type === "BESLUTTET" && linje.opprettelse.besluttelse === "AVVIST" ? (
+          {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
             <VStack>
               {linje.opprettelse.aarsaker.includes(DelutbetalingReturnertAarsak.PROPAGERT_RETUR) ? (
                 <Alert size="medium" variant="warning">
@@ -101,9 +90,7 @@ export function UtbetalingLinjeRow({
           )}
           <HStack gap="4" justify="space-between">
             <TilsagnInformasjon tilsagn={linje.tilsagn} />
-            {linje.opprettelse && (
-              <BehandlerInformasjon opprettelse={linje.opprettelse} status={linje.status} />
-            )}
+            {linje.opprettelse && <BehandlerInformasjon opprettelse={linje.opprettelse} />}
           </HStack>
         </VStack>
       }
@@ -123,52 +110,11 @@ export function UtbetalingLinjeRow({
       <Table.DataCell className={grayBgClass}>
         {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
+      <Table.DataCell>{checkboxInput}</Table.DataCell>
+      <Table.DataCell>{textInput}</Table.DataCell>
       <Table.DataCell>
-        <HStack gap="2">
-          <Checkbox
-            hideLabel
-            readOnly={readOnly}
-            checked={linje.gjorOppTilsagn}
-            onChange={(e) => {
-              onChange?.({
-                ...linje,
-                gjorOppTilsagn: e.target.checked,
-              });
-            }}
-          >
-            Gjør opp tilsagn
-          </Checkbox>
-          <HelpText>
-            Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere
-            utbetalinger på tilsagnet etter at denne utbetalingen er attestert
-          </HelpText>
-        </HStack>
+        {linje.status && <DelutbetalingStatusTag status={linje.status} />}
       </Table.DataCell>
-      <Table.DataCell>
-        <TextField
-          size="small"
-          style={{ maxWidth: "6rem" }}
-          error={belopError}
-          label="Utbetales"
-          readOnly={readOnly}
-          hideLabel
-          inputMode="numeric"
-          onChange={(e) => {
-            setBelopError(undefined);
-            const num = Number(e.target.value);
-            if (isNaN(num)) {
-              setBelopError("Må være et tall");
-            } else {
-              onChange?.({
-                ...linje,
-                belop: num,
-              });
-            }
-          }}
-          value={linje.belop}
-        />
-      </Table.DataCell>
-      <Table.DataCell>{linje.status && <DelutbetalingTag status={linje.status} />}</Table.DataCell>
       <Table.DataCell align="right">{knappeColumn}</Table.DataCell>
     </Table.ExpandableRow>
   );

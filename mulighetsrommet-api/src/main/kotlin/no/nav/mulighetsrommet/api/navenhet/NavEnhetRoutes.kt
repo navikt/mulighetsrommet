@@ -5,7 +5,6 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -21,12 +20,13 @@ fun Route.navEnhetRoutes() {
             request {
                 queryParameter<List<NavEnhetStatus>>("statuser") {
                     description = "Filtrer på status"
+                    explode = true
                 }
             }
             response {
                 code(HttpStatusCode.OK) {
                     description = "Alle Nav-enheter"
-                    body<List<NavEnhetDbo>>()
+                    body<List<NavEnhetDto>>()
                 }
                 default {
                     description = "Problem details"
@@ -71,12 +71,13 @@ fun Route.navEnhetRoutes() {
             request {
                 queryParameter<List<NavEnhetNummer>>("regioner") {
                     description = "Hvilke regioner man henter for"
+                    explode = true
                 }
             }
             response {
                 code(HttpStatusCode.OK) {
                     description = "Alle kostnadssteder basert på filter"
-                    body<List<NavEnhetDbo>>()
+                    body<List<NavEnhetDto>>()
                 }
                 default {
                     description = "Problem details"
@@ -99,7 +100,7 @@ fun Route.navEnhetRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Overordnet Nav-enhet for gitt enhetsnummer"
-                    body<NavEnhetDbo>()
+                    body<NavEnhetDto>()
                 }
                 default {
                     description = "Problem details"

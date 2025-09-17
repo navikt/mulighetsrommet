@@ -2,28 +2,32 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.*
 import arrow.core.raise.either
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.toDbo
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleDetaljerRequest
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
+import no.nav.mulighetsrommet.api.avtale.api.AvtalePersonvernRequest
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleVeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatusDto
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.toDbo
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -33,38 +37,26 @@ import java.util.*
 
 class AvtaleService(
     private val db: ApiDatabase,
-    private val arrangorService: ArrangorService,
-    private val tiltakstypeService: TiltakstypeService,
     private val validator: AvtaleValidator,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
     suspend fun create(
         request: AvtaleRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, AvtaleDto> = either {
-        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.detaljer.tiltakKode).id
-        val status = AvtaleStatus.AKTIV // Hva med utkast
-
-        val arrangor = request.detaljer.arrangor?.let {
-            val (arrangor, underenheter) = syncArrangorerFromBrreg(
-                it.hovedenhet,
-                it.underenheter,
-            ).bind()
-            ArrangorDbo(
-                hovedenhet = arrangor.id,
-                underenheter = underenheter.map { underenhet -> underenhet.id },
-                kontaktpersoner = it.kontaktpersoner,
-            )
-        }
-
+    ): Either<List<FieldError>, Avtale> = either {
         val avtaleDbo = validator
-            .validateCreateAvtale(AvtaleDboMapper.fromAvtaleRequest(request, arrangor, status, tiltakstypeId))
+            .validate(request)
             .bind()
 
         db.transaction {
             queries.avtale.insert(avtaleDbo)
 
-            dispatchNotificationToNewAdministrators(avtaleDbo.id, avtaleDbo.detaljer.administratorer, avtaleDbo.detaljer.navn, navIdent)
+            dispatchNotificationToNewAdministrators(
+                avtaleDbo.id,
+                avtaleDbo.detaljer.administratorer,
+                avtaleDbo.detaljer.navn,
+                navIdent,
+            )
 
             val dto = getOrError(avtaleDbo.id)
 
@@ -80,26 +72,17 @@ class AvtaleService(
         avtaleId: UUID,
         request: AvtaleDetaljerRequest,
         navIdent: NavIdent,
-        today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, AvtaleDto> = either {
+    ): Either<List<FieldError>, Avtale> = either {
         val previous = get(avtaleId)
         require(previous != null) { "Kan ikke oppdatere detaljer på avtale som ikke finnes" }
 
-        val arrangor = request.arrangor?.let {
-            val (arrangor, underenheter) = syncArrangorerFromBrreg(
-                it.hovedenhet,
-                it.underenheter,
-            ).bind()
-            ArrangorDbo(
-                hovedenhet = arrangor.id,
-                underenheter = underenheter.map { underenhet -> underenhet.id },
-                kontaktpersoner = it.kontaktpersoner,
-            )
-        }
-        val tiltakstypeId = tiltakstypeService.getByTiltakskode(request.tiltakKode).id
         val dbo = validator
-            .validateUpdateDetaljer(avtaleId, request.toDbo(tiltakstypeId, arrangor), previous)
+            .validate(request.toDbo(), previous)
             .bind()
+
+        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
+            return@either previous
+        }
 
         db.transaction {
             queries.avtale.updateDetaljer(avtaleId, dbo)
@@ -163,34 +146,38 @@ class AvtaleService(
         }
     }
 
-    fun get(id: UUID): AvtaleDto? = db.session {
-        queries.avtale.get(id)
+    fun upsertPrismodell(
+        id: UUID,
+        request: PrismodellRequest,
+        navIdent: NavIdent,
+    ): Either<NonEmptyList<FieldError>, Avtale> = either {
+        val previous = get(id)
+            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        val dbo = validator
+            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
+            .bind()
+
+        db.transaction {
+            queries.avtale.upsertPrismodell(id, dbo)
+
+            val dto = getOrError(id)
+            logEndring("Prismodell oppdatert", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
     }
 
-    fun getAll(
-        filter: AvtaleFilter,
-        pagination: Pagination,
-    ): PaginatedResponse<AvtaleDto> = db.session {
-        val (totalCount, items) = queries.avtale.getAll(
-            pagination = pagination,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            search = filter.search,
-            statuser = filter.statuser,
-            avtaletyper = filter.avtaletyper,
-            navRegioner = filter.navRegioner,
-            sortering = filter.sortering,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            personvernBekreftet = filter.personvernBekreftet,
-        )
-
-        PaginatedResponse.of(pagination, totalCount, items)
+    fun get(id: UUID): Avtale? = db.session {
+        queries.avtale.get(id)
     }
 
     fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
         val avtale = getOrError(id)
 
-        check(avtale.status == AvtaleStatusDto.Aktiv) {
+        check(avtale.status == AvtaleStatus.Aktiv) {
             "Avtalen må være aktiv for å kunne avsluttes"
         }
 
@@ -199,7 +186,7 @@ class AvtaleService(
             "Avtalen kan ikke avsluttes før sluttdato"
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVSLUTTET, null, null)
+        queries.avtale.setStatus(id, AvtaleStatusType.AVSLUTTET, null, null, null)
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avsluttet", dto, endretAv)
@@ -209,20 +196,20 @@ class AvtaleService(
         id: UUID,
         avbruttAv: NavIdent,
         tidspunkt: LocalDateTime,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>,
-    ): Either<List<FieldError>, AvtaleDto> = db.transaction {
+        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
+    ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
 
         val errors = buildList {
             when (avtale.status) {
-                is AvtaleStatusDto.Utkast, is AvtaleStatusDto.Aktiv -> Unit
-                is AvtaleStatusDto.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
-                is AvtaleStatusDto.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
+                is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
+                is AvtaleStatus.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
+                is AvtaleStatus.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
             }
 
             val (_, gjennomforinger) = queries.gjennomforing.getAll(
                 avtaleId = id,
-                statuser = listOf(GjennomforingStatus.GJENNOMFORES),
+                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
             )
             if (gjennomforinger.isNotEmpty()) {
                 val message = listOf(
@@ -238,7 +225,13 @@ class AvtaleService(
             return errors.left()
         }
 
-        queries.avtale.setStatus(id, AvtaleStatus.AVBRUTT, tidspunkt, aarsakerOgForklaring)
+        queries.avtale.setStatus(
+            id = id,
+            status = AvtaleStatusType.AVBRUTT,
+            tidspunkt = tidspunkt,
+            aarsaker = aarsakerOgForklaring.aarsaker,
+            forklaring = aarsakerOgForklaring.forklaring,
+        )
 
         val dto = getOrError(id)
         logEndring("Avtalen ble avbrutt", dto, avbruttAv)
@@ -247,44 +240,38 @@ class AvtaleService(
     }
 
     fun registrerOpsjon(
-        entry: OpsjonLoggEntry,
+        avtaleId: UUID,
+        request: OpprettOpsjonLoggRequest,
+        navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<FieldError, AvtaleDto> = db.transaction {
-        if (entry.status == OpsjonLoggStatus.OPSJON_UTLOST) {
-            val avtale = getOrError(entry.avtaleId)
-
-            val skalIkkeUtloseOpsjonerForAvtale = avtale.opsjonerRegistrert
-                ?.any { it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON } == true
-            if (skalIkkeUtloseOpsjonerForAvtale) {
-                return FieldError.of(OpsjonLoggEntry::status, "Kan ikke utløse flere opsjoner").left()
+    ): Either<List<FieldError>, Avtale> = either {
+        db.transaction {
+            val avtale = getOrError(avtaleId)
+            requireNotNull(avtale.sluttDato) {
+                "Sluttdato på avtalen er null"
             }
 
-            val maksVarighet = avtale.opsjonsmodell.maksVarighet
-            if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
-                return FieldError.of(
-                    OpsjonLoggEntry::sluttdato,
-                    "Ny sluttdato er forbi maks varighet av avtalen",
-                ).left()
+            val dbo = validator.validateOpprettOpsjonLoggRequest(
+                request,
+                avtale,
+                navIdent,
+            ).bind()
+
+            queries.opsjoner.insert(dbo)
+
+            if (dbo.sluttDato != null) {
+                updateAvtaleVarighet(avtaleId, dbo.sluttDato, today)
             }
 
-            if (entry.forrigeSluttdato == null) {
-                return FieldError.of(OpsjonLoggEntry::forrigeSluttdato, "Forrige sluttdato må være satt").left()
+            val operation = when (request.type) {
+                OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
+                OpprettOpsjonLoggRequest.Type.ETT_AAR,
+                -> "Opsjon registrert"
+
+                OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
             }
+            logEndring(operation, getOrError(avtaleId), navIdent)
         }
-
-        queries.opsjoner.insert(entry)
-
-        if (entry.sluttdato != null) {
-            updateAvtaleVarighet(entry.avtaleId, entry.sluttdato, today)
-        }
-
-        val avtale = getOrError(entry.avtaleId)
-        val operation = when (entry.status) {
-            OpsjonLoggStatus.OPSJON_UTLOST -> "Opsjon registrert"
-            OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
-        }
-        logEndring(operation, avtale, entry.registrertAv)
-        avtale.right()
     }
 
     fun slettOpsjon(
@@ -292,7 +279,7 @@ class AvtaleService(
         opsjonId: UUID,
         slettesAv: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<FieldError, AvtaleDto> = db.transaction {
+    ): Either<FieldError, Avtale> = db.transaction {
         val opsjoner = queries.opsjoner.getByAvtaleId(avtaleId)
 
         val sisteOpsjon = opsjoner.firstOrNull()
@@ -301,8 +288,7 @@ class AvtaleService(
         }
 
         if (sisteOpsjon.status == OpsjonLoggStatus.OPSJON_UTLOST) {
-            val nySluttDato = sisteOpsjon.forrigeSluttdato
-                ?: return FieldError.of("Forrige sluttdato mangler fra opsjonen som skal slettes").left()
+            val nySluttDato = sisteOpsjon.forrigeSluttDato
             updateAvtaleVarighet(avtaleId, nySluttDato, today)
         }
 
@@ -332,7 +318,49 @@ class AvtaleService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
-    private fun schedulePublishGjennomforingerForAvtale(dto: AvtaleDto) {
+    fun handlinger(avtale: Avtale, navIdent: NavIdent): Set<AvtaleHandling> {
+        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+            ?: throw MrExceptions.navAnsattNotFound(navIdent)
+
+        val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
+
+        return setOfNotNull(
+            AvtaleHandling.AVBRYT.takeIf {
+                when (avtale.status) {
+                    AvtaleStatus.Utkast,
+                    AvtaleStatus.Aktiv,
+                    -> avtalerSkriv
+
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
+                    -> false
+                }
+            },
+            AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
+                when (avtale.status) {
+                    AvtaleStatus.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
+                    AvtaleStatus.Utkast,
+                    -> false
+                }
+            },
+            AvtaleHandling.OPPDATER_PRIS.takeIf {
+                Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv
+            },
+            AvtaleHandling.REGISTRER_OPSJON.takeIf {
+                avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv
+            },
+            AvtaleHandling.DUPLISER.takeIf {
+                avtalerSkriv
+            },
+            AvtaleHandling.REDIGER.takeIf {
+                avtalerSkriv
+            },
+        )
+    }
+
+    private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {
         gjennomforingPublisher.schedule(
             input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
             id = dto.id,
@@ -340,62 +368,24 @@ class AvtaleService(
         )
     }
 
-    private suspend fun syncArrangorerFromBrreg(
-        orgnr: Organisasjonsnummer,
-        underenheterOrgnummere: List<Organisasjonsnummer>,
-    ): Either<List<FieldError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
-        val arrangor = syncArrangorFromBrreg(orgnr).bind()
-        val underenheter = underenheterOrgnummere.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
-            syncArrangorFromBrreg(it).bind()
-        }.bind()
-        Pair(arrangor, underenheter)
-    }
-
-    private suspend fun syncArrangorFromBrreg(
-        orgnr: Organisasjonsnummer,
-    ): Either<List<FieldError>, ArrangorDto> = arrangorService
-        .getArrangorOrSyncFromBrreg(orgnr)
-        .mapLeft {
-            FieldError.of(
-                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                AvtaleDetaljerRequest::arrangor,
-                AvtaleArrangor::hovedenhet,
-            ).nel()
-        }
-
-    private fun resolveStatus(
-        sluttdato: LocalDate?,
-        arrangor: AvtaleArrangor?,
-        previous: AvtaleDto?,
-        today: LocalDate,
-    ): AvtaleStatus = if (arrangor == null) {
-        AvtaleStatus.UTKAST
-    } else if (previous?.status is AvtaleStatusDto.Avbrutt) {
-        previous.status.type
-    } else if (sluttdato == null || !sluttdato.isBefore(today)) {
-        AvtaleStatus.AKTIV
-    } else {
-        AvtaleStatus.AVSLUTTET
-    }
-
     private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
         queries.avtale.setSluttDato(avtaleId, nySluttDato)
 
         val currentStatus = getOrError(avtaleId).status.type
         val newStatus = when (currentStatus) {
-            AvtaleStatus.UTKAST, AvtaleStatus.AVBRUTT -> currentStatus
-            AvtaleStatus.AKTIV, AvtaleStatus.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
-                AvtaleStatus.AKTIV
+            AvtaleStatusType.UTKAST, AvtaleStatusType.AVBRUTT -> currentStatus
+            AvtaleStatusType.AKTIV, AvtaleStatusType.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
+                AvtaleStatusType.AKTIV
             } else {
-                AvtaleStatus.AVSLUTTET
+                AvtaleStatusType.AVSLUTTET
             }
         }
         if (newStatus != currentStatus) {
-            queries.avtale.setStatus(avtaleId, newStatus, null, null)
+            queries.avtale.setStatus(avtaleId, newStatus, null, null, null)
         }
     }
 
-    private fun QueryContext.getOrError(id: UUID): AvtaleDto {
+    private fun QueryContext.getOrError(id: UUID): Avtale {
         val dto = queries.avtale.get(id)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
@@ -421,9 +411,9 @@ class AvtaleService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: AvtaleDto,
+        dto: Avtale,
         endretAv: Agent,
-    ) {
+    ): Avtale {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
@@ -433,5 +423,20 @@ class AvtaleService(
         ) {
             Json.encodeToJsonElement(dto)
         }
+        return dto
     }
+}
+
+fun resolveStatus(
+    request: AvtaleRequest,
+    previous: Avtale?,
+    today: LocalDate,
+): AvtaleStatusType = if (request.arrangor == null) {
+    AvtaleStatusType.UTKAST
+} else if (previous?.status?.type == AvtaleStatusType.AVBRUTT) {
+    previous.status.type
+} else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+    AvtaleStatusType.AKTIV
+} else {
+    AvtaleStatusType.AVSLUTTET
 }

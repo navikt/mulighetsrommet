@@ -1,6 +1,5 @@
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useGjennomforingEndringshistorikk } from "@/api/gjennomforing/useGjennomforingEndringshistorikk";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
@@ -10,8 +9,6 @@ import {
   AvbrytGjennomforingAarsak,
   FieldError,
   GjennomforingDto,
-  GjennomforingStatus,
-  NavAnsatt,
   Opphav,
   ValidationError,
 } from "@mr/api-client-v2";
@@ -25,15 +22,18 @@ import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { GjennomforingHandling, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  ansatt: NavAnsatt;
+  ansatt: NavAnsattDto;
   gjennomforing: GjennomforingDto;
 }
 
 export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
@@ -49,16 +49,16 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   }
 
   function dupliserGjennomforing() {
+    const duplisert: Partial<GjennomforingDto> = {
+      opphav: Opphav.TILTAKSADMINISTRASJON,
+      avtaleId: gjennomforing.avtaleId,
+      beskrivelse: gjennomforing.beskrivelse,
+      faneinnhold: gjennomforing.faneinnhold,
+    };
+
     setGjennomforingDetaljerTab("detaljer");
     navigate(`/avtaler/${gjennomforing.avtaleId}/gjennomforinger/skjema`, {
-      state: {
-        dupliserGjennomforing: {
-          opphav: Opphav.TILTAKSADMINISTRASJON,
-          avtaleId: gjennomforing.avtaleId,
-          beskrivelse: gjennomforing.beskrivelse,
-          faneinnhold: gjennomforing.faneinnhold,
-        },
-      },
+      state: { dupliserGjennomforing: duplisert },
     });
   }
 
@@ -82,69 +82,69 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   return (
     <KnapperadContainer>
-      <HarSkrivetilgang
-        ressurs="Gjennomføring"
-        condition={gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES}
-      >
+      {handlinger.includes(GjennomforingHandling.PUBLISER) && (
         <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
           Publiser
         </Switch>
-      </HarSkrivetilgang>
-
+      )}
       <EndringshistorikkPopover>
         <GjennomforingEndringshistorikk id={gjennomforing.id} />
       </EndringshistorikkPopover>
-      <HarSkrivetilgang ressurs="Gjennomføring">
-        <Dropdown>
-          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-            Handlinger
-          </Button>
-          <Dropdown.Menu>
-            {gjennomforing.status.type === GjennomforingStatus.GJENNOMFORES && (
-              <>
-                <Dropdown.Menu.GroupedList>
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => {
-                      if (
-                        gjennomforing.administratorer.length > 0 &&
-                        !gjennomforing.administratorer
-                          .map((a) => a.navIdent)
-                          .includes(ansatt.navIdent)
-                      ) {
-                        advarselModal.current?.showModal();
-                      } else {
-                        navigate("skjema");
-                      }
-                    }}
-                  >
-                    Rediger gjennomføring
-                  </Dropdown.Menu.GroupedList.Item>
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => apentForPameldingModalRef.current?.showModal()}
-                  >
-                    {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
-                  </Dropdown.Menu.GroupedList.Item>
-                  <Dropdown.Menu.GroupedList.Item
-                    onClick={() => registrerStengtModalRef.current?.showModal()}
-                  >
-                    Registrer stengt hos arrangør
-                  </Dropdown.Menu.GroupedList.Item>
-                  <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
-                    Avbryt gjennomføring
-                  </Dropdown.Menu.GroupedList.Item>
-                </Dropdown.Menu.GroupedList>
-                <Dropdown.Menu.Divider />
-              </>
+      <Dropdown>
+        <Button size="small" variant="secondary" as={Dropdown.Toggle}>
+          Handlinger
+        </Button>
+        <Dropdown.Menu>
+          <Dropdown.Menu.GroupedList>
+            {handlinger.includes(GjennomforingHandling.REDIGER) && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => {
+                  if (
+                    gjennomforing.administratorer.length > 0 &&
+                    !gjennomforing.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
+                  ) {
+                    advarselModal.current?.showModal();
+                  } else {
+                    navigate("skjema");
+                  }
+                }}
+              >
+                Rediger gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
             )}
-            <Dropdown.Menu.List>
-              <Dropdown.Menu.List.Item onClick={dupliserGjennomforing}>
-                <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
-                Dupliser
-              </Dropdown.Menu.List.Item>
-            </Dropdown.Menu.List>
-          </Dropdown.Menu>
-        </Dropdown>
-      </HarSkrivetilgang>
+            {handlinger.includes(GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING) && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => apentForPameldingModalRef.current?.showModal()}
+              >
+                {gjennomforing.apentForPamelding ? "Steng for påmelding" : "Åpne for påmelding"}
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.includes(GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR) && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => registrerStengtModalRef.current?.showModal()}
+              >
+                Registrer stengt hos arrangør
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.includes(GjennomforingHandling.AVBRYT) && (
+              <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
+                Avbryt gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+          </Dropdown.Menu.GroupedList>
+          {handlinger.includes(GjennomforingHandling.DUPLISER) && (
+            <>
+              <Dropdown.Menu.Divider />
+              <Dropdown.Menu.List>
+                <Dropdown.Menu.List.Item onClick={dupliserGjennomforing}>
+                  <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
+                  Dupliser
+                </Dropdown.Menu.List.Item>
+              </Dropdown.Menu.List>
+            </>
+          )}
+        </Dropdown.Menu>
+      </Dropdown>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.openapi.generator)
-    alias(libs.plugins.shadow)
 }
 
 application {
@@ -21,8 +20,14 @@ tasks.register<JavaExec>("generateOpenApi") {
 
     // Specs to generate (name of spec -> file output path)
     args = listOf(
+        "tiltaksadministrasjon",
+        "../frontend/tiltaksadministrasjon-api-client/openapi.yaml",
+
         "veilederflate",
         "../frontend/mulighetsrommet-veileder-flate/openapi.yaml",
+
+        "arrangorflate",
+        "../frontend/arrangor-flate/openapi.yaml",
     )
 }
 
@@ -42,15 +47,6 @@ val validateOpenapiSpecs = tasks.register<Task>("validateOpenapiSpecs") {
 
 tasks.build {
     dependsOn(validateOpenapiSpecs.name)
-}
-
-tasks.shadowJar {
-    // Gjør det mulig å bygge zip-filer med mer enn 65535 filer
-    isZip64 = true
-
-    // Trengs for å få med implementasjonen av services fra bl.a. flyway
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    mergeServiceFiles()
 }
 
 dependencies {
@@ -124,10 +120,10 @@ dependencies {
     // Tilgangskontroll
     implementation(libs.nav.poaoTilgang.client)
     constraints {
-        implementation("org.yaml:snakeyaml:2.4") {
+        implementation("org.yaml:snakeyaml:2.5") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.10") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.11") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
@@ -138,6 +134,7 @@ dependencies {
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.assertions.arrow)
+    testImplementation(libs.kotest.assertions.table)
     testImplementation(libs.assertj.db)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.mockOauth2Server)

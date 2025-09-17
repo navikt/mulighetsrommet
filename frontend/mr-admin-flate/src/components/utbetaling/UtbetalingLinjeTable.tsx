@@ -1,7 +1,8 @@
-import { UtbetalingDto, UtbetalingLinje } from "@mr/api-client-v2";
+import { UtbetalingDto, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Box, CopyButton, HStack, Table } from "@navikt/ds-react";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
+import React from "react";
 
 export interface Props {
   utbetaling: UtbetalingDto;

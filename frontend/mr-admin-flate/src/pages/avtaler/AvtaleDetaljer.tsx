@@ -8,11 +8,11 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { Avtaletype, Toggles } from "@mr/api-client-v2";
+import { Avtaletype } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
-  Definition,
   Definisjonsliste,
+  Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, HelpText, HStack, VStack } from "@navikt/ds-react";
@@ -22,6 +22,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { AnnenAvtaltPrismodell, AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -43,7 +44,7 @@ export function AvtaleDetaljer() {
   } = avtale;
 
   const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
+    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
     [avtale.tiltakstype.tiltakskode],
   );
 
@@ -64,7 +65,7 @@ export function AvtaleDetaljer() {
   const varighet: Definition[] = [
     { key: avtaletekster.startdatoLabel, value: formaterDato(startDato) },
     {
-      key: avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0),
+      key: avtaletekster.sluttdatoLabel(avtaletype, avtale.opsjonerRegistrert.length > 0),
       value: sluttDato ? formaterDato(sluttDato) : "-",
     },
     ...(avtale.avtaletype !== Avtaletype.FORHANDSGODKJENT

@@ -1,7 +1,7 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { HarTilgang } from "@/components/auth/HarTilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { Header } from "@/components/detaljside/Header";
@@ -14,6 +14,7 @@ import {
   AvtaleFormValues,
   defaultAvtaleData,
   PersonopplysningerSchema,
+  PrismodellSchema,
   RedaksjoneltInnholdSchema,
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
@@ -28,12 +29,19 @@ import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
+import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
+import { Rolle } from "@tiltaksadministrasjon/api-client";
 
 const steps = [
   {
     key: "Detaljer",
     schema: avtaleDetaljerFormSchema,
     Component: <AvtaleDetaljerForm />,
+  },
+  {
+    key: "Prismodell",
+    schema: PrismodellSchema,
+    Component: <AvtalePrismodellStep />,
   },
   {
     key: "Personvern",
@@ -116,7 +124,7 @@ export function NewAvtaleFormPage() {
     const mergedData = { ...collectedData, ...data };
     setCollectedData(mergedData);
 
-    if (activeStep !== 3) {
+    if (activeStep !== 4) {
       setActiveStep(activeStep + 1);
     } else {
       const result = avtaleFormSchema.safeParse(mergedData);
@@ -141,7 +149,7 @@ export function NewAvtaleFormPage() {
           Opprett ny avtale
         </Heading>
       </Header>
-      <HarSkrivetilgang ressurs="Avtale">
+      <HarTilgang rolle={Rolle.AVTALER_SKRIV}>
         <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
           <Heading size="medium" spacing level="2" id="stepper-heading">
             Steg
@@ -177,14 +185,14 @@ export function NewAvtaleFormPage() {
                     type="button"
                     onClick={methods.handleSubmit(handleForwardStep)}
                   >
-                    {activeStep === 3 ? "Opprett avtale" : "Neste"}
+                    {activeStep === 4 ? "Opprett avtale" : "Neste"}
                   </Button>
                 </HStack>
               </VStack>
             </form>
           </FormProvider>
         </Box>
-      </HarSkrivetilgang>
+      </HarTilgang>
     </>
   );
 }

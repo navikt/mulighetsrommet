@@ -3,22 +3,35 @@ import {
   ArrangorKontaktperson,
   AvtaleDto,
   AvtaltSatsDto,
-  NavAnsatt,
   Personopplysning,
   Prismodell,
   PrismodellDto,
 } from "@mr/api-client-v2";
 import z from "zod";
 import {
-  avtaleDetaljerSchema,
   arrangorSchema,
+  avtaleDetaljerSchema,
+  toUtdanningslopDbo,
   validateArrangor,
   validateAvtaledetaljer,
-  toUtdanningslopDbo,
 } from "./avtaledetaljer";
-import { okonomiSchema } from "./okonomi";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
+import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+
+export const PrismodellSchema = z.object({
+  prisbetingelser: z.string().optional(),
+  prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
+  satser: z.array(
+    z.object({
+      gjelderFra: z.string().nullable(),
+      pris: z.number().nullable(),
+      valuta: z.string(),
+    }),
+  ),
+});
+
+export type PrismodellValues = z.infer<typeof PrismodellSchema>;
 
 export const RedaksjoneltInnholdSchema = z.object({
   beskrivelse: z
@@ -27,7 +40,7 @@ export const RedaksjoneltInnholdSchema = z.object({
   faneinnhold: FaneinnholdSchema.nullable(),
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
-  navAndreEnheter: z.string().array(),
+  navEnheterAndre: z.string().array(),
 });
 
 export const PersonopplysningerSchema = z.object({
@@ -37,7 +50,7 @@ export const PersonopplysningerSchema = z.object({
 
 export const avtaleFormSchema = avtaleDetaljerSchema
   .extend(arrangorSchema.shape)
-  .extend(okonomiSchema.shape)
+  .extend(PrismodellSchema.shape)
   .extend(PersonopplysningerSchema.shape)
   .extend(RedaksjoneltInnholdSchema.shape)
   .superRefine((data, ctx) => {
@@ -49,19 +62,19 @@ export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
 export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
 export function defaultAvtaleData(
-  ansatt: NavAnsatt,
-  avtale?: AvtaleDto,
+  ansatt: NavAnsattDto,
+  avtale?: Partial<AvtaleDto>,
 ): DeepPartial<AvtaleFormValues> {
-  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
 
-  const navEnheter = avtale?.kontorstruktur.flatMap((struktur) => struktur.kontorer);
+  const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
-    tiltakskode: avtale?.tiltakstype.tiltakskode,
+    tiltakskode: avtale?.tiltakstype?.tiltakskode,
     navRegioner: navRegioner,
     navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
-    navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
+    navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
@@ -71,21 +84,21 @@ export function defaultAvtaleData(
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
       avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    startDato: avtale?.startDato,
-    sluttDato: avtale?.sluttDato,
-    sakarkivNummer: avtale?.sakarkivNummer,
+    startDato: avtale?.startDato ?? null,
+    sluttDato: avtale?.sluttDato ?? null,
+    sakarkivNummer: avtale?.sakarkivNummer ?? null,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
     amoKategorisering: avtale?.amoKategorisering ?? null,
     opsjonsmodell: {
-      type: avtale?.opsjonsmodell.type,
-      opsjonMaksVarighet: avtale?.opsjonsmodell.opsjonMaksVarighet,
-      customOpsjonsmodellNavn: avtale?.opsjonsmodell.customOpsjonsmodellNavn,
+      type: avtale?.opsjonsmodell?.type,
+      opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
+      customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
     },
     utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell.type as Prismodell,
+    prismodell: avtale?.prismodell?.type as Prismodell | undefined,
     satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell
@@ -101,6 +114,7 @@ function satser(prismodell: PrismodellDto): AvtaltSatsDto[] {
       return [];
     case "AVTALT_PRIS_PER_MANEDSVERK":
     case "AVTALT_PRIS_PER_UKESVERK":
+    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
       return prismodell.satser;
   }
 }

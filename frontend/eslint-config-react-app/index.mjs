@@ -1,17 +1,18 @@
-import js from "@eslint/js";
-import ts from "typescript-eslint";
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
 import pluginPromise from "eslint-plugin-promise";
 import prettier from "eslint-plugin-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import pluginQuery from "@tanstack/eslint-plugin-query";
+import { defineConfig } from "eslint/config";
 
-export default ts.config(
-  js.configs.recommended,
+export default defineConfig(
+  eslint.configs.recommended,
   pluginPromise.configs["flat/recommended"],
   ...pluginQuery.configs["flat/recommended"],
-  ...ts.configs.recommended,
+  tseslint.configs.strict,
   {
     ...react.configs.flat.recommended,
     plugins: {

@@ -1,52 +1,51 @@
 import {
-  Arrangor,
-  AvtaleStatus,
+  AvtaleStatusType,
   Avtaletype,
-  GjennomforingStatus,
+  GjennomforingStatusType,
   NavEnhetDto,
   NavEnhetType,
-  TiltakstypeDto,
 } from "@mr/api-client-v2";
+import { ArrangorDto, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
   label: string;
-  value: GjennomforingStatus;
+  value: GjennomforingStatusType;
 }[] = [
   {
     label: "Gjennomføres",
-    value: GjennomforingStatus.GJENNOMFORES,
+    value: GjennomforingStatusType.GJENNOMFORES,
   },
   {
     label: "Avlyst",
-    value: GjennomforingStatus.AVLYST,
+    value: GjennomforingStatusType.AVLYST,
   },
   {
     label: "Avsluttet",
-    value: GjennomforingStatus.AVSLUTTET,
+    value: GjennomforingStatusType.AVSLUTTET,
   },
   {
     label: "Avbrutt",
-    value: GjennomforingStatus.AVBRUTT,
+    value: GjennomforingStatusType.AVBRUTT,
   },
 ];
 
-export const AVTALE_STATUS_OPTIONS: { label: string; value: AvtaleStatus }[] = [
+export const AVTALE_STATUS_OPTIONS: { label: string; value: AvtaleStatusType }[] = [
   {
     label: "Aktiv",
-    value: AvtaleStatus.AKTIV,
+    value: AvtaleStatusType.AKTIV,
   },
   {
     label: "Avsluttet",
-    value: AvtaleStatus.AVSLUTTET,
+    value: AvtaleStatusType.AVSLUTTET,
   },
   {
     label: "Avbrutt",
-    value: AvtaleStatus.AVBRUTT,
+    value: AvtaleStatusType.AVBRUTT,
   },
   {
     label: "Utkast",
-    value: AvtaleStatus.UTKAST,
+    value: AvtaleStatusType.UTKAST,
   },
 ];
 
@@ -86,7 +85,7 @@ export function tiltakstypeOptions(tiltakstyper: TiltakstypeDto[]) {
   }));
 }
 
-export function arrangorOptions(arrangorer: Arrangor[]) {
+export function arrangorOptions(arrangorer: ArrangorDto[]) {
   return arrangorer.sort().map((arrangor) => ({
     label: arrangor.navn,
     value: arrangor.id,

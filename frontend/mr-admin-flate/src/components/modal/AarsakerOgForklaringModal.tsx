@@ -32,7 +32,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
   const [forklaring, setForklaring] = useState<string | undefined>(undefined);
 
   return (
-    <Modal width={"medium"} aria-label={header} open={open} onClose={onClose} portal={true}>
+    <Modal width={1000} aria-label={header} open={open} onClose={onClose} portal={true}>
       <form>
         <Modal.Header>
           <VStack gap="4">

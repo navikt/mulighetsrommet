@@ -1,11 +1,11 @@
 import { Heading, HGrid, Modal, VStack } from "@navikt/ds-react";
-import { NavEnhetDto } from "@mr/api-client-v2";
-import { NavEnhetFilter, useApiSuspenseQuery } from "@mr/frontend-common";
+import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
+import { NavEnhetFilter } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "@/components/laster/Laster";
-import { beregningQuery } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import UtbetalingBeregning from "./UtbetalingBeregning";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useUtbetalingBeregning } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 
 interface Props {
   modalOpen: boolean;
@@ -41,8 +41,9 @@ interface BodyProps {
 function ModalBody({ utbetalingId }: BodyProps) {
   const { data: enheter } = useNavEnheter();
   const [navEnheter, setNavEnheter] = useState<NavEnhetDto[]>([]);
-  const { data: beregning } = useApiSuspenseQuery(
-    beregningQuery({ navEnheter: navEnheter.map((e) => e.enhetsnummer) }, utbetalingId),
+  const { data: beregning } = useUtbetalingBeregning(
+    { navEnheter: navEnheter.map((e) => e.enhetsnummer) },
+    utbetalingId,
   );
 
   return (

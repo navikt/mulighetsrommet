@@ -6,15 +6,16 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { LagretFilterType } from "@mr/api-client-v2";
+import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,
+  ListSkeleton,
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import {
   GjennomforingFilterSchema,
@@ -76,12 +77,14 @@ export function GjennomforingerPage() {
           buttons={<GjennomforingFilterButtons />}
           table={
             <ReloadAppErrorBoundary>
-              <GjennomforingTable
-                filter={filter.values}
-                updateFilter={updateFilter}
-                tagsHeight={tagsHeight}
-                filterOpen={filterOpen}
-              />
+              <Suspense fallback={<ListSkeleton />}>
+                <GjennomforingTable
+                  filter={filter.values}
+                  updateFilter={updateFilter}
+                  tagsHeight={tagsHeight}
+                  filterOpen={filterOpen}
+                />
+              </Suspense>
             </ReloadAppErrorBoundary>
           }
           filterOpen={filterOpen}

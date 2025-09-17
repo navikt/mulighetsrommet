@@ -1,27 +1,43 @@
-import { TilsagnService, TilsagnStatus } from "@mr/api-client-v2";
-
+import { TilsagnService, TilsagnStatus } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
+import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export const tilsagnQuery = (tilsagnId?: string) => ({
-  queryKey: QueryKeys.getTilsagn(tilsagnId),
-  queryFn: () => TilsagnService.getTilsagn({ path: { id: tilsagnId! } }),
-  enabled: !!tilsagnId,
-});
+export function useTilsagn(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.getTilsagn(id),
+    queryFn: async () => {
+      return TilsagnService.getTilsagn({ path: { id } });
+    },
+  });
+}
+export function useTilsagnRequest(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: ["tilsagn", id, "request"],
+    queryFn: async () => {
+      return TilsagnService.getTilsagnRequest({ path: { id } });
+    },
+  });
+}
 
-export const tilsagnHistorikkQuery = (tilsagnId?: string) => ({
-  queryKey: ["tilsagn", tilsagnId, "historikk"],
-  queryFn: () => TilsagnService.getTilsagnEndringshistorikk({ path: { id: tilsagnId! } }),
-  enabled: !!tilsagnId,
-});
+export function useTilsagnEndringshistorikk(id: string) {
+  return useApiSuspenseQuery({
+    queryKey: ["tilsagn", id, "historikk"],
+    queryFn: async () => TilsagnService.getTilsagnEndringshistorikk({ path: { id } }),
+  });
+}
 
-export const aktiveTilsagnQuery = (gjennomforingId?: string) => ({
-  queryKey: QueryKeys.getTilsagnForGjennomforing(gjennomforingId),
-  queryFn: () =>
-    TilsagnService.getAll({
-      query: {
-        gjennomforingId,
-        statuser: [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT],
-      },
-    }),
-  enabled: !!gjennomforingId,
-});
+export function useTilsagnTableData(gjennomforingId: string) {
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.getAllTilsagn(gjennomforingId),
+    queryFn: async () => TilsagnService.getTilsagnTableData({ query: { gjennomforingId } }),
+  });
+}
+
+export function useAktiveTilsagnTableData(gjennomforingId: string) {
+  const statuser = [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT];
+  return useApiSuspenseQuery({
+    queryKey: QueryKeys.getAllTilsagn(gjennomforingId, statuser),
+    queryFn: async () =>
+      TilsagnService.getTilsagnTableData({ query: { gjennomforingId, statuser } }),
+  });
+}

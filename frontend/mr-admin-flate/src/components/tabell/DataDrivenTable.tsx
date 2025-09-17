@@ -1,39 +1,26 @@
-import { Table } from "@navikt/ds-react";
-import { DataDrivenColumn, DataDrivenTableDto } from "@mr/api-client-v2";
-import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { DataDrivenTableDto, DataElement } from "@tiltaksadministrasjon/api-client";
 import { useSortableData } from "@mr/frontend-common";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { Table, TableProps } from "@navikt/ds-react";
+import { compareDataElements, getDataElement } from "@/components/data-element/DataElement";
 
 interface Props {
   data: DataDrivenTableDto;
   className?: string;
+  size?: TableProps["size"];
 }
 
-export function DataDrivenTable({ data, className }: Props) {
-  const { sort, toggleSort, sortedData } = useSortableData(data.rows);
-
-  function formatRow(row?: string, format?: "DATE" | "NOK"): string {
-    if (!row) return "-";
-    switch (format) {
-      case "DATE":
-        return formaterDato(row) ?? "-";
-      case "NOK":
-        return formaterNOK(Number(row));
-      case undefined:
-        return row;
-    }
-  }
+export function DataDrivenTable({ data, className, size }: Props) {
+  const { sort, toggleSort, sortedData } = useSortableData(
+    data.rows,
+    undefined,
+    compareDataElements,
+  );
 
   return (
-    <Table
-      sort={sort}
-      onSortChange={(sortKey) => toggleSort(sortKey as string)}
-      className={className}
-      size="small"
-    >
+    <Table sort={sort} onSortChange={toggleSort} className={className} size={size}>
       <Table.Header>
         <Table.Row>
-          {data.columns.map((col: DataDrivenColumn) => (
+          {data.columns.map((col) => (
             <Table.ColumnHeader
               key={col.key}
               sortable={col.sortable}
@@ -46,13 +33,16 @@ export function DataDrivenTable({ data, className }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map((row, index) => (
+        {sortedData.map((row: Record<string, DataElement | null>, index) => (
           <Table.Row key={index}>
-            {data.columns.map((col) => (
-              <Table.DataCell key={col.key} align={col.align}>
-                {formatRow(row[col.key], col.format)}
-              </Table.DataCell>
-            ))}
+            {data.columns.map((col) => {
+              const cell = row[col.key];
+              return (
+                <Table.DataCell key={col.key} align={col.align}>
+                  {cell ? getDataElement(cell) : null}
+                </Table.DataCell>
+              );
+            })}
           </Table.Row>
         ))}
       </Table.Body>

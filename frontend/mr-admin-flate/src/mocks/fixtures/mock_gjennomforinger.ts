@@ -1,22 +1,30 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
-import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
+import { getEmbeddedTiltakstype, mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
-  AvbrytGjennomforingAarsak,
   Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
+  GjennomforingArrangorUnderenhet,
   GjennomforingDto,
   GjennomforingOppstartstype,
-  GjennomforingStatus,
+  GjennomforingStatusType,
   InnholdElement,
   Kurstype,
   Opphav,
   PaginertGjennomforing,
 } from "@mr/api-client-v2";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
-import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
+import { DataElementStatusVariant } from "@tiltaksadministrasjon/api-client";
+
+const arrangor: GjennomforingArrangorUnderenhet = {
+  id: "d9d4db51-3564-4493-b897-4fc38dc48965",
+  organisasjonsnummer: "992943084",
+  navn: "FRETEX AS AVD OSLO",
+  kontaktpersoner: mockArrangorKontaktpersoner,
+  slettet: false,
+};
 
 export const mockGjennomforinger: GjennomforingDto[] = [
   {
@@ -28,13 +36,9 @@ export const mockGjennomforinger: GjennomforingDto[] = [
       enhet: EstimertVentetidEnhet.MANED,
     },
     antallPlasser: 50,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: [mockArrangorKontaktpersoner[0], mockArrangorKontaktpersoner[0]],
-    },
+    arrangor,
     avtaleId: mockAvtaler[0].id,
-    tiltakstype: mockTiltakstyper.AVKLARAG,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
     administratorer: [
       {
         navIdent: "B123456",
@@ -52,7 +56,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
         kontorer: [mockEnheter._0313, mockEnheter._0318, mockEnheter._0315, mockEnheter._0330],
       },
     ],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
+    status: {
+      type: GjennomforingStatusType.GJENNOMFORES,
+      status: {
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
+    },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: false,
@@ -112,12 +123,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     navn: "Spillbasert kvalifisering",
     tiltaksnummer: "123456",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
-    tiltakstype: mockTiltakstyper.ARBFORB,
+    arrangor,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
     sanityId: "1234",
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
@@ -125,11 +132,13 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     administratorer: [],
     kontorstruktur: [],
     status: {
-      type: GjennomforingStatus.AVLYST,
-      aarsak: AvbrytGjennomforingAarsak.FEILREGISTRERING,
-      beskrivelse:
-        "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-      tidspunkt: "2020-03-04T12:00:00",
+      type: GjennomforingStatusType.AVLYST,
+      status: {
+        value: "Avlyst",
+        variant: DataElementStatusVariant.SUCCESS,
+        description:
+          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      },
     },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
@@ -146,12 +155,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "654434",
     sanityId: "1234",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
-    tiltakstype: mockTiltakstyper.GRUPPEAMO,
+    arrangor,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUPPEAMO),
     administratorer: [
       {
         navIdent: "B815493",
@@ -162,7 +167,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
+    status: {
+      type: GjennomforingStatusType.GJENNOMFORES,
+      status: {
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
+    },
     oppstart: GjennomforingOppstartstype.FELLES,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,
@@ -185,19 +197,22 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "654432",
     sanityId: "1234",
     deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
-    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    arrangor,
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     kontorstruktur: [],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
+    status: {
+      type: GjennomforingStatusType.GJENNOMFORES,
+      status: {
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
+      },
+    },
     oppstart: GjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.TILTAKSADMINISTRASJON,
     apentForPamelding: true,
@@ -218,37 +233,3 @@ export const paginertMockGjennomforinger: PaginertGjennomforing = {
   },
   data: mockGjennomforinger,
 };
-
-// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
-// at testene går gjennom.
-const x = 0;
-for (let i = 0; i < x; i++) {
-  mockGjennomforinger.push({
-    id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
-    navn: "AFT",
-    tiltaksnummer: "654434",
-    sanityId: "1234",
-    deltidsprosent: 100,
-    arrangor: {
-      ...mockArrangorer.data[0].underenheter![0],
-      slettet: false,
-      kontaktpersoner: mockArrangorKontaktpersoner,
-    },
-    tiltakstype: mockTiltakstyper.ARBFORB,
-    startDato: "2022-01-01",
-    sluttDato: "2022-12-12",
-    arenaAnsvarligEnhet: mockEnheter._0313,
-    administratorer: [],
-    kontorstruktur: [],
-    status: { type: GjennomforingStatus.GJENNOMFORES },
-    oppstart: GjennomforingOppstartstype.LOPENDE,
-    opphav: Opphav.TILTAKSADMINISTRASJON,
-    apentForPamelding: true,
-    kontaktpersoner: [],
-    publisert: false,
-
-    tilgjengeligForArrangorDato: null,
-    amoKategorisering: null,
-    stengt: [],
-  });
-}

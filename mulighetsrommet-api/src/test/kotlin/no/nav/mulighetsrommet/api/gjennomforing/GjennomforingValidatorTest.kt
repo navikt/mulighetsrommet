@@ -9,11 +9,13 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -36,7 +38,7 @@ class GjennomforingValidatorTest : FunSpec({
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
         ),
-        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
     )
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
@@ -106,7 +108,7 @@ class GjennomforingValidatorTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createValidator() = GjennomforingValidator(database.db)
+    fun createValidator() = GjennomforingValidator(database.db, NavEnhetService(database.db))
 
     test("skal feile når avtale ikke finnes") {
         val unknownAvtaleId = UUID.randomUUID()
@@ -136,14 +138,20 @@ class GjennomforingValidatorTest : FunSpec({
 
     test("avtalen må være aktiv") {
         database.run {
-            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVBRUTT, LocalDateTime.now(), AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null))
+            queries.avtale.setStatus(
+                id = avtale.id,
+                status = AvtaleStatusType.AVBRUTT,
+                tidspunkt = LocalDateTime.now(),
+                aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                forklaring = null,
+            )
         }
         createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
 
         database.run {
-            queries.avtale.setStatus(avtale.id, AvtaleStatus.AVSLUTTET, null, null)
+            queries.avtale.setStatus(avtale.id, AvtaleStatusType.AVSLUTTET, null, null, null)
         }
         createValidator().validate(gjennomforing, null).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
@@ -161,10 +169,10 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke bare opprettes med status GJENNOMFORES") {
-        val gjennomfores = gjennomforing.copy(status = GjennomforingStatus.GJENNOMFORES)
-        val avsluttet = gjennomforing.copy(status = GjennomforingStatus.AVSLUTTET)
-        val avbrutt = gjennomforing.copy(status = GjennomforingStatus.AVBRUTT)
-        val avlyst = gjennomforing.copy(status = GjennomforingStatus.AVLYST)
+        val gjennomfores = gjennomforing.copy(status = GjennomforingStatusType.GJENNOMFORES)
+        val avsluttet = gjennomforing.copy(status = GjennomforingStatusType.AVSLUTTET)
+        val avbrutt = gjennomforing.copy(status = GjennomforingStatusType.AVBRUTT)
+        val avlyst = gjennomforing.copy(status = GjennomforingStatusType.AVLYST)
 
         createValidator().validate(gjennomfores, null).shouldBeRight()
         createValidator().validate(avsluttet, null).shouldBeLeft(
@@ -312,16 +320,6 @@ class GjennomforingValidatorTest : FunSpec({
                 listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
             ),
             row(
-                gjennomforing.copy(
-                    navEnheter = setOf(
-                        NavEnhetNummer("0400"),
-                        NavEnhetNummer("0502"),
-                        NavEnhetNummer("0401"),
-                    ),
-                ),
-                listOf(FieldError("/navEnheter", "Nav-enhet 0401 mangler i avtalen")),
-            ),
-            row(
                 gjennomforing.copy(navEnheter = setOf()),
                 listOf(
                     FieldError("/navEnheter", "Du må velge minst én Nav-region fra avtalen"),
@@ -395,10 +393,11 @@ class GjennomforingValidatorTest : FunSpec({
         test("skal godta endringer selv om avtale er avbrutt") {
             val previous = database.run {
                 queries.avtale.setStatus(
-                    avtale.id,
-                    AvtaleStatus.AVBRUTT,
-                    LocalDateTime.now(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.BUDSJETT_HENSYN), null),
+                    id = avtale.id,
+                    status = AvtaleStatusType.AVBRUTT,
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }
@@ -410,9 +409,10 @@ class GjennomforingValidatorTest : FunSpec({
             val previous = database.run {
                 queries.gjennomforing.setStatus(
                     id = gjennomforing.id,
-                    status = GjennomforingStatus.AVBRUTT,
+                    status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDateTime.now(),
-                    AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                    forklaring = null,
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }
@@ -426,9 +426,10 @@ class GjennomforingValidatorTest : FunSpec({
             val previous = database.run {
                 queries.gjennomforing.setStatus(
                     id = gjennomforing.id,
-                    status = GjennomforingStatus.AVSLUTTET,
+                    status = GjennomforingStatusType.AVSLUTTET,
                     tidspunkt = LocalDateTime.now(),
-                    null,
+                    aarsaker = null,
+                    forklaring = null,
                 )
                 queries.gjennomforing.get(gjennomforing.id)
             }

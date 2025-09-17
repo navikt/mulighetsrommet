@@ -7,20 +7,29 @@ import java.time.LocalDate
 @Serializable
 data class AvtaltSatsDto(
     @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
+    val gjelderFra: LocalDate,
     val pris: Int,
     val valuta: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val gjelderTil: LocalDate? = null,
 ) {
     companion object {
-        fun fromAvtaltSats(avtaltSats: AvtaltSats): AvtaltSatsDto {
+        fun fromAvtaltSats(avtaltSats: AvtaltSats, nesteSats: AvtaltSats? = null): AvtaltSatsDto {
             return AvtaltSatsDto(
-                periodeStart = avtaltSats.periode.start,
-                periodeSlutt = avtaltSats.periode.getLastInclusiveDate(),
+                gjelderFra = avtaltSats.gjelderFra,
                 pris = avtaltSats.sats,
                 valuta = "NOK",
+                gjelderTil = nesteSats?.gjelderFra?.minusDays(1),
             )
         }
     }
+}
+
+fun List<AvtaltSats>.toDto(): List<AvtaltSatsDto> {
+    val mappedList = mutableListOf<AvtaltSatsDto>()
+    this.windowed(size = 2, partialWindows = true).map { sats ->
+        val nextSats = sats.getOrNull(1)
+        mappedList.add(AvtaltSatsDto.fromAvtaltSats(sats[0], nextSats))
+    }
+    return mappedList
 }

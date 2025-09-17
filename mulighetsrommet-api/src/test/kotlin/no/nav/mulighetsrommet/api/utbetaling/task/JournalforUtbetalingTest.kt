@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arrangor
@@ -42,14 +42,14 @@ class JournalforUtbetalingTest : FunSpec({
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-            input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
                 sats = 20205,
                 stengt = setOf(),
                 deltakelser = emptySet(),
             ),
-            output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 0,
                 deltakelser = emptySet(),
             ),
@@ -87,7 +87,7 @@ class JournalforUtbetalingTest : FunSpec({
     }
 
     val arrangorFlateSerivce = { db: ApiDatabase ->
-        ArrangorFlateService(
+        ArrangorflateService(
             db = db,
             personService = mockk(relaxed = true),
             kontoregisterOrganisasjonClient = mockk(relaxed = true),

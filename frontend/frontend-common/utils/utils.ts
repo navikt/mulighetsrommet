@@ -1,5 +1,19 @@
 import { shallowEquals } from "./shallow-equals";
 
+export function addOrRemoveBy<T>(
+  array: T[],
+  item: T,
+  compare: (a: T, b: T) => boolean
+): T[] {
+  const exists = array.some((a) => compare(a, item));
+
+  if (exists) {
+    return array.filter((c) => !compare(c, item));
+  } else {
+    return [...array, item];
+  }
+}
+
 export function addOrRemove<T>(array: T[], item: T): T[] {
   const exists = array.some((a) => shallowEquals(a, item));
 
@@ -13,11 +27,11 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
 }
 
 export function formaterNOK(tall: number) {
-  return `${formaterTall(tall)} NOK`;
+  return `${formaterTall(tall)}\u{00A0}NOK`;
 }
 
 export function formaterTall(tall: number) {
-  return Intl.NumberFormat("no-nb").format(tall);
+  return Intl.NumberFormat("no-nb", { maximumFractionDigits: 5 }).format(tall);
 }
 
 export function formaterKontoNummer(kontoNummer?: string): string {
@@ -58,4 +72,3 @@ export function compare<T>(aValue: T, bValue: T): number {
     return 0;
   }
 }
-

@@ -1,4 +1,4 @@
-import { useAdminGjennomforinger } from "@/api/gjennomforing/useAdminGjennomforinger";
+import { useGjennomforinger } from "@/api/gjennomforing/useGjennomforinger";
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterNavEnheter } from "@/utils/Utils";
@@ -9,7 +9,6 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import React, { createRef, useEffect, useState } from "react";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { downloadGjennomforingerAsExcel } from "@/api/gjennomforing/downloadGjennomforingerAsExcel";
@@ -38,7 +37,9 @@ export function GjennomforingTable({
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
-  const { data } = useAdminGjennomforinger(filter);
+  const {
+    data: { pagination, data: gjennomforinger },
+  } = useGjennomforinger(filter);
   const link = createRef<HTMLAnchorElement>();
 
   async function lastNedExcel() {
@@ -83,12 +84,6 @@ export function GjennomforingTable({
     });
   };
 
-  if (!data) {
-    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
-  }
-
-  const { pagination, data: gjennomforinger } = data;
-
   return (
     <>
       <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
@@ -115,8 +110,8 @@ export function GjennomforingTable({
           <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
         ) : (
           <Table
-            sort={sort!}
-            onSortChange={(sortKey) => handleSort(sortKey!)}
+            sort={sort}
+            onSortChange={(sortKey) => handleSort(sortKey)}
             data-testid="gjennomforing-tabell"
           >
             <Table.Header

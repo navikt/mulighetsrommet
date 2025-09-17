@@ -1,8 +1,8 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useSlettOpsjon } from "@/api/avtaler/useSlettOpsjon";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client-v2";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { OpsjonLoggDto, OpsjonStatus } from "@mr/api-client-v2";
+import { compare, formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
 
@@ -16,29 +16,24 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon(avtale.id);
 
-  function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
+  function kanSletteOpsjon(opsjon: OpsjonLoggDto): boolean {
     const sisteUtlosteOpsjon = logg.at(-1);
 
     return opsjon.id === sisteUtlosteOpsjon?.id;
   }
 
   function fjernOpsjon(id: string) {
-    mutation.mutate(
-      { id },
-      {
-        onSuccess: () => {
-          mutation.reset();
-        },
+    mutation.mutate(id, {
+      onSuccess: () => {
+        mutation.reset();
       },
-    );
+    });
   }
 
   const opprinneligSluttDato = avtale.opsjonerRegistrert
-    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLOST && !!o.forrigeSluttdato)
-    .sort(
-      (a, b) => new Date(a.forrigeSluttdato!).getTime() - new Date(b.forrigeSluttdato!).getTime(),
-    )
-    .at(0)?.forrigeSluttdato;
+    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLOST && !!o.forrigeSluttDato)
+    .sort((a, b) => compare(a.forrigeSluttDato, b.forrigeSluttDato))
+    .at(0)?.forrigeSluttDato;
 
   return (
     <section className="bg-surface-subtle p-4 rounded-lg">
@@ -60,10 +55,10 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {logg.map((log) => {
+          {logg.map((log: OpsjonLoggDto) => {
             return (
               <Table.Row key={log.id}>
-                <Table.DataCell>{formaterDato(log.registrertDato)}</Table.DataCell>
+                <Table.DataCell>{formaterDato(log.createdAt)}</Table.DataCell>
                 <Table.DataCell>{formaterStatus(log)}</Table.DataCell>
                 <Table.DataCell>
                   {kanSletteOpsjon(log) && !readOnly ? (
@@ -89,12 +84,11 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   );
 }
 
-function formaterStatus(log: OpsjonLoggRegistrert): string {
-  if (log.sluttDato && log.status === OpsjonStatus.OPSJON_UTLOST) {
-    return formaterDato(log.sluttDato) ?? "-";
-  } else if (log.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON) {
-    return "Avklart at opsjon ikke skal utløses";
-  } else {
-    return "";
+function formaterStatus(log: OpsjonLoggDto): string {
+  switch (log.status) {
+    case OpsjonStatus.OPSJON_UTLOST:
+      return formaterDato(log.sluttDato) ?? "-";
+    case OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON:
+      return "Avklart at opsjon ikke skal utløses";
   }
 }

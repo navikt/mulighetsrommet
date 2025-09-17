@@ -1,24 +1,21 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
+import { GjennomforingDto } from "@mr/api-client-v2";
 import {
-  AvtaleDto,
-  GjennomforingDto,
-  PrismodellDto,
   TilsagnBeregningType,
+  TilsagnRequest,
   TilsagnType,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
-import { InferredTilsagn } from "@/components/tilsagn/form/TilsagnSchema";
-import { DeepPartial } from "react-hook-form";
-import { Alert } from "@navikt/ds-react";
+import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
+import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";
 
 interface Props {
-  avtale: AvtaleDto;
   gjennomforing: GjennomforingDto;
-  defaults: DeepPartial<InferredTilsagn>;
+  defaults: TilsagnRequest;
 }
 
-export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props) {
+export function TilsagnFormContainer({ gjennomforing, defaults }: Props) {
   const navigate = useNavigate();
 
   function navigerTilTilsagn() {
@@ -34,13 +31,39 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
     onAvbryt: navigerTilTilsagn,
   };
 
-  const beregning = defaults.beregning?.type ? getTilsagnBeregningType(avtale.prismodell) : null;
+  const beregning = defaults.beregning.type;
 
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
       return (
         <TilsagnFormPrisPerManedsverk
+          defaultValues={{
+            ...defaults,
+            beregning: {
+              ...defaults.beregning,
+              type: beregning,
+            },
+          }}
+          {...props}
+        />
+      );
+    case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
+      return (
+        <TilsagnFormFastSatsPerTiltaksplassPerManed
+          defaultValues={{
+            ...defaults,
+            beregning: {
+              ...defaults.beregning,
+              type: beregning,
+            },
+          }}
+          {...props}
+        />
+      );
+    case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
+      return (
+        <TilsagnFormPrisPerTimeOppfolging
           defaultValues={{
             ...defaults,
             beregning: {
@@ -64,8 +87,6 @@ export function TilsagnFormContainer({ avtale, gjennomforing, defaults }: Props)
           {...props}
         />
       );
-    case null:
-      return <Alert variant={"warning"}>Prismodell mangler</Alert>;
   }
 }
 
@@ -73,16 +94,4 @@ function getRegionerForKostnadssteder(gjennomforing: GjennomforingDto, type?: Ti
   return type === TilsagnType.TILSAGN
     ? gjennomforing.kontorstruktur.map((struktur) => struktur.region.enhetsnummer)
     : [];
-}
-
-function getTilsagnBeregningType(prismodell: PrismodellDto): TilsagnBeregningType {
-  switch (prismodell.type) {
-    case "ANNEN_AVTALT_PRIS":
-      return TilsagnBeregningType.FRI;
-    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
-    case "AVTALT_PRIS_PER_MANEDSVERK":
-      return TilsagnBeregningType.PRIS_PER_MANEDSVERK;
-    case "AVTALT_PRIS_PER_UKESVERK":
-      return TilsagnBeregningType.PRIS_PER_UKESVERK;
-  }
 }

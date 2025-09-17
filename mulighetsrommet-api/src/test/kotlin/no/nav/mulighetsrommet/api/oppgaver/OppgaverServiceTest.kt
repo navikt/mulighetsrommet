@@ -564,15 +564,15 @@ class OppgaverServiceTest : FunSpec({
                 avtaler = listOf(
                     AvtaleFixtures.AFT.copy(
                         administratorer = listOf(),
-                        status = AvtaleStatus.AKTIV,
+                        status = AvtaleStatusType.AKTIV,
                     ),
                     AvtaleFixtures.gruppeAmo.copy(
                         administratorer = listOf(),
-                        status = AvtaleStatus.AVSLUTTET,
+                        status = AvtaleStatusType.AVSLUTTET,
                     ),
                     AvtaleFixtures.VTA.copy(
                         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                        status = AvtaleStatus.AKTIV,
+                        status = AvtaleStatusType.AKTIV,
                     ),
                 ),
             ).initialize(database.db)
@@ -602,17 +602,17 @@ class OppgaverServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
                     AFT1.copy(
-                        status = GjennomforingStatus.GJENNOMFORES,
+                        status = GjennomforingStatusType.GJENNOMFORES,
                         administratorer = listOf(),
                     ),
                     AFT1.copy(
                         id = avsluttetGjennomforing,
-                        status = GjennomforingStatus.AVSLUTTET,
+                        status = GjennomforingStatusType.AVSLUTTET,
                         administratorer = listOf(),
                     ),
                     AFT1.copy(
                         id = UUID.randomUUID(),
-                        status = GjennomforingStatus.GJENNOMFORES,
+                        status = GjennomforingStatusType.GJENNOMFORES,
                         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                     ),
                 ),

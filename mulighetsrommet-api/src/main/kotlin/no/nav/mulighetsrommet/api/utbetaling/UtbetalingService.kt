@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.*
-import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -76,7 +75,7 @@ class UtbetalingService(
                 periode = utbetaling.periode,
                 kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                 belopUtbetalt = belopUtbetalt,
-                type = UtbetalingType.from(utbetaling),
+                type = UtbetalingType.from(utbetaling).toDto(),
             )
         }
     }
@@ -177,12 +176,10 @@ class UtbetalingService(
                     }
 
                 delutbetalinger.forEach {
-                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, it.belop, it.gjorOppTilsagn, navIdent)
+                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, requireNotNull(it.belop), it.gjorOppTilsagn, navIdent)
                 }
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
-                if (request.begrunnelseMindreBetalt != null) {
-                    queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
-                }
+                queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
 
                 logEndring("Utbetaling sendt til attestering", getOrError(utbetaling.id), navIdent)
             }
@@ -243,7 +240,7 @@ class UtbetalingService(
             is UtbetalingBeregningPrisPerUkesverk,
             -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
-            is UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder,
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
             -> Unit
         }
 
@@ -561,18 +558,21 @@ class UtbetalingService(
             it to person
         }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
+        // TODO: utled regnestykke i backend
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 
-    fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = UtbetalingHandlinger(
-        sendTilAttestering = when (utbetaling.status) {
-            UtbetalingStatusType.INNSENDT,
-            UtbetalingStatusType.RETURNERT,
-            -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            -> false
+    fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+        UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
+            when (utbetaling.status) {
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.RETURNERT,
+                -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                -> false
+            }
         },
     )
 }

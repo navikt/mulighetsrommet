@@ -72,7 +72,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -105,7 +105,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
 
-                val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -136,7 +136,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/v1/intern/utbetaling/$id/opprett-utbetaling") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/$id/opprett-utbetaling") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -168,7 +168,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UtbetalingFixtures.utbetaling1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
+                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))
@@ -190,7 +190,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UtbetalingFixtures.utbetaling1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
 
-                val response = client.post("/api/v1/intern/delutbetalinger/$id/beslutt") {
+                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))

@@ -86,10 +86,6 @@ updates:
         patterns:
           - "@rjsf/*"
 
-      storybook:
-        patterns:
-          - "@storybook/*"
-
       minor-and-patch:
         update-types:
           - "minor"
@@ -103,7 +99,6 @@ updates:
           - "@navikt/aksel-*"
           - "@navikt/ds-*"
           - "@rjsf/*"
-          - "@storybook/*"
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker

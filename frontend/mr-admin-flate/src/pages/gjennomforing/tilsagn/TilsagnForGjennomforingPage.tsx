@@ -1,69 +1,68 @@
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { Avtaletype, TilsagnService, TilsagnType } from "@mr/api-client-v2";
-import { Alert, Button, Dropdown } from "@navikt/ds-react";
-import { useNavigate, useParams } from "react-router";
-import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { TilsagnTable } from "./tabell/TilsagnTable";
-
-function tilsagnForGjennomforingQuery(gjennomforingId?: string) {
-  return {
-    queryKey: ["tilsagnForGjennomforing", gjennomforingId],
-    queryFn: () => TilsagnService.getAll({ query: { gjennomforingId: gjennomforingId! } }),
-    enabled: !!gjennomforingId,
-  };
-}
+import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { Button, Dropdown } from "@navikt/ds-react";
+import { useNavigate } from "react-router";
+import {
+  useAdminGjennomforingById,
+  useGjennomforingHandlinger,
+} from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function TilsagnForGjennomforingPage() {
-  const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
-  const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
-  const { data: tilsagnForGjennomforing } = useApiSuspenseQuery({
-    ...tilsagnForGjennomforingQuery(gjennomforingId),
-  });
-
-  const tilsagnstyper =
-    avtale?.avtaletype === Avtaletype.FORHANDSGODKJENT
-      ? [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN, TilsagnType.INVESTERING]
-      : [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN];
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
+  const { data: tilsagn } = useTilsagnTableData(gjennomforingId);
 
   const navigate = useNavigate();
 
   return (
     <>
       <KnapperadContainer>
-        <HarSkrivetilgang ressurs="Økonomi">
-          <Dropdown>
-            <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-              Handlinger
-            </Button>
-            <Dropdown.Menu>
-              <Dropdown.Menu.GroupedList>
-                {tilsagnstyper.map((type) => (
-                  <Dropdown.Menu.GroupedList.Item
-                    key={type}
-                    onClick={() => {
-                      navigate(`opprett-tilsagn?type=${type}`);
-                    }}
-                  >
-                    Opprett {avtaletekster.tilsagn.type(type).toLowerCase()}
-                  </Dropdown.Menu.GroupedList.Item>
-                ))}
-              </Dropdown.Menu.GroupedList>
-            </Dropdown.Menu>
-          </Dropdown>
-        </HarSkrivetilgang>
+        <Dropdown>
+          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
+            Handlinger
+          </Button>
+          <Dropdown.Menu>
+            <Dropdown.Menu.GroupedList>
+              {handlinger.includes(GjennomforingHandling.OPPRETT_TILSAGN) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate(`opprett-tilsagn?type=${TilsagnType.TILSAGN}`);
+                  }}
+                >
+                  Opprett {avtaletekster.tilsagn.type(TilsagnType.TILSAGN).toLowerCase()}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+              {handlinger.includes(GjennomforingHandling.OPPRETT_EKSTRATILSAGN) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate(`opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`);
+                  }}
+                >
+                  Opprett {avtaletekster.tilsagn.type(TilsagnType.EKSTRATILSAGN).toLowerCase()}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+              {handlinger.includes(GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate(`opprett-tilsagn?type=${TilsagnType.INVESTERING}`);
+                  }}
+                >
+                  Opprett {avtaletekster.tilsagn.type(TilsagnType.INVESTERING).toLowerCase()}
+                </Dropdown.Menu.GroupedList.Item>
+              )}
+            </Dropdown.Menu.GroupedList>
+          </Dropdown.Menu>
+        </Dropdown>
       </KnapperadContainer>
-      {tilsagnForGjennomforing.length > 0 ? (
-        <TilsagnTable tilsagn={tilsagnForGjennomforing} />
-      ) : (
-        <Alert style={{ marginTop: "1rem" }} variant="info">
-          Det finnes ingen tilsagn for dette tiltaket i Nav Tiltaksadministrasjon
-        </Alert>
-      )}
+      <TilsagnTable
+        emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"
+        data={tilsagn}
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
-  input: "../../mulighetsrommet-api/src/main/resources/web/openapi.yaml",
+  input: "./openapi.yaml",
   output: "api-client",
   parser: {
     transforms: {

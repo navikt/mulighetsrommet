@@ -1,29 +1,30 @@
+import { type GetAvtalerData, GetGjennomforingerData } from "@mr/api-client-v2";
 import {
   GetArrangorerData,
-  type GetAvtalerData,
-  GetGjennomforingerData,
   LagretFilterType,
   NotificationStatus,
   Rolle,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {
+  beregnTilsagn: (req: string) => ["beregn-tilsagn", req] as const,
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   oppgaver: (filter?: object) => ["oppgaver", { ...filter }] as const,
   oppgavetyper: () => ["oppgaver", "oppgavetyper"] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  gjennomforinger: (mine?: boolean, filter?: Pick<GetGjennomforingerData, "query">) =>
-    ["gjennomforinger", mine, filter].filter((entry) => entry !== undefined),
+  gjennomforinger: (filter?: Pick<GetGjennomforingerData, "query">) =>
+    ["gjennomforinger", filter].filter((entry) => entry !== undefined),
   gjennomforing: (id?: string) => ["gjennomforing", id] as const,
+  gjennomforingHandlinger: (id: string) => ["gjennomforing-handlinger", id] as const,
   gjennomforingHistorikk: (id?: string) => ["gjennomforing", id, "historikk"] as const,
   gjennomforingDeltakerSummary(id: string) {
     return ["gjennomforing", id, "deltaker-summary"] as const;
   },
   ansatt: () => ["ansatt"] as const,
-  avtaler: (mine?: boolean, avtaleFilter?: Pick<GetAvtalerData, "query">) =>
-    ["avtaler", mine, avtaleFilter] as const,
+  avtaler: (avtaleFilter?: Pick<GetAvtalerData, "query">) => ["avtaler", avtaleFilter] as const,
   avtale: (id?: string) => ["avtale", id] as const,
+  avtaleHandlnger: (id?: string) => ["avtale-handlinger", id] as const,
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   navEnheter: () => ["nav-enheter"],
   kostnadssted: (regioner?: string[]) => ["kostnadssted", regioner],
@@ -44,7 +45,11 @@ export const QueryKeys = {
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
   opprettTilsagn: () => ["opprett-tilsagn"],
-  getTilsagnForGjennomforing: (gjennomforingId?: string) => ["tilsagn", gjennomforingId],
+  getAllTilsagn: (gjennomforingId?: string, statuser?: string[]) => [
+    "tilsagn",
+    gjennomforingId,
+    statuser,
+  ],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
   annullerTilsagn: () => ["annuller-tilsagn"],
@@ -57,6 +62,15 @@ export const QueryKeys = {
   utbetalingerByGjennomforing: (gjennomforingId?: string) => [
     "utbetaling-for-gjennomforing",
     gjennomforingId,
+  ],
+  utbetaling: (utbetalingId?: string) => ["utbetaling", utbetalingId],
+  utbetalingsLinjer: (utbetalingId?: string) => ["utbetaling", utbetalingId, "linje"],
+  utbetalingHistorikk: (utbetalingId?: string) => ["utbetaling", utbetalingId, "historikk"],
+  utbetalingBeregning: (filter: { navEnheter: string[] }, utbetalingId: string) => [
+    "utbetaling-beregning",
+    utbetalingId,
+    filter,
+    filter.navEnheter.join(","),
   ],
   kontonummerArrangor: (orgnr: string) => ["kontonummer", orgnr],
 };

@@ -1,8 +1,13 @@
 import { Tag, TagProps } from "@navikt/ds-react";
+import classNames from "classnames";
 
-export function StatusTag({ children, ...rest }: TagProps) {
+export function StatusTag({ children, className, ...rest }: TagProps) {
   return (
-    <Tag className="min-w-[140px] text-center whitespace-nowrap" size="small" {...rest}>
+    <Tag
+      className={classNames("min-w-[140px] text-center whitespace-nowrap", className)}
+      size="small"
+      {...rest}
+    >
       {children}
     </Tag>
   );

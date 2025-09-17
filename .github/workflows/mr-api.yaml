@@ -43,7 +43,7 @@ jobs:
       - name: Setup backend
         uses: ./.github/actions/setup-backend
       - name: Build with Gradle
-        run: ./gradlew :mulighetsrommet-api:build
+        run: ./gradlew :mulighetsrommet-api:check :mulighetsrommet-api:installDist
       - name: Build and push Docker image
         uses: nais/docker-build-push@v0
         id: docker-build-push

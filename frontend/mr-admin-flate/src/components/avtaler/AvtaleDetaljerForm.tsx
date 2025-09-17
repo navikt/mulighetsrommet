@@ -5,22 +5,13 @@ import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   Avtaletype,
-  OpsjonLoggRegistrert,
+  OpsjonLoggDto,
   OpsjonsmodellType,
   OpsjonStatus,
   Tiltakskode,
-  Toggles,
 } from "@mr/api-client-v2";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import {
-  HGrid,
-  List,
-  Select,
-  Textarea,
-  TextField,
-  UNSAFE_Combobox,
-  VStack,
-} from "@navikt/ds-react";
+import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -29,16 +20,13 @@ import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import AvtalePrisOgFaktureringForm from "./AvtalePrisOgFaktureringForm";
 import { AvtaleVarighet } from "./AvtaleVarighet";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
-export function AvtaleDetaljerForm({
-  opsjonerRegistrert,
-}: {
-  opsjonerRegistrert?: OpsjonLoggRegistrert[];
-  avtalenummer?: string;
-}) {
+interface AvtaleDetaljerFormProps {
+  opsjonerRegistrert?: OpsjonLoggDto[];
+}
+
+export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormProps) {
   const { data: administratorer } = useAvtaleAdministratorer();
   const { data: ansatt } = useHentAnsatt();
   const { data: tiltakstyper } = useTiltakstyper();
@@ -52,11 +40,6 @@ export function AvtaleDetaljerForm({
   } = useFormContext<AvtaleFormValues>();
   const tiltakskode = watch("tiltakskode");
   const watchedAdministratorer = watch("administratorer");
-
-  const { data: enableTilsagn } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [tiltakskode],
-  );
 
   const antallOpsjonerUtlost = (
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
@@ -130,7 +113,8 @@ export function AvtaleDetaljerForm({
                 onChange: (e) => {
                   setValue("amoKategorisering", null);
                   setValue("utdanningslop", null);
-                  setValue("prismodell", undefined);
+                  setValue("prismodell", undefined as any, { shouldValidate: true });
+                  setValue("satser", []);
 
                   const avtaletype = isTiltakskode(e.target.value)
                     ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
@@ -144,7 +128,7 @@ export function AvtaleDetaljerForm({
             >
               <option value="">-- Velg en --</option>
               {tiltakstyper.map((type) => (
-                <option key={type.tiltakskode} value={type.tiltakskode}>
+                <option key={type.tiltakskode} value={type.tiltakskode ?? undefined}>
                   {type.navn}
                 </option>
               ))}
@@ -169,20 +153,8 @@ export function AvtaleDetaljerForm({
           ) : null}
         </FormGroup>
         <FormGroup>
-          <AvtaleVarighet antallOpsjonerUtlost={antallOpsjonerUtlost} />
+          <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />
         </FormGroup>
-        {enableTilsagn ? (
-          <FormGroup>
-            <AvtalePrisOgFaktureringForm tiltakskode={tiltakskode} />
-          </FormGroup>
-        ) : (
-          <Textarea
-            size="small"
-            error={errors.prisbetingelser?.message}
-            label={avtaletekster.prisOgBetalingLabel}
-            {...register("prisbetingelser")}
-          />
-        )}
       </VStack>
       <VStack>
         <FormGroup>
@@ -191,6 +163,7 @@ export function AvtaleDetaljerForm({
             name="administratorer"
             render={({ field }) => (
               <UNSAFE_Combobox
+                size="small"
                 id="administratorer"
                 label={
                   <LabelWithHelpText

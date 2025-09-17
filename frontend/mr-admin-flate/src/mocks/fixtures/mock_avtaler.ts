@@ -1,7 +1,9 @@
 import {
-  AvbrytAvtaleAarsak,
   AvtaleDto,
+  AvtaleStatusType,
   Avtaletype,
+  DataElementStatusVariant,
+  EmbeddedTiltakstype,
   Opphav,
   OpsjonsmodellType,
   Prismodell,
@@ -9,15 +11,12 @@ import {
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
+import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
 
 export const mockAvtaler: AvtaleDto[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    tiltakstype: {
-      id: mockTiltakstyper.AVKLARAG.id,
-      navn: mockTiltakstyper.AVKLARAG.navn,
-      tiltakskode: mockTiltakstyper.AVKLARAG.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
     navn: "Testtiltak Varig",
     administratorer: [
       {
@@ -30,7 +29,7 @@ export const mockAvtaler: AvtaleDto[] = [
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -40,19 +39,20 @@ export const mockAvtaler: AvtaleDto[] = [
       kontaktpersoner: [
         {
           id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-          arrangorId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
           navn: "Ole Kjetil Martinsen",
           epost: "ole.kjetil.martinsen@arrangor.no",
           telefon: "90123456",
           beskrivelse: "Direktør",
-          ansvarligFor: [],
         },
       ],
     },
     startDato: "2021-08-02",
     sluttDato: "2023-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0300,
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
@@ -87,18 +87,14 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    tiltakstype: {
-      id: mockTiltakstyper.ARBFORB.id,
-      navn: mockTiltakstyper.ARBFORB.navn,
-      tiltakskode: mockTiltakstyper.ARBFORB.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -117,11 +113,13 @@ export const mockAvtaler: AvtaleDto[] = [
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
     status: {
-      type: "AVBRUTT",
-      aarsak: AvbrytAvtaleAarsak.FEILREGISTRERING,
-      beskrivelse:
-        "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-      tidspunkt: "2020-03-04T12:00:00",
+      type: AvtaleStatusType.AVBRUTT,
+      status: {
+        value: "Avbrutt",
+        variant: DataElementStatusVariant.SUCCESS,
+        description:
+          "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      },
     },
     arenaAnsvarligEnhet: mockEnheter._0400,
     kontorstruktur: [
@@ -151,18 +149,14 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Test Testesen",
       },
     ],
-    tiltakstype: {
-      id: mockTiltakstyper.INDOPPFAG.id,
-      navn: mockTiltakstyper.INDOPPFAG.navn,
-      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -173,7 +167,10 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
@@ -203,11 +200,7 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: {
-      id: mockTiltakstyper.GRUFAGYRKE.id,
-      navn: mockTiltakstyper.GRUFAGYRKE.navn,
-      tiltakskode: mockTiltakstyper.GRUFAGYRKE.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
     sakarkivNummer: "24/12345",
@@ -215,7 +208,7 @@ export const mockAvtaler: AvtaleDto[] = [
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -226,7 +219,10 @@ export const mockAvtaler: AvtaleDto[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
@@ -262,18 +258,14 @@ for (let i = 0; i < x; i++) {
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: {
-      id: mockTiltakstyper.INDOPPFAG.id,
-      navn: mockTiltakstyper.INDOPPFAG.navn,
-      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
-    },
+    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -284,7 +276,10 @@ for (let i = 0; i < x; i++) {
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    status: { type: "AKTIV" },
+    status: {
+      type: AvtaleStatusType.AKTIV,
+      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
+    },
     arenaAnsvarligEnhet: mockEnheter._0313,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
@@ -305,4 +300,16 @@ for (let i = 0; i < x; i++) {
       prisbetingelser: "Maskert prisbetingelser",
     },
   });
+}
+
+export function getEmbeddedTiltakstype(dto: TiltakstypeDto): EmbeddedTiltakstype {
+  if (!dto.tiltakskode) {
+    throw new Error("Tiltakskode mangler");
+  }
+
+  return {
+    id: dto.id,
+    navn: dto.navn,
+    tiltakskode: dto.tiltakskode,
+  };
 }

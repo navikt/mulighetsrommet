@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
@@ -59,7 +59,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             it.gjennomforing.sluttDato shouldBe AFT1.sluttDato
             it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
             it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
-            it.gjennomforing.status shouldBe GjennomforingStatus.GJENNOMFORES
+            it.gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
             it.gjennomforing.arena.shouldBeNull()
             it.gjennomforing.arrangor shouldBe DatavarehusTiltak.Arrangor(
                 organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,

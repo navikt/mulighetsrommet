@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { OppgaveType, Tiltakskode } from "@mr/api-client-v2";
+import { OppgaveType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";

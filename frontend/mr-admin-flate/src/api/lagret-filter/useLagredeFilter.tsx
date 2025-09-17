@@ -1,6 +1,10 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
-import { LagretFilter, LagretFilterService, LagretFilterType } from "@mr/api-client-v2";
-import { QueryKeys } from "../QueryKeys";
+import {
+  LagretFilter,
+  LagretFilterService,
+  LagretFilterType,
+} from "@tiltaksadministrasjon/api-client";
+import { QueryKeys } from "@/api/QueryKeys";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/hooks/useApiMutation";
 

@@ -1,15 +1,15 @@
-import { FeatureToggleArrangorService, Tiltakskode, Toggles } from "../../../api-client";
+import { FeatureToggleService, Tiltakskode, FeatureToggle } from "@api-client";
 
 interface Props {
   orgnr: string;
-  feature: Toggles;
+  feature: FeatureToggle;
   tiltakskoder: Tiltakskode[];
   headers: Record<string, string>;
 }
 
 export async function toggleIsEnabled(params: Props): Promise<boolean> {
   const { orgnr, feature, tiltakskoder, headers } = params;
-  const res = await FeatureToggleArrangorService.getFeatureToggleArrangor({
+  const res = await FeatureToggleService.getFeatureToggle({
     path: { orgnr },
     query: { feature, tiltakskoder },
     headers,

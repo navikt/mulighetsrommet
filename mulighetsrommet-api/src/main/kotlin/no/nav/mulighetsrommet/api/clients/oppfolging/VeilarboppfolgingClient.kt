@@ -212,10 +212,10 @@ data class OppfolgingPeriodeMinimalDTO(
 data class ManuellStatusDto(
     val erUnderManuellOppfolging: Boolean,
     val krrStatus: KrrStatus,
-) {
-    @Serializable
-    data class KrrStatus(
-        val kanVarsles: Boolean,
-        val erReservert: Boolean,
-    )
-}
+)
+
+@Serializable
+data class KrrStatus(
+    val kanVarsles: Boolean,
+    val erReservert: Boolean,
+)

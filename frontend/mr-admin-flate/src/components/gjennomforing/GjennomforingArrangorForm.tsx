@@ -3,8 +3,7 @@ import { Textarea, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  AvtaleArrangorHovedenhet,
-} from "@mr/api-client-v2";
+} from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
@@ -12,6 +11,8 @@ import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { AvtaleArrangorHovedenhet } from "@mr/api-client-v2";
+
 interface Props {
   arrangor: AvtaleArrangorHovedenhet;
   readOnly: boolean;
@@ -46,11 +47,11 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
           name="arrangorId"
           render={({ field }) => (
             <UNSAFE_Combobox
+              size="small"
               id="arrangorId"
               label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               placeholder="Velg underenhet for tiltaksarrangør"
               selectedOptions={arrangorOptions.filter((option) =>
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 field.value?.includes(option.value),
               )}
               name={field.name}
@@ -73,14 +74,12 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
             name="arrangorKontaktpersoner"
             render={({ field }) => (
               <UNSAFE_Combobox
+                size="small"
                 id="arrangorKontaktpersoner"
                 label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
                 placeholder="Velg kontaktpersoner"
                 isMultiSelect
-                selectedOptions={
-                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                  kontaktpersonOptions.filter((v) => field.value?.includes(v.value))
-                }
+                selectedOptions={kontaktpersonOptions.filter((v) => field.value?.includes(v.value))}
                 name={field.name}
                 error={errors.arrangorKontaktpersoner?.message}
                 options={kontaktpersonOptions}

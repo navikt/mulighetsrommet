@@ -61,7 +61,7 @@ data class VeilederflateTiltakGruppe(
 
 @Serializable
 data class VeilederflateTiltakGruppeStatus(
-    val type: GjennomforingStatus,
+    val type: GjennomforingStatusType,
     val beskrivelse: String,
 )
 

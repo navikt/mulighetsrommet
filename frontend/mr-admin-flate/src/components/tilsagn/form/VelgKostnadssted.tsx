@@ -1,10 +1,10 @@
-import { NavEnhetDto } from "@mr/api-client-v2";
+import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 
 interface Props {
-  kostnadssteder: NavEnhetDto[] | undefined;
+  kostnadssteder: NavEnhetDto[];
 }
 
 export function VelgKostnadssted({ kostnadssteder }: Props) {
@@ -19,7 +19,7 @@ export function VelgKostnadssted({ kostnadssteder }: Props) {
       {...register("kostnadssted")}
       options={
         kostnadssteder
-          ?.sort((a, b) => a.navn.localeCompare(b.navn))
+          .sort((a, b) => a.navn.localeCompare(b.navn))
           .map(({ navn, enhetsnummer }) => {
             return {
               value: enhetsnummer,

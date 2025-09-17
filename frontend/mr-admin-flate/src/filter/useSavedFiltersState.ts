@@ -3,7 +3,7 @@ import { useCallback, useEffect } from "react";
 import { dequal } from "dequal";
 import { FilterAction, FilterState } from "@/filter/filter-state";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
-import { LagretFilterType } from "@mr/api-client-v2";
+import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 
 export function useSavedFiltersState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,

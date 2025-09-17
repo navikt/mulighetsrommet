@@ -13,7 +13,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -27,9 +26,10 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatusDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
@@ -58,14 +58,14 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.get(Oppfolging1.id) should {
                     it.shouldNotBeNull()
                     it.id shouldBe Oppfolging1.id
-                    it.tiltakstype shouldBe GjennomforingDto.Tiltakstype(
+                    it.tiltakstype shouldBe Gjennomforing.Tiltakstype(
                         id = TiltakstypeFixtures.Oppfolging.id,
                         navn = TiltakstypeFixtures.Oppfolging.navn,
                         tiltakskode = Tiltakskode.OPPFOLGING,
                     )
                     it.navn shouldBe Oppfolging1.navn
                     it.tiltaksnummer shouldBe null
-                    it.arrangor shouldBe GjennomforingDto.ArrangorUnderenhet(
+                    it.arrangor shouldBe Gjennomforing.ArrangorUnderenhet(
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
@@ -75,12 +75,12 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
                     it.arenaAnsvarligEnhet shouldBe null
-                    it.status.type shouldBe GjennomforingStatus.GJENNOMFORES
+                    it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.administratorer shouldBe listOf(
-                        GjennomforingDto.Administrator(
+                        Gjennomforing.Administrator(
                             navIdent = NavIdent("DD1"),
                             navn = "Donald Duck",
                         ),
@@ -112,7 +112,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(gjennomforing)
 
                 queries.get(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                    GjennomforingDto.Administrator(
+                    Gjennomforing.Administrator(
                         navIdent = NavAnsattFixture.DonaldDuck.navIdent,
                         navn = "Donald Duck",
                     ),
@@ -253,6 +253,7 @@ class GjennomforingQueriesTest : FunSpec({
                 telefon = "22222222",
                 epost = "thomas@thetrain.co.uk",
                 beskrivelse = "beskrivelse",
+                ansvarligFor = listOf(),
             )
             val jens = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
@@ -261,6 +262,7 @@ class GjennomforingQueriesTest : FunSpec({
                 telefon = "22222224",
                 epost = "jens@theshark.co.uk",
                 beskrivelse = "beskrivelse2",
+                ansvarligFor = listOf(),
             )
 
             database.runAndRollback { session ->
@@ -273,7 +275,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactly listOf(thomas)
+                    it.arrangor.kontaktpersoner shouldContainExactly listOf(toGjennomforingArrangorKontaktperson(thomas))
                 }
 
                 queries.upsert(Oppfolging1.copy(arrangorKontaktpersoner = emptyList()))
@@ -287,7 +289,10 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
                 queries.get(Oppfolging1.id).shouldNotBeNull().should {
-                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(thomas, jens)
+                    it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                        toGjennomforingArrangorKontaktperson(thomas),
+                        toGjennomforingArrangorKontaktperson(jens),
+                    )
                 }
             }
         }
@@ -331,22 +336,40 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.upsert(Oppfolging1)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(id, GjennomforingStatus.AVBRUTT, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.ANNET), ":)"))
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avbrutt(
+                queries.setStatus(
+                    id,
+                    GjennomforingStatusType.AVBRUTT,
+                    tidspunkt,
+                    listOf(AvbrytGjennomforingAarsak.ANNET),
+                    ":)",
+                )
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Avbrutt(
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.ANNET),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.setStatus(id, GjennomforingStatus.AVLYST, tidspunkt, AarsakerOgForklaringRequest(listOf(AvbruttAarsak.FEILREGISTRERING), null))
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Avlyst(
+                queries.setStatus(
+                    id = id,
+                    status = GjennomforingStatusType.AVLYST,
                     tidspunkt = tidspunkt,
-                    aarsaker = listOf(AvbruttAarsak.FEILREGISTRERING),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                    forklaring = null,
+                )
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Avlyst(
+                    tidspunkt = tidspunkt,
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.setStatus(id, GjennomforingStatus.GJENNOMFORES, tidspunkt, null)
-                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatusDto.Gjennomfores
+                queries.setStatus(
+                    id = id,
+                    status = GjennomforingStatusType.GJENNOMFORES,
+                    tidspunkt = tidspunkt,
+                    aarsaker = null,
+                    forklaring = null,
+                )
+                queries.get(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Gjennomfores
             }
         }
 
@@ -434,19 +457,19 @@ class GjennomforingQueriesTest : FunSpec({
                 )
 
                 queries.get(Oppfolging1.id).shouldNotBeNull().stengt shouldContainExactly listOf(
-                    GjennomforingDto.StengtPeriode(
+                    Gjennomforing.StengtPeriode(
                         3,
                         LocalDate.of(2024, 12, 1),
                         LocalDate.of(2024, 12, 31),
                         "Forrige juleferie",
                     ),
-                    GjennomforingDto.StengtPeriode(
+                    Gjennomforing.StengtPeriode(
                         1,
                         LocalDate.of(2025, 1, 1),
                         LocalDate.of(2025, 1, 31),
                         "Januarferie",
                     ),
-                    GjennomforingDto.StengtPeriode(
+                    Gjennomforing.StengtPeriode(
                         2,
                         LocalDate.of(2025, 7, 1),
                         LocalDate.of(2025, 7, 31),
@@ -795,6 +818,7 @@ class GjennomforingQueriesTest : FunSpec({
             telefon = "",
             epost = "test@test.no",
             beskrivelse = "",
+            ansvarligFor = listOf(),
         )
 
         val kontaktperson2 = ArrangorKontaktperson(
@@ -804,6 +828,7 @@ class GjennomforingQueriesTest : FunSpec({
             telefon = "",
             epost = "test@test.no",
             beskrivelse = "",
+            ansvarligFor = listOf(),
         )
 
         val testDomain = MulighetsrommetTestDomain(
@@ -842,6 +867,14 @@ class GjennomforingQueriesTest : FunSpec({
     }
 })
 
-private infix fun Collection<GjennomforingDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = Gjennomforing.ArrangorKontaktperson(
+    id = kontaktperson.id,
+    navn = kontaktperson.navn,
+    beskrivelse = kontaktperson.beskrivelse,
+    telefon = kontaktperson.telefon,
+    epost = kontaktperson.epost,
+)
+
+private infix fun Collection<Gjennomforing>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }

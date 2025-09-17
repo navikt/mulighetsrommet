@@ -4,11 +4,11 @@ import { VStack } from "@navikt/ds-react";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { useParams } from "react-router";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 function useGjennomforingInfoData() {
-  const { gjennomforingId } = useParams();
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId!);
+  const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
+  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
   const { data: ansatt } = useHentAnsatt();
 
   return {

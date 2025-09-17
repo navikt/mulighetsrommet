@@ -12,11 +12,11 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import no.nav.amt.model.Melding
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.DeltakerOgPeriode
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateBeregning
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateTilsagnFilter
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrFlateUtbetalingStatus
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -55,14 +55,14 @@ class ArrangorflateServiceTest : FunSpec({
 
     lateinit var pdlClient: PdlClient
     lateinit var personService: PersonService
-    lateinit var arrangorflateService: ArrangorFlateService
+    lateinit var arrangorflateService: ArrangorflateService
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
         return requireNotNull(queries.utbetaling.get(id))
     }
 
     fun verifyForhandsgodkjentBeregning(
-        beregning: ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder,
+        beregning: ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed,
         expectedBelop: Int,
         expectedManedsverk: Double,
         expectedDeltakelserCount: Int,
@@ -80,7 +80,7 @@ class ArrangorflateServiceTest : FunSpec({
             hentPersonQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient),
             norg2Client = mockk(),
         )
-        arrangorflateService = ArrangorFlateService(database.db, personService, kontoregisterOrganisasjon)
+        arrangorflateService = ArrangorflateService(database.db, personService, kontoregisterOrganisasjon)
     }
 
     afterEach {
@@ -96,11 +96,11 @@ class ArrangorflateServiceTest : FunSpec({
 
         val forsteUtbetaling = result.aktive.first { it.id == utbetaling.id }
         forsteUtbetaling.belop shouldBe 10000
-        forsteUtbetaling.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        forsteUtbetaling.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
 
         val andreUtbetaling = result.aktive.first { it.id == friUtbetaling.id }
         andreUtbetaling.belop shouldBe 5000
-        andreUtbetaling.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        andreUtbetaling.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 
     test("getUtbetaling should return utbetaling by ID") {
@@ -109,7 +109,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
 
-        result.beregning.shouldBeInstanceOf<UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder>().should {
+        result.beregning.shouldBeInstanceOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed>().should {
             it.output.belop shouldBe 10000
         }
     }
@@ -124,7 +124,7 @@ class ArrangorflateServiceTest : FunSpec({
 
     test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
         val result = arrangorflateService.getTilsagn(
-            filter = ArrFlateTilsagnFilter(),
+            filter = ArrangorflateTilsagnFilter(),
             ArrangorflateTestUtils.underenhet.organisasjonsnummer,
         )
 
@@ -149,7 +149,7 @@ class ArrangorflateServiceTest : FunSpec({
         result shouldHaveSize 0
     }
 
-    test("mapUtbetalingToArrFlateUtbetaling should have status VENTER_PA_ENDRING") {
+    test("mapUtbetalingToArrangorflateUtbetaling should have status VENTER_PA_ENDRING") {
         // Setup deltakerforslag
         database.db.session {
             queries.deltakerForslag.upsert(
@@ -164,53 +164,53 @@ class ArrangorflateServiceTest : FunSpec({
                 ),
             )
         }
-        val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
+        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
 
         result.id shouldBe utbetaling.id
-        result.status shouldBe ArrFlateUtbetalingStatus.KREVER_ENDRING
+        result.status shouldBe ArrangorflateUtbetalingStatus.KREVER_ENDRING
 
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
         }
     }
 
-    test("mapUtbetalingToArrFlateUtbetaling should have status KLAR_FOR_GODKJENNING") {
-        val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
+    test("mapUtbetalingToArrangorflateUtbetaling should have status KLAR_FOR_GODKJENNING") {
+        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
         result.id shouldBe utbetaling.id
-        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 
-    test("mapUtbetalingToArrFlateUtbetaling should convert a fri utbetaling") {
-        val result = arrangorflateService.toArrFlateUtbetaling(arrangorflateService.getUtbetaling(friUtbetaling.id)!!)
+    test("mapUtbetalingToArrangorflateUtbetaling should convert a fri utbetaling") {
+        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(friUtbetaling.id)!!)
 
         result.id shouldBe friUtbetaling.id
-        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.Fri> {
+        result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.Fri> {
             it.belop shouldBe 5000
         }
     }
 
-    test("toArrFlateUtbetaling should map successfully with kanViseBeregning = true for recently approved utbetaling") {
+    test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = true for recently approved utbetaling") {
         val date = LocalDateTime.now()
         val godkjentAvArrangorUtbetaling = getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
-        val result = arrangorflateService.toArrFlateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
+        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
 
         result.shouldNotBeNull()
-        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
         }
         result.kanViseBeregning shouldBe true
     }
 
-    test("toArrFlateUtbetaling should map successfully with kanViseBeregning = false for 12 weeks old approved utbetaling") {
+    test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = false for 12 weeks old approved utbetaling") {
         val now = LocalDateTime.now()
         val godkjentAvArrangorUtbetaling = getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
-        val result = arrangorflateService.toArrFlateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = now)
+        val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = now)
 
         result.shouldNotBeNull()
-        result.status shouldBe ArrFlateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrFlateBeregning.PrisPerManedsverkMedDeltakelsesmengder> {
+        result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
             it.deltakelser[0].person.shouldBeNull()
         }

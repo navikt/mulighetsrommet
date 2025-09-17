@@ -15,7 +15,7 @@ env:
   TZ: Europe/Amsterdam
 
 jobs:
-  check-openapi:
+  ci:
     name: Check OpenAPI Spec Generation
     runs-on:
       labels: ubuntu-latest

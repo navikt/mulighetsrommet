@@ -1,10 +1,11 @@
-import { GjennomforingDto, TilsagnBeregningFri, TilsagnBeregningType } from "@mr/api-client-v2";
+import { GjennomforingDto } from "@mr/api-client-v2";
+import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
+import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
-import { DeepPartial, useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import {
   Alert,
   Button,
-  Heading,
   HStack,
   Label,
   Spacer,
@@ -12,29 +13,21 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { TilsagnBeregningPreview } from "@/components/tilsagn/form/TilsagnBeregningPreview";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { InferredTilsagn } from "./TilsagnSchema";
-
-type FriTilsagn = InferredTilsagn & { beregning: TilsagnBeregningFri };
+import { Metadata } from "@/components/detaljside/Metadata";
+import { tilsagnTekster } from "../TilsagnTekster";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 
 interface Props {
   gjennomforing: GjennomforingDto;
   onSuccess: () => void;
   onAvbryt: () => void;
-  defaultValues: DeepPartial<FriTilsagn>;
+  defaultValues: TilsagnRequest;
   regioner: string[];
 }
 
 export function TilsagnFormFri(props: Props) {
-  return (
-    <TilsagnForm
-      {...props}
-      beregningInput={<BeregningInputSkjema />}
-      beregningOutput={<BeregningOutputPreview />}
-    />
-  );
+  return <TilsagnForm {...props} beregningInput={<BeregningInputSkjema />} />;
 }
 
 function BeregningInputSkjema() {
@@ -42,24 +35,24 @@ function BeregningInputSkjema() {
     register,
     watch,
     formState: { errors },
-    setError,
     control,
-  } = useFormContext<FriTilsagn>();
-
+  } = useFormContext<TilsagnRequest>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
+
+  const prisbetingelser = watch("beregning.prisbetingelser");
 
   return (
     <VStack gap="4">
-      <Heading size="small">Prismodell - Annen avtalt pris</Heading>
-      {watch("beregning.prisbetingelser") && (
-        <Textarea
-          size="small"
-          label={avtaletekster.prisOgBetalingLabel}
-          readOnly
-          error={errors.beregning?.prisbetingelser?.message}
-          {...register("beregning.prisbetingelser")}
-        />
-      )}
+      <Metadata
+        header={tilsagnTekster.prismodell.label}
+        value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.FRI)}
+      />
+      <Textarea
+        size="small"
+        label={avtaletekster.prisOgBetalingLabel}
+        value={prisbetingelser ?? ""}
+        readOnly
+      />
       <Label size="small">Avtalte priser</Label>
       {fields.map((item, index) => (
         <HStack
@@ -72,28 +65,33 @@ function BeregningInputSkjema() {
           <Textarea
             size="small"
             label="Beskrivelse"
-            className="flex-3"
+            className="flex-20"
+            maxLength={100}
             error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
             {...register(`beregning.linjer.${index}.beskrivelse`)}
-            defaultValue={item.beskrivelse}
+            defaultValue={item.beskrivelse ?? ""}
           />
           <TextField
             size="small"
             type="number"
             label="Beløp"
-            className="flex-2"
+            className="w-26 flex-none"
             error={errors.beregning?.linjer?.[index]?.belop?.message}
-            {...register(`beregning.linjer.${index}.belop`, { valueAsNumber: true })}
-            defaultValue={item.belop}
+            {...register(`beregning.linjer.${index}.belop`, {
+              setValueAs: (v) => (v === "" ? null : Number(v)),
+            })}
+            defaultValue={item.belop ?? 0}
           />
           <TextField
             size="small"
             type="number"
             label="Antall"
-            className="flex-1"
+            className="w-20 flex-none"
             error={errors.beregning?.linjer?.[index]?.antall?.message}
-            {...register(`beregning.linjer.${index}.antall`, { valueAsNumber: true })}
-            defaultValue={item.antall}
+            {...register(`beregning.linjer.${index}.antall`, {
+              setValueAs: (v) => (v === "" ? null : Number(v)),
+            })}
+            defaultValue={item.antall ?? 0}
           />
           <input
             type="hidden"
@@ -105,7 +103,7 @@ function BeregningInputSkjema() {
             size="small"
             variant="secondary-neutral"
             icon={<TrashIcon aria-hidden />}
-            className="max-h-min self-center"
+            className="max-h-min mt-7"
             onClick={() => remove(index)}
           >
             Fjern
@@ -122,31 +120,14 @@ function BeregningInputSkjema() {
         variant="tertiary"
         icon={<PlusIcon aria-hidden />}
         className="self-end"
-        onClick={() => {
-          setError("beregning.linjer", {});
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
           append({ id: window.crypto.randomUUID(), beskrivelse: "", belop: 0, antall: 1 });
         }}
       >
         Legg til ny pris
       </Button>
     </VStack>
-  );
-}
-
-function BeregningOutputPreview() {
-  const { watch } = useFormContext<FriTilsagn>();
-
-  const values = watch();
-  const linjer = values.beregning.linjer;
-  return (
-    <>
-      <TilsagnBeregningPreview
-        input={{
-          type: TilsagnBeregningType.FRI,
-          linjer: linjer,
-          prisbetingelser: values.beregning.prisbetingelser,
-        }}
-      />
-    </>
   );
 }

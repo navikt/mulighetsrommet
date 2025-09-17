@@ -1,4 +1,3 @@
-import { ArrangorTil } from "@mr/api-client-v2";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
@@ -7,6 +6,7 @@ import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: AvtaleFilterType;
@@ -25,7 +25,7 @@ export function AvtaleFilterTags({
 }: Props) {
   const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE, {
+  const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
   });
 

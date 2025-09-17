@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorFlateService
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
@@ -72,6 +72,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateDeltakerKafkaConsume
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplicateFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
@@ -362,8 +363,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
         )
     }
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
@@ -386,7 +385,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { GenererUtbetalingService(get(), get()) }
+    single { GenererUtbetalingService(config = appConfig.okonomi, get(), get()) }
     single {
         UtbetalingService(
             UtbetalingService.Config(
@@ -401,8 +400,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { PersonService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
-    single { AvtaleValidator(get(), get(), get()) }
-    single { GjennomforingValidator(get()) }
+    single { AvtaleValidator(get(), get(), get(), get()) }
+    single { GjennomforingValidator(get(), get()) }
     single { LagretFilterService(get()) }
     single {
         TilsagnService(
@@ -416,7 +415,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
-    single { ArrangorFlateService(get(), get(), get()) }
+    single { ArrangorflateService(get(), get(), get()) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,
@@ -449,6 +448,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
+    single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -479,6 +479,7 @@ private fun tasks(config: AppConfig) = module {
         val generateUtbetaling: GenerateUtbetaling by inject()
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: OppdaterUtbetalingBeregning by inject()
+        val beregnUtbetaling: BeregnUtbetaling by inject()
 
         val db: Database by inject()
 
@@ -491,6 +492,7 @@ private fun tasks(config: AppConfig) = module {
                 initialLoadTiltakstyper.task,
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
+                beregnUtbetaling.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

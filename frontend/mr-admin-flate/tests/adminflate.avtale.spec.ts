@@ -17,6 +17,12 @@ const fyllInnAvtale = async (page: Page) => {
 
   await page.getByRole("button", { name: "Neste" }).click();
 
+  await page
+    .getByLabel("Prismodell")
+    .selectOption({ value: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK" });
+
+  await page.getByRole("button", { name: "Neste" }).click();
+
   await page.getByRole("checkbox", { name: "Velg alle" }).check();
   await page.locator("input#bekreft-personopplysninger").check();
 
@@ -36,11 +42,4 @@ test("Opprett ny avtale AFT", async ({ page }) => {
   await page.click("input#navKontorer");
   await page.keyboard.press("Enter");
   await page.locator('button:has-text("Opprett avtale")').click();
-
-  const response = await page.waitForResponse(
-    (response) => response.url().includes("/intern/avtaler") && response.status() === 200,
-  );
-
-  const { id } = await response.json();
-  await page.goto(`/avtaler/${id}`);
 });

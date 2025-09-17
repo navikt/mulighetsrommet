@@ -1,15 +1,15 @@
 import { Button, ErrorSummary, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { ArrangorflateService, FieldError, Tilskuddstype } from "api-client";
 import {
+  ActionFunctionArgs,
+  Form,
+  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
-  useLoaderData,
-  useRevalidator,
-  Link as ReactRouterLink,
-  Form,
-  ActionFunctionArgs,
   redirect,
   useActionData,
+  useLoaderData,
+  useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
@@ -52,7 +52,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     sessionKid = session.get("kid");
   }
 
-  const [{ data: kontonummer, error: kontonummerError }] = await Promise.all([
+  const [{ data, error: kontonummerError }] = await Promise.all([
     ArrangorflateService.getKontonummer({
       path: { orgnr },
       headers: await apiHeaders(request),
@@ -63,7 +63,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { kontonummer, sessionBelop, sessionKid };
+  return { kontonummer: data.kontonummer, sessionBelop, sessionKid };
 };
 
 interface ActionData {

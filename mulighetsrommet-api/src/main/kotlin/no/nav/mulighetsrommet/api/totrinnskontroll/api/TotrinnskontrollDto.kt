@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.totrinnskontroll.api
 
-import kotlinx.serialization.SerialName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
@@ -10,7 +11,9 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("type")
 sealed class TotrinnskontrollDto {
     abstract val behandletAv: AgentDto
     abstract val behandletTidspunkt: LocalDateTime
@@ -18,18 +21,15 @@ sealed class TotrinnskontrollDto {
     abstract val forklaring: String?
 
     @Serializable
-    @SerialName("TIL_BESLUTNING")
     data class TilBeslutning(
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
         override val aarsaker: List<String>,
         override val forklaring: String?,
-        val kanBesluttes: Boolean,
     ) : TotrinnskontrollDto()
 
     @Serializable
-    @SerialName("BESLUTTET")
     data class Besluttet(
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
@@ -43,15 +43,12 @@ sealed class TotrinnskontrollDto {
     ) : TotrinnskontrollDto()
 }
 
-fun Totrinnskontroll.toDto(
-    kanBesluttes: Boolean,
-) = when {
+fun Totrinnskontroll.toDto() = when {
     besluttetAv == null -> TilBeslutning(
         behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
         behandletTidspunkt = behandletTidspunkt,
         aarsaker = aarsaker,
         forklaring = forklaring,
-        kanBesluttes = kanBesluttes,
     )
 
     else -> Besluttet(
@@ -66,30 +63,15 @@ fun Totrinnskontroll.toDto(
 }
 
 @Serializable
-sealed class AgentDto {
-    @Serializable
-    @SerialName("NAV_ANSATT")
-    data class NavAnsatt(
-        val navIdent: NavIdent,
-        val navn: String?,
-    ) : AgentDto()
-
-    @Serializable
-    @SerialName("ARRANGOR")
-    data object Arrangor : AgentDto()
-
-    @Serializable
-    @SerialName("SYSTEM")
-    data class System(
-        val navn: String,
-    ) : AgentDto()
-
+data class AgentDto(
+    val navn: String,
+) {
     companion object {
         fun fromAgent(agent: Agent, navAnsattNavn: String?) = when (agent) {
-            is no.nav.mulighetsrommet.model.Arrangor -> Arrangor
-            is Tiltaksadministrasjon -> System("Tiltaksadministrasjon")
-            is Arena -> System("Arena")
-            is NavIdent -> NavAnsatt(agent, navAnsattNavn)
+            is Arrangor -> AgentDto("Arrangør")
+            is Tiltaksadministrasjon -> AgentDto("Tiltaksadministrasjon")
+            is Arena -> AgentDto("Arena")
+            is NavIdent -> AgentDto(navAnsattNavn ?: agent.value)
         }
     }
 }

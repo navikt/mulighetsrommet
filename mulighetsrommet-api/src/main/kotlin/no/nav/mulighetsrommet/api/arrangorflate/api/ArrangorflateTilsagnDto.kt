@@ -11,14 +11,21 @@ import java.util.*
 data class ArrangorflateTilsagnDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val gjennomforing: ArrangorflateGjennomforingInfo,
-    val bruktBelop: Int,
-    val gjenstaendeBelop: Int,
     val tiltakstype: ArrangorflateTiltakstype,
+    val gjennomforing: ArrangorflateGjennomforingInfo,
+    val arrangor: ArrangorflateArrangor,
     val type: TilsagnType,
     val periode: Periode,
-    val beregning: Details,
-    val arrangor: ArrangorflateArrangor,
     val status: TilsagnStatus,
+    val bruktBelop: Int,
+    val gjenstaendeBelop: Int,
+    val beregning: Details,
+    val bestillingsnummer: String,
+)
+
+@Serializable
+data class ArrangorflateTilsagnSummary(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val bestillingsnummer: String,
 )

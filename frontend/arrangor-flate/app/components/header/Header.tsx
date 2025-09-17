@@ -1,11 +1,11 @@
 import { Link } from "react-router";
-import { Arrangor } from "api-client";
+import { ArrangorflateArrangor } from "api-client";
 import { Heading, HStack } from "@navikt/ds-react";
 import { HeaderIcon } from "./HeaderIcon";
 import { Arrangorvelger } from "../arrangorvelger/Arrangorvelger";
 
 interface Props {
-  arrangorer: Arrangor[];
+  arrangorer: ArrangorflateArrangor[];
 }
 
 export function Header({ arrangorer }: Props) {

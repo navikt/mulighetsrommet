@@ -4,9 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
@@ -15,7 +13,6 @@ import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.*
-import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -46,7 +43,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
-                antall_plasser,
                 opphav,
                 beskrivelse,
                 faneinnhold,
@@ -67,7 +63,6 @@ class AvtaleQueries(private val session: Session) {
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
-                :antall_plasser,
                 :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
@@ -87,7 +82,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
-                antall_plasser              = excluded.antall_plasser,
                 opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
@@ -229,26 +223,61 @@ class AvtaleQueries(private val session: Session) {
             batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
 
+        upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
+    }
+
+    fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+        upsertPrismodell(id, prismodell = dbo.prismodell, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
+    }
+
+    private fun Session.upsertPrismodell(
+        id: UUID,
+        prismodell: Prismodell,
+        prisbetingelser: String?,
+        satser: List<AvtaltSats>,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale set
+                prisbetingelser = :prisbetingelser,
+                prismodell = :prismodell::prismodell
+            where id = :id::uuid
+        """.trimIndent()
+
+        execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "prismodell" to prismodell.name,
+                    "prisbetingelser" to prisbetingelser,
+                ),
+            ),
+        )
+
         @Language("PostgreSQL")
         val deleteSatser = """
             delete from avtale_sats
             where avtale_id = ?::uuid
         """.trimIndent()
-        execute(queryOf(deleteSatser, avtale.id))
+        execute(queryOf(deleteSatser, id))
 
         @Language("PostgreSQL")
         val insertSats = """
-            insert into avtale_sats (avtale_id, periode, sats)
-            values (:avtale_id::uuid, :periode::daterange, :sats)
+            insert into avtale_sats (avtale_id, gjelder_fra, sats)
+            values (:avtale_id::uuid, :gjelder_fra::date, :sats)
         """.trimIndent()
-        val satser = avtale.satser.map {
-            mapOf(
-                "avtale_id" to avtale.id,
-                "periode" to it.periode.toDaterange(),
-                "sats" to it.sats,
-            )
-        }
-        batchPreparedNamedStatement(insertSats, satser)
+
+        batchPreparedNamedStatement(
+            insertSats,
+            satser.map {
+                mapOf(
+                    "avtale_id" to id,
+                    "gjelder_fra" to it.gjelderFra,
+                    "sats" to it.sats,
+                )
+            },
+        )
     }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {
@@ -298,14 +327,13 @@ class AvtaleQueries(private val session: Session) {
                                            avtaletype               = excluded.avtaletype,
                                            prismodell               = coalesce(avtale.prismodell, excluded.prismodell),
                                            prisbetingelser          = excluded.prisbetingelser,
-                                           antall_plasser           = excluded.antall_plasser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
         """.trimIndent()
 
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
     }
 
-    fun get(id: UUID): AvtaleDto? = with(session) {
+    fun get(id: UUID): Avtale? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -313,21 +341,21 @@ class AvtaleQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toAvtaleDto() }
+        return single(queryOf(query, id)) { it.toAvtale() }
     }
 
     fun getAll(
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<AvtaleStatus> = emptyList(),
+        statuser: List<AvtaleStatusType> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<NavEnhetNummer> = emptyList(),
         sortering: String? = null,
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
         personvernBekreftet: Boolean? = null,
-    ): PaginatedResult<AvtaleDto> = with(session) {
+    ): PaginatedResult<Avtale> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -379,15 +407,16 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toAvtaleDto() }
+            .mapPaginated { it.toAvtale() }
             .runWithSession(this)
     }
 
     fun setStatus(
         id: UUID,
-        status: AvtaleStatus,
+        status: AvtaleStatusType,
         tidspunkt: LocalDateTime?,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbruttAarsak>?,
+        aarsaker: List<AvbrytAvtaleAarsak>?,
+        forklaring: String?,
     ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -403,8 +432,8 @@ class AvtaleQueries(private val session: Session) {
             "id" to id,
             "status" to status.name,
             "tidspunkt" to tidspunkt,
-            "aarsaker" to aarsakerOgForklaring?.aarsaker?.let { session.createTextArray(it.map { it.name }) },
-            "forklaring" to aarsakerOgForklaring?.forklaring,
+            "aarsaker" to aarsaker?.let { session.createTextArray(it) },
+            "forklaring" to forklaring,
         )
         return update(queryOf(query, params))
     }
@@ -478,7 +507,6 @@ class AvtaleQueries(private val session: Session) {
         "status" to status.name,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
-        "antall_plasser" to antallPlasser,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
@@ -505,9 +533,9 @@ class AvtaleQueries(private val session: Session) {
             "start_dato" to startDato,
             "slutt_dato" to sluttDato,
             "status" to when (avslutningsstatus) {
-                Avslutningsstatus.IKKE_AVSLUTTET -> AvtaleStatus.AKTIV
-                Avslutningsstatus.AVSLUTTET -> AvtaleStatus.AVSLUTTET
-                Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvtaleStatus.AVBRUTT
+                Avslutningsstatus.IKKE_AVSLUTTET -> AvtaleStatusType.AKTIV
+                Avslutningsstatus.AVSLUTTET -> AvtaleStatusType.AVSLUTTET
+                Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvtaleStatusType.AVBRUTT
             }.name,
             "opsjonsmodell" to when (avtaletype) {
                 Avtaletype.FORHANDSGODKJENT, Avtaletype.OFFENTLIG_OFFENTLIG -> OpsjonsmodellType.VALGFRI_SLUTTDATO
@@ -526,14 +554,14 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    private fun Row.toAvtaleDto(): AvtaleDto {
+    private fun Row.toAvtale(): Avtale {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
         val personopplysninger = stringOrNull("personopplysninger_json")
             ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
             ?: emptyList()
         val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<AvtaleDto.Administrator>>(it) }
+            ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
             ?: emptyList()
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
@@ -541,7 +569,7 @@ class AvtaleQueries(private val session: Session) {
         val kontorstruktur = fromNavEnheter(navEnheter)
 
         val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
-            ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggRegistrert>>(it) }
+            ?.let { Json.decodeFromString<List<Avtale.OpsjonLoggDto>>(it) }
             ?: emptyList()
 
         val opsjonsmodell = Opsjonsmodell(
@@ -555,14 +583,14 @@ class AvtaleQueries(private val session: Session) {
         val utdanningslop = stringOrNull("utdanningslop_json")
             ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 
-        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let {
+        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
             val underenheter = stringOrNull("arrangor_underenheter_json")
-                ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
+                ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
                 ?: emptyList()
             val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-                ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) } ?: emptyList()
-            AvtaleDto.ArrangorHovedenhet(
-                id = it,
+                ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) } ?: emptyList()
+            Avtale.ArrangorHovedenhet(
+                id = id,
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
                 navn = string("arrangor_hovedenhet_navn"),
                 slettet = boolean("arrangor_hovedenhet_slettet"),
@@ -576,21 +604,41 @@ class AvtaleQueries(private val session: Session) {
             ?: emptyList()
 
         val prismodell = when (Prismodell.valueOf(string("prismodell"))) {
-            Prismodell.ANNEN_AVTALT_PRIS -> AvtaleDto.PrismodellDto.AnnenAvtaltPris(
+            Prismodell.ANNEN_AVTALT_PRIS -> Avtale.PrismodellDto.AnnenAvtaltPris(
                 prisbetingelser = stringOrNull("prisbetingelser"),
             )
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.ForhandsgodkjentPrisPerManedsverk
-            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerManedsverk(
+
+            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Avtale.PrismodellDto.ForhandsgodkjentPrisPerManedsverk
+
+            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> Avtale.PrismodellDto.AvtaltPrisPerManedsverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+                satser = satser.toDto(),
             )
-            Prismodell.AVTALT_PRIS_PER_UKESVERK -> AvtaleDto.PrismodellDto.AvtaltPrisPerUkesverk(
+
+            Prismodell.AVTALT_PRIS_PER_UKESVERK -> Avtale.PrismodellDto.AvtaltPrisPerUkesverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.map { AvtaltSatsDto.fromAvtaltSats(it) },
+                satser = satser.toDto(),
+            )
+
+            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Avtale.PrismodellDto.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.toDto(),
             )
         }
 
-        return AvtaleDto(
+        val status = when (AvtaleStatusType.valueOf(string("status"))) {
+            AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
+            AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
+            AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
+            AvtaleStatusType.AVBRUTT -> {
+                AvtaleStatus.Avbrutt(
+                    localDateTime("avbrutt_tidspunkt"),
+                    arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytAvtaleAarsak.valueOf(it) } ?: emptyList(),
+                    stringOrNull("avbrutt_forklaring"),
+                )
+            }
+        }
+        return Avtale(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
@@ -599,13 +647,7 @@ class AvtaleQueries(private val session: Session) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            status = AvtaleStatusDto.fromString(
-                string("status"),
-                localDateTimeOrNull("avbrutt_tidspunkt"),
-                arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbruttAarsak.valueOf(it) } ?: emptyList(),
-                stringOrNull("avbrutt_forklaring"),
-            ),
-            antallPlasser = intOrNull("antall_plasser"),
+            status = status,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
@@ -617,7 +659,7 @@ class AvtaleQueries(private val session: Session) {
                     enhetsnummer = it,
                 )
             },
-            tiltakstype = AvtaleDto.Tiltakstype(
+            tiltakstype = Avtale.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
@@ -625,7 +667,7 @@ class AvtaleQueries(private val session: Session) {
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
             opsjonsmodell = opsjonsmodell,
-            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.registrertDato },
+            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
             prismodell = prismodell,
@@ -634,7 +676,7 @@ class AvtaleQueries(private val session: Session) {
 }
 
 fun Session.createArrayOfAvtaleStatus(
-    avtaletypes: List<AvtaleStatus>,
+    avtaletypes: List<AvtaleStatusType>,
 ): Array = createArrayOf("avtale_status", avtaletypes)
 
 fun Session.createArrayOfAvtaletype(

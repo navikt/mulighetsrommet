@@ -8,8 +8,8 @@ export interface ControlledDateInputProps {
   readOnly?: boolean;
   fromDate?: Date;
   toDate?: Date;
-  onChange: (date: string) => void;
-  defaultSelected: string | undefined | null;
+  onChange: (date: string | null) => void;
+  defaultSelected?: string | null;
   error?: string;
   size?: "small" | "medium";
   placeholder?: string;
@@ -35,7 +35,7 @@ export const ControlledDateInput = ({
 
   const { datepickerProps, inputProps } = useDatepicker({
     onDateChange: (val) => {
-      onChange(yyyyMMddFormatting(val) ?? "");
+      onChange(yyyyMMddFormatting(val) ?? null);
     },
     onValidate: (val) => {
       setUgyldigDatoError("");

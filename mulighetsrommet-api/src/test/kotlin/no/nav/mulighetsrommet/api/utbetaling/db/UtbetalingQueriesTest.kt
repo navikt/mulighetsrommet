@@ -126,8 +126,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-                    input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+                val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                         sats = 20_205,
                         periode = periode,
                         stengt = setOf(
@@ -165,7 +165,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+                    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                         belop = 100_000,
                         deltakelser = setOf(
                             DeltakelseManedsverk(deltakelse1Id, 1.0),
@@ -196,14 +196,14 @@ class UtbetalingQueriesTest : FunSpec({
                     deltakelseId = UUID.randomUUID(),
                     perioder = listOf(deltakelsePeriode, deltakelsePeriode),
                 )
-                val beregning = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder(
-                    input = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Input(
+                val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                         periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
                         sats = 20_205,
                         stengt = setOf(),
                         deltakelser = setOf(deltakelse),
                     ),
-                    output = UtbetalingBeregningPrisPerManedsverkMedDeltakelsesmengder.Output(
+                    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                         belop = 0,
                         deltakelser = setOf(),
                     ),

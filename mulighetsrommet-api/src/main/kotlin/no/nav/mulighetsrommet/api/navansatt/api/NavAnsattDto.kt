@@ -19,7 +19,7 @@ data class NavAnsattDto(
     val hovedenhet: Hovedenhet,
     val mobilnummer: String?,
     val epost: String,
-    val roller: Set<Rolle>,
+    val roller: List<NavAnsattRolleDto>,
 ) {
     @Serializable
     data class Hovedenhet(
@@ -39,7 +39,10 @@ data class NavAnsattDto(
             ),
             mobilnummer = ansatt.mobilnummer,
             epost = ansatt.epost,
-            roller = ansatt.roller.map { it.rolle }.toSet(),
+            roller = ansatt.roller
+                .map { NavAnsattRolleDto(rolle = it.rolle, navn = it.rolle.visningsnavn) }
+                .sortedBy { it.rolle },
+
         )
 
         fun fromEntraNavAnsatt(dto: EntraNavAnsatt): NavAnsattDto = NavAnsattDto(
@@ -53,7 +56,13 @@ data class NavAnsattDto(
             ),
             mobilnummer = dto.mobilnummer,
             epost = dto.epost,
-            roller = setOf(),
+            roller = listOf(),
         )
     }
 }
+
+@Serializable
+data class NavAnsattRolleDto(
+    val rolle: Rolle,
+    val navn: String,
+)

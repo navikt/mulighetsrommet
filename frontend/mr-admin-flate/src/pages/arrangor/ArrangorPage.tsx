@@ -6,13 +6,10 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { Accordion } from "@navikt/ds-react";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function ArrangorPage() {
-  const { arrangorId } = useParams();
-  if (!arrangorId) {
-    throw Error("Fant ikke arrangorId i route");
-  }
+  const { arrangorId } = useRequiredParams(["arrangorId"]);
 
   const { data: arrangor } = useArrangorHovedenhet(arrangorId);
   const [openHovedenhet, setOpenHovedenhet] = useState(true);

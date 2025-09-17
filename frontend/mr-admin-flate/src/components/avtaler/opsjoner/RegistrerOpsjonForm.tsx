@@ -1,11 +1,13 @@
 import { Alert, Radio } from "@navikt/ds-react";
 import { AvtaleDto } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
-import { addYear } from "@/utils/Utils";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
-import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
+import {
+  OpprettOpsjonLoggRequest,
+  OpprettOpsjonLoggRequestType,
+} from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   avtale: AvtaleDto;
@@ -19,9 +21,8 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
     watch,
     register,
     setValue,
-    getValues,
     formState: { errors },
-  } = useFormContext<InferredRegistrerOpsjonSchema>();
+  } = useFormContext<OpprettOpsjonLoggRequest>();
 
   if (!maksVarighetForOpsjon || !sluttdato) {
     return (
@@ -32,18 +33,19 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
   }
 
   return (
-    <div className="bg-surface-selected p-4 rounded-lg">
-      <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
-        <Radio value="Opsjon_skal_ikke_utloses">Avklart at opsjon ikke skal utløses</Radio>
-        <Radio
-          value="1"
-          disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
-        >
+    <div className="bg-surface-subtle p-4 rounded-lg">
+      <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("type")}>
+        <Radio value={OpprettOpsjonLoggRequestType.SKAL_IKKE_UTLOSE_OPSJON}>
+          Avklart at opsjon ikke skal utløses
+        </Radio>
+        <Radio value={OpprettOpsjonLoggRequestType.ETT_AAR}>
           + 1 år (Forleng til: {formaterDato(addDuration(new Date(sluttdato), { years: 1 }))})
         </Radio>
-        <Radio value="Annet">Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})</Radio>
+        <Radio value={OpprettOpsjonLoggRequestType.CUSTOM_LENGDE}>
+          Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})
+        </Radio>
       </ControlledRadioGroup>
-      {watch("opsjonsvalg") === "Annet" && (
+      {watch("type") === OpprettOpsjonLoggRequestType.CUSTOM_LENGDE && (
         <ControlledDateInput
           size="small"
           label={"Velg ny sluttdato"}
@@ -53,9 +55,9 @@ export function RegistrerOpsjonForm({ avtale }: Props) {
               : new Date()
           }
           toDate={new Date(maksVarighetForOpsjon)}
-          defaultSelected={getValues("opsjonsdatoValgt")}
-          error={errors.opsjonsdatoValgt?.message}
-          onChange={(val) => setValue("opsjonsdatoValgt", val)}
+          {...register("nySluttDato")}
+          error={errors.nySluttDato?.message}
+          onChange={(val) => setValue("nySluttDato", val)}
         />
       )}
     </div>

@@ -1,12 +1,12 @@
 import { formaterPeriode, subDuration } from "@mr/frontend-common/utils/date";
 import { ParasolBeachIcon, PersonIcon } from "@navikt/aksel-icons";
 import { Timeline } from "@navikt/ds-react";
-import { ArrFlateBeregningDeltakelse, Periode, UtbetalingStengtPeriode } from "api-client";
+import { ArrangorflateBeregningDeltakelse, Periode, StengtPeriode } from "@api-client";
 
 interface DeltakelseTimelineProps {
   utbetalingsperiode: Periode;
-  stengt: UtbetalingStengtPeriode[];
-  deltakelse: ArrFlateBeregningDeltakelse;
+  stengt: StengtPeriode[];
+  deltakelse: ArrangorflateBeregningDeltakelse;
 }
 
 export function DeltakelseTimeline({
@@ -63,9 +63,9 @@ interface TimelinePeriodeData {
   label: string;
 }
 
-function perioder(deltakelse: ArrFlateBeregningDeltakelse): TimelinePeriodeData[] {
+function perioder(deltakelse: ArrangorflateBeregningDeltakelse): TimelinePeriodeData[] {
   switch (deltakelse.type) {
-    case "PRIS_PER_MANEDSVERK_MED_DELTAKELSESMENGDER": {
+    case "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed": {
       return deltakelse.perioderMedDeltakelsesmengde.map((p) => {
         const start = new Date(p.periode.start);
         const end = subDuration(new Date(p.periode.slutt), { days: 1 })!;
@@ -79,8 +79,8 @@ function perioder(deltakelse: ArrFlateBeregningDeltakelse): TimelinePeriodeData[
         };
       });
     }
-    case "PRIS_PER_MANEDSVERK":
-    case "PRIS_PER_UKESVERK": {
+    case "ArrangorflateBeregningDeltakelsePrisPerManedsverk":
+    case "ArrangorflateBeregningDeltakelsePrisPerUkesverk": {
       const start = new Date(deltakelse.periode.start);
       const end = subDuration(new Date(deltakelse.periode.slutt), { days: 1 })!;
       const label = formaterPeriode(deltakelse.periode);
@@ -94,5 +94,7 @@ function perioder(deltakelse: ArrFlateBeregningDeltakelse): TimelinePeriodeData[
         },
       ];
     }
+    case undefined:
+      throw new Error('"type" mangler fra deltakelse');
   }
 }

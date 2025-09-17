@@ -9,11 +9,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
+import no.nav.mulighetsrommet.api.avtale.mapper.prismodell
+import no.nav.mulighetsrommet.api.avtale.mapper.satser
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
@@ -107,11 +112,11 @@ class GenerateValidationReport(
         return workbook
     }
 
-    private suspend fun validateAvtaler(): Map<AvtaleDto, List<FieldError>> = db.session {
+    private suspend fun validateAvtaler(): Map<Avtale, List<FieldError>> = db.session {
         buildMap {
-            paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) {
-                avtaleValidator.validateCreateAvtale(AvtaleDboMapper.fromAvtaleDto(it)).onLeft { validationErrors ->
-                    put(it, validationErrors)
+            paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
+                avtaleValidator.validate(dto.toAvtaleRequest(), dto).onLeft { validationErrors ->
+                    put(dto, validationErrors)
                 }
             }
         }
@@ -119,7 +124,7 @@ class GenerateValidationReport(
 
     private fun createAvtalerSheet(
         workbook: XSSFWorkbook,
-        result: Map<AvtaleDto, List<FieldError>>,
+        result: Map<Avtale, List<FieldError>>,
     ) {
         val workSheet = workbook.createSheet("Avtaler")
         createHeader(workSheet)
@@ -132,7 +137,7 @@ class GenerateValidationReport(
         }
     }
 
-    private suspend fun validateGjennomforinger(): Map<GjennomforingDto, List<FieldError>> = db.session {
+    private suspend fun validateGjennomforinger(): Map<Gjennomforing, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
                 queries.gjennomforing.getAll(
@@ -140,7 +145,7 @@ class GenerateValidationReport(
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                val dbo = GjennomforingDboMapper.fromGjennomforingDto(it)
+                val dbo = GjennomforingDboMapper.fromGjennomforing(it)
                 gjennomforingValidator.validate(dbo, it).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
@@ -150,7 +155,7 @@ class GenerateValidationReport(
 
     private fun createGjennomforingerSheet(
         workbook: XSSFWorkbook,
-        result: Map<GjennomforingDto, List<FieldError>>,
+        result: Map<Gjennomforing, List<FieldError>>,
     ) {
         val workSheet = workbook.createSheet("Gjennomføringer")
         createHeader(workSheet)
@@ -191,3 +196,41 @@ class GenerateValidationReport(
         row.createCell(5, CellType.STRING).setCellValue(error.detail)
     }
 }
+
+fun Avtale.toAvtaleRequest() = AvtaleRequest(
+    id = this.id,
+    navn = this.navn,
+    tiltakskode = this.tiltakstype.tiltakskode,
+    arrangor = this.arrangor?.let {
+        AvtaleRequest.Arrangor(
+            hovedenhet = it.organisasjonsnummer,
+            underenheter = it.underenheter.map { it.organisasjonsnummer },
+            kontaktpersoner = it.kontaktpersoner.map { it.id },
+        )
+    },
+    avtalenummer = this.avtalenummer,
+    sakarkivNummer = this.sakarkivNummer,
+    startDato = this.startDato,
+    sluttDato = this.sluttDato,
+    administratorer = this.administratorer.map { it.navIdent },
+    avtaletype = this.avtaletype,
+    navEnheter = this.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } },
+    beskrivelse = this.beskrivelse,
+    faneinnhold = this.faneinnhold,
+    personopplysninger = this.personopplysninger,
+    personvernBekreftet = this.personvernBekreftet,
+    opsjonsmodell = this.opsjonsmodell,
+    amoKategorisering = this.amoKategorisering,
+    utdanningslop = this.utdanningslop?.toDbo(),
+    prismodell = PrismodellRequest(
+        type = this.prismodell.prismodell(),
+        satser = this.prismodell.satser().map {
+            AvtaltSatsRequest(
+                pris = it.sats,
+                gjelderFra = it.gjelderFra,
+                valuta = "NOK",
+            )
+        },
+        prisbetingelser = this.prismodell.prisbetingelser(),
+    ),
+)

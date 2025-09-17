@@ -38,6 +38,8 @@ import { AvtaleDetaljer } from "./pages/avtaler/AvtaleDetaljer";
 import { AvtalePersonvern } from "./pages/avtaler/AvtalePersonvern";
 import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/GjennomforingerForAvtalePage";
 import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
+import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
+import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -144,7 +146,17 @@ const routes: RouteObject[] = [
       },
       {
         path: "avtaler/:avtaleId/skjema",
-        element: <AvtalePage />,
+        element: <AvtaleFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "avtaler/:avtaleId/personvern/skjema",
+        element: <AvtaleFormPage />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "avtaler/:avtaleId/veilederinformasjon/skjema",
+        element: <AvtaleFormPage />,
         errorElement: <ErrorPage />,
       },
       {
@@ -174,10 +186,7 @@ const routes: RouteObject[] = [
             path: "deltakerliste/*",
             element: <DeltakerlisteContainer />,
           },
-          {
-            path: "tilsagn",
-            element: <TilsagnForGjennomforingPage />,
-          },
+          { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
           {
             path: "utbetalinger",
             element: <UtbetalingerForGjennomforingContainer />,
@@ -189,6 +198,15 @@ const routes: RouteObject[] = [
         ],
       },
       {
+        path: "gjennomforinger/:gjennomforingId/tilsagn",
+        element: <TilsagnPage />,
+        children: [
+          { path: "opprett-tilsagn", element: <OpprettTilsagnFormPage /> },
+          { path: ":tilsagnId", element: <TilsagnDetaljer /> },
+          { path: ":tilsagnId/rediger-tilsagn", element: <RedigerTilsagnFormPage /> },
+        ],
+      },
+      {
         path: "gjennomforinger/:gjennomforingId/skjema",
         element: <GjennomforingFormPage />,
         errorElement: <ErrorPage />,
@@ -196,21 +214,6 @@ const routes: RouteObject[] = [
       {
         path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/skjema",
         element: <GjennomforingFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn/opprett-tilsagn",
-        element: <OpprettTilsagnFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId",
-        element: <TilsagnPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "gjennomforinger/:gjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn",
-        element: <RedigerTilsagnFormPage />,
         errorElement: <ErrorPage />,
       },
       {
