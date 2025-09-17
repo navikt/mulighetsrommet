@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -28,10 +29,16 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
+    private val config: OkonomiConfig,
     private val db: ApiDatabase,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    private data class UtbetalingContext(
+        val gjennomforingId: UUID,
+        val prismodell: Prismodell,
+    )
 
     private val kontonummerCache: Cache<String, Kontonummer> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
@@ -40,7 +47,7 @@ class GenererUtbetalingService(
         .build()
 
     suspend fun genererUtbetalingForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
-        getGjennomforingerForGenereringAvUtbetalinger(periode)
+        getContextForGenereringAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
                 val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
                 generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
@@ -54,7 +61,7 @@ class GenererUtbetalingService(
     }
 
     suspend fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
-        getGjennomforingerForBeregningAvUtbetalinger(periode)
+        getContextForBeregningAvUtbetalinger(periode)
             .mapNotNull { (gjennomforingId, prismodell) ->
                 val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
                 val utbetaling = generateUtbetalingForPrismodell(
@@ -119,6 +126,10 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingDbo? {
+        if (!isValidUtbetalingPeriode(gjennomforing.tiltakstype.tiltakskode, periode)) {
+            return null
+        }
+
         val beregning = when (prismodell) {
             Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
                 val input = resolveFastSatsPerTiltaksplassPerManedInput(gjennomforing, periode)
@@ -240,9 +251,9 @@ class GenererUtbetalingService(
         }
     }
 
-    private fun QueryContext.getGjennomforingerForGenereringAvUtbetalinger(
+    private fun QueryContext.getContextForGenereringAvUtbetalinger(
         periode: Periode,
-    ): List<Pair<UUID, Prismodell>> {
+    ): List<UtbetalingContext> {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id, avtale.prismodell
@@ -259,13 +270,13 @@ class GenererUtbetalingService(
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
-            Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
+            UtbetalingContext(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
         }
     }
 
-    private fun QueryContext.getGjennomforingerForBeregningAvUtbetalinger(
+    private fun QueryContext.getContextForBeregningAvUtbetalinger(
         periode: Periode,
-    ): List<Pair<UUID, Prismodell>> {
+    ): List<UtbetalingContext> {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id, avtale.prismodell
@@ -276,8 +287,12 @@ class GenererUtbetalingService(
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
-            Pair(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
+            UtbetalingContext(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
         }
+    }
+
+    private fun isValidUtbetalingPeriode(tiltakskode: Tiltakskode, periode: Periode): Boolean {
+        return config.gyldigTilsagnPeriode[tiltakskode]?.contains(periode) ?: false
     }
 
     private fun resolveStengtHosArrangor(

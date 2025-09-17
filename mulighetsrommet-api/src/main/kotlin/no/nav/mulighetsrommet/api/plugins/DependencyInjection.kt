@@ -385,7 +385,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { GenererUtbetalingService(get(), get()) }
+    single { GenererUtbetalingService(config = appConfig.okonomi, get(), get()) }
     single {
         UtbetalingService(
             UtbetalingService.Config(
