@@ -100,9 +100,114 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/avtaler:
     get:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Avtale
+      operationId: getAvtaler
+      parameters:
+      - name: search
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: tiltakstyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: statuser
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaleStatusType"
+      - name: avtaletyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/Avtaletype"
+      - name: navRegioner
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: arrangorer
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: personvernBekreftet
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: boolean
+      - name: visMineAvtaler
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Avtaler filtrert på query parameters
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_AvtaleDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
     put:
       tags: []
@@ -3390,6 +3495,34 @@ components:
       - status
       - tiltakstype
       - utdanningslop
+    PaginationSummary:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+      required:
+      - pageSize
+      - totalCount
+      - totalPages
+    PaginatedResponse_AvtaleDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaleDto"
+      required:
+      - data
+      - pagination
     AvtaleHandling:
       type: string
       enum:
@@ -5126,22 +5259,6 @@ components:
       enum:
       - AVTALE
       - TILTAKSGJENNOMFORING
-    PaginationSummary:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-          format: int32
-        pageSize:
-          type: integer
-          format: int32
-        totalPages:
-          type: integer
-          format: int32
-      required:
-      - pageSize
-      - totalCount
-      - totalPages
     PaginatedResponse_ArrangorDto:
       type: object
       properties:

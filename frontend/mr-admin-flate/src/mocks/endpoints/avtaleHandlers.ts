@@ -1,9 +1,9 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { AvtaleDto as LegacyAvtaleDto, PaginertAvtale } from "@mr/api-client-v2";
 import {
   AvtaleDto,
   AvtaleHandling,
   EndringshistorikkDto,
+  PaginatedResponseAvtaleDto,
   PrismodellInfo,
   PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
@@ -37,20 +37,25 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, PaginertAvtale>("*/api/v1/intern/avtaler", ({ request }) => {
-    const url = new URL(request.url);
-    const avtalestatus = url.searchParams.get("avtalestatus");
-    const data = mockAvtaler.filter((a) => a.status.type === avtalestatus || avtalestatus === null);
+  http.get<PathParams, undefined, PaginatedResponseAvtaleDto>(
+    "*/api/v1/intern/avtaler",
+    ({ request }) => {
+      const url = new URL(request.url);
+      const avtalestatus = url.searchParams.get("avtalestatus");
+      const data = mockAvtaler.filter(
+        (a) => a.status.type === avtalestatus || avtalestatus === null,
+      );
 
-    return HttpResponse.json({
-      pagination: {
-        pageSize: 15,
-        totalCount: data.length,
-        totalPages: 1,
-      },
-      data: data as unknown as LegacyAvtaleDto[],
-    });
-  }),
+      return HttpResponse.json({
+        pagination: {
+          pageSize: 15,
+          totalCount: data.length,
+          totalPages: 1,
+        },
+        data,
+      });
+    },
+  ),
 
   http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/avtaler/:id/avbryt", () => {
     return HttpResponse.json(1);

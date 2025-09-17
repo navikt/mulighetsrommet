@@ -276,7 +276,43 @@ fun Route.avtaleRoutes() {
             }
         }
 
-        get {
+        get({
+            tags = setOf("Avtale")
+            operationId = "getAvtaler"
+            request {
+                queryParameter<String>("search")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<List<AvtaleStatusType>>("statuser") {
+                    explode = true
+                }
+                queryParameter<List<Avtaletype>>("avtaletyper") {
+                    explode = true
+                }
+                queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                    explode = true
+                }
+                queryParameter<List<String>>("arrangorer") {
+                    explode = true
+                }
+                queryParameter<Boolean>("personvernBekreftet")
+                queryParameter<Boolean>("visMineAvtaler")
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtaler filtrert på query parameters"
+                    body<PaginatedResponse<AvtaleDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 

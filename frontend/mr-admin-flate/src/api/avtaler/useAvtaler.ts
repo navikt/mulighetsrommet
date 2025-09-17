@@ -1,6 +1,6 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiSuspenseQuery, useDebounce } from "@mr/frontend-common";
-import { AvtalerService, type GetAvtalerData } from "@mr/api-client-v2";
+import { AvtaleService, type GetAvtalerData } from "@tiltaksadministrasjon/api-client";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 
 export function useAvtaler(filter: Partial<AvtaleFilterType>) {
@@ -24,6 +24,6 @@ export function useAvtaler(filter: Partial<AvtaleFilterType>) {
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.avtaler(queryFilter),
-    queryFn: () => AvtalerService.getAvtaler(queryFilter),
+    queryFn: () => AvtaleService.getAvtaler(queryFilter),
   });
 }
