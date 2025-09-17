@@ -26,7 +26,7 @@ import java.util.*
 object UtbetalingValidator {
     data class OpprettDelutbetaling(
         val id: UUID,
-        val belop: Int,
+        val belop: Int?,
         val gjorOppTilsagn: Boolean,
         val tilsagn: Tilsagn,
     )
@@ -52,7 +52,7 @@ object UtbetalingValidator {
                         ),
                     )
             }
-            val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop }
+            val totalBelopUtbetales = opprettDelutbetalinger.sumOf { it.belop ?: 0 }
             if (totalBelopUtbetales > utbetaling.beregning.output.belop) {
                 add(
                     FieldError.root(
@@ -76,7 +76,7 @@ object UtbetalingValidator {
             }
 
             opprettDelutbetalinger.forEachIndexed { index, req ->
-                if (req.belop <= 0) {
+                if (req.belop == null || req.belop <= 0) {
                     add(
                         FieldError.ofPointer(
                             "/$index/belop",
@@ -84,7 +84,7 @@ object UtbetalingValidator {
                         ),
                     )
                 }
-                if (req.belop > req.tilsagn.gjenstaendeBelop()) {
+                if (req.belop != null && req.belop > req.tilsagn.gjenstaendeBelop()) {
                     add(
                         FieldError.ofPointer(
                             "/$index/belop",
