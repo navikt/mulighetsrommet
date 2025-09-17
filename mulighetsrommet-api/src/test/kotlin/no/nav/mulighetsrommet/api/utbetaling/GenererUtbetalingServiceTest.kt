@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -36,7 +37,14 @@ class GenererUtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createUtbetalingService() = GenererUtbetalingService(
+    fun createUtbetalingService(
+        config: OkonomiConfig = OkonomiConfig(
+            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+                Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
+            },
+        ),
+    ) = GenererUtbetalingService(
+        config = config,
         db = database.db,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
@@ -156,6 +164,34 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             )
+        }
+
+        test("genererer bare utbetaling når perioden er dekket av konfigurerte tilsagnsperioder") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService(
+                config = OkonomiConfig(
+                    mapOf(
+                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar,
+                    ),
+                ),
+            )
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+
+            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1)
         }
 
         test("genererer utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
