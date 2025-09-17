@@ -2,7 +2,6 @@ plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.shadow)
 }
 
 application {
@@ -14,12 +13,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
         freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
     }
-}
-
-tasks.shadowJar {
-    // Trengs for å få med implementasjonen av services fra bl.a. flyway
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    mergeServiceFiles()
 }
 
 dependencies {
