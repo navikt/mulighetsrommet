@@ -17,7 +17,7 @@ import { VeilederflateTiltakstype } from "@tiltaksadministrasjon/api-client";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
-import { PortableTextEditor } from "../portableText/PortableTextEditor";
+import { PortableTextEditorOld } from "../portableText/PortableTextEditorOld";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -34,6 +34,7 @@ import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { InferredGjennomforingSchema } from "./GjennomforingSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
+import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 
 interface Props {
   tiltakId: string;
@@ -195,8 +196,8 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
-        <PortableTextEditor
-          {...register("faneinnhold.forHvem")}
+        <PortableTextFormEditor
+          name={"faneinnhold.forHvem"}
           label="For hvem"
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
@@ -224,8 +225,8 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Detaljer og innhold»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
-        <PortableTextEditor
-          {...register("faneinnhold.detaljerOgInnhold")}
+        <PortableTextFormEditor
+          name={"faneinnhold.detaljerOgInnhold"}
           label="Detaljer og innhold"
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
@@ -253,7 +254,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Påmelding og varighet»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
-        <PortableTextEditor
+        <PortableTextEditorOld
           {...register("faneinnhold.pameldingOgVarighet")}
           label="Påmelding og varighet"
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
@@ -274,7 +275,7 @@ const Kontaktinfo = () => {
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
-        <PortableTextEditor
+        <PortableTextEditorOld
           {...register("faneinnhold.kontaktinfo")}
           label="Kontaktinfo"
           description="Ekstra tekst om kontaktinfo."
