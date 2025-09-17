@@ -27,7 +27,13 @@ export function UtbetalingBelopInput(props: UtbetalingBelopInputProps) {
 
 function UtbetalingBelopFormInput({ index }: { index: number }) {
   const { register } = useFormContext<RedigerUtbetalingLinjeFormValues>();
-  return <BaseUtbetalingBelopInput {...register(`formLinjer.${index}.belop`)} />;
+  return (
+    <BaseUtbetalingBelopInput
+      {...register(`formLinjer.${index}.belop`, {
+        setValueAs: (v) => (v === "" ? null : Number(v)),
+      })}
+    />
+  );
 }
 
 function UtbetalingBelopDisplayInput({ linje }: DisplayVariant) {
