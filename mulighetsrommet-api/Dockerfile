@@ -3,10 +3,10 @@ LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet
 
 WORKDIR /app
 
-COPY /build/libs/mulighetsrommet-api-all.jar app.jar
+COPY build/install/*/lib /lib
 
 USER nonroot
 
 ENV TZ="Europe/Oslo"
 EXPOSE 8080
-CMD ["-jar", "app.jar"]
+ENTRYPOINT ["java", "-cp", "/lib/*", "no.nav.mulighetsrommet.api.ApplicationKt"]
