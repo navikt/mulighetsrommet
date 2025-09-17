@@ -5,13 +5,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import {
-  AvbrytGjennomforingAarsak,
-  FieldError,
-  GjennomforingDto,
-  Opphav,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { FieldError, GjennomforingDto, Opphav, ValidationError } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
@@ -23,7 +17,11 @@ import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomfori
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { GjennomforingHandling, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import {
+  AvbrytGjennomforingAarsak,
+  GjennomforingHandling,
+  NavAnsattDto,
+} from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   ansatt: NavAnsattDto;
