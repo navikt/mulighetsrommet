@@ -7,12 +7,16 @@ import {
 } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  AvtaleDto,
   GjennomforingDto,
   GjennomforingRequest,
-  ValidationError,
+  ValidationError as LegacyValidationError,
 } from "@mr/api-client-v2";
-import { NavEnhetDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import {
+  AvtaleDto,
+  NavEnhetDto,
+  Tiltakskode,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Spacer, Tabs } from "@navikt/ds-react";
@@ -63,7 +67,7 @@ export function GjennomforingFormContainer({
     [onSuccess],
   );
   const handleValidationError = useCallback(
-    (validation: ValidationError) => {
+    (validation: ValidationError | LegacyValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapFieldToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         form.setError(name, { type: "custom", message: error.detail });

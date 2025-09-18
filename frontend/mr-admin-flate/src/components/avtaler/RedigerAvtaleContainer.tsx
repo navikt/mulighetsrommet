@@ -1,14 +1,15 @@
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import {
-  AvtaleFormValues,
   AvtaleFormInput,
   avtaleFormSchema,
+  AvtaleFormValues,
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, ValidationError } from "@mr/api-client-v2";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
-import { useCallback } from "react";
+import { ReactNode, useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
@@ -18,7 +19,7 @@ import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "@/pages/avtaler
 
 interface Props {
   avtale: AvtaleDto;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function RedigerAvtaleContainer({ avtale, children }: Props) {
@@ -33,7 +34,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   });
 
   const handleValidationError = useCallback(
-    (validation: ValidationError) => {
+    (validation: ValidationError | LegacyValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         methods.setError(name, { type: "custom", message: error.detail });
@@ -47,7 +48,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
       avtale,
       data,
       mutation,
-      onValidationError: (error: ValidationError) => {
+      onValidationError: (error: ValidationError | LegacyValidationError) => {
         handleValidationError(error);
       },
       onSuccess: (dto: { data: AvtaleDto }) => {

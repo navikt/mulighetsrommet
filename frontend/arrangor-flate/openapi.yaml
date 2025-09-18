@@ -1336,9 +1336,6 @@ components:
     JsonElement:
       type: object
       properties: {}
-    Nothing:
-      type: object
-      properties: {}
     ValidationError:
       type: object
       properties:
@@ -1360,9 +1357,9 @@ components:
           additionalProperties:
             $ref: "#/components/schemas/JsonElement"
         instance:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Nothing"
+          type:
+          - "null"
+          - string
       required:
       - detail
       - errors

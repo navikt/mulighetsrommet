@@ -1,5 +1,5 @@
-import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
-import { OpprettUtbetalingRequest } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingDto, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import { OpprettUtbetalingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -53,7 +53,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
           form.reset();
           navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger/${utbetalingId.current}`);
         },
-        onValidationError: (error: ValidationError) => {
+        onValidationError: (error: ValidationError | LegacyValidationError) => {
           error.errors.forEach((error) => {
             const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
               OpprettUtbetalingRequest,

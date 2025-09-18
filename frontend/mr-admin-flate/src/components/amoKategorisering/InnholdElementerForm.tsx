@@ -18,7 +18,7 @@ export function InnholdElementerForm<T extends FieldValues>(props: { path: Path<
           legend={gjennomforingTekster.innholdElementerLabel}
           onChange={(value) => field.onChange(value)}
           error={error?.message}
-          value={field.value}
+          value={field.value ?? []}
         >
           <HGrid columns={2}>
             <Checkbox value={InnholdElement.GRUNNLEGGENDE_FERDIGHETER}>

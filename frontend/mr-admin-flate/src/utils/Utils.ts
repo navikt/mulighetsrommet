@@ -1,5 +1,4 @@
 import {
-  AvtaleDto,
   Avtaletype,
   Bransje,
   EstimertVentetidEnhet,
@@ -11,6 +10,7 @@ import {
   ValidationError,
 } from "@mr/api-client-v2";
 import {
+  AvtaleDto,
   DelutbetalingReturnertAarsak,
   TilsagnStatusAarsak,
   TilsagnType,

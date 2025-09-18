@@ -3,13 +3,7 @@ import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/Avta
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import {
-  Avtaletype,
-  OpsjonLoggDto,
-  OpsjonsmodellType,
-  OpsjonStatus,
-  Tiltakskode,
-} from "@mr/api-client-v2";
+import { Avtaletype, Tiltakskode } from "@mr/api-client-v2";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -21,9 +15,14 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import {
+  AvtaleOpsjonLoggDto,
+  OpsjonLoggStatus,
+  OpsjonsmodellType,
+} from "@tiltaksadministrasjon/api-client";
 
 interface AvtaleDetaljerFormProps {
-  opsjonerRegistrert?: OpsjonLoggDto[];
+  opsjonerRegistrert?: AvtaleOpsjonLoggDto[];
 }
 
 export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormProps) {
@@ -42,7 +41,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
   const watchedAdministratorer = watch("administratorer");
 
   const antallOpsjonerUtlost = (
-    opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
+    opsjonerRegistrert?.filter((log) => log.status === OpsjonLoggStatus.OPSJON_UTLOST) || []
   ).length;
 
   const avtaletypeOptions = isTiltakskode(tiltakskode)

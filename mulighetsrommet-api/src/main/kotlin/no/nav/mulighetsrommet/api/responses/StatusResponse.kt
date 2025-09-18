@@ -26,7 +26,7 @@ data class ValidationError(
     override val title = "Validation error"
     override val status: Int = HttpStatusCode.BadRequest.value
     override val extensions = mapOf("errors" to Json.encodeToJsonElement(errors))
-    override val instance = null
+    override val instance: String? = null
 }
 
 @Serializable

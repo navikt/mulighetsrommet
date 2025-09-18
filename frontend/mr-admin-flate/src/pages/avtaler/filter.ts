@@ -1,11 +1,12 @@
 import { AVTALE_PAGE_SIZE } from "@/constants";
-import { AvtaleStatusType, Avtaletype, SorteringAvtaler } from "@mr/api-client-v2";
+import { SorteringAvtaler } from "@mr/api-client-v2";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atomFamily } from "jotai/utils";
 import { atom, WritableAtom } from "jotai";
+import { AvtaleStatusType, Avtaletype } from "@tiltaksadministrasjon/api-client";
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),

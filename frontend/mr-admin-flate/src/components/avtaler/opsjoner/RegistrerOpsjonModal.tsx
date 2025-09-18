@@ -1,8 +1,11 @@
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
-import { AvtaleDto, OpsjonStatus, ValidationError } from "@mr/api-client-v2";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
+  AvtaleDto,
+  OpsjonLoggStatus,
   OpprettOpsjonLoggRequest,
   OpprettOpsjonLoggRequestType,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
@@ -32,7 +35,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       onSuccess: () => {
         closeAndResetForm();
       },
-      onValidationError: (error: ValidationError) => {
+      onValidationError: (error: ValidationError | LegacyValidationError) => {
         error.errors.forEach((error: { pointer: string; detail: string }) => {
           const name = jsonPointerToFieldPath(error.pointer) as keyof OpprettOpsjonLoggRequest;
           setError(name, { type: "custom", message: error.detail });
@@ -59,7 +62,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   const avtaleSkalIkkeUtloseOpsjoner = avtale.opsjonerRegistrert.some(
-    (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLOSE_OPSJON,
+    (opsjon) => opsjon.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON,
   );
 
   return (

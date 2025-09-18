@@ -8,7 +8,6 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { AvtaleDto } from "@mr/api-client-v2";
 import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
@@ -17,7 +16,7 @@ import {
   gjennomforingFilterAccordionAtom,
   GjennomforingFilterType,
 } from "@/pages/gjennomforing/filter";
-import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { ArrangorKobling, AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 type Filters = "tiltakstype";
 

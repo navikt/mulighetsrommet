@@ -1,6 +1,7 @@
-import { type GetAvtalerData, GetGjennomforingerData } from "@mr/api-client-v2";
+import { GetGjennomforingerData } from "@mr/api-client-v2";
 import {
   GetArrangorerData,
+  GetAvtalerData,
   LagretFilterType,
   NotificationStatus,
   Rolle,

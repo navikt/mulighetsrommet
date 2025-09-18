@@ -1,13 +1,13 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import { GjennomforingDto, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import { SetStengtHosArrangorRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { SetStengtHosArrangorRequest } from "@tiltaksadministrasjon/api-client";
 import { FormProvider, useForm } from "react-hook-form";
 
 interface RegistrerStengtHosArrangorFormProps {
@@ -33,7 +33,7 @@ export function RegistrerStengtHosArrangorForm({
           refetchType: "all",
         });
       },
-      onValidationError: (error: ValidationError) => {
+      onValidationError: (error: ValidationError | LegacyValidationError) => {
         error.errors.forEach((error) => {
           const name = jsonPointerToFieldPath(error.pointer) as keyof SetStengtHosArrangorRequest;
           setError(name, { type: "custom", message: error.detail });

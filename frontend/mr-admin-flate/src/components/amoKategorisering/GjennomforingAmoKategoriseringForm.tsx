@@ -1,11 +1,12 @@
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
-import { AvtaleDto, Kurstype } from "@mr/api-client-v2";
-import { HGrid, Select, Alert } from "@navikt/ds-react";
+import { AmoKategorisering, Kurstype } from "@mr/api-client-v2";
+import { Alert, HGrid, Select } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { ForerkortForm } from "./ForerkortForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   avtale: AvtaleDto;
@@ -18,7 +19,7 @@ export function GjennomforingAmoKategoriseringForm(props: Props) {
     return <Alert variant="warning">{gjennomforingTekster.amoKategoriseringMangler}</Alert>;
   }
 
-  const avtaleAmo = avtale.amoKategorisering;
+  const avtaleAmo = avtale.amoKategorisering as AmoKategorisering;
 
   return (
     <HGrid gap="4" columns={1}>

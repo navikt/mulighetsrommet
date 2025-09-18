@@ -6,8 +6,14 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { AvtaleDto, FieldError, Opphav, ValidationError } from "@mr/api-client-v2";
-import { AvbrytAvtaleAarsak, AvtaleHandling, Rolle } from "@tiltaksadministrasjon/api-client";
+import { FieldError, Opphav, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  AvbrytAvtaleAarsak,
+  AvtaleDto,
+  AvtaleHandling,
+  Rolle,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
@@ -59,7 +65,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
         onSuccess: () => {
           setAvbrytModalOpen(false);
         },
-        onValidationError: (error: ValidationError) => {
+        onValidationError: (error: ValidationError | LegacyValidationError) => {
           setAvbrytModalErrors(error.errors);
         },
       },
