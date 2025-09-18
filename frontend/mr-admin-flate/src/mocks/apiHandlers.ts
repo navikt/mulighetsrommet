@@ -6,7 +6,6 @@ import { featureToggleHandlers } from "./endpoints/featureToggleHandlers";
 import { notificationHandlers } from "./endpoints/notificationHandlers";
 import { gjennomforingHandlers } from "./endpoints/gjennomforingHandlers";
 import { tiltakstypeHandlers } from "./endpoints/tiltakstyperHandlers";
-import { virksomhetHandlers } from "./endpoints/virksomhetHandlers";
 import { lagretFilterHandlers } from "./endpoints/lagretFilterHandlers";
 import { tilsagnHandlers } from "./endpoints/tilsagnHandler";
 import { utdanningHandlers } from "./endpoints/utdanningHandlers";
@@ -22,7 +21,6 @@ export const apiHandlers = [
   ...enhetHandlers,
   ...ansattHandlers,
   ...notificationHandlers,
-  ...virksomhetHandlers,
   ...featureToggleHandlers,
   ...lagretFilterHandlers,
   ...tilsagnHandlers,
