@@ -52,8 +52,24 @@ jobs:
           dockerfile: ./mulighetsrommet-arena-adapter/Dockerfile
           docker_context: mulighetsrommet-arena-adapter
           image_suffix: mulighetsrommet-arena-adapter
+          salsa: false
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
+      digest: ${{ steps.docker-build-push.outputs.digest }}
+
+  salsa:
+    name: Generate SBOM, attest and sign image
+    needs: [ ci ]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: "write"
+    steps:
+      - uses: navikt/dagpenger/actions/attest-sign@master
+        with:
+          digest: ${{ needs.build.outputs.digest }}
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          team: team-mulighetsrommet
 
   deploy-dev:
     name: Deploy (dev)
