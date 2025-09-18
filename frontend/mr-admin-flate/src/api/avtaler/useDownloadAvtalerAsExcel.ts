@@ -1,7 +1,8 @@
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { AvtaleService } from "@tiltaksadministrasjon/api-client";
+import { useDownloadFile } from "@/api/useDownloadFile";
 
-export async function downloadAvtalerAsExcel(filter: AvtaleFilterType) {
+export function useDownloadAvtalerAsExcel(filter: AvtaleFilterType) {
   const query = {
     search: filter.sok,
     tiltakstyper: filter.tiltakstyper,
@@ -13,8 +14,6 @@ export async function downloadAvtalerAsExcel(filter: AvtaleFilterType) {
     visMineAvtaler: filter.visMineAvtaler,
     size: 10000,
   };
-  const { data } = await AvtaleService.lastNedAvtalerSomExcel({
-    query,
-  });
-  return data;
+
+  return useDownloadFile(() => AvtaleService.lastNedAvtalerSomExcel({ query }));
 }
