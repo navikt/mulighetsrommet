@@ -680,7 +680,7 @@ paths:
         required: false
       responses:
         "200":
-          description: Avtale ble avbrutt
+          description: Gjennomføring ble avbrutt
           headers: {}
         "400":
           description: Valideringsfeil
@@ -913,9 +913,114 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/excel:
     get:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Gjennomforing
+      operationId: lastNedGjennomforingerSomExcel
+      parameters:
+      - name: search
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: tiltakstyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: statuser
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingStatusType"
+      - name: navEnheter
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: arrangorer
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: avtaleId
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: publisert
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: boolean
+      - name: visMineGjennomforinger
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: boolean
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Gjennomføringer filtrert på query parameters
+          headers: {}
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/{id}:
     get:
