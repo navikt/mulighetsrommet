@@ -1,6 +1,6 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading, VStack } from "@navikt/ds-react";
-import { PortableText } from "@portabletext/react";
+import { PortableText } from "../portableText/PortableText";
 import { EmbeddedTiltakstype, GjennomforingKontaktperson, Kontorstruktur } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
