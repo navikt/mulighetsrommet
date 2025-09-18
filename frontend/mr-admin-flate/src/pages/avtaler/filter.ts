@@ -1,5 +1,4 @@
 import { AVTALE_PAGE_SIZE } from "@/constants";
-import { SorteringAvtaler } from "@mr/api-client-v2";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
@@ -14,7 +13,7 @@ export const AvtaleFilterSchema = z.object({
   avtaletyper: z.custom<Avtaletype>().array(),
   navRegioner: z.string().array(),
   tiltakstyper: z.string().array(),
-  sortering: createSorteringProps(z.custom<SorteringAvtaler>()),
+  sortering: createSorteringProps(z.string()),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),
   personvernBekreftet: z.boolean().optional(),
@@ -31,7 +30,7 @@ export const defaultAvtaleFilter: AvtaleFilterType = {
   navRegioner: [],
   tiltakstyper: [],
   sortering: {
-    sortString: SorteringAvtaler.NAVN_ASCENDING,
+    sortString: "navn-ascending",
     tableSort: {
       orderBy: "navn",
       direction: "ascending",

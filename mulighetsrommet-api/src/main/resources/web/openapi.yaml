@@ -30,86 +30,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/avtaler/excel:
-    get:
-      tags:
-        - Avtaler
-      operationId: lastNedAvtalerSomExcel
-      parameters:
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              type: string
-          description: ID for tiltakstyper om du ønsker avtaler for en spesifikk tiltakstype
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for avtaler by the name
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/AvtaleStatusType"
-          description: Statuser for avtale
-        - in: query
-          name: avtaletyper
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Avtaletype"
-          description: Avtaletyper
-        - in: query
-          name: navRegioner
-          schema:
-            type: array
-            items:
-              type: string
-          description: 4 digit enhetskode
-        - in: query
-          name: arrangorer
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
-          description: Id til arrangører for avtaler
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
-          name: sort
-          schema:
-            $ref: "#/components/schemas/SorteringAvtaler"
-        - in: query
-          name: personvernBekreftet
-          schema:
-            type: boolean
-        - in: query
-          name: visMineAvtaler
-          schema:
-            type: boolean
-      responses:
-        200:
-          description: Excel-fil med avtaler
-          content:
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
-              schema:
-                type: string
-                format: binary
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger/{id}/deltaker-summary:
     get:
       tags:
@@ -735,18 +655,6 @@ components:
         - error
         - error-border
         - error-border-strikethrough
-
-    SorteringAvtaler:
-      type: string
-      enum:
-        - navn-ascending
-        - navn-descending
-        - startdato-ascending
-        - startdato-descending
-        - sluttdato-ascending
-        - sluttdato-descending
-        - arrangor-ascending
-        - arrangor-descending
 
     SorteringGjennomforinger:
       type: string

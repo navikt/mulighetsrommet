@@ -1,7 +1,6 @@
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { capitalizeEveryWord, formaterNavEnheter } from "@/utils/Utils";
-import { SorteringAvtaler } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
@@ -68,7 +67,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
 
     updateFilter({
       sortering: {
-        sortString: `${sortKey}-${direction}` as SorteringAvtaler,
+        sortString: `${sortKey}-${direction}`,
         tableSort: { orderBy: sortKey, direction },
       },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
