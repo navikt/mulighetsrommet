@@ -38,7 +38,7 @@ export const avtaleHandlers = [
   ),
 
   http.get<PathParams, undefined, PaginatedResponseAvtaleDto>(
-    "*/api/v1/intern/avtaler",
+    "*/api/tiltaksadministrasjon/avtaler",
     ({ request }) => {
       const url = new URL(request.url);
       const avtalestatus = url.searchParams.get("avtalestatus");
@@ -61,19 +61,20 @@ export const avtaleHandlers = [
     return HttpResponse.json(1);
   }),
 
-  http.get<PathParams, AvtaleDto | undefined>("*/api/v1/intern/avtaler/:id", ({ params }) => {
-    const { id } = params;
-    const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
-    return HttpResponse.json(avtale);
-  }),
-
-  http.get<PathParams, AvtaleDto | undefined>("*/api/v1/intern/avtaler/skjema", ({ params }) => {
-    const { id } = params;
-    const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
-    return HttpResponse.json(avtale);
-  }),
+  http.get<PathParams, undefined, AvtaleDto>(
+    "*/api/tiltaksadministrasjon/avtaler/:id",
+    ({ params }) => {
+      const { id } = params;
+      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
+      return HttpResponse.json(avtale);
+    },
+  ),
 
   http.put("*/api/v1/intern/avtaler", () => {
+    return HttpResponse.json(mockAvtaler[0]);
+  }),
+
+  http.put("*/api/tiltaksadministrasjon/avtaler", () => {
     return HttpResponse.json(mockAvtaler[0]);
   }),
 
