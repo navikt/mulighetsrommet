@@ -1,8 +1,9 @@
 import { getPublisertStatus } from "@/utils/Utils";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
+import { useDownloadFile } from "@/api/useDownloadFile";
 
-export async function downloadGjennomforingerAsExcel(filter: GjennomforingFilterType) {
+export function useDownloadGjennomforingerAsExcel(filter: GjennomforingFilterType) {
   const query = {
     search: filter.search,
     navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
@@ -15,8 +16,6 @@ export async function downloadGjennomforingerAsExcel(filter: GjennomforingFilter
     sort: filter.sortering.sortString,
     publisert: getPublisertStatus(filter.publisert) ?? undefined,
   };
-  const { data } = await GjennomforingService.lastNedGjennomforingerSomExcel({
-    query,
-  });
-  return data;
+
+  return useDownloadFile(() => GjennomforingService.lastNedGjennomforingerSomExcel({ query }));
 }

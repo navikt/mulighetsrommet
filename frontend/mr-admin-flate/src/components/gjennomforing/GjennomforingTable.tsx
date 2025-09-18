@@ -7,11 +7,11 @@ import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { Alert, BodyShort, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import React, { createRef, useEffect, useState } from "react";
+import React from "react";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
-import { downloadGjennomforingerAsExcel } from "@/api/gjennomforing/downloadGjennomforingerAsExcel";
+import { useDownloadGjennomforingerAsExcel } from "@/api/gjennomforing/useDownloadGjennomforingerAsExcel";
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
@@ -34,37 +34,12 @@ export function GjennomforingTable({
   tagsHeight,
   filterOpen,
 }: Props) {
-  const [lasterExcel, setLasterExcel] = useState(false);
-  const [excelUrl, setExcelUrl] = useState("");
   const sort = filter.sortering.tableSort;
   const {
     data: { pagination, data: gjennomforinger },
   } = useGjennomforinger(filter);
-  const link = createRef<HTMLAnchorElement>();
 
-  async function lastNedExcel() {
-    setLasterExcel(true);
-    if (excelUrl) {
-      setExcelUrl("");
-    }
-
-    const excelFil = await downloadGjennomforingerAsExcel(filter);
-    const url = URL.createObjectURL(excelFil);
-    setExcelUrl(url);
-    setLasterExcel(false);
-  }
-
-  useEffect(() => {
-    if (link.current && excelUrl) {
-      link.current.download = "gjennomforinger.xlsx";
-      link.current.href = excelUrl;
-
-      link.current.click();
-      URL.revokeObjectURL(excelUrl);
-      link.current = null;
-      setExcelUrl("");
-    }
-  }, [excelUrl, link]);
+  const [lasterExcel, lastNedExcel] = useDownloadGjennomforingerAsExcel(filter);
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
@@ -102,7 +77,6 @@ export function GjennomforingTable({
             }}
           />
           <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
-          <a style={{ display: "none" }} ref={link}></a>
         </ToolbarMeny>
       </ToolbarContainer>
       <TabellWrapper>
