@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.flatMap
+import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
@@ -26,6 +29,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -66,7 +70,7 @@ fun Route.gjennomforingRoutes() {
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Avtale ble avbrutt"
+                        description = "Gjennomføring ble avbrutt"
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -285,23 +289,58 @@ fun Route.gjennomforingRoutes() {
             call.respond(result)
         }
 
-        get("/excel") {
+        get("/excel", {
+            tags = setOf("Gjennomforing")
+            operationId = "lastNedGjennomforingerSomExcel"
+            request {
+                queryParameter<String>("search")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<List<GjennomforingStatusType>>("statuser") {
+                    explode = true
+                }
+                queryParameter<List<NavEnhetNummer>>("navEnheter") {
+                    explode = true
+                }
+                queryParameter<List<String>>("arrangorer") {
+                    explode = true
+                }
+                queryParameterUuid("avtaleId")
+                queryParameter<Boolean>("publisert")
+                queryParameter<Boolean>("visMineGjennomforinger")
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Gjennomføringer filtrert på query parameters"
+                    body<ByteArray> {
+                        mediaTypes(ContentType.Application.Xlsx)
+                    }
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
             val result = gjennomforinger.getAll(pagination, filter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
+
+            call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment
-                    .withParameter(ContentDisposition.Parameters.FileName, "gjennomforinger.xlsx")
+                    .withParameter(ContentDisposition.Parameters.FileName, "gjennomføringer.xlsx")
                     .toString(),
             )
-            call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
-            call.response.header(
-                HttpHeaders.ContentType,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            )
+            call.response.header(HttpHeaders.ContentType, ContentType.Application.Xlsx.toString())
+
             call.respondFile(file)
         }
 
