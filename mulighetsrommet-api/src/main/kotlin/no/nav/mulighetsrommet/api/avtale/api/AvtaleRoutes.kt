@@ -336,7 +336,45 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
-        get("/excel") {
+        get("/excel", {
+            tags = setOf("Avtale")
+            operationId = "lastNedAvtalerSomExcel"
+            request {
+                queryParameter<String>("search")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<List<AvtaleStatusType>>("statuser") {
+                    explode = true
+                }
+                queryParameter<List<Avtaletype>>("avtaletyper") {
+                    explode = true
+                }
+                queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                    explode = true
+                }
+                queryParameter<List<String>>("arrangorer") {
+                    explode = true
+                }
+                queryParameter<Boolean>("personvernBekreftet")
+                queryParameter<Boolean>("visMineAvtaler")
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtaler filtrert på query parameters"
+                    body<ByteArray> {
+                        mediaTypes(ContentType.Application.Xlsx)
+                    }
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
@@ -357,16 +395,15 @@ fun Route.avtaleRoutes() {
 
             val file = ExcelService.createExcelFileForAvtale(avtaler.items)
 
+            call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
                 HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
+                ContentDisposition.Attachment
+                    .withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
                     .toString(),
             )
-            call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
-            call.response.header(
-                HttpHeaders.ContentType,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            )
+            call.response.header(HttpHeaders.ContentType, ContentType.Application.Xlsx.toString())
+
             call.respondFile(file)
         }
 
