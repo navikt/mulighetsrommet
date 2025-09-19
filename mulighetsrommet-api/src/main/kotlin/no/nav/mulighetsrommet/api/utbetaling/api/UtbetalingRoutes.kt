@@ -221,7 +221,7 @@ fun Route.utbetalingRoutes() {
 
             val utbetalingsLinjer = db.session {
                 val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
-                if (!ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)) {
+                if (!ansatt.hasAnyGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_LES)) {
                     return@session emptyList()
                 }
                 val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
