@@ -2,13 +2,10 @@ import { BodyShort, Box, Heading, Page, VStack } from "@navikt/ds-react";
 import { Link, useLocation, useRouteError } from "react-router";
 import { PORTEN_URL } from "@/constants";
 import { ProblemDetail } from "@mr/api-client-v2";
-import { IngenTilgang } from "@/pages/IngenTilgang";
+import { IngenTilgang, isNavAnsattManglerTilgangError } from "@/pages/IngenTilgang";
 
-interface GenericError {
+interface GenericError extends Partial<ProblemDetail> {
   message?: string;
-  status?: number;
-  title?: string;
-  detail?: string;
 }
 
 export function ErrorPage() {
@@ -35,7 +32,8 @@ export function ErrorPage() {
     return "Vi beklager, men noe gikk galt. Vennligst prøv igjen senere.";
   };
 
-  if (error?.status === 403) return <IngenTilgang message={getErrorDetail()} />;
+  if (error && "type" in error && isNavAnsattManglerTilgangError(error))
+    return <IngenTilgang error={error} />;
 
   return (
     <Page>
