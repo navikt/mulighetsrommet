@@ -1,3 +1,7 @@
+# Sørger for at installerte pakker må være 48 timer gamle før de kan installeres
+# Et sikkerhetstiltak i tilfelle en pakke blir komprimittert
+minimumReleaseAge: 2880
+
 packages:
   # all packages in direct subdirs of packages/
-  - 'frontend/*'
+  - "frontend/*"
