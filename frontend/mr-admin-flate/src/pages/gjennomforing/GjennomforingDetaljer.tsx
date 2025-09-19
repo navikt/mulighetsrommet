@@ -14,7 +14,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
+import { isKursTiltak } from "@/utils/Utils";
 import { GjennomforingOppstartstype } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
@@ -22,6 +22,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
+import { LabeledDataElement } from "@/components/data-element/LabeledDataElement";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -128,13 +129,7 @@ export function GjennomforingDetaljer() {
           {gjennomforing.estimertVentetid ? (
             <>
               <Bolk aria-label={gjennomforingTekster.estimertVentetidLabel}>
-                <Metadata
-                  header={gjennomforingTekster.estimertVentetidLabel}
-                  value={formatertVentetid(
-                    gjennomforing.estimertVentetid.verdi,
-                    gjennomforing.estimertVentetid.enhet,
-                  )}
-                />
+                <LabeledDataElement {...gjennomforing.estimertVentetid} />
               </Bolk>
               <Separator />
             </>

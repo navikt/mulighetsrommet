@@ -91,8 +91,13 @@ data class Gjennomforing(
     @Serializable
     data class EstimertVentetid(
         val verdi: Int,
-        val enhet: String,
-    )
+        val enhet: Enhet,
+    ) {
+        enum class Enhet {
+            UKE,
+            MANED,
+        }
+    }
 
     @Serializable
     data class StengtPeriode(

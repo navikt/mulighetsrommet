@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -25,7 +26,7 @@ data class GjennomforingDbo(
     val beskrivelse: String?,
     val deltidsprosent: Double,
     val estimertVentetidVerdi: Int?,
-    val estimertVentetidEnhet: String?,
+    val estimertVentetidEnhet: Gjennomforing.EstimertVentetid.Enhet?,
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,

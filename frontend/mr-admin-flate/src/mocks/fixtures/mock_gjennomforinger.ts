@@ -11,6 +11,7 @@ import {
   GjennomforingOppstartstype,
   GjennomforingStatusType,
   GjennomforingTiltakstype,
+  LabeledDataElementType,
   PaginatedResponseGjennomforingDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -32,8 +33,13 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
     tiltaksnummer: "123456",
     estimertVentetid: {
-      verdi: 3,
-      enhet: "maned",
+      type: LabeledDataElementType.INLINE,
+      label: "Estimert ventetid",
+      value: {
+        type: "no.nav.mulighetsrommet.model.DataElement.Text",
+        value: "3 måneder",
+        format: null,
+      },
     },
     antallPlasser: 50,
     arrangor,

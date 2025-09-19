@@ -32,6 +32,7 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import java.util.Locale.getDefault
 
 class GjennomforingQueries(private val session: Session) {
     fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {
@@ -609,7 +610,7 @@ class GjennomforingQueries(private val session: Session) {
         "beskrivelse" to beskrivelse,
         "deltidsprosent" to deltidsprosent,
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
-        "estimert_ventetid_enhet" to estimertVentetidEnhet,
+        "estimert_ventetid_enhet" to estimertVentetidEnhet?.name,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
     )
 
@@ -676,7 +677,9 @@ class GjennomforingQueries(private val session: Session) {
             estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
                 Gjennomforing.EstimertVentetid(
                     verdi = int("estimert_ventetid_verdi"),
-                    enhet = string("estimert_ventetid_enhet"),
+                    enhet = Gjennomforing.EstimertVentetid.Enhet.valueOf(
+                        string("estimert_ventetid_enhet").uppercase(getDefault()),
+                    ),
                 )
             },
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),

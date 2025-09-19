@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.LabeledDataElementType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDto(
@@ -29,7 +30,13 @@ object GjennomforingDtoMapper {
         beskrivelse = gjennomforing.beskrivelse,
         publisert = gjennomforing.publisert,
         deltidsprosent = gjennomforing.deltidsprosent,
-        estimertVentetid = gjennomforing.estimertVentetid,
+        estimertVentetid = gjennomforing.estimertVentetid?.let { (verdi, enhet) ->
+            val enhet = when (enhet) {
+                Gjennomforing.EstimertVentetid.Enhet.UKE -> pluralize(verdi, "uke", "uker")
+                Gjennomforing.EstimertVentetid.Enhet.MANED -> pluralize(verdi, "måned", "måneder")
+            }
+            DataElement.text("$verdi $enhet").label("Estimert ventetid", LabeledDataElementType.MULTILINE)
+        },
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
@@ -50,4 +57,8 @@ object GjennomforingDtoMapper {
         val element = DataElement.Status(status.type.beskrivelse, variant, description)
         return GjennomforingDto.Status(status.type, element)
     }
+}
+
+private fun pluralize(count: Int, singular: String, plural: String): String {
+    return if (count == 1) singular else plural
 }
