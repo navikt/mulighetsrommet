@@ -44,6 +44,7 @@ export default defineConfig(
   },
   {
     rules: {
+      "eqeqeq": "error",
       "no-console": "error",
 
       "@typescript-eslint/no-explicit-any": ["off"],

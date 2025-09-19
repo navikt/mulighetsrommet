@@ -42,7 +42,7 @@ export function GjennomforingAmoKategoriseringForm(props: Props) {
           <InnholdElementerForm path="amoKategorisering.innholdElementer" />
         </>
       )}
-      {avtaleAmo.kurstype == "NORSKOPPLAERING" && (
+      {avtaleAmo.kurstype === "NORSKOPPLAERING" && (
         <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"

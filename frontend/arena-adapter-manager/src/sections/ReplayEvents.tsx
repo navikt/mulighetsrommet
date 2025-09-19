@@ -35,7 +35,7 @@ function ReplayEvents() {
         <option value="Ignored">Ignored</option>
         <option value="Unhandled">Unhandled</option>
       </Select>
-      <Button onClick={() => replayEvents(table, status != "" ? status : null)}>
+      <Button onClick={() => replayEvents(table, status !== "" ? status : null)}>
         Replay Events
       </Button>
     </Section>

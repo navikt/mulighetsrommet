@@ -13,7 +13,7 @@ export function getUpdatedLinjer(
   return formList.flatMap((linje, index) => {
     const apiLinje = apiLinjer.find(({ id }) => id === linje.id);
 
-    if (!apiLinje || apiLinje.status == linje.status) {
+    if (!apiLinje || apiLinje.status === linje.status) {
       return [];
     } else {
       return [
