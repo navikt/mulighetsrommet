@@ -145,62 +145,54 @@ object TilsagnValidator {
         }
     }
 
-    fun validateBeregning(request: TilsagnBeregningRequest, periode: Periode, sats: Int?, avtalteSatser: List<AvtaltSats>): Either<List<FieldError>, TilsagnBeregning> = either {
+    fun validateBeregning(request: TilsagnBeregningRequest, periode: Periode, sats: Int?, avtalteSatser: List<AvtaltSats>): Either<List<FieldError>, TilsagnBeregning> = validation {
         val satsV = validateAvtaltSats(request.type, avtalteSatser, periode, sats).bind()
         val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser).bind()
         val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker).bind()
 
-        return when (request.type) {
+        when (request.type) {
             TilsagnBeregningType.FRI ->
-                validateBeregningFriInput(request)
+                validateBeregningFriInput(request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
-                either {
-                    TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
-                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
-                            periode = periode,
-                            sats = satsV,
-                            antallPlasser = antallPlasser,
-                        ),
-                    )
-                }
+                TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
+                    TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                        periode = periode,
+                        sats = satsV,
+                        antallPlasser = antallPlasser,
+                    ),
+                )
 
             TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
-                either {
-                    TilsagnBeregningPrisPerManedsverk.beregn(
-                        TilsagnBeregningPrisPerManedsverk.Input(
-                            periode = periode,
-                            sats = satsV,
-                            antallPlasser = antallPlasser,
-                            prisbetingelser = request.prisbetingelser,
-                        ),
-                    )
-                }
+                TilsagnBeregningPrisPerManedsverk.beregn(
+                    TilsagnBeregningPrisPerManedsverk.Input(
+                        periode = periode,
+                        sats = satsV,
+                        antallPlasser = antallPlasser,
+                        prisbetingelser = request.prisbetingelser,
+                    ),
+                )
 
             TilsagnBeregningType.PRIS_PER_UKESVERK ->
-                either {
-                    TilsagnBeregningPrisPerUkesverk.beregn(
-                        TilsagnBeregningPrisPerUkesverk.Input(
-                            periode = periode,
-                            sats = satsV,
-                            antallPlasser = antallPlasser,
-                            prisbetingelser = request.prisbetingelser,
-                        ),
-                    )
-                }
+                TilsagnBeregningPrisPerUkesverk.beregn(
+                    TilsagnBeregningPrisPerUkesverk.Input(
+                        periode = periode,
+                        sats = satsV,
+                        antallPlasser = antallPlasser,
+                        prisbetingelser = request.prisbetingelser,
+                    ),
+                )
 
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING ->
-                either {
-                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
-                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
-                            periode = periode,
-                            sats = satsV,
-                            antallPlasser = antallPlasser,
-                            prisbetingelser = request.prisbetingelser,
-                            antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltaker,
-                        ),
-                    )
-                }
+                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                        periode = periode,
+                        sats = satsV,
+                        antallPlasser = antallPlasser,
+                        prisbetingelser = request.prisbetingelser,
+                        antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltaker,
+                    ),
+                )
         }
     }
 
