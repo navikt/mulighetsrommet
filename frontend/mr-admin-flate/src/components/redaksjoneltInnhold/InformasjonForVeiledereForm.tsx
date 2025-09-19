@@ -441,9 +441,9 @@ function SokEtterKontaktperson({
     const alleredeValgt = watch("kontaktpersoner")
       ?.filter((_, i) => i === selectedIndex)
       .map((kontaktperson) => {
-        const personFraSok = kontaktpersoner?.find((k) => k.navIdent == kontaktperson.navIdent);
+        const personFraSok = kontaktpersoner?.find((k) => k.navIdent === kontaktperson.navIdent);
         const personFraDb = lagredeKontaktpersoner.find(
-          (k) => k.navIdent == kontaktperson.navIdent,
+          (k) => k.navIdent === kontaktperson.navIdent,
         );
         const navn = personFraSok
           ? `${personFraSok.fornavn} ${personFraSok.etternavn}`

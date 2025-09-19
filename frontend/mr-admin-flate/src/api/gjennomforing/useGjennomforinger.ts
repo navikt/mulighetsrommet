@@ -1,6 +1,9 @@
 import { useApiSuspenseQuery, useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { type GetGjennomforingerData, GjennomforingerService } from "@mr/api-client-v2";
+import {
+  type GetGjennomforingerData,
+  GjennomforingService,
+} from "@tiltaksadministrasjon/api-client";
 import { getPublisertStatus } from "@/utils/Utils";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 
@@ -25,6 +28,6 @@ export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforinger(queryFilter),
-    queryFn: () => GjennomforingerService.getGjennomforinger(queryFilter),
+    queryFn: () => GjennomforingService.getGjennomforinger(queryFilter),
   });
 }

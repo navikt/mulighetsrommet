@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
@@ -280,7 +281,41 @@ fun Route.gjennomforingRoutes() {
             }
         }
 
-        get {
+        get({
+            tags = setOf("Gjennomforing")
+            operationId = "getGjennomforinger"
+            request {
+                queryParameter<String>("search")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<List<GjennomforingStatusType>>("statuser") {
+                    explode = true
+                }
+                queryParameter<List<NavEnhetNummer>>("navEnheter") {
+                    explode = true
+                }
+                queryParameter<List<String>>("arrangorer") {
+                    explode = true
+                }
+                queryParameterUuid("avtaleId")
+                queryParameter<Boolean>("publisert")
+                queryParameter<Boolean>("visMineGjennomforinger")
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Gjennomføringer filtrert på query parameters"
+                    body<PaginatedResponse<GjennomforingDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
@@ -344,7 +379,23 @@ fun Route.gjennomforingRoutes() {
             call.respondFile(file)
         }
 
-        get("{id}") {
+        get("{id}", {
+            tags = setOf("Gjennomforing")
+            operationId = "getGjennomforing"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Gjennomføringen"
+                    body<GjennomforingDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id = call.parameters.getOrFail<UUID>("id")
 
             gjennomforinger.get(id)
@@ -402,7 +453,23 @@ fun Route.gjennomforingRoutes() {
             call.respond(historikk)
         }
 
-        get("{id}/deltaker-summary") {
+        get("{id}/deltaker-summary", {
+            tags = setOf("Gjennomforing")
+            operationId = "getGjennomforingDeltakerSummary"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Oppsummert informasjon om gjennomføringens deltakere"
+                    body<GjennomforingDeltakerSummary>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {

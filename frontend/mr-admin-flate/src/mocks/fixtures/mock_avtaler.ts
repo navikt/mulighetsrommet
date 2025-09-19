@@ -16,7 +16,7 @@ import {
 export const mockAvtaler: AvtaleDto[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.AVKLARAG),
     navn: "Testtiltak Varig",
     administratorer: [
       {
@@ -92,7 +92,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.ARBFORB),
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
@@ -162,7 +162,7 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Test Testesen",
       },
     ],
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.INDOPPFAG),
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -217,7 +217,7 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
     sakarkivNummer: "24/12345",
@@ -264,7 +264,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
 ];
 
-export function getEmbeddedTiltakstype(dto: TiltakstypeDto): AvtaleTiltakstype {
+function getAvtaleTiltakstype(dto: TiltakstypeDto): AvtaleTiltakstype {
   if (!dto.tiltakskode) {
     throw new Error("Tiltakskode mangler");
   }

@@ -3,14 +3,14 @@ import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "highcharts/modules/accessibility";
 import { useRef } from "react";
-import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 
 interface Props {
   gjennomforingId: string;
 }
 
 export function NokkeltallDeltakere({ gjennomforingId }: Props) {
-  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforingId);
+  const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforingId);
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   const dataArray = deltakerSummary.deltakereByStatus.map(({ status, count }) => ({

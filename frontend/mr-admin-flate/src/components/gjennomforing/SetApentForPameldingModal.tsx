@@ -1,6 +1,6 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingDto } from "@mr/api-client-v2";
+import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { Button, Modal, Switch } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefObject } from "react";

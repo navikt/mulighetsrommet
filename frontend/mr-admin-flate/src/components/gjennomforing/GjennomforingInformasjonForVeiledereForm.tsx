@@ -1,13 +1,16 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { GjennomforingDto, GjennomforingKontaktperson } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  GjennomforingDto,
+  GjennomforingKontaktperson,
+} from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
-import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
-import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { InformasjonForVeiledereForm } from "@/components/redaksjoneltInnhold/InformasjonForVeiledereForm";
 
 interface Props {
   avtale: AvtaleDto;

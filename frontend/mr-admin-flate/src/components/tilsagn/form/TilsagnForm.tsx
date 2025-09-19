@@ -1,7 +1,12 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { GjennomforingDto, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
-import { TilsagnRequest, TilsagnType, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  TilsagnRequest,
+  TilsagnType,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,

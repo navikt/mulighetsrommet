@@ -14,7 +14,7 @@ export function useDownloadGjennomforingerAsExcel(filter: GjennomforingFilterTyp
     visMineGjennomforinger: filter.visMineGjennomforinger,
     size: filter.pageSize,
     sort: filter.sortering.sortString,
-    publisert: getPublisertStatus(filter.publisert) ?? undefined,
+    publisert: getPublisertStatus(filter.publisert),
   };
 
   return useDownloadFile(() => GjennomforingService.lastNedGjennomforingerSomExcel({ query }));

@@ -14,7 +14,7 @@ import {
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -36,7 +36,7 @@ import { useQueryClient } from "@tanstack/react-query";
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);
 
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: historikk } = useUtbetalingEndringshistorikk(utbetalingId);
   const { data: utbetalingDetaljer } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);

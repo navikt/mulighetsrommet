@@ -1,5 +1,4 @@
 import { HGrid, Select } from "@navikt/ds-react";
-import { Kurstype } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { kurstypeToString } from "@/utils/Utils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
@@ -7,6 +6,14 @@ import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
 import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { AvtaleFormValues } from "@/schemas/avtale";
+
+enum Kurstype {
+  BRANSJE_OG_YRKESRETTET = "BRANSJE_OG_YRKESRETTET",
+  GRUNNLEGGENDE_FERDIGHETER = "GRUNNLEGGENDE_FERDIGHETER",
+  NORSKOPPLAERING = "NORSKOPPLAERING",
+  FORBEREDENDE_OPPLAERING_FOR_VOKSNE = "FORBEREDENDE_OPPLAERING_FOR_VOKSNE",
+  STUDIESPESIALISERING = "STUDIESPESIALISERING",
+}
 
 export function AvtaleAmoKategoriseringForm() {
   const {

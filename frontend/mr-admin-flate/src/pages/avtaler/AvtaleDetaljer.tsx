@@ -8,7 +8,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { AmoKategorisering, Avtaletype } from "@mr/api-client-v2";
+import { Avtaletype } from "@tiltaksadministrasjon/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   Definisjonsliste,
@@ -156,7 +156,7 @@ export function AvtaleDetaljer() {
         <Separator />
         {amoKategorisering && (
           <>
-            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering as AmoKategorisering} />
+            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
             <Separator />
           </>
         )}

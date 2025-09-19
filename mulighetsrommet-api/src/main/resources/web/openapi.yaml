@@ -30,110 +30,7 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/gjennomforinger/{id}/deltaker-summary:
-    get:
-      tags:
-        - Gjennomforinger
-      operationId: getGjennomforingDeltakerSummary
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ID for gjennomføringen
-      responses:
-        200:
-          description: Oppsummert informasjon om gjennomførings deltakere
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingDeltakerSummary"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger:
-    get:
-      tags:
-        - Gjennomforinger
-      operationId: getGjennomforinger
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: number
-          description: Page number, default 1
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search for gjennomføringer by the name
-        - in: query
-          name: navEnheter
-          schema:
-            type: array
-            items:
-              type: string
-          description: 4 digit enhetskode
-        - in: query
-          name: tiltakstyper
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
-          description: Id for tiltakstype knyttet til gjennomføringer
-        - in: query
-          name: statuser
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/GjennomforingStatusType"
-          description: Status for gjennomføring
-        - in: query
-          name: navRegioner
-          schema:
-            type: array
-            items:
-              type: string
-        - in: query
-          name: arrangorer
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
-        - in: query
-          name: publisert
-          schema:
-            type: [boolean, "null"]
-        - in: query
-          name: size
-          schema:
-            type: number
-          description: Page size, default 50
-        - in: query
-          name: sort
-          schema:
-            $ref: "#/components/schemas/SorteringGjennomforinger"
-        - in: query
-          name: avtaleId
-          schema:
-            type: string
-        - in: query
-          name: visMineGjennomforinger
-          schema:
-            type: boolean
-      responses:
-        200:
-          description: Object of paginated gjennomføringer.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertGjennomforing"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
     put:
       tags:
         - Gjennomforinger
@@ -143,23 +40,6 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/GjennomforingRequest"
-      responses:
-        200:
-          description: The specified gjennomføring with data about tiltakstype.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingDto"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
-  /api/v1/intern/gjennomforinger/{id}:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Gjennomforinger
-      operationId: getGjennomforing
       responses:
         200:
           description: The specified gjennomføring with data about tiltakstype.
@@ -253,33 +133,6 @@ components:
         pointer:
           type: string
       required: [detail, pointer]
-
-    Pagination:
-      type: object
-      properties:
-        totalCount:
-          type: integer
-        totalPages:
-          type: integer
-        pageSize:
-          type: integer
-      required:
-        - totalCount
-        - totalPages
-        - pageSize
-
-    PaginertGjennomforing:
-      type: object
-      required:
-        - pagination
-        - data
-      properties:
-        pagination:
-          $ref: "#/components/schemas/Pagination"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingDto"
 
     AvtaleDto:
       type: object
@@ -572,24 +425,6 @@ components:
         - error
         - error-border
         - error-border-strikethrough
-
-    SorteringGjennomforinger:
-      type: string
-      enum:
-        - navn-ascending
-        - navn-descending
-        - tiltaksnummer-ascending
-        - tiltaksnummer-descending
-        - tiltakstype-ascending
-        - tiltakstype-descending
-        - startdato-ascending
-        - startdato-descending
-        - sluttdato-ascending
-        - sluttdato-descending
-        - arrangor-ascending
-        - arrangor-descending
-        - publisert_ascending
-        - publisert_descending
 
     GjennomforingDto:
       type: object
@@ -1061,27 +896,6 @@ components:
         - UTLAND
         - YTA
 
-    GjennomforingDeltakerSummary:
-      type: object
-      properties:
-        antallDeltakere:
-          type: number
-        deltakereByStatus:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-              count:
-                type: integer
-            required:
-              - status
-              - count
-      required:
-        - antallDeltakere
-        - deltakereByStatus
-
     GjennomforingKontaktperson:
       type: object
       properties:
@@ -1220,15 +1034,6 @@ components:
         - NASJONALITET
         - ADRESSESPERRE
         - VERGEMAL
-
-    Kurstype:
-      type: string
-      enum:
-        - BRANSJE_OG_YRKESRETTET
-        - NORSKOPPLAERING
-        - GRUNNLEGGENDE_FERDIGHETER
-        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
-        - STUDIESPESIALISERING
 
     AmoKategorisering:
       oneOf:

@@ -14,7 +14,7 @@ function getUnderenheterAsSelectOptionsBy(
   return enheter
     .filter((enhet) => {
       return (
-        enhet.overordnetEnhet != null &&
+        enhet.overordnetEnhet !== null &&
         navRegioner.includes(enhet.overordnetEnhet) &&
         predicate(enhet)
       );
