@@ -139,6 +139,8 @@ sealed class DataElement {
     companion object {
         fun text(value: String?) = Text(value, null)
 
+        fun jaEllerNei(value: Boolean) = Text(if (value) "Ja" else "Nei", null)
+
         fun nok(value: Number) = Text(value.toString(), Format.NOK)
 
         fun date(value: LocalDate) = Text(value.toString(), Format.DATE)

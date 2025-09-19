@@ -22,7 +22,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
-import { LabeledDataElement } from "@/components/data-element/LabeledDataElement";
+import { DataDetails } from "@/components/data-element/DataDetails";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -37,7 +37,6 @@ export function GjennomforingDetaljer() {
     oppstart,
     antallPlasser,
     deltidsprosent,
-    apentForPamelding,
     administratorer,
     arenaAnsvarligEnhet,
     arrangor,
@@ -117,23 +116,10 @@ export function GjennomforingDetaljer() {
           </Bolk>
 
           <Separator />
-          <Bolk aria-label={gjennomforingTekster.apentForPameldingLabel}>
-            <Metadata
-              header={gjennomforingTekster.apentForPameldingLabel}
-              value={apentForPamelding ? "Ja" : "Nei"}
-            />
-          </Bolk>
+
+          <DataDetails layout="grid" {...gjennomforing.detaljer.pamelding} />
 
           <Separator />
-
-          {gjennomforing.estimertVentetid ? (
-            <>
-              <Bolk aria-label={gjennomforingTekster.estimertVentetidLabel}>
-                <LabeledDataElement {...gjennomforing.estimertVentetid} />
-              </Bolk>
-              <Separator />
-            </>
-          ) : null}
 
           <Bolk aria-label={gjennomforingTekster.administratorerForGjennomforingenLabel}>
             <Metadata

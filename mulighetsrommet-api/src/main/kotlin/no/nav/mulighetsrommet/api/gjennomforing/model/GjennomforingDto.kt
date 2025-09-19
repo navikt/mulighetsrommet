@@ -39,7 +39,8 @@ data class GjennomforingDto(
     val beskrivelse: String?,
     val publisert: Boolean,
     val deltidsprosent: Double,
-    val estimertVentetid: LabeledDataElement?,
+    val estimertVentetid: EstimertVentetid?,
+    val detaljer: Detaljer,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
@@ -50,5 +51,10 @@ data class GjennomforingDto(
     data class Status(
         val type: GjennomforingStatusType,
         val status: DataElement.Status,
+    )
+
+    @Serializable
+    data class Detaljer(
+        val pamelding: DataDetails,
     )
 }

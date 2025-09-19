@@ -6,6 +6,7 @@ import {
   AmoKategoriseringInnholdElement as InnholdElement,
   ArenaMigreringOpphav,
   DataElementStatusVariant,
+  EstimertVentetidEnhet,
   GjennomforingArrangorUnderenhet,
   GjennomforingDto,
   GjennomforingOppstartstype,
@@ -33,13 +34,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
     tiltaksnummer: "123456",
     estimertVentetid: {
-      type: LabeledDataElementType.INLINE,
-      label: "Estimert ventetid",
-      value: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "3 måneder",
-        format: null,
-      },
+      verdi: 3,
+      enhet: EstimertVentetidEnhet.MANED,
     },
     antallPlasser: 50,
     arrangor,
@@ -129,6 +125,31 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     amoKategorisering: null,
     stengt: [],
     utdanningslop: null,
+    detaljer: {
+      pamelding: {
+        header: null,
+        entries: [
+          {
+            type: LabeledDataElementType.MULTILINE,
+            label: "Åpent for påmelding",
+            value: {
+              type: "no.nav.mulighetsrommet.model.DataElement.Text",
+              value: "Nei",
+              format: null,
+            },
+          },
+          {
+            type: LabeledDataElementType.MULTILINE,
+            label: "Estimert ventetid",
+            value: {
+              type: "no.nav.mulighetsrommet.model.DataElement.Text",
+              value: "3 måneder",
+              format: null,
+            },
+          },
+        ],
+      },
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -166,6 +187,22 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     beskrivelse: null,
     estimertVentetid: null,
     utdanningslop: null,
+    detaljer: {
+      pamelding: {
+        header: null,
+        entries: [
+          {
+            type: LabeledDataElementType.MULTILINE,
+            label: "Åpent for påmelding",
+            value: {
+              type: "no.nav.mulighetsrommet.model.DataElement.Text",
+              value: "Ja",
+              format: null,
+            },
+          },
+        ],
+      },
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -213,6 +250,22 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     beskrivelse: null,
     estimertVentetid: null,
     utdanningslop: null,
+    detaljer: {
+      pamelding: {
+        header: null,
+        entries: [
+          {
+            type: LabeledDataElementType.MULTILINE,
+            label: "Åpent for påmelding",
+            value: {
+              type: "no.nav.mulighetsrommet.model.DataElement.Text",
+              value: "Ja",
+              format: null,
+            },
+          },
+        ],
+      },
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -250,6 +303,22 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     beskrivelse: null,
     estimertVentetid: null,
     utdanningslop: null,
+    detaljer: {
+      pamelding: {
+        header: null,
+        entries: [
+          {
+            type: LabeledDataElementType.MULTILINE,
+            label: "Åpent for påmelding",
+            value: {
+              type: "no.nav.mulighetsrommet.model.DataElement.Text",
+              value: "Ja",
+              format: null,
+            },
+          },
+        ],
+      },
+    },
   },
 ];
 

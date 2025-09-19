@@ -4131,6 +4131,43 @@ components:
       - mobilnummer
       - navIdent
       - navn
+    EstimertVentetid:
+      type: object
+      properties:
+        verdi:
+          type: integer
+          format: int32
+        enhet:
+          $ref: "#/components/schemas/EstimertVentetid.Enhet"
+      required:
+      - enhet
+      - verdi
+    EstimertVentetid.Enhet:
+      type: string
+      enum:
+      - UKE
+      - MANED
+    GjennomforingDto.Detaljer:
+      type: object
+      properties:
+        pamelding:
+          $ref: "#/components/schemas/DataDetails"
+      required:
+      - pamelding
+    DataDetails:
+      type: object
+      properties:
+        header:
+          type:
+          - "null"
+          - string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabeledDataElement"
+      required:
+      - entries
+      - header
     LabeledDataElement:
       type: object
       properties:
@@ -4316,7 +4353,9 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/LabeledDataElement"
+          - $ref: "#/components/schemas/EstimertVentetid"
+        detaljer:
+          $ref: "#/components/schemas/GjennomforingDto.Detaljer"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -4344,6 +4383,7 @@ components:
       - avtaleId
       - beskrivelse
       - deltidsprosent
+      - detaljer
       - estimertVentetid
       - faneinnhold
       - id
@@ -4584,20 +4624,6 @@ components:
       - belop
       - prismodell
       - regnestykke
-    DataDetails:
-      type: object
-      properties:
-        header:
-          type:
-          - "null"
-          - string
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
-      required:
-      - entries
-      - header
     CalculationDto:
       type: object
       properties:

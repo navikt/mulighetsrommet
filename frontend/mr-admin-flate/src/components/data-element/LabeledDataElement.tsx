@@ -2,7 +2,6 @@ import {
   LabeledDataElement as LabeledDataElementProps,
   LabeledDataElementType,
 } from "@tiltaksadministrasjon/api-client";
-import { BodyLong } from "@navikt/ds-react";
 import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
 import { getDataElement } from "./DataElement";
 
@@ -16,7 +15,7 @@ export function LabeledDataElement(props: LabeledDataElementProps) {
       return (
         <Metadata
           header={props.label}
-          value={<BodyLong className="whitespace-pre-line">{valueOrFallback}</BodyLong>}
+          value={<div className="whitespace-pre-line">{valueOrFallback}</div>}
         />
       );
   }
