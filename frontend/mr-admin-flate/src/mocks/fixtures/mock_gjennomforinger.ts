@@ -1,5 +1,5 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
-import { getEmbeddedTiltakstype, mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
+import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
   AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse,
@@ -10,7 +10,9 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingStatusType,
+  GjennomforingTiltakstype,
   PaginatedResponseGjennomforingDto,
+  TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
@@ -36,7 +38,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     antallPlasser: 50,
     arrangor,
     avtaleId: mockAvtaler[0].id,
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
+    tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.AVKLARAG),
     administratorer: [
       {
         navIdent: "B123456",
@@ -128,7 +130,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "123456",
     deltidsprosent: 100,
     arrangor,
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
+    tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
@@ -165,7 +167,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "654434",
     deltidsprosent: 100,
     arrangor,
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUPPEAMO),
+    tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUPPEAMO),
     administratorer: [
       {
         navIdent: "B815493",
@@ -212,7 +214,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     tiltaksnummer: "654432",
     deltidsprosent: 100,
     arrangor,
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
+    tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
@@ -253,3 +255,15 @@ export const paginertMockGjennomforinger: PaginatedResponseGjennomforingDto = {
   },
   data: mockGjennomforinger,
 };
+
+function getGjennomforingTiltakstype(dto: TiltakstypeDto): GjennomforingTiltakstype {
+  if (!dto.tiltakskode) {
+    throw new Error("Tiltakskode mangler");
+  }
+
+  return {
+    id: dto.id,
+    navn: dto.navn,
+    tiltakskode: dto.tiltakskode,
+  };
+}
