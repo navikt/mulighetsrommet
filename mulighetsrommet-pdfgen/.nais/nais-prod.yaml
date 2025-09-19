@@ -11,15 +11,15 @@ spec:
   image: "{{ image }}"
   port: 8080
   replicas:
-    min: 2
-    max: 4
+    min: 1
+    max: 2
     scalingStrategy:
       cpu:
         thresholdPercentage: 80
   resources:
     requests:
-      cpu: 200m
-      memory: 1024Mi
+      cpu: 10m
+      memory: 256Mi
     limits:
       memory: 1024Mi
   liveness:

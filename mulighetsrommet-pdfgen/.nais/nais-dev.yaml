@@ -18,10 +18,10 @@ spec:
         thresholdPercentage: 80
   resources:
     requests:
-      cpu: 50m
-      memory: 640Mi
+      cpu: 10m
+      memory: 256Mi
     limits:
-      memory: 640Mi
+      memory: 1024Mi
   liveness:
     path: /internal/is_alive
   readiness:
