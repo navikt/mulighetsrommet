@@ -121,13 +121,13 @@ object TilsagnValidator {
                 }
 
                 val satsPeriodeSlutt = AvtalteSatser.findSats(avtalteSatser, periode.getLastInclusiveDate())
-                validate(satsPeriodeSlutt == null) {
+                validate(satsPeriodeSlutt != null) {
                     FieldError.of(
                         "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                         TilsagnRequest::periodeSlutt,
                     )
                 }
-                validate(satsPeriodeStart != satsPeriodeSlutt) {
+                validate(satsPeriodeStart == satsPeriodeSlutt) {
                     FieldError.of(
                         "Tilsagnsperioden kan ikke gå over flere registrerte sats-/prisperioder på avtalen",
                         TilsagnRequest::periodeSlutt,
