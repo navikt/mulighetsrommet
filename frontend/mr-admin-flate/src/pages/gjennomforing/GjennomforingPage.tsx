@@ -11,7 +11,7 @@ import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import React from "react";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
@@ -37,7 +37,7 @@ export function GjennomforingPage() {
   const currentTab = getCurrentTab(pathname);
 
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
 
   const { data: enableTilsagn } = useFeatureToggle(
     FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,

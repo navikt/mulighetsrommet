@@ -1,7 +1,7 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { QueryKeys } from "@/api/QueryKeys";
 import { Header } from "@/components/detaljside/Header";
 import { defaultGjennomforingData } from "@/components/gjennomforing/GjennomforingFormConst";
@@ -19,7 +19,7 @@ import { DataElementStatusTag } from "@/components/data-element/DataElementStatu
 
 function useGjennomforingFormData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: ansatt } = useHentAnsatt();
   return { gjennomforing, avtale, ansatt };

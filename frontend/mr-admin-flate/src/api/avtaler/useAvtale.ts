@@ -11,7 +11,7 @@ export function useAvtale(id: string) {
   });
 }
 
-export function usePotentialAvtale(id?: string) {
+export function usePotentialAvtale(id: string | null) {
   return useApiQuery({
     queryKey: QueryKeys.avtale(id),
     queryFn: async () => {

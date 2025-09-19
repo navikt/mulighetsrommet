@@ -1,15 +1,9 @@
+import { Avtaletype, NavEnhetDto, Tiltakskode, ValidationError } from "@mr/api-client-v2";
 import {
-  Avtaletype,
-  Bransje,
-  EstimertVentetidEnhet,
-  ForerkortKlasse,
-  InnholdElement,
-  Kurstype,
-  NavEnhetDto,
-  Tiltakskode,
-  ValidationError,
-} from "@mr/api-client-v2";
-import {
+  AmoKategorisering,
+  AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
+  AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse,
+  AmoKategoriseringInnholdElement as InnholdElement,
   AvtaleDto,
   DelutbetalingReturnertAarsak,
   TilsagnStatusAarsak,
@@ -148,11 +142,11 @@ export function formaterNavEnheter(
   return `${forsteEnhet?.navn} ${navEnheter.length > 0 ? `+ ${navEnheter.length}` : ""}`;
 }
 
-export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
+export function formatertVentetid(verdi: number, enhet: string): string {
   switch (enhet) {
-    case EstimertVentetidEnhet.UKE:
+    case "uke":
       return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case EstimertVentetidEnhet.MANED:
+    case "maned":
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
@@ -200,18 +194,20 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
   }
 }
 
-export function kurstypeToString(kurstype: Kurstype): string {
+export function kurstypeToString(kurstype: AmoKategorisering["kurstype"]): string {
   switch (kurstype) {
-    case Kurstype.BRANSJE_OG_YRKESRETTET:
+    case "BRANSJE_OG_YRKESRETTET":
       return "Bransje-/yrkesrettet kurs";
-    case Kurstype.NORSKOPPLAERING:
+    case "NORSKOPPLAERING":
       return "Norskopplæring";
-    case Kurstype.STUDIESPESIALISERING:
+    case "STUDIESPESIALISERING":
       return "Studiespesialisering";
-    case Kurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+    case "FORBEREDENDE_OPPLAERING_FOR_VOKSNE":
       return "FOV (forberedende opplæring for voksne)";
-    case Kurstype.GRUNNLEGGENDE_FERDIGHETER:
+    case "GRUNNLEGGENDE_FERDIGHETER":
       return "Grunnleggende ferdigheter";
+    case undefined:
+      throw new Error("Kurstype is missing");
   }
 }
 
@@ -257,14 +253,14 @@ export function innholdElementToString(innholdElement: InnholdElement): string {
   }
 }
 
-export function getPublisertStatus(statuser: string[] = []): boolean | null {
-  if (statuser.length === 0) return null;
+export function getPublisertStatus(statuser: string[] = []): boolean | undefined {
+  if (statuser.length === 0) return undefined;
 
   if (statuser.every((status) => status === "publisert")) return true;
 
   if (statuser.every((status) => status === "ikke-publisert")) return false;
 
-  return null;
+  return undefined;
 }
 
 export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {

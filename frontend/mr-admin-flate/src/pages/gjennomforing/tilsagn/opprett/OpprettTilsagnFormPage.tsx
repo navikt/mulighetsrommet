@@ -1,7 +1,7 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 
@@ -12,7 +12,7 @@ function useHentData(gjennomforingId: string) {
   const periodeSlutt = searchParams.get("periodeSlutt");
   const kostnadssted = searchParams.get("kostnadssted");
 
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: defaults } = useTilsagnDefaults({
     id: null,
     gjennomforingId,

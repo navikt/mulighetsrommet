@@ -1,6 +1,6 @@
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
 import { RedaksjoneltInnhold } from "./RedaksjoneltInnholdPreview";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Laster } from "../laster/Laster";
 import { Suspense } from "react";
@@ -8,7 +8,7 @@ import { Faneinnhold } from "@tiltaksadministrasjon/api-client";
 
 export function RedaksjoneltInnholdGjennomforing() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
 
   return (
     <Suspense fallback={<Laster tekst="Laster innhold" />}>

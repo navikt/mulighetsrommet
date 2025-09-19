@@ -1,6 +1,5 @@
-import { Alert, BodyShort } from "@navikt/ds-react";
-import { Laster } from "../laster/Laster";
-import { GjennomforingDto } from "@mr/api-client-v2";
+import { BodyShort } from "@navikt/ds-react";
+import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { ReactNode } from "react";
 import { useGjennomforinger } from "@/api/gjennomforing/useGjennomforinger";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
@@ -12,18 +11,7 @@ interface Props {
 }
 
 export function GjennomforingList(props: Props) {
-  const { data, isError, isPending } = useGjennomforinger(props.filter);
-
-  if (isError) {
-    return <Alert variant="error">Vi hadde problemer med henting av tiltaksgjennomføringer</Alert>;
-  }
-
-  if (isPending) {
-    return <Laster size="xlarge" tekst="Laster tiltaksgjennomføringer..." />;
-  }
-
-  const gjennomforinger = data.data;
-
+  const { data: gjennomforinger } = useGjennomforinger(props.filter);
   return (
     <div>
       <div className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-border-divider p-4 items-center gap-2">
@@ -33,7 +21,7 @@ export function GjennomforingList(props: Props) {
       </div>
 
       <ul className="overflow-y-auto list-none m-0 p-0 max-h-[30rem]">
-        {gjennomforinger.map((gjennomforing) => (
+        {gjennomforinger.data.map((gjennomforing) => (
           <li
             key={gjennomforing.id}
             className="grid grid-cols-[2fr_1fr_1fr_1fr] border-b border-border-divider p-4 items-center gap-2"

@@ -1,8 +1,12 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { GjennomforingDto, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
-import { SetStengtHosArrangorRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  SetStengtHosArrangorRequest,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { FloppydiskIcon } from "@navikt/aksel-icons";

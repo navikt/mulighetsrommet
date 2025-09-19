@@ -5,12 +5,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import {
-  FieldError,
-  GjennomforingDto,
-  Opphav,
-  ValidationError as LegacyValidationError,
-} from "@mr/api-client-v2";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
@@ -21,9 +16,11 @@ import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
-import { useGjennomforingHandlinger } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import {
+  ArenaMigreringOpphav,
   AvbrytGjennomforingAarsak,
+  GjennomforingDto,
   GjennomforingHandling,
   NavAnsattDto,
   ValidationError,
@@ -54,7 +51,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   function dupliserGjennomforing() {
     const duplisert: Partial<GjennomforingDto> = {
-      opphav: Opphav.TILTAKSADMINISTRASJON,
+      opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
       avtaleId: gjennomforing.avtaleId,
       beskrivelse: gjennomforing.beskrivelse,
       faneinnhold: gjennomforing.faneinnhold,

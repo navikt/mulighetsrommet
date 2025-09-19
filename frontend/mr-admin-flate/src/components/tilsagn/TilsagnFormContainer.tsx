@@ -1,7 +1,7 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
-import { GjennomforingDto } from "@mr/api-client-v2";
 import {
+  GjennomforingDto,
   TilsagnBeregningType,
   TilsagnRequest,
   TilsagnType,

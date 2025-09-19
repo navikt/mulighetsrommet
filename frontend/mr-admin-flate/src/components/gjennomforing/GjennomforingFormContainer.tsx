@@ -6,12 +6,9 @@ import {
   InferredGjennomforingSchema,
 } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GjennomforingRequest, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   GjennomforingDto,
-  GjennomforingRequest,
-  ValidationError as LegacyValidationError,
-} from "@mr/api-client-v2";
-import {
   AvtaleDto,
   NavEnhetDto,
   Tiltakskode,
@@ -24,8 +21,8 @@ import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { Separator } from "../detaljside/Metadata";
-import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
+import { Separator } from "@/components/detaljside/Metadata";
+import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
 import { z } from "zod";

@@ -20,7 +20,6 @@ data class GjennomforingDto(
     val tiltakstype: Gjennomforing.Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
-    val lopenummer: String,
     val arrangor: Gjennomforing.ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -40,10 +39,6 @@ data class GjennomforingDto(
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val oppdatertTidspunkt: LocalDateTime,
     val publisert: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: Gjennomforing.EstimertVentetid?,

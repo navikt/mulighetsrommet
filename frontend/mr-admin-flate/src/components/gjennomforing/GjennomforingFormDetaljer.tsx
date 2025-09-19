@@ -6,7 +6,12 @@ import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/Gj
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { isKursTiltak } from "@/utils/Utils";
-import { GjennomforingDto, GjennomforingOppstartstype, Tiltakskode } from "@mr/api-client-v2";
+import {
+  AvtaleDto,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
+  Tiltakskode,
+} from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
   DatePicker,
@@ -19,18 +24,17 @@ import {
 } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
-import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { GjennomforingUtdanningslopForm } from "../utdanning/GjennomforingUtdanningslopForm";
+import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
+import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
+import { AdministratorOptions } from "@/components/skjema/AdministratorOptions";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
-import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   gjennomforing?: GjennomforingDto;

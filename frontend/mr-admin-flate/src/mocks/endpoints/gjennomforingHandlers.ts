@@ -1,12 +1,13 @@
 import { http, HttpResponse, PathParams } from "msw";
-import {
-  GjennomforingDeltakerSummary,
-  GjennomforingDto,
-  PaginertGjennomforing,
-} from "@mr/api-client-v2";
+import { GjennomforingDeltakerSummary } from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
-import { EndringshistorikkDto, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
+import {
+  EndringshistorikkDto,
+  GjennomforingDto,
+  GjennomforingHandling,
+  PaginatedResponseGjennomforingDto,
+} from "@tiltaksadministrasjon/api-client";
 
 export const gjennomforingHandlers = [
   http.get<{ id: string }, undefined, GjennomforingHandling[]>(
@@ -27,17 +28,20 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, PaginertGjennomforing | { x: string }>(
-    "*/api/v1/intern/gjennomforinger",
+  http.get<PathParams, undefined, PaginatedResponseGjennomforingDto>(
+    "*/api/tiltaksadministrasjon/gjennomforinger",
     () => {
       return HttpResponse.json(paginertMockGjennomforinger);
     },
   ),
 
-  http.put<PathParams, GjennomforingDto>("*/api/v1/intern/gjennomforinger", () => {
-    const gjennomforing = mockGjennomforinger[0];
-    return HttpResponse.json({ ...gjennomforing, updatedAt: new Date().toISOString() });
-  }),
+  http.put<PathParams, undefined, GjennomforingDto>(
+    "*/api/tiltaksadministrasjon/gjennomforinger",
+    () => {
+      const gjennomforing = mockGjennomforinger[0];
+      return HttpResponse.json(gjennomforing);
+    },
+  ),
 
   http.get<{ id: string }, GjennomforingDto | undefined>(
     "*/api/v1/intern/gjennomforinger/skjema",
@@ -48,23 +52,8 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, GjennomforingDto[]>("*/api/v1/intern/gjennomforinger/sok", ({ request }) => {
-    const url = new URL(request.url);
-    const tiltaksnummer = url.searchParams.get("tiltaksnummer");
-
-    if (!tiltaksnummer) {
-      throw new Error("Tiltaksnummer er ikke satt som query-param");
-    }
-
-    const gjennomforing = mockGjennomforinger.filter((tg) =>
-      (tg.tiltaksnummer ?? "").toString().includes(tiltaksnummer),
-    );
-
-    return HttpResponse.json(gjennomforing);
-  }),
-
   http.get<{ id: string }, GjennomforingDto | undefined>(
-    "/api/v1/intern/gjennomforinger/:id",
+    "/api/tiltaksadministrasjon/gjennomforinger/:id",
     ({ params }) => {
       const { id } = params;
 

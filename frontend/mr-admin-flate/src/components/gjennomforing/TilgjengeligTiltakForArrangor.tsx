@@ -1,11 +1,8 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
-  FieldError,
   GjennomforingDto,
-  ValidationError as LegacyValidationError,
-} from "@mr/api-client-v2";
-import {
   Rolle,
   SetTilgjengligForArrangorRequest,
   ValidationError,

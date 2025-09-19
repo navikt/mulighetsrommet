@@ -1,5 +1,9 @@
-import { GjennomforingDto, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
-import { OpprettUtbetalingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  OpprettUtbetalingRequest,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,

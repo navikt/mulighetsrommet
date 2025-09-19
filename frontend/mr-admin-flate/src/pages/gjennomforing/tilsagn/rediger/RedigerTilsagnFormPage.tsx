@@ -1,11 +1,11 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagn, useTilsagnRequest } from "../detaljer/tilsagnDetaljerLoader";
 import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: defaults } = useTilsagnRequest(tilsagnId);
   return { gjennomforing, defaults, opprettelse: tilsagnDetaljer.opprettelse };
