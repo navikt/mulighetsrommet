@@ -113,7 +113,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
+        authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
             get("/beregning", {
                 tags = setOf("Utbetaling")
                 operationId = "getUtbetalingBeregning"
