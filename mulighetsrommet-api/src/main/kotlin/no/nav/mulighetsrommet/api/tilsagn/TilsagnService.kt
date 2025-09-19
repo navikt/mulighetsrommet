@@ -78,7 +78,7 @@ class TilsagnService(
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
             )
-            .map { step3 ->
+            .map { validated ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
@@ -89,13 +89,13 @@ class TilsagnService(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periode = step3.step2.periode,
+                    periode = validated.periode,
                     lopenummer = lopenummer,
-                    kostnadssted = step3.step2.step1.kostnadssted,
+                    kostnadssted = validated.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
-                    beregning = step3.beregning,
+                    beregning = validated.beregning,
                     kommentar = request.kommentar,
                 )
             }
