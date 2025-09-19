@@ -12,10 +12,7 @@ spec:
   port: 8080
   replicas:
     min: 1
-    max: 2
-    scalingStrategy:
-      cpu:
-        thresholdPercentage: 80
+    max: 1
   resources:
     requests:
       cpu: 10m
