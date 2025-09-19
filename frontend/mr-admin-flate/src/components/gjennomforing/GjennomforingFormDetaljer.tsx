@@ -1,6 +1,5 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAdministratorer";
-import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
@@ -8,6 +7,7 @@ import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
+  GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingOppstartstype,
   Tiltakskode,
@@ -37,15 +37,14 @@ import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 interface Props {
-  gjennomforing?: GjennomforingDto;
   avtale: AvtaleDto;
+  gjennomforing: GjennomforingDto | null;
+  deltakere: GjennomforingDeltakerSummary | null;
 }
 
-export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
+export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: Props) {
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt } = useHentAnsatt();
-
-  const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforing?.id);
 
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -71,7 +70,6 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
   }, [setValue, watchVisEstimertVentetid]);
 
   const watchStartDato = watch("startOgSluttDato.startDato");
-  const antallDeltakere = deltakerSummary?.antallDeltakere;
 
   useEffect(() => {
     if (watchStartDato && new Date(watchStartDato) < new Date()) {
@@ -81,10 +79,11 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
 
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
 
+  const antallDeltakere = deltakere?.antallDeltakere ?? 0;
+
   function visAdvarselForSluttDato() {
     if (
       gjennomforing &&
-      antallDeltakere &&
       antallDeltakere > 0 &&
       watchSluttDato &&
       gjennomforing.sluttDato !== watchSluttDato
@@ -316,7 +315,7 @@ export function GjennomforingFormDetaljer({ gjennomforing, avtale }: Props) {
         <EndreDatoAdvarselModal
           modalRef={endreSluttDatoModalRef}
           onCancel={() => setValue("startOgSluttDato.sluttDato", gjennomforing.sluttDato)}
-          antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
+          antallDeltakere={antallDeltakere}
         />
       )}
     </>

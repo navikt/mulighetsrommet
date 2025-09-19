@@ -1,9 +1,9 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { GjennomforingDeltakerSummary } from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
 import {
   EndringshistorikkDto,
+  GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingHandling,
   PaginatedResponseGjennomforingDto,
@@ -35,15 +35,12 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<PathParams, undefined, GjennomforingDto>(
-    "*/api/v1/intern/gjennomforinger",
-    () => {
-      const gjennomforing = mockGjennomforinger[0];
-      return HttpResponse.json(gjennomforing);
-    },
-  ),
+  http.put<PathParams, undefined, GjennomforingDto>("*/api/v1/intern/gjennomforinger", () => {
+    const gjennomforing = mockGjennomforinger[0];
+    return HttpResponse.json(gjennomforing);
+  }),
 
-  http.get<{ id: string }, GjennomforingDto | undefined>(
+  http.get<{ id: string }, undefined, GjennomforingDto>(
     "/api/tiltaksadministrasjon/gjennomforinger/:id",
     ({ params }) => {
       const { id } = params;
@@ -57,18 +54,21 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/gjennomforinger/:id/avbryt", () => {
-    return HttpResponse.json(1);
-  }),
+  http.put<{ id: string }, undefined, undefined>(
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/avbryt",
+    () => {
+      return HttpResponse.text();
+    },
+  ),
 
-  http.put<{ id: string }, number>(
+  http.put<{ id: string }, undefined, undefined>(
     "*/api/tiltaksadministrasjon/gjennomforinger/:id/tilgjengelig-for-veileder",
     () => {
       return HttpResponse.text();
     },
   ),
 
-  http.put<{ id: string }, number>(
+  http.put<{ id: string }, undefined, undefined>(
     "*/api/tiltaksadministrasjon/gjennomforinger/:id/apent-for-pamelding",
     () => {
       return HttpResponse.text();
@@ -82,8 +82,8 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, GjennomforingDeltakerSummary>(
-    "*/api/v1/intern/gjennomforinger/:id/deltaker-summary",
+  http.get<PathParams, undefined, GjennomforingDeltakerSummary>(
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/deltaker-summary",
     () => {
       const deltakerSummary: GjennomforingDeltakerSummary = {
         antallDeltakere: 36,

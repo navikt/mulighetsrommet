@@ -65,6 +65,8 @@ export function NewGjennomforingFormPage() {
               navigate(`/gjennomforinger/${id}`);
             }}
             avtale={avtale}
+            gjennomforing={null}
+            deltakere={null}
             defaultValues={defaultGjennomforingData(
               ansatt,
               avtale,

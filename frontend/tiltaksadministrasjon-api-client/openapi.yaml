@@ -1218,9 +1218,33 @@ paths:
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/{id}/deltaker-summary:
     get:
-      tags: []
-      parameters: []
-      responses: {}
+      tags:
+      - Gjennomforing
+      operationId: getGjennomforingDeltakerSummary
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Oppsummert informasjon om gjennomføringens deltakere
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GjennomforingDeltakerSummary"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/{id}/handlinger:
     get:
@@ -4278,6 +4302,30 @@ components:
           type: string
       required:
       - tiltaksnummer
+    DeltakerStatusSummary:
+      type: object
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+          format: int32
+      required:
+      - count
+      - status
+    GjennomforingDeltakerSummary:
+      type: object
+      properties:
+        antallDeltakere:
+          type: integer
+          format: int32
+        deltakereByStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerStatusSummary"
+      required:
+      - antallDeltakere
+      - deltakereByStatus
     GjennomforingHandling:
       type: string
       enum:

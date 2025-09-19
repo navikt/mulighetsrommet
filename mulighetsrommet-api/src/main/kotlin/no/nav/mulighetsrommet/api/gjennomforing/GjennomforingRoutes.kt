@@ -453,7 +453,23 @@ fun Route.gjennomforingRoutes() {
             call.respond(historikk)
         }
 
-        get("{id}/deltaker-summary") {
+        get("{id}/deltaker-summary", {
+            tags = setOf("Gjennomforing")
+            operationId = "getGjennomforingDeltakerSummary"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Oppsummert informasjon om gjennomføringens deltakere"
+                    body<GjennomforingDeltakerSummary>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {

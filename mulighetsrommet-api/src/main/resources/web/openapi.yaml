@@ -30,29 +30,6 @@ paths:
         default:
           $ref: "#/components/responses/ProblemDetail"
 
-  /api/v1/intern/gjennomforinger/{id}/deltaker-summary:
-    get:
-      tags:
-        - Gjennomforinger
-      operationId: getGjennomforingDeltakerSummary
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ID for gjennomføringen
-      responses:
-        200:
-          description: Oppsummert informasjon om gjennomførings deltakere
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingDeltakerSummary"
-        default:
-          $ref: "#/components/responses/ProblemDetail"
-
   /api/v1/intern/gjennomforinger:
     put:
       tags:
@@ -919,27 +896,6 @@ components:
         - UTLAND
         - YTA
 
-    GjennomforingDeltakerSummary:
-      type: object
-      properties:
-        antallDeltakere:
-          type: number
-        deltakereByStatus:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-              count:
-                type: integer
-            required:
-              - status
-              - count
-      required:
-        - antallDeltakere
-        - deltakereByStatus
-
     GjennomforingKontaktperson:
       type: object
       properties:
@@ -1078,15 +1034,6 @@ components:
         - NASJONALITET
         - ADRESSESPERRE
         - VERGEMAL
-
-    Kurstype:
-      type: string
-      enum:
-        - BRANSJE_OG_YRKESRETTET
-        - NORSKOPPLAERING
-        - GRUNNLEGGENDE_FERDIGHETER
-        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
-        - STUDIESPESIALISERING
 
     AmoKategorisering:
       oneOf:

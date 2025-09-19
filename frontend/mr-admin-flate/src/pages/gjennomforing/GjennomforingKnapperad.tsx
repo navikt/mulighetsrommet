@@ -15,7 +15,7 @@ import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import {
   ArenaMigreringOpphav,
@@ -41,7 +41,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
   const avbrytMutation = useAvbrytGjennomforing();
-  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforing.id);
+  const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforing.id);
 
   const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 

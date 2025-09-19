@@ -10,29 +10,30 @@ import { ErrorMeldinger } from "@/components/gjennomforing/GjennomforingFormErro
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
-import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
+import { avtaleHarRegioner } from "@/utils/Utils";
 import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 
 function useGjennomforingFormData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
   const { data: ansatt } = useHentAnsatt();
-  return { gjennomforing, avtale, ansatt };
+  const { data: enheter } = useNavEnheter();
+  const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforingId);
+  return { gjennomforing, avtale, deltakere, ansatt, enheter };
 }
 
 export function GjennomforingFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { gjennomforing, avtale, ansatt } = useGjennomforingFormData();
-  const { data: enheter } = useNavEnheter();
   const queryClient = useQueryClient();
 
-  const redigeringsModus = inneholderUrl(gjennomforing.id);
+  const { gjennomforing, avtale, deltakere, ansatt, enheter } = useGjennomforingFormData();
 
   const navigerTilbake = () => {
     navigate(-1);
@@ -45,14 +46,12 @@ export function GjennomforingFormPage() {
       tittel: "Gjennomføringer",
       lenke: "/gjennomforinger",
     },
-    redigeringsModus
-      ? {
-          tittel: "Gjennomføring",
-          lenke: `/gjennomforinger/${gjennomforing.id}`,
-        }
-      : undefined,
     {
-      tittel: redigeringsModus ? "Rediger gjennomføring" : "Ny gjennomføring",
+      tittel: "Gjennomføring",
+      lenke: `/gjennomforinger/${gjennomforing.id}`,
+    },
+    {
+      tittel: "Rediger gjennomføring",
     },
   ];
 
@@ -62,7 +61,7 @@ export function GjennomforingFormPage() {
       <Header>
         <GjennomforingIkon />
         <Heading size="large" level="2">
-          {redigeringsModus ? "Rediger gjennomføring" : "Opprett ny gjennomføring"}
+          Rediger gjennomføring
         </Heading>
         <DataElementStatusTag {...gjennomforing.status.status} />
       </Header>
@@ -83,6 +82,7 @@ export function GjennomforingFormPage() {
               }}
               avtale={avtale}
               gjennomforing={gjennomforing}
+              deltakere={deltakere}
               defaultValues={defaultGjennomforingData(
                 ansatt,
                 avtale,
