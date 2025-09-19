@@ -1,4 +1,9 @@
-import { Opphav, GjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client-v2";
+import {
+  EstimertVentetidEnhet,
+  GjennomforingOppstartstype,
+  Opphav,
+  UtdanningslopDbo,
+} from "@mr/api-client-v2";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
@@ -74,7 +79,7 @@ export const GjennomforingSchema = z
         verdi: z.number({
           error: "Du må sette en verdi for estimert ventetid",
         }),
-        enhet: z.enum(["uke", "maned"], {
+        enhet: z.enum(EstimertVentetidEnhet, {
           error: "Du må sette en enhet for estimert ventetid",
         }),
       })

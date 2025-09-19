@@ -4131,17 +4131,96 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    Gjennomforing.EstimertVentetid:
+    LabeledDataElement:
       type: object
       properties:
-        verdi:
-          type: integer
-          format: int32
-        enhet:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
+          type: string
+        value:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataElement"
+      required:
+      - label
+      - type
+      - value
+    LabeledDataElementType:
+      type: string
+      enum:
+      - INLINE
+      - MULTILINE
+    DataElement:
+      anyOf:
+      - $ref: "#/components/schemas/DataElement.Link"
+      - $ref: "#/components/schemas/DataElement.MathOperator"
+      - $ref: "#/components/schemas/DataElement.Periode"
+      - $ref: "#/components/schemas/DataElement.Status"
+      - $ref: "#/components/schemas/DataElement.Text"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
+          no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
+          no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
+          no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
+          no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
+    DataElement.Link:
+      type: object
+      properties:
+        text:
+          type: string
+        href:
           type: string
       required:
-      - enhet
-      - verdi
+      - href
+      - text
+    DataElement.MathOperator:
+      type: object
+      properties:
+        operator:
+          $ref: "#/components/schemas/DataElement.MathOperator.Type"
+      required:
+      - operator
+    DataElement.MathOperator.Type:
+      type: string
+      enum:
+      - plus
+      - minus
+      - multiply
+      - divide
+      - equals
+    DataElement.Periode:
+      type: object
+      properties:
+        start:
+          type: string
+        slutt:
+          type: string
+      required:
+      - slutt
+      - start
+    DataElement.Text:
+      type: object
+      properties:
+        value:
+          type:
+          - "null"
+          - string
+        format:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataElement.Text.Format"
+      required:
+      - format
+      - value
+    DataElement.Text.Format:
+      type: string
+      enum:
+      - date
+      - nok
+      - number
     Gjennomforing.StengtPeriode:
       type: object
       properties:
@@ -4237,7 +4316,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Gjennomforing.EstimertVentetid"
+          - $ref: "#/components/schemas/LabeledDataElement"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -4397,76 +4476,6 @@ components:
       enum:
       - left
       - right
-    DataElement:
-      anyOf:
-      - $ref: "#/components/schemas/DataElement.Link"
-      - $ref: "#/components/schemas/DataElement.MathOperator"
-      - $ref: "#/components/schemas/DataElement.Periode"
-      - $ref: "#/components/schemas/DataElement.Status"
-      - $ref: "#/components/schemas/DataElement.Text"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
-          no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
-          no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
-          no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
-          no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
-    DataElement.Link:
-      type: object
-      properties:
-        text:
-          type: string
-        href:
-          type: string
-      required:
-      - href
-      - text
-    DataElement.MathOperator:
-      type: object
-      properties:
-        operator:
-          $ref: "#/components/schemas/DataElement.MathOperator.Type"
-      required:
-      - operator
-    DataElement.MathOperator.Type:
-      type: string
-      enum:
-      - plus
-      - minus
-      - multiply
-      - divide
-      - equals
-    DataElement.Periode:
-      type: object
-      properties:
-        start:
-          type: string
-        slutt:
-          type: string
-      required:
-      - slutt
-      - start
-    DataElement.Text:
-      type: object
-      properties:
-        value:
-          type:
-          - "null"
-          - string
-        format:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataElement.Text.Format"
-      required:
-      - format
-      - value
-    DataElement.Text.Format:
-      type: string
-      enum:
-      - date
-      - nok
-      - number
     DataDrivenTableDto:
       type: object
       properties:
@@ -4589,26 +4598,6 @@ components:
       required:
       - entries
       - header
-    LabeledDataElement:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/LabeledDataElementType"
-        label:
-          type: string
-        value:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataElement"
-      required:
-      - label
-      - type
-      - value
-    LabeledDataElementType:
-      type: string
-      enum:
-      - INLINE
-      - MULTILINE
     CalculationDto:
       type: object
       properties:

@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.gjennomforing.model.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -118,8 +119,8 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
             EstimertVentetid(
                 verdi = int("estimert_ventetid_verdi"),
-                enhet = string("estimert_ventetid_enhet"),
-            )
+                enhet = EstimertVentetid.Enhet.valueOf(string("estimert_ventetid_enhet")),
+            ).formatToString()
         },
         personvernBekreftet = boolean("personvern_bekreftet"),
         personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,

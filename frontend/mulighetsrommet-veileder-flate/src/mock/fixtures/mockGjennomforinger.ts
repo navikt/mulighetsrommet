@@ -18,10 +18,7 @@ export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = 
     beskrivelse: "Gjennomføres",
   },
   oppstart: GjennomforingOppstartstype.LOPENDE,
-  estimertVentetid: {
-    verdi: 3,
-    enhet: "maned",
-  },
+  estimertVentetid: "3 måneder",
   stedForGjennomforing:
     "Valpekullsveien 69, 1424" +
     " Taumatawhakatangi­hangakoauauotamatea­turipukakapikimaunga­horonukupokaiwhen­uakitanatahu",

@@ -7,10 +7,8 @@ import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -41,7 +39,7 @@ data class GjennomforingDto(
     val beskrivelse: String?,
     val publisert: Boolean,
     val deltidsprosent: Double,
-    val estimertVentetid: Gjennomforing.EstimertVentetid?,
+    val estimertVentetid: LabeledDataElement?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.LabeledDataElementType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDto(
@@ -29,7 +30,9 @@ object GjennomforingDtoMapper {
         beskrivelse = gjennomforing.beskrivelse,
         publisert = gjennomforing.publisert,
         deltidsprosent = gjennomforing.deltidsprosent,
-        estimertVentetid = gjennomforing.estimertVentetid,
+        estimertVentetid = gjennomforing.estimertVentetid?.let {
+            DataElement.text(it.formatToString()).label("Estimert ventetid", LabeledDataElementType.MULTILINE)
+        },
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
