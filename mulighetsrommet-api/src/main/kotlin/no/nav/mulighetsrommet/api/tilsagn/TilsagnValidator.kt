@@ -2,17 +2,26 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.*
 import arrow.core.raise.*
-import arrow.core.raise.ensure
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
+import kotlin.contracts.ExperimentalContracts
 
+@OptIn(ExperimentalContracts::class)
 object TilsagnValidator {
     private const val TILSAGN_BESKRIVELSE_MAX_LENDE = 100
+
+    data class Validated(
+        val kostnadssted: NavEnhetNummer,
+        val periode: Periode,
+        val beregning: TilsagnBeregning,
+    )
+
     fun validate(
         next: TilsagnRequest,
         previous: Tilsagn?,
@@ -21,154 +30,67 @@ object TilsagnValidator {
         gyldigTilsagnPeriode: Periode?,
         gjennomforingSluttDato: LocalDate?,
         avtalteSatser: List<AvtaltSats>,
-    ): Either<NonEmptyList<FieldError>, Step3> {
-        return validateStep1(
-            next,
-            previous,
-            tiltakstypeNavn,
-            arrangorSlettet,
-            gyldigTilsagnPeriode,
-        )
-            .flatMap { step1 ->
-                validateStep2(step1, gjennomforingSluttDato, tiltakstypeNavn)
-            }
-            .flatMap { step2 ->
-                validateStep3(
-                    step2,
-                    next.beregning,
-                    avtalteSatser,
-                )
-            }
-    }
-
-    data class Step1(
-        val periodeStart: LocalDate,
-        val periodeSlutt: LocalDate,
-        val kostnadssted: NavEnhetNummer,
-        val gyldigTilsagnPeriode: Periode,
-    )
-
-    fun validateStep1(
-        next: TilsagnRequest,
-        previous: Tilsagn?,
-        tiltakstypeNavn: String,
-        arrangorSlettet: Boolean,
-        gyldigTilsagnPeriode: Periode?,
-    ): Either<NonEmptyList<FieldError>, Step1> = either {
-        zipOrAccumulate(
-            {
-                ensureNotNull(next.periodeStart) {
-                    FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
-                }
-                next.periodeStart
-            },
-            {
-                ensureNotNull(next.periodeSlutt) {
-                    FieldError.of("Periodeslutt må være satt", TilsagnRequest::periodeSlutt)
-                }
-                next.periodeSlutt
-            },
-            {
-                ensureNotNull(gyldigTilsagnPeriode) {
-                    FieldError.of("Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda", TilsagnRequest::periodeStart)
-                }
-            },
-            {
-                ensure(!arrangorSlettet) {
-                    FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id)
-                }
-            },
-            {
-                ensure(previous == null || previous.status == TilsagnStatus.RETURNERT) {
-                    FieldError.of("Tilsagnet kan ikke endres.", TilsagnRequest::id)
-                }
-            },
-            {
-                ensure((next.kommentar?.length ?: 0) <= 500) {
-                    FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
-                }
-            },
-            {
-                ensureNotNull(next.kostnadssted) {
-                    FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted)
-                }
-            },
-            {
-                validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser).bind()
-            },
-            {
-                validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker).bind()
-            },
-        ) { start, slutt, gyldigPeriode, _, _, _, kostnadssted, _, _ ->
-            Step1(
-                periodeStart = start,
-                periodeSlutt = slutt,
-                kostnadssted = kostnadssted,
-                gyldigTilsagnPeriode = gyldigPeriode,
-            )
+    ): Either<List<FieldError>, Validated> = validation {
+        validateNotNull(next.periodeStart) {
+            FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart)
         }
-    }
-
-    data class Step2(
-        val step1: Step1,
-        val periode: Periode,
-    )
-
-    fun validateStep2(
-        step1: Step1,
-        gjennomforingSluttDato: LocalDate?,
-        tiltakstypeNavn: String,
-    ): Either<NonEmptyList<FieldError>, Step2> = either {
-        zipOrAccumulate(
-            {
-                ensure(step1.periodeStart.isBefore(step1.periodeSlutt)) {
-                    FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
-                }
-                Periode.fromInclusiveDates(step1.periodeStart, step1.periodeSlutt)
-            },
-            {
-                ensure(!step1.periodeStart.isBefore(step1.gyldigTilsagnPeriode.start)) {
-                    FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er ${step1.gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart)
-                }
-            },
-            {
-                ensure(!step1.periodeSlutt.isAfter(step1.gyldigTilsagnPeriode.getLastInclusiveDate())) {
-                    FieldError.of("Maksimum sluttdato for tilsagn til $tiltakstypeNavn er ${step1.gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt)
-                }
-            },
-            {
-                ensure(gjennomforingSluttDato == null || !step1.periodeSlutt.isAfter(gjennomforingSluttDato)) {
-                    FieldError.of("Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden", TilsagnRequest::periodeSlutt)
-                }
-            },
-            {
-                ensure(step1.periodeStart.year == step1.periodeSlutt.year) {
-                    FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt)
-                }
-            },
-        ) { periode, _, _, _, _ ->
-            Step2(step1, periode)
+        validateNotNull(next.periodeSlutt) {
+            FieldError.of("Periodeslutt må være satt", TilsagnRequest::periodeSlutt)
         }
-    }
+        validateNotNull(gyldigTilsagnPeriode) {
+            FieldError.of("Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda", TilsagnRequest::periodeStart)
+        }
+        validate(!arrangorSlettet) {
+            FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id)
+        }
+        validate(previous == null || previous.status == TilsagnStatus.RETURNERT) {
+            FieldError.of("Tilsagnet kan ikke endres", TilsagnRequest::id)
+        }
+        validate((next.kommentar?.length ?: 0) <= 500) {
+            FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
+        }
+        validateNotNull(next.kostnadssted) {
+            FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted)
+        }
 
-    data class Step3(
-        val step2: Step2,
-        val beregning: TilsagnBeregning,
-    )
+        validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser).bind()
+        validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker).bind()
+        requireValid(next.periodeStart != null && next.periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
 
-    fun validateStep3(
-        step2: Step2,
-        request: TilsagnBeregningRequest,
-        avtalteSatser: List<AvtaltSats>,
-    ): Either<NonEmptyList<FieldError>, Step3> {
-        val sats = AvtalteSatser.findSats(avtalteSatser, step2.periode.start)
-        return validateBeregning(
-            request = request,
-            periode = step2.periode,
+        validate(next.periodeStart.isBefore(next.periodeSlutt)) {
+            FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
+        }
+        validate(!next.periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
+            FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er ${gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart)
+        }
+        validate(!next.periodeSlutt.isAfter(gyldigTilsagnPeriode.getLastInclusiveDate())) {
+            FieldError.of("Maksimum sluttdato for tilsagn til $tiltakstypeNavn er ${gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt)
+        }
+        validate(gjennomforingSluttDato == null || !next.periodeSlutt.isAfter(gjennomforingSluttDato)) {
+            FieldError.of("Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden", TilsagnRequest::periodeSlutt)
+        }
+        validate(next.periodeStart.year == next.periodeSlutt.year) {
+            FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt)
+        }
+
+        requireValid(next.periodeStart.isBefore(next.periodeSlutt))
+
+        val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
+
+        val sats = AvtalteSatser.findSats(avtalteSatser, periode.start)
+
+        val beregning = validateBeregning(
+            request = next.beregning,
+            periode = periode,
             sats = sats,
             avtalteSatser,
+        ).bind()
+
+        Validated(
+            beregning = beregning,
+            periode = periode,
+            kostnadssted = next.kostnadssted,
         )
-            .map { Step3(step2, it) }
     }
 
     fun validateAvtaltSats(
@@ -176,68 +98,57 @@ object TilsagnValidator {
         avtalteSatser: List<AvtaltSats>,
         periode: Periode,
         sats: Int?,
-    ): Either<NonEmptyList<FieldError>, Int> = either {
+    ): Either<List<FieldError>, Int> = validation {
         when (beregningType) {
-            TilsagnBeregningType.FRI -> return 0.right()
+            TilsagnBeregningType.FRI -> 0
             TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             TilsagnBeregningType.PRIS_PER_UKESVERK,
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-            -> Unit
-        }
-        val errors = buildList {
-            if (sats == null) {
-                return FieldError.of(
-                    "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
-                    TilsagnRequest::periodeStart,
-                ).nel().left()
-            }
-            val satsPeriodeStart = AvtalteSatser.findSats(avtalteSatser, periode.start)
-            if (satsPeriodeStart == null) {
-                add(
+            -> {
+                requireValid(sats != null) {
                     FieldError.of(
                         "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                         TilsagnRequest::periodeStart,
-                    ),
-                )
-            }
+                    )
+                }
+                val satsPeriodeStart = AvtalteSatser.findSats(avtalteSatser, periode.start)
+                validate(satsPeriodeStart != null) {
+                    FieldError.of(
+                        "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
+                        TilsagnRequest::periodeStart,
+                    )
+                }
 
-            val satsPeriodeSlutt = AvtalteSatser.findSats(avtalteSatser, periode.getLastInclusiveDate())
-            if (satsPeriodeSlutt == null) {
-                add(
+                val satsPeriodeSlutt = AvtalteSatser.findSats(avtalteSatser, periode.getLastInclusiveDate())
+                validate(satsPeriodeSlutt == null) {
                     FieldError.of(
                         "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                         TilsagnRequest::periodeSlutt,
-                    ),
-                )
-            } else if (satsPeriodeStart != satsPeriodeSlutt) {
-                add(
+                    )
+                }
+                validate(satsPeriodeStart != satsPeriodeSlutt) {
                     FieldError.of(
                         "Tilsagnsperioden kan ikke gå over flere registrerte sats-/prisperioder på avtalen",
                         TilsagnRequest::periodeSlutt,
-                    ),
-                )
-            }
+                    )
+                }
 
-            if (sats != satsPeriodeStart) {
-                add(
+                validate(sats == satsPeriodeStart) {
                     FieldError.of(
                         "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
                         TilsagnRequest::periodeStart,
-                    ),
-                )
+                    )
+                }
+                sats
             }
         }
-
-        return errors.toNonEmptyListOrNull()?.left() ?: sats!!.right()
     }
 
-    fun validateBeregning(request: TilsagnBeregningRequest, periode: Periode, sats: Int?, avtalteSatser: List<AvtaltSats>): Either<NonEmptyList<FieldError>, TilsagnBeregning> = either {
+    fun validateBeregning(request: TilsagnBeregningRequest, periode: Periode, sats: Int?, avtalteSatser: List<AvtaltSats>): Either<List<FieldError>, TilsagnBeregning> = either {
         val satsV = validateAvtaltSats(request.type, avtalteSatser, periode, sats).bind()
-        val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
-            .mapLeft { it.nel() }.bind()
-        val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker)
-            .mapLeft { it.nel() }.bind()
+        val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser).bind()
+        val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker).bind()
 
         return when (request.type) {
             TilsagnBeregningType.FRI ->
@@ -293,105 +204,93 @@ object TilsagnValidator {
         }
     }
 
-    private fun validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Either<FieldError, Int> {
-        return when (type) {
+    private fun validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Either<List<FieldError>, Int> = validation {
+        when (type) {
             TilsagnBeregningType.FRI,
             TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             TilsagnBeregningType.PRIS_PER_UKESVERK,
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-            -> 0.right()
+            -> 0
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> {
-                if (antallTimerOppfolgingPerDeltaker == null || antallTimerOppfolgingPerDeltaker <= 0) {
+                requireValid(antallTimerOppfolgingPerDeltaker != null && antallTimerOppfolgingPerDeltaker > 0) {
                     FieldError.of(
                         "Antall timer oppfølging per deltaker må være større enn 0",
                         TilsagnRequest::beregning,
                         TilsagnBeregningRequest::antallTimerOppfolgingPerDeltaker,
-                    ).left()
-                } else {
-                    antallTimerOppfolgingPerDeltaker.right()
+                    )
                 }
+                antallTimerOppfolgingPerDeltaker
             }
         }
     }
 
-    private fun validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Either<FieldError, Int> {
-        return when (beregningType) {
-            TilsagnBeregningType.FRI -> 0.right()
+    private fun validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Either<List<FieldError>, Int> = validation {
+        when (beregningType) {
+            TilsagnBeregningType.FRI -> 0
             TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             TilsagnBeregningType.PRIS_PER_UKESVERK,
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
             -> {
-                if (antallPlasser == null || antallPlasser <= 0) {
+                requireValid(antallPlasser != null && antallPlasser > 0) {
                     FieldError.of(
                         "Antall plasser må være større enn 0",
                         TilsagnRequest::beregning,
                         TilsagnBeregningRequest::antallPlasser,
-                    ).left()
-                } else {
-                    antallPlasser.right()
+                    )
                 }
+                antallPlasser
             }
         }
     }
 
-    fun validateBeregningFriInput(request: TilsagnBeregningRequest): Either<NonEmptyList<FieldError>, TilsagnBeregning> = either {
-        if (request.linjer.isNullOrEmpty()) {
-            return FieldError.ofPointer(
-                pointer = "beregning/linjer",
-                detail = "Du må legge til en linje",
-            ).nel().left()
+    fun validateBeregningFriInput(request: TilsagnBeregningRequest): Either<List<FieldError>, TilsagnBeregning> = validation {
+        requireValid(!request.linjer.isNullOrEmpty()) {
+            FieldError.of(
+                "Du må legge til en linje",
+                TilsagnRequest::beregning,
+                TilsagnBeregningRequest::linjer,
+            )
         }
-        val errors = buildList {
-            request.linjer.forEachIndexed { index, linje ->
-                if (linje.belop == null || linje.belop <= 0) {
-                    add(
-                        FieldError.ofPointer(
-                            pointer = "beregning/linjer/$index/belop",
-                            detail = "Beløp må være positivt",
-                        ),
-                    )
-                }
-                if (linje.beskrivelse.isNullOrBlank()) {
-                    add(
-                        FieldError.ofPointer(
-                            pointer = "beregning/linjer/$index/beskrivelse",
-                            detail = "Beskrivelse mangler",
-                        ),
-                    )
-                }
-                if (linje.beskrivelse?.let { it.length > TILSAGN_BESKRIVELSE_MAX_LENDE } == true) {
-                    add(
-                        FieldError.ofPointer(
-                            pointer = "beregning/linjer/$index/beskrivelse",
-                            detail = "Beskrivelsen kan ikke inneholde mer enn ${TILSAGN_BESKRIVELSE_MAX_LENDE} tegn",
-                        ),
-                    )
-                }
-                if (linje.antall == null || linje.antall <= 0) {
-                    add(
-                        FieldError.ofPointer(
-                            pointer = "beregning/linjer/$index/antall",
-                            detail = "Antall må være positivt",
-                        ),
-                    )
-                }
+        request.linjer.forEachIndexed { index, linje ->
+            validate(linje.belop != null && linje.belop > 0) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/belop",
+                    detail = "Beløp må være positivt",
+                )
+            }
+            validate(!linje.beskrivelse.isNullOrBlank()) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/beskrivelse",
+                    detail = "Beskrivelse mangler",
+                )
+            }
+            validate(linje.beskrivelse.isNullOrBlank() || linje.beskrivelse.length <= TILSAGN_BESKRIVELSE_MAX_LENDE) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/beskrivelse",
+                    detail = "Beskrivelsen kan ikke inneholde mer enn $TILSAGN_BESKRIVELSE_MAX_LENDE tegn",
+                )
+            }
+            validate(linje.antall != null && linje.antall > 0) {
+                FieldError.ofPointer(
+                    pointer = "/beregning/linjer/$index/antall",
+                    detail = "Antall må være positivt",
+                )
             }
         }
 
-        return errors.toNonEmptyListOrNull()?.left()
-            ?: TilsagnBeregningFri.beregn(
-                TilsagnBeregningFri.Input(
-                    linjer = request.linjer.map {
-                        TilsagnBeregningFri.InputLinje(
-                            id = it.id,
-                            beskrivelse = it.beskrivelse!!,
-                            belop = it.belop!!,
-                            antall = it.antall!!,
-                        )
-                    },
-                    prisbetingelser = request.prisbetingelser,
-                ),
-            ).right()
+        TilsagnBeregningFri.beregn(
+            TilsagnBeregningFri.Input(
+                linjer = request.linjer.map {
+                    TilsagnBeregningFri.InputLinje(
+                        id = it.id,
+                        beskrivelse = it.beskrivelse!!,
+                        belop = it.belop!!,
+                        antall = it.antall!!,
+                    )
+                },
+                prisbetingelser = request.prisbetingelser,
+            ),
+        )
     }
 }
