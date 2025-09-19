@@ -8,11 +8,6 @@ export interface NavAnsattManglerTilgangError extends ProblemDetail {
   missingRoles: string[];
 }
 
-export function isNavAnsattManglerTilgangError(
-  error: Partial<ProblemDetail>,
-): error is NavAnsattManglerTilgangError {
-  return error.type === "mangler-tilgang";
-}
 interface IngenTilgangProps {
   error: NavAnsattManglerTilgangError;
 }

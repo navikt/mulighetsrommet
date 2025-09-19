@@ -2,10 +2,16 @@ import { BodyShort, Box, Heading, Page, VStack } from "@navikt/ds-react";
 import { Link, useLocation, useRouteError } from "react-router";
 import { PORTEN_URL } from "@/constants";
 import { ProblemDetail } from "@mr/api-client-v2";
-import { IngenTilgang, isNavAnsattManglerTilgangError } from "@/pages/IngenTilgang";
+import { IngenTilgang, NavAnsattManglerTilgangError } from "@/pages/IngenTilgang";
 
 interface GenericError extends Partial<ProblemDetail> {
   message?: string;
+}
+
+function isNavAnsattManglerTilgangError(
+  error: Partial<ProblemDetail>,
+): error is NavAnsattManglerTilgangError {
+  return error.type === "mangler-tilgang";
 }
 
 export function ErrorPage() {
