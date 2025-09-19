@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklarin
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -681,12 +682,6 @@ data class SetStengtHosArrangorRequest(
 data class SetTilgjengligForArrangorRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-)
-
-@Serializable
-data class EstimertVentetid(
-    val verdi: Int,
-    val enhet: String,
 )
 
 @Serializable

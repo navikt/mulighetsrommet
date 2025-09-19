@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
+import no.nav.mulighetsrommet.api.gjennomforing.model.EstimertVentetid
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -28,8 +27,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -54,8 +52,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -82,7 +79,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         estimertVentetid = EstimertVentetid(
             verdi = 3,
-            enhet = "dag",
+            enhet = EstimertVentetid.Enhet.UKE,
         ),
         amoKategorisering = null,
         utdanningslop = null,
@@ -107,8 +104,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -133,8 +129,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -159,8 +154,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -185,8 +179,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -211,8 +204,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -237,8 +229,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
@@ -263,8 +254,7 @@ object GjennomforingFixtures {
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
+        estimertVentetid = null,
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,

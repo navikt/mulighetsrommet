@@ -9,10 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
@@ -608,8 +605,8 @@ class GjennomforingQueries(private val session: Session) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
         "deltidsprosent" to deltidsprosent,
-        "estimert_ventetid_verdi" to estimertVentetidVerdi,
-        "estimert_ventetid_enhet" to estimertVentetidEnhet,
+        "estimert_ventetid_verdi" to estimertVentetid?.verdi,
+        "estimert_ventetid_enhet" to estimertVentetid?.enhet?.name,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
     )
 
@@ -673,10 +670,10 @@ class GjennomforingQueries(private val session: Session) {
             opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
             oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
             deltidsprosent = double("deltidsprosent"),
-            estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-                Gjennomforing.EstimertVentetid(
-                    verdi = int("estimert_ventetid_verdi"),
-                    enhet = string("estimert_ventetid_enhet"),
+            estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let { verdi ->
+                EstimertVentetid(
+                    verdi = verdi,
+                    enhet = EstimertVentetid.Enhet.valueOf(string("estimert_ventetid_enhet")),
                 )
             },
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
