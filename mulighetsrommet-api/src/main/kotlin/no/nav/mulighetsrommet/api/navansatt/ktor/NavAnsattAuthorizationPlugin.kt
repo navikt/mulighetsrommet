@@ -62,8 +62,7 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
     }
 }
 
-@Suppress("SERIALIZER_TYPE_INCOMPATIBLE")
-@Serializable(with = ProblemDetailSerializer::class)
+@Serializable
 class NavAnsattManglerTilgang(
     val navIdent: NavIdent,
     val missingRoles: Set<Rolle>,
