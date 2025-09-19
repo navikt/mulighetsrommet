@@ -35,6 +35,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import { EstimertVentetidEnhet } from "@mr/api-client-v2";
 
 interface Props {
   avtale: AvtaleDto;
@@ -250,8 +251,8 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                       error={errors.estimertVentetid?.enhet?.message as string}
                       {...register("estimertVentetid.enhet")}
                     >
-                      <option value="uke">Uker</option>
-                      <option value="maned">Måneder</option>
+                      <option value={EstimertVentetidEnhet.UKE}>Uker</option>
+                      <option value={EstimertVentetidEnhet.MANED}>Måneder</option>
                     </Select>
                   </HStack>
                 ) : null}

@@ -943,8 +943,8 @@ components:
     EstimertVentetidEnhet:
       type: string
       enum:
-        - uke
-        - maned
+        - UKE
+        - MANED
 
     EstimertVentetid:
       type: object

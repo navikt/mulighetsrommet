@@ -1945,9 +1945,9 @@ components:
         arrangor:
           $ref: "#/components/schemas/VeilederflateArrangor"
         estimertVentetid:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/EstimertVentetid"
+          type:
+          - "null"
+          - string
         personvernBekreftet:
           type: boolean
         personopplysningerSomKanBehandles:
@@ -1991,17 +1991,6 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    EstimertVentetid:
-      type: object
-      properties:
-        verdi:
-          type: integer
-          format: int32
-        enhet:
-          type: string
-      required:
-      - enhet
-      - verdi
     PersonopplysningData:
       type: object
       properties:
