@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -24,6 +25,42 @@ class TilsagnValidatorTest : FunSpec({
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg", TilsagnRequest::id),
             )
+        }
+
+        test("mangler sats i periode") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 3,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = emptyList(),
+            ) shouldBeLeft listOf(
+                FieldError.of("Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris", TilsagnRequest::periodeStart),
+            )
+        }
+
+        test("ingen feil på gyldig AFT pris per månedsverk") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 3,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ).shouldBeRight()
         }
 
         test("null antall plasser samtidig som null periodeStart") {
@@ -77,6 +114,27 @@ class TilsagnValidatorTest : FunSpec({
                 avtalteSatser = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Du må legge til en linje", TilsagnRequest::beregning, TilsagnBeregningRequest::linjer),
+            )
+        }
+
+        test("feil ved utenfor gyldig periode") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    periodeStart = LocalDate.of(2026, 1, 1),
+                    periodeSlutt = LocalDate.of(2026, 4, 1),
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 3,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ) shouldBeLeft listOf(
+                FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
         }
 
