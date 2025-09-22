@@ -67,6 +67,7 @@
     "@vitejs/plugin-react": "5.0.2",
     "cross-env": "10.0.0",
     "dotenv": "17.2.2",
+    "eslint": "9.35.0",
     "msw": "2.11.2",
     "playwright": "1.55.0",
     "postcss-import": "16.1.1",
