@@ -29,11 +29,12 @@ export function convertSlateToPortableText(slateData: PortableTextBlock[]): Port
   if (!slateData || !slateData.length) {
     return [];
   }
-  if (!slateData.some((block) => block._key === null)) {
-    // not from slate
-    return slateData;
-  }
   return slateData.map((block) => {
+    if (block._key !== null) {
+      // not from slate
+      return block;
+    }
+
     const newBlock: PortableTextBlock = { ...block };
     if (block._type === "block") {
       newBlock["style"] = "normal";
