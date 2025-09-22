@@ -9,6 +9,7 @@ import {
   useToolbarSchema,
 } from "@portabletext/toolbar";
 import { RefObject, useRef, useState } from "react";
+import { SupportedDecorator, SupportedList } from "./helper";
 
 export function PortableTextEditorToolbar() {
   const ref = useRef<HTMLDialogElement>(null);
@@ -68,11 +69,11 @@ function ToolbarButton({
 
 function decoratorButtonContent(schemaName: string) {
   switch (schemaName) {
-    case "strong":
+    case SupportedDecorator.STRONG:
       return <b className="text-1.5em">B</b>;
-    case "em":
+    case SupportedDecorator.EM:
       return <em className="text-1.5em">I</em>;
-    case "underline":
+    case SupportedDecorator.UNDERLINE:
       return <span className="text-1.5em underline">U</span>;
     default:
       return <span>UNKNOWN</span>;
@@ -81,11 +82,11 @@ function decoratorButtonContent(schemaName: string) {
 
 function decoratorTooltipText(schemaName: string) {
   switch (schemaName) {
-    case "strong":
+    case SupportedDecorator.STRONG:
       return "Bold";
-    case "em":
+    case SupportedDecorator.EM:
       return "Itallic";
-    case "underline":
+    case SupportedDecorator.UNDERLINE:
       return "Underline";
     default:
       return "Unknown";
@@ -100,7 +101,6 @@ function DecoratorButton({ schemaType }: { schemaType: ToolbarDecoratorSchemaTyp
       tooltipText={decoratorTooltipText(schemaType.name)}
       isActive={active}
       onClick={() => {
-        // Toggle the decorator
         decoratorContext.send({
           type: "toggle",
         });
@@ -173,6 +173,17 @@ function LinkModal({ modalRef }: { modalRef: RefObject<HTMLDialogElement | null>
   );
 }
 
+function getLinstButtonIcon(schemaTypeName: string): React.ReactNode {
+  switch (schemaTypeName) {
+    case SupportedList.BULLET:
+      return <BulletListIcon aria-label="Bullet list" fontSize="1.2em" />;
+    case SupportedList.NUMBER:
+      return <NumberListIcon title="Number list" fontSize="1.2em" />;
+    default:
+      return null;
+  }
+}
+
 function ListButton({ schemaType }: { schemaType: ToolbarListSchemaType }) {
   const editor = useEditor();
   const active = useEditorSelector(editor, selectors.isActiveListItem(schemaType.name));
@@ -185,15 +196,9 @@ function ListButton({ schemaType }: { schemaType: ToolbarListSchemaType }) {
     editor.send({ type: "focus" });
   }
 
-  const icon =
-    schemaType.name === "bullet" ? (
-      <BulletListIcon aria-label="Bullet list" fontSize="1.2em" />
-    ) : (
-      <NumberListIcon title="Number list" fontSize="1.2em" />
-    );
   return (
     <ToolbarButton tooltipText={schemaType.name + " list"} isActive={active} onClick={onClick}>
-      {icon}
+      {getLinstButtonIcon(schemaType.name)}
     </ToolbarButton>
   );
 }

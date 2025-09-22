@@ -33,7 +33,7 @@ import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { InferredGjennomforingSchema } from "./GjennomforingSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { PortableTextFormEditor } from "../portableText/PortableTextEditor2";
+import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 
 interface Props {
   tiltakId: string;

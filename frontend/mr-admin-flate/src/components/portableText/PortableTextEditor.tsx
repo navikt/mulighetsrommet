@@ -12,7 +12,7 @@ import {
 import { EventListenerPlugin } from "@portabletext/editor/plugins";
 import { Link, Tooltip } from "@navikt/ds-react";
 import "./portableTextEditor.css";
-import { PortableTextEditorToolbar } from "./PortableTextToolbar2";
+import { PortableTextEditorToolbar } from "./PortableTextToolbar";
 import { Controller, useFormContext } from "react-hook-form";
 import {
   convertSlateToPortableText,
