@@ -6,8 +6,6 @@ import io.github.smiley4.ktoropenapi.config.RequestConfig
 import io.github.smiley4.ktoropenapi.config.RequestParameterConfig
 import io.github.smiley4.ktoropenapi.config.SchemaOverwriteModule
 import io.github.smiley4.schemakenerator.core.CoreSteps.handleNameAnnotation
-import io.github.smiley4.schemakenerator.core.data.TypeData
-import io.github.smiley4.schemakenerator.core.data.TypeId
 import io.github.smiley4.schemakenerator.serialization.SerializationSteps.addJsonClassDiscriminatorProperty
 import io.github.smiley4.schemakenerator.serialization.SerializationSteps.analyzeTypeUsingKotlinxSerialization
 import io.github.smiley4.schemakenerator.swagger.SwaggerSteps
@@ -15,7 +13,7 @@ import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.compileReferencing
 import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.generateSwaggerSchema
 import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.handleSchemaAnnotations
 import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.mergePropertyAttributesIntoType
-import io.github.smiley4.schemakenerator.swagger.TitleBuilder
+import io.github.smiley4.schemakenerator.swagger.data.RefType
 import io.ktor.server.application.*
 import io.swagger.v3.oas.models.media.Schema
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattAuthorizationRouteSelector
@@ -64,7 +62,6 @@ fun Application.configureOpenApiGenerator() {
              * Noen enddringer har blitt gjort fra "standard" implementasjon, samt noen ting er verdt å være klar over
              * ifm. generering av openapi-dokumentasjon:
              * - Noen steg har blitt fjernet da de uansett ikke er i bruk i dette prosjektet (f.eks. prosessering av noen annotasjoner, eller generering av titles)
-             * - Modellnavn utledes basert på en egen [schemaPathBuilder] slik at path til nøstede klasser blir med i typenavnet, men ikke selve package path'en
              */
             generator = { type ->
                 type
@@ -93,32 +90,12 @@ fun Application.configureOpenApiGenerator() {
                          * Sørger for at "null" blir en del av gyldige typer for nullable felter i generert json schema
                          */
                         explicitNullTypes = true,
-                        builder = schemaPathBuilder,
+                        pathType = RefType.OPENAPI_SIMPLE,
                     )
             }
         }
     }
 }
-
-/**
- * Standardnavn for genererte modeller er basert på qualified name, f.eks. `no.nav.MyClass`.
- * For å unngå unødvendig verbose typer i generert OpenAPI, fjerner vi package path,
- * men beholder navn på nøstede klasser.
- *
- * Eksempler:
- * - `no.nav.MyClass` blir `MyClass`
- * - `no.nav.MyClass.InnerClass` blir `MyClass.InnerClass`
- */
-private val schemaPathBuilder = { type: TypeData, types: Map<TypeId, TypeData> ->
-    val fullPath = TitleBuilder.BUILDER_OPENAPI_FULL(type, types)
-    fullPath.split("_").joinToString("_") { getSimplClassPath(it) }
-}
-
-private fun getSimplClassPath(path: String): String = path
-    .split(".")
-    .filter { !it.toCharArray().first().isLowerCase() && it != "Companion" }
-    .joinToString(".")
-    .ifEmpty { path }
 
 /**
  * Noen modeller trenger litt hjelp til å representeres riktig i OpenAPI.
