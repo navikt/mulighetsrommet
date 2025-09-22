@@ -37,11 +37,11 @@ ktor-openapi = [
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
-ktor-openapi = "io.github.smiley4:ktor-openapi:5.2.0"
-schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.3.0"
-schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.3.0"
-schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.3.0"
-schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.3.0"
+ktor-openapi = "io.github.smiley4:ktor-openapi:5.3.0"
+schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.4.0"
+schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.4.0"
+schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.4.0"
+schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.4.0"
 
 assertj-db = "org.assertj:assertj-db:3.0.0"
 
