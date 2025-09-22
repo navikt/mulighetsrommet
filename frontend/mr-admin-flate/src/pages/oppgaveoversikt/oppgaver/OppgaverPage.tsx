@@ -1,15 +1,12 @@
-import { useOppgaver } from "@/api/oppgaver/useOppgaver";
-import { EmptyState } from "@/components/notifikasjoner/EmptyState";
-import { Oppgave } from "@/components/oppgaver/Oppgave";
-import { GetOppgaverResponse, LagretFilterType } from "@tiltaksadministrasjon/api-client";
+import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import {
   LagredeFilterOversikt,
   LagreFilterButton,
+  ListSkeleton,
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { BodyShort, Select, VStack } from "@navikt/ds-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
@@ -19,25 +16,11 @@ import {
   oppgaverFilterStateAtom,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
-import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-
-type OppgaverSorting = "nyeste" | "eldste";
-
-function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
-  return oppgaver.sort((a, b) => {
-    const aDate = new Date(a.createdAt);
-    const bDate = new Date(b.createdAt);
-
-    return sorting === "nyeste"
-      ? bDate.getTime() - aDate.getTime()
-      : aDate.getTime() - bDate.getTime();
-  });
-}
+import OppgaverList from "@/components/oppgaver/OppgaveList";
 
 export function OppgaverPage() {
-  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
 
   const {
     filter,
@@ -50,11 +33,6 @@ export function OppgaverPage() {
     deleteFilter,
     setDefaultFilter,
   } = useSavedFiltersState(oppgaverFilterStateAtom, LagretFilterType.OPPGAVE);
-
-  const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
-
-  const oppgaver = useOppgaver(filter.values);
-  const sortedOppgaver = sort(oppgaver.data, sorting);
 
   return (
     <ContentBox>
@@ -90,31 +68,9 @@ export function OppgaverPage() {
         }
         buttons={null}
         table={
-          <>
-            <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
-              <ToolbarMeny>
-                <BodyShort weight="semibold">Viser {sortedOppgaver.length} oppgaver</BodyShort>
-                <Select
-                  size="small"
-                  label={"Sortering"}
-                  onChange={(e) => {
-                    setSorting(e.target.value as OppgaverSorting);
-                  }}
-                >
-                  <option value="nyeste">Nyeste</option>
-                  <option value="eldste">Eldste</option>
-                </Select>
-              </ToolbarMeny>
-            </ToolbarContainer>
-            <VStack gap="2">
-              {sortedOppgaver.map((o) => {
-                return <Oppgave key={o.id} oppgave={o} />;
-              })}
-              {sortedOppgaver.length === 0 && (
-                <EmptyState tittel={"Du har ingen nye oppgaver"} beskrivelse={""} />
-              )}
-            </VStack>
-          </>
+          <Suspense fallback={<ListSkeleton />}>
+            <OppgaverList tagsHeight={tagsHeight} filterOpen={filterOpen} />
+          </Suspense>
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
