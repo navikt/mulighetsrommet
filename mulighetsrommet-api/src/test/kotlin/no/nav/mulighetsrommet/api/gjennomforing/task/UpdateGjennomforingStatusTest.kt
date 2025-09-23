@@ -35,7 +35,6 @@ class UpdateGjennomforingStatusTest : FunSpec({
         GjennomforingService(
             config = GjennomforingService.Config(PRODUCER_TOPIC),
             db = database.db,
-            validator = mockk(relaxed = true),
             navAnsattService = mockk(relaxed = true),
         ),
     )

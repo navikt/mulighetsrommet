@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
@@ -71,5 +73,39 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato,
         amoKategorisering = request.amoKategorisering,
         utdanningslop = request.utdanningslop,
+    )
+
+    fun toGjennomforingRequest(gjennomforing: Gjennomforing) = GjennomforingRequest(
+        id = gjennomforing.id,
+        navn = gjennomforing.navn,
+        tiltakstypeId = gjennomforing.tiltakstype.id,
+        avtaleId = requireNotNull(gjennomforing.avtaleId),
+        startDato = gjennomforing.startDato,
+        sluttDato = gjennomforing.sluttDato,
+        antallPlasser = gjennomforing.antallPlasser,
+        arrangorId = gjennomforing.arrangor.id,
+        arrangorKontaktpersoner = gjennomforing.arrangor.kontaktpersoner.map { it.id },
+        administratorer = gjennomforing.administratorer.map { it.navIdent },
+        navEnheter = gjennomforing.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } }.toSet(),
+        oppstart = gjennomforing.oppstart,
+        kontaktpersoner = gjennomforing.kontaktpersoner.map {
+            GjennomforingKontaktpersonDto(
+                navIdent = it.navIdent,
+                beskrivelse = it.beskrivelse,
+            )
+        },
+        stedForGjennomforing = gjennomforing.stedForGjennomforing,
+        faneinnhold = gjennomforing.faneinnhold,
+        beskrivelse = gjennomforing.beskrivelse,
+        deltidsprosent = gjennomforing.deltidsprosent,
+        estimertVentetid = gjennomforing.estimertVentetid?.verdi?.let {
+            EstimertVentetid(
+                verdi = gjennomforing.estimertVentetid.verdi,
+                enhet = gjennomforing.estimertVentetid.enhet,
+            )
+        },
+        tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
+        amoKategorisering = gjennomforing.amoKategorisering,
+        utdanningslop = gjennomforing.utdanningslop?.toDbo(),
     )
 }
