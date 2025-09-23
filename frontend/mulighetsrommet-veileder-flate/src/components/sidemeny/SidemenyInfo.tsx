@@ -4,7 +4,7 @@ import {
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
 } from "@api-client";
-import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
+import { formaterDato, utledLopenummerFraTiltaksnummer, utledOppstart } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import RegelverkInfo from "./RegelverkInfo";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
@@ -71,6 +71,13 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
           <abbr title="Minimum">Min</abbr>. innsatsgruppe
         </BodyShort>
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
+      </div>
+
+      <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+        <BodyShort size="small" className="font-bold text-left">
+          Oppstart
+        </BodyShort>
+        <BodyShort size="small">{utledOppstart(tiltak)}</BodyShort>
       </div>
 
       <TiltakVarighetInfo tiltak={tiltak} />
