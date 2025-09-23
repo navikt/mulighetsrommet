@@ -4,7 +4,7 @@ import {
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
 } from "@api-client";
-import { formaterDato, utledLopenummerFraTiltaksnummer, utledOppstart } from "@/utils/Utils";
+import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import RegelverkInfo from "./RegelverkInfo";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
@@ -73,13 +73,6 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
       </div>
 
-      <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-        <BodyShort size="small" className="font-bold text-left">
-          Oppstart
-        </BodyShort>
-        <BodyShort size="small">{utledOppstart(tiltak)}</BodyShort>
-      </div>
-
       <TiltakVarighetInfo tiltak={tiltak} />
 
       {tiltakstype.regelverkLenker && (
@@ -115,30 +108,41 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
 };
 
 function TiltakVarighetInfo({ tiltak }: { tiltak: VeilederflateTiltak }) {
-  const { tittel, innhold } =
+  const elementer =
     !isTiltakGruppe(tiltak) || tiltak.oppstart === GjennomforingOppstartstype.LOPENDE
-      ? {
-          tittel: "Oppstart",
-          innhold: "Løpende",
-        }
-      : tiltak.sluttdato
-        ? {
-            tittel: "Varighet",
-            innhold: `${formaterDato(tiltak.oppstartsdato)} - ${formaterDato(tiltak.sluttdato)}`,
-          }
-        : {
+      ? [
+          {
             tittel: "Oppstart",
-            innhold: formaterDato(tiltak.oppstartsdato),
-          };
+            innhold: "Løpende",
+          },
+        ]
+      : [
+          {
+            tittel: "Oppstart",
+            innhold: "Felles",
+          },
+          tiltak.sluttdato
+            ? {
+                tittel: "Varighet",
+                innhold: `${formaterDato(tiltak.oppstartsdato)} - ${formaterDato(tiltak.sluttdato)}`,
+              }
+            : {
+                tittel: "Oppstartsdato",
+                innhold: formaterDato(tiltak.oppstartsdato),
+              },
+        ];
 
-  return (
-    <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
+  return elementer.map(({ tittel, innhold }) => (
+    <div
+      key={tittel}
+      className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4"
+    >
       <BodyShort size="small" className="font-bold text-left">
         {tittel}
       </BodyShort>
       <BodyShort size="small">{innhold}</BodyShort>
     </div>
-  );
+  ));
 }
 
 export default SidemenyInfo;
