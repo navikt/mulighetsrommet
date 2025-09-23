@@ -1,10 +1,6 @@
 import { shallowEquals } from "./shallow-equals";
 
-export function addOrRemoveBy<T>(
-  array: T[],
-  item: T,
-  compare: (a: T, b: T) => boolean
-): T[] {
+export function addOrRemoveBy<T>(array: T[], item: T, compare: (a: T, b: T) => boolean): T[] {
   const exists = array.some((a) => compare(a, item));
 
   if (exists) {
@@ -52,6 +48,7 @@ export function jsonPointerToFieldPath(pointer: string): string {
 }
 
 export function compare<T>(aValue: T, bValue: T): number {
+  /* eslint-disable eqeqeq */
   if (aValue == null && bValue == null) {
     return 0;
   } else if (aValue == null) {
@@ -59,6 +56,7 @@ export function compare<T>(aValue: T, bValue: T): number {
   } else if (bValue == null) {
     return -1;
   }
+  /* eslint-enable eqeqeq */
 
   if (typeof aValue === "number" && typeof bValue === "number") {
     return bValue - aValue;

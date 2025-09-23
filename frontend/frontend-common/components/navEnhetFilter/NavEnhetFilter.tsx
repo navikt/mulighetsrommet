@@ -90,7 +90,11 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
-    onChange(addOrRemoveBy(value, enhet, (a, b) => a.enhetsnummer === b.enhetsnummer).map((e) => e.enhetsnummer));
+    onChange(
+      addOrRemoveBy(value, enhet, (a, b) => a.enhetsnummer === b.enhetsnummer).map(
+        (e) => e.enhetsnummer,
+      ),
+    );
   }
 
   return (
