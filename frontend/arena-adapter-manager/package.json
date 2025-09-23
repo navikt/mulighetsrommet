@@ -31,9 +31,9 @@
     "@mr/eslint-config-react-app": "workspace:*",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
-    "@vitejs/plugin-react": "5.0.2",
-    "eslint": "9.35.0",
+    "@vitejs/plugin-react": "5.0.3",
+    "eslint": "9.36.0",
     "typescript": "5.9.2",
-    "vite": "7.1.5"
+    "vite": "7.1.7"
   }
 }
