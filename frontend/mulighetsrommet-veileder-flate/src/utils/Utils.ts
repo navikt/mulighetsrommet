@@ -1,3 +1,6 @@
+import { GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
+import { isTiltakEnkeltplass } from "@/api/queries/useArbeidsmarkedstiltakById";
+
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
 }
@@ -27,4 +30,17 @@ export function utledLopenummerFraTiltaksnummer(tiltaksnummer: string): string {
   }
 
   return tiltaksnummer;
+}
+
+export function utledOppstart(tiltak: VeilederflateTiltak) {
+  if (isTiltakEnkeltplass(tiltak)) {
+    return "Løpende oppstart";
+  }
+
+  switch (tiltak.oppstart) {
+    case GjennomforingOppstartstype.FELLES:
+      return formaterDato(tiltak.oppstartsdato);
+    case GjennomforingOppstartstype.LOPENDE:
+      return "Løpende oppstart";
+  }
 }
