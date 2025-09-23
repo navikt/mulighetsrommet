@@ -219,19 +219,6 @@ class ArrangorflateService(
         )
     }
 
-    fun getGjennomforinger(
-        orgnr: Organisasjonsnummer,
-        prismodeller: List<PrismodellType>,
-    ): List<ArrangorflateGjennomforing> = db.session {
-        queries.gjennomforing
-            .getAll(
-                arrangorOrgnr = listOf(orgnr),
-                prismodeller = prismodeller,
-            )
-            .items
-            .map { toArrangorflateGjennomforing(it) }
-    }
-
     suspend fun getKontonummer(
         orgnr: Organisasjonsnummer,
     ): Either<KontonummerRegisterOrganisasjonError, Kontonummer> {
@@ -401,10 +388,3 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): Details {
     }
     return Details(entries)
 }
-
-private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
-    id = gjennomforing.id,
-    navn = gjennomforing.navn,
-    startDato = gjennomforing.startDato,
-    sluttDato = gjennomforing.sluttDato,
-)
