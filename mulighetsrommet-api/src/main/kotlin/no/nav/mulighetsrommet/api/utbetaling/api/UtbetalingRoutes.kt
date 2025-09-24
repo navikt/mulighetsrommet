@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -35,6 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -70,7 +72,34 @@ fun Route.utbetalingRoutes() {
     }) {
         val gjennomforingId: UUID by call.queryParameters
 
-        val utbetalinger = utbetalingService.getByGjennomforing(gjennomforingId)
+        val utbetalinger = db.session {
+            queries.utbetaling.getByGjennomforing(gjennomforingId).map { utbetaling ->
+                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
+                val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
+                    UtbetalingStatusType.FERDIG_BEHANDLET ->
+                        Pair(
+                            delutbetalinger.sumOf {
+                                it.belop
+                            },
+                            delutbetalinger.map { delutbetaling ->
+                                queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
+                            }.distinct(),
+                        )
+
+                    else -> (null to emptyList())
+                }
+
+                UtbetalingKompaktDto(
+                    id = utbetaling.id,
+                    status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                    periode = utbetaling.periode,
+                    kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
+                    belopUtbetalt = belopUtbetalt,
+                    type = UtbetalingType.from(utbetaling).toDto(),
+                )
+            }
+        }
 
         call.respond(utbetalinger)
     }
@@ -353,7 +382,10 @@ fun Route.utbetalingRoutes() {
     }
 }
 
-private fun QueryContext.delutbetalingToUtbetalingLinje(delutbetaling: Delutbetaling, navAnsatt: NavAnsatt): UtbetalingLinje {
+private fun QueryContext.delutbetalingToUtbetalingLinje(
+    delutbetaling: Delutbetaling,
+    navAnsatt: NavAnsatt,
+): UtbetalingLinje {
     val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
 
     val opprettelse = queries.totrinnskontroll

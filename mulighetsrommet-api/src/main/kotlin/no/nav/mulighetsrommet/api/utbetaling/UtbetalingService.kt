@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -15,7 +18,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -35,7 +37,6 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.flatten
 
 class UtbetalingService(
     private val config: Config,
@@ -50,35 +51,6 @@ class UtbetalingService(
     )
 
     private val log: Logger = LoggerFactory.getLogger(javaClass)
-
-    fun getByGjennomforing(id: UUID): List<UtbetalingKompaktDto> = db.session {
-        queries.utbetaling.getByGjennomforing(id).map { utbetaling ->
-            val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
-
-            val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
-                UtbetalingStatusType.FERDIG_BEHANDLET ->
-                    Pair(
-                        delutbetalinger.sumOf {
-                            it.belop
-                        },
-                        delutbetalinger.map { delutbetaling ->
-                            queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
-                        }.distinct(),
-                    )
-
-                else -> (null to emptyList())
-            }
-
-            UtbetalingKompaktDto(
-                id = utbetaling.id,
-                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
-                periode = utbetaling.periode,
-                kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
-                belopUtbetalt = belopUtbetalt,
-                type = UtbetalingType.from(utbetaling).toDto(),
-            )
-        }
-    }
 
     fun godkjentAvArrangor(
         utbetalingId: UUID,
