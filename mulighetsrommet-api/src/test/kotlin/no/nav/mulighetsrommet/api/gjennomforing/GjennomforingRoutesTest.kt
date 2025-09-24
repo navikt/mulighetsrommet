@@ -16,6 +16,7 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
@@ -182,21 +183,28 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
-                val avtale = AvtaleFixtures.VTA
 
                 val response = client.put("/api/v1/intern/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         GjennomforingFixtures.Oppfolging1Request.copy(
-                            avtaleId = avtale.id,
-                            tiltakstypeId = avtale.tiltakstypeId,
+                            administratorer = emptyList(),
+                            navEnheter = setOf(
+                                NavEnhetFixtures.Oslo.enhetsnummer,
+                                NavEnhetFixtures.Sagene.enhetsnummer,
+                            ),
                         ),
                     )
                 }
 
                 response.status shouldBe HttpStatusCode.BadRequest
-                response.body<ValidationError>().errors shouldBe listOf(FieldError("/avtaleId", "Avtalen finnes ikke"))
+                response.body<ValidationError>().errors shouldBe listOf(
+                    FieldError.of(
+                        "Du må velge minst én administrator",
+                        GjennomforingDbo::administratorer,
+                    ),
+                )
             }
         }
 

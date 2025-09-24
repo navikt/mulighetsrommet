@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
@@ -378,7 +377,6 @@ private fun services(appConfig: AppConfig) = module {
             GjennomforingService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerTopic),
             get(),
             get(),
-            get(),
         )
     }
     single { TiltakstypeService(get()) }
@@ -401,7 +399,6 @@ private fun services(appConfig: AppConfig) = module {
     single { PersonService(get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get(), get()) }
-    single { GjennomforingValidator(get(), get()) }
     single { LagretFilterService(get()) }
     single {
         TilsagnService(
