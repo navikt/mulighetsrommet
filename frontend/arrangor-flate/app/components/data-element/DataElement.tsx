@@ -6,6 +6,7 @@ import { DataElementMathOperator } from "./DataElementMathOperator";
 import { compare, formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { ReactNode } from "react";
 import { DataElementStatusTag } from "./DataElementStatusTag";
+import { DataElementMultiLinkModal } from "./DataElementMultiLinkModal";
 
 export function getDataElement(element: DataElement) {
   switch (element.type) {
@@ -19,6 +20,8 @@ export function getDataElement(element: DataElement) {
       return <Lenke to={element.href}>{element.text}</Lenke>;
     case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return <DataElementMathOperator operator={element.operator} />;
+    case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
+      return <DataElementMultiLinkModal data={element} />;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }

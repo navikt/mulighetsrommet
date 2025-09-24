@@ -142,6 +142,43 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent gjennomføring til arrangør
+      operationId: getArrangorflateGjennomforing
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Arrangørens gjennomføring
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateGjennomforing"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/utbetaling:
     get:
       tags:
@@ -615,6 +652,8 @@ components:
           format: uuid
         navn:
           type: string
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstype"
         startDato:
           type: string
           format: date
@@ -628,6 +667,29 @@ components:
       - navn
       - sluttDato
       - startDato
+      - tiltakstype
+    ArrangorflateTiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - AVKLARING
+      - OPPFOLGING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - JOBBKLUBB
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ARBEIDSFORBEREDENDE_TRENING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - ARBEIDSRETTET_REHABILITERING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     DataDrivenTableDto:
       type: object
       properties:
@@ -671,6 +733,7 @@ components:
       anyOf:
       - $ref: "#/components/schemas/DataElement.Link"
       - $ref: "#/components/schemas/DataElement.MathOperator"
+      - $ref: "#/components/schemas/DataElement.MultiLinkModal"
       - $ref: "#/components/schemas/DataElement.Periode"
       - $ref: "#/components/schemas/DataElement.Status"
       - $ref: "#/components/schemas/DataElement.Text"
@@ -679,6 +742,7 @@ components:
         mapping:
           no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
           no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
+          no.nav.mulighetsrommet.model.DataElement.MultiLinkModal: "#/components/schemas/DataElement.MultiLinkModal"
           no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
           no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
           no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
@@ -707,6 +771,31 @@ components:
       - multiply
       - divide
       - equals
+    DataElement.MultiLinkModal:
+      type: object
+      properties:
+        buttonText:
+          type: string
+        modalContent:
+          $ref: "#/components/schemas/DataElement.MultiLinkModal.ModalContent"
+      required:
+      - buttonText
+      - modalContent
+    DataElement.MultiLinkModal.ModalContent:
+      type: object
+      properties:
+        header:
+          type: string
+        description:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataElement.Link"
+      required:
+      - description
+      - header
+      - links
     DataElement.Periode:
       type: object
       properties:
@@ -814,28 +903,6 @@ components:
       - status
       - tiltakstype
       - type
-    ArrangorflateTiltakstype:
-      type: object
-      properties:
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-      required:
-      - navn
-      - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - AVKLARING
-      - OPPFOLGING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - JOBBKLUBB
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ARBEIDSFORBEREDENDE_TRENING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - ARBEIDSRETTET_REHABILITERING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     ArrangorflateGjennomforingInfo:
       type: object
       properties:

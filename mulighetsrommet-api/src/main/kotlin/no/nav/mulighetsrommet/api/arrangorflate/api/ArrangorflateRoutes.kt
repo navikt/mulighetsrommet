@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -48,13 +47,7 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
@@ -242,7 +235,44 @@ fun Route.arrangorflateRoutes() {
                     )
                     .items
             }
-            call.respond(toGjennomføringerTabellResponse(gjennomforinger))
+            call.respond(toGjennomføringerTabellResponse(orgnr, gjennomforinger))
+        }
+
+        get("/gjennomforing/{gjennomforingId}", {
+            description = "Hent gjennomføring til arrangør"
+            tags = setOf("Arrangorflate")
+            operationId = "getArrangorflateGjennomforing"
+            request {
+                pathParameter<Organisasjonsnummer>("orgnr")
+                pathParameter<String>("gjennomforingId")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Arrangørens gjennomføring"
+                    body<ArrangorflateGjennomforing>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            requireTilgangHosArrangor(orgnr)
+
+            val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+
+            val gjennomforing = requireNotNull(db.session {
+                queries.gjennomforing
+                    .get(
+                        id = gjennomforingId
+                    )
+            })
+            if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
+                throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
+            }
+
+            call.respond(toArrangorflateGjennomforing((gjennomforing)))
         }
 
         get("/utbetaling", {
@@ -719,6 +749,10 @@ fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
 private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
     id = gjennomforing.id,
     navn = gjennomforing.navn,
+    tiltakstype = ArrangorflateTiltakstype(
+        navn = gjennomforing.tiltakstype.navn,
+        tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+    ),
     startDato = gjennomforing.startDato,
     sluttDato = gjennomforing.sluttDato,
 )
@@ -741,17 +775,23 @@ data class GjennomføringerTabellResponse(
     val historiske: DataDrivenTableDto,
 )
 
-private fun toGjennomføringerTabellResponse(gjennomforinger: List<Gjennomforing>): GjennomføringerTabellResponse {
+private fun toGjennomføringerTabellResponse(
+    orgnr: Organisasjonsnummer,
+    gjennomforinger: List<Gjennomforing>,
+): GjennomføringerTabellResponse {
     val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
     val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
 
     return GjennomføringerTabellResponse(
-        aktive = toGjennomforingDataTable(aktive),
-        historiske = toGjennomforingDataTable(historiske),
+        aktive = toGjennomforingDataTable(orgnr, aktive),
+        historiske = toGjennomforingDataTable(orgnr, historiske),
     )
 }
 
-private fun toGjennomforingDataTable(gjennomforinger: List<Gjennomforing>): DataDrivenTableDto {
+private fun toGjennomforingDataTable(
+    orgnr: Organisasjonsnummer,
+    gjennomforinger: List<Gjennomforing>
+): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("navn", "Tiltaksnavn"),
@@ -768,15 +808,46 @@ private fun toGjennomforingDataTable(gjennomforinger: List<Gjennomforing>): Data
                 "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
                 "startDato" to DataElement.date(gjennomforing.startDato),
                 "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to toGjennomforingAction(gjennomforing),
+                "action" to toGjennomforingAction(orgnr, gjennomforing),
             )
         },
     )
 }
 
-private fun toGjennomforingAction(gjennomforing: Gjennomforing): DataElement.Link {
-    return DataElement.Link(
-        text = "Start innsending",
-        href = "/opprett-krav/driftstilskudd/${gjennomforing.id}/innsendingsinformasjon",
-    )
-}
+private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gjennomforing): DataElement =
+    when (gjennomforing.tiltakstype.tiltakskode) {
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            ->
+            DataElement.Link(
+                text = "Start innsending",
+                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
+            )
+
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING ->
+            DataElement.MultiLinkModal(
+                buttonText = "Velg tilskuddstype",
+                modalContent = DataElement.MultiLinkModal.ModalContent(
+                    header = "Start innsending",
+                    description = "Velg tilskuddstype du vil opprette krav på",
+                    links = listOf(
+                        DataElement.Link(
+                            text = "Opprett driftstilskudd",
+                            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+                        ),
+                        DataElement.Link(
+                            text = "Opprett investeringstilskudd",
+                            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+                        ),
+                    ),
+                ),
+            )
+
+        else -> DataElement.text("TODO")
+    }
+
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
+    "/${orgnr.value}/opprett-krav/${gjennomforingId}/investering/innsendingsinformasjon"
+
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
+    "/${orgnr.value}/opprett-krav/${gjennomforingId}/driftstilskudd/innsendingsinformasjon"
