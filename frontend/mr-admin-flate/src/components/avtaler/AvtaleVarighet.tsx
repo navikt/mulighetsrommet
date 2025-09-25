@@ -127,7 +127,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           <ControlledDateInput
             key={sluttDato}
             label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
-            readOnly={opsjonUtlost || opsjonsmodell?.type !== OpsjonsmodellType.ANNET}
+            readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             onChange={(val) => setValue("sluttDato", val)}
@@ -142,7 +142,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             label={avtaletekster.maksVarighetLabel}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            readOnly={opsjonUtlost || opsjonsmodell?.type !== OpsjonsmodellType.ANNET}
+            readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
             invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
           />
         </HGrid>
