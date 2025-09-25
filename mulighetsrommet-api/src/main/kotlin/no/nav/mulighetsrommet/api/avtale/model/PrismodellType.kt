@@ -7,6 +7,7 @@ enum class PrismodellType(val beskrivelse: String) {
     FORHANDSGODKJENT_PRIS_PER_MANEDSVERK("Fast sats per tiltaksplass per måned"),
     AVTALT_PRIS_PER_MANEDSVERK("Avtalt månedspris per tiltaksplass"),
     AVTALT_PRIS_PER_UKESVERK("Avtalt ukespris per tiltaksplass"),
+    AVTALT_PRIS_PER_HELE_UKESVERK("Avtalt ukespris per tiltaksplass (hele uker)"),
     AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER("Avtalt pris per time oppfølging per deltaker"),
 }
 
@@ -26,6 +27,7 @@ object Prismodeller {
         -> listOf(
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             PrismodellType.ANNEN_AVTALT_PRIS,
         )

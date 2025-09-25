@@ -499,7 +499,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
-                    avtale.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>() should { it ->
+                    avtale.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>() should {
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
                                 gjelderFra = LocalDate.of(2025, 7, 1),

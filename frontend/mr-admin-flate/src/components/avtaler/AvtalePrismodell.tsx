@@ -20,6 +20,7 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
       );
     case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
     case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
     case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
       return (
         <Box>

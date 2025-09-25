@@ -300,5 +300,6 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     is Prismodell.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
     is Prismodell.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
+    is Prismodell.AvtaltPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK to prismodell.prisbetingelser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
 }
