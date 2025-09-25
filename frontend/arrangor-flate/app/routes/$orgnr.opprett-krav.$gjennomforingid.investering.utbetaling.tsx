@@ -107,7 +107,6 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    session.set("tilskuddstype", Tilskuddstype.TILTAK_INVESTERINGER);
     session.set("belop", belop);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);

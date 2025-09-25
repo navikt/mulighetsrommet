@@ -3,6 +3,8 @@ import {
   Checkbox,
   CheckboxGroup,
   ErrorSummary,
+  FileObject,
+  FileUpload,
   Heading,
   HStack,
   VStack,
@@ -26,15 +28,16 @@ import {
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
-import { FileUploader } from "~/components/fileUploader/FileUploader";
+import { FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
+import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
+import { useFileStorage } from "~/hooks/useFileStorage";
 
 export const meta: MetaFunction = () => {
   return [
@@ -91,7 +94,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kid = session.get("kid");
   }
 
-  if (!gjennomforingid || !tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
+  if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
     throw new Error("Formdata mangler");
 
   const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
@@ -194,7 +197,10 @@ export default function OpprettKravOppsummering() {
   const { orgnr, tilsagn, periodeStart, periodeSlutt, belop, kontonummer, kid, gjennomforingId } =
     useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
+  const storage = useFileStorage();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<FileObject[]>([]);
   const hasError = data?.errors && data.errors.length > 0;
 
   useEffect(() => {
@@ -202,6 +208,14 @@ export default function OpprettKravOppsummering() {
       errorSummaryRef.current?.focus();
     }
   }, [data, hasError]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Ved last
+    if (!files.length) {
+      addFilesTo(fileInputRef, setFiles, storage);
+    }
+  });
 
   return (
     <>
@@ -242,13 +256,23 @@ export default function OpprettKravOppsummering() {
               <Heading level="3" size="medium">
                 Vedlegg
               </Heading>
-              <FileUploader
-                error={errorAt("/vedlegg", data?.errors)}
-                maxFiles={10}
-                maxSizeMB={3}
-                maxSizeBytes={3 * 1024 * 1024}
-                id="vedlegg"
-              />
+              <VStack gap="2">
+                <Heading level="4" size="xsmall">
+                  {`Vedlegg (${files.length})`}
+                </Heading>
+                <VStack as="ul" gap="3">
+                  {files.map((file, index) => (
+                    <FileUpload.Item as="li" key={index} file={file.file} />
+                  ))}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    name="vedlegg"
+                    multiple
+                    style={{ display: "none" }}
+                  />
+                </VStack>
+              </VStack>
             </VStack>
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>

@@ -1,12 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  ErrorSummary,
-  Heading,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { Button, ErrorSummary, Heading, HStack, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -23,16 +15,13 @@ import {
   FieldError,
   Tilskuddstype,
 } from "api-client";
-import { destroySession, getSession } from "~/sessions.server";
+import { commitSession, destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
-import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useEffect, useRef } from "react";
-import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 
@@ -133,7 +122,6 @@ export const action: ActionFunction = async ({ request }) => {
   const errors: FieldError[] = [];
 
   const vedlegg = formData.getAll("vedlegg") as File[];
-  const bekreftelse = formData.get("bekreftelse");
 
   if (vedlegg.length < 1) {
     errors.push({
@@ -142,34 +130,16 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  if (!bekreftelse) {
-    errors.push({
-      pointer: "/bekreftelse",
-      detail: "Du må bekrefte at opplysningene er korrekte",
-    });
-  }
-  const orgnr = session.get("orgnr");
-  const belop = Number(session.get("belop"));
-  const gjennomforingId = session.get("gjennomforingId");
-  const tilsagnId = session.get("gjennomforingId");
-  const periodeStart = session.get("periodeStart");
-  const periodeSlutt = session.get("periodeSlutt");
-  const kid = session.get("kid");
+  const orgnr = session.get("orgnr")!;
+  const gjennomforingId = session.get("gjennomforingId")!;
 
   if (errors.length > 0) {
     return { errors };
   }
 
-  const { error, data } = await ArrangorflateService.opprettKravOmUtbetaling({
-    path: { orgnr: orgnr! },
+  const { error } = await ArrangorflateService.scanVedlegg({
+    path: { orgnr: orgnr },
     body: {
-      belop: belop!,
-      gjennomforingId: gjennomforingId!,
-      tilsagnId: tilsagnId!,
-      periodeStart: yyyyMMddFormatting(periodeStart)!,
-      periodeSlutt: yyyyMMddFormatting(periodeSlutt)!,
-      kidNummer: kid || null,
-      tilskuddstype: Tilskuddstype.TILTAK_INVESTERINGER,
       vedlegg: vedlegg,
     },
     headers: await apiHeaders(request),
@@ -182,11 +152,9 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   } else {
-    return redirect(`${pathByOrgnr(orgnr!).kvittering(data.id)}`, {
-      headers: {
-        "Set-Cookie": await destroySession(session),
-      },
-    });
+    return redirect(
+      `${pathByOrgnr(orgnr!).opprettKrav.investering.oppsummering(gjennomforingId!)}`,
+    );
   }
 };
 
@@ -205,16 +173,14 @@ export default function OpprettKravOppsummering() {
   return (
     <>
       <Heading level="2" spacing size="large">
-        Oppsummering
+        Vedlegg
       </Heading>
       <VStack gap="6">
         <Form method="post" encType="multipart/form-data">
           <VStack gap="6">
             <VStack gap="4">
-              <Heading level="3" size="medium">
-                Vedlegg
-              </Heading>
               <FileUploader
+                fileStorage
                 error={errorAt("/vedlegg", data?.errors)}
                 maxFiles={10}
                 maxSizeMB={3}
@@ -246,7 +212,7 @@ export default function OpprettKravOppsummering() {
               >
                 Tilbake
               </Button>
-              <Button type="submit">Bekreft og send inn</Button>
+              <Button type="submit">Nexte</Button>
             </HStack>
           </VStack>
         </Form>

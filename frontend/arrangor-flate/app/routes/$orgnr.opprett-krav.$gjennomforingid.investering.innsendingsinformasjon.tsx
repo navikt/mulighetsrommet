@@ -12,8 +12,6 @@ import {
   Link,
   Radio,
   RadioGroup,
-  TextField,
-  UNSAFE_Combobox,
   useDatepicker,
   VStack,
 } from "@navikt/ds-react";
@@ -42,7 +40,7 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { formaterDato, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { subtractDays } from "~/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
