@@ -609,6 +609,68 @@ fun Route.arrangorflateRoutes() {
                 }
         }
     }
+
+    route("/vedlegg") {
+        post("/scan", {
+            description = "Antivirus scan av vedlegg"
+            tags = setOf("Arrangorflate")
+            operationId = "scanVedlegg"
+            request {
+                body<ScanVedleggRequest> {
+                    description = "Vedleggene som skal scannes"
+                    mediaTypes(ContentType.MultiPart.FormData)
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Fant ikke virus i vedleggene"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val request = receiveScanVedleggRequest(call)
+
+            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
+                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
+            }
+
+            call.respond(HttpStatusCode.OK)
+        }
+    }
+}
+
+private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggRequest {
+    val vedlegg: MutableList<Vedlegg> = mutableListOf()
+    val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
+
+    multipart.forEachPart { part ->
+        when (part) {
+            is PartData.FileItem -> {
+                if (part.name == "vedlegg") {
+                    vedlegg.add(
+                        Vedlegg(
+                            content = Content(
+                                contentType = part.contentType.toString(),
+                                content = part.provider().toByteArray(),
+                            ),
+                            filename = part.originalFileName ?: "ukjent.pdf",
+                        ),
+                    )
+                }
+            }
+
+            else -> {}
+        }
+
+        part.dispose()
+    }
+
+    val validatedVedlegg = vedlegg.validateVedlegg()
+
+    return ScanVedleggRequest(validatedVedlegg);
 }
 
 private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
@@ -656,17 +718,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         part.dispose()
     }
 
-    val validatedVedlegg = vedlegg.map { v ->
-        // Optionally validate file type and size here
-        val fileName = v.filename
-        val contentType = v.content.contentType
-
-        require(contentType.equals("application/pdf", ignoreCase = true)) {
-            "Vedlegg $fileName er ikke en PDF"
-        }
-
-        v
-    }
+    val validatedVedlegg = vedlegg.validateVedlegg()
 
     return OpprettKravOmUtbetalingRequest(
         gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
@@ -678,6 +730,20 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
         vedlegg = validatedVedlegg,
     )
+}
+
+fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
+    return this.map { v ->
+        // Optionally validate file type and size here
+        val fileName = v.filename
+        val contentType = v.content.contentType
+
+        require(contentType.equals("application/pdf", ignoreCase = true)) {
+            "Vedlegg $fileName er ikke en PDF"
+        }
+
+        v
+    }
 }
 
 @Serializable
@@ -732,6 +798,11 @@ data class OpprettKravOmUtbetalingRequest(
     val belop: Int,
     val vedlegg: List<Vedlegg>,
     val tilskuddstype: Tilskuddstype,
+)
+
+@Serializable
+data class ScanVedleggRequest(
+    val vedlegg: List<Vedlegg>
 )
 
 data class ArrangorflateTilsagnFilter(
