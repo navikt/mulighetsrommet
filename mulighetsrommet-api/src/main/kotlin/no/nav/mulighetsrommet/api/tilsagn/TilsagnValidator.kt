@@ -86,6 +86,10 @@ object TilsagnValidator {
             avtalteSatser,
         ).bind()
 
+        validate(beregning.output.belop > 0) {
+            FieldError.root("Beløp må være større enn 0")
+        }
+
         Validated(
             beregning = beregning,
             periode = periode,
