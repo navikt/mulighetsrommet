@@ -106,6 +106,7 @@ class TilsagnQueries(private val session: Session) {
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
                 is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK
+                is TilsagnBeregningPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK
                 is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
             }.name,
             "datastream_periode_start" to dbo.periode.start,
@@ -129,6 +130,12 @@ class TilsagnQueries(private val session: Session) {
             )
 
             is TilsagnBeregningPrisPerUkesverk -> mapOf(
+                "beregning_sats" to dbo.beregning.input.sats,
+                "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
+                "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
+            )
+
+            is TilsagnBeregningPrisPerHeleUkesverk -> mapOf(
                 "beregning_sats" to dbo.beregning.input.sats,
                 "beregning_antall_plasser" to dbo.beregning.input.antallPlasser,
                 "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
@@ -393,6 +400,18 @@ class TilsagnQueries(private val session: Session) {
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                 ),
                 output = TilsagnBeregningPrisPerUkesverk.Output(
+                    belop = int("belop_beregnet"),
+                ),
+            )
+
+            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK -> TilsagnBeregningPrisPerHeleUkesverk(
+                input = TilsagnBeregningPrisPerHeleUkesverk.Input(
+                    periode = periode("periode"),
+                    sats = int("beregning_sats"),
+                    antallPlasser = int("beregning_antall_plasser"),
+                    prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                ),
+                output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                     belop = int("belop_beregnet"),
                 ),
             )
