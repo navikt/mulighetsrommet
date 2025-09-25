@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.model
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
 class PeriodeTest : FunSpec({
+    fun period(start: String, end: String) = Periode(LocalDate.parse(start), LocalDate.parse(end))
+
     test("should create period for month") {
         val period = Periode.forMonthOf(LocalDate.of(2021, 1, 1))
 
@@ -106,8 +109,6 @@ class PeriodeTest : FunSpec({
     }
 
     test("should subtract periods correctly in various cases") {
-        fun period(start: String, end: String) = Periode(LocalDate.parse(start), LocalDate.parse(end))
-
         // Case 1: No overlap
         period("2024-03-01", "2024-03-31").subtractPeriods(
             listOf(period("2024-02-01", "2024-02-28")),
@@ -157,6 +158,37 @@ class PeriodeTest : FunSpec({
         ) shouldBe listOf(
             period("2024-03-01", "2024-03-05"),
             period("2024-03-15", "2024-03-31"),
+        )
+    }
+
+    test("split by week") {
+        // mandag til mandag
+        period("2025-09-22", "2025-09-29").splitByWeek().shouldContainExactly(
+            period("2025-09-22", "2025-09-29"),
+        )
+        period("2025-09-22", "2025-09-29").getWeekdayCount() shouldBe 5
+
+        // Fredag til onsdag
+        period("2025-09-26", "2025-10-01").splitByWeek().shouldContainExactly(
+            period("2025-09-26", "2025-09-29"),
+            period("2025-09-29", "2025-10-01"),
+        )
+
+        // Lørdag til mandag
+        period("2025-09-21", "2025-09-22").splitByWeek().shouldContainExactly(
+            period("2025-09-21", "2025-09-22"),
+        )
+
+        // Lørdag til tirsdag
+        period("2025-09-21", "2025-09-23").splitByWeek().shouldContainExactly(
+            period("2025-09-21", "2025-09-22"),
+            period("2025-09-22", "2025-09-23"),
+        )
+
+        // tirsdag til onsdag neste uke
+        period("2025-09-23", "2025-10-01").splitByWeek().shouldContainExactly(
+            period("2025-09-23", "2025-09-29"),
+            period("2025-09-29", "2025-10-01"),
         )
     }
 })

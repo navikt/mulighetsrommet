@@ -155,6 +155,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
             is TilsagnBeregningPrisPerManedsverk -> tilsagn.beregning.input.antallPlasser
             is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallPlasser
             is TilsagnBeregningPrisPerUkesverk -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningPrisPerHeleUkesverk -> tilsagn.beregning.input.antallPlasser
             is TilsagnBeregningFri -> null
         },
         prisbetingelser = prisbetingelser,

@@ -48,6 +48,8 @@ export const tilsagnTekster = {
             return "Avtalt månedspris per tiltaksplass";
           case TilsagnBeregningType.PRIS_PER_UKESVERK:
             return "Avtalt ukespris per tiltaksplass";
+          case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
+            return "Avtalt ukespris per tiltaksplass (hele uker)";
           case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
             return "Avtalt pris per time oppfølging per deltaker";
           case TilsagnBeregningType.FRI:
@@ -63,6 +65,7 @@ export const tilsagnTekster = {
           return "Sats";
         case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
           return "Avtalt pris per oppfølgingstime";
+        case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
         case TilsagnBeregningType.PRIS_PER_UKESVERK:
           return "Avtalt ukespris";
         case TilsagnBeregningType.FRI:
