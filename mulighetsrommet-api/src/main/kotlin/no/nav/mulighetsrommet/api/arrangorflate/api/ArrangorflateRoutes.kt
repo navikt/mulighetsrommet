@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.routes.featuretoggles.generateUnleashSessionId
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -49,6 +50,9 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.unleash.FeatureToggle
+import no.nav.mulighetsrommet.unleash.FeatureToggleContext
+import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -61,6 +65,7 @@ fun Route.arrangorflateRoutes() {
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val unleashService: UnleashService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -213,7 +218,7 @@ fun Route.arrangorflateRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Arrangør sine gjennomføringer (DataDrivenTable)"
-                    body<GjennomføringerTabellResponse>()
+                    body<GjennomforingerTableResponse>()
                 }
                 default {
                     description = "Problem details"
@@ -235,7 +240,19 @@ fun Route.arrangorflateRoutes() {
                     )
                     .items
             }
-            call.respond(toGjennomføringerTabellResponse(orgnr, gjennomforinger))
+            val context = FeatureToggleContext(
+                userId = "",
+                sessionId = call.generateUnleashSessionId(),
+                remoteAddress = call.request.origin.remoteAddress,
+                tiltakskoder = emptyList(),
+                orgnr = listOf(orgnr),
+            )
+
+            val isManualDrifttlskuddEnabled = unleashService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
+
+            call.respond(toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
+                toGjennomforingAction(orgnr, gjennomforing, isManualDrifttlskuddEnabled)
+            })
         }
 
         get("/gjennomforing/{gjennomforingId}", {
@@ -841,27 +858,27 @@ data class OpprettKravOmUtbetalingResponse(
 )
 
 @Serializable
-data class GjennomføringerTabellResponse(
+data class GjennomforingerTableResponse(
     val aktive: DataDrivenTableDto,
     val historiske: DataDrivenTableDto,
 )
 
-private fun toGjennomføringerTabellResponse(
-    orgnr: Organisasjonsnummer,
+private fun toGjennomforingerTableResponse(
     gjennomforinger: List<Gjennomforing>,
-): GjennomføringerTabellResponse {
+    action: (gjennomforing: Gjennomforing) -> DataElement
+): GjennomforingerTableResponse {
     val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
     val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
 
-    return GjennomføringerTabellResponse(
-        aktive = toGjennomforingDataTable(orgnr, aktive),
-        historiske = toGjennomforingDataTable(orgnr, historiske),
+    return GjennomforingerTableResponse(
+        aktive = toGjennomforingDataTable( aktive, action),
+        historiske = toGjennomforingDataTable( historiske, action),
     )
 }
 
 private fun toGjennomforingDataTable(
-    orgnr: Organisasjonsnummer,
-    gjennomforinger: List<Gjennomforing>
+    gjennomforinger: List<Gjennomforing>,
+    action: (gjennomforing: Gjennomforing) -> DataElement
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
@@ -870,7 +887,7 @@ private fun toGjennomforingDataTable(
             DataDrivenTableDto.Column("tiltaksType", "Tiltakstype"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
-            DataDrivenTableDto.Column("action", null, sortable = false),
+            DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
         ),
         rows = gjennomforinger.map { gjennomforing ->
             mapOf(
@@ -879,21 +896,26 @@ private fun toGjennomforingDataTable(
                 "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
                 "startDato" to DataElement.date(gjennomforing.startDato),
                 "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to toGjennomforingAction(orgnr, gjennomforing),
+                "action" to action(gjennomforing)
             )
         },
     )
 }
 
-private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gjennomforing): DataElement =
-    when (gjennomforing.tiltakstype.tiltakskode) {
+private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gjennomforing, isManualDrifttlskuddEnabled: Boolean): DataElement {
+    val investeringLink = DataElement.Link(
+        text = "Start innsending",
+        href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
+    )
+
+    if (!isManualDrifttlskuddEnabled) {
+        return investeringLink
+    }
+
+    return when (gjennomforing.tiltakstype.tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            ->
-            DataElement.Link(
-                text = "Start innsending",
-                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
-            )
+            -> investeringLink
 
         Tiltakskode.ARBEIDSRETTET_REHABILITERING ->
             DataElement.MultiLinkModal(
@@ -914,8 +936,9 @@ private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gje
                 ),
             )
 
-        else -> DataElement.text("TODO")
+        else -> investeringLink
     }
+}
 
 private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
     "/${orgnr.value}/opprett-krav/${gjennomforingId}/investering/innsendingsinformasjon"

@@ -138,7 +138,6 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   const { error } = await ArrangorflateService.scanVedlegg({
-    path: { orgnr: orgnr },
     body: {
       vedlegg: vedlegg,
     },

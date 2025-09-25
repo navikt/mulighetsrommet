@@ -532,14 +532,7 @@ paths:
       - Arrangorflate
       description: Antivirus scan av vedlegg
       operationId: scanVedlegg
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
+      parameters: []
       requestBody:
         description: Vedleggene som skal scannes
         content:
@@ -786,7 +779,10 @@ components:
           type: string
         href:
           type: string
+        digest:
+          type: string
       required:
+      - digest
       - href
       - text
     DataElement.MathOperator:

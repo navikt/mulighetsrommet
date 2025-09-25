@@ -11,7 +11,7 @@ export function DataElementMultiLinkModal({ data }: DataElementMultiLinkModalPro
 
   return (
     <>
-      <Button as={Link} variant="tertiary" onClick={() => modalRef.current?.showModal()}>
+      <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
         {data.buttonText}
       </Button>
       <MultiLinkModal modalRef={modalRef} modalContent={data.modalContent} />
@@ -37,7 +37,7 @@ function MultiLinkModal({ modalRef, modalContent }: MultiLinkModalProps) {
       </Modal.Body>
       <Modal.Footer>
         {modalContent.links.map((lenke) => (
-          <Button key={lenke.href} as={Link} href={lenke.href} variant="secondary">
+          <Button key={lenke.digest} as={Link} href={lenke.href} variant="secondary">
             {lenke.text}
           </Button>
         ))}

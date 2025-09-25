@@ -4421,7 +4421,10 @@ components:
           type: string
         href:
           type: string
+        digest:
+          type: string
       required:
+      - digest
       - href
       - text
     DataElement.MathOperator:

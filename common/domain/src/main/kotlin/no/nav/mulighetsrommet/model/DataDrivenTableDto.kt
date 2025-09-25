@@ -24,6 +24,9 @@ class DataDrivenTableDto(
             @SerialName("left")
             LEFT,
 
+            @SerialName("center")
+            CENTER,
+
             @SerialName("right")
             RIGHT,
         }
@@ -104,7 +107,9 @@ sealed class DataElement {
     data class Link(
         val text: String,
         val href: String,
-    ) : DataElement()
+    ) : DataElement() {
+        val digest = this.hashCode().toHexString()
+    }
 
     @Serializable
     data class MultiLinkModal(
