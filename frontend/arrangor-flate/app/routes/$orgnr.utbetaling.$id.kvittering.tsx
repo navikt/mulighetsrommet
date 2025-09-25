@@ -60,7 +60,7 @@ export default function UtbetalingKvittering() {
   const storage = useFileStorage();
 
   useEffect(() => {
-    storage.deleteDatabase();
+    storage.clear();
   });
 
   return (

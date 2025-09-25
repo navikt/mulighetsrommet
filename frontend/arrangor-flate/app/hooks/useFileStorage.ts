@@ -9,21 +9,26 @@ interface StoreFileOptions {
 }
 
 export interface FileStorage {
+  /** Store one or more files in object storage */
   store: (files: File | File[], opt: StoreFileOptions) => Promise<void>;
+  /** Get all stored files */
   getAll: () => Promise<StoredFile[]>;
-  deleteDatabase: () => Promise<void>;
+  /** Clears object storage  */
+  clear: () => Promise<void>;
 }
 
-export function useFileStorage(storeName: string = "arrfiles"): FileStorage {
+export function useFileStorage(dbName: string = "arrfiles"): FileStorage {
+  const STORE_NAME = "files";
+
   function createObjectStoreIfNotExists(db: IDBDatabase) {
-    if (!db.objectStoreNames.contains(storeName)) {
-      db.createObjectStore(storeName, { keyPath: "id", autoIncrement: true });
+    if (!db.objectStoreNames.contains(STORE_NAME)) {
+      db.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
     }
   }
 
   async function openDB(): Promise<IDBDatabase> {
     return await new Promise((resolve, reject) => {
-      const request = indexedDB.open(storeName);
+      const request = indexedDB.open(dbName);
       request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
         const db = (event.target as IDBOpenDBRequest).result;
         createObjectStoreIfNotExists(db);
@@ -44,21 +49,34 @@ export function useFileStorage(storeName: string = "arrfiles"): FileStorage {
   ): Promise<void> {
     const filesToStore = Array.isArray(files) ? files : [files];
     const db = await openDB();
-    const tx = db.transaction(storeName, "readwrite");
-    const store = tx.objectStore(storeName);
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const store = tx.objectStore(STORE_NAME);
     if (clearStore) {
       store.clear();
     }
     filesToStore.forEach((file) => {
       store.add({ name: file.name, data: file });
     });
-    return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      tx.oncomplete = function () {
+        db.close();
+        resolve();
+      };
+      tx.onerror = function () {
+        db.close();
+        reject("Failed to add files");
+      };
+    });
   }
 
   async function getAll(): Promise<StoredFile[]> {
     const db = await openDB();
-    const tx = db.transaction(storeName, "readonly");
-    const store = tx.objectStore(storeName);
+    if (!db.objectStoreNames.contains(STORE_NAME)) {
+      db.close();
+      return Promise.resolve([]);
+    }
+    const tx = db.transaction(STORE_NAME, "readonly");
+    const store = tx.objectStore(STORE_NAME);
     const files: StoredFile[] = [];
 
     return new Promise((resolve, reject) => {
@@ -78,14 +96,24 @@ export function useFileStorage(storeName: string = "arrfiles"): FileStorage {
     });
   }
 
-  function deleteDatabase(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const deleteRequest = window.indexedDB.deleteDatabase(storeName);
+  async function clear(): Promise<void> {
+    return openDB().then((db) => {
+      const tx = db.transaction(dbName, "readonly");
+      const store = tx.objectStore(dbName);
+      const req = store.clear();
 
-      deleteRequest.onsuccess = () => resolve();
-      deleteRequest.onerror = () => reject(deleteRequest.error);
+      return new Promise((resolve, reject) => {
+        req.onsuccess = function () {
+          db.close();
+          resolve();
+        };
+        req.onerror = function () {
+          db.close();
+          reject(`Failed to clear $name`);
+        };
+      });
     });
   }
 
-  return { store, getAll, deleteDatabase };
+  return { store, getAll, clear };
 }

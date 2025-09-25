@@ -27,7 +27,7 @@ export const addFilesTo = async (
     .getAll()
     .then((files) => {
       if (!fileInputRef.current) {
-        return storage.deleteDatabase();
+        return storage.clear();
       }
 
       const fileObjects = files.map<FileObject>((file) => ({
@@ -62,13 +62,13 @@ export function FileUploader({
   const [files, setFiles] = useState<FileObject[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Ved last
-    if (fileStorage && !files.length) {
+    if (fileStorage && fileInputRef.current && !files.length) {
       addFilesTo(fileInputRef, setFiles, storage);
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useFileStorage]);
 
   function removeFile(fileToRemove: FileObject) {
     const remainingFiles = files.filter((file) => file !== fileToRemove);

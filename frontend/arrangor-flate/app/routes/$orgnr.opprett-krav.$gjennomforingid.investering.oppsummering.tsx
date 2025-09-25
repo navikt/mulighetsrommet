@@ -31,7 +31,11 @@ import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/u
 import { useEffect, useRef, useState } from "react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
+import {
+  FileUpload as FileUploadParser,
+  FileUploadHandler,
+  parseFormData,
+} from "@mjackson/form-data-parser";
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
@@ -117,7 +121,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   };
 };
 
-const uploadHandler: FileUploadHandler = async (fileUpload: FileUpload) => {
+const uploadHandler: FileUploadHandler = async (fileUpload: FileUploadParser) => {
   if (fileUpload.fieldName === "vedlegg" && fileUpload.name.endsWith(".pdf")) {
     const bytes = await fileUpload.bytes();
     return new File([bytes], fileUpload.name, { type: fileUpload.type });
