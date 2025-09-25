@@ -83,7 +83,7 @@ export function AvtaleDetaljer() {
   const administratorMeta: Definition[] = [
     {
       key: avtaletekster.administratorerForAvtalenLabel,
-      value: administratorer?.length ? (
+      value: administratorer.length ? (
         <ul>
           {administratorer.map((admin) => {
             return (
@@ -167,9 +167,7 @@ export function AvtaleDetaljer() {
         <AvtalePrismodell avtale={avtale} />
       </VStack>
       <VStack>
-        {administratorer && (
-          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-        )}
+        <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
         <Separator />
         {arrangor ? (
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
