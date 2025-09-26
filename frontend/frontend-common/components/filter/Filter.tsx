@@ -16,7 +16,7 @@ export function Filter({ filterTab, lagredeFilterTab, setFilterOpen, filterOpen 
   const [activeTab, setActiveTab] = useState("filter");
 
   const closeFilter = useCallback(() => {
-    if (window?.innerWidth < 1440) {
+    if (window.innerWidth < 1440) {
       setFilterOpen(false);
     }
   }, [setFilterOpen]);

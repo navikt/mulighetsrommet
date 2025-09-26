@@ -17,16 +17,14 @@ export function VelgKostnadssted({ kostnadssteder }: Props) {
       size="small"
       label={tilsagnTekster.kostnadssted.label}
       {...register("kostnadssted")}
-      options={
-        kostnadssteder
-          .sort((a, b) => a.navn.localeCompare(b.navn))
-          .map(({ navn, enhetsnummer }) => {
-            return {
-              value: enhetsnummer,
-              label: `${navn} - ${enhetsnummer}`,
-            };
-          }) ?? []
-      }
+      options={kostnadssteder
+        .sort((a, b) => a.navn.localeCompare(b.navn))
+        .map(({ navn, enhetsnummer }) => {
+          return {
+            value: enhetsnummer,
+            label: `${navn} - ${enhetsnummer}`,
+          };
+        })}
     />
   );
 }

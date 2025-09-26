@@ -342,6 +342,7 @@ class AvtaleValidator(
 
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 -> validateSatser(request.satser)
             }

@@ -20,5 +20,5 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
   },
-  "include": ["*"],
+  "include": ["**/*.ts", "**/*.tsx"],
 }

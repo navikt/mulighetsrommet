@@ -21,7 +21,7 @@ const queryClient = new QueryClient({
   },
 });
 
-type ClientType = typeof legacyClient;
+type ClientType = typeof legacyClient | typeof client;
 
 configureClient(legacyClient);
 configureClient(client);

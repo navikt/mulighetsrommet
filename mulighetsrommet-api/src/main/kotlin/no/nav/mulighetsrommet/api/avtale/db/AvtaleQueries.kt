@@ -620,6 +620,11 @@ class AvtaleQueries(private val session: Session) {
                 satser = satser.toDto(),
             )
 
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.toDto(),
+            )
+
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),

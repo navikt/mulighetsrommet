@@ -3211,6 +3211,7 @@ components:
       - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_HELE_UKESVERK
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     AvtaltSatsRequest:
       type: object
@@ -4808,6 +4809,7 @@ components:
       - FRI
       - PRIS_PER_MANEDSVERK
       - PRIS_PER_UKESVERK
+      - PRIS_PER_HELE_UKESVERK
       - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
       - PRIS_PER_TIME_OPPFOLGING
     TilsagnInputLinjeRequest:
@@ -5107,33 +5109,6 @@ components:
       required:
       - handlinger
       - utbetaling
-    UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed:
-      type: object
-      properties:
-        sats:
-          type: integer
-          format: int32
-        manedsverkTotal:
-          type: number
-          format: double
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-      - manedsverkTotal
-      - sats
     NavRegionDto:
       type: object
       properties:
@@ -5165,92 +5140,26 @@ components:
       - erStandardvalg
       - navn
       - overordnetEnhet
-    UtbetalingBeregningDto.Fri:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-    UtbetalingBeregningDto.PrisPerManedsverk:
-      type: object
-      properties:
-        sats:
-          type: integer
-          format: int32
-        manedsverkTotal:
-          type: number
-          format: double
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-      - manedsverkTotal
-      - sats
-    UtbetalingBeregningDto.PrisPerUkesverk:
-      type: object
-      properties:
-        sats:
-          type: integer
-          format: int32
-        ukesverkTotal:
-          type: number
-          format: double
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-      - sats
-      - ukesverkTotal
     UtbetalingBeregningDto:
-      anyOf:
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed"
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.Fri"
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed: "#/components/schemas/UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed"
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri: "#/components/schemas/UtbetalingBeregningDto.Fri"
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerManedsverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerUkesverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
+      type: object
+      properties:
+        heading:
+          type: string
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        regnestykke:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataElement"
+      required:
+      - deltakerRegioner
+      - deltakerTableData
+      - heading
+      - regnestykke
     UtbetalingLinje:
       type: object
       properties:
@@ -5531,6 +5440,7 @@ components:
       type: string
       enum:
       - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
+      - MULIGHETSROMMET_PRISMODELL_HELE_UKER
       - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
       - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
     LagretFilterType:

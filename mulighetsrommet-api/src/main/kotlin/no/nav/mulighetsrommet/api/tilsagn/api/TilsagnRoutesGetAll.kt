@@ -80,6 +80,7 @@ private fun toTilsagnDataTable(tilsagn: List<Tilsagn>): DataDrivenTableDto {
                     is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                     is TilsagnBeregningPrisPerManedsverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                     is TilsagnBeregningPrisPerUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                    is TilsagnBeregningPrisPerHeleUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                     is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                 },
                 "belop" to DataElement.nok(tilsagn.beregning.output.belop),

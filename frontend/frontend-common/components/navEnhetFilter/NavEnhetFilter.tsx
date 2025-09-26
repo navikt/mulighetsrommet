@@ -24,9 +24,7 @@ interface NavEnhet {
   overordnetEnhet: string | null;
 }
 
-interface RegionMap {
-  [region: string]: NavEnhet[];
-}
+type RegionMap = Map<string, NavEnhet[]>;
 
 interface Props {
   value: NavEnhet[];
@@ -45,21 +43,19 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   }
 
   function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
-    const map: RegionMap = {};
+    const map: RegionMap = new Map<string, NavEnhet[]>();
     navEnheter.forEach((enhet: NavEnhet) => {
       const regionNavn = enhet.overordnetEnhet ?? "unknown";
-      if (regionNavn in map) {
-        map[regionNavn].push(enhet);
-      } else {
-        map[regionNavn] = [enhet];
-      }
+      const arr = map.get(regionNavn) ?? [];
+      arr.push(enhet);
+      map.set(regionNavn, arr);
     });
 
     return map;
   }
 
   function underenhetCount(region: NavRegion): number {
-    return regionMap[region.enhetsnummer]?.length ?? 0;
+    return regionMap.get(region.enhetsnummer)?.length ?? 0;
   }
 
   function regionIsIndeterminate(region: NavRegion): boolean {
@@ -84,7 +80,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   }
 
   function underenhetIsChecked(enhet: NavEnhet, region: NavRegion): boolean {
-    return (regionMap[region.enhetsnummer] ?? []).some(
+    return (regionMap.get(region.enhetsnummer) ?? []).some(
       (e) => e.enhetsnummer === enhet.enhetsnummer,
     );
   }
@@ -99,7 +95,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
 
   return (
     <>
-      {regioner?.map((region: NavRegion) => (
+      {regioner.map((region: NavRegion) => (
         <div key={region.enhetsnummer}>
           <div
             className={styles.checkbox_and_caret}

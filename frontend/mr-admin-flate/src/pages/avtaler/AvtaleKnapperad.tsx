@@ -88,7 +88,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     if (
-                      avtale.administratorer &&
                       avtale.administratorer.length > 0 &&
                       !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
                     ) {
