@@ -117,6 +117,27 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
+        test("antall plasser 0 og kostnadssted samles") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1
+                    .copy(
+                        kostnadssted = null,
+                        beregning = TilsagnBeregningRequest(
+                            type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        ),
+                    ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = emptyList(),
+            ) shouldBeLeft listOf(
+                FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted),
+                FieldError.of("Antall plasser må være større enn 0", TilsagnRequest::beregning, TilsagnBeregningRequest::antallPlasser),
+            )
+        }
+
         test("feil ved utenfor gyldig periode") {
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1.copy(
