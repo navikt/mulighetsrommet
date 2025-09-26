@@ -839,7 +839,7 @@ fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
     return ArrangorflateTilsagnFilter(
         statuser = call.parameters.getAll("statuser")?.map { TilsagnStatus.valueOf(it) },
         typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
-        gjennomforingId = call.parameters["gjennomforingId"]?.let { UUID.fromString(it) }
+        gjennomforingId = call.parameters["gjennomforingId"]?.let { UUID.fromString(it) },
     )
 }
 

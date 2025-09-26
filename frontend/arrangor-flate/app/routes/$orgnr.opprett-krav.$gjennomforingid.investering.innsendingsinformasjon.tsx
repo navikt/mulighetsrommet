@@ -24,7 +24,7 @@ import {
   TilsagnType,
   Tilskuddstype,
 } from "api-client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
   Form,
