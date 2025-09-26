@@ -530,7 +530,6 @@ class UtbetalingService(
             it to person
         }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
-        // TODO: utled regnestykke i backend
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 
