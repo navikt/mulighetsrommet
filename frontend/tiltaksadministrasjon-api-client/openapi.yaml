@@ -5078,33 +5078,6 @@ components:
       required:
       - handlinger
       - utbetaling
-    UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed:
-      type: object
-      properties:
-        sats:
-          type: integer
-          format: int32
-        manedsverkTotal:
-          type: number
-          format: double
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-      - manedsverkTotal
-      - sats
     NavRegionDto:
       type: object
       properties:
@@ -5136,92 +5109,26 @@ components:
       - erStandardvalg
       - navn
       - overordnetEnhet
-    UtbetalingBeregningDto.Fri:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-    UtbetalingBeregningDto.PrisPerManedsverk:
-      type: object
-      properties:
-        sats:
-          type: integer
-          format: int32
-        manedsverkTotal:
-          type: number
-          format: double
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-      - manedsverkTotal
-      - sats
-    UtbetalingBeregningDto.PrisPerUkesverk:
-      type: object
-      properties:
-        sats:
-          type: integer
-          format: int32
-        ukesverkTotal:
-          type: number
-          format: double
-        belop:
-          type: integer
-          format: int32
-        deltakerRegioner:
-          type: array
-          items:
-            $ref: "#/components/schemas/NavRegionDto"
-        deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        heading:
-          type: string
-      required:
-      - belop
-      - deltakerRegioner
-      - deltakerTableData
-      - heading
-      - sats
-      - ukesverkTotal
     UtbetalingBeregningDto:
-      anyOf:
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed"
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.Fri"
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
-      - $ref: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed: "#/components/schemas/UtbetalingBeregningDto.FastSatsPerTiltaksplassPerManed"
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri: "#/components/schemas/UtbetalingBeregningDto.Fri"
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerManedsverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerManedsverk"
-          no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.PrisPerUkesverk: "#/components/schemas/UtbetalingBeregningDto.PrisPerUkesverk"
+      type: object
+      properties:
+        heading:
+          type: string
+        deltakerRegioner:
+          type: array
+          items:
+            $ref: "#/components/schemas/NavRegionDto"
+        deltakerTableData:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        regnestykke:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataElement"
+      required:
+      - deltakerRegioner
+      - deltakerTableData
+      - heading
+      - regnestykke
     UtbetalingLinje:
       type: object
       properties:

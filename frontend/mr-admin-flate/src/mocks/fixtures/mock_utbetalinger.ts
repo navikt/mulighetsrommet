@@ -1,6 +1,8 @@
 import {
   Besluttelse,
+  DataElementMathOperatorType,
   DataElementStatusVariant,
+  DataElementTextFormat,
   DelutbetalingStatus,
   TilsagnStatus,
   TilsagnType,
@@ -9,9 +11,9 @@ import {
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinje,
+  UtbetalingLinjeHandling,
   UtbetalingStatusDtoType,
   UtbetalingTypeDto,
-  UtbetalingLinjeHandling,
 } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
@@ -458,11 +460,25 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
 
 export const mockBeregning: UtbetalingBeregningDto = {
   heading: "Annen avtalt pris",
-  belop: 780,
   deltakerRegioner: [],
   deltakerTableData: {
     columns: [],
     rows: [],
   },
-  type: "no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto.Fri",
+  regnestykke: [
+    {
+      type: "no.nav.mulighetsrommet.model.DataElement.Text",
+      value: "Innsendt beløp",
+      format: null,
+    },
+    {
+      type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
+      operator: DataElementMathOperatorType.EQUALS,
+    },
+    {
+      type: "no.nav.mulighetsrommet.model.DataElement.Text",
+      value: "20975",
+      format: DataElementTextFormat.NOK,
+    },
+  ],
 };
