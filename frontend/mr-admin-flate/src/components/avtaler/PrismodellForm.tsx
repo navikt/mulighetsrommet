@@ -19,6 +19,7 @@ const PrismodellForm = memo(({ prismodell, avtaleStartDato }: Props) => {
       return null;
     case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
     case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
     case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
       return <AvtalteSatser fromDate={avtaleStartDato} />;
     case PrismodellType.ANNEN_AVTALT_PRIS:
