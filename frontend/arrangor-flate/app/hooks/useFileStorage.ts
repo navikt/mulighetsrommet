@@ -10,7 +10,7 @@ interface StoreFileOptions {
 
 export interface FileStorage {
   /** Store one or more files in object storage */
-  store: (files: File | File[], opt: StoreFileOptions) => Promise<void>;
+  store: (files: File | File[], opt?: StoreFileOptions) => Promise<void>;
   /** Get all stored files */
   getAll: () => Promise<StoredFile[]>;
   /** Clears object storage  */

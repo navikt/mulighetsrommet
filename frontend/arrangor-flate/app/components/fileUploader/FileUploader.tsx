@@ -104,7 +104,6 @@ export function FileUploader({
             if (fileStorage) {
               storage.store(
                 newFiles.filter((file) => file.error === false).map((file) => file.file),
-                { clearStore: false },
               );
             }
             if (fileInputRef.current) {

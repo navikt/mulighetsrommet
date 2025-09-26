@@ -27,7 +27,7 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 2 av 3: Betalingsinformasjon - Opprett krav om utbetaling" },
+    { title: "Steg 2 av 4: Betalingsinformasjon - Opprett krav om utbetaling" },
     {
       name: "description",
       content: "Fyll ut betalingsinformasjon for å opprette et krav om utbetaling",

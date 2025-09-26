@@ -45,7 +45,7 @@ import { useFileStorage } from "~/hooks/useFileStorage";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 3 av 3: Oppsummering - Opprett krav om utbetaling" },
+    { title: "Steg 4 av 4: Oppsummering - Opprett krav om utbetaling" },
     {
       name: "description",
       content: "Oppsummering av krav om utbetaling og last opp vedlegg",

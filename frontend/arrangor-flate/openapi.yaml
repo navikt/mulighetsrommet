@@ -277,6 +277,13 @@ paths:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnType"
+      - name: gjennomforingId
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: string
       responses:
         "200":
           description: Alle tilsagn for gitt organisasjonsnummer

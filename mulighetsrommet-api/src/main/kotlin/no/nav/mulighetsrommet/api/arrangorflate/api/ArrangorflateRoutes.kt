@@ -377,6 +377,9 @@ fun Route.arrangorflateRoutes() {
                     queryParameter<List<TilsagnType>>("typer") {
                         explode = true
                     }
+                    queryParameter<String>("gjennomforingId") {
+                        explode = true
+                    }
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -829,12 +832,14 @@ data class ScanVedleggRequest(
 data class ArrangorflateTilsagnFilter(
     val statuser: List<TilsagnStatus>? = null,
     val typer: List<TilsagnType>? = null,
+    val gjennomforingId: UUID? = null,
 )
 
 fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
     return ArrangorflateTilsagnFilter(
         statuser = call.parameters.getAll("statuser")?.map { TilsagnStatus.valueOf(it) },
         typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
+        gjennomforingId = call.parameters["gjennomforingId"]?.let { UUID.fromString(it) }
     )
 }
 

@@ -58,7 +58,7 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 1 av 3: Innsendingsinformasjon - Opprett krav om utbetaling" },
+    { title: "Steg 1 av 4: Innsendingsinformasjon - Opprett krav om utbetaling" },
     {
       name: "description",
       content: "Fyll ut grunnleggende innsendingsinformasjon for å opprette krav om utbetaling",
@@ -74,6 +74,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (!gjennomforingid) {
     throw new Error("Mangler gjennomføring id");
   }
+
   const session = await getSession(request.headers.get("Cookie"));
 
   let sessionGjennomforingId: string | undefined;
@@ -89,6 +90,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     sessionPeriodeStart = session.get("periodeStart");
     sessionPeriodeSlutt = session.get("periodeSlutt");
   }
+
   const [
     { data: gjennomforing, error: gjennomforingerError },
     { data: tilsagn, error: tilsagnError },
@@ -100,7 +102,11 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     }),
     ArrangorflateService.getAllArrangorflateTilsagn({
       path: { orgnr },
-      query: { typer: [TilsagnType.INVESTERING], statuser: [TilsagnStatus.GODKJENT] },
+      query: {
+        typer: [TilsagnType.INVESTERING],
+        statuser: [TilsagnStatus.GODKJENT],
+        gjennomforingId: gjennomforingid,
+      },
       headers: await apiHeaders(request),
     }),
     ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
@@ -141,6 +147,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
   const orgnr = formData.get("orgnr")?.toString();
   const gjennomforingId = formData.get("gjennomforingId")?.toString();
+
   if (!orgnr) {
     throw new Error("Mangler orgnr");
   }
@@ -186,6 +193,7 @@ export async function action({ request }: ActionFunctionArgs) {
     session.set("tilsagnId", tilsagnId);
     session.set("periodeStart", yyyyMMddFormatting(periodeStart));
     session.set("periodeSlutt", yyyyMMddFormatting(periodeSlutt));
+
     return redirect(pathByOrgnr(orgnr).opprettKrav.investering.utbetaling(gjennomforingId), {
       headers: {
         "Set-Cookie": await commitSession(session),
@@ -235,10 +243,6 @@ export default function OpprettKravInnsendingsinformasjon() {
     defaultSelected: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
   });
 
-  const relevanteTilsagn = useMemo(() => {
-    return tilsagn.filter((t) => t.gjennomforing.id === gjennomforing.id);
-  }, [gjennomforing, tilsagn]);
-
   return (
     <Form method="post">
       <VStack gap="6">
@@ -265,7 +269,7 @@ export default function OpprettKravInnsendingsinformasjon() {
               { key: "Tiltakstype", value: gjennomforing.tiltakstype.navn },
             ]}
           />
-          {relevanteTilsagn.length < 1 ? (
+          {tilsagn.length < 1 ? (
             <Alert variant="warning">
               Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
             </Alert>
@@ -287,9 +291,9 @@ export default function OpprettKravInnsendingsinformasjon() {
                 );
               }}
             >
-              {relevanteTilsagn.map((tilsagn) => (
-                <Radio key={tilsagn.id} size="small" value={tilsagn.id}>
-                  <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
+              {tilsagn.map((etTilsagn) => (
+                <Radio key={etTilsagn.id} size="small" value={etTilsagn.id}>
+                  <TilsagnDetaljer key={etTilsagn.id} tilsagn={etTilsagn} minimal />
                 </Radio>
               ))}
             </RadioGroup>
