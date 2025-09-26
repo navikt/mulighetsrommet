@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.time.LocalDate
@@ -26,8 +27,16 @@ import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleQueries(private val session: Session) {
+    fun create(avtaleDbo: AvtaleDbo) = withTransaction(session) {
+        insert(avtaleDbo)
+        upsertAdministratorer(avtaleDbo.id, avtaleDbo.detaljer.administratorer)
+        upsertPrismodell(avtaleDbo.id, avtaleDbo.prismodell)
+        upsertArrangor(avtaleDbo.id, avtaleDbo.detaljer.arrangor)
+        upsertNavEnheter(avtaleDbo.id, avtaleDbo.veilederinformasjon.navEnheter)
+        upsertUtdanningslop(avtaleDbo.id, avtaleDbo.detaljer.utdanningslop, avtaleDbo.detaljer.amoKategorisering)
+    }
 
-    fun upsert(avtale: AvtaleDbo) = withTransaction(session) {
+    fun insert(avtale: AvtaleDbo) = {
         @Language("PostgreSQL")
         val query = """
             insert into avtale (
@@ -60,7 +69,7 @@ class AvtaleQueries(private val session: Session) {
                 :start_dato,
                 :slutt_dato,
                 :status::avtale_status,
-                :opsjonMaksVarighet,
+                :maksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
                 :opphav::opphav,
@@ -68,29 +77,24 @@ class AvtaleQueries(private val session: Session) {
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
                 :opsjonsmodell::opsjonsmodell,
-                :opsjonCustomOpsjonsmodellNavn,
+                :customNavn,
                 :prismodell::prismodell
-            ) on conflict (id) do update set
-                navn                        = excluded.navn,
-                tiltakstype_id              = excluded.tiltakstype_id,
-                avtalenummer                = excluded.avtalenummer,
-                sakarkiv_nummer             = excluded.sakarkiv_nummer,
-                arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
-                start_dato                  = excluded.start_dato,
-                slutt_dato                  = excluded.slutt_dato,
-                status                      = excluded.status,
-                opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
-                avtaletype                  = excluded.avtaletype,
-                prisbetingelser             = excluded.prisbetingelser,
-                opphav                      = coalesce(avtale.opphav, excluded.opphav),
-                beskrivelse                 = excluded.beskrivelse,
-                faneinnhold                 = excluded.faneinnhold,
-                personvern_bekreftet        = excluded.personvern_bekreftet,
-                opsjonsmodell               = excluded.opsjonsmodell,
-                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn,
-                prismodell                  = excluded.prismodell
+            )
         """.trimIndent()
+        session.execute(queryOf(query, avtale.toSqlParameters()))
+    }
 
+    fun updateDetaljer(
+        avtaleId: UUID,
+        detaljerDbo: DetaljerDbo,
+    ) = withTransaction(session) {
+        upsertDetaljer(avtaleId, detaljerDbo)
+        upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
+        upsertArrangor(avtaleId, detaljerDbo.arrangor)
+        upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop, detaljerDbo.amoKategorisering)
+    }
+
+    fun upsertAdministratorer(avtaleId: UUID, administratorer: List<NavIdent>) {
         @Language("PostgreSQL")
         val upsertAdministrator = """
              insert into avtale_administrator(avtale_id, nav_ident)
@@ -104,6 +108,17 @@ class AvtaleQueries(private val session: Session) {
              where avtale_id = ?::uuid and not (nav_ident = any (?))
         """.trimIndent()
 
+        session.batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it) })
+        session.execute(
+            queryOf(
+                deleteAdministratorer,
+                avtaleId,
+                session.createArrayOfValue(administratorer) { it },
+            ),
+        )
+    }
+
+    fun upsertNavEnheter(avtaleId: UUID, enheter: Set<NavEnhetNummer>) {
         @Language("PostgreSQL")
         val upsertEnhet = """
              insert into avtale_nav_enhet (avtale_id, enhetsnummer)
@@ -117,6 +132,11 @@ class AvtaleQueries(private val session: Session) {
              where avtale_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
+        session.batchPreparedStatement(upsertEnhet, enheter.map { listOf(avtaleId, it) })
+        session.execute(queryOf(deleteEnheter, avtaleId, session.createArrayOfValue(enheter) { it }))
+    }
+
+    fun upsertArrangor(avtaleId: UUID, arrangor: ArrangorDbo?) {
         @Language("PostgreSQL")
         val setArrangorUnderenhet = """
              insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
@@ -143,19 +163,29 @@ class AvtaleQueries(private val session: Session) {
             where avtale_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
 
-        @Language("PostgreSQL")
-        val upsertPersonopplysninger = """
-            insert into avtale_personopplysning (avtale_id, personopplysning)
-            values (?::uuid, ?::personopplysning)
-            on conflict do nothing
-        """.trimIndent()
+        arrangor?.underenheter?.let { underenheter ->
+            session.batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtaleId, it) })
+        }
+        session.execute(
+            queryOf(
+                deleteUnderenheter,
+                avtaleId,
+                arrangor?.underenheter?.let { session.createUuidArray(it) },
+            ),
+        )
+        arrangor?.kontaktpersoner?.let { kontaktpersoner ->
+            session.batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtaleId, it) })
+        }
+        session.execute(
+            queryOf(
+                deleteArrangorKontaktpersoner,
+                avtaleId,
+                arrangor?.kontaktpersoner?.let { session.createUuidArray(it) },
+            ),
+        )
+    }
 
-        @Language("PostgreSQL")
-        val deletePersonopplysninger = """
-            delete from avtale_personopplysning
-            where avtale_id = ?::uuid and not (personopplysning = any (?))
-        """.trimIndent()
-
+    fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?, amoKategorisering: AmoKategorisering?) {
         @Language("PostgreSQL")
         val deleteUtdanningslop = """
             delete from avtale_utdanningsprogram
@@ -172,69 +202,23 @@ class AvtaleQueries(private val session: Session) {
             values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
-        execute(queryOf(query, avtale.toSqlParameters()))
-
-        batchPreparedStatement(upsertAdministrator, avtale.administratorer.map { listOf(avtale.id, it.value) })
-        execute(queryOf(deleteAdministratorer, avtale.id, createArrayOfValue(avtale.administratorer) { it.value }))
-
-        batchPreparedStatement(upsertEnhet, avtale.navEnheter.map { listOf(avtale.id, it.value) })
-        execute(queryOf(deleteEnheter, avtale.id, createArrayOfValue(avtale.navEnheter) { it.value }))
-
-        avtale.arrangor?.underenheter?.let { underenheter ->
-            batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtale.id, it) })
-        }
-        execute(queryOf(deleteUnderenheter, avtale.id, avtale.arrangor?.underenheter?.let { createUuidArray(it) }))
-
-        avtale.arrangor?.kontaktpersoner?.let { kontaktpersoner ->
-            batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtale.id, it) })
-        }
-        execute(
-            queryOf(
-                deleteArrangorKontaktpersoner,
-                avtale.id,
-                avtale.arrangor?.kontaktpersoner?.let { createUuidArray(it) },
-            ),
-        )
-
-        batchPreparedStatement(
-            upsertPersonopplysninger,
-            avtale.personopplysninger.map { listOf<Any>(avtale.id, it.name) },
-        )
-        execute(
-            queryOf(
-                deletePersonopplysninger,
-                avtale.id,
-                createArrayOfPersonopplysning(avtale.personopplysninger),
-            ),
-        )
-
-        AmoKategoriseringQueries(this).upsert(avtale)
-
-        execute(queryOf(deleteUtdanningslop, avtale.id))
-
-        avtale.utdanningslop?.let { utdanningslop ->
+        utdanningslop?.let { utdanningslop ->
             val utdanninger = utdanningslop.utdanninger.map {
                 mapOf(
-                    "avtale_id" to avtale.id,
+                    "avtale_id" to avtaleId,
                     "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
                     "utdanning_id" to it,
                 )
             }
-            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
+            session.batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
-
-        upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
+        session.execute(queryOf(deleteUtdanningslop, avtaleId))
+        amoKategorisering?.let { AmoKategoriseringQueries(session).upsert(avtaleId, amoKategorisering) }
     }
 
-    fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
-        upsertPrismodell(id, prismodell = dbo.prismodell, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
-    }
-
-    private fun Session.upsertPrismodell(
+    fun upsertPrismodell(
         id: UUID,
-        prismodell: Prismodell,
-        prisbetingelser: String?,
-        satser: List<AvtaltSats>,
+        prismodell: PrismodellDbo,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -244,13 +228,13 @@ class AvtaleQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        execute(
+        session.execute(
             queryOf(
                 query,
                 mapOf(
                     "id" to id,
-                    "prismodell" to prismodell.name,
-                    "prisbetingelser" to prisbetingelser,
+                    "prismodell" to prismodell.prismodell.name,
+                    "prisbetingelser" to prismodell.prisbetingelser,
                 ),
             ),
         )
@@ -260,7 +244,7 @@ class AvtaleQueries(private val session: Session) {
             delete from avtale_sats
             where avtale_id = ?::uuid
         """.trimIndent()
-        execute(queryOf(deleteSatser, id))
+        session.execute(queryOf(deleteSatser, mapOf("avtale_id" to id)))
 
         @Language("PostgreSQL")
         val insertSats = """
@@ -268,9 +252,9 @@ class AvtaleQueries(private val session: Session) {
             values (:avtale_id::uuid, :gjelder_fra::date, :sats)
         """.trimIndent()
 
-        batchPreparedNamedStatement(
+        session.batchPreparedNamedStatement(
             insertSats,
-            satser.map {
+            prismodell.satser.map {
                 mapOf(
                     "avtale_id" to id,
                     "gjelder_fra" to it.gjelderFra,
@@ -280,9 +264,83 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
+    fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale
+            set
+                navn = navn,
+                tiltakstype_id = tiltakstype_id,
+                sakarkiv_nummer = sakarkiv_nummer,
+                avtaletype =  avtaletype,
+                start_dato = start_dato,
+                slutt_dato = slutt_dato,
+                opsjon_maks_varighet = opsjon_maks_varighet,
+                opsjonsmodell = coalesce(:opsjonsmodell, opsjonsmodell),
+                opsjon_custom_opsjonsmodell_navn = opsjon_custom_opsjonsmodell_navn,
+                arrangor_hovedenhet_id = arrangor_hovedenhet_id
+             where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, detaljer.params()))
+    }
+
+
+        fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
+            @Language("PostgreSQL")
+            val query = """
+                update avtale
+                set
+                    beskrivelse = beskrivelse,
+                    faneinnhold = faneinnhold
+                 where id = :id::uuid
+            """.trimIndent()
+
+            session.execute(queryOf(query, redaksjoneltInnhold.params()))
+        }
+
+        fun upsertPersonvern(id: UUID, personvernBekreftet: Boolean?, personopplysninger: List<Personopplysning>) = withTransaction(session) {
+            @Language("PostgreSQL")
+            val query = """
+                update avtale
+                set
+                    personvern_bekreftet = personvern_bekreftet
+                 where id = :id::uuid
+            """.trimIndent()
+
+            @Language("PostgreSQL")
+            val updatePersonopplysninger = """
+                insert into avtale_personopplysning (avtale_id, personopplysning)
+                values (?::uuid, ?::personopplysning)
+                on conflict do nothing
+            """.trimIndent()
+
+            @Language("PostgreSQL")
+            val deletePersonopplysninger = """
+                delete from avtale_personopplysning
+                where avtale_id = ?::uuid and not (personopplysning = any (?))
+            """.trimIndent()
+
+            session.batchPreparedStatement(
+                updatePersonopplysninger,
+                personopplysninger.map { listOf<Any>(id, it.name) },
+            )
+            session.execute(
+                queryOf(
+                    deletePersonopplysninger,
+                    id,
+                    session.createArrayOfPersonopplysning(personopplysninger),
+                ),
+            )
+            session.execute(queryOf(query, personvernBekreftet))
+        }
+
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {
         val arrangorId = single(
-            queryOf("select id from arrangor where organisasjonsnummer = ?", avtale.arrangorOrganisasjonsnummer),
+            queryOf(
+                "select id from arrangor where organisasjonsnummer = ?",
+                avtale.arrangorOrganisasjonsnummer,
+            ),
         ) { it.uuid("id") }.let { requireNotNull(it) }
 
         @Language("PostgreSQL")
@@ -494,27 +552,35 @@ class AvtaleQueries(private val session: Session) {
         update(queryOf(query, sluttDato, avtaleId))
     }
 
-    private fun AvtaleDbo.toSqlParameters() = mapOf(
+    private fun DetaljerDbo.params() = mapOf(
         "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
-        "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
-        "avtalenummer" to avtalenummer,
-        "sakarkiv_nummer" to sakarkivNummer?.value,
+        "sakarkiv_nummer" to sakarkivnummer,
         "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "status" to status.name,
         "avtaletype" to avtaletype.name,
-        "prisbetingelser" to prisbetingelser,
-        "beskrivelse" to beskrivelse,
-        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
+    ) + opsjonsmodell.params()
+
+    private fun PersonvernDbo.params() = mapOf(
         "personvern_bekreftet" to personvernBekreftet,
-        "opsjonsmodell" to opsjonsmodell.type.name,
-        "opsjonMaksVarighet" to opsjonsmodell.opsjonMaksVarighet,
-        "opsjonCustomOpsjonsmodellNavn" to opsjonsmodell.customOpsjonsmodellNavn,
-        "prismodell" to prismodell.name,
     )
+
+    private fun OpsjonsmodellDbo.params() = mapOf(
+        "opsjonsmodell" to type.name,
+        "maksVarighet" to maksVarighet,
+        "CustomNavn" to customNavn,
+    )
+
+    private fun RedaksjoneltInnholdDbo.params() = mapOf(
+        "beskrivelse" to beskrivelse,
+        "faneinnhold" to faneinnhold,
+    )
+
+    private fun AvtaleDbo.toSqlParameters(): Map<String, Any?> = mapOf("id" to id) +
+        detaljer.params() +
+        personvern.params()
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
         val avbruttTidspunkt = when (avslutningsstatus) {
@@ -574,8 +640,8 @@ class AvtaleQueries(private val session: Session) {
 
         val opsjonsmodell = Opsjonsmodell(
             type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
-            opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-            customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
+            maksVarighet = localDateOrNull("opsjon_maks_varighet"),
+            customNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
         val amoKategorisering = stringOrNull("amo_kategorisering_json")
             ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }

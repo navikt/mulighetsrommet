@@ -44,6 +44,7 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val detaljer: AvtaleDetaljerRequest,
+    val prismodell: PrismodellRequest,
     val personvern: AvtalePersonvernRequest,
     val veilederinformasjon: AvtaleVeilederinfoRequest,
 )
@@ -51,8 +52,8 @@ data class AvtaleRequest(
 @Serializable
 data class AvtaleDetaljerRequest(
     val navn: String,
-    val tiltakKode: Tiltakskode,
-    val arrangor: AvtaleArrangor,
+    val tiltakskode: Tiltakskode,
+    val arrangor: AvtaleArrangor?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
@@ -63,7 +64,6 @@ data class AvtaleDetaljerRequest(
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: PrismodellRequest,
 )
 @Serializable
 data class AvtaleArrangor(
@@ -128,7 +128,7 @@ fun Route.avtaleRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
-
+/*
             patch("{id}/personvern") {
                 val id: UUID by call.parameters
                 val request = call.receive<AvtalePersonvernRequest>()
@@ -150,7 +150,7 @@ fun Route.avtaleRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
-
+*/
             route("{id}/opsjoner") {
                 post({
                     tags = setOf("Avtale")

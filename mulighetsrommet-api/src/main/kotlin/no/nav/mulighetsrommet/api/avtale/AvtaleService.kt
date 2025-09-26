@@ -45,7 +45,7 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
         val avtaleDbo = validator
-            .validate(request)
+            .validateCreateAvtale(request)
             .bind()
 
         db.transaction {
@@ -77,10 +77,10 @@ class AvtaleService(
         require(previous != null) { "Kan ikke oppdatere detaljer på avtale som ikke finnes" }
 
         val dbo = validator
-            .validate(request.toDbo(), previous)
+            .validateUpdateDetaljer(avtaleId, request, previous)
             .bind()
 
-        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
+        if (AvtaleDboMapper.fromAvtale(previous) == dbo) {
             return@either previous
         }
 
@@ -98,54 +98,55 @@ class AvtaleService(
         }
     }
 
-    suspend fun updatePersonvern(
-        avtaleId: UUID,
-        request: AvtalePersonvernRequest,
-        navIdent: NavIdent,
-    ): Either<List<FieldError>, AvtaleDto> = either {
-        val previous = get(avtaleId)
-        require(previous != null) { "Kan ikke oppdatere personvern på avtale som ikke finnes" }
+    /*
+        suspend fun updatePersonvern(
+            avtaleId: UUID,
+            request: AvtalePersonvernRequest,
+            navIdent: NavIdent,
+        ): Either<List<FieldError>, AvtaleDto> = either {
+            val previous = get(avtaleId)
+            require(previous != null) { "Kan ikke oppdatere personvern på avtale som ikke finnes" }
 
-        val administratorer = previous.administratorer.map { it.navIdent }
+            val administratorer = previous.administratorer.map { it.navIdent }
 
-        db.transaction {
-            // queries.avtale.updatePersonvern(avtaleId, previous.administratorer)
+            db.transaction {
+                // queries.avtale.updatePersonvern(avtaleId, previous.administratorer)
 
-            dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
+                dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
 
-            val dto = getOrError(avtaleId)
-            logEndring("Redigerte avtale", dto, navIdent)
+                val dto = getOrError(avtaleId)
+                logEndring("Redigerte avtale", dto, navIdent)
 
-            schedulePublishGjennomforingerForAvtale(dto)
+                schedulePublishGjennomforingerForAvtale(dto)
 
-            dto
+                dto
+            }
         }
-    }
 
-    suspend fun updateVeilederinfo(
-        avtaleId: UUID,
-        request: AvtaleVeilederinfoRequest,
-        navIdent: NavIdent,
-    ): Either<List<FieldError>, AvtaleDto> = either {
-        val previous = get(avtaleId)
-        require(previous != null) { "Kan ikke oppdatere veilederinfo på avtale som ikke finnes" }
+        suspend fun updateVeilederinfo(
+            avtaleId: UUID,
+            request: AvtaleVeilederinfoRequest,
+            navIdent: NavIdent,
+        ): Either<List<FieldError>, AvtaleDto> = either {
+            val previous = get(avtaleId)
+            require(previous != null) { "Kan ikke oppdatere veilederinfo på avtale som ikke finnes" }
 
-        val administratorer = previous.administratorer.map { it.navIdent }
+            val administratorer = previous.administratorer.map { it.navIdent }
 
-        db.transaction {
-            // queries.avtale.updateVeilederinfo(avtaleId, dbo)
+            db.transaction {
+                // queries.avtale.updateVeilederinfo(avtaleId, dbo)
 
-            dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
+                dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
 
-            val dto = getOrError(avtaleId)
-            logEndring("Redigerte avtale", dto, navIdent)
+                val dto = getOrError(avtaleId)
+                logEndring("Redigerte avtale", dto, navIdent)
 
-            schedulePublishGjennomforingerForAvtale(dto)
+                schedulePublishGjennomforingerForAvtale(dto)
 
-            dto
+                dto
+            }
         }
-    }
-
+     */
     fun upsertPrismodell(
         id: UUID,
         request: PrismodellRequest,
@@ -349,7 +350,7 @@ class AvtaleService(
                 Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
-                avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv
+                avtale.opsjonsmodell.maksVarighet != null && avtalerSkriv
             },
             AvtaleHandling.DUPLISER.takeIf {
                 avtalerSkriv
@@ -428,7 +429,7 @@ class AvtaleService(
 }
 
 fun resolveStatus(
-    request: AvtaleRequest,
+    request: AvtaleDetaljerRequest,
     previous: Avtale?,
     today: LocalDate,
 ): AvtaleStatusType = if (request.arrangor == null) {

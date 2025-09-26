@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -13,6 +11,7 @@ data class AvtaleDbo(
     val status: AvtaleStatusType,
     val avtalenummer: String?,
     val detaljer: DetaljerDbo,
+    val prismodell: PrismodellDbo,
     val veilederinformasjon: VeilederinformasjonDbo,
     val personvern: PersonvernDbo,
 )
@@ -24,15 +23,11 @@ data class DetaljerDbo(
     val arrangor: ArrangorDbo?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
-    val navEnheter: Set<NavEnhetNummer>,
     val avtaletype: Avtaletype,
     val administratorer: List<NavIdent>,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: OpsjonsmodellDbo,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: Prismodell,
-    val prisbetingelser: String?,
-    val satser: List<AvtaltSats>,
 )
 data class ArrangorDbo(
     val hovedenhet: UUID,
@@ -48,7 +43,7 @@ data class OpsjonsmodellDbo(
 
 data class VeilederinformasjonDbo(
     val redaksjoneltInnhold: RedaksjoneltInnholdDbo?,
-    val navEnheter: List<NavEnhetNummer>,
+    val navEnheter: Set<NavEnhetNummer>,
 )
 
 data class RedaksjoneltInnholdDbo(
@@ -60,4 +55,3 @@ data class PersonvernDbo(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
 )
-
