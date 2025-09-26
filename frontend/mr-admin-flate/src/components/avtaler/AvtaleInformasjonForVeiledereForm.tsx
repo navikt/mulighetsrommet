@@ -21,13 +21,13 @@ export function AvtaleInformasjonForVeiledereForm() {
   const { data: enheter } = useNavEnheter();
 
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
-  const tiltakskode = watch("tiltakskode");
+  const tiltakskode = watch("detaljer.tiltakskode");
 
   const tiltakId = tiltakstyper.find((type) => type.tiltakskode === tiltakskode)?.id;
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
-    setValue("beskrivelse", beskrivelse ?? null);
-    setValue("faneinnhold", faneinnhold ?? null);
+    setValue("veilederinformasjon.redaksjoneltInnhold.beskrivelse", beskrivelse ?? null);
+    setValue("veilederinformasjon.redaksjoneltInnhold.faneinnhold", faneinnhold ?? null);
   }
 
   const regionerOptions = enheter
@@ -37,8 +37,14 @@ export function AvtaleInformasjonForVeiledereForm() {
       label: enhet.navn,
     }));
 
-  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter);
-  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(watch("navRegioner"), enheter);
+  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(
+    watch("veilederinformasjon.navRegioner"),
+    enheter,
+  );
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
+    watch("veilederinformasjon.navRegioner"),
+    enheter,
+  );
 
   if (!tiltakId) {
     return (

@@ -4,24 +4,17 @@ import {
   AvtaleDto,
   AvtaltSatsDto,
   Personopplysning,
-  Prismodell,
   PrismodellDto,
 } from "@mr/api-client-v2";
 import z from "zod";
-import {
-  arrangorSchema,
-  avtaleDetaljerSchema,
-  toUtdanningslopDbo,
-  validateArrangor,
-  validateAvtaledetaljer,
-} from "./avtaledetaljer";
+import { avtaleDetaljerSchema, toUtdanningslopDbo, validateAvtaledetaljer } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
-import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { NavAnsattDto, Prismodell } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().optional(),
-  prismodell: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
+  type: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
       gjelderFra: z.string().nullable(),
@@ -31,6 +24,10 @@ export const PrismodellSchema = z.object({
   ),
 });
 
+export const PrismodellStepSchema = z.object({
+  prismodell: PrismodellSchema,
+});
+
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
 
 export const RedaksjoneltInnholdSchema = z.object({
@@ -38,9 +35,16 @@ export const RedaksjoneltInnholdSchema = z.object({
     .string({ error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
     .nullable(),
   faneinnhold: FaneinnholdSchema.nullable(),
+});
+
+export const VeilederinformasjonSchema = z.object({
+  redaksjoneltInnhold: RedaksjoneltInnholdSchema,
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
-  navEnheterAndre: z.string().array(),
+  navAndreEnheter: z.string().array(),
+});
+export const VeilederinformasjonStepSchema = z.object({
+  veilederinformasjon: VeilederinformasjonSchema,
 });
 
 export const PersonopplysningerSchema = z.object({
@@ -48,18 +52,23 @@ export const PersonopplysningerSchema = z.object({
   personopplysninger: z.enum(Personopplysning).array(),
 });
 
-export const avtaleFormSchema = avtaleDetaljerSchema
-  .extend(arrangorSchema.shape)
-  .extend(PrismodellSchema.shape)
-  .extend(PersonopplysningerSchema.shape)
-  .extend(RedaksjoneltInnholdSchema.shape)
+export const PersonopplysningerStepSchema = z.object({
+  personvern: PersonopplysningerSchema,
+});
+
+export const avtaleSchema = z
+  .object({
+    detaljer: avtaleDetaljerSchema,
+    prismodell: PrismodellSchema,
+    personvern: PersonopplysningerSchema,
+    veilederinformasjon: VeilederinformasjonSchema,
+  })
   .superRefine((data, ctx) => {
-    validateArrangor(ctx, data);
-    validateAvtaledetaljer(ctx, data);
+    validateAvtaledetaljer(ctx, data.detaljer);
   });
 
-export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
-export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
+export type AvtaleFormInput = z.input<typeof avtaleSchema>;
+export type AvtaleFormValues = z.infer<typeof avtaleSchema>;
 
 export function defaultAvtaleData(
   ansatt: NavAnsattDto,
@@ -71,39 +80,47 @@ export function defaultAvtaleData(
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
-    tiltakskode: avtale?.tiltakstype?.tiltakskode,
-    navRegioner: navRegioner,
-    navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
-    navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
-    administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
-    navn: avtale?.navn ?? "",
-    avtaletype: avtale?.avtaletype,
-    arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
-    arrangorUnderenheter: !avtale?.arrangor?.underenheter
-      ? []
-      : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-    arrangorKontaktpersoner:
-      avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
-    startDato: avtale?.startDato ?? null,
-    sluttDato: avtale?.sluttDato ?? null,
-    sakarkivNummer: avtale?.sakarkivNummer ?? null,
-    beskrivelse: avtale?.beskrivelse ?? null,
-    faneinnhold: avtale?.faneinnhold ?? null,
-    personvernBekreftet: avtale?.personvernBekreftet,
-    personopplysninger: avtale?.personopplysninger ?? [],
-    amoKategorisering: avtale?.amoKategorisering ?? null,
-    opsjonsmodell: {
-      type: avtale?.opsjonsmodell?.type,
-      opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
-      customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
+    detaljer: {
+      navn: avtale?.navn ?? "",
+      sakarkivNummer: avtale?.sakarkivNummer,
+      tiltakskode: avtale?.tiltakstype?.tiltakskode,
+      administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
+      avtaletype: avtale?.avtaletype,
+      arrangor: {
+        hovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
+        underenheter: !avtale?.arrangor?.underenheter
+          ? []
+          : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+        kontaktpersoner:
+          avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+      },
+      startDato: avtale?.startDato,
+      sluttDato: avtale?.sluttDato,
+      amoKategorisering: avtale?.amoKategorisering ?? null,
+      opsjonsmodell: avtale?.opsjonsmodell,
+      utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     },
-    utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
-    prismodell: avtale?.prismodell?.type as Prismodell | undefined,
-    satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
-    prisbetingelser:
-      avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-        ? (avtale.prismodell.prisbetingelser ?? undefined)
-        : undefined,
+    prismodell: {
+      type: avtale?.prismodell?.type as Prismodell | undefined,
+      satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
+      prisbetingelser:
+        avtale?.prismodell && "prisbetingelser" in avtale.prismodell
+          ? (avtale.prismodell.prisbetingelser ?? undefined)
+          : undefined,
+    },
+    personvern: {
+      personvernBekreftet: avtale?.personvernBekreftet,
+      personopplysninger: avtale?.personopplysninger ?? [],
+    },
+    veilederinformasjon: {
+      navRegioner: navRegioner,
+      navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+      navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
+      redaksjoneltInnhold: {
+        beskrivelse: avtale?.beskrivelse ?? null,
+        faneinnhold: avtale?.faneinnhold ?? null,
+      },
+    },
   };
 }
 

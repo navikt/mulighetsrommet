@@ -10,12 +10,12 @@ import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import {
-  avtaleFormSchema,
+  avtaleSchema,
   AvtaleFormValues,
   defaultAvtaleData,
-  PersonopplysningerSchema,
-  PrismodellSchema,
-  RedaksjoneltInnholdSchema,
+  PrismodellStepSchema,
+  PersonopplysningerStepSchema,
+  VeilederinformasjonStepSchema,
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,17 +40,17 @@ const steps = [
   },
   {
     key: "Prismodell",
-    schema: PrismodellSchema,
+    schema: PrismodellStepSchema,
     Component: <AvtalePrismodellStep />,
   },
   {
     key: "Personvern",
-    schema: PersonopplysningerSchema,
+    schema: PersonopplysningerStepSchema,
     Component: <AvtalePersonvernForm />,
   },
   {
     key: "Redaksjonelt",
-    schema: RedaksjoneltInnholdSchema,
+    schema: VeilederinformasjonStepSchema,
     Component: <AvtaleInformasjonForVeiledereForm />,
   },
 ];
@@ -127,7 +127,7 @@ export function NewAvtaleFormPage() {
     if (activeStep !== 4) {
       setActiveStep(activeStep + 1);
     } else {
-      const result = avtaleFormSchema.safeParse(mergedData);
+      const result = avtaleSchema.safeParse(mergedData);
       if (result.success) {
         onSubmit(result.data);
       } else
@@ -139,7 +139,6 @@ export function NewAvtaleFormPage() {
         });
     }
   };
-
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />

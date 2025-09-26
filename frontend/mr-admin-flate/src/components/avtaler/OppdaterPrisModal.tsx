@@ -28,7 +28,6 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
 
     mutation.mutate(
       {
-        type: request.prismodell,
         ...request,
       },
       {
@@ -88,32 +87,32 @@ function defaultValues(prismodell: PrismodellDto): PrismodellValues {
   switch (prismodell.type) {
     case "ANNEN_AVTALT_PRIS":
       return {
-        prismodell: Prismodell.ANNEN_AVTALT_PRIS,
+        type: Prismodell.ANNEN_AVTALT_PRIS,
         prisbetingelser: prismodell.prisbetingelser ?? undefined,
         satser: [],
       };
     case "AVTALT_PRIS_PER_MANEDSVERK":
       return {
         ...prismodell,
-        prismodell: Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
+        type: Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
         prisbetingelser: prismodell.prisbetingelser ?? undefined,
       };
     case "AVTALT_PRIS_PER_UKESVERK":
       return {
         ...prismodell,
-        prismodell: Prismodell.AVTALT_PRIS_PER_UKESVERK,
+        type: Prismodell.AVTALT_PRIS_PER_UKESVERK,
         prisbetingelser: prismodell.prisbetingelser ?? undefined,
       };
     case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
       return {
         ...prismodell,
-        prismodell: Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+        type: Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
         prisbetingelser: prismodell.prisbetingelser ?? undefined,
       };
     case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
       return {
         ...prismodell,
-        prismodell: Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        type: Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         satser: [],
       };
   }

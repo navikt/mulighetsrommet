@@ -2,7 +2,7 @@ import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import {
   AvtaleFormValues,
   AvtaleFormInput,
-  avtaleFormSchema,
+  avtaleSchema,
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +28,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   const { data: ansatt } = useHentAnsatt();
 
   const methods = useForm<AvtaleFormInput, any, AvtaleFormValues>({
-    resolver: zodResolver(avtaleFormSchema),
+    resolver: zodResolver(avtaleSchema),
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
 

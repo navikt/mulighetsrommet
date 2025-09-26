@@ -7,24 +7,15 @@ import {
   Utdanningslop,
 } from "@mr/api-client-v2";
 import z from "zod";
-import { AvtaleFormValues } from "./avtale";
+
+export const ArrangorSchema = z.object({
+  hovedenhet: z.string(),
+  underenheter: z.array(z.string()),
+  kontaktpersoner: z.uuid().array(),
+});
 
 export const avtaleDetaljerSchema = z.object({
   navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
-  tiltakskode: z.enum(Tiltakskode, { error: "Du må velge en tiltakstype" }),
-  avtaletype: z.enum(Avtaletype, {
-    error: "Du må velge en avtaletype",
-  }),
-  startDato: z.string().nullable(),
-  sluttDato: z.string().optional().nullable(),
-  opsjonsmodell: z.object({
-    type: z.enum(OpsjonsmodellType, {
-      error: "Du må velge avtalt mulighet for forlengelse",
-    }),
-    opsjonMaksVarighet: z.string().optional().nullable(),
-    customOpsjonsmodellNavn: z.string().optional().nullable(),
-  }),
-  administratorer: z.array(z.string()).min(1, "Du må velge minst én administrator"),
   sakarkivNummer: z
     .string()
     .nullable()
@@ -37,25 +28,24 @@ export const avtaleDetaljerSchema = z.object({
         message: "Saksnummer må være på formatet 'år/løpenummer'",
       },
     ),
+  tiltakskode: z.enum(Tiltakskode, { error: "Du må velge en tiltakstype" }),
+  avtaletype: z.enum(Avtaletype, {
+    error: "Du må velge en avtaletype",
+  }),
+  startDato: z.string().nullable(),
+  sluttDato: z.string().optional().nullable(),
+  opsjonsmodell: z.object({
+    type: z.enum(OpsjonsmodellType, {
+      error: "Du må velge avtalt mulighet for forlengelse",
+    }),
+    maksVarighet: z.string().nullable(),
+    customNavn: z.string().nullable(),
+  }),
+  arrangor: ArrangorSchema,
+  administratorer: z.array(z.string()).min(1, "Du må velge minst én administrator"),
   amoKategorisering: AmoKategoriseringSchema.nullish(),
   utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
 });
-
-export const arrangorSchema = z.object({
-  arrangorHovedenhet: z.string().optional(),
-  arrangorUnderenheter: z.array(z.string()).optional(),
-  arrangorKontaktpersoner: z.uuid().array().optional(),
-});
-
-export const validateArrangor = (ctx: z.RefinementCtx, data: z.infer<typeof arrangorSchema>) => {
-  if (!data.arrangorHovedenhet && data.arrangorUnderenheter?.length) {
-    ctx.addIssue({
-      code: "custom",
-      message: "Underenheter kan bare være tom dersom hovedenhet er tom",
-      path: ["arrangorUnderenheter"],
-    });
-  }
-};
 
 export const validateAvtaledetaljer = (
   ctx: z.RefinementCtx,
@@ -72,10 +62,7 @@ export const validateAvtaledetaljer = (
     });
   }
   if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
-    if (
-      data.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
-      !data.opsjonsmodell.customOpsjonsmodellNavn
-    ) {
+    if (data.opsjonsmodell.type === OpsjonsmodellType.ANNET && !data.opsjonsmodell.customNavn) {
       ctx.addIssue({
         code: "custom",
         message: "Du må gi oppsjonsmodellen et navn",
@@ -97,14 +84,22 @@ export const validateAvtaledetaljer = (
       path: ["amoKategorisering.kurstype"],
     });
   }
+  if (!data.arrangor.hovedenhet && data.arrangor.underenheter?.length) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Underenheter kan bare være tom dersom hovedenhet er tom",
+      path: ["arrangorUnderenheter"],
+    });
+  }
 };
 
-export const avtaleDetaljerFormSchema = avtaleDetaljerSchema
-  .extend(arrangorSchema.shape)
-  .superRefine((data, ctx) => {
-    validateArrangor(ctx, data);
-    validateAvtaledetaljer(ctx, data);
-  });
+const detaljerStepSchema = z.object({
+  detaljer: avtaleDetaljerSchema,
+});
+
+export const avtaleDetaljerFormSchema = detaljerStepSchema.superRefine((data, ctx) => {
+  validateAvtaledetaljer(ctx, data.detaljer);
+});
 
 export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
   return {
@@ -113,10 +108,13 @@ export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
   };
 }
 
+export type AvtaleDetaljerInput = z.input<typeof avtaleDetaljerSchema>;
+export type AvtaleDetaljerValues = z.infer<typeof avtaleDetaljerSchema>;
+
 /**
  * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
  */
-export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | null {
+export function getUtdanningslop(data: AvtaleDetaljerValues): UtdanningslopDbo | null {
   if (data.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
     return null;
   }

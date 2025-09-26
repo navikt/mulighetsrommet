@@ -1,6 +1,5 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
-import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
@@ -21,6 +20,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 interface AvtaleDetaljerFormProps {
   opsjonerRegistrert?: OpsjonLoggDto[];
@@ -38,8 +38,8 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
     watch,
     control,
   } = useFormContext<AvtaleFormValues>();
-  const tiltakskode = watch("tiltakskode");
-  const watchedAdministratorer = watch("administratorer");
+  const tiltakskode = watch("detaljer.tiltakskode");
+  const watchedAdministratorer = watch("detaljer.administratorer");
 
   const antallOpsjonerUtlost = (
     opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLOST) || []
@@ -55,10 +55,10 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
 
   function avtaletypeOnChange(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
-      setValue("opsjonsmodell", {
+      setValue("detaljer.opsjonsmodell", {
         type: OpsjonsmodellType.VALGFRI_SLUTTDATO,
-        customOpsjonsmodellNavn: null,
-        opsjonMaksVarighet: null,
+        customNavn: null,
+        maksVarighet: null,
       });
     }
   }
@@ -69,10 +69,10 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
         <FormGroup>
           <TextField
             size="small"
-            error={errors.navn?.message}
+            error={errors.detaljer?.navn?.message}
             label={avtaletekster.avtalenavnLabel}
             autoFocus
-            {...register("navn")}
+            {...register("detaljer.navn")}
           />
         </FormGroup>
         <FormGroup>
@@ -80,7 +80,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
             <TextField
               size="small"
               placeholder="åå/12345"
-              error={errors.sakarkivNummer?.message}
+              error={errors.detaljer?.sakarkivNummer?.message}
               label={
                 <LabelWithHelpText
                   label={avtaletekster.sakarkivNummerLabel}
@@ -99,7 +99,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
                   Det er <b>2. Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                 </LabelWithHelpText>
               }
-              {...register("sakarkivNummer")}
+              {...register("detaljer.sakarkivNummer")}
             />
           </HGrid>
         </FormGroup>
@@ -108,19 +108,19 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
             <Select
               size="small"
               label={avtaletekster.tiltakstypeLabel}
-              error={errors.tiltakskode?.message}
-              {...register("tiltakskode", {
+              error={errors.detaljer?.tiltakskode?.message}
+              {...register("detaljer.tiltakskode", {
                 onChange: (e) => {
-                  setValue("amoKategorisering", null);
-                  setValue("utdanningslop", null);
+                  setValue("detaljer.amoKategorisering", null);
+                  setValue("detaljer.utdanningslop", null);
                   setValue("prismodell", undefined as any, { shouldValidate: true });
-                  setValue("satser", []);
+                  setValue("prismodell.satser", []);
 
                   const avtaletype = isTiltakskode(e.target.value)
                     ? getAvtaletypeOptions(e.target.value as Tiltakskode)[0]?.value
                     : undefined;
                   if (avtaletype) {
-                    setValue("avtaletype", avtaletype);
+                    setValue("detaljer.avtaletype", avtaletype);
                     avtaletypeOnChange(avtaletype);
                   }
                 },
@@ -137,8 +137,8 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
               size="small"
               readOnly={antallOpsjonerUtlost > 0}
               label={avtaletekster.avtaletypeLabel}
-              error={errors.avtaletype?.message}
-              {...register("avtaletype", {
+              error={errors.detaljer?.avtaletype?.message}
+              {...register("detaljer.avtaletype", {
                 onChange: (e) => avtaletypeOnChange(e.target.value),
               })}
             >
@@ -160,7 +160,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
         <FormGroup>
           <Controller
             control={control}
-            name="administratorer"
+            name="detaljer.administratorer"
             render={({ field }) => (
               <UNSAFE_Combobox
                 size="small"
@@ -181,7 +181,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
                   administratorer,
                 ).filter((option) => field.value.includes(option.value))}
                 name={field.name}
-                error={errors.administratorer?.message}
+                error={errors.detaljer?.administratorer?.message}
                 options={AdministratorOptions(ansatt, watchedAdministratorer, administratorer)}
                 onToggleSelected={(option, isSelected) => {
                   if (isSelected) {

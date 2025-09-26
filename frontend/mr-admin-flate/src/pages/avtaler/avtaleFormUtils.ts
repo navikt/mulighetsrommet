@@ -17,51 +17,35 @@ export async function onSubmitAvtaleForm({
   onValidationError: (e: ValidationError) => void;
   onSuccess: (dto: { data: AvtaleDto }) => void;
 }) {
-  const {
-    navn,
-    startDato,
-    beskrivelse,
-    avtaletype,
-    faneinnhold,
-    personopplysninger,
-    personvernBekreftet,
-    satser,
-    administratorer,
-  } = data;
+  const { detaljer, prismodell, personvern, veilederinformasjon } = data;
   const requestBody: AvtaleRequest = {
     id: avtale?.id ?? v4(),
-    navn,
-    administratorer,
-    beskrivelse,
-    faneinnhold,
-    personopplysninger,
-    personvernBekreftet,
-    avtaletype,
-    startDato,
-    sakarkivNummer: data.sakarkivNummer || null,
-    sluttDato: data.sluttDato || null,
-    navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
-    avtalenummer: avtale?.avtalenummer ?? null,
-    arrangor:
-      data.arrangorHovedenhet && data.arrangorUnderenheter
-        ? {
-            hovedenhet: data.arrangorHovedenhet,
-            underenheter: data.arrangorUnderenheter,
-            kontaktpersoner: data.arrangorKontaktpersoner || [],
-          }
-        : null,
-    tiltakskode: data.tiltakskode,
-    amoKategorisering: data.amoKategorisering || null,
-    opsjonsmodell: {
-      type: data.opsjonsmodell.type,
-      opsjonMaksVarighet: data.opsjonsmodell.opsjonMaksVarighet || null,
-      customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
+    detaljer: {
+      navn: detaljer.navn,
+      administratorer: detaljer.administratorer,
+      avtaletype: detaljer.avtaletype,
+      startDato: detaljer.startDato,
+      sakarkivNummer: detaljer.sakarkivNummer || null,
+      sluttDato: detaljer.sluttDato || null,
+
+      avtalenummer: avtale?.avtalenummer ?? null,
+      arrangor: detaljer.arrangor,
+      tiltakskode: detaljer.tiltakskode,
+      amoKategorisering: detaljer.amoKategorisering || null,
+      opsjonsmodell: detaljer.opsjonsmodell,
+      utdanningslop: getUtdanningslop(detaljer),
     },
-    utdanningslop: getUtdanningslop(data),
-    prismodell: {
-      type: data.prismodell,
-      prisbetingelser: data.prisbetingelser || null,
-      satser,
+    prismodell: prismodell,
+    personvern: {
+      personopplysninger: personvern.personopplysninger,
+      personvernBekreftet: personvern.personvernBekreftet,
+    },
+    veilederinformasjon: {
+      navEnheter: veilederinformasjon.navRegioner
+        .concat(veilederinformasjon.navKontorer)
+        .concat(veilederinformasjon.navAndreEnheter),
+      beskrivelse: veilederinformasjon.redaksjoneltInnhold.beskrivelse,
+      faneinnhold: veilederinformasjon.redaksjoneltInnhold.faneinnhold,
     },
   };
 

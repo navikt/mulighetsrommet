@@ -12,9 +12,9 @@ import {
 } from "@navikt/ds-react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Separator } from "@/components/detaljside/Metadata";
-import { AvtaleFormValues } from "@/schemas/avtale";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 export function AvtalePersonvernForm() {
   const { register, control, setValue } = useFormContext<AvtaleFormValues>();
@@ -34,7 +34,7 @@ export function AvtalePersonvernForm() {
       </GuidePanel>
       <Controller
         control={control}
-        name="personopplysninger"
+        name="personvern.personopplysninger"
         render={({ field: { onChange, value } }) => (
           <CheckboxGroup
             legend="Personopplysninger om deltaker"
@@ -61,10 +61,10 @@ export function AvtalePersonvernForm() {
         }
         onChange={() => {
           if (watchedPersonopplysninger?.length === personopplysninger.length) {
-            setValue("personopplysninger", []);
+            setValue("personvern.personopplysninger", []);
           } else {
             setValue(
-              "personopplysninger",
+              "personvern.personopplysninger",
               personopplysninger.map(({ personopplysning }) => personopplysning),
             );
           }
@@ -87,7 +87,7 @@ export function AvtalePersonvernForm() {
       <ControlledRadioGroup
         size="small"
         legend="Kan personopplysningene som kan behandles vises til veileder?"
-        {...register("personvernBekreftet")}
+        {...register("personvern.personvernBekreftet")}
       >
         <VStack align="start" justify="start" gap="2">
           <Radio size="small" value={false}>

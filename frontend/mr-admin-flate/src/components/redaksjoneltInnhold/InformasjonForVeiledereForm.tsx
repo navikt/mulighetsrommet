@@ -347,8 +347,8 @@ function RegionerOgEnheterOgKontaktpersoner({
           size="small"
           placeholder="Velg en"
           label={avtaletekster.navRegionerLabel}
-          {...register("navRegioner")}
-          name={"navRegioner"}
+          {...register("veilederinformasjon.navRegioner")}
+          name={"veilederinformasjon.navRegioner"}
           options={regionerOptions}
         />
         <ControlledMultiSelect
@@ -358,7 +358,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en"
           label={avtaletekster.navEnheterLabel}
           helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("navKontorer")}
+          {...register("veilederinformasjon.navKontorer")}
           options={kontorerOptions}
         />
         <ControlledMultiSelect
@@ -368,7 +368,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en (valgfritt)"
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("navEnheterAndre")}
+          {...register("veilederinformasjon.navEnheterAndre")}
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (

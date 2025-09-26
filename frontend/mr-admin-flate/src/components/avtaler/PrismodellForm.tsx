@@ -1,6 +1,5 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { memo } from "react";
-import { AvtaleFormValues } from "@/schemas/avtale";
 import { Prismodell, Tiltakskode } from "@mr/api-client-v2";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Box, Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
@@ -8,6 +7,7 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { useForhandsgodkjenteSatser } from "@/api/avtaler/useForhandsgodkjenteSatser";
+import { AvtaleFormValues } from "@/schemas/avtale";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -78,7 +78,7 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
   } = useFormContext<AvtaleFormValues>();
 
   const { fields, append, remove } = useFieldArray({
-    name: "satser",
+    name: "prismodell.satser",
     control,
   });
 
@@ -105,8 +105,8 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
               label={avtaletekster.prismodell.pris.label}
               size="small"
               type="number"
-              error={errors.satser?.[index]?.pris?.message}
-              {...register(`satser.${index}.pris`, {
+              error={errors.prismodell?.satser?.[index]?.pris?.message}
+              {...register(`prismodell.satser.${index}.pris`, {
                 valueAsNumber: true,
               })}
             />
@@ -114,9 +114,9 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={fromDate}
               toDate={toDate}
-              onChange={(val) => setValue(`satser.${index}.gjelderFra`, val)}
-              error={errors.satser?.[index]?.gjelderFra?.message}
-              defaultSelected={getValues(`satser.${index}.gjelderFra`)}
+              onChange={(val) => setValue(`prismodell.satser.${index}.gjelderFra`, val)}
+              error={errors.prismodell?.satser?.[index]?.gjelderFra?.message}
+              defaultSelected={getValues(`prismodell.satser.${index}.gjelderFra`)}
             />
           </HStack>
           <Spacer />
@@ -156,9 +156,9 @@ function PrisbetingelserTextArea() {
   return (
     <Textarea
       size="small"
-      error={errors.prisbetingelser?.message}
+      error={errors.prismodell?.prisbetingelser?.message}
       label={avtaletekster.prisOgBetalingLabel}
-      {...register("prisbetingelser")}
+      {...register("prismodell.prisbetingelser")}
     />
   );
 }

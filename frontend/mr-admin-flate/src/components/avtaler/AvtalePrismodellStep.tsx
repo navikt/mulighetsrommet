@@ -6,8 +6,8 @@ import { parseDate } from "@mr/frontend-common/utils/date";
 
 export default function AvtalePrismodellStep() {
   const { watch } = useFormContext<AvtaleFormValues>();
-  const tiltakskode = watch("tiltakskode");
-  const startDato = parseDate(watch("startDato")) ?? new Date();
+  const tiltakskode = watch("detaljer.tiltakskode");
+  const startDato = parseDate(watch("detaljer.startDato")) ?? new Date();
 
   return (
     <TwoColumnGrid separator>
