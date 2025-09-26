@@ -191,6 +191,7 @@ class TilsagnService(
                             ),
                         )
                     }
+
                 TilsagnBeregningType.PRIS_PER_UKESVERK ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
                         TilsagnBeregningPrisPerUkesverk.beregn(
@@ -202,18 +203,31 @@ class TilsagnService(
                             ),
                         )
                     }
-                TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-                -> beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
-                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
-                            periode = fallback.periode,
-                            sats = fallback.sats,
-                            antallPlasser = fallback.antallPlasser,
-                            prisbetingelser = fallback.prisbetingelser,
-                            antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
-                        ),
-                    )
-                }
+
+                TilsagnBeregningType.PRIS_PER_HELE_UKESVERK ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerHeleUkesverk.beregn(
+                            TilsagnBeregningPrisPerHeleUkesverk.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                            ),
+                        )
+                    }
+
+                TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+                            TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                                antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
+                            ),
+                        )
+                    }
             }
         } catch (a: ArithmeticException) {
             null

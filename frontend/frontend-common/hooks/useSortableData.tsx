@@ -27,7 +27,7 @@ export function useSortableData<T extends Record<string, unknown>>(
 
       return direction === "ascending" ? comparator(bVal, aVal) : comparator(aVal, bVal);
     });
-  }, [data, sort]);
+  }, [data, sort, comparator]);
 
   const toggleSort = (key: Extract<keyof T, string>) => {
     setSort((prev): ScopedSortState<T> | undefined => {

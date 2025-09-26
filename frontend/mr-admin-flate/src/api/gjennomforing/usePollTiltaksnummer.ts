@@ -15,10 +15,6 @@ export function usePollTiltaksnummer(id: string) {
         path: { id },
       });
 
-      if (!tiltaksnummer) {
-        throw Error(FANT_IKKE_TILTAKSNUMMER_MESSAGE);
-      }
-
       return tiltaksnummer;
     },
     retry(retryCount, error) {

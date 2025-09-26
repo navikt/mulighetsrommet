@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
@@ -37,7 +39,7 @@ class GenerateValidationReport(
     private val config: Config,
     private val db: ApiDatabase,
     private val avtaleValidator: AvtaleValidator,
-    private val gjennomforingValidator: GjennomforingValidator,
+    private val gjennomforingService: GjennomforingService,
 ) {
 
     data class Config(
@@ -144,8 +146,9 @@ class GenerateValidationReport(
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                val dbo = GjennomforingDboMapper.fromGjennomforing(it)
-                gjennomforingValidator.validate(dbo, it).onLeft { validationErrors ->
+                val request = GjennomforingDboMapper.toGjennomforingRequest(it)
+                val ctx = gjennomforingService.getValidatorCtx(request, it, LocalDate.now())
+                GjennomforingValidator.validate(request, ctx).onLeft { validationErrors ->
                     put(it, validationErrors)
                 }
             }

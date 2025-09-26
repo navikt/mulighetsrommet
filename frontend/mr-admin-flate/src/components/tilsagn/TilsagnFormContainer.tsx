@@ -35,6 +35,7 @@ export function TilsagnFormContainer({ gjennomforing, defaults }: Props) {
 
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
+    case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
       return (
         <TilsagnFormPrisPerManedsverk

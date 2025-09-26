@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing
 
-import arrow.core.left
-import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -11,7 +9,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
@@ -24,10 +21,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -41,12 +36,9 @@ private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
 class GjennomforingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    fun createService(
-        validator: GjennomforingValidator = GjennomforingValidator(database.db, NavEnhetService(database.db)),
-    ): GjennomforingService = GjennomforingService(
+    fun createService(): GjennomforingService = GjennomforingService(
         config = GjennomforingService.Config(PRODUCER_TOPIC),
         db = database.db,
-        validator = validator,
         navAnsattService = mockk(relaxed = true),
     )
 
@@ -65,21 +57,6 @@ class GjennomforingServiceTest : FunSpec({
     val bertilNavIdent = NavIdent("B123456")
 
     context("valideringsfeil ved opprettelse av gjennomføring") {
-        test("upsert av gjennomføring dersom det oppstår valideringsfeil") {
-            val gjennomforing = GjennomforingFixtures.Oppfolging1Request
-
-            val validator = mockk<GjennomforingValidator>()
-            every { validator.validate(any(), any()) } returns listOf(
-                FieldError("navn", "Dårlig navn"),
-            ).left()
-
-            val service = createService(validator)
-
-            service.upsert(gjennomforing, bertilNavIdent).shouldBeLeft(
-                listOf(FieldError("navn", "Dårlig navn")),
-            )
-        }
-
         test("får ikke opprettet gjennomføring som allerede er avsluttet") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(
                 startDato = LocalDate.of(2023, 1, 1),
@@ -96,17 +73,12 @@ class GjennomforingServiceTest : FunSpec({
     }
 
     context("opprettelse av gjennomføring") {
-        val validator = mockk<GjennomforingValidator>()
-        every { validator.validate(any(), any()) } answers {
-            firstArg<GjennomforingDbo>().right()
-        }
-
-        val service = createService(validator)
+        val service = createService()
 
         test("oppretting av gjennomføring blir lagret som et utgående kafka-record") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1Request
 
-            service.upsert(gjennomforing, bertilNavIdent)
+            service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
@@ -325,8 +297,8 @@ class GjennomforingServiceTest : FunSpec({
 
     context("tilgjengelig for arrangør") {
         test("dato for tilgjengelig for arrangør blir publisert til kafka") {
-            val tilgjengeligForArrangorDato = LocalDate.of(2025, 5, 1)
-            val startDato = LocalDate.of(2025, 6, 1)
+            val tilgjengeligForArrangorDato = LocalDate.now().plusDays(1)
+            val startDato = LocalDate.now().plusWeeks(1)
 
             val gjennomforing = GjennomforingFixtures.AFT1.copy(startDato = startDato)
 
@@ -334,12 +306,7 @@ class GjennomforingServiceTest : FunSpec({
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
 
-            val validator = mockk<GjennomforingValidator>()
-            every {
-                validator.validateTilgjengeligForArrangorDato(tilgjengeligForArrangorDato, startDato)
-            } returns tilgjengeligForArrangorDato.right()
-
-            val service = createService(validator)
+            val service = createService()
 
             service.setTilgjengeligForArrangorDato(
                 id = gjennomforing.id,

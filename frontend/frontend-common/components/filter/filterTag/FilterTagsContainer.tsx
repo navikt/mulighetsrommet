@@ -14,7 +14,7 @@ export function FilterTagsContainer({ children, filterOpen, setTagsHeight }: Pro
 
   useLayoutEffect(() => {
     setTagsHeight(height);
-  }, [ref, height]);
+  }, [ref, height, setTagsHeight]);
 
   return (
     <div

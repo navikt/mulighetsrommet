@@ -201,7 +201,6 @@ export function isEarlier(date: UnparsedDate, compared: UnparsedDate): boolean {
   const parsedDate = parseDate(date);
   const parsedCompared = parseDate(compared);
   if (parsedDate && parsedCompared) {
-    console.log(parsedDate?.toISOString(), parsedCompared?.toISOString());
     return isBefore(parsedDate, parsedCompared);
   }
   return false;

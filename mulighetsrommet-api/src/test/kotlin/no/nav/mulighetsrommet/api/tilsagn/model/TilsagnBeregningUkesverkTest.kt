@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 class TilsagnBeregningUkesverkTest : FunSpec({
-
     test("en hel uke gir full sats") {
         val input = TilsagnBeregningPrisPerUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13)),

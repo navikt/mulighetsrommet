@@ -194,6 +194,27 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
+        test("upsert beregning - pris per ukesverk (hele uker)") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = TilsagnQueries(session)
+
+                val beregning = TilsagnBeregningPrisPerHeleUkesverk(
+                    input = TilsagnBeregningPrisPerHeleUkesverk.Input(
+                        periode = tilsagn.periode,
+                        antallPlasser = 10,
+                        sats = 100,
+                        prisbetingelser = "Per uke",
+                    ),
+                    output = TilsagnBeregningPrisPerHeleUkesverk.Output(1000),
+                )
+                queries.upsert(tilsagn.copy(beregning = beregning))
+
+                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+            }
+        }
+
         test("upsert beregning - pris per time oppfølging") {
             database.runAndRollback { session ->
                 domain.setup(session)
