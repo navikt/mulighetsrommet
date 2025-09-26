@@ -89,12 +89,6 @@ data class Gjennomforing(
     )
 
     @Serializable
-    data class EstimertVentetid(
-        val verdi: Int,
-        val enhet: String,
-    )
-
-    @Serializable
     data class StengtPeriode(
         val id: Int,
         @Serializable(with = LocalDateSerializer::class)

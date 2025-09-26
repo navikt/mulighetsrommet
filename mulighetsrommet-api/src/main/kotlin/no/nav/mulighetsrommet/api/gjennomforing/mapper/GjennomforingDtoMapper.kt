@@ -3,7 +3,9 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.LabeledDataElementType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDto(
@@ -30,6 +32,7 @@ object GjennomforingDtoMapper {
         publisert = gjennomforing.publisert,
         deltidsprosent = gjennomforing.deltidsprosent,
         estimertVentetid = gjennomforing.estimertVentetid,
+        detaljer = resolveDetaljer(gjennomforing),
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
@@ -49,5 +52,20 @@ object GjennomforingDtoMapper {
         }
         val element = DataElement.Status(status.type.beskrivelse, variant, description)
         return GjennomforingDto.Status(status.type, element)
+    }
+
+    private fun resolveDetaljer(gjennomforing: Gjennomforing): GjennomforingDto.Detaljer {
+        return GjennomforingDto.Detaljer(
+            pamelding = DataDetails(
+                entries = listOfNotNull(
+                    DataElement.jaEllerNei(gjennomforing.apentForPamelding)
+                        .label("Åpent for påmelding", LabeledDataElementType.MULTILINE),
+                    gjennomforing.estimertVentetid?.let {
+                        DataElement.text(it.formatToString())
+                            .label("Estimert ventetid", LabeledDataElementType.MULTILINE)
+                    },
+                ),
+            ),
+        )
     }
 }
