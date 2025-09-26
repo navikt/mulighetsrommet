@@ -5,7 +5,9 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 @Serializable
@@ -244,7 +246,10 @@ object UtbetalingBeregningHelpers {
         return periode
             .splitByWeek()
             .count { week ->
-                week.getWeekdayCount() >= 3
+                val monday = week.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                val sunday = week.getLastInclusiveDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                val weekdayCount = week.getWeekdayCount()
+                weekdayCount >= 3 || (monday.month == sunday.month && weekdayCount > 0)
             }
             .toBigDecimal()
     }
