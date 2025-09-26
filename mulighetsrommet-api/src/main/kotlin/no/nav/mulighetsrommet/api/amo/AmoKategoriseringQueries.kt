@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.amo
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
@@ -12,35 +10,36 @@ import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.*
 
-class AmoKategoriseringQueries(private val session: Session) {
+object AmoKategoriseringQueries {
 
-    fun upsert(dbo: GjennomforingDbo) {
-        if (dbo.amoKategorisering == null) {
-            delete(dbo.id, ForeignIdType.GJENNOMFORING)
-        } else {
-            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.GJENNOMFORING)
-        }
-    }
-
-    fun upsert(dbo: AvtaleDbo) {
-        if (dbo.amoKategorisering == null) {
-            delete(dbo.id, ForeignIdType.AVTALE)
-        } else {
-            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.AVTALE)
-        }
-    }
-
-    private enum class ForeignIdType {
+    enum class Relation {
         AVTALE,
         GJENNOMFORING,
     }
 
-    private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType) = with(session) {
-        val foreignName = when (foreignIdType) {
-            ForeignIdType.AVTALE -> "avtale"
-            ForeignIdType.GJENNOMFORING -> "gjennomforing"
+    context(session: Session)
+    fun upsert(
+        relation: Relation,
+        id: UUID,
+        kategorisering: AmoKategorisering?,
+    ) {
+        val foreignName = when (relation) {
+            Relation.AVTALE -> "avtale"
+            Relation.GJENNOMFORING -> "gjennomforing"
         }
+        if (kategorisering == null) {
+            delete(foreignName, id)
+        } else {
+            upsert(foreignName, id, kategorisering)
+        }
+    }
 
+    context(session: Session)
+    private fun upsert(
+        foreignName: String,
+        foreignId: UUID,
+        amoKategorisering: AmoKategorisering,
+    ) {
         @Language("PostgreSQL")
         val query = """
             insert into ${foreignName}_amo_kategorisering (
@@ -67,18 +66,19 @@ class AmoKategoriseringQueries(private val session: Session) {
 
         val params = mutableMapOf("${foreignName}_id" to foreignId) + (amoKategorisering.toSqlParameters())
 
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
 
         if (amoKategorisering is AmoKategorisering.BransjeOgYrkesrettet) {
             updateSertifiseringer(foreignId, foreignName, amoKategorisering.sertifiseringer)
         }
     }
 
+    context(session: Session)
     private fun updateSertifiseringer(
         foreignId: UUID,
         foreignName: String,
         sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
-    ) = with(session) {
+    ) {
         @Language("PostgreSQL")
         val upsertSertifiseringer = """
         insert into amo_sertifisering (
@@ -105,35 +105,32 @@ class AmoKategoriseringQueries(private val session: Session) {
             where ${foreignName}_id = ? and not (konsept_id = any (?))
         """.trimIndent()
 
-        batchPreparedStatement(
+        session.batchPreparedStatement(
             upsertSertifiseringer,
             sertifiseringer.map { s -> listOf(s.konseptId, s.label) },
         )
-        batchPreparedStatement(
+        session.batchPreparedStatement(
             upsertJoinTable,
             sertifiseringer.map { s -> listOf(foreignId, s.konseptId) },
         )
-        execute(
-            queryOf(deleteJoins, foreignId, createBigintArray(sertifiseringer.map { it.konseptId })),
+        session.execute(
+            queryOf(deleteJoins, foreignId, session.createBigintArray(sertifiseringer.map { it.konseptId })),
         )
     }
 
-    private fun delete(foreignId: UUID, foreignIdType: ForeignIdType) = with(session) {
-        val foreignName = when (foreignIdType) {
-            ForeignIdType.AVTALE -> "avtale"
-            ForeignIdType.GJENNOMFORING -> "gjennomforing"
-        }
-
+    context(session: Session)
+    private fun delete(foreignName: String, foreignId: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete from ${foreignName}_amo_kategorisering where ${foreignName}_id = ?::uuid
         """.trimIndent()
 
-        update(queryOf(query, foreignId))
+        session.update(queryOf(query, foreignId))
 
         updateSertifiseringer(foreignId, foreignName, emptyList())
     }
 
+    context(session: Session)
     private fun AmoKategorisering.toSqlParameters() = when (this) {
         is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
             "kurstype" to AmoKurstype.BRANSJE_OG_YRKESRETTET.name,
