@@ -208,7 +208,7 @@ class AvtaleQueries(private val session: Session) {
             ),
         )
 
-        AmoKategoriseringQueries(this).upsert(avtale)
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtale.id, avtale.amoKategorisering)
 
         execute(queryOf(deleteUtdanningslop, avtale.id))
 

@@ -236,7 +236,11 @@ class GjennomforingQueries(private val session: Session) {
             ),
         )
 
-        AmoKategoriseringQueries(this).upsert(gjennomforing)
+        AmoKategoriseringQueries.upsert(
+            AmoKategoriseringQueries.Relation.GJENNOMFORING,
+            gjennomforing.id,
+            gjennomforing.amoKategorisering,
+        )
 
         execute(queryOf(deleteUtdanningslop, gjennomforing.id))
 
