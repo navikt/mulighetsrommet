@@ -45,8 +45,10 @@ describe("date.ts", () => {
     });
     test("valid norwegian iso time to norwegian iso time", () => {
       // T00:00:000Z
-      expect(parseDate("2025-02-28T01:00:00.000+01:00")?.toISOString()).toBe("2025-02-28T01:00:00.000+01:00")
-    })
+      expect(parseDate("2025-02-28T01:00:00.000+01:00")?.toISOString()).toBe(
+        "2025-02-28T01:00:00.000+01:00",
+      );
+    });
   });
 
   describe("yyyyMMddFormatting()", () => {
@@ -156,10 +158,14 @@ describe("date.ts", () => {
       expect(inBetweenInclusive("", { from: "", to: "" })).toBe(false);
     });
     test("false when date is earlier than range", () => {
-      expect(inBetweenInclusive("2025-07-01", { from: "2025-07-02", to: "2025-07-04" })).toBe(false);
+      expect(inBetweenInclusive("2025-07-01", { from: "2025-07-02", to: "2025-07-04" })).toBe(
+        false,
+      );
     });
     test("false when date is later than range", () => {
-      expect(inBetweenInclusive("2025-07-05", { from: "2025-07-02", to: "2025-07-04" })).toBe(false);
+      expect(inBetweenInclusive("2025-07-05", { from: "2025-07-02", to: "2025-07-04" })).toBe(
+        false,
+      );
     });
     test("true when date is from", () => {
       expect(inBetweenInclusive("2025-07-02", { from: "2025-07-02", to: "2025-07-04" })).toBe(true);
@@ -180,14 +186,14 @@ describe("date.ts", () => {
       expect(maxOf(["", undefined, null]).getTime()).toBe(NaN);
     });
     test("latest, earliest first", () => {
-      const expected = new Date(2025, 6, 17)
+      const expected = new Date(2025, 6, 17);
       expect(maxOf([new Date(2025, 5, 17), expected]).toISOString()).toBe(expected.toISOString());
     });
     test("latest, latest first", () => {
-      const expected = new Date(2025, 6, 17)
+      const expected = new Date(2025, 6, 17);
       expect(maxOf([expected, new Date(2025, 5, 17)]).toISOString()).toBe(expected.toISOString());
     });
-  })
+  });
 
   describe("addDuration", () => {
     test("add day", () => {
@@ -202,7 +208,7 @@ describe("date.ts", () => {
     test("add month", () => {
       expect(yyyyMMddFormatting(addDuration("2025-12-01", { months: 2 }))).toBe("2026-02-01");
     });
-  })
+  });
 
   describe("subDuration", () => {
     test("sub day", () => {
@@ -217,5 +223,5 @@ describe("date.ts", () => {
     test("sub month", () => {
       expect(yyyyMMddFormatting(subDuration("2025-12-01", { months: 2 }))).toBe("2025-10-01");
     });
-  })
+  });
 });

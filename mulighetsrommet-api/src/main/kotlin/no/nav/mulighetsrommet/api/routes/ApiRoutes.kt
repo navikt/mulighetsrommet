@@ -79,14 +79,12 @@ fun Route.apiRoutes() {
             }
         }
 
+        // TODO: fjern når alle routes er flyttet til nytt api
         route("/v1/intern") {
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-                featureTogglesRoute()
-                lagretFilterRoutes()
-                navEnhetRoutes()
-
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
-                    adminflateRoutes()
+                    gjennomforingRoutes()
+                    avtaleRoutes()
                 }
             }
         }
@@ -110,21 +108,6 @@ fun Route.tiltaksadministrasjonRoutes() {
     janzzRoutes()
     utdanningRoutes()
     notificationRoutes()
-}
-
-// TODO: migrer disse til tiltaksadministrasjonRoutes
-fun Route.adminflateRoutes() {
-    tiltakstypeRoutes()
-    gjennomforingRoutes()
-    avtaleRoutes()
-    prismodellRoutes()
-    personopplysningRoutes()
-    navAnsattRoutes()
-    arrangorRoutes()
-    notificationRoutes()
-    janzzRoutes()
-    utdanningRoutes()
-    oppgaverRoutes()
 }
 
 fun Route.veilederflateRoutes() {

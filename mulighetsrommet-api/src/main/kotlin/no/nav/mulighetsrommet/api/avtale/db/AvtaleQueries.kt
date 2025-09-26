@@ -208,7 +208,7 @@ class AvtaleQueries(private val session: Session) {
             ),
         )
 
-        AmoKategoriseringQueries(this).upsert(avtale)
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtale.id, avtale.amoKategorisering)
 
         execute(queryOf(deleteUtdanningslop, avtale.id))
 
@@ -616,6 +616,11 @@ class AvtaleQueries(private val session: Session) {
             )
 
             PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
+                prisbetingelser = stringOrNull("prisbetingelser"),
+                satser = satser.toDto(),
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )

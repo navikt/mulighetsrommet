@@ -1,9 +1,9 @@
 import { HStack, Tag } from "@navikt/ds-react";
 
 export type UtbetalingTypeDto = {
-    displayName: string;
-    displayNameLong: string | null;
-    tagName: string | null;
+  displayName: string;
+  displayNameLong: string | null;
+  tagName: string | null;
 };
 
 interface UtbetalingsTypeTagProps {
@@ -12,7 +12,7 @@ interface UtbetalingsTypeTagProps {
 
 export function UtbetalingTypeTag({ type }: UtbetalingsTypeTagProps) {
   if (!type.tagName) {
-    return null
+    return null;
   }
   return (
     <Tag variant="neutral" title={type.displayName} size="small">
@@ -26,7 +26,7 @@ interface UtbetalingsTypeProps {
 }
 
 export function UtbetalingTypeText({ type }: UtbetalingsTypeProps) {
-  if (!type.tagName){
+  if (!type.tagName) {
     return null;
   }
   return (

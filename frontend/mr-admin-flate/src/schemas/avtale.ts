@@ -91,7 +91,7 @@ export function defaultAvtaleData(
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
     // TODO: fiks typer
-    amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering) ?? null,
+    amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
     opsjonsmodell: {
       type: avtale?.opsjonsmodell?.type,
       opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,

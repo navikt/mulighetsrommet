@@ -5,6 +5,7 @@ import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 const mockFeatures: Features = {
   [FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN]: true,
   [FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING]: true,
+  [FeatureToggle.MULIGHETSROMMET_PRISMODELL_HELE_UKER]: true,
   [FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS]: true,
 };
 

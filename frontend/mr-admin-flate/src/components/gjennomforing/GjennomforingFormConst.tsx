@@ -107,7 +107,7 @@ export function defaultGjennomforingData(
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering:
       gjennomforing?.amoKategorisering ??
-      (avtale.amoKategorisering as AmoKategorisering) ??
+      (avtale.amoKategorisering as AmoKategorisering | undefined) ??
       undefined,
     utdanningslop: gjennomforing?.utdanningslop
       ? toUtdanningslopDbo(gjennomforing.utdanningslop)

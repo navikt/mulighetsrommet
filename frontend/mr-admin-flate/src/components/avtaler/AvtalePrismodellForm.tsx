@@ -6,6 +6,8 @@ import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
 import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -19,6 +21,9 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     watch,
   } = useFormContext<PrismodellValues>();
   const { data: prismodeller = [] } = usePrismodeller(tiltakskode);
+  const { data: enabledHeleUker } = useFeatureToggle(
+    FeatureToggle.MULIGHETSROMMET_PRISMODELL_HELE_UKER,
+  );
 
   const prismodell = watch("prismodell");
   const satser = watch("satser");
@@ -58,11 +63,16 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           }}
         >
           <option key={undefined} value={undefined}></option>
-          {prismodeller.map(({ type, beskrivelse }) => (
-            <option key={type} value={type}>
-              {beskrivelse}
-            </option>
-          ))}
+          {prismodeller
+            .filter(
+              ({ type }) =>
+                type !== PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK || enabledHeleUker,
+            )
+            .map(({ type, beskrivelse }) => (
+              <option key={type} value={type}>
+                {beskrivelse}
+              </option>
+            ))}
         </Select>
         {avtaleStartDato && (
           <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />

@@ -164,6 +164,21 @@ object UtbetalingBeregningHelpers {
         return DeltakelseUkesverk(deltakelse.deltakelseId, ukesverk)
     }
 
+    fun calculateDeltakelseHeleUkesverk(
+        deltakelse: DeltakelsePeriode,
+        stengtHosArrangor: List<Periode>,
+    ): DeltakelseUkesverk {
+        val ukesverk = deltakelse.periode
+            .subtractPeriods(stengtHosArrangor)
+            .map { periode ->
+                getWholeWeeksFraction(periode)
+            }
+            .sumOf { it }
+            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
+            .toDouble()
+        return DeltakelseUkesverk(deltakelse.deltakelseId, ukesverk)
+    }
+
     fun calculateMonthsInPeriode(periode: Periode): BigDecimal {
         return getMonthsFraction(periode)
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
@@ -171,6 +186,11 @@ object UtbetalingBeregningHelpers {
 
     fun calculateWeeksInPeriode(periode: Periode): BigDecimal {
         return getWeeksFraction(periode)
+            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
+    }
+
+    fun calculateWholeWeeksInPeriode(periode: Periode): BigDecimal {
+        return getWholeWeeksFraction(periode)
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
     }
 
@@ -195,9 +215,9 @@ object UtbetalingBeregningHelpers {
     private fun getMonthsFractionV1(periode: Periode): BigDecimal {
         return periode
             .splitByMonth()
-            .map { periode ->
-                val duration = periode.getDurationInDays().toBigDecimal()
-                val lengthOfMonth = periode.start.lengthOfMonth().toBigDecimal()
+            .map { month ->
+                val duration = month.getDurationInDays().toBigDecimal()
+                val lengthOfMonth = month.start.lengthOfMonth().toBigDecimal()
                 duration.divide(lengthOfMonth, CALCULATION_PRECISION, RoundingMode.HALF_UP)
             }
             .sumOf { it }
@@ -206,9 +226,9 @@ object UtbetalingBeregningHelpers {
     private fun getMonthsFractionV2(periode: Periode): BigDecimal {
         return periode
             .splitByMonth()
-            .map { periode ->
-                val durationInMonth = periode.getWeekdayCount().toBigDecimal()
-                val durationOfMonth = Periode.forMonthOf(periode.start).getWeekdayCount().toBigDecimal()
+            .map { month ->
+                val durationInMonth = month.getWeekdayCount().toBigDecimal()
+                val durationOfMonth = Periode.forMonthOf(month.start).getWeekdayCount().toBigDecimal()
                 durationInMonth.divide(durationOfMonth, CALCULATION_PRECISION, RoundingMode.HALF_UP)
             }
             .sumOf { it }
@@ -218,5 +238,14 @@ object UtbetalingBeregningHelpers {
         val weekdayCount = periode.getWeekdayCount()
         val weekdays = BigDecimal(5)
         return weekdayCount.toBigDecimal().divide(weekdays, CALCULATION_PRECISION, RoundingMode.HALF_UP)
+    }
+
+    private fun getWholeWeeksFraction(periode: Periode): BigDecimal {
+        return periode
+            .splitByWeek()
+            .count { week ->
+                week.getWeekdayCount() >= 3
+            }
+            .toBigDecimal()
     }
 }

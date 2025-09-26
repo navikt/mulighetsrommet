@@ -38,6 +38,11 @@
           ]
         },
         {
+          "name": "mulighetsrommet.okonomi.prismodell.hele-uker",
+          "enabled": true,
+          "strategies": []
+        },
+        {
           "name": "arrangorflate.utbetaling.opprett-utbetaling-knapp",
           "enabled": true,
           "strategies": []

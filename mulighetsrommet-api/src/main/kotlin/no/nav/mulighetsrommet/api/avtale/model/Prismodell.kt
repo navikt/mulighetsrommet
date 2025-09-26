@@ -40,6 +40,15 @@ sealed class Prismodell {
     }
 
     @Serializable
+    data class AvtaltPrisPerHeleUkesverk(
+        val prisbetingelser: String?,
+        val satser: List<AvtaltSatsDto>,
+    ) : Prismodell() {
+        @Transient
+        override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
+    }
+
+    @Serializable
     data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,

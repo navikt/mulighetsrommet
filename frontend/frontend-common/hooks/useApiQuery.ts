@@ -38,7 +38,7 @@ interface UseSuspenseQueryWrapperOptions<TQueryFnData, TError, TData>
 export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
   options: UseSuspenseQueryWrapperOptions<TQueryFnData, never, TData>,
 ) {
-  const { queryFn, retry, ...restOptions } = options;
+  const { queryFn, ...restOptions } = options;
 
   // Use the original useSuspenseQuery, mapping the returned data to data?.data
   return useSuspenseQuery<TQueryFnData, never, TData>({

@@ -112,6 +112,7 @@ fun Prismodell.prisbetingelser(): String? = when (this) {
     is Prismodell.AnnenAvtaltPris -> prisbetingelser
     is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
     is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
+    is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
     Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
 }
@@ -123,6 +124,7 @@ fun Prismodell.satser(): List<AvtaltSats> = when (this) {
 
     is Prismodell.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
     is Prismodell.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
+    is Prismodell.AvtaltPrisPerHeleUkesverk -> toAvtalteSatser(satser)
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
 }
 

@@ -16,7 +16,7 @@ export function Header({ arrangorer }: Props) {
           <HeaderIcon />
           <Heading size="xlarge">
             <Link to="/" className="text-text-default no-underline">
-              Tilsagn og utbetalinger
+              Utbetalinger til tiltaksarrangør
             </Link>
           </Heading>
         </HStack>

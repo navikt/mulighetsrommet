@@ -86,6 +86,10 @@ object TilsagnValidator {
             avtalteSatser,
         ).bind()
 
+        validate(beregning.output.belop > 0) {
+            FieldError.root("Beløp må være større enn 0")
+        }
+
         Validated(
             beregning = beregning,
             periode = periode,
@@ -103,6 +107,7 @@ object TilsagnValidator {
             TilsagnBeregningType.FRI -> 0
             TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
             -> {
@@ -173,6 +178,16 @@ object TilsagnValidator {
                     ),
                 )
 
+            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK ->
+                TilsagnBeregningPrisPerHeleUkesverk.beregn(
+                    TilsagnBeregningPrisPerHeleUkesverk.Input(
+                        periode = periode,
+                        sats = satsV,
+                        antallPlasser = antallPlasser,
+                        prisbetingelser = request.prisbetingelser,
+                    ),
+                )
+
             TilsagnBeregningType.PRIS_PER_UKESVERK ->
                 TilsagnBeregningPrisPerUkesverk.beregn(
                     TilsagnBeregningPrisPerUkesverk.Input(
@@ -201,6 +216,7 @@ object TilsagnValidator {
             TilsagnBeregningType.FRI,
             TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
             -> 0
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> {
@@ -221,6 +237,7 @@ object TilsagnValidator {
             TilsagnBeregningType.FRI -> 0
             TilsagnBeregningType.PRIS_PER_MANEDSVERK,
             TilsagnBeregningType.PRIS_PER_UKESVERK,
+            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
             -> {

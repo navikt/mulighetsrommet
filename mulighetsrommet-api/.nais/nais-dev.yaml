@@ -80,7 +80,9 @@ spec:
           - id: "48026f54-6259-4c35-a148-bc4257bcaf03"
           # 0000-CA-Tiltaksadministrasjon_kontaktperson
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
-          # 0000-CA-Tiltaksadministrasjon_saksbehandler-okonomi
+          # 0000-CA-Tiltaksadministrasjon_lesetilgang-økonomi
+          - id: "b78d7080-aed9-490b-bd38-2ef3a283cd1a"
+          # 0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi
           - id: "d776c0f9-9c8a-4299-8d34-aa563925b00b"
           # 0000-CA-Tiltaksadministrasjon_attestant-utbetaling
           - id: "a9fb2838-fd9f-4bbd-aa41-2cabc83b26ac"

@@ -132,6 +132,36 @@ data class TilsagnBeregningDto(
                     ),
                 )
 
+                is TilsagnBeregningPrisPerHeleUkesverk -> TilsagnBeregningDto(
+                    belop = beregning.output.belop,
+                    prismodell = DataDetails(
+                        entries = listOf(
+                            DataElement.text("Avtalt ukespris per tiltaksplass (hele uker)").label("Prismodell"),
+                            DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
+                            DataElement.nok(beregning.input.sats).label("Avtalt pris"),
+                            DataElement.text(beregning.input.prisbetingelser)
+                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                        ),
+                    ),
+
+                    regnestykke = CalculationDto(
+                        expression = listOf(
+                            DataElement.number(beregning.input.antallPlasser),
+                            DataElement.text("plasser"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            DataElement.nok(beregning.input.sats),
+                            DataElement.text("per tiltaksplass per uke"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            DataElement.number(
+                                UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(beregning.input.periode).toDouble(),
+                            ),
+                            DataElement.text("uker"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                            DataElement.nok(beregning.output.belop),
+                        ),
+                    ),
+                )
+
                 is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(

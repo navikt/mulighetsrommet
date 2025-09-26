@@ -146,6 +146,11 @@ class GenererUtbetalingService(
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> {
+                // TODO: Implementer utbetaling for hele ukesverk
+                return null
+            }
+
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             PrismodellType.ANNEN_AVTALT_PRIS,
             -> return null

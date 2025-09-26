@@ -116,6 +116,20 @@ data class Periode(
         }
     }
 
+    fun splitByWeek(): List<Periode> {
+        val perioder = mutableListOf<Periode>()
+        var current = start
+
+        while (current.isBefore(slutt)) {
+            val monday = current.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+            val lastDay = minOf(monday, slutt)
+            perioder.add(Periode(current, lastDay))
+            current = monday
+        }
+
+        return perioder
+    }
+
     fun splitByMonth(): List<Periode> {
         val perioder = mutableListOf<Periode>()
         var currentDate = start

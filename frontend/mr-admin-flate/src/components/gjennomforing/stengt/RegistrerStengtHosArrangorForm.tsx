@@ -46,7 +46,7 @@ export function RegistrerStengtHosArrangorForm({
     });
   }
 
-  const minDate = subDuration(new Date(), { years: -1 });
+  const minDate = subDuration(new Date(), { years: 1 });
   const maxDate = addDuration(new Date(), { years: 5 });
 
   return (
