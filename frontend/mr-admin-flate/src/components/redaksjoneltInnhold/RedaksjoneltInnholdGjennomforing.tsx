@@ -4,7 +4,6 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Laster } from "../laster/Laster";
 import { Suspense } from "react";
-import { Faneinnhold } from "@tiltaksadministrasjon/api-client";
 
 export function RedaksjoneltInnholdGjennomforing() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -17,8 +16,7 @@ export function RedaksjoneltInnholdGjennomforing() {
           tiltakstype={gjennomforing.tiltakstype}
           kontorstruktur={gjennomforing.kontorstruktur}
           beskrivelse={gjennomforing.beskrivelse ?? null}
-          // TODO: fix types
-          faneinnhold={gjennomforing.faneinnhold as Faneinnhold | null}
+          faneinnhold={gjennomforing.faneinnhold}
           kontaktpersoner={gjennomforing.kontaktpersoner}
         />
       </GjennomforingPageLayout>
