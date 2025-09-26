@@ -58,6 +58,8 @@ export function getComparableValue(element: DataElement) {
       return element.text;
     case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return element.operator;
+    case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
+      return element.modalContent.links[0].digest;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }

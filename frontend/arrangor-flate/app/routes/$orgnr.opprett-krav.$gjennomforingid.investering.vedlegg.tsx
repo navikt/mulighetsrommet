@@ -1,4 +1,4 @@
-import { Button, ErrorSummary, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Button, ErrorSummary, GuidePanel, Heading, HStack, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -175,6 +175,10 @@ export default function OpprettKravOppsummering() {
         Vedlegg
       </Heading>
       <VStack gap="6">
+        <GuidePanel className="">
+          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt for
+          investeringer
+        </GuidePanel>
         <Form method="post" encType="multipart/form-data">
           <VStack gap="6">
             <VStack gap="4">
@@ -187,7 +191,6 @@ export default function OpprettKravOppsummering() {
                 id="vedlegg"
               />
             </VStack>
-            <Separator />
             {hasError && (
               <ErrorSummary ref={errorSummaryRef}>
                 {data.errors?.map((error: FieldError) => {
