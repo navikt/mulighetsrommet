@@ -6,7 +6,8 @@ import {
   Heading,
   VStack,
 } from "@navikt/ds-react";
-import { useRef, useState } from "react";
+import { RefObject, SetStateAction, useEffect, useRef, useState } from "react";
+import { FileStorage, useFileStorage } from "~/hooks/useFileStorage";
 
 interface Props {
   maxFiles: number;
@@ -14,14 +15,70 @@ interface Props {
   maxSizeBytes: number;
   id?: string;
   error?: string;
+  fileStorage?: boolean;
 }
 
-export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id, error }: Props) {
+export const addFilesTo = async (
+  fileInputRef: RefObject<HTMLInputElement | null>,
+  setFiles: (value: SetStateAction<FileObject[]>) => void,
+  storage: FileStorage,
+): Promise<void> => {
+  storage
+    .getAll()
+    .then((files) => {
+      if (!fileInputRef.current) {
+        return storage.clear();
+      }
+
+      const fileObjects = files.map<FileObject>((file) => ({
+        file: file.data as File,
+        error: false,
+      }));
+      setFiles(fileObjects);
+
+      const dataTransfer = new DataTransfer();
+      fileObjects.forEach((file) => {
+        dataTransfer.items.add(file.file);
+      });
+      fileInputRef.current.files = dataTransfer.files;
+
+      return;
+    })
+    .catch((err) =>
+      // eslint-disable-next-line no-console
+      console.log(err),
+    );
+};
+
+export function FileUploader({
+  maxFiles,
+  maxSizeMB,
+  maxSizeBytes,
+  id,
+  error,
+  fileStorage = false,
+}: Props) {
+  const storage = useFileStorage();
   const [files, setFiles] = useState<FileObject[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    // Ved last
+    if (fileStorage && fileInputRef.current && !files.length) {
+      addFilesTo(fileInputRef, setFiles, storage);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useFileStorage]);
+
   function removeFile(fileToRemove: FileObject) {
-    setFiles(files.filter((file) => file !== fileToRemove));
+    const remainingFiles = files.filter((file) => file !== fileToRemove);
+    setFiles(remainingFiles);
+    if (fileStorage) {
+      storage.store(
+        remainingFiles.filter((file) => file.error === false).map((file) => file.file),
+        { clearStore: true },
+      );
+    }
   }
 
   const acceptedFiles = files.filter((file) => !file.error);
@@ -44,6 +101,11 @@ export function FileUploader({ maxFiles, maxSizeMB, maxSizeBytes, id, error }: P
           fileLimit={{ max: maxFiles, current: acceptedFiles.length }}
           onSelect={(newFiles: FileObject[]) => {
             setFiles([...files, ...newFiles]);
+            if (fileStorage) {
+              storage.store(
+                newFiles.filter((file) => file.error === false).map((file) => file.file),
+              );
+            }
             if (fileInputRef.current) {
               const dataTransfer = new DataTransfer();
               [...files, ...newFiles].forEach((file) => {

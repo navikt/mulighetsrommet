@@ -24,6 +24,9 @@ class DataDrivenTableDto(
             @SerialName("left")
             LEFT,
 
+            @SerialName("center")
+            CENTER,
+
             @SerialName("right")
             RIGHT,
         }
@@ -104,7 +107,22 @@ sealed class DataElement {
     data class Link(
         val text: String,
         val href: String,
-    ) : DataElement()
+    ) : DataElement() {
+        val digest = this.hashCode().toHexString()
+    }
+
+    @Serializable
+    data class MultiLinkModal(
+        val buttonText: String,
+        val modalContent: ModalContent,
+    ) : DataElement() {
+        @Serializable
+        data class ModalContent(
+            val header: String,
+            val description: String,
+            val links: List<Link>,
+        )
+    }
 
     @Serializable
     data class Periode(

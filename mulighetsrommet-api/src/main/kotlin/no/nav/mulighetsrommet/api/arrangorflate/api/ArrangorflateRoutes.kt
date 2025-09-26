@@ -26,12 +26,12 @@ import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.routes.featuretoggles.generateUnleashSessionId
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -48,14 +48,11 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.unleash.FeatureToggle
+import no.nav.mulighetsrommet.unleash.FeatureToggleContext
+import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -68,6 +65,7 @@ fun Route.arrangorflateRoutes() {
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val unleashService: UnleashService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -220,7 +218,7 @@ fun Route.arrangorflateRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Arrangør sine gjennomføringer (DataDrivenTable)"
-                    body<GjennomføringerTabellResponse>()
+                    body<GjennomforingerTableResponse>()
                 }
                 default {
                     description = "Problem details"
@@ -242,7 +240,60 @@ fun Route.arrangorflateRoutes() {
                     )
                     .items
             }
-            call.respond(toGjennomføringerTabellResponse(gjennomforinger))
+            val context = FeatureToggleContext(
+                userId = "",
+                sessionId = call.generateUnleashSessionId(),
+                remoteAddress = call.request.origin.remoteAddress,
+                tiltakskoder = emptyList(),
+                orgnr = listOf(orgnr),
+            )
+
+            val isManualDrifttlskuddEnabled = unleashService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
+
+            call.respond(
+                toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
+                    toGjennomforingAction(orgnr, gjennomforing, isManualDrifttlskuddEnabled)
+                },
+            )
+        }
+
+        get("/gjennomforing/{gjennomforingId}", {
+            description = "Hent gjennomføring til arrangør"
+            tags = setOf("Arrangorflate")
+            operationId = "getArrangorflateGjennomforing"
+            request {
+                pathParameter<Organisasjonsnummer>("orgnr")
+                pathParameter<String>("gjennomforingId")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Arrangørens gjennomføring"
+                    body<ArrangorflateGjennomforing>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            requireTilgangHosArrangor(orgnr)
+
+            val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+
+            val gjennomforing = requireNotNull(
+                db.session {
+                    queries.gjennomforing
+                        .get(
+                            id = gjennomforingId,
+                        )
+                },
+            )
+            if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
+                throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
+            }
+
+            call.respond(toArrangorflateGjennomforing((gjennomforing)))
         }
 
         get("/utbetaling", {
@@ -324,6 +375,9 @@ fun Route.arrangorflateRoutes() {
                         explode = true
                     }
                     queryParameter<List<TilsagnType>>("typer") {
+                        explode = true
+                    }
+                    queryParameter<String>("gjennomforingId") {
                         explode = true
                     }
                 }
@@ -579,6 +633,68 @@ fun Route.arrangorflateRoutes() {
                 }
         }
     }
+
+    route("/vedlegg") {
+        post("/scan", {
+            description = "Antivirus scan av vedlegg"
+            tags = setOf("Arrangorflate")
+            operationId = "scanVedlegg"
+            request {
+                body<ScanVedleggRequest> {
+                    description = "Vedleggene som skal scannes"
+                    mediaTypes(ContentType.MultiPart.FormData)
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Fant ikke virus i vedleggene"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val request = receiveScanVedleggRequest(call)
+
+            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
+                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
+            }
+
+            call.respond(HttpStatusCode.OK)
+        }
+    }
+}
+
+private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggRequest {
+    val vedlegg: MutableList<Vedlegg> = mutableListOf()
+    val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
+
+    multipart.forEachPart { part ->
+        when (part) {
+            is PartData.FileItem -> {
+                if (part.name == "vedlegg") {
+                    vedlegg.add(
+                        Vedlegg(
+                            content = Content(
+                                contentType = part.contentType.toString(),
+                                content = part.provider().toByteArray(),
+                            ),
+                            filename = part.originalFileName ?: "ukjent.pdf",
+                        ),
+                    )
+                }
+            }
+
+            else -> {}
+        }
+
+        part.dispose()
+    }
+
+    val validatedVedlegg = vedlegg.validateVedlegg()
+
+    return ScanVedleggRequest(validatedVedlegg)
 }
 
 private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
@@ -626,17 +742,7 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         part.dispose()
     }
 
-    val validatedVedlegg = vedlegg.map { v ->
-        // Optionally validate file type and size here
-        val fileName = v.filename
-        val contentType = v.content.contentType
-
-        require(contentType.equals("application/pdf", ignoreCase = true)) {
-            "Vedlegg $fileName er ikke en PDF"
-        }
-
-        v
-    }
+    val validatedVedlegg = vedlegg.validateVedlegg()
 
     return OpprettKravOmUtbetalingRequest(
         gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
@@ -648,6 +754,20 @@ private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): Op
         tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
         vedlegg = validatedVedlegg,
     )
+}
+
+fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
+    return this.map { v ->
+        // Optionally validate file type and size here
+        val fileName = v.filename
+        val contentType = v.content.contentType
+
+        require(contentType.equals("application/pdf", ignoreCase = true)) {
+            "Vedlegg $fileName er ikke en PDF"
+        }
+
+        v
+    }
 }
 
 @Serializable
@@ -704,21 +824,32 @@ data class OpprettKravOmUtbetalingRequest(
     val tilskuddstype: Tilskuddstype,
 )
 
+@Serializable
+data class ScanVedleggRequest(
+    val vedlegg: List<Vedlegg>,
+)
+
 data class ArrangorflateTilsagnFilter(
     val statuser: List<TilsagnStatus>? = null,
     val typer: List<TilsagnType>? = null,
+    val gjennomforingId: UUID? = null,
 )
 
 fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
     return ArrangorflateTilsagnFilter(
         statuser = call.parameters.getAll("statuser")?.map { TilsagnStatus.valueOf(it) },
         typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
+        gjennomforingId = call.parameters["gjennomforingId"]?.let { UUID.fromString(it) },
     )
 }
 
 private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
     id = gjennomforing.id,
     navn = gjennomforing.navn,
+    tiltakstype = ArrangorflateTiltakstype(
+        navn = gjennomforing.tiltakstype.navn,
+        tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+    ),
     startDato = gjennomforing.startDato,
     sluttDato = gjennomforing.sluttDato,
 )
@@ -736,22 +867,28 @@ data class OpprettKravOmUtbetalingResponse(
 )
 
 @Serializable
-data class GjennomføringerTabellResponse(
+data class GjennomforingerTableResponse(
     val aktive: DataDrivenTableDto,
     val historiske: DataDrivenTableDto,
 )
 
-private fun toGjennomføringerTabellResponse(gjennomforinger: List<Gjennomforing>): GjennomføringerTabellResponse {
+private fun toGjennomforingerTableResponse(
+    gjennomforinger: List<Gjennomforing>,
+    action: (gjennomforing: Gjennomforing) -> DataElement,
+): GjennomforingerTableResponse {
     val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
     val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
 
-    return GjennomføringerTabellResponse(
-        aktive = toGjennomforingDataTable(aktive),
-        historiske = toGjennomforingDataTable(historiske),
+    return GjennomforingerTableResponse(
+        aktive = toGjennomforingDataTable(aktive, action),
+        historiske = toGjennomforingDataTable(historiske, action),
     )
 }
 
-private fun toGjennomforingDataTable(gjennomforinger: List<Gjennomforing>): DataDrivenTableDto {
+private fun toGjennomforingDataTable(
+    gjennomforinger: List<Gjennomforing>,
+    action: (gjennomforing: Gjennomforing) -> DataElement,
+): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("navn", "Tiltaksnavn"),
@@ -759,7 +896,7 @@ private fun toGjennomforingDataTable(gjennomforinger: List<Gjennomforing>): Data
             DataDrivenTableDto.Column("tiltaksType", "Tiltakstype"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
-            DataDrivenTableDto.Column("action", null, sortable = false),
+            DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
         ),
         rows = gjennomforinger.map { gjennomforing ->
             mapOf(
@@ -768,15 +905,52 @@ private fun toGjennomforingDataTable(gjennomforinger: List<Gjennomforing>): Data
                 "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
                 "startDato" to DataElement.date(gjennomforing.startDato),
                 "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to toGjennomforingAction(gjennomforing),
+                "action" to action(gjennomforing),
             )
         },
     )
 }
 
-private fun toGjennomforingAction(gjennomforing: Gjennomforing): DataElement.Link {
-    return DataElement.Link(
+private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gjennomforing, isManualDrifttlskuddEnabled: Boolean): DataElement {
+    val investeringLink = DataElement.Link(
         text = "Start innsending",
-        href = "/opprett-krav/driftstilskudd/${gjennomforing.id}/innsendingsinformasjon",
+        href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
     )
+
+    if (!isManualDrifttlskuddEnabled) {
+        return investeringLink
+    }
+
+    return when (gjennomforing.tiltakstype.tiltakskode) {
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        -> investeringLink
+
+        else ->
+            if (gjennomforing.avtalePrismodell == PrismodellType.ANNEN_AVTALT_PRIS) {
+                DataElement.MultiLinkModal(
+                    buttonText = "Velg tilskuddstype",
+                    modalContent = DataElement.MultiLinkModal.ModalContent(
+                        header = "Start innsending",
+                        description = "Velg tilskuddstype du vil opprette krav på",
+                        links = listOf(
+                            DataElement.Link(
+                                text = "Opprett driftstilskudd",
+                                href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+                            ),
+                            DataElement.Link(
+                                text = "Opprett investeringstilskudd",
+                                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
+                            ),
+                        ),
+                    ),
+                )
+            } else {
+                investeringLink
+            }
+    }
 }
+
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
+
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"
