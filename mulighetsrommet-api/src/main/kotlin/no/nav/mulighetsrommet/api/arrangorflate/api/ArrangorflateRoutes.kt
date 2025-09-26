@@ -926,26 +926,28 @@ private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gje
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         -> investeringLink
 
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING ->
-            DataElement.MultiLinkModal(
-                buttonText = "Velg tilskuddstype",
-                modalContent = DataElement.MultiLinkModal.ModalContent(
-                    header = "Start innsending",
-                    description = "Velg tilskuddstype du vil opprette krav på",
-                    links = listOf(
-                        DataElement.Link(
-                            text = "Opprett driftstilskudd",
-                            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
-                        ),
-                        DataElement.Link(
-                            text = "Opprett investeringstilskudd",
-                            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+        else ->
+            if (gjennomforing.avtalePrismodell == PrismodellType.ANNEN_AVTALT_PRIS) {
+                DataElement.MultiLinkModal(
+                    buttonText = "Velg tilskuddstype",
+                    modalContent = DataElement.MultiLinkModal.ModalContent(
+                        header = "Start innsending",
+                        description = "Velg tilskuddstype du vil opprette krav på",
+                        links = listOf(
+                            DataElement.Link(
+                                text = "Opprett driftstilskudd",
+                                href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+                            ),
+                            DataElement.Link(
+                                text = "Opprett investeringstilskudd",
+                                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
+                            ),
                         ),
                     ),
-                ),
-            )
-
-        else -> investeringLink
+                )
+            } else {
+                investeringLink
+            }
     }
 }
 

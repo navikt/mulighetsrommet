@@ -174,9 +174,9 @@ export default function OpprettKravOppsummering() {
         Vedlegg
       </Heading>
       <VStack gap="6">
-        <GuidePanel className="">
-          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt for
-          investeringer
+        <GuidePanel>
+          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt
+          forinvesteringer
         </GuidePanel>
         <Form method="post" encType="multipart/form-data">
           <VStack gap="6">

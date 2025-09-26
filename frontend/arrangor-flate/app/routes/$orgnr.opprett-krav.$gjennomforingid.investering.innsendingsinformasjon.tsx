@@ -263,8 +263,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           <input type="hidden" name="gjennomforingId" value={gjennomforing.id} />
           <Definisjonsliste
             definitions={[
-              { key: "Arrangør", value: arrangor },
-              { key: "Organisasjonsnummer", value: orgnr },
+              { key: "Arrangør", value: `${arrangor} - ${orgnr}` },
               { key: "Tiltaksnavn", value: gjennomforing.navn },
               { key: "Tiltakstype", value: gjennomforing.tiltakstype.navn },
             ]}
