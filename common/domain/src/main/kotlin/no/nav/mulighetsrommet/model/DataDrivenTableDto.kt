@@ -114,7 +114,7 @@ sealed class DataElement {
     @Serializable
     data class MultiLinkModal(
         val buttonText: String,
-        val modalContent: ModalContent
+        val modalContent: ModalContent,
     ) : DataElement() {
         @Serializable
         data class ModalContent(
