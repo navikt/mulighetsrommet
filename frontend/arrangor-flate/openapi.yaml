@@ -133,7 +133,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GjennomføringerTabellResponse"
+                $ref: "#/components/schemas/GjennomforingerTableResponse"
         default:
           description: Problem details
           headers: {}
@@ -754,6 +754,7 @@ components:
       type: string
       enum:
       - left
+      - center
       - right
     DataElement:
       anyOf:
@@ -880,7 +881,7 @@ components:
       - date
       - nok
       - number
-    GjennomføringerTabellResponse:
+    GjennomforingerTableResponse:
       type: object
       properties:
         aktive:

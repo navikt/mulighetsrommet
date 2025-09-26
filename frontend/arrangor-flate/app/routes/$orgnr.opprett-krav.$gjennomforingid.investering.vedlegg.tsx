@@ -15,7 +15,7 @@ import {
   FieldError,
   Tilskuddstype,
 } from "api-client";
-import { commitSession, destroySession, getSession } from "~/sessions.server";
+import { getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useEffect, useRef } from "react";
@@ -23,7 +23,6 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr } from "~/utils/navigation";
-import { Separator } from "~/components/common/Separator";
 
 export const meta: MetaFunction = () => {
   return [

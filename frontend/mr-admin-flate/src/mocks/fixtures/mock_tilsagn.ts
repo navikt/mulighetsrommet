@@ -214,6 +214,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
+        digest: window.crypto.randomUUID().slice(0, 8),
         text: "Behandle",
         href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/10e393b0-1b7c-4c68-9a42-b541b2f114b8",
       },
@@ -262,6 +263,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
+        digest: window.crypto.randomUUID().slice(0, 8),
         text: "Behandle",
         href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/fd1825aa-1951-4de2-9b72-12d22f121e92",
       },
@@ -310,6 +312,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
+        digest: window.crypto.randomUUID().slice(0, 8),
         text: "Behandle",
         href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
       },
@@ -358,6 +361,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
+        digest: window.crypto.randomUUID().slice(0, 8),
         text: "Detaljer",
         href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
       },
@@ -406,6 +410,7 @@ export const mockTilsagnTable: DataDrivenTableDto = {
       },
       action: {
         type: "no.nav.mulighetsrommet.model.DataElement.Link",
+        digest: window.crypto.randomUUID().slice(0, 8),
         text: "Detaljer",
         href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/5950e714-95bc-4d4c-b52e-c75fde749056",
       },

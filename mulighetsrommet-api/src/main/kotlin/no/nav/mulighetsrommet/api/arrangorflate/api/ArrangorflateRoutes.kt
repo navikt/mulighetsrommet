@@ -250,9 +250,11 @@ fun Route.arrangorflateRoutes() {
 
             val isManualDrifttlskuddEnabled = unleashService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
 
-            call.respond(toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
-                toGjennomforingAction(orgnr, gjennomforing, isManualDrifttlskuddEnabled)
-            })
+            call.respond(
+                toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
+                    toGjennomforingAction(orgnr, gjennomforing, isManualDrifttlskuddEnabled)
+                },
+            )
         }
 
         get("/gjennomforing/{gjennomforingId}", {
@@ -279,12 +281,14 @@ fun Route.arrangorflateRoutes() {
 
             val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-            val gjennomforing = requireNotNull(db.session {
-                queries.gjennomforing
-                    .get(
-                        id = gjennomforingId
-                    )
-            })
+            val gjennomforing = requireNotNull(
+                db.session {
+                    queries.gjennomforing
+                        .get(
+                            id = gjennomforingId,
+                        )
+                },
+            )
             if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
                 throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
             }
@@ -687,7 +691,7 @@ private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggReq
 
     val validatedVedlegg = vedlegg.validateVedlegg()
 
-    return ScanVedleggRequest(validatedVedlegg);
+    return ScanVedleggRequest(validatedVedlegg)
 }
 
 private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
@@ -819,7 +823,7 @@ data class OpprettKravOmUtbetalingRequest(
 
 @Serializable
 data class ScanVedleggRequest(
-    val vedlegg: List<Vedlegg>
+    val vedlegg: List<Vedlegg>,
 )
 
 data class ArrangorflateTilsagnFilter(
@@ -865,20 +869,20 @@ data class GjennomforingerTableResponse(
 
 private fun toGjennomforingerTableResponse(
     gjennomforinger: List<Gjennomforing>,
-    action: (gjennomforing: Gjennomforing) -> DataElement
+    action: (gjennomforing: Gjennomforing) -> DataElement,
 ): GjennomforingerTableResponse {
     val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
     val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
 
     return GjennomforingerTableResponse(
-        aktive = toGjennomforingDataTable( aktive, action),
-        historiske = toGjennomforingDataTable( historiske, action),
+        aktive = toGjennomforingDataTable(aktive, action),
+        historiske = toGjennomforingDataTable(historiske, action),
     )
 }
 
 private fun toGjennomforingDataTable(
     gjennomforinger: List<Gjennomforing>,
-    action: (gjennomforing: Gjennomforing) -> DataElement
+    action: (gjennomforing: Gjennomforing) -> DataElement,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
@@ -896,7 +900,7 @@ private fun toGjennomforingDataTable(
                 "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
                 "startDato" to DataElement.date(gjennomforing.startDato),
                 "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to action(gjennomforing)
+                "action" to action(gjennomforing),
             )
         },
     )
@@ -915,7 +919,7 @@ private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gje
     return when (gjennomforing.tiltakstype.tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            -> investeringLink
+        -> investeringLink
 
         Tiltakskode.ARBEIDSRETTET_REHABILITERING ->
             DataElement.MultiLinkModal(
@@ -940,8 +944,6 @@ private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gje
     }
 }
 
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
-    "/${orgnr.value}/opprett-krav/${gjennomforingId}/investering/innsendingsinformasjon"
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
-    "/${orgnr.value}/opprett-krav/${gjennomforingId}/driftstilskudd/innsendingsinformasjon"
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"

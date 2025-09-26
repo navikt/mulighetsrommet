@@ -4396,6 +4396,7 @@ components:
       type: string
       enum:
       - left
+      - center
       - right
     DataElement:
       anyOf:
