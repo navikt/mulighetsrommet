@@ -1,12 +1,11 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import { GjennomforingerService } from "@mr/api-client-v2";
 import { GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useAdminGjennomforingById(id: string) {
+export function useGjennomforing(id: string) {
   return useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforing(id),
-    queryFn: () => GjennomforingerService.getGjennomforing({ path: { id } }),
+    queryFn: () => GjennomforingService.getGjennomforing({ path: { id } }),
   });
 }
 

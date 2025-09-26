@@ -259,9 +259,30 @@ fun Route.avtaleRoutes() {
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
 
-            put("{id}/prismodell") {
+            put("{id}/prismodell", {
+                tags = setOf("Avtale")
+                operationId = "upsertPrismodell"
+                request {
+                    pathParameterUuid("id")
+                    body<PrismodellRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert avtale"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val navIdent = getNavIdent()
-                val id = call.parameters.getOrFail<UUID>("id")
+                val id: UUID by call.parameters
                 val request = call.receive<PrismodellRequest>()
 
                 val result = avtaler.upsertPrismodell(id, request, navIdent)
@@ -301,7 +322,43 @@ fun Route.avtaleRoutes() {
             }
         }
 
-        get {
+        get({
+            tags = setOf("Avtale")
+            operationId = "getAvtaler"
+            request {
+                queryParameter<String>("search")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<List<AvtaleStatusType>>("statuser") {
+                    explode = true
+                }
+                queryParameter<List<Avtaletype>>("avtaletyper") {
+                    explode = true
+                }
+                queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                    explode = true
+                }
+                queryParameter<List<String>>("arrangorer") {
+                    explode = true
+                }
+                queryParameter<Boolean>("personvernBekreftet")
+                queryParameter<Boolean>("visMineAvtaler")
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtaler filtrert på query parameters"
+                    body<PaginatedResponse<AvtaleDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
@@ -325,7 +382,45 @@ fun Route.avtaleRoutes() {
             call.respond(result)
         }
 
-        get("/excel") {
+        get("/excel", {
+            tags = setOf("Avtale")
+            operationId = "lastNedAvtalerSomExcel"
+            request {
+                queryParameter<String>("search")
+                queryParameter<List<String>>("tiltakstyper") {
+                    explode = true
+                }
+                queryParameter<List<AvtaleStatusType>>("statuser") {
+                    explode = true
+                }
+                queryParameter<List<Avtaletype>>("avtaletyper") {
+                    explode = true
+                }
+                queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                    explode = true
+                }
+                queryParameter<List<String>>("arrangorer") {
+                    explode = true
+                }
+                queryParameter<Boolean>("personvernBekreftet")
+                queryParameter<Boolean>("visMineAvtaler")
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
+                queryParameter<String>("sort")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtaler filtrert på query parameters"
+                    body<ByteArray> {
+                        mediaTypes(ContentType.Application.Xlsx)
+                    }
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
@@ -346,20 +441,35 @@ fun Route.avtaleRoutes() {
 
             val file = ExcelService.createExcelFileForAvtale(avtaler.items)
 
+            call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
                 HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
+                ContentDisposition.Attachment
+                    .withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
                     .toString(),
             )
-            call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
-            call.response.header(
-                HttpHeaders.ContentType,
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            )
+            call.response.header(HttpHeaders.ContentType, ContentType.Application.Xlsx.toString())
+
             call.respondFile(file)
         }
 
-        get("{id}") {
+        get("{id}", {
+            tags = setOf("Avtale")
+            operationId = "getAvtale"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtalen"
+                    body<AvtaleDto>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
             val id: UUID by call.parameters
 
             avtaler.get(id)

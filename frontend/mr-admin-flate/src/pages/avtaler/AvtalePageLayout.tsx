@@ -2,17 +2,12 @@ import { Separator } from "@/components/detaljside/Metadata";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { VStack } from "@navikt/ds-react";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
-import { AvtaleDto } from "@mr/api-client-v2";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { ReactNode } from "react";
 
-export function AvtalePageLayout({
-  avtale,
-  children,
-}: {
-  avtale: AvtaleDto;
-  children: React.ReactNode;
-}) {
+export function AvtalePageLayout({ avtale, children }: { avtale: AvtaleDto; children: ReactNode }) {
   return (
     <ContentBox>
       <WhitePaddedBox>

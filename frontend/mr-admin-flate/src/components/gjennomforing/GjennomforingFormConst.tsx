@@ -1,16 +1,16 @@
 import {
   ArrangorKontaktperson,
-  AvtaleDto,
   GjennomforingDto,
   GjennomforingOppstartstype,
   Opphav,
   Utdanningslop,
+  AmoKategorisering,
   UtdanningslopDbo,
 } from "@mr/api-client-v2";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
-import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -105,7 +105,10 @@ export function defaultGjennomforingData(
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
     estimertVentetid: gjennomforing?.estimertVentetid ?? null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
-    amoKategorisering: gjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
+    amoKategorisering:
+      gjennomforing?.amoKategorisering ??
+      (avtale.amoKategorisering as AmoKategorisering | undefined) ??
+      undefined,
     utdanningslop: gjennomforing?.utdanningslop
       ? toUtdanningslopDbo(gjennomforing.utdanningslop)
       : avtale.utdanningslop

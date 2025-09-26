@@ -11,7 +11,7 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { PortableText } from "@portabletext/react";
+import { PortableText } from "../portableText/PortableText";
 import { GjennomforingKontaktperson } from "@mr/api-client-v2";
 import { VeilederflateTiltakstype } from "@tiltaksadministrasjon/api-client";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -441,9 +441,9 @@ function SokEtterKontaktperson({
     const alleredeValgt = watch("kontaktpersoner")
       ?.filter((_, i) => i === selectedIndex)
       .map((kontaktperson) => {
-        const personFraSok = kontaktpersoner?.find((k) => k.navIdent == kontaktperson.navIdent);
+        const personFraSok = kontaktpersoner?.find((k) => k.navIdent === kontaktperson.navIdent);
         const personFraDb = lagredeKontaktpersoner.find(
-          (k) => k.navIdent == kontaktperson.navIdent,
+          (k) => k.navIdent === kontaktperson.navIdent,
         );
         const navn = personFraSok
           ? `${personFraSok.fornavn} ${personFraSok.etternavn}`

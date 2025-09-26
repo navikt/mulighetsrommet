@@ -5,13 +5,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import {
-  AvbrytGjennomforingAarsak,
-  FieldError,
-  GjennomforingDto,
-  Opphav,
-  ValidationError,
-} from "@mr/api-client-v2";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
@@ -21,9 +15,16 @@ import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { useSuspenseGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
-import { useGjennomforingHandlinger } from "@/api/gjennomforing/useAdminGjennomforingById";
-import { GjennomforingHandling, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
+import {
+  ArenaMigreringOpphav,
+  AvbrytGjennomforingAarsak,
+  GjennomforingDto,
+  GjennomforingHandling,
+  NavAnsattDto,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -40,7 +41,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
   const avbrytMutation = useAvbrytGjennomforing();
-  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(gjennomforing.id);
+  const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforing.id);
 
   const { mutate: setPublisert } = useSetPublisert(gjennomforing.id);
 
@@ -50,7 +51,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
 
   function dupliserGjennomforing() {
     const duplisert: Partial<GjennomforingDto> = {
-      opphav: Opphav.TILTAKSADMINISTRASJON,
+      opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
       avtaleId: gjennomforing.avtaleId,
       beskrivelse: gjennomforing.beskrivelse,
       faneinnhold: gjennomforing.faneinnhold,
@@ -73,7 +74,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         onSuccess: () => {
           setAvbrytModalOpen(false);
         },
-        onValidationError: (error: ValidationError) => {
+        onValidationError: (error: ValidationError | LegacyValidationError) => {
           setAvbrytModalErrors(error.errors);
         },
       },

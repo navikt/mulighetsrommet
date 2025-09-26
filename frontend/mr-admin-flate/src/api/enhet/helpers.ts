@@ -1,6 +1,7 @@
-import { ArenaNavEnhet, NavEnhetDto, NavEnhetType } from "@mr/api-client-v2";
+import { ArenaNavEnhet as LegacyArenaNavEnhet } from "@mr/api-client-v2";
+import { ArenaNavEnhet, NavEnhetDto, NavEnhetType } from "@tiltaksadministrasjon/api-client";
 
-export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet) {
+export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet | LegacyArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;
   return navn ? `${enhetsnummer} ${navn}` : enhetsnummer;
 }
@@ -13,7 +14,7 @@ function getUnderenheterAsSelectOptionsBy(
   return enheter
     .filter((enhet) => {
       return (
-        enhet.overordnetEnhet != null &&
+        enhet.overordnetEnhet !== null &&
         navRegioner.includes(enhet.overordnetEnhet) &&
         predicate(enhet)
       );

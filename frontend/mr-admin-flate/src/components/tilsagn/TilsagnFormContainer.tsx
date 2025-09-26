@@ -1,7 +1,7 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
-import { GjennomforingDto } from "@mr/api-client-v2";
 import {
+  GjennomforingDto,
   TilsagnBeregningType,
   TilsagnRequest,
   TilsagnType,
@@ -35,6 +35,7 @@ export function TilsagnFormContainer({ gjennomforing, defaults }: Props) {
 
   switch (beregning) {
     case TilsagnBeregningType.PRIS_PER_UKESVERK:
+    case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
     case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
       return (
         <TilsagnFormPrisPerManedsverk

@@ -2,10 +2,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { FeatureToggle, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
 import { Alert, Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
-import {
-  useAdminGjennomforingById,
-  useGjennomforingHandlinger,
-} from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useUtbetalingerByGjennomforing } from "./utbetalingerForGjennomforingLoader";
 import { UtbetalingTable } from "@/components/utbetaling/UtbetalingTable";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
@@ -13,7 +10,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function UtbetalingerForGjennomforingContainer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: handlinger } = useGjennomforingHandlinger(gjennomforingId);
   const { data: utbetalinger } = useUtbetalingerByGjennomforing(gjennomforingId);
   const { data: enableOkonomi } = useFeatureToggle(

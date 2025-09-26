@@ -141,7 +141,7 @@ sealed class DataElement {
 
         fun nok(value: Number) = Text(value.toString(), Format.NOK)
 
-        fun date(value: LocalDate) = Text(value.toString(), Format.DATE)
+        fun date(value: LocalDate?) = Text(value?.toString(), Format.DATE)
 
         fun number(value: Number) = Text(value.toString(), Format.NUMBER)
 

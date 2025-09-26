@@ -3,17 +3,14 @@ import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
-import {
-  useAdminGjennomforingById,
-  useGjennomforingHandlinger,
-} from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId);
 

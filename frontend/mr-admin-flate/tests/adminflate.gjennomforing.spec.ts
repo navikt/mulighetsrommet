@@ -9,8 +9,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 const fyllInnGjennomforing = async (page: Page) => {
-  await page.getByTestId("gjennomforinger-tab").click();
-  await page.locator("text=Opprett ny gjennomføring").click();
+  await page.locator('button:has-text("Handlinger")').click();
+  await page.locator('button:has-text("Opprett ny gjennomføring")').click();
+
   await locateAndFillInput(page, "antallPlasser", "20");
 
   await page.locator('input[name="arrangorId"]').click();

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipal
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.serializers.ProblemDetailSerializer
 
 class NavAnsattAuthorizationPluginConfiguration {
     var requiredRoles: RequiredRoles = RequiredRoles(emptyList())
@@ -70,9 +71,9 @@ class NavAnsattManglerTilgang(
     override val type = "mangler-tilgang"
     override val status: Int = HttpStatusCode.Forbidden.value
     override val detail: String =
-        "Minst en av følgende roller er påkrevd for å få tilgang til denne ressursen: ${missingRoles.joinToString(", ")}"
+        "Minst en av følgende roller er påkrevd for å få tilgang til denne ressursen:"
     override val extensions = mapOf(
-        "missingRoles" to Json.encodeToJsonElement(missingRoles.map { it.visningsnavn }),
+        "missingRoles" to missingRoles.map { it.visningsnavn },
     )
     override val instance = navIdent.value
 }

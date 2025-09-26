@@ -8,7 +8,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { Avtaletype } from "@mr/api-client-v2";
+import { Avtaletype } from "@tiltaksadministrasjon/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   Definisjonsliste,
@@ -18,11 +18,9 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { AnnenAvtaltPrismodell, AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
+import { AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -42,11 +40,6 @@ export function AvtaleDetaljer() {
     utdanningslop,
     opsjonsmodell,
   } = avtale;
-
-  const { data: enableTilsagn } = useFeatureToggle(
-    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [avtale.tiltakstype.tiltakskode],
-  );
 
   const avtaleMeta: Definition[] = [
     { key: avtaletekster.avtalenavnLabel, value: navn },
@@ -90,7 +83,7 @@ export function AvtaleDetaljer() {
   const administratorMeta: Definition[] = [
     {
       key: avtaletekster.administratorerForAvtalenLabel,
-      value: administratorer?.length ? (
+      value: administratorer.length ? (
         <ul>
           {administratorer.map((admin) => {
             return (
@@ -171,16 +164,10 @@ export function AvtaleDetaljer() {
         <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
         {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
         <Separator />
-        {enableTilsagn ? (
-          <AvtalePrismodell avtale={avtale} />
-        ) : (
-          <AnnenAvtaltPrismodell avtale={avtale} prismodellBeskrivelse="Annen avtalt pris" />
-        )}
+        <AvtalePrismodell avtale={avtale} />
       </VStack>
       <VStack>
-        {administratorer && (
-          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-        )}
+        <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
         <Separator />
         {arrangor ? (
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />

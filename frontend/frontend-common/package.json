@@ -5,6 +5,11 @@
   "description": "Felleskode for frontend-applikasjoner for Team Valp",
   "module": "index.ts",
   "types": "index.tsx",
+  "scripts": {
+    "lint": "eslint . --ignore-pattern node_modules --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ignore-pattern node_modules --fix",
+    "test": "vitest"
+  },
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
     "@date-fns/tz": "^1.4.1",
@@ -26,13 +31,12 @@
     "use-resize-observer": "9.1.0",
     "zod": "4.1.8"
   },
-  "scripts": {
-    "test": "vitest"
-  },
   "devDependencies": {
+    "@mr/eslint-config-react-app": "workspace:*",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "5.0.2",
+    "eslint": "9.35.0",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.4"
   },

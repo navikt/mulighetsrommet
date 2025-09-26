@@ -20,7 +20,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagnDto,
   FieldError,
-  Prismodell,
+  PrismodellType,
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
@@ -94,7 +94,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   ] = await Promise.all([
     ArrangorflateService.getArrangorflateGjennomforinger({
       path: { orgnr },
-      query: { prismodeller: [Prismodell.ANNEN_AVTALT_PRIS] },
+      query: { prismodeller: [PrismodellType.ANNEN_AVTALT_PRIS] },
       headers: await apiHeaders(request),
     }),
     ArrangorflateService.getAllArrangorflateTilsagn({

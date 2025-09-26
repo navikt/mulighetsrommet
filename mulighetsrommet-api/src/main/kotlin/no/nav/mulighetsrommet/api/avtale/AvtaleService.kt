@@ -347,7 +347,7 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPDATER_PRIS.takeIf {
-                Prismodeller.getPrismodellerForTiltak(avtale.tiltakstype.tiltakskode).size > 1 && avtalerSkriv
+                avtalerSkriv && avtale.prismodell.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
                 avtale.opsjonsmodell.maksVarighet != null && avtalerSkriv

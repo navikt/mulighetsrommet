@@ -74,11 +74,4 @@ object Tiltakskoder {
     fun isKursTiltak(tiltakskode: Tiltakskode?): Boolean {
         return tiltakskode in TiltakMedFellesOppstart
     }
-
-    fun isForhandsgodkjentTiltak(tiltakskode: Tiltakskode?): Boolean {
-        return tiltakskode in listOf(
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        )
-    }
 }

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -26,6 +27,62 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
+        test("mangler sats i periode") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 3,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = emptyList(),
+            ) shouldBeLeft listOf(
+                FieldError.of("Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris", TilsagnRequest::periodeStart),
+            )
+        }
+
+        test("ingen feil på gyldig AFT pris per månedsverk") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 3,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ).shouldBeRight()
+        }
+
+        test("null antall plasser samtidig som null periodeStart") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    periodeStart = null,
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = emptyList(),
+            ) shouldBeLeft listOf(
+                FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart),
+                FieldError.ofPointer(pointer = "/beregning/antallPlasser", detail = "Antall plasser må være større enn 0"),
+            )
+        }
+
         test("should validate gyldig periode") {
             val gyldigStart = LocalDate.of(2025, 1, 8)
             val gyldigSlutt = LocalDate.of(2025, 1, 9)
@@ -40,6 +97,44 @@ class TilsagnValidatorTest : FunSpec({
             ) shouldBeLeft listOf(
                 FieldError.of("Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart),
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er ${gyldigSlutt.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt),
+            )
+        }
+
+        test("feil i beregning dukker opp") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1
+                    .copy(
+                        beregning = TilsagnBeregningRequest(type = TilsagnBeregningType.FRI),
+                    ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = emptyList(),
+            ) shouldBeLeft listOf(
+                FieldError.of("Du må legge til en linje", TilsagnRequest::beregning, TilsagnBeregningRequest::linjer),
+            )
+        }
+
+        test("feil ved utenfor gyldig periode") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(
+                    periodeStart = LocalDate.of(2026, 1, 1),
+                    periodeSlutt = LocalDate.of(2026, 4, 1),
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 3,
+                    ),
+                ),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ) shouldBeLeft listOf(
+                FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
         }
 
@@ -67,9 +162,9 @@ class TilsagnValidatorTest : FunSpec({
                     prisbetingelser = null,
                 )
                 val leftFieldErrors = listOf(
-                    FieldError(pointer = "beregning/linjer/0/belop", detail = "Beløp må være positivt"),
-                    FieldError(pointer = "beregning/linjer/0/beskrivelse", detail = "Beskrivelse mangler"),
-                    FieldError(pointer = "beregning/linjer/0/antall", detail = "Antall må være positivt"),
+                    FieldError(pointer = "/beregning/linjer/0/belop", detail = "Beløp må være positivt"),
+                    FieldError(pointer = "/beregning/linjer/0/beskrivelse", detail = "Beskrivelse mangler"),
+                    FieldError(pointer = "/beregning/linjer/0/antall", detail = "Antall må være positivt"),
                 )
 
                 TilsagnValidator.validateBeregningFriInput(input) shouldBeLeft leftFieldErrors

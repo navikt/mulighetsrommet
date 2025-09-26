@@ -360,13 +360,14 @@ class AvtaleValidator(
                 )
             }
             when (request.type) {
-                Prismodell.ANNEN_AVTALT_PRIS,
-                Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                 -> Unit
 
-                Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-                Prismodell.AVTALT_PRIS_PER_UKESVERK,
-                Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 -> validateSatser(request.satser)
             }
         }

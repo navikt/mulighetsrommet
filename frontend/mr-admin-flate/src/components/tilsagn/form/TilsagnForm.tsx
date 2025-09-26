@@ -1,7 +1,12 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { GjennomforingDto, ValidationError } from "@mr/api-client-v2";
-import { TilsagnRequest, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  TilsagnRequest,
+  TilsagnType,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
   Alert,
@@ -70,8 +75,8 @@ export function TilsagnForm(props: Props) {
 
     mutation.mutate(request, {
       onSuccess: onSuccess,
-      onValidationError: (error: ValidationError) => {
-        error.errors.forEach((error: { pointer: string; detail: string }) => {
+      onValidationError: (error: ValidationError | LegacyValidationError) => {
+        error.errors.forEach((error) => {
           const name = jsonPointerToFieldPath(error.pointer) as keyof TilsagnRequest;
           setError(name, { type: "custom", message: error.detail });
         });

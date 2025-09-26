@@ -1,7 +1,7 @@
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterValidator } from "@/filter/filter-validator";
 import { PAGE_SIZE } from "@/constants";
-import { GjennomforingStatusType, NavEnhetDto, SorteringGjennomforinger } from "@mr/api-client-v2";
+import { GjennomforingStatusType, NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atom, WritableAtom } from "jotai";
@@ -12,7 +12,7 @@ export const GjennomforingFilterSchema = z.object({
   navEnheter: z.custom<NavEnhetDto>().array(),
   tiltakstyper: z.string().array(),
   statuser: z.custom<GjennomforingStatusType>().array(),
-  sortering: createSorteringProps(z.custom<SorteringGjennomforinger>()),
+  sortering: createSorteringProps(z.string()),
   avtale: z.string(),
   arrangorer: z.string().array(),
   visMineGjennomforinger: z.boolean(),
@@ -29,7 +29,7 @@ export const defaultGjennomforingFilter: GjennomforingFilterType = {
   tiltakstyper: [],
   statuser: [GjennomforingStatusType.GJENNOMFORES],
   sortering: {
-    sortString: SorteringGjennomforinger.NAVN_ASCENDING,
+    sortString: "navn-ascending",
     tableSort: {
       orderBy: "navn",
       direction: "ascending",

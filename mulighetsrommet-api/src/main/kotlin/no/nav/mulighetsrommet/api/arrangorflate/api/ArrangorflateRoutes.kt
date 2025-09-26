@@ -19,11 +19,14 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -46,6 +49,9 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.DataDrivenTableDto
+import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -56,6 +62,7 @@ import java.time.LocalDate
 import java.util.*
 
 fun Route.arrangorflateRoutes() {
+    val db: ApiDatabase by inject()
     val arrangorService: ArrangorService by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
@@ -167,7 +174,7 @@ fun Route.arrangorflateRoutes() {
             operationId = "getArrangorflateGjennomforinger"
             request {
                 pathParameter<Organisasjonsnummer>("orgnr")
-                queryParameter<List<Prismodell>>("prismodeller") {
+                queryParameter<List<PrismodellType>>("prismodeller") {
                     explode = true
                 }
             }
@@ -186,10 +193,56 @@ fun Route.arrangorflateRoutes() {
             requireTilgangHosArrangor(orgnr)
 
             val prismodeller = call.parameters.getAll("prismodeller")
-                ?.map { Prismodell.valueOf(it) }
+                ?.map { PrismodellType.valueOf(it) }
                 ?: emptyList()
+            val gjeonnomforinger = db.session {
+                queries.gjennomforing
+                    .getAll(
+                        arrangorOrgnr = listOf(orgnr),
+                        prismodeller = prismodeller,
+                    )
+                    .items
+                    .map { toArrangorflateGjennomforing(it) }
+            }
+            call.respond(gjeonnomforinger)
+        }
 
-            call.respond(arrangorFlateService.getGjennomforinger(orgnr, prismodeller))
+        get("/gjennomforing/tabeller", {
+            description = "Hent gjennomføringene til arrangør - tabell format"
+            tags = setOf("Arrangorflate")
+            operationId = "getArrangorflateGjennomforingerTabeller"
+            request {
+                pathParameter<Organisasjonsnummer>("orgnr")
+                queryParameter<List<PrismodellType>>("prismodeller") {
+                    explode = true
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Arrangør sine gjennomføringer (DataDrivenTable)"
+                    body<GjennomføringerTabellResponse>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            requireTilgangHosArrangor(orgnr)
+
+            val prismodeller = call.parameters.getAll("prismodeller")
+                ?.map { PrismodellType.valueOf(it) }
+                ?: emptyList()
+            val gjennomforinger = db.session {
+                queries.gjennomforing
+                    .getAll(
+                        arrangorOrgnr = listOf(orgnr),
+                        prismodeller = prismodeller,
+                    )
+                    .items
+            }
+            call.respond(toGjennomføringerTabellResponse(gjennomforinger))
         }
 
         get("/utbetaling", {
@@ -663,6 +716,13 @@ fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
     )
 }
 
+private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
+    id = gjennomforing.id,
+    navn = gjennomforing.navn,
+    startDato = gjennomforing.startDato,
+    sluttDato = gjennomforing.sluttDato,
+)
+
 @Serializable
 data class ArrangorflateUtbetalinger(
     val aktive: List<ArrangorflateUtbetalingKompaktDto>,
@@ -674,3 +734,49 @@ data class OpprettKravOmUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )
+
+@Serializable
+data class GjennomføringerTabellResponse(
+    val aktive: DataDrivenTableDto,
+    val historiske: DataDrivenTableDto,
+)
+
+private fun toGjennomføringerTabellResponse(gjennomforinger: List<Gjennomforing>): GjennomføringerTabellResponse {
+    val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
+    val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
+
+    return GjennomføringerTabellResponse(
+        aktive = toGjennomforingDataTable(aktive),
+        historiske = toGjennomforingDataTable(historiske),
+    )
+}
+
+private fun toGjennomforingDataTable(gjennomforinger: List<Gjennomforing>): DataDrivenTableDto {
+    return DataDrivenTableDto(
+        columns = listOf(
+            DataDrivenTableDto.Column("navn", "Tiltaksnavn"),
+            DataDrivenTableDto.Column("tiltaksnummer", "Tiltaksnr."),
+            DataDrivenTableDto.Column("tiltaksType", "Tiltakstype"),
+            DataDrivenTableDto.Column("startDato", "Startdato"),
+            DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
+            DataDrivenTableDto.Column("action", null, sortable = false),
+        ),
+        rows = gjennomforinger.map { gjennomforing ->
+            mapOf(
+                "navn" to DataElement.text(gjennomforing.navn),
+                "tiltaksnummer" to DataElement.text(gjennomforing.tiltaksnummer),
+                "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
+                "startDato" to DataElement.date(gjennomforing.startDato),
+                "sluttDato" to DataElement.date(gjennomforing.sluttDato),
+                "action" to toGjennomforingAction(gjennomforing),
+            )
+        },
+    )
+}
+
+private fun toGjennomforingAction(gjennomforing: Gjennomforing): DataElement.Link {
+    return DataElement.Link(
+        text = "Start innsending",
+        href = "/opprett-krav/driftstilskudd/${gjennomforing.id}/innsendingsinformasjon",
+    )
+}

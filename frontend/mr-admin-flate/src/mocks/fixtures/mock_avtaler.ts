@@ -1,22 +1,22 @@
-import {
-  AvtaleDto,
-  AvtaleStatusType,
-  Avtaletype,
-  DataElementStatusVariant,
-  EmbeddedTiltakstype,
-  Opphav,
-  OpsjonsmodellType,
-  Prismodell,
-} from "@mr/api-client-v2";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+import {
+  ArenaMigreringOpphav,
+  AvtaleDto,
+  AvtaleStatusType,
+  AvtaleTiltakstype,
+  Avtaletype,
+  DataElementStatusVariant,
+  OpsjonsmodellType,
+  PrismodellType,
+  TiltakstypeDto,
+} from "@tiltaksadministrasjon/api-client";
 
 export const mockAvtaler: AvtaleDto[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.AVKLARAG),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.AVKLARAG),
     navn: "Testtiltak Varig",
     administratorer: [
       {
@@ -24,8 +24,11 @@ export const mockAvtaler: AvtaleDto[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    opphav: Opphav.TILTAKSADMINISTRASJON,
     avtalenummer: "2021#10579",
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    sakarkivNummer: "2020/1234",
+    beskrivelse: null,
+    faneinnhold: null,
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
@@ -72,7 +75,9 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      beskrivelse: "Annen avtalt pris",
+      satser: null,
       prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
         10 deltakere:
@@ -87,7 +92,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.ARBFORB),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.ARBFORB),
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
@@ -102,7 +107,10 @@ export const mockAvtaler: AvtaleDto[] = [
         kontaktpersoner: [],
       })),
     },
-    opphav: Opphav.ARENA,
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    sakarkivNummer: "2020/1234",
+    beskrivelse: null,
+    faneinnhold: null,
     administratorer: [
       {
         navIdent: "B123456",
@@ -136,20 +144,25 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      beskrivelse: "Annen avtalt pris",
+      satser: null,
       prisbetingelser: "Maskert prisbetingelser",
     },
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
-    opphav: Opphav.ARENA,
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    sakarkivNummer: "2020/1234",
+    beskrivelse: null,
+    faneinnhold: null,
     administratorer: [
       {
         navIdent: "B815493",
         navn: "Test Testesen",
       },
     ],
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.INDOPPFAG),
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -187,20 +200,24 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      beskrivelse: "Annen avtalt pris",
+      satser: null,
       prisbetingelser: "Maskert prisbetingelser",
     },
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
-    opphav: Opphav.TILTAKSADMINISTRASJON,
+    opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    beskrivelse: null,
+    faneinnhold: null,
     administratorer: [
       {
         navIdent: "B123456",
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.GRUFAGYRKE),
+    tiltakstype: getAvtaleTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
     sakarkivNummer: "24/12345",
@@ -239,70 +256,15 @@ export const mockAvtaler: AvtaleDto[] = [
     opsjonerRegistrert: [],
     utdanningslop: null,
     prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      beskrivelse: "Annen avtalt pris",
+      satser: null,
       prisbetingelser: "Maskert prisbetingelser",
     },
   },
 ];
 
-// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
-// at testene går gjennom.
-const x = 0;
-for (let i = 0; i < x; i++) {
-  mockAvtaler.push({
-    id: "6374b285-989d-4f78-a59e-29481b64ba92",
-    opphav: Opphav.ARENA,
-    administratorer: [
-      {
-        navIdent: "B123456",
-        navn: "Bertil Bengtson",
-      },
-    ],
-    tiltakstype: getEmbeddedTiltakstype(mockTiltakstyper.INDOPPFAG),
-    navn: "Avtale hos Åna Fengsel",
-    avtalenummer: "2020#4929",
-    arrangor: {
-      ...mockArrangorer.data[0],
-      slettet: false,
-      kontaktpersoner: [],
-      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
-        id: v.id,
-        organisasjonsnummer: v.organisasjonsnummer,
-        navn: v.navn,
-        slettet: false,
-        kontaktpersoner: [],
-      })),
-    },
-    startDato: "2020-07-01",
-    sluttDato: "2024-06-30",
-    avtaletype: Avtaletype.RAMMEAVTALE,
-    status: {
-      type: AvtaleStatusType.AKTIV,
-      status: { value: "Aktiv", variant: DataElementStatusVariant.SUCCESS, description: null },
-    },
-    arenaAnsvarligEnhet: mockEnheter._0313,
-    kontorstruktur: [
-      { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
-      { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
-    ],
-    personopplysninger: [],
-    personvernBekreftet: false,
-    amoKategorisering: null,
-    opsjonsmodell: {
-      type: OpsjonsmodellType.TO_PLUSS_EN,
-      opsjonMaksVarighet: null,
-      customOpsjonsmodellNavn: null,
-    },
-    opsjonerRegistrert: [],
-    utdanningslop: null,
-    prismodell: {
-      type: Prismodell.ANNEN_AVTALT_PRIS,
-      prisbetingelser: "Maskert prisbetingelser",
-    },
-  });
-}
-
-export function getEmbeddedTiltakstype(dto: TiltakstypeDto): EmbeddedTiltakstype {
+function getAvtaleTiltakstype(dto: TiltakstypeDto): AvtaleTiltakstype {
   if (!dto.tiltakskode) {
     throw new Error("Tiltakskode mangler");
   }

@@ -44,9 +44,28 @@ export default defineConfig(
   },
   {
     rules: {
+      "eqeqeq": "error",
       "no-console": "error",
 
       "@typescript-eslint/no-explicit-any": ["off"],
     },
   },
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint.plugin,
+    },
+    rules: {
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
+      "@typescript-eslint/no-unnecessary-condition": "error",
+    },
+  },
+
 );

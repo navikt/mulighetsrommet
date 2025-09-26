@@ -15,7 +15,7 @@ export function Definisjonsliste({
   title?: string;
   definitions: Definition[];
   columns?: 1 | 2;
-  headingLevel?: HeadingProps['level']
+  headingLevel?: HeadingProps["level"];
 }) {
   return (
     <VStack gap="3">

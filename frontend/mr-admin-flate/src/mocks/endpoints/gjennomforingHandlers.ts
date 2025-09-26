@@ -1,12 +1,13 @@
 import { http, HttpResponse, PathParams } from "msw";
-import {
-  GjennomforingDeltakerSummary,
-  GjennomforingDto,
-  PaginertGjennomforing,
-} from "@mr/api-client-v2";
 import { mockGjennomforinger, paginertMockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 import { mockEndringshistorikkForGjennomforing } from "../fixtures/mock_endringshistorikk_gjennomforinger";
-import { EndringshistorikkDto, GjennomforingHandling } from "@tiltaksadministrasjon/api-client";
+import {
+  EndringshistorikkDto,
+  GjennomforingDeltakerSummary,
+  GjennomforingDto,
+  GjennomforingHandling,
+  PaginatedResponseGjennomforingDto,
+} from "@tiltaksadministrasjon/api-client";
 
 export const gjennomforingHandlers = [
   http.get<{ id: string }, undefined, GjennomforingHandling[]>(
@@ -27,44 +28,20 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, PaginertGjennomforing | { x: string }>(
-    "*/api/v1/intern/gjennomforinger",
+  http.get<PathParams, undefined, PaginatedResponseGjennomforingDto>(
+    "*/api/tiltaksadministrasjon/gjennomforinger",
     () => {
       return HttpResponse.json(paginertMockGjennomforinger);
     },
   ),
 
-  http.put<PathParams, GjennomforingDto>("*/api/v1/intern/gjennomforinger", () => {
+  http.put<PathParams, undefined, GjennomforingDto>("*/api/v1/intern/gjennomforinger", () => {
     const gjennomforing = mockGjennomforinger[0];
-    return HttpResponse.json({ ...gjennomforing, updatedAt: new Date().toISOString() });
-  }),
-
-  http.get<{ id: string }, GjennomforingDto | undefined>(
-    "*/api/v1/intern/gjennomforinger/skjema",
-    ({ params }) => {
-      const { id } = params;
-      const avtale = mockGjennomforinger.find((a) => a.id === id) ?? undefined;
-      return HttpResponse.json(avtale);
-    },
-  ),
-
-  http.get<PathParams, GjennomforingDto[]>("*/api/v1/intern/gjennomforinger/sok", ({ request }) => {
-    const url = new URL(request.url);
-    const tiltaksnummer = url.searchParams.get("tiltaksnummer");
-
-    if (!tiltaksnummer) {
-      throw new Error("Tiltaksnummer er ikke satt som query-param");
-    }
-
-    const gjennomforing = mockGjennomforinger.filter((tg) =>
-      (tg.tiltaksnummer ?? "").toString().includes(tiltaksnummer),
-    );
-
     return HttpResponse.json(gjennomforing);
   }),
 
-  http.get<{ id: string }, GjennomforingDto | undefined>(
-    "/api/v1/intern/gjennomforinger/:id",
+  http.get<{ id: string }, undefined, GjennomforingDto>(
+    "/api/tiltaksadministrasjon/gjennomforinger/:id",
     ({ params }) => {
       const { id } = params;
 
@@ -77,18 +54,21 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/gjennomforinger/:id/avbryt", () => {
-    return HttpResponse.json(1);
-  }),
+  http.put<{ id: string }, undefined, undefined>(
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/avbryt",
+    () => {
+      return HttpResponse.text();
+    },
+  ),
 
-  http.put<{ id: string }, number>(
+  http.put<{ id: string }, undefined, undefined>(
     "*/api/tiltaksadministrasjon/gjennomforinger/:id/tilgjengelig-for-veileder",
     () => {
       return HttpResponse.text();
     },
   ),
 
-  http.put<{ id: string }, number>(
+  http.put<{ id: string }, undefined, undefined>(
     "*/api/tiltaksadministrasjon/gjennomforinger/:id/apent-for-pamelding",
     () => {
       return HttpResponse.text();
@@ -102,8 +82,8 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, GjennomforingDeltakerSummary>(
-    "*/api/v1/intern/gjennomforinger/:id/deltaker-summary",
+  http.get<PathParams, undefined, GjennomforingDeltakerSummary>(
+    "*/api/tiltaksadministrasjon/gjennomforinger/:id/deltaker-summary",
     () => {
       const deltakerSummary: GjennomforingDeltakerSummary = {
         antallDeltakere: 36,

@@ -1,13 +1,13 @@
 [versions]
 common-java-modules = "3.2025.09.03_08.33-728ff4acbfdb"
-flyway = "11.12.0"
+flyway = "11.13.1"
 koin = "4.1.0-Beta8"
 kotest = "6.0.3"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.2.20"
 ktor = "3.3.0"
 logback = "1.5.18"
-metrics = "4.2.36"
+metrics = "4.2.37"
 arrow = "2.1.2"
 micrometer = "1.15.4"
 
@@ -37,11 +37,11 @@ ktor-openapi = [
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
-ktor-openapi = "io.github.smiley4:ktor-openapi:5.2.0"
-schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.3.0"
-schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.3.0"
-schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.3.0"
-schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.3.0"
+ktor-openapi = "io.github.smiley4:ktor-openapi:5.3.0"
+schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.4.0"
+schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.4.0"
+schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.4.0"
+schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.4.0"
 
 assertj-db = "org.assertj:assertj-db:3.0.0"
 
@@ -117,12 +117,12 @@ mockk = "io.mockk:mockk:1.14.5"
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.07.04_08.56-814fa50f6740"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.09.15_11.12-54be8ac278c0"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.3.0"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.54.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.54.1"
 
-postgresql = "org.postgresql:postgresql:42.7.7"
+postgresql = "org.postgresql:postgresql:42.7.8"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 

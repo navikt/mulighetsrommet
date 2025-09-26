@@ -25,7 +25,7 @@ import { Header } from "./components/header/Header";
 import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
 
-export const meta: MetaFunction = () => [{ title: "Tilsagn og utbetalinger" }];
+export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
   const { data: arrangortilganger, error } =

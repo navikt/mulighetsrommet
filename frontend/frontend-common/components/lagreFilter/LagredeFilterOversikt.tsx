@@ -167,7 +167,7 @@ export function LagredeFilterOversikt({
                 På grunn av nylige endringer kan ikke det lagrede filteret benyttes lenger. Filteret
                 bør derfor slettes og lagres på nytt.
               </BodyShort>
-              {sletteBody(filterHarUgyldigStruktur?.navn)}
+              {sletteBody(filterHarUgyldigStruktur.navn)}
             </>
           }
           primaryButton={sletteKnapp(filterHarUgyldigStruktur.id)}

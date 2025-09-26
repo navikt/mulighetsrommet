@@ -1,4 +1,4 @@
-import { AmoKategorisering, Kurstype } from "@mr/api-client-v2";
+import { AmoKategorisering } from "@tiltaksadministrasjon/api-client";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
@@ -20,14 +20,14 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
         <Metadata
           header={gjennomforingTekster.kurstypeLabel}
           value={
-            amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET
-              ? `${kurstypeToString(amoKategorisering.kurstype as Kurstype)} - ${bransjeToString(amoKategorisering.bransje)}`
-              : kurstypeToString(amoKategorisering.kurstype as Kurstype)
+            amoKategorisering.kurstype === "BRANSJE_OG_YRKESRETTET"
+              ? `${kurstypeToString(amoKategorisering.kurstype)} - ${bransjeToString(amoKategorisering.bransje)}`
+              : kurstypeToString(amoKategorisering.kurstype)
           }
         />
       </Bolk>
       <Bolk>
-        {amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET && (
+        {amoKategorisering.kurstype === "BRANSJE_OG_YRKESRETTET" && (
           <>
             {amoKategorisering.forerkort.length > 0 && (
               <Metadata
@@ -55,14 +55,14 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
             )}
           </>
         )}
-        {amoKategorisering.kurstype == Kurstype.NORSKOPPLAERING && amoKategorisering.norskprove && (
+        {amoKategorisering.kurstype === "NORSKOPPLAERING" && amoKategorisering.norskprove && (
           <Metadata header={gjennomforingTekster.norskproveLabel} value="Ja" />
         )}
       </Bolk>
       <Bolk>
-        {(amoKategorisering.kurstype == Kurstype.NORSKOPPLAERING ||
-          amoKategorisering.kurstype == Kurstype.GRUNNLEGGENDE_FERDIGHETER ||
-          amoKategorisering.kurstype == Kurstype.BRANSJE_OG_YRKESRETTET) && (
+        {(amoKategorisering.kurstype === "NORSKOPPLAERING" ||
+          amoKategorisering.kurstype === "GRUNNLEGGENDE_FERDIGHETER" ||
+          amoKategorisering.kurstype === "BRANSJE_OG_YRKESRETTET") && (
           <Metadata
             header={gjennomforingTekster.innholdElementerLabel}
             value={

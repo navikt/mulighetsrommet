@@ -1,6 +1,7 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { ValidationError } from "@mr/api-client-v2";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import {
   ArrangorDto,
   ArrangorKontaktperson,
@@ -252,8 +253,8 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
         setRedigerKontaktperson(undefined);
         mutation.reset();
       },
-      onValidationError: (error: ValidationError) => {
-        const errors = error.errors.reduce((errors: Record<string, string>, error) => {
+      onValidationError: (error: ValidationError | LegacyValidationError) => {
+        const errors = error.errors.reduce((errors, error) => {
           return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
         }, {});
         setState({ ...state, errors });

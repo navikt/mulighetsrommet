@@ -200,6 +200,7 @@ const routes: RouteObject[] = [
       {
         path: "gjennomforinger/:gjennomforingId/tilsagn",
         element: <TilsagnPage />,
+        errorElement: <ErrorPage />,
         children: [
           { path: "opprett-tilsagn", element: <OpprettTilsagnFormPage /> },
           { path: ":tilsagnId", element: <TilsagnDetaljer /> },

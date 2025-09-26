@@ -1,27 +1,29 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { AvtaleDto, PaginertAvtale, PrismodellDto } from "@mr/api-client-v2";
 import {
+  AvtaleDto,
   AvtaleHandling,
-  AvtaltSatsDto,
   EndringshistorikkDto,
+  PaginatedResponseAvtaleDto,
+  PrismodellInfo,
+  PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
 export const avtaleHandlers = [
-  http.get<PathParams, PaginertAvtale | undefined>(
+  http.get<PathParams, undefined, PrismodellInfo[]>(
     "*/api/tiltaksadministrasjon/prismodeller",
     () => {
       return HttpResponse.json([
         {
-          type: "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK",
+          type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
           beskrivelse: "Fast sats per tiltaksplass per måned",
         },
       ]);
     },
   ),
 
-  http.get<PathParams, AvtaleHandling[]>(
+  http.get<PathParams, undefined, AvtaleHandling[]>(
     "*/api/tiltaksadministrasjon/avtaler/:id/handlinger",
     () => {
       return HttpResponse.json([
@@ -35,60 +37,46 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/intern/avtaler", ({ request }) => {
-    const url = new URL(request.url);
-    const avtalestatus = url.searchParams.get("avtalestatus");
-    const data = mockAvtaler.filter((a) => a.status.type === avtalestatus || avtalestatus === null);
+  http.get<PathParams, undefined, PaginatedResponseAvtaleDto>(
+    "*/api/tiltaksadministrasjon/avtaler",
+    ({ request }) => {
+      const url = new URL(request.url);
+      const avtalestatus = url.searchParams.get("avtalestatus");
+      const data = mockAvtaler.filter(
+        (a) => a.status.type === avtalestatus || avtalestatus === null,
+      );
 
-    return HttpResponse.json({
-      pagination: {
-        pageSize: 15,
-        totalCount: data.length,
-      },
-      data,
-    });
-  }),
+      return HttpResponse.json({
+        pagination: {
+          pageSize: 15,
+          totalCount: data.length,
+          totalPages: 1,
+        },
+        data,
+      });
+    },
+  ),
 
   http.put<{ id: string }, number>("*/api/tiltaksadministrasjon/avtaler/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
 
-  http.get<PathParams, AvtaleDto | undefined>("*/api/v1/intern/avtaler/:id", ({ params }) => {
-    const { id } = params;
-    const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
-    return HttpResponse.json(avtale);
-  }),
-
-  http.get<PathParams, AvtaleDto | undefined>("*/api/v1/intern/avtaler/skjema", ({ params }) => {
-    const { id } = params;
-    const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
-    return HttpResponse.json(avtale);
-  }),
+  http.get<PathParams, undefined, AvtaleDto>(
+    "*/api/tiltaksadministrasjon/avtaler/:id",
+    ({ params }) => {
+      const { id } = params;
+      const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
+      return HttpResponse.json(avtale);
+    },
+  ),
 
   http.put("*/api/v1/intern/avtaler", () => {
     return HttpResponse.json(mockAvtaler[0]);
   }),
 
-  http.get<PathParams, undefined, AvtaltSatsDto[]>(
-    "/api/tiltaksadministrasjon/prismodeller/forhandsgodkjente-satser",
-    () => {
-      return HttpResponse.json([
-        {
-          gjelderFra: "2025-01-01",
-          gjelderTil: null,
-          pris: 23000,
-          valuta: "NOK",
-        },
-      ]);
-    },
-  ),
-
-  http.get<PathParams, undefined, PrismodellDto[]>(
-    "/api/tiltaksadministrasjon/prismodeller",
-    () => {
-      return HttpResponse.json([]);
-    },
-  ),
+  http.put("*/api/tiltaksadministrasjon/avtaler", () => {
+    return HttpResponse.json(mockAvtaler[0]);
+  }),
 
   http.get<PathParams, undefined, EndringshistorikkDto>(
     "*/api/tiltaksadministrasjon/avtaler/:id/historikk",

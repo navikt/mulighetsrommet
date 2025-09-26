@@ -1,13 +1,18 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { FieldError, GjennomforingDto, ValidationError } from "@mr/api-client-v2";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  GjennomforingDto,
+  Rolle,
+  SetTilgjengligForArrangorRequest,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
-import { Rolle, SetTilgjengligForArrangorRequest } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -24,7 +29,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     },
   });
 
-  const onValidationError = (error: ValidationError) => {
+  const onValidationError = (error: ValidationError | LegacyValidationError) => {
     error.errors.forEach((error: FieldError) => {
       form.setError(
         jsonPointerToFieldPath(error.pointer) as keyof SetTilgjengligForArrangorRequest,

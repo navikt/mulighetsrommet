@@ -6,13 +6,15 @@ import {
   InferredGjennomforingSchema,
 } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GjennomforingRequest, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   AvtaleDto,
+  GjennomforingDeltakerSummary,
   GjennomforingDto,
-  GjennomforingRequest,
+  NavEnhetDto,
+  Tiltakskode,
   ValidationError,
-} from "@mr/api-client-v2";
-import { NavEnhetDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+} from "@tiltaksadministrasjon/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Spacer, Tabs } from "@navikt/ds-react";
@@ -20,8 +22,8 @@ import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { Separator } from "../detaljside/Metadata";
-import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
+import { Separator } from "@/components/detaljside/Metadata";
+import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
 import { z } from "zod";
@@ -31,18 +33,14 @@ interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
   avtale: AvtaleDto;
-  gjennomforing?: GjennomforingDto;
+  gjennomforing: GjennomforingDto | null;
+  deltakere: GjennomforingDeltakerSummary | null;
   defaultValues: Partial<InferredGjennomforingSchema>;
   enheter: NavEnhetDto[];
 }
 
-export function GjennomforingFormContainer({
-  avtale,
-  gjennomforing,
-  defaultValues,
-  onClose,
-  onSuccess,
-}: Props) {
+export function GjennomforingFormContainer(props: Props) {
+  const { avtale, gjennomforing, deltakere, defaultValues, onClose, onSuccess } = props;
   const redigeringsModus = !!gjennomforing;
   const mutation = useUpsertGjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
@@ -63,7 +61,7 @@ export function GjennomforingFormContainer({
     [onSuccess],
   );
   const handleValidationError = useCallback(
-    (validation: ValidationError) => {
+    (validation: ValidationError | LegacyValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapFieldToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         form.setError(name, { type: "custom", message: error.detail });
@@ -154,7 +152,11 @@ export function GjennomforingFormContainer({
             <InlineErrorBoundary>
               <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
                 <Box marginBlock="4">
-                  <GjennomforingFormDetaljer avtale={avtale} gjennomforing={gjennomforing} />
+                  <GjennomforingFormDetaljer
+                    avtale={avtale}
+                    gjennomforing={gjennomforing}
+                    deltakere={deltakere}
+                  />
                 </Box>
               </React.Suspense>
             </InlineErrorBoundary>

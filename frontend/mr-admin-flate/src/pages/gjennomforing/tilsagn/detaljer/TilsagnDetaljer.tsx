@@ -6,7 +6,16 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { FieldError, ValidationError } from "@mr/api-client-v2";
+import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
+import {
+  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  Besluttelse,
+  BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
+  TilsagnHandling,
+  TilsagnStatus,
+  TilsagnStatusAarsak,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import {
@@ -40,14 +49,6 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { DataDetails } from "@/components/data-element/DataDetails";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import {
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
-  Besluttelse,
-  BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
-  TilsagnHandling,
-  TilsagnStatus,
-  TilsagnStatusAarsak,
-} from "@tiltaksadministrasjon/api-client";
 
 function useTilsagnDetaljer(tilsagnId: string) {
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
@@ -99,7 +100,8 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError) => setErrors(error.errors),
+        onValidationError: (error: ValidationError | LegacyValidationError) =>
+          setErrors(error.errors),
       },
     );
   }
@@ -113,7 +115,8 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError) => setErrors(error.errors),
+        onValidationError: (error: ValidationError | LegacyValidationError) =>
+          setErrors(error.errors),
       },
     );
   }
@@ -127,7 +130,8 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError) => setErrors(error.errors),
+        onValidationError: (error: ValidationError | LegacyValidationError) =>
+          setErrors(error.errors),
       },
     );
   }

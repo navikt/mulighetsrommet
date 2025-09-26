@@ -6,7 +6,7 @@ import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -64,10 +64,10 @@ class ReplicateDeltakerKafkaConsumer(
     }
 }
 
-private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: Prismodell?): DeltakerDbo {
+private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: PrismodellType?): DeltakerDbo {
     val deltakelsesprosent = when (prismodell) {
         // Hvis deltakelsesprosent mangler for forhåndsgodkjente tiltak så skal det antas å være 100%
-        Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> deltaker.prosentStilling?.toDouble() ?: 100.0
+        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> deltaker.prosentStilling?.toDouble() ?: 100.0
         else -> null
     }
     return DeltakerDbo(

@@ -8,7 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -37,7 +37,7 @@ class GenererUtbetalingService(
 
     private data class UtbetalingContext(
         val gjennomforingId: UUID,
-        val prismodell: Prismodell,
+        val prismodell: PrismodellType,
     )
 
     private val kontonummerCache: Cache<String, Kontonummer> = Caffeine.newBuilder()
@@ -122,7 +122,7 @@ class GenererUtbetalingService(
 
     private suspend fun QueryContext.generateUtbetalingForPrismodell(
         utbetalingId: UUID,
-        prismodell: Prismodell,
+        prismodell: PrismodellType,
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingDbo? {
@@ -131,23 +131,28 @@ class GenererUtbetalingService(
         }
 
         val beregning = when (prismodell) {
-            Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
                 val input = resolveFastSatsPerTiltaksplassPerManedInput(gjennomforing, periode)
                 UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
             }
 
-            Prismodell.AVTALT_PRIS_PER_MANEDSVERK -> {
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> {
                 val input = resolvePrisPerManedsverkInput(gjennomforing, periode)
                 UtbetalingBeregningPrisPerManedsverk.beregn(input)
             }
 
-            Prismodell.AVTALT_PRIS_PER_UKESVERK -> {
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> {
                 val input = resolvePrisPerUkesverkInput(gjennomforing, periode)
                 UtbetalingBeregningPrisPerUkesverk.beregn(input)
             }
 
-            Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            Prismodell.ANNEN_AVTALT_PRIS,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> {
+                // TODO: Implementer utbetaling for hele ukesverk
+                return null
+            }
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+            PrismodellType.ANNEN_AVTALT_PRIS,
             -> return null
         }
 
@@ -270,7 +275,7 @@ class GenererUtbetalingService(
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
-            UtbetalingContext(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
+            UtbetalingContext(it.uuid("id"), PrismodellType.valueOf(it.string("prismodell")))
         }
     }
 
@@ -287,7 +292,7 @@ class GenererUtbetalingService(
         """.trimIndent()
 
         return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
-            UtbetalingContext(it.uuid("id"), Prismodell.valueOf(it.string("prismodell")))
+            UtbetalingContext(it.uuid("id"), PrismodellType.valueOf(it.string("prismodell")))
         }
     }
 

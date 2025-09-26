@@ -1,23 +1,18 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
-import {
-  ArrangorKontaktperson,
-  AvtaleDto,
-  AvtaltSatsDto,
-  Personopplysning,
-  PrismodellDto,
-} from "@mr/api-client-v2";
+import { ArrangorKontaktperson, Personopplysning, PrismodellType } from "@mr/api-client-v2";
 import z from "zod";
 import { avtaleDetaljerSchema, toUtdanningslopDbo, validateAvtaledetaljer } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
-import { NavAnsattDto, Prismodell } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
-  prisbetingelser: z.string().optional(),
-  type: z.enum(Prismodell, { error: "Du må velge en prismodell" }),
+  prisbetingelser: z.string().nullable(),
+  type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
   satser: z.array(
     z.object({
       gjelderFra: z.string().nullable(),
+      gjelderTil: z.string().nullable(),
       pris: z.number().nullable(),
       valuta: z.string(),
     }),
@@ -96,6 +91,7 @@ export function defaultAvtaleData(
       },
       startDato: avtale?.startDato,
       sluttDato: avtale?.sluttDato,
+      // TODO: fiks typer
       amoKategorisering: avtale?.amoKategorisering ?? null,
       opsjonsmodell: avtale?.opsjonsmodell,
       utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
@@ -122,16 +118,4 @@ export function defaultAvtaleData(
       },
     },
   };
-}
-
-function satser(prismodell: PrismodellDto): AvtaltSatsDto[] {
-  switch (prismodell.type) {
-    case "ANNEN_AVTALT_PRIS":
-    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
-      return [];
-    case "AVTALT_PRIS_PER_MANEDSVERK":
-    case "AVTALT_PRIS_PER_UKESVERK":
-    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
-      return prismodell.satser;
-  }
 }

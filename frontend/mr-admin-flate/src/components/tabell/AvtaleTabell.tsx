@@ -1,18 +1,16 @@
 import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { capitalizeEveryWord, formaterNavEnheter } from "@/utils/Utils";
-import { SorteringAvtaler } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
-import { createRef, useEffect, useState } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtaleStatusTag } from "../statuselementer/AvtaleStatusTag";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
-import { downloadAvtalerAsExcel } from "@/api/avtaler/downloadAvtalerAsExcel";
+import { useDownloadAvtalerAsExcel } from "@/api/avtaler/useDownloadAvtalerAsExcel";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 
 interface Props {
@@ -23,37 +21,11 @@ interface Props {
 }
 
 export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
-  const [lasterExcel, setLasterExcel] = useState(false);
-  const [excelUrl, setExcelUrl] = useState("");
   const {
     data: { pagination, data: avtaler },
   } = useAvtaler(filter);
 
-  const link = createRef<HTMLAnchorElement>();
-
-  async function lastNedExcel() {
-    setLasterExcel(true);
-    if (excelUrl) {
-      setExcelUrl("");
-    }
-
-    const excelFil = await downloadAvtalerAsExcel(filter);
-    const url = URL.createObjectURL(excelFil);
-    setExcelUrl(url);
-    setLasterExcel(false);
-  }
-
-  useEffect(() => {
-    if (link.current && excelUrl) {
-      link.current.download = "avtaler.xlsx";
-      link.current.href = excelUrl;
-
-      link.current.click();
-      URL.revokeObjectURL(excelUrl);
-      link.current = null;
-      setExcelUrl("");
-    }
-  }, [excelUrl, link]);
+  const [lasterExcel, lastNedExcel] = useDownloadAvtalerAsExcel(filter);
 
   const sort = filter.sortering.tableSort;
 
@@ -68,7 +40,7 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
 
     updateFilter({
       sortering: {
-        sortString: `${sortKey}-${direction}` as SorteringAvtaler,
+        sortString: `${sortKey}-${direction}`,
         tableSort: { orderBy: sortKey, direction },
       },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
@@ -93,7 +65,6 @@ export function AvtaleTabell({ filter, updateFilter, tagsHeight, filterOpen }: P
             }}
           />
           <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
-          <a style={{ display: "none" }} ref={link}></a>
         </ToolbarMeny>
       </ToolbarContainer>
       <TabellWrapper>

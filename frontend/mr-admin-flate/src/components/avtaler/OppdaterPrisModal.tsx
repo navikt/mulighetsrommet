@@ -1,6 +1,7 @@
 import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, Prismodell, PrismodellDto, ValidationError } from "@mr/api-client-v2";
+import { AvtaleDto, AvtaleDtoPrismodell, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { Button, Modal } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
@@ -34,7 +35,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
         onSuccess: () => {
           closeAndResetForm();
         },
-        onValidationError: (validation: ValidationError) => {
+        onValidationError: (validation: ValidationError | LegacyValidationError) => {
           validation.errors.forEach((error) => {
             const name = jsonPointerToFieldPath(error.pointer);
             form.setError(name as keyof PrismodellValues, {
@@ -83,37 +84,10 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   );
 }
 
-function defaultValues(prismodell: PrismodellDto): PrismodellValues {
-  switch (prismodell.type) {
-    case "ANNEN_AVTALT_PRIS":
-      return {
-        type: Prismodell.ANNEN_AVTALT_PRIS,
-        prisbetingelser: prismodell.prisbetingelser ?? undefined,
-        satser: [],
-      };
-    case "AVTALT_PRIS_PER_MANEDSVERK":
-      return {
-        ...prismodell,
-        type: Prismodell.AVTALT_PRIS_PER_MANEDSVERK,
-        prisbetingelser: prismodell.prisbetingelser ?? undefined,
-      };
-    case "AVTALT_PRIS_PER_UKESVERK":
-      return {
-        ...prismodell,
-        type: Prismodell.AVTALT_PRIS_PER_UKESVERK,
-        prisbetingelser: prismodell.prisbetingelser ?? undefined,
-      };
-    case "AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER":
-      return {
-        ...prismodell,
-        type: Prismodell.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        prisbetingelser: prismodell.prisbetingelser ?? undefined,
-      };
-    case "FORHANDSGODKJENT_PRIS_PER_MANEDSVERK":
-      return {
-        ...prismodell,
-        type: Prismodell.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-        satser: [],
-      };
-  }
+function defaultValues(prismodell: AvtaleDtoPrismodell): PrismodellValues {
+  return {
+    type: prismodell.type,
+    prisbetingelser: prismodell.prisbetingelser,
+    satser: prismodell.satser ?? [],
+  };
 }

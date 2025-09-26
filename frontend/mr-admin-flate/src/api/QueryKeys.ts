@@ -1,6 +1,7 @@
-import { type GetAvtalerData, GetGjennomforingerData } from "@mr/api-client-v2";
 import {
   GetArrangorerData,
+  GetAvtalerData,
+  GetGjennomforingerData,
   LagretFilterType,
   NotificationStatus,
   Rolle,
@@ -23,7 +24,7 @@ export const QueryKeys = {
   },
   ansatt: () => ["ansatt"] as const,
   avtaler: (avtaleFilter?: Pick<GetAvtalerData, "query">) => ["avtaler", avtaleFilter] as const,
-  avtale: (id?: string) => ["avtale", id] as const,
+  avtale: (id?: string | null) => ["avtale", id] as const,
   avtaleHandlnger: (id?: string) => ["avtale-handlinger", id] as const,
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   navEnheter: () => ["nav-enheter"],

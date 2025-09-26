@@ -1,5 +1,5 @@
 import { paginationAtom } from "@/core/atoms";
-import { formaterDato } from "@/utils/Utils";
+import { formaterDato, utledOppstart } from "@/utils/Utils";
 import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
@@ -7,12 +7,8 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import { DeltMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
-import {
-  isTiltakEnkeltplass,
-  isTiltakGruppe,
-  isTiltakMedArrangor,
-} from "@/api/queries/useArbeidsmarkedstiltakById";
+import { DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import { isTiltakGruppe, isTiltakMedArrangor } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -81,19 +77,6 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
       </Lenke>
     </li>
   );
-}
-
-function utledOppstart(tiltak: VeilederflateTiltak) {
-  if (isTiltakEnkeltplass(tiltak)) {
-    return "Løpende oppstart";
-  }
-
-  switch (tiltak.oppstart) {
-    case GjennomforingOppstartstype.FELLES:
-      return formaterDato(tiltak.oppstartsdato);
-    case GjennomforingOppstartstype.LOPENDE:
-      return "Løpende oppstart";
-  }
 }
 
 interface TiltakDeltMedBrukerInfoProps {

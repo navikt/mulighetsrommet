@@ -19,18 +19,12 @@ export function DelMedBrukerHistorikk() {
     return <IngenFunnetBox title="Det er ikke delt informasjon om noen tiltak med brukeren" />;
   }
 
-  const gruppertHistorikk = data.sort(sortOnCreatedAt).reduce(
-    (acc, obj) => {
-      // If the tiltakId key doesn't exist, create it with an empty array
-      if (!acc[obj.tiltak.id]) {
-        acc[obj.tiltak.id] = [];
-      }
-      // Push the current object to the array for its tiltakId
-      acc[obj.tiltak.id].push(obj);
+  const gruppertHistorikk = data
+    .sort(sortOnCreatedAt)
+    .reduce<Record<string, TiltakDeltMedBrukerDto[]>>((acc, obj) => {
+      (acc[obj.tiltak.id] ??= []).push(obj);
       return acc;
-    },
-    {} as Record<string, TiltakDeltMedBrukerDto[]>,
-  );
+    }, {});
 
   // Sort each group by createdAt
   Object.keys(gruppertHistorikk).forEach((tiltakId) => {

@@ -1,12 +1,7 @@
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading, VStack } from "@navikt/ds-react";
-import { PortableText } from "@portabletext/react";
-import {
-  EmbeddedTiltakstype,
-  Faneinnhold,
-  GjennomforingKontaktperson,
-  Kontorstruktur,
-} from "@mr/api-client-v2";
+import { PortableText } from "../portableText/PortableText";
+import { EmbeddedTiltakstype, GjennomforingKontaktperson, Kontorstruktur } from "@mr/api-client-v2";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
 import { Suspense, useState } from "react";
 import { Laster } from "../laster/Laster";
@@ -20,11 +15,12 @@ import { Bolk } from "../detaljside/Bolk";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { Kontaktperson } from "@/pages/gjennomforing/Kontaktperson";
 import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
+import { Faneinnhold } from "@tiltaksadministrasjon/api-client";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: EmbeddedTiltakstype;
-  beskrivelse?: string;
-  faneinnhold?: Faneinnhold;
+  beskrivelse: string | null;
+  faneinnhold: Faneinnhold | null;
   kontorstruktur: Kontorstruktur;
   kontaktpersoner: GjennomforingKontaktperson[];
 }
@@ -177,7 +173,7 @@ function someValuesExists(params: any[]): boolean {
 }
 
 interface DetaljerFaneProps {
-  gjennomforingAlert?: string;
+  gjennomforingAlert?: string | null;
   tiltakstypeAlert?: string | null;
   gjennomforing?: any;
   tiltakstype?: any;

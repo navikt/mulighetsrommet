@@ -1,6 +1,6 @@
 import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorForm";
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
-import { GjennomforingDto } from "@mr/api-client-v2";
+import { GjennomforingDto } from "@tiltaksadministrasjon/api-client";
 import { Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
 

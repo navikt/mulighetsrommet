@@ -1,7 +1,7 @@
 import { List } from "@navikt/ds-react";
-import { Bransje } from "@mr/api-client-v2";
+import { AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
-import { bransjeToString } from "../../utils/Utils";
+import { bransjeToString } from "@/utils/Utils";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { ForerkortForm } from "./ForerkortForm";

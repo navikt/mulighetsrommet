@@ -8,7 +8,11 @@ export function TilToppenKnapp() {
   const [synlig, setSynlig] = useState(false);
 
   const synlighet = () => {
-    window.scrollY > 450 ? setSynlig(true) : setSynlig(false);
+    if (window.scrollY > 450) {
+      setSynlig(true);
+    } else {
+      setSynlig(false);
+    }
   };
 
   useEffect(() => {

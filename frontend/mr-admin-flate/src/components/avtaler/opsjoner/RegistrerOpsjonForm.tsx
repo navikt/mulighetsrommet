@@ -1,10 +1,10 @@
 import { Alert, Radio } from "@navikt/ds-react";
-import { AvtaleDto } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import {
+  AvtaleDto,
   OpprettOpsjonLoggRequest,
   OpprettOpsjonLoggRequestType,
 } from "@tiltaksadministrasjon/api-client";

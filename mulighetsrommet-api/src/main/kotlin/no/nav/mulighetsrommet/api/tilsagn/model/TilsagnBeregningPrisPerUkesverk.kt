@@ -36,7 +36,7 @@ data class TilsagnBeregningPrisPerUkesverk(
                 .multiply(sats.toBigDecimal())
                 .multiply(antallPlasser.toBigDecimal())
                 .setScale(0, RoundingMode.HALF_UP)
-                .toInt()
+                .intValueExact()
 
             return TilsagnBeregningPrisPerUkesverk(input, Output(belop))
         }

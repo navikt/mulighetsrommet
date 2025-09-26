@@ -1,5 +1,4 @@
 import js from "@eslint/js";
-import pluginQuery from "@tanstack/eslint-plugin-query";
 import prettier from "eslint-plugin-prettier";
 import pluginPromise from "eslint-plugin-promise";
 import react from "eslint-plugin-react";
@@ -10,7 +9,6 @@ import globals from "globals";
 export default ts.config(
   js.configs.recommended,
   pluginPromise.configs["flat/recommended"],
-  ...pluginQuery.configs["flat/recommended"],
   ...ts.configs.recommended,
   {
     ...react.configs.flat.recommended,

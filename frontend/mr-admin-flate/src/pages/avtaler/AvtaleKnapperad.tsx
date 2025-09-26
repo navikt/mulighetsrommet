@@ -6,21 +6,20 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
+import { FieldError, Opphav, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   AvbrytAvtaleAarsak,
   AvtaleDto,
-  FieldError,
-  Opphav,
+  AvtaleHandling,
+  Rolle,
   ValidationError,
-} from "@mr/api-client-v2";
-import { AvtaleHandling, FeatureToggle, Rolle } from "@tiltaksadministrasjon/api-client";
+} from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 
@@ -39,11 +38,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [oppdaterPrisModalOpen, setOppdaterPrisModalOpen] = useState<boolean>(false);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
-
-  const { data: enableTilsagn } = useFeatureToggle(
-    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [avtale.tiltakstype.tiltakskode],
-  );
 
   function dupliserAvtale() {
     navigate(`/avtaler/skjema`, {
@@ -71,7 +65,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
         onSuccess: () => {
           setAvbrytModalOpen(false);
         },
-        onValidationError: (error: ValidationError) => {
+        onValidationError: (error: ValidationError | LegacyValidationError) => {
           setAvbrytModalErrors(error.errors);
         },
       },
@@ -94,7 +88,6 @@ export function AvtaleKnapperad({ avtale }: Props) {
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     if (
-                      avtale.administratorer &&
                       avtale.administratorer.length > 0 &&
                       !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
                     ) {
@@ -116,7 +109,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   Registrer opsjon
                 </Dropdown.Menu.GroupedList.Item>
               )}
-              {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && enableTilsagn && (
+              {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
                 <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
                   Oppdater pris
                 </Dropdown.Menu.GroupedList.Item>

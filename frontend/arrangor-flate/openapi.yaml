@@ -84,7 +84,7 @@ paths:
         schema:
           type: array
           items:
-            $ref: "#/components/schemas/Prismodell"
+            $ref: "#/components/schemas/PrismodellType"
       responses:
         "200":
           description: Arrangør sine gjennomføringer
@@ -95,6 +95,45 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/ArrangorflateGjennomforing"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/tabeller:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent gjennomføringene til arrangør - tabell format
+      operationId: getArrangorflateGjennomforingerTabeller
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: prismodeller
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/PrismodellType"
+      responses:
+        "200":
+          description: Arrangør sine gjennomføringer (DataDrivenTable)
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GjennomføringerTabellResponse"
         default:
           description: Problem details
           headers: {}
@@ -560,13 +599,14 @@ components:
           type: string
       required:
       - kontonummer
-    Prismodell:
+    PrismodellType:
       type: string
       enum:
       - ANNEN_AVTALT_PRIS
       - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_MANEDSVERK
       - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_HELE_UKESVERK
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     ArrangorflateGjennomforing:
       type: object
@@ -589,6 +629,150 @@ components:
       - navn
       - sluttDato
       - startDato
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Column"
+        rows:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              $ref: "#/components/schemas/DataElement"
+      required:
+      - columns
+      - rows
+    DataDrivenTableDto.Column:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type:
+          - "null"
+          - string
+        sortable:
+          type: boolean
+        align:
+          $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
+      required:
+      - align
+      - key
+      - label
+      - sortable
+    DataDrivenTableDto.Column.Align:
+      type: string
+      enum:
+      - left
+      - right
+    DataElement:
+      anyOf:
+      - $ref: "#/components/schemas/DataElement.Link"
+      - $ref: "#/components/schemas/DataElement.MathOperator"
+      - $ref: "#/components/schemas/DataElement.Periode"
+      - $ref: "#/components/schemas/DataElement.Status"
+      - $ref: "#/components/schemas/DataElement.Text"
+      discriminator:
+        propertyName: type
+        mapping:
+          no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
+          no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
+          no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
+          no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
+          no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
+    DataElement.Link:
+      type: object
+      properties:
+        text:
+          type: string
+        href:
+          type: string
+      required:
+      - href
+      - text
+    DataElement.MathOperator:
+      type: object
+      properties:
+        operator:
+          $ref: "#/components/schemas/DataElement.MathOperator.Type"
+      required:
+      - operator
+    DataElement.MathOperator.Type:
+      type: string
+      enum:
+      - plus
+      - minus
+      - multiply
+      - divide
+      - equals
+    DataElement.Periode:
+      type: object
+      properties:
+        start:
+          type: string
+        slutt:
+          type: string
+      required:
+      - slutt
+      - start
+    DataElement.Status:
+      type: object
+      properties:
+        value:
+          type: string
+        variant:
+          $ref: "#/components/schemas/DataElement.Status.Variant"
+        description:
+          type:
+          - "null"
+          - string
+      required:
+      - description
+      - value
+      - variant
+    DataElement.Status.Variant:
+      type: string
+      enum:
+      - neutral
+      - alt
+      - success
+      - warning
+      - error
+      - error-border
+      - error-border-strikethrough
+    DataElement.Text:
+      type: object
+      properties:
+        value:
+          type:
+          - "null"
+          - string
+        format:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataElement.Text.Format"
+      required:
+      - format
+      - value
+    DataElement.Text.Format:
+      type: string
+      enum:
+      - date
+      - nok
+      - number
+    GjennomføringerTabellResponse:
+      type: object
+      properties:
+        aktive:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        historiske:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+      required:
+      - aktive
+      - historiske
     ArrangorflateUtbetalingKompaktDto:
       type: object
       properties:
@@ -1336,9 +1520,6 @@ components:
     JsonElement:
       type: object
       properties: {}
-    Nothing:
-      type: object
-      properties: {}
     ValidationError:
       type: object
       properties:
@@ -1360,9 +1541,9 @@ components:
           additionalProperties:
             $ref: "#/components/schemas/JsonElement"
         instance:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Nothing"
+          type:
+          - "null"
+          - string
       required:
       - detail
       - errors
@@ -1375,6 +1556,7 @@ components:
       type: string
       enum:
       - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
+      - MULIGHETSROMMET_PRISMODELL_HELE_UKER
       - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
       - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
   examples: {}

@@ -1,5 +1,4 @@
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
-import { GjennomforingFilterButtons } from "@/components/filter/GjennomforingFilterButtons";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
@@ -74,7 +73,7 @@ export function GjennomforingerPage() {
               setTagsHeight={setTagsHeight}
             />
           }
-          buttons={<GjennomforingFilterButtons />}
+          buttons={null}
           table={
             <ReloadAppErrorBoundary>
               <Suspense fallback={<ListSkeleton />}>

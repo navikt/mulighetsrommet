@@ -1,6 +1,6 @@
 import { usePotentialAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
-import { useAdminGjennomforingById } from "@/api/gjennomforing/useAdminGjennomforingById";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
@@ -25,7 +25,7 @@ import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { data: gjennomforing } = useAdminGjennomforingById(gjennomforingId);
+  const { data: gjennomforing } = useGjennomforing(gjennomforingId);
   const { data: avtale } = usePotentialAvtale(gjennomforing.avtaleId);
 
   const {

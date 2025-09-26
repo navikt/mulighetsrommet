@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.gjennomforing
 
 import arrow.core.*
 import arrow.core.raise.either
-import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -22,6 +21,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
+import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.EksternTiltaksgjennomforingFilter
@@ -40,7 +41,6 @@ import java.util.*
 class GjennomforingService(
     private val config: Config,
     private val db: ApiDatabase,
-    private val validator: GjennomforingValidator,
     private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
@@ -53,10 +53,10 @@ class GjennomforingService(
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, Gjennomforing> = either {
         val previous = get(request.id)
+        val ctx = getValidatorCtx(request, previous, today)
 
-        val status = resolveStatus(previous, request, today)
-        val dbo = validator
-            .validate(GjennomforingDboMapper.fromGjennomforingRequest(request, status), previous)
+        val dbo = GjennomforingValidator
+            .validate(request.copy(navEnheter = sanitizeNavEnheter(request.navEnheter)), ctx)
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
@@ -74,7 +74,7 @@ class GjennomforingService(
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
             val dto = getOrError(dbo.id)
-            val operation = if (previous == null) {
+            val operation = if (ctx.previous == null) {
                 "Opprettet gjennomføring"
             } else {
                 "Redigerte gjennomføring"
@@ -84,6 +84,42 @@ class GjennomforingService(
 
             dto
         }
+    }
+
+    fun getValidatorCtx(request: GjennomforingRequest, previous: Gjennomforing?, today: LocalDate): GjennomforingValidator.Ctx = db.session {
+        val avtale = requireNotNull(db.session { queries.avtale.get(request.avtaleId) }) {
+            "Gjennomføringen manglet avtale"
+        }
+
+        val kontaktpersoner = db.session {
+            request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
+        }
+        val administratorer = db.session {
+            request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        }
+        val arrangor = db.session { queries.arrangor.getById(request.arrangorId) }
+        val antallDeltakere = db.session {
+            queries.deltaker.getAll(pagination = Pagination.of(1, 1), gjennomforingId = request.id).size
+        }
+        val status = resolveStatus(previous?.status?.type, request, today)
+
+        return GjennomforingValidator.Ctx(
+            previous = previous?.let {
+                GjennomforingValidator.Ctx.Gjennomforing(
+                    avtaleId = it.avtaleId,
+                    oppstart = it.oppstart,
+                    arrangorId = it.arrangor.id,
+                    status = it.status.type,
+                    sluttDato = it.sluttDato,
+                )
+            },
+            avtale = avtale,
+            arrangor = arrangor,
+            kontaktpersoner = kontaktpersoner,
+            administratorer = administratorer,
+            antallDeltakere = antallDeltakere,
+            status = status,
+        )
     }
 
     fun get(id: UUID): Gjennomforing? = db.session {
@@ -152,7 +188,7 @@ class GjennomforingService(
     ): Either<List<FieldError>, Unit> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        validator
+        GjennomforingValidator
             .validateTilgjengeligForArrangorDato(
                 tilgjengeligForArrangorDato,
                 gjennomforing.startDato,
@@ -366,12 +402,12 @@ class GjennomforingService(
     }
 
     private fun resolveStatus(
-        previous: Gjennomforing?,
+        previous: GjennomforingStatusType?,
         request: GjennomforingRequest,
         today: LocalDate,
     ): GjennomforingStatusType {
-        return when (previous?.status) {
-            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt -> previous.status.type
+        return when (previous) {
+            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> previous
             else -> if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
                 GjennomforingStatusType.GJENNOMFORES
             } else {
@@ -430,5 +466,14 @@ class GjennomforingService(
         )
 
         queries.kafkaProducerRecord.storeRecord(record)
+    }
+
+    fun sanitizeNavEnheter(navEnheter: Set<NavEnhetNummer>): Set<NavEnhetNummer> = db.session {
+        // Filtrer vekk underenheter uten fylke
+        return NavEnhetHelpers.buildNavRegioner(
+            navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() },
+        )
+            .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
+            .toSet()
     }
 }

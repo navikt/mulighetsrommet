@@ -78,7 +78,7 @@ class TilsagnService(
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
             )
-            .map { step3 ->
+            .map { validated ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
 
@@ -89,13 +89,13 @@ class TilsagnService(
                     id = request.id,
                     gjennomforingId = request.gjennomforingId,
                     type = request.type,
-                    periode = step3.step2.periode,
+                    periode = validated.periode,
                     lopenummer = lopenummer,
-                    kostnadssted = step3.step2.step1.kostnadssted,
+                    kostnadssted = validated.kostnadssted,
                     bestillingsnummer = bestillingsnummer,
                     bestillingStatus = null,
                     belopBrukt = 0,
-                    beregning = step3.beregning,
+                    beregning = validated.beregning,
                     kommentar = request.kommentar,
                 )
             }
@@ -191,6 +191,7 @@ class TilsagnService(
                             ),
                         )
                     }
+
                 TilsagnBeregningType.PRIS_PER_UKESVERK ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
                         TilsagnBeregningPrisPerUkesverk.beregn(
@@ -202,18 +203,31 @@ class TilsagnService(
                             ),
                         )
                     }
-                TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-                -> beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
-                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
-                            periode = fallback.periode,
-                            sats = fallback.sats,
-                            antallPlasser = fallback.antallPlasser,
-                            prisbetingelser = fallback.prisbetingelser,
-                            antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
-                        ),
-                    )
-                }
+
+                TilsagnBeregningType.PRIS_PER_HELE_UKESVERK ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerHeleUkesverk.beregn(
+                            TilsagnBeregningPrisPerHeleUkesverk.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                            ),
+                        )
+                    }
+
+                TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING ->
+                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+                            TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                                periode = fallback.periode,
+                                sats = fallback.sats,
+                                antallPlasser = fallback.antallPlasser,
+                                prisbetingelser = fallback.prisbetingelser,
+                                antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
+                            ),
+                        )
+                    }
             }
         } catch (a: ArithmeticException) {
             null
