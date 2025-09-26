@@ -8,9 +8,13 @@ Her finner du informasjon om hva du trenger for å komme i gang med utvikling ho
 ## Tilganger teamet kan ordne for deg
 Ta kontakt med en på teamet som kan gi deg korrekte tilganger
 
-- [ ] Sanity - Gå til [Myapps](https://myapps.microsoft.com/) og be om tilgang til Sanity. Når det er gjort så går du til https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk og logger inn med sso (navikt) og din bruker. Så kan en annen på teamet gi deg admin-tilganger.
-- [ ] team-mulighetsrommet Azure
+- [ ] Sanity
+  - Gå til [Myapps](https://myapps.microsoft.com/) og be om tilgang til Sanity.
+  - Når det er gjort så går du til https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk
+    - Logger inn med sso (navikt) og din bruker. Så kan en annen på teamet gi deg admin-tilganger.
+- [ ] `team-mulighetsrommet` Azure
 - [ ] Github - Fikses gjennom https://console.nav.cloud.nais.io/
+- [ ] Ny konsulent? En fast ansatt må legge deg til i `team-valp-naisdevice` gruppen.
 
 ## Oppsett av applikasjoner lokalt
 Se egne readme-filer for oppsett for de ulike komponentene i repoet.
