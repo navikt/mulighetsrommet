@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2025.09.03_08.33-728ff4acbfdb"
-flyway = "11.13.1"
+flyway = "11.13.2"
 koin = "4.1.0-Beta8"
 kotest = "6.0.3"
 kotest-testcontainers = "2.0.2"
@@ -15,7 +15,7 @@ micrometer = "1.15.4"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:13.1.0"
-openapi-generator = "org.openapi.generator:7.15.0"
+openapi-generator = "org.openapi.generator:7.16.0"
 
 [bundles]
 logging = [
@@ -53,7 +53,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.25.3"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.57.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.58.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
