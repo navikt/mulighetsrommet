@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.toDbo
-import no.nav.mulighetsrommet.api.avtale.mapper.prismodell
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.navenhet.*
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -102,10 +101,10 @@ class AvtaleValidator(
                         )
                     }
                 }
-                if (currentAvtale.prismodell.prismodell() !in Prismodeller.getPrismodellerForTiltak(detaljer.tiltakskode)) {
+                if (currentAvtale.prismodell.type !in Prismodeller.getPrismodellerForTiltak(detaljer.tiltakskode)) {
                     add(
                         FieldError.of(
-                            "Tiltakstype kan ikke endres fordi prismodellen “${currentAvtale.prismodell.prismodell().beskrivelse}” er i bruk",
+                            "Tiltakstype kan ikke endres fordi prismodellen “${currentAvtale.prismodell.type.beskrivelse}” er i bruk",
                             AvtaleDetaljerRequest::tiltakskode,
                         ),
                     )

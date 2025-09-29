@@ -5,11 +5,13 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*
+import no.nav.mulighetsrommet.arena.ArenaMigrering
 
 data class AvtaleDbo(
     val id: UUID,
     val status: AvtaleStatusType,
     val avtalenummer: String?,
+    val opphav: ArenaMigrering.Opphav,
     val detaljer: DetaljerDbo,
     val prismodell: PrismodellDbo,
     val veilederinformasjon: VeilederinformasjonDbo,

@@ -49,7 +49,7 @@ class AvtaleService(
             .bind()
 
         db.transaction {
-            queries.avtale.insert(avtaleDbo)
+            queries.avtale.create(avtaleDbo)
 
             dispatchNotificationToNewAdministrators(
                 avtaleDbo.id,

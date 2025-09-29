@@ -30,13 +30,18 @@ class AvtaleQueries(private val session: Session) {
     fun create(avtaleDbo: AvtaleDbo) = withTransaction(session) {
         insert(avtaleDbo)
         upsertAdministratorer(avtaleDbo.id, avtaleDbo.detaljer.administratorer)
-        upsertPrismodell(avtaleDbo.id, avtaleDbo.prismodell)
+        upsertPrismodell(
+            avtaleDbo.id,
+            avtaleDbo.prismodell.prismodell,
+            avtaleDbo.prismodell.prisbetingelser,
+            avtaleDbo.prismodell.satser,
+        )
         upsertArrangor(avtaleDbo.id, avtaleDbo.detaljer.arrangor)
         upsertNavEnheter(avtaleDbo.id, avtaleDbo.veilederinformasjon.navEnheter)
         upsertUtdanningslop(avtaleDbo.id, avtaleDbo.detaljer.utdanningslop, avtaleDbo.detaljer.amoKategorisering)
     }
 
-    fun insert(avtale: AvtaleDbo) = {
+    fun insert(avtale: AvtaleDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale (
@@ -84,16 +89,6 @@ class AvtaleQueries(private val session: Session) {
         session.execute(queryOf(query, avtale.toSqlParameters()))
     }
 
-    fun updateDetaljer(
-        avtaleId: UUID,
-        detaljerDbo: DetaljerDbo,
-    ) = withTransaction(session) {
-        upsertDetaljer(avtaleId, detaljerDbo)
-        upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
-        upsertArrangor(avtaleId, detaljerDbo.arrangor)
-        upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop, detaljerDbo.amoKategorisering)
-    }
-
     fun upsertAdministratorer(avtaleId: UUID, administratorer: List<NavIdent>) {
         @Language("PostgreSQL")
         val upsertAdministrator = """
@@ -108,12 +103,12 @@ class AvtaleQueries(private val session: Session) {
              where avtale_id = ?::uuid and not (nav_ident = any (?))
         """.trimIndent()
 
-        session.batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it) })
+        session.batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it.value) })
         session.execute(
             queryOf(
                 deleteAdministratorer,
                 avtaleId,
-                session.createArrayOfValue(administratorer) { it },
+                session.createArrayOfValue(administratorer) { it.value },
             ),
         )
     }
@@ -132,8 +127,8 @@ class AvtaleQueries(private val session: Session) {
              where avtale_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
 
-        session.batchPreparedStatement(upsertEnhet, enheter.map { listOf(avtaleId, it) })
-        session.execute(queryOf(deleteEnheter, avtaleId, session.createArrayOfValue(enheter) { it }))
+        session.batchPreparedStatement(upsertEnhet, enheter.map { listOf(avtaleId, it.value) })
+        session.execute(queryOf(deleteEnheter, avtaleId, session.createArrayOfValue(enheter) { it.value }))
     }
 
     fun upsertArrangor(avtaleId: UUID, arrangor: ArrangorDbo?) {
@@ -216,9 +211,15 @@ class AvtaleQueries(private val session: Session) {
         amoKategorisering?.let { AmoKategoriseringQueries(session).upsert(avtaleId, amoKategorisering) }
     }
 
-    fun upsertPrismodell(
+    fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+        upsertPrismodell(id, prismodell = dbo.prismodell, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
+    }
+
+    private fun Session.upsertPrismodell(
         id: UUID,
-        prismodell: PrismodellDbo,
+        prismodell: PrismodellType,
+        prisbetingelser: String?,
+        satser: List<AvtaltSats>,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -228,13 +229,13 @@ class AvtaleQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        session.execute(
+        execute(
             queryOf(
                 query,
                 mapOf(
                     "id" to id,
-                    "prismodell" to prismodell.prismodell.name,
-                    "prisbetingelser" to prismodell.prisbetingelser,
+                    "prismodell" to prismodell.name,
+                    "prisbetingelser" to prisbetingelser,
                 ),
             ),
         )
@@ -244,7 +245,7 @@ class AvtaleQueries(private val session: Session) {
             delete from avtale_sats
             where avtale_id = ?::uuid
         """.trimIndent()
-        session.execute(queryOf(deleteSatser, mapOf("avtale_id" to id)))
+        execute(queryOf(deleteSatser, id))
 
         @Language("PostgreSQL")
         val insertSats = """
@@ -252,9 +253,9 @@ class AvtaleQueries(private val session: Session) {
             values (:avtale_id::uuid, :gjelder_fra::date, :sats)
         """.trimIndent()
 
-        session.batchPreparedNamedStatement(
+        batchPreparedNamedStatement(
             insertSats,
-            prismodell.satser.map {
+            satser.map {
                 mapOf(
                     "avtale_id" to id,
                     "gjelder_fra" to it.gjelderFra,
@@ -262,6 +263,16 @@ class AvtaleQueries(private val session: Session) {
                 )
             },
         )
+    }
+
+    fun updateDetaljer(
+        avtaleId: UUID,
+        detaljerDbo: DetaljerDbo,
+    ) = withTransaction(session) {
+        upsertDetaljer(avtaleId, detaljerDbo)
+        upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
+        upsertArrangor(avtaleId, detaljerDbo.arrangor)
+        upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop, detaljerDbo.amoKategorisering)
     }
 
     fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) {
@@ -285,55 +296,54 @@ class AvtaleQueries(private val session: Session) {
         session.execute(queryOf(query, detaljer.params()))
     }
 
-
-        fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
-            @Language("PostgreSQL")
-            val query = """
+    fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
+        @Language("PostgreSQL")
+        val query = """
                 update avtale
                 set
                     beskrivelse = beskrivelse,
                     faneinnhold = faneinnhold
                  where id = :id::uuid
-            """.trimIndent()
+        """.trimIndent()
 
-            session.execute(queryOf(query, redaksjoneltInnhold.params()))
-        }
+        session.execute(queryOf(query, redaksjoneltInnhold.params()))
+    }
 
-        fun upsertPersonvern(id: UUID, personvernBekreftet: Boolean?, personopplysninger: List<Personopplysning>) = withTransaction(session) {
-            @Language("PostgreSQL")
-            val query = """
+    fun upsertPersonvern(id: UUID, personvernBekreftet: Boolean?, personopplysninger: List<Personopplysning>) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val query = """
                 update avtale
                 set
                     personvern_bekreftet = personvern_bekreftet
                  where id = :id::uuid
-            """.trimIndent()
+        """.trimIndent()
 
-            @Language("PostgreSQL")
-            val updatePersonopplysninger = """
+        @Language("PostgreSQL")
+        val updatePersonopplysninger = """
                 insert into avtale_personopplysning (avtale_id, personopplysning)
                 values (?::uuid, ?::personopplysning)
                 on conflict do nothing
-            """.trimIndent()
+        """.trimIndent()
 
-            @Language("PostgreSQL")
-            val deletePersonopplysninger = """
+        @Language("PostgreSQL")
+        val deletePersonopplysninger = """
                 delete from avtale_personopplysning
                 where avtale_id = ?::uuid and not (personopplysning = any (?))
-            """.trimIndent()
+        """.trimIndent()
 
-            session.batchPreparedStatement(
-                updatePersonopplysninger,
-                personopplysninger.map { listOf<Any>(id, it.name) },
-            )
-            session.execute(
-                queryOf(
-                    deletePersonopplysninger,
-                    id,
-                    session.createArrayOfPersonopplysning(personopplysninger),
-                ),
-            )
-            session.execute(queryOf(query, personvernBekreftet))
-        }
+        session.batchPreparedStatement(
+            updatePersonopplysninger,
+            personopplysninger.map { listOf<Any>(id, it.name) },
+        )
+        session.execute(
+            queryOf(
+                deletePersonopplysninger,
+                id,
+                session.createArrayOfPersonopplysning(personopplysninger),
+            ),
+        )
+        session.execute(queryOf(query, personvernBekreftet))
+    }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {
         val arrangorId = single(
@@ -578,7 +588,13 @@ class AvtaleQueries(private val session: Session) {
         "faneinnhold" to faneinnhold,
     )
 
-    private fun AvtaleDbo.toSqlParameters(): Map<String, Any?> = mapOf("id" to id) +
+    private fun AvtaleDbo.toSqlParameters(): Map<String, Any?> = mapOf(
+        "id" to id,
+        "avtalenummer" to avtalenummer,
+        "prismodell" to prismodell.prismodell.name,
+        "status" to status.name,
+        "opphav" to opphav,
+    ) +
         detaljer.params() +
         personvern.params()
 

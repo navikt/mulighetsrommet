@@ -19,12 +19,14 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import java.util.UUID
+import no.nav.mulighetsrommet.arena.ArenaMigrering
 
 object AvtaleDboMapper {
     fun fromAvtale(avtale: Avtale) = AvtaleDbo(
         id = avtale.id,
         status = avtale.status.type,
         avtalenummer = avtale.avtalenummer,
+        opphav = avtale.opphav,
         detaljer = DetaljerDbo(
             navn = avtale.navn,
             sakarkivnummer = avtale.sakarkivNummer?.value,
@@ -75,6 +77,7 @@ object AvtaleDboMapper {
     ): AvtaleDbo = AvtaleDbo(
         id = avtaleId,
         status = status,
+        opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         detaljer = detaljerDbo,
         prismodell = prismodellDbo,
         veilederinformasjon = veilederinformasjonDbo,
