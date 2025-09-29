@@ -117,8 +117,8 @@ mockk = "io.mockk:mockk:1.14.5"
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:3.0.0"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.09.15_11.12-54be8ac278c0"
-nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.3.0"
 
 opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.54.1"
 
