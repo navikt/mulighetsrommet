@@ -1,4 +1,5 @@
-import { PortableTextObject, PortableTextBlock } from "@portabletext/editor";
+import { PortableTextObject } from "@portabletext/editor";
+import { Faneinnhold, PortableTextTypedObject } from "@tiltaksadministrasjon/api-client";
 
 export enum SupportedDecorator {
   STRONG = "strong",
@@ -19,23 +20,29 @@ export enum SupportedList {
   NUMBER = "number",
 }
 
-function getOrAddKey(obj: { _key: string | null }): string {
+function getOrAddKey(obj: { _key?: string | null }): string {
   return obj._key ?? crypto.randomUUID().slice(0, 8);
 }
 
 // PortableText editor requires _key to not be null in certain blocks
 // Only attemt to fix block if null-key is detected
-export function convertSlateToPortableText(slateData: PortableTextBlock[]): PortableTextBlock[] {
-  if (!slateData || !slateData.length) {
+export function convertSlateToPortableText(
+  slateData: PortableTextTypedObject[] | undefined | null,
+): PortableTextTypedObject[] | undefined {
+  if (!slateData) {
+    return undefined;
+  }
+  if (!slateData.length) {
     return [];
   }
   return slateData.map((block) => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (block._key !== null) {
       // not from slate
       return block;
     }
 
-    const newBlock: PortableTextBlock = { ...block };
+    const newBlock: PortableTextTypedObject = { ...block };
     if (block._type === "block") {
       newBlock["style"] = "normal";
       // required to display anything
@@ -46,7 +53,7 @@ export function convertSlateToPortableText(slateData: PortableTextBlock[]): Port
       }
       // Fix existing links
       if ("markDefs" in newBlock && Array.isArray(newBlock.markDefs)) {
-        newBlock.markDefs = newBlock.markDefs ?? [];
+        newBlock.markDefs = newBlock["markDefs"] ?? [];
         const linkMarkDefIndex = ((newBlock.markDefs || []) as PortableTextObject[]).findIndex(
           (obj) => obj._type === SupportedAnnotation.LINK,
         );
@@ -74,4 +81,21 @@ export function convertSlateToPortableText(slateData: PortableTextBlock[]): Port
     }
     return newBlock;
   });
+}
+
+export function slateFaneinnholdToPortableText(
+  faneinnhold: Faneinnhold | null | undefined,
+): Partial<Faneinnhold> | null {
+  if (!faneinnhold) {
+    return null;
+  }
+
+  return {
+    ...faneinnhold,
+    forHvem: convertSlateToPortableText(faneinnhold.forHvem),
+    detaljerOgInnhold: convertSlateToPortableText(faneinnhold.detaljerOgInnhold),
+    pameldingOgVarighet: convertSlateToPortableText(faneinnhold.pameldingOgVarighet),
+    kontaktinfo: convertSlateToPortableText(faneinnhold.kontaktinfo),
+    oppskrift: convertSlateToPortableText(faneinnhold.oppskrift),
+  };
 }

@@ -14,12 +14,7 @@ import { Link, Tooltip } from "@navikt/ds-react";
 import "./portableTextEditor.css";
 import { PortableTextEditorToolbar } from "./PortableTextToolbar";
 import { Controller, useFormContext } from "react-hook-form";
-import {
-  convertSlateToPortableText,
-  SupportedAnnotation,
-  SupportedDecorator,
-  SupportedList,
-} from "./helper";
+import { SupportedAnnotation, SupportedDecorator, SupportedList } from "./helper";
 
 // Define the schema for the editor
 // All options are optional
@@ -81,13 +76,12 @@ export function PortableTextEditor({
   onChange,
   schema = schemaDefinition,
 }: PortableTextEditorProps) {
-  const slateConverted = convertSlateToPortableText(value);
   return (
     <>
       <EditorProvider
         initialConfig={{
           schemaDefinition: schema,
-          initialValue: slateConverted,
+          initialValue: value,
         }}
       >
         <EventListenerPlugin
