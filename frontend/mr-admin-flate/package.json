@@ -57,7 +57,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@mr/eslint-config-react-app": "workspace:*",
-    "@playwright/test": "1.55.0",
+    "@playwright/test": "1.55.1",
     "@rollup/plugin-terser": "0.4.4",
     "@tailwindcss/postcss": "4.1.13",
     "@tailwindcss/typography": "0.5.16",
@@ -74,7 +74,7 @@
     "eslint": "9.35.0",
     "happy-dom": "18.0.1",
     "msw": "2.11.2",
-    "playwright": "1.55.0",
+    "playwright": "1.55.1",
     "tailwindcss": "4.1.13",
     "typescript": "5.9.2",
     "vite": "7.1.5",
