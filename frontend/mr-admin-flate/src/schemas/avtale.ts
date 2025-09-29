@@ -102,7 +102,7 @@ export function defaultAvtaleData(
     satser: avtale?.prismodell?.satser ?? [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-        ? (avtale.prismodell.prisbetingelser ?? undefined)
-        : undefined,
+        ? (avtale.prismodell.prisbetingelser ?? null)
+        : null,
   };
 }
