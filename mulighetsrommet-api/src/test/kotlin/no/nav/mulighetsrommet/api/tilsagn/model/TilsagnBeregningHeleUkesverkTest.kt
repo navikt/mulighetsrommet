@@ -60,6 +60,17 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         ).output.belop shouldBe 0
     }
 
+    test("en ukedag gir 1 uke hvis 3 ukedager er i samme måned") {
+        TilsagnBeregningPrisPerHeleUkesverk.beregn(
+            TilsagnBeregningPrisPerHeleUkesverk.Input(
+                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2)),
+                sats = 100,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            ),
+        ).output.belop shouldBe 100
+    }
+
     test("helgedager gir ingen ingenting") {
         val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
             periode = Periode(LocalDate.of(2025, 1, 11), LocalDate.of(2025, 1, 13)),
