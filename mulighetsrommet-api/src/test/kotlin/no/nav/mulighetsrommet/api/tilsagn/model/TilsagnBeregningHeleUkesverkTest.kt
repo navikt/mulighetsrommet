@@ -40,15 +40,24 @@ class TilsagnBeregningHeleUkesverkTest : FunSpec({
         TilsagnBeregningPrisPerHeleUkesverk.beregn(input).output.belop shouldBe 100
     }
 
-    test("to ukedager gir ingenting") {
-        val input = TilsagnBeregningPrisPerHeleUkesverk.Input(
-            periode = Periode(LocalDate.of(2025, 1, 9), LocalDate.of(2025, 1, 11)),
-            sats = 100,
-            antallPlasser = 1,
-            prisbetingelser = null,
-        )
+    test("to ukedager gir 1 uke hvis hele uken er i samme måned") {
+        TilsagnBeregningPrisPerHeleUkesverk.beregn(
+            TilsagnBeregningPrisPerHeleUkesverk.Input(
+                periode = Periode(LocalDate.of(2025, 1, 9), LocalDate.of(2025, 1, 11)),
+                sats = 100,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            ),
+        ).output.belop shouldBe 100
 
-        TilsagnBeregningPrisPerHeleUkesverk.beregn(input).output.belop shouldBe 0
+        TilsagnBeregningPrisPerHeleUkesverk.beregn(
+            TilsagnBeregningPrisPerHeleUkesverk.Input(
+                periode = Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 3)),
+                sats = 100,
+                antallPlasser = 1,
+                prisbetingelser = null,
+            ),
+        ).output.belop shouldBe 0
     }
 
     test("helgedager gir ingen ingenting") {
