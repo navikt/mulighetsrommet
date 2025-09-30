@@ -16,6 +16,7 @@ import {
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { slateFaneinnholdToPortableText } from "../components/portableText/helper";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().nullable(),
@@ -87,7 +88,7 @@ export function defaultAvtaleData(
     sluttDato: avtale?.sluttDato ?? null,
     sakarkivNummer: avtale?.sakarkivNummer ?? null,
     beskrivelse: avtale?.beskrivelse ?? null,
-    faneinnhold: avtale?.faneinnhold ?? null,
+    faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
     // TODO: fiks typer
@@ -102,7 +103,7 @@ export function defaultAvtaleData(
     satser: avtale?.prismodell?.satser ?? [],
     prisbetingelser:
       avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-        ? (avtale.prismodell.prisbetingelser ?? undefined)
-        : undefined,
+        ? (avtale.prismodell.prisbetingelser ?? null)
+        : null,
   };
 }

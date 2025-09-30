@@ -17,8 +17,12 @@ class ArenaEventConsumer(
     override suspend fun consume(key: String, message: JsonElement) {
         MDC.put("correlationId", key)
 
-        val data = decodeArenaEvent(message)
-        arenaEventService.processEvent(data)
+        try {
+            val data = decodeArenaEvent(message)
+            arenaEventService.processEvent(data)
+        } finally {
+            MDC.remove("correlationId")
+        }
     }
 }
 
