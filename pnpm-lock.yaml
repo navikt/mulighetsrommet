@@ -102,6 +102,12 @@ importers:
       '@axe-core/playwright':
         specifier: 4.10.2
         version: 4.10.2(playwright-core@1.55.1)
+      '@grafana/faro-react':
+        specifier: ^1.19.0
+        version: 1.19.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@grafana/faro-web-tracing':
+        specifier: ^1.19.0
+        version: 1.19.0
       '@mjackson/form-data-parser':
         specifier: 0.9.1
         version: 0.9.1
@@ -421,7 +427,7 @@ importers:
         version: 7.31.0
       '@portabletext/editor':
         specifier: 2.13.2
-        version: 2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
+        version: 2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
       '@portabletext/react':
         specifier: 4.0.3
         version: 4.0.3(react@19.0.0)
@@ -605,7 +611,7 @@ importers:
         version: 7.1.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       sanity:
         specifier: 4.8.1
-        version: 4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1)
+        version: 4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1)
       styled-components:
         specifier: 6.1.19
         version: 6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1938,8 +1944,23 @@ packages:
   '@grafana/faro-core@1.19.0':
     resolution: {integrity: sha512-Juo5G/aviSh3XqSGGr6D61noAC8sb+oCawBsv545ILEeOQdINyzRaoQdRpnXEY3DLS9LYtL0PYhvHZiP3rlscQ==}
 
+  '@grafana/faro-react@1.19.0':
+    resolution: {integrity: sha512-3rrqxgDefvlaZ8753Wen8AxUmCKxOLYPspJMw60u4WvRSj/ki7XN3RjuRAc2AkuHm342jTs7EU0jwDBXAUWTgg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-router-dom: ^4.0.0 || ^5.0.0 || ^6.0.0
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-router-dom:
+        optional: true
+
   '@grafana/faro-web-sdk@1.19.0':
     resolution: {integrity: sha512-3u74mV2uBWqoF6WBx71p0vtkaS1Z0QbGoZ8tuX5yiYnIybqnhKdGkApFUi7q5se0tMPIeJdMVoRFdLU8f9hfAw==}
+
+  '@grafana/faro-web-tracing@1.19.0':
+    resolution: {integrity: sha512-p37kQ/n8vU53ISCMvUn42upbGKqiRZI/QspHGx6kI7nDD5CJIl/2Byzg9vGDuw9BgMEOCIS8Oz6b5+U05kfKdQ==}
 
   '@hey-api/codegen-core@0.2.0':
     resolution: {integrity: sha512-c7VjBy/8ed0EVLNgaeS9Xxams1Tuv/WK/b4xXH3Qr4wjzYeJUtxOcoP8YdwNLavqKP8pGiuctjX2Z1Pwc4jMgQ==}
@@ -2231,9 +2252,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.31.0':
     resolution: {integrity: sha512-9S5Ovm/4Z7MQOUqOPCaEXciPd1uN+nhuF7LYTMKCKbEeZDvUnXEbQmYkMcT3spLX2sos0gTVICKP0ymuuxzH5g==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.31.0/1da57e8287c33c61d1d8c51d4aa0ad9e4d8db21b}
@@ -2249,9 +2267,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.8.0':
     resolution: {integrity: sha512-5CDsv3wop9eIw2YNBCJRr0w6PwwkoTiHzZQXn1+5YZnsksCkHJAFsfKSbRle6zgsD+XRBnc/TPOP0nvNly7NWg==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.8.0/fc6862d934adfbefa382220614af18160688cd1e}
@@ -2359,6 +2374,42 @@ packages:
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
+  '@opentelemetry/core@2.1.0':
+    resolution: {integrity: sha512-RMEtHsxJs/GiHHxYT58IY57UXAQTuUnZVco6ymDEqTNlJKTimM4qPUPVe8InNFyBjhHBEAx4k3Q8LtNayBsbUQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/exporter-trace-otlp-http@0.202.0':
+    resolution: {integrity: sha512-/hKE8DaFCJuaQqE1IxpgkcjOolUIwgi3TgHElPVKGdGRBSmJMTmN/cr6vWa55pCJIXPyhKvcMrbrya7DZ3VmzA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-fetch@0.202.0':
+    resolution: {integrity: sha512-RlLgOJAKs9cQIRXPoLnS6YG8CeQt1gR+WJpzthQlqt4hdgNmfnyB7zZrg1yddECF0K2lPGBqF4s+IqjA4dy3JQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation-xml-http-request@0.202.0':
+    resolution: {integrity: sha512-N0wZyWpdUviscnhNKbRr2mEEfTtVi0ki7v6Lr9ZsK5mUtg12e9Mf/LsT2Msl7tvyGDGGi8Tmm8ssFrfLOADqDw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/instrumentation@0.202.0':
+    resolution: {integrity: sha512-Uz3BxZWPgDwgHM2+vCKEQRh0R8WKrd/q6Tus1vThRClhlPO39Dyz7mDrOr6KuqGXAlBQ1e5Tnymzri4RMZNaWA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
+  '@opentelemetry/otlp-exporter-base@0.202.0':
+    resolution: {integrity: sha512-nMEOzel+pUFYuBJg2znGmHJWbmvMbdX5/RhoKNKowguMbURhz0fwik5tUKplLcUtl8wKPL1y9zPnPxeBn65N0Q==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+
   '@opentelemetry/otlp-transformer@0.202.0':
     resolution: {integrity: sha512-5XO77QFzs9WkexvJQL9ksxL8oVFb/dfi9NWQSq7Sv0Efr9x3N+nb1iklP1TeVgxqJ7m1xWiC/Uv3wupiQGevMw==}
     engines: {node: ^18.19.0 || >=20.6.0}
@@ -2367,6 +2418,12 @@ packages:
 
   '@opentelemetry/resources@2.0.1':
     resolution: {integrity: sha512-dZOB3R6zvBwDKnHDTB4X1xtMArB/d324VsbiPkX/Yu0Q8T2xceRthoIVFhJdvgVM2QhGVUyX9tzwiNxGtoBJUw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/resources@2.1.0':
+    resolution: {integrity: sha512-1CJjf3LCvoefUOgegxi8h6r4B/wLSzInyhGP2UmIBYNlo4Qk5CZ73e1eEyWmfXvFtm1ybkmfb2DqWvspsYLrWw==}
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
@@ -2388,6 +2445,24 @@ packages:
     engines: {node: ^18.19.0 || >=20.6.0}
     peerDependencies:
       '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/sdk-trace-base@2.1.0':
+    resolution: {integrity: sha512-uTX9FBlVQm4S2gVQO1sb5qyBLq/FPjbp+tmGoxu4tIgtYGmBYB44+KX/725RFDe30yBSaA9Ml9fqphe1hbUyLQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+
+  '@opentelemetry/sdk-trace-web@2.0.1':
+    resolution: {integrity: sha512-R4/i0rISvAujG4Zwk3s6ySyrWG+Db3SerZVM4jZ2lEzjrNylF7nRAy1hVvWe8gTbwIxX+6w6ZvZwdtl2C7UQHQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+
+  '@opentelemetry/sdk-trace-web@2.1.0':
+    resolution: {integrity: sha512-2F6ZuZFmJg4CdhRPP8+60DkvEwGLCiU3ffAkgnnqe/ALGEBqGa0HrZaNWFGprXWVivrYHpXhr7AEfasgLZD71g==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
   '@opentelemetry/semantic-conventions@1.36.0':
     resolution: {integrity: sha512-TtxJSRD8Ohxp6bKkhrm27JRHAxPczQA7idtcTOMYI+wQRRrfgqxHv1cFbCApcSnNjtXkmzFozn6jQtFrOmbjPQ==}
@@ -3597,6 +3672,11 @@ packages:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
     engines: {node: '>= 0.6'}
 
+  acorn-import-attributes@1.9.5:
+    resolution: {integrity: sha512-n02Vykv5uA3eHGM/Z2dQrcD56kL8TyDb2p1+0P83PClMnC/nc+anbQRhIOWnSq4Ke/KvDPrY3C9hDtC/A3eHnQ==}
+    peerDependencies:
+      acorn: ^8
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -4034,6 +4114,9 @@ packages:
 
   citty@0.1.6:
     resolution: {integrity: sha512-tskPPKEs8D2KPafUypv2gxwJP8h/OaJmC82QQGGDQcHvXX43xF2VDACcJVmZ0EuSxkpO9Kc4MlrA3q0+FG58AQ==}
+
+  cjs-module-lexer@1.4.3:
+    resolution: {integrity: sha512-9z8TZaGM1pfswYeXrUpzPrkx8UnWYdhJclsiYMm6x/w5+nN+8Tf/LnAgfLGQCm59qAOxU8WwHEq2vNwF6i4j+Q==}
 
   classnames@2.5.1:
     resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
@@ -5337,6 +5420,9 @@ packages:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
 
+  import-in-the-middle@1.14.4:
+    resolution: {integrity: sha512-eWjxh735SJLFJJDs5X82JQ2405OdJeAHDBnaoFCfdr5GVc7AWc9xU7KbrF+3Xd5F2ccP1aQFKtY+65X6EfKZ7A==}
+
   imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
@@ -6273,6 +6359,9 @@ packages:
   module-alias@2.2.3:
     resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
 
+  module-details-from-path@1.0.4:
+    resolution: {integrity: sha512-EGWKgxALGMgzvxYF1UyGTy0HXX/2vHLkw6+NvDKW2jypWbHpjQuj4UMcqQWXHERJhVGKikolT06G3bcKe4fi7w==}
+
   morgan@1.10.1:
     resolution: {integrity: sha512-223dMRJtI/l25dJKWpgij2cMtywuG/WiUKXdvwfbhGKBhy1puASqXwFzmWZ7+K73vUPoR7SS2Qz2cI/g9MKw0A==}
     engines: {node: '>= 0.8.0'}
@@ -7159,6 +7248,10 @@ packages:
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+
+  require-in-the-middle@7.5.2:
+    resolution: {integrity: sha512-gAZ+kLqBdHarXB64XpAe2VCjB7rIRv+mU8tfRWziHRJ5umKsIHN2tLLv6EtMw7WCdP19S0ERVMldNvxYCHnhSQ==}
+    engines: {node: '>=8.6.0'}
 
   requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
@@ -10064,11 +10157,38 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/otlp-transformer': 0.202.0(@opentelemetry/api@1.9.0)
 
+  '@grafana/faro-react@1.19.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@grafana/faro-web-sdk': 1.19.0
+      '@grafana/faro-web-tracing': 1.19.0
+      hoist-non-react-statics: 3.3.2
+      react: 19.0.0
+    optionalDependencies:
+      react-dom: 19.0.0(react@19.0.0)
+    transitivePeerDependencies:
+      - supports-color
+
   '@grafana/faro-web-sdk@1.19.0':
     dependencies:
       '@grafana/faro-core': 1.19.0
       ua-parser-js: 1.0.40
       web-vitals: 4.2.4
+
+  '@grafana/faro-web-tracing@1.19.0':
+    dependencies:
+      '@grafana/faro-web-sdk': 1.19.0
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/exporter-trace-otlp-http': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-fetch': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation-xml-http-request': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-web': 2.1.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@hey-api/codegen-core@0.2.0(typescript@5.9.2)':
     dependencies:
@@ -10376,12 +10496,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.31.0
       '@navikt/ds-tokens': 7.31.0
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -10395,7 +10514,6 @@ snapshots:
       html-react-parser: 5.2.6(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 27.0.0(postcss@8.5.6)
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@3.8.0':
@@ -10548,6 +10666,55 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.36.0
 
+  '@opentelemetry/core@2.1.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.36.0
+
+  '@opentelemetry/exporter-trace-otlp-http@0.202.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-exporter-base': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/instrumentation-fetch@0.202.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-web': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation-xml-http-request@0.202.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/instrumentation': 0.202.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-web': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/instrumentation@0.202.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/api-logs': 0.202.0
+      import-in-the-middle: 1.14.4
+      require-in-the-middle: 7.5.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@opentelemetry/otlp-exporter-base@0.202.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/otlp-transformer': 0.202.0(@opentelemetry/api@1.9.0)
+
   '@opentelemetry/otlp-transformer@0.202.0(@opentelemetry/api@1.9.0)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -10563,6 +10730,12 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
+
+  '@opentelemetry/resources@2.1.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.1.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.36.0
 
   '@opentelemetry/sdk-logs@0.202.0(@opentelemetry/api@1.9.0)':
@@ -10584,6 +10757,25 @@ snapshots:
       '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/resources': 2.0.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/semantic-conventions': 1.36.0
+
+  '@opentelemetry/sdk-trace-base@2.1.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.1.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/resources': 2.1.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/semantic-conventions': 1.36.0
+
+  '@opentelemetry/sdk-trace-web@2.0.1(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.1(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.0.1(@opentelemetry/api@1.9.0)
+
+  '@opentelemetry/sdk-trace-web@2.1.0(@opentelemetry/api@1.9.0)':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.1.0(@opentelemetry/api@1.9.0)
+      '@opentelemetry/sdk-trace-base': 2.1.0(@opentelemetry/api@1.9.0)
 
   '@opentelemetry/semantic-conventions@1.36.0': {}
 
@@ -10670,9 +10862,9 @@ snapshots:
     transitivePeerDependencies:
       - '@sanity/schema'
 
-  '@portabletext/block-tools@3.5.7(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)':
+  '@portabletext/block-tools@3.5.7(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)':
     dependencies:
-      '@portabletext/sanity-bridge': 1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))
+      '@portabletext/sanity-bridge': 1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))
       '@portabletext/schema': 1.2.0
       '@sanity/types': 4.8.1(@types/react@19.0.3)(debug@4.4.3)
       '@types/react': 19.0.3
@@ -10681,12 +10873,12 @@ snapshots:
     transitivePeerDependencies:
       - '@sanity/schema'
 
-  '@portabletext/editor@2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)':
+  '@portabletext/editor@2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)':
     dependencies:
-      '@portabletext/block-tools': 3.5.7(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)
+      '@portabletext/block-tools': 3.5.7(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)
       '@portabletext/keyboard-shortcuts': 1.1.1
       '@portabletext/patches': 1.1.8
-      '@portabletext/sanity-bridge': 1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))
+      '@portabletext/sanity-bridge': 1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))
       '@portabletext/schema': 1.2.0
       '@portabletext/to-html': 3.0.0
       '@sanity/schema': 4.8.1(@types/react@19.0.3)(debug@4.4.3)
@@ -10722,7 +10914,7 @@ snapshots:
       '@portabletext/types': 2.0.15
       react: 19.0.0
 
-  '@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))':
+  '@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))':
     dependencies:
       '@portabletext/schema': 1.2.0
       '@sanity/schema': 4.8.1(@types/react@19.0.3)(debug@4.4.3)
@@ -10747,7 +10939,7 @@ snapshots:
 
   '@portabletext/toolbar@2.2.16(@portabletext/editor@2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)':
     dependencies:
-      '@portabletext/editor': 2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
+      '@portabletext/editor': 2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
       '@portabletext/keyboard-shortcuts': 1.1.1
       '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.0)(xstate@5.22.0)
       react: 19.0.0
@@ -11283,13 +11475,13 @@ snapshots:
     transitivePeerDependencies:
       - '@sanity/types'
 
-  '@sanity/preview-url-secret@2.1.15(@sanity/client@7.11.1)(@sanity/icons@3.7.4(react@19.0.0))(sanity@4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1))':
+  '@sanity/preview-url-secret@2.1.15(@sanity/client@7.11.1)(@sanity/icons@3.7.4(react@19.0.0))(sanity@4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1))':
     dependencies:
       '@sanity/client': 7.11.1(debug@4.4.3)
       '@sanity/uuid': 3.0.2
     optionalDependencies:
       '@sanity/icons': 3.7.4(react@19.0.0)
-      sanity: 4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1)
+      sanity: 4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1)
 
   '@sanity/runtime-cli@10.7.0(@types/node@24.4.0)(debug@4.4.3)(lightningcss@1.30.1)(sass-embedded@1.92.1)(sass@1.92.1)(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1)':
     dependencies:
@@ -12110,6 +12302,10 @@ snapshots:
       mime-types: 3.0.1
       negotiator: 1.0.0
 
+  acorn-import-attributes@1.9.5(acorn@8.15.0):
+    dependencies:
+      acorn: 8.15.0
+
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
       acorn: 8.15.0
@@ -12603,6 +12799,8 @@ snapshots:
   citty@0.1.6:
     dependencies:
       consola: 3.4.2
+
+  cjs-module-lexer@1.4.3: {}
 
   classnames@2.5.1: {}
 
@@ -14107,6 +14305,13 @@ snapshots:
       parent-module: 1.0.1
       resolve-from: 4.0.0
 
+  import-in-the-middle@1.14.4:
+    dependencies:
+      acorn: 8.15.0
+      acorn-import-attributes: 1.9.5(acorn@8.15.0)
+      cjs-module-lexer: 1.4.3
+      module-details-from-path: 1.0.4
+
   imurmurhash@0.1.4: {}
 
   indent-string@4.0.0: {}
@@ -15112,6 +15317,8 @@ snapshots:
 
   module-alias@2.2.3: {}
 
+  module-details-from-path@1.0.4: {}
+
   morgan@1.10.1:
     dependencies:
       basic-auth: 2.0.1
@@ -16103,6 +16310,14 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
+  require-in-the-middle@7.5.2:
+    dependencies:
+      debug: 4.4.3(supports-color@8.1.1)
+      module-details-from-path: 1.0.4
+      resolve: 1.22.10
+    transitivePeerDependencies:
+      - supports-color
+
   requires-port@1.0.0: {}
 
   reselect@5.1.1: {}
@@ -16251,7 +16466,7 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sanity@4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1):
+  sanity@4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1):
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@dnd-kit/modifiers': 6.0.1(@dnd-kit/core@6.3.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
@@ -16261,7 +16476,7 @@ snapshots:
       '@juggle/resize-observer': 3.4.0
       '@mux/mux-player-react': 3.6.0(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@portabletext/block-tools': 3.5.5(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)
-      '@portabletext/editor': 2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
+      '@portabletext/editor': 2.13.2(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
       '@portabletext/react': 4.0.3(react@19.0.0)
       '@portabletext/toolkit': 3.0.1
       '@rexxars/react-json-inspector': 9.0.1(react@19.0.0)
@@ -16287,7 +16502,7 @@ snapshots:
       '@sanity/migrate': 4.8.1(@types/react@19.0.3)
       '@sanity/mutator': 4.8.1(@types/react@19.0.3)
       '@sanity/presentation-comlink': 1.0.29(@sanity/client@7.11.1)(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3))
-      '@sanity/preview-url-secret': 2.1.15(@sanity/client@7.11.1)(@sanity/icons@3.7.4(react@19.0.0))(sanity@4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3))(@sanity/types@4.8.1(@types/react@19.0.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1))
+      '@sanity/preview-url-secret': 2.1.15(@sanity/client@7.11.1)(@sanity/icons@3.7.4(react@19.0.0))(sanity@4.8.1(@emotion/is-prop-valid@1.3.1)(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.8.1(@types/react@19.0.3)(debug@4.4.3))(@sanity/types@4.8.1(@types/react@19.0.3)(debug@4.4.3)))(@types/node@24.4.0)(@types/react@19.0.3)(immer@10.1.3)(jiti@2.6.0)(lightningcss@1.30.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass-embedded@1.92.1)(sass@1.92.1)(styled-components@6.1.19(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(terser@5.40.0)(typescript@5.9.2)(yaml@2.8.1))
       '@sanity/schema': 4.8.1(@types/react@19.0.3)(debug@4.4.3)
       '@sanity/sdk': 2.1.2(@types/react@19.0.3)(debug@4.4.3)(immer@10.1.3)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
       '@sanity/telemetry': 0.8.1(react@19.0.0)
