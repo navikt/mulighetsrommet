@@ -309,4 +309,52 @@ class UtbetalingQueriesTest : FunSpec({
             }
         }
     }
+
+    context("utbetaling med beregning for hele ukesverk") {
+        test("upsert and get beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val queries = UtbetalingQueries(session)
+
+                val deltakelse1Id = UUID.randomUUID()
+                val deltakelse2Id = UUID.randomUUID()
+                val beregning = UtbetalingBeregningPrisPerHeleUkesverk(
+                    input = UtbetalingBeregningPrisPerHeleUkesverk.Input(
+                        sats = 2999,
+                        periode = periode,
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
+                                "Ferie",
+                            ),
+                        ),
+                        deltakelser = setOf(
+                            DeltakelsePeriode(
+                                deltakelseId = deltakelse1Id,
+                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 10)),
+                            ),
+                            DeltakelsePeriode(
+                                deltakelseId = deltakelse2Id,
+                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
+                            ),
+                        ),
+                    ),
+                    output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
+                        belop = 5999,
+                        deltakelser = setOf(
+                            DeltakelseUkesverk(deltakelse1Id, 2.0),
+                            DeltakelseUkesverk(deltakelse2Id, 4.0),
+                        ),
+                    ),
+                )
+
+                queries.upsert(utbetaling.copy(beregning = beregning))
+
+                queries.get(utbetaling.id).shouldNotBeNull().should {
+                    it.beregning shouldBe beregning
+                }
+            }
+        }
+    }
 })

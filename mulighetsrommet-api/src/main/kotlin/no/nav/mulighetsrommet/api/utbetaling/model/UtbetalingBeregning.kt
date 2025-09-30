@@ -173,7 +173,12 @@ object UtbetalingBeregningHelpers {
         val ukesverk = deltakelse.periode
             .subtractPeriods(stengtHosArrangor)
             .map { periode ->
-                getWholeWeeksFraction(periode)
+                periode
+                    .splitByWeek()
+                    .count { week ->
+                        week.getWeekdayCount() > 0
+                    }
+                    .toBigDecimal()
             }
             .sumOf { it }
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
@@ -192,7 +197,15 @@ object UtbetalingBeregningHelpers {
     }
 
     fun calculateWholeWeeksInPeriode(periode: Periode): BigDecimal {
-        return getWholeWeeksFraction(periode)
+        return periode
+            .splitByWeek()
+            .count { week ->
+                val monday = week.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                val sunday = week.getLastInclusiveDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                val weekdayCount = week.getWeekdayCount()
+                weekdayCount >= 3 || (monday.month == sunday.month && weekdayCount > 0)
+            }
+            .toBigDecimal()
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
     }
 
@@ -240,17 +253,5 @@ object UtbetalingBeregningHelpers {
         val weekdayCount = periode.getWeekdayCount()
         val weekdays = BigDecimal(5)
         return weekdayCount.toBigDecimal().divide(weekdays, CALCULATION_PRECISION, RoundingMode.HALF_UP)
-    }
-
-    private fun getWholeWeeksFraction(periode: Periode): BigDecimal {
-        return periode
-            .splitByWeek()
-            .count { week ->
-                val monday = week.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                val sunday = week.getLastInclusiveDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                val weekdayCount = week.getWeekdayCount()
-                weekdayCount >= 3 || (monday.month == sunday.month && weekdayCount > 0)
-            }
-            .toBigDecimal()
     }
 }

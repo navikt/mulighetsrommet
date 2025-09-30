@@ -190,5 +190,10 @@ class PeriodeTest : FunSpec({
             period("2025-09-23", "2025-09-29"),
             period("2025-09-29", "2025-10-01"),
         )
+
+        period("2025-09-23", "2025-10-01").splitByWeek().shouldContainExactly(
+            period("2025-09-23", "2025-09-29"),
+            period("2025-09-29", "2025-10-01"),
+        )
     }
 })

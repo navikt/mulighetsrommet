@@ -79,6 +79,7 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
                 is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
+                is UtbetalingBeregningPrisPerHeleUkesverk -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
             }.name,
             "belop_beregnet" to dbo.beregning.output.belop,
             "innsender" to dbo.innsender?.textRepr(),
@@ -111,6 +112,14 @@ class UtbetalingQueries(private val session: Session) {
             )
 
             is UtbetalingBeregningPrisPerUkesverk -> upsertBeregning(
+                dbo.id,
+                dbo.beregning.input.sats,
+                dbo.beregning.input.stengt,
+                dbo.beregning.input.deltakelser,
+                dbo.beregning.output.deltakelser,
+            )
+
+            is UtbetalingBeregningPrisPerHeleUkesverk -> upsertBeregning(
                 dbo.id,
                 dbo.beregning.input.sats,
                 dbo.beregning.input.stengt,
@@ -468,6 +477,7 @@ class UtbetalingQueries(private val session: Session) {
 
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
             UtbetalingBeregningType.PRIS_PER_UKESVERK -> getBeregningPrisPerUkesverk(id)
+            UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK -> getBeregningPrisPerHeleUkesverk(id)
         }
     }
 
@@ -556,6 +566,30 @@ class UtbetalingQueries(private val session: Session) {
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
                 output = UtbetalingBeregningPrisPerUkesverk.Output(
+                    belop = row.int("belop_beregnet"),
+                    deltakelser = Json.decodeFromString(row.string("ukesverk_json")),
+                ),
+            )
+        }
+    }
+
+    private fun getBeregningPrisPerHeleUkesverk(id: UUID): UtbetalingBeregningPrisPerHeleUkesverk {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling_beregning_ukesverk
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) { row ->
+            UtbetalingBeregningPrisPerHeleUkesverk(
+                input = UtbetalingBeregningPrisPerHeleUkesverk.Input(
+                    periode = row.periode("periode"),
+                    sats = row.int("sats"),
+                    stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
+                ),
+                output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
                     belop = row.int("belop_beregnet"),
                     deltakelser = Json.decodeFromString(row.string("ukesverk_json")),
                 ),

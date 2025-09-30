@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.PersonEnhetOgRegion
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -22,7 +23,7 @@ data class UtbetalingBeregningDto(
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
-                    heading = "Annen avtalt pris",
+                    heading = PrismodellType.ANNEN_AVTALT_PRIS.beskrivelse,
                     deltakerRegioner = regioner,
                     deltakerTableData = friTable(deltakelsePersoner),
                     regnestykke = listOf(
@@ -40,7 +41,7 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = "Fast sats per tiltaksplass per måned",
+                        heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.beskrivelse,
                         deltakerRegioner = regioner,
                         deltakerTableData = manedsverkTable(deltakelsePersoner, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
@@ -55,7 +56,7 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = "Avtalt månedpris per tiltaksplass",
+                        heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.beskrivelse,
                         deltakerRegioner = regioner,
                         deltakerTableData = manedsverkTable(deltakelsePersoner, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
@@ -70,7 +71,30 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = "Avtalt ukespris per tiltaksplass",
+                        heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.beskrivelse,
+                        deltakerRegioner = regioner,
+                        deltakerTableData = ukesverkTable(deltakelsePersoner, sats),
+                        regnestykke = listOf(
+                            DataElement.number(ukesverkTotal),
+                            DataElement.text("uker"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            DataElement.nok(sats),
+                            DataElement.text("per tiltaksplass per uke"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                            DataElement.nok(belop),
+                        ),
+                    )
+                }
+
+                is UtbetalingBeregningPrisPerHeleUkesverk -> {
+                    val sats = getSats(utbetaling.beregning.input)
+                    val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
+                        deltakelsePersoner.map { it.first }.toSet(),
+                        sats,
+                    )
+                    UtbetalingBeregningDto(
+                        heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.beskrivelse,
                         deltakerRegioner = regioner,
                         deltakerTableData = ukesverkTable(deltakelsePersoner, sats),
                         regnestykke = listOf(
@@ -94,6 +118,7 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input -> input.sats
         is UtbetalingBeregningPrisPerManedsverk.Input -> input.sats
         is UtbetalingBeregningPrisPerUkesverk.Input -> input.sats
+        is UtbetalingBeregningPrisPerHeleUkesverk.Input -> input.sats
         is UtbetalingBeregningFri.Input -> throw IllegalArgumentException("UtbetalingBeregningFri har ingen sats")
     }
 }

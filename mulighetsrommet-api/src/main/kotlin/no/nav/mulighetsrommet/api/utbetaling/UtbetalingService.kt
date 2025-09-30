@@ -210,6 +210,7 @@ class UtbetalingService(
             is UtbetalingBeregningFri,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
             -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
