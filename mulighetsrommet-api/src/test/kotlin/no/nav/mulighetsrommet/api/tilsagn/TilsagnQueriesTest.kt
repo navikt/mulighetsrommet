@@ -194,7 +194,7 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
-        test("upsert beregning - pris per ukesverk (hele uker)") {
+        test("upsert beregning - Avtalt pris per uke med påbegynt oppfølging per deltaker") {
             database.runAndRollback { session ->
                 domain.setup(session)
 
