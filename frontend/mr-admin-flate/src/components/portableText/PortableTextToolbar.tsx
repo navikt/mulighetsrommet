@@ -8,7 +8,7 @@ import {
   useDecoratorButton,
   useToolbarSchema,
 } from "@portabletext/toolbar";
-import { RefObject, useRef, useState } from "react";
+import { FormEvent, FormEventHandler, RefObject, useRef, useState } from "react";
 import { SupportedDecorator, SupportedList } from "./helper";
 
 export function PortableTextEditorToolbar() {
@@ -143,8 +143,9 @@ function AnnotationButton({
 
 function LinkModal({ modalRef }: { modalRef: RefObject<HTMLDialogElement | null> }) {
   const editor = useEditor();
-  const [href, setHref] = useState<string>();
-  const clickHandler = () => {
+  const inputName = "lenke";
+  const clickHandler = (form: FormData) => {
+    const href = form.get(inputName);
     editor.send({
       type: "annotation.add",
       annotation: {
@@ -152,17 +153,27 @@ function LinkModal({ modalRef }: { modalRef: RefObject<HTMLDialogElement | null>
         value: { href },
       },
     });
-    setHref(undefined);
     modalRef.current?.close();
     editor.send({ type: "focus" });
   };
   return (
-    <Modal ref={modalRef} header={{ heading: "Skriv inn lenke" }} width={400}>
+    <Modal ref={modalRef} header={{ heading: "Skriv inn lenke" }} width={400} portal>
       <Modal.Body>
-        <TextField label="Lenke" value={href} onChange={(val) => setHref(val.target.value)} />
+        <form
+          method="dialog"
+          id="skjema"
+          onSubmit={(e: FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
+            clickHandler(new FormData(e.currentTarget));
+            e.currentTarget.reset();
+          }}
+        >
+          <TextField label="Lenke" name={inputName} />
+        </form>
       </Modal.Body>
       <Modal.Footer>
-        <Button type="button" onClick={clickHandler}>
+        <Button form="skjema" type="submit">
           Bekreft
         </Button>
         <Button type="button" variant="secondary" onClick={() => modalRef.current?.close()}>
