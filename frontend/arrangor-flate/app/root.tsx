@@ -152,6 +152,14 @@ export const ErrorBoundary = () => {
       </Dokument>
     );
   } else {
+    let message: string | undefined;
+
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === "string") {
+      message = error;
+    }
+
     return (
       <Dokument arrangorer={[]}>
         <ErrorPage
@@ -159,6 +167,7 @@ export const ErrorBoundary = () => {
           body={[
             "Det oppstod en uventet feil. Dette er ikke din feil, men vår.",
             "Vi jobber med å løse problemet. Vennligst prøv igjen senere.",
+            "Feilmelding: " + (message ?? "N/A"),
           ]}
           navigate={navigate}
         />

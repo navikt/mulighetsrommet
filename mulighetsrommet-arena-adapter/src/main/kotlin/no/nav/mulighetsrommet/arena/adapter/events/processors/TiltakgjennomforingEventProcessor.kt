@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -70,7 +69,7 @@ class TiltakgjennomforingEventProcessor(
             .flatMap {
                 retry(
                     times = config.retryUpsertTimes,
-                    condition = { it.isLeft { error -> error is ProcessingError.ForeignKeyViolation } },
+                    condition = { result -> result.isLeft { error -> error is ProcessingError.ForeignKeyViolation } },
                 ) {
                     entities.upsertTiltaksgjennomforing(it)
                 }
@@ -96,8 +95,8 @@ class TiltakgjennomforingEventProcessor(
         return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
             .flatMap { mapping ->
                 when (mapping.status) {
-                    ArenaEntityMapping.Status.Handled -> avtaleId.right()
-                    ArenaEntityMapping.Status.Ignored -> null.right()
+                    Handled -> avtaleId.right()
+                    Ignored -> null.right()
                     else -> ProcessingError.ForeignKeyViolation("Avtale har enda ikke blitt prosessert").left()
                 }
             }
