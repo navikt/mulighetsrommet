@@ -15,6 +15,8 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { toAvtaleDetaljerRequest } from "./avtaleFormUtils";
+import { useUpsertAvtaleDetaljer } from "@/api/avtaler/useUpsertAvtaleDetaljer";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -81,6 +83,8 @@ export function AvtaleFormPage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
   const currentTab = getCurrentTab(pathname);
+  const detaljerMutation = useUpsertAvtaleDetaljer(avtale.id);
+
   return (
     <div data-testid="avtale-form-page">
       <title>{`Redigerer avtale | ${avtale.navn}`}</title>
@@ -92,7 +96,11 @@ export function AvtaleFormPage() {
         </Heading>
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
-      <RedigerAvtaleContainer avtale={avtale}>
+      <RedigerAvtaleContainer
+        avtale={avtale}
+        mutation={detaljerMutation}
+        mapToRequest={toAvtaleDetaljerRequest}
+      >
         <Tabs value={currentTab}>
           <Tabs.List>
             {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (

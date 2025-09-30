@@ -1,12 +1,16 @@
 import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { getUtdanningslop } from "@/schemas/avtaledetaljer";
+import { AvtaleDetaljerValues } from "@/schemas/avtaledetaljer";
 import {
   AvtaleRequest,
   ProblemDetail,
   ValidationError as LegacyValidationError,
+  AvtaleDetaljerRequest,
+  AvtalePersonvernRequest,
+  AvtaleVeilederinfoRequest,
+  UtdanningslopDbo,
 } from "@mr/api-client-v2";
-import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, Tiltakskode, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
 export async function onSubmitAvtaleForm({
@@ -49,8 +53,7 @@ export async function onSubmitAvtaleForm({
       navEnheter: veilederinformasjon.navRegioner
         .concat(veilederinformasjon.navKontorer)
         .concat(veilederinformasjon.navAndreEnheter),
-      beskrivelse: veilederinformasjon.redaksjoneltInnhold.beskrivelse,
-      faneinnhold: veilederinformasjon.redaksjoneltInnhold.faneinnhold,
+      redaksjoneltInnhold: veilederinformasjon.redaksjoneltInnhold,
     },
   };
 
@@ -69,4 +72,38 @@ export function mapNameToSchemaPropertyName(name: string) {
     utdanningslop: "utdanningslop.utdanninger",
   };
   return (mapping[name] ?? name) as keyof AvtaleFormValues;
+}
+
+export function toAvtaleDetaljerRequest(values: AvtaleFormValues): AvtaleDetaljerRequest {
+  return {
+    ...values.detaljer,
+    utdanningslop: getUtdanningslop(values.detaljer),
+  };
+}
+
+export function toAvtalePersonvernRequest(values: AvtaleFormValues): AvtalePersonvernRequest {
+  return {
+    ...values.personvern,
+  };
+}
+
+export function toAvtaleVeilederinfoRequest(values: AvtaleFormValues): AvtaleVeilederinfoRequest {
+  return {
+    ...values.veilederinformasjon,
+  };
+}
+
+/**
+ * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
+ */
+export function getUtdanningslop(data: AvtaleDetaljerValues): UtdanningslopDbo | null {
+  if (data.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+    return null;
+  }
+
+  if (!data.utdanningslop?.utdanningsprogram) {
+    return null;
+  }
+
+  return data.utdanningslop;
 }

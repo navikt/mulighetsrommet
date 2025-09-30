@@ -4,13 +4,13 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
-export function useUpsertAvtale() {
+export function useOpprettAvtale() {
   const queryClient = useQueryClient();
 
   return useApiMutation<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest>({
     mutationFn: (body: AvtaleRequest) => {
       // TODO: fjern any når denne flyttes til nytt api-endepunkt
-      return AvtalerService.upsertAvtale({ body }) as any;
+      return AvtalerService.opprettAvtale({ body }) as any;
     },
 
     onSuccess(_, request) {

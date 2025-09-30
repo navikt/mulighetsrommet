@@ -110,18 +110,3 @@ export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
 
 export type AvtaleDetaljerInput = z.input<typeof avtaleDetaljerSchema>;
 export type AvtaleDetaljerValues = z.infer<typeof avtaleDetaljerSchema>;
-
-/**
- * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
- */
-export function getUtdanningslop(data: AvtaleDetaljerValues): UtdanningslopDbo | null {
-  if (data.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-    return null;
-  }
-
-  if (!data.utdanningslop?.utdanningsprogram) {
-    return null;
-  }
-
-  return data.utdanningslop;
-}

@@ -1,5 +1,5 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useOpprettAvtale } from "@/api/avtaler/useOpprettAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
 import { HarTilgang } from "@/components/auth/HarTilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
@@ -69,7 +69,7 @@ export function NewAvtaleFormPage() {
 
   const queryClient = useQueryClient();
   const location = useLocation();
-  const mutation = useUpsertAvtale();
+  const mutation = useOpprettAvtale();
   const { data: ansatt } = useHentAnsatt();
   const [activeStep, setActiveStep] = useState<number>(1);
   const [collectedData, setCollectedData] = useState<DeepPartial<AvtaleFormValues>>(

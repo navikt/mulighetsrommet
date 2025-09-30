@@ -1,4 +1,3 @@
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import {
   AvtaleFormInput,
   avtaleSchema,
@@ -7,32 +6,38 @@ import {
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
-import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { useNavigate } from "react-router";
+import { AvtaleDto, ProblemDetail, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { ReactNode, useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useQueryClient } from "@tanstack/react-query";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { QueryKeys } from "@/api/QueryKeys";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "@/pages/avtaler/avtaleFormUtils";
+import { mapNameToSchemaPropertyName } from "@/pages/avtaler/avtaleFormUtils";
+import { ApiMutationResult } from "@/hooks/useApiMutation";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
-interface Props {
+interface Props<TRequest> {
   avtale: AvtaleDto;
+  mapToRequest: (data: AvtaleFormValues) => TRequest;
+  mutation: ApiMutationResult<{ data: AvtaleDto }, ProblemDetail, TRequest, unknown>;
   children: ReactNode;
 }
 
-export function RedigerAvtaleContainer({ avtale, children }: Props) {
-  const mutation = useUpsertAvtale();
+export function RedigerAvtaleContainer<TRequest>({
+  avtale,
+  mutation,
+  mapToRequest,
+  children,
+}: Props<TRequest>) {
+  const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { data: ansatt } = useHentAnsatt();
 
   const methods = useForm<AvtaleFormInput, any, AvtaleFormValues>({
     resolver: zodResolver(avtaleSchema),
     defaultValues: defaultAvtaleData(ansatt, avtale),
   });
-
   const handleValidationError = useCallback(
     (validation: ValidationError | LegacyValidationError) => {
       validation.errors.forEach((error) => {
@@ -44,10 +49,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    onSubmitAvtaleForm({
-      avtale,
-      data,
-      mutation,
+    mutation.mutate(mapToRequest(data), {
       onValidationError: (error: ValidationError | LegacyValidationError) => {
         handleValidationError(error);
       },

@@ -1,5 +1,10 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
-import { ArrangorKontaktperson, Personopplysning, PrismodellType } from "@mr/api-client-v2";
+import {
+  ArrangorKontaktperson,
+  Personopplysning,
+  PrismodellType,
+  AmoKategorisering,
+} from "@mr/api-client-v2";
 import z from "zod";
 import { avtaleDetaljerSchema, toUtdanningslopDbo, validateAvtaledetaljer } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
@@ -92,17 +97,17 @@ export function defaultAvtaleData(
       startDato: avtale?.startDato,
       sluttDato: avtale?.sluttDato,
       // TODO: fiks typer
-      amoKategorisering: avtale?.amoKategorisering ?? null,
+      amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
       opsjonsmodell: avtale?.opsjonsmodell,
       utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     },
     prismodell: {
-      type: avtale?.prismodell?.type as Prismodell | undefined,
-      satser: avtale?.prismodell ? satser(avtale.prismodell) : [],
+      type: avtale?.prismodell?.type as PrismodellType | undefined,
+      satser: avtale?.prismodell?.satser ?? [],
       prisbetingelser:
         avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-          ? (avtale.prismodell.prisbetingelser ?? undefined)
-          : undefined,
+          ? (avtale.prismodell.prisbetingelser ?? null)
+          : null,
     },
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,

@@ -280,20 +280,20 @@ class AvtaleQueries(private val session: Session) {
         val query = """
             update avtale
             set
-                navn = navn,
-                tiltakstype_id = tiltakstype_id,
-                sakarkiv_nummer = sakarkiv_nummer,
-                avtaletype =  avtaletype,
-                start_dato = start_dato,
-                slutt_dato = slutt_dato,
-                opsjon_maks_varighet = opsjon_maks_varighet,
-                opsjonsmodell = coalesce(:opsjonsmodell, opsjonsmodell),
-                opsjon_custom_opsjonsmodell_navn = opsjon_custom_opsjonsmodell_navn,
-                arrangor_hovedenhet_id = arrangor_hovedenhet_id
+                navn = :navn,
+                tiltakstype_id = :tiltakstype_id,
+                sakarkiv_nummer = :sakarkiv_nummer,
+                avtaletype = :avtaletype::avtaletype,
+                start_dato = :start_dato,
+                slutt_dato = :slutt_dato,
+                opsjon_maks_varighet = :opsjon_maks_varighet,
+                opsjonsmodell = coalesce(:opsjonsmodell::opsjonsmodell, opsjonsmodell),
+                opsjon_custom_opsjonsmodell_navn = :opsjon_custom_opsjonsmodell_navn,
+                arrangor_hovedenhet_id = :arrangor_hovedenhet_id
              where id = :id::uuid
         """.trimIndent()
 
-        session.execute(queryOf(query, detaljer.params()))
+        session.execute(queryOf(query, detaljer.params(id)))
     }
 
     fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
@@ -301,8 +301,8 @@ class AvtaleQueries(private val session: Session) {
         val query = """
                 update avtale
                 set
-                    beskrivelse = beskrivelse,
-                    faneinnhold = faneinnhold
+                    beskrivelse = :beskrivelse,
+                    faneinnhold = :faneinnhold::jsonb
                  where id = :id::uuid
         """.trimIndent()
 
@@ -314,7 +314,7 @@ class AvtaleQueries(private val session: Session) {
         val query = """
                 update avtale
                 set
-                    personvern_bekreftet = personvern_bekreftet
+                    personvern_bekreftet = :personvern_bekreftet
                  where id = :id::uuid
         """.trimIndent()
 
@@ -562,7 +562,8 @@ class AvtaleQueries(private val session: Session) {
         update(queryOf(query, sluttDato, avtaleId))
     }
 
-    private fun DetaljerDbo.params() = mapOf(
+    private fun DetaljerDbo.params(id: UUID) = mapOf(
+        "id" to id,
         "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -579,8 +580,8 @@ class AvtaleQueries(private val session: Session) {
 
     private fun OpsjonsmodellDbo.params() = mapOf(
         "opsjonsmodell" to type.name,
-        "maksVarighet" to maksVarighet,
-        "CustomNavn" to customNavn,
+        "opsjon_maks_varighet" to maksVarighet,
+        "opsjon_custom_opsjonsmodell_navn" to customNavn,
     )
 
     private fun RedaksjoneltInnholdDbo.params() = mapOf(
@@ -595,7 +596,7 @@ class AvtaleQueries(private val session: Session) {
         "status" to status.name,
         "opphav" to opphav,
     ) +
-        detaljer.params() +
+        detaljer.params(id) +
         personvern.params()
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
