@@ -243,13 +243,20 @@ object UtbetalingBeregningHelpers {
     }
 
     private fun getWholeWeeksFraction(periode: Periode): BigDecimal {
+        val includedMonths = periode.splitByMonth().map { it.start.month }.toSet()
         return periode
             .splitByWeek()
             .count { week ->
                 val monday = week.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                val sunday = week.getLastInclusiveDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                val wednesday = monday.with(TemporalAdjusters.next(DayOfWeek.WEDNESDAY))
+                val monthOfWeek = wednesday.month
                 val weekdayCount = week.getWeekdayCount()
-                weekdayCount >= 3 || (monday.month == sunday.month && weekdayCount > 0)
+
+                if (includedMonths.contains(monthOfWeek)) {
+                    weekdayCount > 0
+                } else {
+                    weekdayCount > 2
+                }
             }
             .toBigDecimal()
     }
