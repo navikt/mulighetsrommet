@@ -1,34 +1,26 @@
-import { type LabeledDataElement, LabeledDataElementType } from "@tiltaksadministrasjon/api-client";
-import { BodyLong, VStack } from "@navikt/ds-react";
-import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
-import { getDataElement } from "./DataElement";
+import { DataDetails as DataDetailsType } from "@tiltaksadministrasjon/api-client";
+import { LabeledDataElement } from "./LabeledDataElement";
 
-export interface DataElementProps {
-  entries: LabeledDataElement[];
+export interface DataDetailsProps extends DataDetailsType {
+  layout?: "stack" | "grid";
 }
 
-export function DataDetails({ entries }: DataElementProps) {
+export function DataDetails({ layout, entries }: DataDetailsProps) {
+  const className = resolveClassName(layout ?? "stack");
   return (
-    <VStack gap="4">
+    <dl className={className}>
       {entries.map((entry) => (
         <LabeledDataElement key={entry.label} {...entry} />
       ))}
-    </VStack>
+    </dl>
   );
 }
 
-function LabeledDataElement(props: LabeledDataElement) {
-  const value = props.value ? getDataElement(props.value) : null;
-  const valueOrFallback = value || "-";
-  switch (props.type) {
-    case LabeledDataElementType.INLINE:
-      return <MetadataHorisontal header={props.label} value={valueOrFallback} />;
-    case LabeledDataElementType.MULTILINE:
-      return (
-        <Metadata
-          header={props.label}
-          value={<BodyLong className="whitespace-pre-line">{valueOrFallback}</BodyLong>}
-        />
-      );
+function resolveClassName(layout: "stack" | "grid") {
+  switch (layout) {
+    case "stack":
+      return "grid grid-cols-1 gap-4 my-4";
+    case "grid":
+      return "grid grid-cols-2 gap-12 my-4";
   }
 }

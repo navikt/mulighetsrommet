@@ -1,9 +1,8 @@
 import { TimerPauseFillIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
-import { EstimertVentetid as EstimertVentetidType } from "@api-client";
 
 interface Props {
-  estimertVentetid: EstimertVentetidType;
+  estimertVentetid: string;
 }
 
 export function EstimertVentetid({ estimertVentetid }: Props) {
@@ -13,19 +12,7 @@ export function EstimertVentetid({ estimertVentetid }: Props) {
         className="text-orange-300"
         aria-label="Stoppeklokkeikon for å indikere estimert ventetid for tiltaket"
       />
-      Estimert ventetid for tiltaket:{" "}
-      {formatertVentetid(estimertVentetid.verdi, estimertVentetid.enhet)}
+      Estimert ventetid for tiltaket: {estimertVentetid}
     </BodyShort>
   );
-}
-
-function formatertVentetid(verdi: number, enhet: string): string {
-  switch (enhet) {
-    case "uke":
-      return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case "maned":
-      return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
-    default:
-      return "Ukjent enhet for ventetid";
-  }
 }

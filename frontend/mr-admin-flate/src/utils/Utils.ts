@@ -142,17 +142,6 @@ export function formaterNavEnheter(
   return `${forsteEnhet?.navn} ${navEnheter.length > 0 ? `+ ${navEnheter.length}` : ""}`;
 }
 
-export function formatertVentetid(verdi: number, enhet: string): string {
-  switch (enhet) {
-    case "uke":
-      return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case "maned":
-      return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
-    default:
-      return "Ukjent enhet for ventetid";
-  }
-}
-
 export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
   switch (klasse) {
     case ForerkortKlasse.A:

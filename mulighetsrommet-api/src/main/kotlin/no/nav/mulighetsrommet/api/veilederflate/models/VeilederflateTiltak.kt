@@ -54,7 +54,7 @@ data class VeilederflateTiltakGruppe(
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate?,
     val arrangor: VeilederflateArrangor,
-    val estimertVentetid: EstimertVentetid?,
+    val estimertVentetid: String?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<PersonopplysningData>,
 ) : VeilederflateTiltak()
@@ -183,12 +183,6 @@ data class OppskriftSteg(
     val _key: String,
     val navn: String,
     val innhold: List<PortableTextTypedObject>,
-)
-
-@Serializable
-data class EstimertVentetid(
-    val verdi: Int,
-    val enhet: String,
 )
 
 @Serializable
