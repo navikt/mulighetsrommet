@@ -82,7 +82,7 @@ export function defaultAvtaleData(
   return {
     detaljer: {
       navn: avtale?.navn ?? "",
-      sakarkivNummer: avtale?.sakarkivNummer,
+      sakarkivNummer: avtale?.sakarkivNummer ?? null,
       tiltakskode: avtale?.tiltakstype?.tiltakskode,
       administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
       avtaletype: avtale?.avtaletype,
@@ -94,8 +94,8 @@ export function defaultAvtaleData(
         kontaktpersoner:
           avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
       },
-      startDato: avtale?.startDato,
-      sluttDato: avtale?.sluttDato,
+      startDato: avtale?.startDato ?? null,
+      sluttDato: avtale?.sluttDato ?? null,
       // TODO: fiks typer
       amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
       opsjonsmodell: avtale?.opsjonsmodell,

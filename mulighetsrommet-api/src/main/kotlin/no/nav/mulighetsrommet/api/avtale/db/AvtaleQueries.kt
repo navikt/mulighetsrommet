@@ -39,6 +39,7 @@ class AvtaleQueries(private val session: Session) {
         upsertArrangor(avtaleDbo.id, avtaleDbo.detaljer.arrangor)
         upsertNavEnheter(avtaleDbo.id, avtaleDbo.veilederinformasjon.navEnheter)
         upsertUtdanningslop(avtaleDbo.id, avtaleDbo.detaljer.utdanningslop, avtaleDbo.detaljer.amoKategorisering)
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtaleDbo.id, avtaleDbo.detaljer.amoKategorisering)
     }
 
     fun insert(avtale: AvtaleDbo) {
@@ -196,6 +197,7 @@ class AvtaleQueries(private val session: Session) {
             )
             values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
+        session.execute(queryOf(deleteUtdanningslop, avtaleId))
 
         utdanningslop?.let { utdanningslop ->
             val utdanninger = utdanningslop.utdanninger.map {
@@ -207,8 +209,6 @@ class AvtaleQueries(private val session: Session) {
             }
             session.batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
-        session.execute(queryOf(deleteUtdanningslop, avtaleId))
-        amoKategorisering?.let { AmoKategoriseringQueries(session).upsert(avtaleId, amoKategorisering) }
     }
 
     fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {

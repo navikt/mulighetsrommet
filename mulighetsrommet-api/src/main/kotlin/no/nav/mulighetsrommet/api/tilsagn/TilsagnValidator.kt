@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.*
-import arrow.core.raise.*
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -53,8 +53,8 @@ object TilsagnValidator {
             FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted)
         }
 
-        validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser).bind()
-        validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker).bind()
+        validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser)
+        validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker)
         requireValid(next.periodeStart != null && next.periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
 
         validate(next.periodeStart.isBefore(next.periodeSlutt)) {
@@ -77,14 +77,11 @@ object TilsagnValidator {
 
         val periode = Periode.fromInclusiveDates(next.periodeStart, next.periodeSlutt)
 
-        val sats = AvtalteSatser.findSats(avtalteSatser, periode.start)
-
         val beregning = validateBeregning(
             request = next.beregning,
             periode = periode,
-            sats = sats,
-            avtalteSatser,
-        ).bind()
+            avtalteSatser = avtalteSatser,
+        )
 
         validate(beregning.output.belop > 0) {
             FieldError.root("Beløp må være større enn 0")
@@ -97,65 +94,63 @@ object TilsagnValidator {
         )
     }
 
-    fun validateAvtaltSats(
+    fun ValidationDsl.validateAvtaltSats(
         beregningType: TilsagnBeregningType,
         avtalteSatser: List<AvtaltSats>,
         periode: Periode,
-        sats: Int?,
-    ): Either<List<FieldError>, Int> = validation {
-        when (beregningType) {
-            TilsagnBeregningType.FRI -> 0
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-            TilsagnBeregningType.PRIS_PER_UKESVERK,
-            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
-            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-            -> {
-                requireValid(sats != null) {
-                    FieldError.of(
-                        "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
-                        TilsagnRequest::periodeStart,
-                    )
-                }
-                val satsPeriodeStart = AvtalteSatser.findSats(avtalteSatser, periode.start)
-                validate(satsPeriodeStart != null) {
-                    FieldError.of(
-                        "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
-                        TilsagnRequest::periodeStart,
-                    )
-                }
-
-                val satsPeriodeSlutt = AvtalteSatser.findSats(avtalteSatser, periode.getLastInclusiveDate())
-                validate(satsPeriodeSlutt != null) {
-                    FieldError.of(
-                        "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
-                        TilsagnRequest::periodeSlutt,
-                    )
-                }
-                validate(satsPeriodeStart == satsPeriodeSlutt) {
-                    FieldError.of(
-                        "Tilsagnsperioden kan ikke gå over flere registrerte sats-/prisperioder på avtalen",
-                        TilsagnRequest::periodeSlutt,
-                    )
-                }
-
-                validate(sats == satsPeriodeStart) {
-                    FieldError.of(
-                        "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
-                        TilsagnRequest::periodeStart,
-                    )
-                }
-                sats
+    ): Int = when (beregningType) {
+        TilsagnBeregningType.FRI -> 0
+        TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+        TilsagnBeregningType.PRIS_PER_UKESVERK,
+        TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
+        TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+        TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+        -> {
+            val sats = AvtalteSatser.findSats(avtalteSatser, periode.start)
+            requireValid(sats != null) {
+                FieldError.of(
+                    "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
+                    TilsagnRequest::periodeStart,
+                )
             }
+            val satsPeriodeStart = AvtalteSatser.findSats(avtalteSatser, periode.start)
+            validate(satsPeriodeStart != null) {
+                FieldError.of(
+                    "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
+                    TilsagnRequest::periodeStart,
+                )
+            }
+
+            val satsPeriodeSlutt = AvtalteSatser.findSats(avtalteSatser, periode.getLastInclusiveDate())
+            validate(satsPeriodeSlutt != null) {
+                FieldError.of(
+                    "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
+                    TilsagnRequest::periodeSlutt,
+                )
+            }
+            validate(satsPeriodeStart == satsPeriodeSlutt) {
+                FieldError.of(
+                    "Tilsagnsperioden kan ikke gå over flere registrerte sats-/prisperioder på avtalen",
+                    TilsagnRequest::periodeSlutt,
+                )
+            }
+
+            validate(sats == satsPeriodeStart) {
+                FieldError.of(
+                    "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
+                    TilsagnRequest::periodeStart,
+                )
+            }
+            sats
         }
     }
 
-    fun validateBeregning(request: TilsagnBeregningRequest, periode: Periode, sats: Int?, avtalteSatser: List<AvtaltSats>): Either<List<FieldError>, TilsagnBeregning> = validation {
-        val satsV = validateAvtaltSats(request.type, avtalteSatser, periode, sats).bind()
-        val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser).bind()
-        val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker).bind()
+    fun ValidationDsl.validateBeregning(request: TilsagnBeregningRequest, periode: Periode, avtalteSatser: List<AvtaltSats>): TilsagnBeregning {
+        val sats = validateAvtaltSats(request.type, avtalteSatser, periode)
+        val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
+        val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker)
 
-        when (request.type) {
+        return when (request.type) {
             TilsagnBeregningType.FRI ->
                 validateBeregningFriInput(request).bind()
 
@@ -163,7 +158,7 @@ object TilsagnValidator {
                 TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
                     TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
                         periode = periode,
-                        sats = satsV,
+                        sats = sats,
                         antallPlasser = antallPlasser,
                     ),
                 )
@@ -172,7 +167,7 @@ object TilsagnValidator {
                 TilsagnBeregningPrisPerManedsverk.beregn(
                     TilsagnBeregningPrisPerManedsverk.Input(
                         periode = periode,
-                        sats = satsV,
+                        sats = sats,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -182,7 +177,7 @@ object TilsagnValidator {
                 TilsagnBeregningPrisPerHeleUkesverk.beregn(
                     TilsagnBeregningPrisPerHeleUkesverk.Input(
                         periode = periode,
-                        sats = satsV,
+                        sats = sats,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -192,7 +187,7 @@ object TilsagnValidator {
                 TilsagnBeregningPrisPerUkesverk.beregn(
                     TilsagnBeregningPrisPerUkesverk.Input(
                         periode = periode,
-                        sats = satsV,
+                        sats = sats,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                     ),
@@ -202,7 +197,7 @@ object TilsagnValidator {
                 TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
                     TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = periode,
-                        sats = satsV,
+                        sats = sats,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltaker,
@@ -211,45 +206,41 @@ object TilsagnValidator {
         }
     }
 
-    private fun validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Either<List<FieldError>, Int> = validation {
-        when (type) {
-            TilsagnBeregningType.FRI,
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-            TilsagnBeregningType.PRIS_PER_UKESVERK,
-            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
-            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-            -> 0
-            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> {
-                requireValid(antallTimerOppfolgingPerDeltaker != null && antallTimerOppfolgingPerDeltaker > 0) {
-                    FieldError.of(
-                        "Antall timer oppfølging per deltaker må være større enn 0",
-                        TilsagnRequest::beregning,
-                        TilsagnBeregningRequest::antallTimerOppfolgingPerDeltaker,
-                    )
-                }
-                antallTimerOppfolgingPerDeltaker
+    private fun ValidationDsl.validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Int = when (type) {
+        TilsagnBeregningType.FRI,
+        TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+        TilsagnBeregningType.PRIS_PER_UKESVERK,
+        TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
+        TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+        -> 0
+        TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> {
+            requireValid(antallTimerOppfolgingPerDeltaker != null && antallTimerOppfolgingPerDeltaker > 0) {
+                FieldError.of(
+                    "Antall timer oppfølging per deltaker må være større enn 0",
+                    TilsagnRequest::beregning,
+                    TilsagnBeregningRequest::antallTimerOppfolgingPerDeltaker,
+                )
             }
+            antallTimerOppfolgingPerDeltaker
         }
     }
 
-    private fun validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Either<List<FieldError>, Int> = validation {
-        when (beregningType) {
-            TilsagnBeregningType.FRI -> 0
-            TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-            TilsagnBeregningType.PRIS_PER_UKESVERK,
-            TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
-            TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-            TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
-            -> {
-                requireValid(antallPlasser != null && antallPlasser > 0) {
-                    FieldError.of(
-                        "Antall plasser må være større enn 0",
-                        TilsagnRequest::beregning,
-                        TilsagnBeregningRequest::antallPlasser,
-                    )
-                }
-                antallPlasser
+    private fun ValidationDsl.validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Int = when (beregningType) {
+        TilsagnBeregningType.FRI -> 0
+        TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+        TilsagnBeregningType.PRIS_PER_UKESVERK,
+        TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
+        TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
+        TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
+        -> {
+            requireValid(antallPlasser != null && antallPlasser > 0) {
+                FieldError.of(
+                    "Antall plasser må være større enn 0",
+                    TilsagnRequest::beregning,
+                    TilsagnBeregningRequest::antallPlasser,
+                )
             }
+            antallPlasser
         }
     }
 
