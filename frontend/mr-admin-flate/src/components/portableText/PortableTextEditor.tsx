@@ -10,7 +10,7 @@ import {
   SchemaDefinition,
 } from "@portabletext/editor";
 import { EventListenerPlugin } from "@portabletext/editor/plugins";
-import { Link, Tooltip } from "@navikt/ds-react";
+import { BodyLong, Link, Tooltip } from "@navikt/ds-react";
 import "./portableTextEditor.css";
 import { PortableTextEditorToolbar } from "./PortableTextToolbar";
 import { Controller, useFormContext } from "react-hook-form";
@@ -133,7 +133,7 @@ const renderAnnotation: RenderAnnotationFunction = (props) => {
 
 // Empty line
 const renderBlock: RenderBlockFunction = (props) => {
-  return <div>{props.children}</div>;
+  return <BodyLong size="small">{props.children}</BodyLong>;
 };
 
 const renderStyle: RenderStyleFunction = (props) => {

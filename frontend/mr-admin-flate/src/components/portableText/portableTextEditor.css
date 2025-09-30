@@ -17,7 +17,6 @@
 }
 [data-list-item]::before {
   text-align: right;
-  width: 1.5rem;
 }
 
 [data-list-item="number"] {
