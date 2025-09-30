@@ -8,7 +8,7 @@ import {
   useDecoratorButton,
   useToolbarSchema,
 } from "@portabletext/toolbar";
-import { FormEvent, FormEventHandler, RefObject, useRef, useState } from "react";
+import { FormEvent, RefObject, useRef } from "react";
 import { SupportedDecorator, SupportedList } from "./helper";
 
 export function PortableTextEditorToolbar() {
