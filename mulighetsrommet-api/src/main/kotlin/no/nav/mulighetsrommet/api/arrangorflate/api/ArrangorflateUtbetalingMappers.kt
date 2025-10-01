@@ -75,6 +75,17 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 sats = beregning.input.sats,
             )
         }
+
+        is UtbetalingBeregningPrisPerHeleUkesverk -> {
+            ArrangorflateBeregning.PrisPerUkesverk(
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                antallUkesverk = totalFaktor,
+                sats = beregning.input.sats,
+            )
+        }
     }
 
     return ArrangorflateUtbetalingDto(

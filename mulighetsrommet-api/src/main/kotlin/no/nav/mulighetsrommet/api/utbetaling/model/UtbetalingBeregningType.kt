@@ -5,4 +5,5 @@ enum class UtbetalingBeregningType {
     FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
     PRIS_PER_MANEDSVERK,
     PRIS_PER_UKESVERK,
+    PRIS_PER_HELE_UKESVERK,
 }
