@@ -408,7 +408,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         opprettelse = opprettelse.toDto(),
         handlinger = setOfNotNull(
             UtbetalingLinjeHandling.ATTESTER.takeIf {
-                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent && tilsagnOpprettelse.besluttetAv != navAnsatt.navIdent
+                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent
             },
             UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
         ),
