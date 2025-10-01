@@ -63,6 +63,12 @@ object Tiltakskoder {
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     )
 
+    private val TiltakskodeArenaEnkeltplass = listOf(
+        "ENKELAMO",
+        "ENKFAGYRKE",
+        "HOYEREUTD",
+    )
+
     fun isGruppetiltak(arenaKode: String): Boolean {
         return arenaKode in GruppetiltakArenaKoder
     }
@@ -73,5 +79,9 @@ object Tiltakskoder {
 
     fun isKursTiltak(tiltakskode: Tiltakskode?): Boolean {
         return tiltakskode in TiltakMedFellesOppstart
+    }
+
+    fun isEnkeltplassTiltak(arenakode: String): Boolean {
+        return arenakode in TiltakskodeArenaEnkeltplass
     }
 }
