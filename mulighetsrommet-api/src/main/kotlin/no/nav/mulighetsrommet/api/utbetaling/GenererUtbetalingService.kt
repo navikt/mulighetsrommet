@@ -491,7 +491,11 @@ private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDa
 }
 
 fun resolveAvtaltSats(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Int {
-    val periodeStart = maxOf(gjennomforing.startDato, periode.start)
+    val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
+        maxOf(gjennomforing.startDato, periode.start)
+    } else {
+        periode.start
+    }
     val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
     return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
         ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
