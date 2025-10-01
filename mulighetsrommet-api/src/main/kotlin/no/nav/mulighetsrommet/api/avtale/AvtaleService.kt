@@ -79,7 +79,7 @@ class AvtaleService(
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
         val dbo = validator
-            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
+            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn, previous.startDato)
             .bind()
 
         db.transaction {
