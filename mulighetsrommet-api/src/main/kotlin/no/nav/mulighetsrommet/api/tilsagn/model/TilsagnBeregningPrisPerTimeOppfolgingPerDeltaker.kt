@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -32,8 +31,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker {
-            val belop = UtbetalingBeregningHelpers.calculateMonthsInPeriode(input.periode)
-                .multiply(BigDecimal(input.sats))
+            val belop = BigDecimal(input.sats)
                 .multiply(BigDecimal(input.antallPlasser))
                 .multiply(BigDecimal(input.antallTimerOppfolgingPerDeltaker))
                 .setScale(0, RoundingMode.HALF_UP)
