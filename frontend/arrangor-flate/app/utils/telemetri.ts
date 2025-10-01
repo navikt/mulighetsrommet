@@ -14,23 +14,23 @@ let faro: Faro | undefined;
  *
  * Faro brukes til instrumentering og telemetri og den typen ting i appen.
  */
-export function getFaro(telemetriUrl: string): Faro | null {
+export function getFaro(telemetryUrl: string): Faro | null {
   if (faro) {
     return faro;
   }
-  if (!telemetriUrl) {
-    throw new Error("Telemetri URL er ikke satt. Sett TELEMETRY_URL i .env");
-  }
   const env = getEnvironment();
-
   if (env === Environment.Lokalt) {
     // eslint-disable-next-line no-console
     console.info("Faro er slått av for lokal utvikling");
     return null;
   }
 
+  if (!telemetryUrl) {
+    throw new Error("TELEMETRY_URL er ikke satt");
+  }
+
   faro = initializeFaro({
-    url: telemetriUrl,
+    url: telemetryUrl,
     app: {
       name: "arrangor-flate",
       namespace: "team-mulighetsrommet",
