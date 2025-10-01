@@ -8,6 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -259,8 +260,7 @@ class GenererUtbetalingService(
 
     private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
-        return AvtalteSatser.findSats(avtale, periode)
-            ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$periode")
+        return resolveAvtaltSats(gjennomforing, avtale, periode)
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
@@ -488,4 +488,11 @@ private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+}
+
+fun resolveAvtaltSats(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Int {
+    val periodeStart = maxOf(gjennomforing.startDato, periode.start)
+    val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
+    return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
+        ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
 }

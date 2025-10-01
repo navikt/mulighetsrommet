@@ -1099,23 +1099,6 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.genererUtbetalingForPeriode(september).shouldHaveSize(0)
         }
 
-        test("utbetaling for avtalt pris per hele ukesverk goo") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-                satser = listOf(
-                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
-                ),
-            )
-
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(avtale),
-                gjennomforinger = listOf(oppfolging),
-            ).initialize(database.db)
-
-            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 1, 18)))
-        }
-
         test("utbetaling for avtalt pris per hele ukesverk genererer kun for hele måneder") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
@@ -1144,6 +1127,35 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31))).shouldHaveSize(0)
             service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))).shouldHaveSize(1)
             service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1))).shouldHaveSize(1)
+        }
+    }
+
+    context("resolve avtalt sats") {
+        test("finner sats hvis gjennomføringen og satsen begynner midt i en måned") {
+            val oppfolging = GjennomforingFixtures.Oppfolging1
+            val service = createUtbetalingService()
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 15), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging.copy(startDato = LocalDate.of(2025, 1, 15))),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 15),
+                        sluttDato = null,
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
         }
     }
 })
