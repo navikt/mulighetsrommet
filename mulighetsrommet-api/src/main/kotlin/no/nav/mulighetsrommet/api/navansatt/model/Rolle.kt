@@ -20,6 +20,12 @@ enum class Rolle(val visningsnavn: String) {
     TILTAKSGJENNOMFORINGER_SKRIV("Skrivetilgang - Gjennomføring"),
 
     /**
+     * Gir tilgang til enkelte funksjoner som er knyttet til oppfølging av gjennomføringer, men gir ikke full tilgang
+     * til å opprette eller redigere innhold, økonomi etc.
+     */
+    OPPFOLGER_GJENNOMFORING("Oppfølger - Gjennomføring"),
+
+    /**
      * Gir tilgang til alle funksjoner relatert til redigering av avtaler.
      */
     AVTALER_SKRIV("Skrivetilgang - Avtale"),
