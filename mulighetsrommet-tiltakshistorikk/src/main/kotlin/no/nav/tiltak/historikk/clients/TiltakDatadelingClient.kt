@@ -88,10 +88,14 @@ class TiltakDatadelingClient(
         request: GraphqlRequest<T>,
         accessType: AccessType,
     ): Either<TiltakDatadelingError, V> {
-        val response = client.post("$baseUrl/graphql") {
-            bearerAuth(tokenProvider.exchange(accessType))
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(request)
+        val response = try {
+            client.post("$baseUrl/graphql") {
+                bearerAuth(tokenProvider.exchange(accessType))
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                setBody(request)
+            }
+        } catch (t: Throwable) {
+            return TiltakDatadelingError.HttpError(message = t.localizedMessage).left()
         }
 
         if (!response.status.isSuccess()) {
@@ -116,7 +120,7 @@ class TiltakDatadelingClient(
 
 sealed class TiltakDatadelingError {
     data class InvalidGraphqlResponse(val message: String) : TiltakDatadelingError()
-
+    data class HttpError(val message: String) : TiltakDatadelingError()
     data class GraphqlError(val errors: Nel<GraphqlResponse.GraphqlError>) : TiltakDatadelingError()
 }
 
