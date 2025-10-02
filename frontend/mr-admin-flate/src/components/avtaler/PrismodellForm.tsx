@@ -6,7 +6,7 @@ import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { addDuration } from "@mr/frontend-common/utils/date";
+import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 
 interface Props {
   prismodell?: PrismodellType;
@@ -21,14 +21,14 @@ const PrismodellForm = memo(({ prismodell, avtaleStartDato }: Props) => {
     case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
     case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
     case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-      return <AvtalteSatser fromDate={avtaleStartDato} />;
+      return <AvtalteSatser avtaleStartDato={avtaleStartDato} />;
     case PrismodellType.ANNEN_AVTALT_PRIS:
     case undefined:
       return <PrisbetingelserTextArea />;
   }
 });
 
-function AvtalteSatser({ fromDate }: { fromDate: Date }) {
+function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
   const {
     control,
     register,
@@ -44,7 +44,10 @@ function AvtalteSatser({ fromDate }: { fromDate: Date }) {
 
   // Flere aktive avtaler har start i 2001, 2010 osv, 30 år holder enn så lenge men
   // burde ha en bedre løsning her. F. eks ikke bruk datepicker, men tekstfelt
-  const toDate = addDuration(fromDate, { years: 30 });
+  const toDate = addDuration(avtaleStartDato, { years: 30 });
+
+  // Kan legge inn en måned før for hele uker case hvor første uke skal i måneden før
+  const fromDate = subDuration(avtaleStartDato, { months: 1 });
 
   return (
     <VStack gap="4">

@@ -229,7 +229,7 @@ class TilsagnService(
                         )
                     }
             }
-        } catch (a: ArithmeticException) {
+        } catch (t: Throwable) {
             null
         }
     }
@@ -243,14 +243,13 @@ class TilsagnService(
     )
 
     private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
-        if (request.periodeStart == null || request.periodeSlutt == null || request.periodeSlutt <= request.periodeStart) {
+        if (request.periodeStart == null || request.periodeSlutt == null) {
             return null
         }
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
 
-        val periode =
-            Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
         val sats =
             queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
                 queries.avtale.get(it)

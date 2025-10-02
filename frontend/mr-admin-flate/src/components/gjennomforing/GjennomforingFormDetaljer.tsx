@@ -93,8 +93,9 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
   }
 
   const minStartdato = new Date(avtale.startDato);
+  const maxStartdato = addDuration(new Date(), { years: 2 });
   const maxSluttdato =
-    addDuration(gjennomforing?.sluttDato, { years: 6 }) ?? addDuration(minStartdato, { years: 6 });
+    addDuration(gjennomforing?.sluttDato, { years: 6 }) ?? addDuration(maxStartdato, { years: 6 });
 
   return (
     <>
@@ -168,7 +169,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               <ControlledDateInput
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
-                toDate={maxSluttdato}
+                toDate={maxStartdato}
                 defaultSelected={getValues("startOgSluttDato.startDato")}
                 onChange={(val) =>
                   setValue("startOgSluttDato.startDato", (val ?? undefined) as unknown as never, {

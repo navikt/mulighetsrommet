@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.collections.flatMap
 
@@ -55,7 +56,8 @@ class AvtaleValidator(
             ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         ).bind()
         val personvernDbo = request.personvern.toDbo()
-        val prismodellDbo = validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn).bind()
+        val prismodellDbo =
+            validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn, request.detaljer.startDato).bind()
         val navEnheter = validateNavEnheter(request.veilederinformasjon.navEnheter).bind()
         val veilederinfoDbo = request.veilederinformasjon.toDbo(navEnheter)
 
@@ -150,7 +152,7 @@ class AvtaleValidator(
                                     ArrangorDbo::hovedenhet,
                                 ),
                             )
-                        } else if (detaljerDbo.arrangor?.underenheter?.contains(arrangorId) != true) {
+                        } else if (detaljerDbo.arrangor.underenheter.contains(arrangorId) != true) {
                             add(
                                 FieldError.ofPointer(
                                     "/arrangorUnderenheter",
@@ -348,6 +350,7 @@ class AvtaleValidator(
         request: PrismodellRequest,
         tiltakskode: Tiltakskode,
         tiltakstypeNavn: String,
+        startDato: LocalDate,
     ): Either<NonEmptyList<FieldError>, PrismodellDbo> {
         val errors: List<FieldError> = buildList {
             if (request.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
@@ -367,7 +370,7 @@ class AvtaleValidator(
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                -> validateSatser(request.satser)
+                -> validateSatser(request.satser, startDato)
             }
         }
 
@@ -438,7 +441,7 @@ class AvtaleValidator(
         ).right()
     }
 
-    private fun validateSatser(satser: List<AvtaltSatsRequest>): Nel<FieldError>? {
+    private fun validateSatser(satser: List<AvtaltSatsRequest>, startDato: LocalDate): Nel<FieldError>? {
         val errors = buildList {
             if (satser.isEmpty()) {
                 add(
@@ -447,6 +450,10 @@ class AvtaleValidator(
                         PrismodellRequest::type,
                     ),
                 )
+            }
+            val firstDate = satser[0].gjelderFra
+            if (firstDate == null || firstDate.isAfter(startDato)) {
+                add(FieldError.ofPointer("/satser/0/gjelderFra", "Avtalens startdato=$startDato må være dekket"))
             }
             satser.forEachIndexed { index, sats ->
                 if (sats.pris == null || sats.pris <= 0) {

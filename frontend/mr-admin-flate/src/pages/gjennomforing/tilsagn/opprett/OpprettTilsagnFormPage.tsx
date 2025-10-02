@@ -27,7 +27,7 @@ function useHentData(gjennomforingId: string) {
       antallTimerOppfolgingPerDeltaker: null,
       linjer: [],
     },
-    kostnadssted: kostnadssted,
+    kostnadssted: kostnadssted || null,
     kommentar: null,
   });
 

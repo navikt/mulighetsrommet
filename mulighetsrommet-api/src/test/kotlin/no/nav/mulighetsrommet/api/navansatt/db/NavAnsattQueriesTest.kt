@@ -125,6 +125,7 @@ class NavAnsattQueriesTest : FunSpec({
                 val flereRoller = setOf(
                     NavAnsattRolle.generell(Rolle.KONTAKTPERSON),
                     NavAnsattRolle.generell(Rolle.OKONOMI_LES),
+                    NavAnsattRolle.generell(Rolle.OPPFOLGER_GJENNOMFORING),
                 )
                 queries.setRoller(ansatt1.navIdent, flereRoller)
                 queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller

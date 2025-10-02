@@ -10,7 +10,12 @@ import {
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
-import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import {
+  AvtaleDto,
+  NavAnsattDto,
+  Faneinnhold as NyFaneInnhold,
+} from "@tiltaksadministrasjon/api-client";
+import { slateFaneinnholdToPortableText } from "../portableText/helper";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -70,6 +75,10 @@ export function defaultGjennomforingData(
 ): Partial<InferredGjennomforingSchema> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
+  // TODO: Fjern casting når avtaler er migrert til @tiltaksadministrasjon/api-client
+  const faneInnhold = slateFaneinnholdToPortableText(
+    (gjennomforing?.faneinnhold ?? avtale.faneinnhold) as NyFaneInnhold | null,
+  );
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
@@ -99,7 +108,7 @@ export function defaultGjennomforingData(
     arrangorKontaktpersoner:
       gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
-    faneinnhold: gjennomforing?.faneinnhold ?? avtale.faneinnhold,
+    faneinnhold: faneInnhold,
     opphav: gjennomforing?.opphav ?? Opphav.TILTAKSADMINISTRASJON,
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,

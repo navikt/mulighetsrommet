@@ -10,6 +10,7 @@ import { avtaleDetaljerSchema, toUtdanningslopDbo, validateAvtaledetaljer } from
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import { slateFaneinnholdToPortableText } from "../components/portableText/helper";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().nullable(),
@@ -117,7 +118,7 @@ export function defaultAvtaleData(
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
       beskrivelse: avtale?.beskrivelse ?? null,
-      faneinnhold: avtale?.faneinnhold ?? null,
+      faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
     },
   };
 }
