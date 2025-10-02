@@ -53,7 +53,8 @@ export async function onSubmitAvtaleForm({
       navEnheter: veilederinformasjon.navRegioner
         .concat(veilederinformasjon.navKontorer)
         .concat(veilederinformasjon.navAndreEnheter),
-      redaksjoneltInnhold: veilederinformasjon.redaksjoneltInnhold,
+      faneinnhold: veilederinformasjon.faneinnhold,
+      beskrivelse: veilederinformasjon.beskrivelse,
     },
   };
 
@@ -88,8 +89,13 @@ export function toAvtalePersonvernRequest(values: AvtaleFormValues): AvtalePerso
 }
 
 export function toAvtaleVeilederinfoRequest(values: AvtaleFormValues): AvtaleVeilederinfoRequest {
+  const veilederinformasjon = values.veilederinformasjon;
   return {
-    ...values.veilederinformasjon,
+    beskrivelse: veilederinformasjon.beskrivelse,
+    faneinnhold: veilederinformasjon.faneinnhold,
+    navEnheter: veilederinformasjon.navRegioner
+      .concat(veilederinformasjon.navKontorer)
+      .concat(veilederinformasjon.navAndreEnheter),
   };
 }
 

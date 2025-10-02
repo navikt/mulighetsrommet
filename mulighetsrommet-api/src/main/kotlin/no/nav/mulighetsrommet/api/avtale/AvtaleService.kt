@@ -80,7 +80,7 @@ class AvtaleService(
             .validateUpdateDetaljer(avtaleId, request, previous)
             .bind()
 
-        if (AvtaleDboMapper.fromAvtale(previous) == dbo) {
+        if (AvtaleDboMapper.fromAvtale(previous).detaljer == dbo) {
             return@either previous
         }
 
@@ -98,55 +98,67 @@ class AvtaleService(
         }
     }
 
-    /*
-        suspend fun updatePersonvern(
-            avtaleId: UUID,
-            request: AvtalePersonvernRequest,
-            navIdent: NavIdent,
-        ): Either<List<FieldError>, AvtaleDto> = either {
-            val previous = get(avtaleId)
-            require(previous != null) { "Kan ikke oppdatere personvern på avtale som ikke finnes" }
+    fun updatePersonvern(
+        avtaleId: UUID,
+        request: AvtalePersonvernRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId)
+        require(previous != null) { "Kan ikke oppdatere personvern på avtale som ikke finnes" }
 
-            val administratorer = previous.administratorer.map { it.navIdent }
+        val dbo = request.toDbo()
 
-            db.transaction {
-                // queries.avtale.updatePersonvern(avtaleId, previous.administratorer)
-
-                dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
-
-                val dto = getOrError(avtaleId)
-                logEndring("Redigerte avtale", dto, navIdent)
-
-                schedulePublishGjennomforingerForAvtale(dto)
-
-                dto
-            }
+        if (AvtaleDboMapper.fromAvtale(previous).personvern == dbo) {
+            return@either previous
         }
 
-        suspend fun updateVeilederinfo(
-            avtaleId: UUID,
-            request: AvtaleVeilederinfoRequest,
-            navIdent: NavIdent,
-        ): Either<List<FieldError>, AvtaleDto> = either {
-            val previous = get(avtaleId)
-            require(previous != null) { "Kan ikke oppdatere veilederinfo på avtale som ikke finnes" }
+        val administratorer = previous.administratorer.map { it.navIdent }
 
-            val administratorer = previous.administratorer.map { it.navIdent }
+        db.transaction {
+            queries.avtale.updatePersonvern(avtaleId, dbo)
 
-            db.transaction {
-                // queries.avtale.updateVeilederinfo(avtaleId, dbo)
+            dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
 
-                dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
 
-                val dto = getOrError(avtaleId)
-                logEndring("Redigerte avtale", dto, navIdent)
+            schedulePublishGjennomforingerForAvtale(dto)
 
-                schedulePublishGjennomforingerForAvtale(dto)
-
-                dto
-            }
+            dto
         }
-     */
+    }
+
+    fun updateVeilederinfo(
+        avtaleId: UUID,
+        request: AvtaleVeilederinfoRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId)
+        require(previous != null) { "Kan ikke oppdatere veilederinfo på avtale som ikke finnes" }
+
+        val navEnheter = validator.validateNavEnheter(request.navEnheter).bind()
+        val dbo = request.toDbo(navEnheter)
+
+        val administratorer = previous.administratorer.map { it.navIdent }
+
+        if (AvtaleDboMapper.fromAvtale(previous).veilederinformasjon == dbo) {
+            return@either previous
+        }
+
+        db.transaction {
+            queries.avtale.updateVeilederinfo(avtaleId, dbo)
+
+            dispatchNotificationToNewAdministrators(avtaleId, administratorer, previous.navn, navIdent)
+
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
     fun upsertPrismodell(
         id: UUID,
         request: PrismodellRequest,

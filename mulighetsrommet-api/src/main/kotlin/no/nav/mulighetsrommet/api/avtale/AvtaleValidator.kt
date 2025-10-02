@@ -497,7 +497,7 @@ class AvtaleValidator(
         return errors.toNonEmptyListOrNull()
     }
 
-    private fun validateNavEnheter(navEnheter: List<NavEnhetNummer>): Either<Nel<FieldError>, Set<NavEnhetNummer>> {
+    fun validateNavEnheter(navEnheter: List<NavEnhetNummer>): Either<Nel<FieldError>, Set<NavEnhetNummer>> {
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         val errors = buildList {
@@ -521,7 +521,7 @@ class AvtaleValidator(
             .associateBy { it.enhetsnummer }
     }
 
-    fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): Set<NavEnhetNummer> {
+    private fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): Set<NavEnhetNummer> {
         // Filtrer vekk underenheter uten fylke
         return NavEnhetHelpers.buildNavRegioner(
             navEnheter.mapNotNull { navEnheterService.hentEnhet(it) },

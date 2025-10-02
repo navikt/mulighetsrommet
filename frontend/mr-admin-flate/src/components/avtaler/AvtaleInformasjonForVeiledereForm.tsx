@@ -21,14 +21,14 @@ export function AvtaleInformasjonForVeiledereForm() {
   const [search, setSearch] = useState("");
   const { data: enheter } = useNavEnheter();
 
-  const { setValue, watch } = useFormContext<AvtaleFormValues>();
+  const { setValue, watch, getValues } = useFormContext<AvtaleFormValues>();
   const tiltakskode = watch("detaljer.tiltakskode");
 
   const tiltakId = tiltakstyper.find((type) => type.tiltakskode === tiltakskode)?.id;
-
+  console.log(getValues());
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
-    setValue("veilederinformasjon.redaksjoneltInnhold.beskrivelse", beskrivelse ?? null);
-    setValue("veilederinformasjon.redaksjoneltInnhold.faneinnhold", faneinnhold ?? null);
+    setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);
+    setValue("veilederinformasjon.faneinnhold", faneinnhold ?? null);
   }
 
   const regionerOptions = enheter

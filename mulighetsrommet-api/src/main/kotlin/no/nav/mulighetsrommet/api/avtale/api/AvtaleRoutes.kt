@@ -65,6 +65,7 @@ data class AvtaleDetaljerRequest(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
 )
+
 @Serializable
 data class AvtaleArrangor(
     val hovedenhet: Organisasjonsnummer,
@@ -125,10 +126,11 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaler.updateDetaljer(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
 
                 call.respondWithStatusResponse(result)
             }
-/*
+
             patch("{id}/personvern") {
                 val id: UUID by call.parameters
                 val request = call.receive<AvtalePersonvernRequest>()
@@ -136,6 +138,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaler.updatePersonvern(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -147,10 +150,11 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaler.updateVeilederinfo(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
 
                 call.respondWithStatusResponse(result)
             }
-*/
+
             route("{id}/opsjoner") {
                 post({
                     tags = setOf("Avtale")

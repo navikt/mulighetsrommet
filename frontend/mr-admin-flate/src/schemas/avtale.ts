@@ -30,22 +30,21 @@ export const PrismodellStepSchema = z.object({
 
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
 
-export const RedaksjoneltInnholdSchema = z.object({
+export const VeilederinformasjonSchema = z.object({
   beskrivelse: z
     .string({ error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
     .nullable(),
   faneinnhold: FaneinnholdSchema.nullable(),
-});
-
-export const VeilederinformasjonSchema = z.object({
-  redaksjoneltInnhold: RedaksjoneltInnholdSchema,
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
   navAndreEnheter: z.string().array(),
 });
+
 export const VeilederinformasjonStepSchema = z.object({
   veilederinformasjon: VeilederinformasjonSchema,
 });
+
+export type VeilederinformasjonValues = z.infer<typeof VeilederinformasjonStepSchema>;
 
 export const PersonopplysningerSchema = z.object({
   personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
@@ -117,10 +116,8 @@ export function defaultAvtaleData(
       navRegioner: navRegioner,
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
-      redaksjoneltInnhold: {
-        beskrivelse: avtale?.beskrivelse ?? null,
-        faneinnhold: avtale?.faneinnhold ?? null,
-      },
+      beskrivelse: avtale?.beskrivelse ?? null,
+      faneinnhold: avtale?.faneinnhold ?? null,
     },
   };
 }

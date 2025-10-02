@@ -10,19 +10,17 @@ import {
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { Controller, useFormContext, useWatch } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Separator } from "@/components/detaljside/Metadata";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { AvtaleFormValues } from "@/schemas/avtale";
 
 export function AvtalePersonvernForm() {
-  const { register, control, setValue } = useFormContext<AvtaleFormValues>();
+  const { register, control, setValue, watch } = useFormContext<AvtaleFormValues>();
   const { data: personopplysninger } = usePersonopplysninger();
 
-  const watchedPersonopplysninger = useWatch({
-    name: "personopplysninger",
-  });
+  const watchedPersonopplysninger = watch("personvern.personopplysninger");
 
   if (!personopplysninger) return <Loader />;
 
@@ -54,13 +52,13 @@ export function AvtalePersonvernForm() {
         )}
       />
       <Checkbox
-        checked={watchedPersonopplysninger?.length === personopplysninger.length}
+        checked={watchedPersonopplysninger.length === personopplysninger.length}
         indeterminate={
-          watchedPersonopplysninger?.length > 0 &&
-          watchedPersonopplysninger?.length !== personopplysninger.length
+          watchedPersonopplysninger.length > 0 &&
+          watchedPersonopplysninger.length !== personopplysninger.length
         }
         onChange={() => {
-          if (watchedPersonopplysninger?.length === personopplysninger.length) {
+          if (watchedPersonopplysninger.length === personopplysninger.length) {
             setValue("personvern.personopplysninger", []);
           } else {
             setValue(

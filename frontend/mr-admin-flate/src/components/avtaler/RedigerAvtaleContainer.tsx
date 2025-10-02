@@ -15,7 +15,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { mapNameToSchemaPropertyName } from "@/pages/avtaler/avtaleFormUtils";
 import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 interface Props<TRequest> {
   avtale: AvtaleDto;
@@ -33,6 +33,8 @@ export function RedigerAvtaleContainer<TRequest>({
   const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { pathname } = useLocation();
+  const nav = pathname.replace("/skjema", "");
 
   const methods = useForm<AvtaleFormInput, any, AvtaleFormValues>({
     resolver: zodResolver(avtaleSchema),
@@ -55,7 +57,7 @@ export function RedigerAvtaleContainer<TRequest>({
       },
       onSuccess: (dto: { data: AvtaleDto }) => {
         queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
-        navigate(`/avtaler/${dto.data.id}`);
+        navigate(nav);
       },
     });
 
