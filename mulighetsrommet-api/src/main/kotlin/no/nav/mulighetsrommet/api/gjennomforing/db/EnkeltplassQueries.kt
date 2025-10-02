@@ -56,10 +56,14 @@ class EnkeltplassQueries(private val session: Session) {
             "arena_navn" to dbo.navn,
             "arena_start_dato" to dbo.startDato,
             "arena_slutt_dato" to dbo.sluttDato,
-            "arena_status" to dbo.status.name,
+            "arena_status" to dbo.status?.name,
             "arena_ansvarlig_enhet" to dbo.arenaAnsvarligEnhet,
         )
         session.execute(queryOf(query, params))
+    }
+
+    fun getOrError(id: UUID): Enkeltplass {
+        return checkNotNull(get(id)) { "Enkeltplass med id=$id finnes ikke" }
     }
 
     fun get(id: UUID): Enkeltplass? {

@@ -5,10 +5,10 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
@@ -39,7 +40,7 @@ class ArenaAdapterServiceTest : FunSpec({
         config = ArenaAdapterService.Config(PRODUCER_TOPIC),
         db = database.db,
         sanityService = sanityService,
-        arrangorService = mockk(relaxed = true),
+        arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
     )
 
     context("avtaler") {
@@ -59,8 +60,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
         afterEach {
             database.truncateAll()
-
-            clearAllMocks()
         }
 
         test("CRUD") {
@@ -116,8 +115,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
         afterEach {
             database.truncateAll()
-
-            clearAllMocks()
         }
 
         test("should not upsert egen regi-tiltak") {
@@ -168,7 +165,6 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("gruppetiltak") {
-
         beforeEach {
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -179,8 +175,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
         afterEach {
             database.truncateAll()
-
-            clearAllMocks()
         }
 
         test("tillater ikke opprettelse av gjennomføringer fra Arena") {
@@ -367,6 +361,66 @@ class ArenaAdapterServiceTest : FunSpec({
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(record.value.decodeToString())
                 decoded.id shouldBe gjennomforing1.id
+            }
+        }
+    }
+
+    context("enkeltplasser") {
+        beforeEach {
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
+                avtaler = listOf(),
+            ).initialize(database.db)
+        }
+
+        afterEach {
+            database.truncateAll()
+        }
+
+        test("oppretter og endrer enkeltplasser fra Arena") {
+            val service = createArenaAdapterService()
+
+            val arenaGjennomforing = ArenaGjennomforingDbo(
+                id = UUID.randomUUID(),
+                navn = "En enkeltplass",
+                sanityId = null,
+                tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                tiltaksnummer = "2025#1",
+                arrangorOrganisasjonsnummer = "976663934",
+                startDato = LocalDate.now(),
+                sluttDato = null,
+                arenaAnsvarligEnhet = "0400",
+                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                apentForPamelding = true,
+                antallPlasser = null,
+                avtaleId = null,
+                deltidsprosent = 100.0,
+            )
+
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            database.run {
+                queries.enkeltplass.get(arenaGjennomforing.id).shouldNotBeNull().should {
+                    it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
+                    it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
+                    it.arena.shouldNotBeNull().navn shouldBe "En enkeltplass"
+                    it.arena.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                }
+            }
+
+            service.upsertTiltaksgjennomforing(
+                arenaGjennomforing.copy(
+                    arenaAnsvarligEnhet = "1000",
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                ),
+            )
+
+            database.run {
+                queries.enkeltplass.get(arenaGjennomforing.id).shouldNotBeNull().arena.shouldNotBeNull().should {
+                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                    it.arenaAnsvarligEnhet shouldBe "1000"
+                }
             }
         }
     }

@@ -13,9 +13,9 @@ data class EnkeltplassDbo(
 data class EnkeltplassArenaDataDbo(
     val id: UUID,
     val tiltaksnummer: String?,
-    val navn: String,
-    val startDato: LocalDate,
+    val navn: String?,
+    val startDato: LocalDate?,
     val sluttDato: LocalDate?,
-    val status: GjennomforingStatusType,
-    val arenaAnsvarligEnhet: String,
+    val status: GjennomforingStatusType?,
+    val arenaAnsvarligEnhet: String?,
 )
