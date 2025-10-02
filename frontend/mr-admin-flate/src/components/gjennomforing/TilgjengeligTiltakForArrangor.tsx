@@ -3,7 +3,7 @@ import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   GjennomforingDto,
-  Rolle,
+  GjennomforingHandling,
   SetTilgjengligForArrangorRequest,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -11,8 +11,8 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import { formaterDato, maxOf, subDuration } from "@mr/frontend-common/utils/date";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -20,6 +20,7 @@ interface Props {
 
 export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const { data: handlinger } = useGjennomforingHandlinger(gjennomforing.id);
   const setTilgjengeligForArrangorMutation = useSetTilgjengeligForArrangor();
 
   const form = useForm<SetTilgjengligForArrangorRequest>({
@@ -77,11 +78,12 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
         <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
       </p>
-      <HarTilgang rolle={Rolle.TILTAKSGJENNOMFORINGER_SKRIV}>
+
+      {handlinger.includes(GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR) && (
         <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
           Endre dato
         </Button>
-      </HarTilgang>
+      )}
 
       <Modal
         ref={modalRef}
