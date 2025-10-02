@@ -66,7 +66,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
+        fun createProcessor(
+            engine: HttpClientEngine = createMockEngine(),
+            tiltakskoder: Set<String> = setOf("INDOPPFAG"),
+        ): TiltakgjennomforingEventProcessor {
             val client = MulighetsrommetApiClient(engine, baseUri = "") {
                 "Bearer token"
             }
@@ -75,7 +78,12 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 "Bearer token"
             }
 
-            return TiltakgjennomforingEventProcessor(entities, client, ords)
+            return TiltakgjennomforingEventProcessor(
+                config = TiltakgjennomforingEventProcessor.Config(tiltakskoder = tiltakskoder),
+                entities = entities,
+                client = client,
+                ords = ords,
+            )
         }
 
         fun prepareEvent(
@@ -155,7 +163,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             database.assertTable("tiltaksgjennomforing").isEmpty
         }
 
-        context("når tiltaksgjennomføring er av en tiltakstype som ikke skal migreres") {
+        context("når tiltaksgjennomføringen er et individuelt tiltak") {
             val tiltakstype = TiltakstypeFixtures.Individuell
 
             beforeEach {
@@ -169,8 +177,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
             }
 
-            test("skal lagre gjennomføringene") {
-                val processor = createProcessor()
+            test("skal lagre gjennomføringene når tiltakskoden ikke er markert for migrering") {
+                val processor = createProcessor(tiltakskoder = setOf("INDOPPFAG"))
 
                 val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
                     Insert,
@@ -193,9 +201,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 }
             }
 
-            test("skal ikke sende gjennomføringene til mr-api") {
+            test("skal ikke sende gjennomføringene til mr-api npr tiltakskoden ikke er markert for migrering") {
                 val engine = createMockEngine { }
-                val processor = createProcessor(engine)
+                val processor = createProcessor(engine, tiltakskoder = setOf("INDOPPFAG"))
 
                 val (event) = prepareEvent(
                     createArenaTiltakgjennomforingEvent(
@@ -207,9 +215,47 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 processor.handleEvent(event).shouldBeRight()
                 engine.requestHistory.shouldBeEmpty()
             }
+
+            test("skal sende gjennomføringene til mr-api når tiltakskoden er markert for migrering") {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(
+                            ArenaOrdsArrangor("123456", "000000"),
+                        )
+                    }
+                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                        respondJson(UpsertTiltaksgjennomforingResponse(sanityId = null))
+                    }
+                }
+                val processor = createProcessor(engine, tiltakskoder = setOf("INDOPPFAG", "AMO"))
+
+                val (event, mapping) = prepareEvent(
+                    createArenaTiltakgjennomforingEvent(
+                        Insert,
+                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                    ),
+                )
+
+                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
+
+                engine.requestHistory.last().apply {
+                    method shouldBe HttpMethod.Put
+
+                    decodeRequestBody<ArenaGjennomforingDbo>().apply {
+                        id shouldBe mapping.entityId
+                        tiltakstypeId shouldBe tiltakstype.id
+                        tiltaksnummer shouldBe "2022#123"
+                        arrangorOrganisasjonsnummer shouldBe "123456"
+                        startDato shouldBe LocalDate.of(2022, 10, 10)
+                        sluttDato shouldBe null
+                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+                        deltidsprosent shouldBe 100.0
+                    }
+                }
+            }
         }
 
-        context("når tiltaksgjennomføring er av en tiltakstype som skal migreres") {
+        context("når tiltaksgjennomføringen er et gruppetiltak") {
             val tiltakstype = TiltakstypeFixtures.Gruppe
 
             beforeEach {

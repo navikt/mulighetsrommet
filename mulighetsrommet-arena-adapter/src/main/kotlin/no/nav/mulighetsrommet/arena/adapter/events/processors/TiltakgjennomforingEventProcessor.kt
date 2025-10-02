@@ -25,15 +25,14 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.model.Tiltakskoder
 import java.time.LocalDateTime
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
+    private val config: Config,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
-    private val config: Config = Config(),
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
@@ -42,6 +41,7 @@ class TiltakgjennomforingEventProcessor(
 
     data class Config(
         val retryUpsertTimes: Int = 1,
+        val tiltakskoder: Set<String>,
     )
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
@@ -102,9 +102,7 @@ class TiltakgjennomforingEventProcessor(
     }
 
     private fun skalTiltakAdministreresFraTiltaksadministrasjon(data: ArenaTiltaksgjennomforing): Boolean {
-        return Tiltakskoder.isGruppetiltak(data.TILTAKSKODE) ||
-            Tiltakskoder.isEgenRegiTiltak(data.TILTAKSKODE) ||
-            Tiltakskoder.isEnkeltplassTiltak(data.TILTAKSKODE)
+        return data.TILTAKSKODE in config.tiltakskoder
     }
 
     private suspend fun upsertTiltaksgjennomforing(

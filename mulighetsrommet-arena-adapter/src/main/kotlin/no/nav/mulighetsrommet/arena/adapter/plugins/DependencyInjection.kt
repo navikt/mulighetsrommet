@@ -41,7 +41,7 @@ fun Application.configureDependencyInjection(
             db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
-            services(appConfig.services, tokenProvider, appConfig.engine),
+            services(tokenProvider, appConfig),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
         )
@@ -109,7 +109,10 @@ private fun repositories() = module {
     single { AvtaleRepository(get()) }
 }
 
-private fun services(services: ServiceConfig, tokenProvider: AzureAdTokenProvider, engine: HttpClientEngine): Module = module {
+private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Module = module {
+    val engine = config.engine
+    val services = config.services
+
     single {
         MulighetsrommetApiClient(
             config = MulighetsrommetApiClient.Config(maxRetries = 2),
@@ -139,10 +142,13 @@ private fun services(services: ServiceConfig, tokenProvider: AzureAdTokenProvide
             TiltakEventProcessor(get()),
             AvtaleInfoEventProcessor(get(), get(), get()),
             TiltakgjennomforingEventProcessor(
+                config = TiltakgjennomforingEventProcessor.Config(
+                    retryUpsertTimes = 10,
+                    tiltakskoder = config.migrering.tiltakskoder,
+                ),
                 get(),
                 get(),
                 get(),
-                config = TiltakgjennomforingEventProcessor.Config(retryUpsertTimes = 10),
             ),
             TiltakshistorikkEventProcessor(get(), get(), get()),
         )
