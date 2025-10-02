@@ -155,7 +155,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             database.assertTable("tiltaksgjennomforing").isEmpty
         }
 
-        context("when tiltaksgjennomføring is individuell") {
+        context("når tiltaksgjennomføring er av en tiltakstype som ikke skal migreres") {
             val tiltakstype = TiltakstypeFixtures.Individuell
 
             beforeEach {
@@ -169,49 +169,47 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
             }
 
-            context("when tiltaksgjennomføring is individuelt tiltak") {
-                test("should upsert gjennomføringer") {
-                    val processor = createProcessor()
+            test("skal lagre gjennomføringene") {
+                val processor = createProcessor()
 
-                    val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ) {
-                        it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
-                    }
-                    val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ) {
-                        it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
-                    }
-
-                    forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
-                        runBlocking {
-                            val (e) = prepareEvent(event)
-                            processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
-                        }
-                    }
+                val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
+                    Insert,
+                    TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                ) {
+                    it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                }
+                val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
+                    Insert,
+                    TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                ) {
+                    it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                 }
 
-                test("should not send gjennomføringer to mr-api") {
-                    val engine = createMockEngine { }
-                    val processor = createProcessor(engine)
-
-                    val (event) = prepareEvent(
-                        createArenaTiltakgjennomforingEvent(
-                            Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                        ),
-                    )
-
-                    processor.handleEvent(event).shouldBeRight()
-                    engine.requestHistory.shouldBeEmpty()
+                forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
+                    runBlocking {
+                        val (e) = prepareEvent(event)
+                        processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
+                    }
                 }
+            }
+
+            test("skal ikke sende gjennomføringene til mr-api") {
+                val engine = createMockEngine { }
+                val processor = createProcessor(engine)
+
+                val (event) = prepareEvent(
+                    createArenaTiltakgjennomforingEvent(
+                        Insert,
+                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                    ),
+                )
+
+                processor.handleEvent(event).shouldBeRight()
+                engine.requestHistory.shouldBeEmpty()
             }
         }
 
-        context("when tiltaksgjennomføring is gruppetiltak") {
+        context("når tiltaksgjennomføring er av en tiltakstype som skal migreres") {
             val tiltakstype = TiltakstypeFixtures.Gruppe
 
             beforeEach {

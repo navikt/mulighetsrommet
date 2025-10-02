@@ -25,8 +25,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.model.Tiltakskoder.isEgenRegiTiltak
-import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import java.time.LocalDateTime
 import java.util.*
 
@@ -76,7 +75,7 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
-        if (isGruppetiltak(data.TILTAKSKODE) || isEgenRegiTiltak(data.TILTAKSKODE)) {
+        if (skalTiltakAdministreresFraTiltaksadministrasjon(data)) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
             ProcessingResult(Handled)
@@ -102,6 +101,12 @@ class TiltakgjennomforingEventProcessor(
             }
     }
 
+    private fun skalTiltakAdministreresFraTiltaksadministrasjon(data: ArenaTiltaksgjennomforing): Boolean {
+        return Tiltakskoder.isGruppetiltak(data.TILTAKSKODE) ||
+            Tiltakskoder.isEgenRegiTiltak(data.TILTAKSKODE) ||
+            Tiltakskoder.isEnkeltplassTiltak(data.TILTAKSKODE)
+    }
+
     private suspend fun upsertTiltaksgjennomforing(
         operation: ArenaEvent.Operation,
         tiltaksgjennomforing: Tiltaksgjennomforing,
@@ -125,8 +130,12 @@ class TiltakgjennomforingEventProcessor(
                 .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
                 .map { it.virksomhetsnummer }.bind()
         }
-        val dbo =
-            tiltaksgjennomforing.toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer, avtaleMapping?.entityId)
+        val dbo = tiltaksgjennomforing.toDbo(
+            tiltakstypeId = tiltakstypeMapping.entityId,
+            sak = sak,
+            virksomhetsnummer = virksomhetsnummer,
+            avtaleId = avtaleMapping?.entityId,
+        )
 
         if (operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${dbo.id}")
