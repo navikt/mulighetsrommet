@@ -74,10 +74,12 @@ spec:
           - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
           # 0000-GA-TILTAK-ANSVARLIG
           - id: "52bb9196-b071-4cc7-9472-be4942d33c4b"
-          # 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
-          - id: "279039a0-39fd-4860-afdd-a1a2ccaa6323"
           # 0000-AZ-TILTAK-avtaler_skriv
           - id: "48026f54-6259-4c35-a148-bc4257bcaf03"
+          # 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
+          - id: "279039a0-39fd-4860-afdd-a1a2ccaa6323"
+          # 0000-CA-Tiltaksadministrasjon_oppfølger-gjennomføring
+          - id: "cbf319db-ac5a-4cb2-bfc4-7f813f97cca6"
           # 0000-CA-Tiltaksadministrasjon_kontaktperson
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
           # 0000-CA-Tiltaksadministrasjon_lesetilgang-økonomi
