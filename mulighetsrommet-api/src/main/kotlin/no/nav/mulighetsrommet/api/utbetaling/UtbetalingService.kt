@@ -184,12 +184,6 @@ class UtbetalingService(
                     return listOf(FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet")).left()
                 }
 
-                val tilsagnOpprettelse =
-                    queries.totrinnskontroll.getOrError(delutbetaling.tilsagnId, Totrinnskontroll.Type.OPPRETT)
-                if (navIdent == tilsagnOpprettelse.besluttetAv) {
-                    return listOf(FieldError.of("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet")).left()
-                }
-
                 godkjennDelutbetaling(delutbetaling, navIdent)
             }
         }

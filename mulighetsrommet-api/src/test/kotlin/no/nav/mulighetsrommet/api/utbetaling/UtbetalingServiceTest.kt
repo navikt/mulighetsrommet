@@ -249,7 +249,7 @@ class UtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("kan ikke beslutte utbetaling når man har besluttet tilsagnet") {
+        test("kan beslutte utbetaling når man har besluttet tilsagnet") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -284,9 +284,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = delutbetaling.id,
                 request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
-            ) shouldBeLeft listOf(
-                FieldError.of("Kan ikke attestere en utbetaling der du selv har besluttet tilsagnet"),
-            )
+            ).shouldBeRight()
         }
 
         test("skal ikke kunne opprette delutbetaling hvis utbetalingen allerede er godkjent") {
