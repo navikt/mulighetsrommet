@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@axe-core/playwright": "4.10.2",
+    "@grafana/faro-react": "1.19.0",
     "@mjackson/form-data-parser": "0.9.1",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "7.31.0",
