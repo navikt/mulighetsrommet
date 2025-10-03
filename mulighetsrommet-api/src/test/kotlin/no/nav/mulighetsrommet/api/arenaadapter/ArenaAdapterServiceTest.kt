@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -29,7 +30,8 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
+private const val GJENNOMFORING_V1_TOPIC = "gjennomforing-v1"
+private const val GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
 
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -37,7 +39,7 @@ class ArenaAdapterServiceTest : FunSpec({
     fun createArenaAdapterService(
         sanityService: SanityService = mockk(relaxed = true),
     ) = ArenaAdapterService(
-        config = ArenaAdapterService.Config(PRODUCER_TOPIC),
+        config = ArenaAdapterService.Config(GJENNOMFORING_V1_TOPIC, GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
@@ -356,7 +358,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.topic shouldBe PRODUCER_TOPIC
+                record.topic shouldBe GJENNOMFORING_V1_TOPIC
                 record.key shouldBe gjennomforing1.id.toString().toByteArray()
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
@@ -378,25 +380,25 @@ class ArenaAdapterServiceTest : FunSpec({
             database.truncateAll()
         }
 
+        val arenaGjennomforing = ArenaGjennomforingDbo(
+            id = UUID.randomUUID(),
+            navn = "En enkeltplass",
+            sanityId = null,
+            tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+            tiltaksnummer = "2025#1",
+            arrangorOrganisasjonsnummer = "976663934",
+            startDato = LocalDate.now(),
+            sluttDato = null,
+            arenaAnsvarligEnhet = "0400",
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            apentForPamelding = true,
+            antallPlasser = null,
+            avtaleId = null,
+            deltidsprosent = 100.0,
+        )
+
         test("oppretter og endrer enkeltplasser fra Arena") {
             val service = createArenaAdapterService()
-
-            val arenaGjennomforing = ArenaGjennomforingDbo(
-                id = UUID.randomUUID(),
-                navn = "En enkeltplass",
-                sanityId = null,
-                tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
-                tiltaksnummer = "2025#1",
-                arrangorOrganisasjonsnummer = "976663934",
-                startDato = LocalDate.now(),
-                sluttDato = null,
-                arenaAnsvarligEnhet = "0400",
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                apentForPamelding = true,
-                antallPlasser = null,
-                avtaleId = null,
-                deltidsprosent = 100.0,
-            )
 
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
@@ -421,6 +423,23 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arenaAnsvarligEnhet shouldBe "1000"
                 }
+            }
+        }
+
+        test("skal publisere til kafka kun når det er endringer fra Arena") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.topic shouldBe GJENNOMFORING_V2_TOPIC
+                record.key shouldBe arenaGjennomforing.id.toString().toByteArray()
+
+                val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
+                decoded.tiltakstype.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+                decoded.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
+                decoded.gjennomforing.id shouldBe arenaGjennomforing.id
             }
         }
     }
