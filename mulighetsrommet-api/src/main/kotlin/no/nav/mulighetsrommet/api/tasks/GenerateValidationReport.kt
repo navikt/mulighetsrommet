@@ -15,10 +15,10 @@ import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingValidator
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingValidator
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut

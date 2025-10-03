@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*

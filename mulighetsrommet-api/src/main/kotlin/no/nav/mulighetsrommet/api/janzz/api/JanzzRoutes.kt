@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.janzz.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*

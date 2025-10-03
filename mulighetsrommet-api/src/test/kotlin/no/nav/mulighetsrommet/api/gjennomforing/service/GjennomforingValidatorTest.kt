@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing
+package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -51,7 +51,12 @@ class GjennomforingValidatorTest : FunSpec({
         status = AvtaleStatus.Aktiv,
         avtaletype = Avtaletype.RAMMEAVTALE,
         administratorer = emptyList(),
-        kontorstruktur = listOf(Kontorstruktur(region = NavEnhetFixtures.Innlandet.toDto(), kontorer = listOf(NavEnhetFixtures.Gjovik.toDto()))),
+        kontorstruktur = listOf(
+            Kontorstruktur(
+                region = NavEnhetFixtures.Innlandet.toDto(),
+                kontorer = listOf(NavEnhetFixtures.Gjovik.toDto()),
+            ),
+        ),
         beskrivelse = null,
         faneinnhold = null,
         personopplysninger = emptyList(),
@@ -117,7 +122,8 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke bare opprettes med status GJENNOMFORES") {
-        GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.GJENNOMFORES)).shouldBeRight()
+        GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.GJENNOMFORES))
+            .shouldBeRight()
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVSLUTTET)).shouldBeLeft(
             listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
         )
@@ -303,9 +309,15 @@ class GjennomforingValidatorTest : FunSpec({
         )
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
-            GjennomforingValidator.validate(request.copy(startDato = avtale.startDato.plusDays(5)), ctx.copy(previous = gjennomforing))
+            GjennomforingValidator.validate(
+                request.copy(startDato = avtale.startDato.plusDays(5)),
+                ctx.copy(previous = gjennomforing),
+            )
                 .shouldBeRight()
-            GjennomforingValidator.validate(request.copy(startDato = avtale.startDato.minusDays(1)), ctx.copy(previous = gjennomforing))
+            GjennomforingValidator.validate(
+                request.copy(startDato = avtale.startDato.minusDays(1)),
+                ctx.copy(previous = gjennomforing),
+            )
                 .shouldBeLeft(
                     listOf(
                         FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato"),
@@ -327,7 +339,12 @@ class GjennomforingValidatorTest : FunSpec({
                 ),
                 ctx.copy(previous = gjennomforing, avtale = ctx.avtale.copy(startDato = LocalDate.now().minusDays(2))),
             ).shouldBeLeft(
-                listOf(FieldError("/sluttDato", "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv")),
+                listOf(
+                    FieldError(
+                        "/sluttDato",
+                        "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
+                    ),
+                ),
             )
         }
 

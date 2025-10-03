@@ -1,18 +1,18 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.api.gjennomforing.api
 
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.externalRoutes() {
+fun Route.gjennomforingPublicRoutes() {
     val gjennomforingService: GjennomforingService by inject()
     val arenaAdapterService: ArenaAdapterClient by inject()
 

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.unleash.strategies
+package no.nav.mulighetsrommet.featuretoggle.strategies
 
 import io.getunleash.UnleashContext
 import io.getunleash.strategy.Strategy

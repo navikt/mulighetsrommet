@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing
+package no.nav.mulighetsrommet.api.gjennomforing.api
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
