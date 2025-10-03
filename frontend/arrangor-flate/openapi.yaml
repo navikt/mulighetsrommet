@@ -1140,10 +1140,10 @@ components:
             $ref: "#/components/schemas/DeltakelsesprosentPeriode"
         periode:
           $ref: "#/components/schemas/Periode"
-        person:
+        personalia:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePerson"
+          - $ref: "#/components/schemas/ArrangorflatePersonalia"
         status:
           oneOf:
           - type: "null"
@@ -1154,7 +1154,7 @@ components:
       - id
       - periode
       - perioderMedDeltakelsesmengde
-      - person
+      - personalia
       - status
     DeltakelsesprosentPeriode:
       type: object
@@ -1167,19 +1167,16 @@ components:
       required:
       - deltakelsesprosent
       - periode
-    ArrangorflatePerson:
+    ArrangorflatePersonalia:
       type: object
       properties:
         navn:
           type: string
-        foedselsdato:
-          type:
-          - "null"
-          - string
-          format: date
+        norskIdent:
+          type: string
       required:
-      - foedselsdato
       - navn
+      - norskIdent
     DeltakerStatusType:
       type: string
       enum:
@@ -1213,10 +1210,10 @@ components:
           format: double
         periode:
           $ref: "#/components/schemas/Periode"
-        person:
+        personalia:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePerson"
+          - $ref: "#/components/schemas/ArrangorflatePersonalia"
         status:
           oneOf:
           - type: "null"
@@ -1226,7 +1223,7 @@ components:
       - faktor
       - id
       - periode
-      - person
+      - personalia
       - status
     ArrangorflateBeregningDeltakelsePrisPerUkesverk:
       type: object
@@ -1244,10 +1241,10 @@ components:
           format: double
         periode:
           $ref: "#/components/schemas/Periode"
-        person:
+        personalia:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePerson"
+          - $ref: "#/components/schemas/ArrangorflatePersonalia"
         status:
           oneOf:
           - type: "null"
@@ -1257,7 +1254,7 @@ components:
       - faktor
       - id
       - periode
-      - person
+      - personalia
       - status
     StengtPeriode:
       type: object

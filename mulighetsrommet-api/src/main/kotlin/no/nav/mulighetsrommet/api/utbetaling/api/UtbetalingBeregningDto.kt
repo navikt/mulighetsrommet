@@ -2,8 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
-import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonalia
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
@@ -18,7 +19,7 @@ data class UtbetalingBeregningDto(
     companion object {
         fun from(
             utbetaling: Utbetaling,
-            deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>,
+            deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>,
             regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {
@@ -124,7 +125,7 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
 }
 
 private fun manedsverkTable(
-    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>,
+    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = friDeltakelseColumns() + manedsverkDeltakelseColumns(),
@@ -152,7 +153,7 @@ private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
 )
 
 private fun ukesverkTable(
-    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>,
+    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = friDeltakelseColumns() + ukesverkDeltakelseColumns(),
@@ -179,7 +180,7 @@ private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
     "belop" to DataElement.nok(ukesverk * sats),
 )
 
-private fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>) = DataDrivenTableDto(
+private fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>) = DataDrivenTableDto(
     columns = friDeltakelseColumns(),
     rows = deltakelsePersoner.map { friDeltakelseCells(it.second) },
 )
@@ -192,13 +193,31 @@ private fun friDeltakelseColumns() = listOf(
     DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
 )
 
-private fun friDeltakelseCells(personalia: DeltakerPersonalia?) = mapOf(
-    "navn" to personalia?.navn?.let { DataElement.text(it) },
-    "geografiskEnhet" to personalia?.geografiskEnhet?.navn?.let { DataElement.text(it) },
-    "oppfolgingEnhet" to personalia?.oppfolgingEnhet?.navn?.let { DataElement.text(it) },
-    "region" to personalia?.region?.navn?.let { DataElement.text(it) },
-    "foedselsdato" to personalia?.foedselsdato?.let { DataElement.date(it) },
-)
+private fun friDeltakelseCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> {
+    return if (personalia == null || personalia.erSkjermet || personalia.adressebeskyttelse != PdlGradering.UGRADERT) {
+        val skjermetNavn = when {
+            personalia == null -> null
+            personalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
+            else -> "Skjermet"
+        }
+
+        mapOf(
+            "navn" to skjermetNavn?.let { DataElement.text(it) },
+            "geografiskEnhet" to null,
+            "oppfolgingEnhet" to null,
+            "region" to null,
+            "fnr" to personalia?.norskIdent?.let { DataElement.text(it.value) },
+        )
+    } else {
+        mapOf(
+            "navn" to personalia.navn.let { DataElement.text(it) },
+            "geografiskEnhet" to personalia.geografiskEnhet?.navn?.let { DataElement.text(it) },
+            "oppfolgingEnhet" to personalia.oppfolgingEnhet?.navn?.let { DataElement.text(it) },
+            "region" to personalia.region?.navn?.let { DataElement.text(it) },
+            "fnr" to personalia.norskIdent.let { DataElement.text(it.value) },
+        )
+    }
+}
 
 private fun getRegnestykkeManedsverk(
     manedsverkTotal: Double,

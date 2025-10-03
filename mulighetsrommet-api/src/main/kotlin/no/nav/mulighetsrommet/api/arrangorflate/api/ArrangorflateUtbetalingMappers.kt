@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -11,7 +11,8 @@ import java.util.*
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrangorflateUtbetalingStatus,
-    deltakerPersoner: Map<UUID, Pair<Deltaker, PdlPerson?>>,
+    deltakereById: Map<UUID, Deltaker>,
+    personaliaById: Map<UUID, DeltakerPersonalia?>,
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
@@ -20,14 +21,15 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     val ukesverkById = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
 
     val deltakelser = perioderById.map { (id, deltakelse) ->
-        val (deltaker, person) = deltakerPersoner[id] ?: (null to null)
+        val deltaker = deltakereById[id]
+        val personalia = personaliaById[id]
         toArrangorflateBeregningDeltakelse(
             deltakelse,
             ukesverkById.getValue(id),
             deltaker,
-            person,
+            personalia,
         )
-    }.sortedWith(compareBy(nullsLast()) { it.person?.navn })
+    }.sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
 
     val totalFaktor = utbetaling.beregning.output.deltakelser()
         .map { BigDecimal(it.faktor) }
@@ -123,13 +125,13 @@ fun toArrangorflateBeregningDeltakelse(
     input: UtbetalingBeregningInputDeltakelse,
     output: UtbetalingBeregningOutputDeltakelse,
     deltaker: Deltaker?,
-    person: PdlPerson?,
+    personalia: DeltakerPersonalia?,
 ): ArrangorflateBeregningDeltakelse {
     return when (output) {
         is DeltakelseUkesverk -> ArrangorflateBeregningDeltakelse.PrisPerUkesverk(
             id = output.deltakelseId,
             deltakerStartDato = deltaker?.startDato,
-            person = person?.let { ArrangorflatePerson.fromPerson(it) },
+            personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
             periode = input.periode(),
             faktor = output.faktor,
             status = deltaker?.status?.type,
@@ -140,7 +142,7 @@ fun toArrangorflateBeregningDeltakelse(
                 ArrangorflateBeregningDeltakelse.PrisPerManedsverk(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
-                    person = person?.let { ArrangorflatePerson.fromPerson(it) },
+                    personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
                     periode = input.periode(),
                     faktor = output.faktor,
                     status = deltaker?.status?.type,
@@ -150,7 +152,7 @@ fun toArrangorflateBeregningDeltakelse(
                 ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
                     id = output.deltakelseId,
                     deltakerStartDato = deltaker?.startDato,
-                    person = person?.let { ArrangorflatePerson.fromPerson(it) },
+                    personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
                     periode = input.periode(),
                     faktor = output.faktor,
                     perioderMedDeltakelsesmengde = input.perioder,

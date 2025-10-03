@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.clients.amtDeltaker
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.cache.*
@@ -11,8 +12,10 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -56,7 +59,7 @@ class AmtDeltakerClient(
 
     suspend fun hentPersonalia(
         deltakerIds: List<UUID>,
-    ): Either<AmtDeltakerError, List<DeltakerPersonaliaResponse>> {
+    ): Either<AmtDeltakerError, List<DeltakerPersonalia>> {
         val response = client.post("$baseUrl/external/deltakere/personalia") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -65,7 +68,21 @@ class AmtDeltakerClient(
         }
 
         return when (response.status) {
-            HttpStatusCode.OK -> Either.Right(response.body<List<DeltakerPersonaliaResponse>>())
+            HttpStatusCode.OK -> response.body<List<DeltakerPersonaliaResponse>>()
+                .map {
+                    val fornavnOgMellomnavn = listOfNotNull(it.fornavn, it.mellomnavn).joinToString(" ")
+                    val navn = listOf(it.etternavn, fornavnOgMellomnavn).joinToString(", ")
+
+                    DeltakerPersonalia(
+                        deltakerId = it.deltakerId,
+                        norskIdent = NorskIdent(it.personident),
+                        navn = navn,
+                        oppfolgingEnhet = it.navEnhetsnummer?.let { NavEnhetNummer(it) },
+                        erSkjermet = it.erSkjermet,
+                        adressebeskyttelse = it.adressebeskyttelse ?: PdlGradering.UGRADERT,
+                    )
+                }
+                .right()
             HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
             else -> {
@@ -155,12 +172,14 @@ data class DeltakerPersonaliaResponse(
     val etternavn: String,
     val navEnhetsnummer: String?,
     val erSkjermet: Boolean,
-    val adressebeskyttelse: AdressebeskyttelseResponse?,
-) {
-    enum class AdressebeskyttelseResponse {
-        STRENGT_FORTROLIG_UTLAND,
-        STRENGT_FORTROLIG,
-        FORTROLIG,
-        UGRADERT,
-    }
-}
+    val adressebeskyttelse: PdlGradering?,
+)
+
+data class DeltakerPersonalia(
+    val deltakerId: UUID,
+    val norskIdent: NorskIdent,
+    val navn: String,
+    val oppfolgingEnhet: NavEnhetNummer?,
+    val erSkjermet: Boolean,
+    val adressebeskyttelse: PdlGradering,
+)

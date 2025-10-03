@@ -4,16 +4,13 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
-import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -137,7 +134,7 @@ sealed class ArrangorflateBeregningDeltakelse {
     abstract val id: UUID
     abstract val deltakerStartDato: LocalDate?
     abstract val periode: Periode
-    abstract val person: ArrangorflatePerson?
+    abstract val personalia: ArrangorflatePersonalia?
     abstract val faktor: Double
     abstract val status: DeltakerStatusType?
 
@@ -151,7 +148,7 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val faktor: Double,
         val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
         override val periode: Periode,
-        override val person: ArrangorflatePerson?,
+        override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,
     ) : ArrangorflateBeregningDeltakelse()
 
@@ -164,7 +161,7 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val deltakerStartDato: LocalDate?,
         override val faktor: Double,
         override val periode: Periode,
-        override val person: ArrangorflatePerson?,
+        override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,
     ) : ArrangorflateBeregningDeltakelse()
 
@@ -177,28 +174,28 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val deltakerStartDato: LocalDate?,
         override val faktor: Double,
         override val periode: Periode,
-        override val person: ArrangorflatePerson?,
+        override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,
     ) : ArrangorflateBeregningDeltakelse()
 }
 
 @Serializable
-data class ArrangorflatePerson(
+data class ArrangorflatePersonalia(
     val navn: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val foedselsdato: LocalDate?,
+    val norskIdent: NorskIdent,
 ) {
     companion object {
-        fun fromPerson(person: PdlPerson) = when (person.gradering) {
-            PdlGradering.UGRADERT ->
-                ArrangorflatePerson(
-                    navn = person.navn ?: "Ukjent navn",
-                    foedselsdato = person.foedselsdato,
+        fun fromPersonalia(personalia: DeltakerPersonalia) = when (personalia.adressebeskyttelse) {
+            PdlGradering.UGRADERT -> {
+                ArrangorflatePersonalia(
+                    navn = personalia.navn,
+                    norskIdent = personalia.norskIdent,
                 )
+            }
             else ->
-                ArrangorflatePerson(
+                ArrangorflatePersonalia(
                     navn = "Adressebeskyttet",
-                    foedselsdato = null,
+                    norskIdent = personalia.norskIdent,
                 )
         }
     }

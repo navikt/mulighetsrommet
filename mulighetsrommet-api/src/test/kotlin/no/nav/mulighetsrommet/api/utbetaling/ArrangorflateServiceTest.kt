@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -10,6 +11,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
@@ -19,16 +21,15 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -52,9 +53,9 @@ class ArrangorflateServiceTest : FunSpec({
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
 
-    lateinit var pdlClient: PdlClient
-    lateinit var hentAdressebeskyttetPersonBolkPdlQuery: HentAdressebeskyttetPersonBolkPdlQuery
     lateinit var arrangorflateService: ArrangorflateService
+    val amtDeltakerClient = mockk<AmtDeltakerClient>()
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
         return requireNotNull(queries.utbetaling.get(id))
@@ -73,9 +74,7 @@ class ArrangorflateServiceTest : FunSpec({
 
     beforeEach {
         domain.initialize(database.db)
-        pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
-        hentAdressebeskyttetPersonBolkPdlQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient)
-        arrangorflateService = ArrangorflateService(database.db, hentAdressebeskyttetPersonBolkPdlQuery, kontoregisterOrganisasjon)
+        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon)
     }
 
     afterEach {
@@ -207,7 +206,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
-            it.deltakelser[0].person.shouldBeNull()
+            it.deltakelser[0].personalia.shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
     }

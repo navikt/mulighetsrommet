@@ -12,6 +12,8 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
@@ -86,16 +88,19 @@ class JournalforUtbetalingTest : FunSpec({
         domain.initialize(database.db)
     }
 
+    val pdfGenClient = mockk<PdfGenClient>(relaxed = true)
+    val dokarkClient = mockk<DokarkClient>(relaxed = true)
+    val amtDeltakerClient = mockk<AmtDeltakerClient>(relaxed = true)
+
     val arrangorFlateSerivce = { db: ApiDatabase ->
         ArrangorflateService(
             db = db,
-            hentPersonQuery = mockk(relaxed = true),
+            amtDeltakerClient = amtDeltakerClient,
             kontoregisterOrganisasjonClient = mockk(relaxed = true),
         )
     }
 
-    val pdfGenClient = mockk<PdfGenClient>(relaxed = true)
-    val dokarkClient = mockk<DokarkClient>(relaxed = true)
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,

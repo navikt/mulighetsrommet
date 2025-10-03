@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import java.time.LocalDate
 import java.util.*
 
 class PersonaliaService(
@@ -24,52 +23,31 @@ class PersonaliaService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    suspend fun getPersonalia(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonalia> {
+    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonaliaMedGeografiskEnhet> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
-                val pdlData = getPersonerMedGeografiskEnhet(amtList.map { NorskIdent(it.personident) })
+                val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
                 amtList.map { amtPersonalia ->
-                    val norskIdent = NorskIdent(amtPersonalia.personident)
-                    val (pdlPerson, geografiskEnhet) = pdlData[norskIdent] ?: (null to null)
+                    val norskIdent = amtPersonalia.norskIdent
+                    val (_, geografiskEnhet) = pdlData[norskIdent] ?: (null to null)
 
-                    if (pdlPerson?.gradering != PdlGradering.UGRADERT) {
-                        DeltakerPersonalia(
-                            deltakerId = amtPersonalia.deltakerId,
-                            norskIdent = norskIdent,
-                            navn = "Adressebeskyttet",
-                            oppfolgingEnhet = null,
-                            geografiskEnhet = null,
-                            region = null,
-                            foedselsdato = null,
-                        )
-                    } else if (amtPersonalia.erSkjermet) {
-                        DeltakerPersonalia(
-                            deltakerId = amtPersonalia.deltakerId,
-                            norskIdent = norskIdent,
-                            navn = "Skjermet",
-                            oppfolgingEnhet = null,
-                            geografiskEnhet = null,
-                            region = null,
-                            foedselsdato = null,
-                        )
-                    } else {
-                        val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
-                            navEnhetService.hentEnhet(it)
-                        }
-                        DeltakerPersonalia(
-                            deltakerId = amtPersonalia.deltakerId,
-                            norskIdent = norskIdent,
-                            navn = pdlPerson.navn ?: "Ukjent navn",
-                            oppfolgingEnhet = amtPersonalia.navEnhetsnummer?.let { enhet ->
-                                navEnhetService.hentEnhet(NavEnhetNummer(enhet))
-                            },
-                            geografiskEnhet = geografiskEnhetDto,
-                            region = geografiskEnhetDto?.overordnetEnhet?.let {
-                                navEnhetService.hentEnhet(it)
-                            },
-                            foedselsdato = pdlPerson.foedselsdato,
-                        )
+                    val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
+                        navEnhetService.hentEnhet(it)
                     }
+                    DeltakerPersonaliaMedGeografiskEnhet(
+                        deltakerId = amtPersonalia.deltakerId,
+                        norskIdent = norskIdent,
+                        navn = amtPersonalia.navn,
+                        oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
+                            navEnhetService.hentEnhet(it)
+                        },
+                        geografiskEnhet = geografiskEnhetDto,
+                        erSkjermet = amtPersonalia.erSkjermet,
+                        adressebeskyttelse = amtPersonalia.adressebeskyttelse,
+                        region = geografiskEnhetDto?.overordnetEnhet?.let {
+                            navEnhetService.hentEnhet(it)
+                        },
+                    )
                 }
             }
             .getOrElse {
@@ -125,12 +103,13 @@ class PersonaliaService(
     }
 }
 
-data class DeltakerPersonalia(
+data class DeltakerPersonaliaMedGeografiskEnhet(
     val deltakerId: UUID,
     val norskIdent: NorskIdent,
     val navn: String,
+    val erSkjermet: Boolean,
+    val adressebeskyttelse: PdlGradering,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val region: NavEnhetDto?,
-    val foedselsdato: LocalDate?,
 )
