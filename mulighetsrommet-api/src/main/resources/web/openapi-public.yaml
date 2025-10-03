@@ -1,0 +1,208 @@
+openapi: 3.1.0
+info:
+  title: API
+  version: latest
+externalDocs:
+  url: /
+servers: []
+tags: []
+paths:
+  /api/v1/tiltaksgjennomforinger/{id}:
+    get:
+      tags:
+      - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforing
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Gjennomføringen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingV1Dto"
+        "404":
+          description: Gjennomføringen ble ikke funnet
+          headers: {}
+      deprecated: false
+  /api/v1/tiltaksgjennomforinger/id/{arenaId}:
+    get:
+      tags:
+      - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforingId
+      parameters:
+      - name: arenaId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Id til tiltaksgjennomføringen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeArenaIdForIdResponse"
+        "404":
+          description: Gjennomføringen ble ikke funnet
+          headers: {}
+      deprecated: false
+  /api/v1/tiltaksgjennomforinger/arenadata/{id}:
+    get:
+      tags:
+      - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforingArenadata
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Arenadata for tiltaksgjennføringen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingArenaDataDto"
+        "404":
+          description: Gjennomføringen ble ikke funnet
+          headers: {}
+      deprecated: false
+components:
+  schemas:
+    TiltaksgjennomforingV1Dto.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        arenaKode:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - arenaKode
+      - id
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+    TiltaksgjennomforingV1Dto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/TiltaksgjennomforingV1Dto.Tiltakstype"
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        virksomhetsnummer:
+          type: string
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        tilgjengeligForArrangorFraOgMedDato:
+          type:
+          - "null"
+          - string
+          format: date
+        apentForPamelding:
+          type: boolean
+        antallPlasser:
+          type: integer
+          format: int32
+        opprettetTidspunkt:
+          type: string
+          format: date-time
+        oppdatertTidspunkt:
+          type: string
+          format: date-time
+      required:
+      - antallPlasser
+      - apentForPamelding
+      - id
+      - navn
+      - oppdatertTidspunkt
+      - opprettetTidspunkt
+      - oppstart
+      - sluttDato
+      - startDato
+      - status
+      - tilgjengeligForArrangorFraOgMedDato
+      - tiltakstype
+      - virksomhetsnummer
+    ExchangeArenaIdForIdResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+      - id
+    TiltaksgjennomforingArenaDataDto:
+      type: object
+      properties:
+        opprettetAar:
+          type: integer
+          format: int32
+        lopenr:
+          type: integer
+          format: int32
+      required:
+      - lopenr
+      - opprettetAar
+  examples: {}
+webhooks: {}

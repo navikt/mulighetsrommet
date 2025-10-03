@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.routes
 
 import io.github.smiley4.ktoropenapi.openApi
+import io.github.smiley4.ktorswaggerui.swaggerUI
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
@@ -36,8 +37,25 @@ fun Route.apiRoutes() {
         }
     }
 
-    authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
-        gjennomforingPublicRoutes()
+    route("swagger-ui") {
+        swaggerUI(
+            mapOf(
+                "Public" to "/api/openapi.yaml",
+                "Tiltaksadministrasjon" to "/api/tiltaksadministrasjon/openapi.yaml",
+                "Veilederflate" to "/api/veilederflate/openapi.yaml",
+                "Arrangørflate" to "/api/arrangorflate/openapi.yaml",
+            ),
+        )
+    }
+
+    route("/api") {
+        route("openapi.yaml") {
+            openApi(OpenApiSpec.PUBLIC.specName)
+        }
+
+        authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
+            gjennomforingPublicRoutes()
+        }
     }
 
     authenticate(AuthProvider.NAIS_APP_ARENA_ADAPTER_ACCESS) {
@@ -68,11 +86,11 @@ fun Route.apiRoutes() {
         }
 
         route("/tiltaksadministrasjon") {
-            authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-                route("openapi.yaml") {
-                    openApi(OpenApiSpec.TILTAKSADMINISTRASJON.specName)
-                }
+            route("openapi.yaml") {
+                openApi(OpenApiSpec.TILTAKSADMINISTRASJON.specName)
+            }
 
+            authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
                     tiltaksadministrasjonRoutes()
                 }
