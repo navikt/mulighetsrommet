@@ -5,6 +5,10 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50M"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 spec:
   image: "{{ image }}"
   port: 3000
@@ -28,6 +32,9 @@ spec:
   readiness:
     path: /internal/isReady
     initialDelay: 20
+  env:
+    - name: TELEMETRY_URL
+      value: https://telemetry.nav.no/collect
   observability:
     autoInstrumentation:
       enabled: true

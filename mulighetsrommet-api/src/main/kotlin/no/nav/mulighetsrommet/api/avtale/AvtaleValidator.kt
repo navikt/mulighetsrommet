@@ -159,12 +159,12 @@ class AvtaleValidator(
             return errors.left()
         }
 
-        return validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn)
+        return validatePrismodell(request.prismodell, tiltakskode, tiltakstype.navn, request.startDato!!)
             .map {
                 AvtaleDboMapper
                     .fromAvtaleRequest(
                         request,
-                        request.startDato!!,
+                        request.startDato,
                         it,
                         arrangor,
                         resolveStatus(request, previous, LocalDate.now()),
@@ -325,6 +325,7 @@ class AvtaleValidator(
         request: PrismodellRequest,
         tiltakskode: Tiltakskode,
         tiltakstypeNavn: String,
+        startDato: LocalDate,
     ): Either<NonEmptyList<FieldError>, PrismodellDbo> {
         val errors: List<FieldError> = buildList {
             if (request.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
@@ -344,7 +345,7 @@ class AvtaleValidator(
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                -> validateSatser(request.satser)
+                -> validateSatser(request.satser, startDato)
             }
         }
 
@@ -413,7 +414,7 @@ class AvtaleValidator(
         ).right()
     }
 
-    private fun MutableList<FieldError>.validateSatser(satser: List<AvtaltSatsRequest>) {
+    private fun MutableList<FieldError>.validateSatser(satser: List<AvtaltSatsRequest>, startDato: LocalDate) {
         if (satser.isEmpty()) {
             add(
                 FieldError.of(
@@ -421,6 +422,11 @@ class AvtaleValidator(
                     AvtaleRequest::prismodell,
                 ),
             )
+            return
+        }
+        val firstDate = satser[0].gjelderFra
+        if (firstDate == null || firstDate.isAfter(startDato)) {
+            add(FieldError.ofPointer("/satser/0/gjelderFra", "Avtalens startdato=$startDato må være dekket"))
         }
         satser.forEachIndexed { index, sats ->
             if (sats.pris == null || sats.pris <= 0) {

@@ -8,6 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -23,8 +24,10 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -147,8 +150,12 @@ class GenererUtbetalingService(
             }
 
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> {
-                // TODO: Implementer utbetaling for hele ukesverk
-                return null
+                if (periode.start.dayOfMonth != 1 || periode.slutt.dayOfMonth != 1) {
+                    log.warn("For hele uker må man generere for hele måneder! Skipper")
+                    return null
+                }
+                val input = resolvePrisPerHeleUkesverkInput(gjennomforing, periode)
+                UtbetalingBeregningPrisPerHeleUkesverk.beregn(input)
             }
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
@@ -211,6 +218,23 @@ class GenererUtbetalingService(
         )
     }
 
+    private fun QueryContext.resolvePrisPerHeleUkesverkInput(
+        gjennomforing: Gjennomforing,
+        periode: Periode,
+    ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
+        val sats = resolveAvtaltSats(gjennomforing, periode)
+
+        val heleUkerPeriode = heleUkerPeriode(periode)
+        val stengtHosArrangor = resolveStengtHosArrangor(heleUkerPeriode, gjennomforing.stengt)
+        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, heleUkerPeriode)
+        return UtbetalingBeregningPrisPerHeleUkesverk.Input(
+            periode = periode,
+            sats = sats,
+            stengt = stengtHosArrangor,
+            deltakelser = deltakelser,
+        )
+    }
+
     private suspend fun QueryContext.createUtbetaling(
         utbetalingId: UUID,
         gjennomforing: Gjennomforing,
@@ -236,8 +260,7 @@ class GenererUtbetalingService(
 
     private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
-        return AvtalteSatser.findSats(avtale, periode)
-            ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$periode")
+        return resolveAvtaltSats(gjennomforing, avtale, periode)
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
@@ -265,16 +288,33 @@ class GenererUtbetalingService(
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
             where gjennomforing.status != 'AVLYST'
-              and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
-              and not exists (
+                and (
+                    (
+                        avtale.prismodell = 'AVTALT_PRIS_PER_HELE_UKESVERK' and
+                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
+                            && :heleUkerPeriode::daterange
+                    ) or (
+                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
+                        && :periode::daterange
+                    )
+                )
+                and not exists (
                     select 1
                     from utbetaling
                     where utbetaling.gjennomforing_id = gjennomforing.id
                       and utbetaling.periode && :periode::daterange
-              )
+                )
         """.trimIndent()
 
-        return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
+        return session.list(
+            queryOf(
+                query,
+                mapOf(
+                    "periode" to periode.toDaterange(),
+                    "heleUkerPeriode" to heleUkerPeriode(periode).toDaterange(),
+                ),
+            ),
+        ) {
             UtbetalingContext(it.uuid("id"), PrismodellType.valueOf(it.string("prismodell")))
         }
     }
@@ -288,10 +328,27 @@ class GenererUtbetalingService(
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
             where gjennomforing.status != 'AVLYST'
-              and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
+                and (
+                    (
+                        avtale.prismodell = 'AVTALT_PRIS_PER_HELE_UKESVERK' and
+                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
+                            && :heleUkerPeriode::daterange
+                    ) or (
+                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
+                        && :periode::daterange
+                    )
+                )
         """.trimIndent()
 
-        return session.list(queryOf(query, mapOf("periode" to periode.toDaterange()))) {
+        return session.list(
+            queryOf(
+                query,
+                mapOf(
+                    "periode" to periode.toDaterange(),
+                    "heleUkerPeriode" to heleUkerPeriode(periode).toDaterange(),
+                ),
+            ),
+        ) {
             UtbetalingContext(it.uuid("id"), PrismodellType.valueOf(it.string("prismodell")))
         }
     }
@@ -402,6 +459,20 @@ private fun toDeltakelsePeriode(
     return DeltakelsePeriode(deltaker.id, overlappingPeriode)
 }
 
+fun heleUkerPeriode(periode: Periode): Periode {
+    val newStart = if (periode.start.dayOfWeek <= DayOfWeek.WEDNESDAY) {
+        periode.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    } else {
+        periode.start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY))
+    }
+    val newSlutt = if (periode.slutt.dayOfWeek >= DayOfWeek.THURSDAY) {
+        periode.slutt.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY))
+    } else {
+        periode.slutt.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    }
+    return Periode(newStart, newSlutt)
+}
+
 private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
     if (deltaker.status.type == DeltakerStatusType.DELTAR) {
         return true
@@ -417,4 +488,15 @@ private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
+}
+
+fun resolveAvtaltSats(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Int {
+    val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
+        maxOf(gjennomforing.startDato, periode.start)
+    } else {
+        periode.start
+    }
+    val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
+    return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
+        ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
 }

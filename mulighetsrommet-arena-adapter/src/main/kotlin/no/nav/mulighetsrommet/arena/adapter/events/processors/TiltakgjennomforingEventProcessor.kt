@@ -25,16 +25,14 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.model.Tiltakskoder.isEgenRegiTiltak
-import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
 import java.time.LocalDateTime
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
+    private val config: Config,
     private val entities: ArenaEntityService,
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
-    private val config: Config = Config(),
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
@@ -43,6 +41,7 @@ class TiltakgjennomforingEventProcessor(
 
     data class Config(
         val retryUpsertTimes: Int = 1,
+        val tiltakskoder: Set<String>,
     )
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
@@ -76,7 +75,7 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
-        if (isGruppetiltak(data.TILTAKSKODE) || isEgenRegiTiltak(data.TILTAKSKODE)) {
+        if (skalTiltakAdministreresFraTiltaksadministrasjon(data)) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
             ProcessingResult(Handled)
@@ -102,6 +101,10 @@ class TiltakgjennomforingEventProcessor(
             }
     }
 
+    private fun skalTiltakAdministreresFraTiltaksadministrasjon(data: ArenaTiltaksgjennomforing): Boolean {
+        return data.TILTAKSKODE in config.tiltakskoder
+    }
+
     private suspend fun upsertTiltaksgjennomforing(
         operation: ArenaEvent.Operation,
         tiltaksgjennomforing: Tiltaksgjennomforing,
@@ -125,8 +128,12 @@ class TiltakgjennomforingEventProcessor(
                 .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
                 .map { it.virksomhetsnummer }.bind()
         }
-        val dbo =
-            tiltaksgjennomforing.toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer, avtaleMapping?.entityId)
+        val dbo = tiltaksgjennomforing.toDbo(
+            tiltakstypeId = tiltakstypeMapping.entityId,
+            sak = sak,
+            virksomhetsnummer = virksomhetsnummer,
+            avtaleId = avtaleMapping?.entityId,
+        )
 
         if (operation == ArenaEvent.Operation.Delete) {
             client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${dbo.id}")

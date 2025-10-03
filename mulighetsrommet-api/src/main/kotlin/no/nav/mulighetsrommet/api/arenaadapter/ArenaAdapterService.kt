@@ -1,16 +1,21 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
+import arrow.core.getOrElse
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
@@ -19,10 +24,7 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.*
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
@@ -60,14 +62,19 @@ class ArenaAdapterService(
         val tiltakstype = queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
-        syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
+        val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
         if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
-            upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
+            return upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
+        }
+
+        if (Tiltakskoder.isEnkeltplassTiltak(tiltakstype.arenaKode)) {
+            upsertEnkeltplass(tiltakstype, arenaGjennomforing, arrangor)
         } else {
             upsertGruppetiltak(tiltakstype, arenaGjennomforing)
-            null
         }
+
+        return null
     }
 
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
@@ -126,15 +133,56 @@ class ArenaAdapterService(
         publishToKafka(next)
     }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer) {
-        arrangorService.getArrangorOrSyncFromBrreg(orgnr)
-            .onLeft { error ->
-                if (error == BrregError.NotFound) {
-                    logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
-                }
+    private fun upsertEnkeltplass(
+        tiltakstype: TiltakstypeDto,
+        arenaGjennomforing: ArenaGjennomforingDbo,
+        arrangor: ArrangorDto,
+    ): Unit = db.transaction {
+        require(Tiltakskoder.isEnkeltplassTiltak(tiltakstype.arenaKode)) {
+            "Enkeltplasser er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
+        }
 
-                throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra brreg: $error")
+        val previous = queries.enkeltplass.get(arenaGjennomforing.id)
+        if (
+            previous == null ||
+            arenaGjennomforing.tiltakstypeId != previous.tiltakstype.id ||
+            arenaGjennomforing.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer.value
+        ) {
+            queries.enkeltplass.upsert(
+                EnkeltplassDbo(
+                    id = arenaGjennomforing.id,
+                    tiltakstypeId = arenaGjennomforing.tiltakstypeId,
+                    arrangorId = arrangor.id,
+                ),
+            )
+        }
+
+        val arenadata = EnkeltplassArenaDataDbo(
+            id = arenaGjennomforing.id,
+            tiltaksnummer = arenaGjennomforing.tiltaksnummer,
+            navn = arenaGjennomforing.navn,
+            startDato = arenaGjennomforing.startDato,
+            sluttDato = arenaGjennomforing.sluttDato,
+            status = when (arenaGjennomforing.avslutningsstatus) {
+                Avslutningsstatus.IKKE_AVSLUTTET -> GjennomforingStatusType.GJENNOMFORES
+                Avslutningsstatus.AVBRUTT -> GjennomforingStatusType.AVBRUTT
+                Avslutningsstatus.AVLYST -> GjennomforingStatusType.AVLYST
+                Avslutningsstatus.AVSLUTTET -> GjennomforingStatusType.AVSLUTTET
+            },
+            arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
+        )
+        if (previous == null || hasRelevantChanges(arenadata, previous)) {
+            queries.enkeltplass.setArenaData(arenadata)
+        }
+    }
+
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): ArrangorDto {
+        return arrangorService.getArrangorOrSyncFromBrreg(orgnr).getOrElse { error ->
+            if (error == BrregError.NotFound) {
+                logger.warn("Virksomhet med orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
             }
+            throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra brreg: $error")
+        }
     }
 
     private fun hasRelevantChanges(
@@ -142,6 +190,21 @@ class ArenaAdapterService(
         current: Gjennomforing,
     ): Boolean {
         return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
+    }
+
+    private fun hasRelevantChanges(
+        arenadata: EnkeltplassArenaDataDbo,
+        current: Enkeltplass,
+    ): Boolean {
+        return arenadata != EnkeltplassArenaDataDbo(
+            id = current.id,
+            tiltaksnummer = current.arena?.tiltaksnummer,
+            navn = current.arena?.navn,
+            startDato = current.arena?.startDato,
+            sluttDato = current.arena?.sluttDato,
+            status = current.arena?.status,
+            arenaAnsvarligEnhet = current.arena?.arenaAnsvarligEnhet,
+        )
     }
 
     private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {

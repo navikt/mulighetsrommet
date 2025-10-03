@@ -88,8 +88,9 @@ val ApplicationConfigLocal = AppConfig(
         ),
         roles = setOf(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
-            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.AVTALER_SKRIV),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OPPFOLGER_GJENNOMFORING),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.SAKSBEHANDLER_OKONOMI),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
@@ -328,7 +329,9 @@ val ApplicationConfigLocal = AppConfig(
         ),
     ),
     okonomi = OkonomiConfig(
-        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith { Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1)) },
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
+        },
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

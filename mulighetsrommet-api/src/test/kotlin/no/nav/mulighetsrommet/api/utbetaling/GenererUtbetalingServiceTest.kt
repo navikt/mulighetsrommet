@@ -12,7 +12,6 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.OkonomiConfig
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
@@ -65,6 +64,8 @@ class GenererUtbetalingServiceTest : FunSpec({
 
     val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
     val februar = Periode.forMonthOf(LocalDate.of(2025, 2, 1))
+    val mars = Periode.forMonthOf(LocalDate.of(2025, 3, 1))
+    val september = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
 
     context("utbetalinger for forhåndsgodkjente tiltak") {
         val service = createUtbetalingService()
@@ -1007,6 +1008,154 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.utbetaling.get(generertUtbetaling.id).shouldBeNull()
             }
+        }
+    }
+
+    context("utbetalinger for hele uker") {
+        val service = createUtbetalingService()
+        val oppfolging = GjennomforingFixtures.Oppfolging1
+
+        test("heleukerPeriode endring") {
+            heleUkerPeriode(januar) shouldBe Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3))
+
+            heleUkerPeriode(februar) shouldBe Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 3, 3))
+
+            heleUkerPeriode(mars) shouldBe Periode(LocalDate.of(2025, 3, 3), LocalDate.of(2025, 3, 31))
+
+            heleUkerPeriode(september) shouldBe Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2025, 9, 29))
+        }
+
+        test("utbetaling for avtalt pris per hele ukesverk tar med deltakelse fra 2024 siden uken skal med i januar") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                ),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging.copy(sluttDato = LocalDate.of(2024, 12, 31))),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2024, 12, 1),
+                        sluttDato = LocalDate.of(2024, 12, 31),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForPeriode(januar)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.gjennomforing.id shouldBe oppfolging.id
+            utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                sats = 100,
+                stengt = emptySet(),
+                deltakelser = setOf(
+                    DeltakelsePeriode(
+                        deltakelseId = domain.deltakere[0].id,
+                        periode = Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 1, 1)),
+                    ),
+                ),
+            )
+            utbetaling.beregning.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
+                belop = 100,
+                deltakelser = setOf(
+                    DeltakelseUkesverk(
+                        deltakelseId = domain.deltakere[0].id,
+                        ukesverk = 1.0,
+                    ),
+                ),
+            )
+        }
+
+        test("utbetaling for avtalt pris per hele ukesverk genereres ikke for deltakelse 29. sep fordi uken skal med i oktober") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 9, 29),
+                        sluttDato = null,
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(september).shouldHaveSize(0)
+        }
+
+        test("utbetaling for avtalt pris per hele ukesverk genererer kun for hele måneder") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 12, 31),
+                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 5), LocalDate.of(2025, 1, 17))).shouldHaveSize(0)
+            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31))).shouldHaveSize(0)
+            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 2), LocalDate.of(2025, 3, 3))).shouldHaveSize(0)
+            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 31))).shouldHaveSize(0)
+            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1))).shouldHaveSize(1)
+            service.genererUtbetalingForPeriode(Periode(LocalDate.of(2025, 3, 1), LocalDate.of(2025, 5, 1))).shouldHaveSize(1)
+        }
+    }
+
+    context("resolve avtalt sats") {
+        test("finner sats hvis gjennomføringen og satsen begynner midt i en måned") {
+            val oppfolging = GjennomforingFixtures.Oppfolging1
+            val service = createUtbetalingService()
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 15), 100),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging.copy(startDato = LocalDate.of(2025, 1, 15))),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 15),
+                        sluttDato = null,
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
         }
     }
 })

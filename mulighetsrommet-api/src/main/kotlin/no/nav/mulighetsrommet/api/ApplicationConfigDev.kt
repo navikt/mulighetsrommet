@@ -98,14 +98,19 @@ val ApplicationConfigDev = AppConfig(
             ),
 
             EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_avtale-skriv",
+                rolle = Rolle.AVTALER_SKRIV,
+            ),
+            EntraGroupNavAnsattRolleMapping(
                 entraGroupId = "279039a0-39fd-4860-afdd-a1a2ccaa6323".toUUID(),
                 kommentar = "0000-CA-Tiltaksadministrasjon_gjennomforing-skriv",
                 rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
             ),
             EntraGroupNavAnsattRolleMapping(
-                entraGroupId = "48026f54-6259-4c35-a148-bc4257bcaf03".toUUID(),
-                kommentar = "0000-CA-Tiltaksadministrasjon_avtale-skriv",
-                rolle = Rolle.AVTALER_SKRIV,
+                entraGroupId = "cbf319db-ac5a-4cb2-bfc4-7f813f97cca6".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_oppfølger-gjennomføring",
+                rolle = Rolle.OPPFOLGER_GJENNOMFORING,
             ),
 
             EntraGroupNavAnsattRolleMapping(

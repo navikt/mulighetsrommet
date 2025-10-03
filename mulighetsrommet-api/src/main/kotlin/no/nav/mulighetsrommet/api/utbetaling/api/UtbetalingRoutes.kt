@@ -390,8 +390,6 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
 
     val opprettelse = queries.totrinnskontroll
         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
-    val tilsagnOpprettelse = queries.totrinnskontroll
-        .getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
 
     val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
         Rolle.ATTESTANT_UTBETALING,
@@ -408,7 +406,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         opprettelse = opprettelse.toDto(),
         handlinger = setOfNotNull(
             UtbetalingLinjeHandling.ATTESTER.takeIf {
-                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent && tilsagnOpprettelse.besluttetAv != navAnsatt.navIdent
+                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent
             },
             UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
         ),

@@ -108,7 +108,7 @@ spec:
             consequence: |
               Indikerer antall kafka-meldinger som står fast i kafka_consumer_record tabellen, som kan føre til manglende data eller forsinkelser i prosessering.
             action: |
-              Sjekk database og applikasjonslogger for å identifisere meldingene og vurder om vurder om de skal kjøres på nytt eller fjernes.
+              Sjekk database og applikasjonslogger for å identifisere meldingene og vurder om de skal kjøres på nytt eller fjernes.
               Det kan være feil i applikasjonens konfigurering som forårsaker dette.
               Disse meldingene kan trenge manuell behandling for å sikre korrekt prosessering.
           labels:

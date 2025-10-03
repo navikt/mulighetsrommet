@@ -19,6 +19,7 @@ val ApplicationConfigDev = AppConfig(
         port = 8084,
         host = "0.0.0.0",
     ),
+    migrering = MigreringConfig(),
     enableFailedRecordProcessor = true,
     tasks = TaskConfig(
         retryFailedEvents = RetryFailedEvents.Config(
