@@ -102,32 +102,7 @@ class ArrangorflateService(
             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
-        return getRelevanteForslag(utbetaling) +
-            getFeilSluttDato(deltakere, LocalDate.now()) +
-            getOverlappendePerioder(deltakere, utbetaling.periode)
-    }
-
-    fun getOverlappendePerioder(
-        deltakere: List<Deltaker>,
-        utbetalingPeriode: Periode,
-    ): List<DeltakerAdvarsel.OverlappendePeriode> {
-        val deltakerPerioder = deltakere.mapNotNull { deltaker ->
-            deltaker.norskIdent?.let {
-                DeltakerOgPeriode(
-                    deltaker.id,
-                    deltaker.norskIdent,
-                    Periode.fromInclusiveDates(
-                        deltaker.startDato ?: utbetalingPeriode.start,
-                        deltaker.sluttDato ?: utbetalingPeriode.getLastInclusiveDate(),
-                    ),
-                )
-            }
-        }
-        return deltakerPerioder
-            .mapNotNull { deltakerOgPeriode ->
-                DeltakerAdvarsel.OverlappendePeriode(deltakerOgPeriode.id)
-                    .takeIf { _ -> harOverlappendePeriode(deltakerOgPeriode, deltakerPerioder) }
-            }
+        return getRelevanteForslag(utbetaling) + getFeilSluttDato(deltakere, LocalDate.now())
     }
 
     fun getFeilSluttDato(deltakere: List<Deltaker>, today: LocalDate): List<DeltakerAdvarsel.FeilSluttDato> {

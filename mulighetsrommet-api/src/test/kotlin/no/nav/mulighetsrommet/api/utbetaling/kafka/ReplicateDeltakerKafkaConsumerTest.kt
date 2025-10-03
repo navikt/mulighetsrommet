@@ -264,7 +264,6 @@ private fun createAmtDeltakerV1Dto(
 fun DeltakerDbo.toDeltaker(norskIdent: NorskIdent) = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
-    norskIdent = norskIdent,
     startDato = null,
     sluttDato = null,
     registrertDato = registrertDato,
