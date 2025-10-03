@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -38,7 +39,8 @@ class ArenaAdapterService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val topic: String,
+        val gjennomforingV1Topic: String,
+        val gjennomforingV2Topic: String,
     )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
@@ -120,17 +122,14 @@ class ArenaAdapterService(
             arenaGjennomforing.arenaAnsvarligEnhet,
         )
 
-        val next = requireNotNull(queries.gjennomforing.get(arenaGjennomforing.id)) {
-            "Gjennomføring burde ikke være null siden den nettopp ble lagt til"
-        }
-
+        val next = queries.gjennomforing.getOrError(arenaGjennomforing.id)
         if (previous.tiltaksnummer == null) {
             logTiltaksnummerHentetFraArena(next)
         } else {
             logUpdateGjennomforing(next)
         }
 
-        publishToKafka(next)
+        publishTiltaksgjennomforingV1ToKafka(TiltaksgjennomforingV1Mapper.fromGjennomforing(next))
     }
 
     private fun upsertEnkeltplass(
@@ -174,6 +173,9 @@ class ArenaAdapterService(
         if (previous == null || hasRelevantChanges(arenadata, previous)) {
             queries.enkeltplass.setArenaData(arenadata)
         }
+
+        val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
+        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): ArrangorDto {
@@ -207,19 +209,6 @@ class ArenaAdapterService(
         )
     }
 
-    private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {
-        val eksternDto = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
-
-        val record = StoredProducerRecord(
-            config.topic,
-            eksternDto.id.toString().toByteArray(),
-            Json.encodeToString(eksternDto).toByteArray(),
-            null,
-        )
-
-        queries.kafkaProducerRecord.storeRecord(record)
-    }
-
     private fun QueryContext.logUpdateAvtale(avtale: Avtale) {
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
@@ -248,6 +237,26 @@ class ArenaAdapterService(
             gjennomforing.id,
             LocalDateTime.now(),
         ) { Json.encodeToJsonElement(gjennomforing) }
+    }
+
+    private fun QueryContext.publishTiltaksgjennomforingV1ToKafka(dto: TiltaksgjennomforingV1Dto) {
+        val record = StoredProducerRecord(
+            config.gjennomforingV1Topic,
+            dto.id.toString().toByteArray(),
+            Json.encodeToString(dto).toByteArray(),
+            null,
+        )
+        queries.kafkaProducerRecord.storeRecord(record)
+    }
+
+    private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {
+        val record = StoredProducerRecord(
+            config.gjennomforingV2Topic,
+            dto.gjennomforing.id.toString().toByteArray(),
+            Json.encodeToString(dto).toByteArray(),
+            null,
+        )
+        queries.kafkaProducerRecord.storeRecord(record)
     }
 }
 
