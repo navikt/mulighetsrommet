@@ -4,11 +4,12 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.api.utbetaling.Person
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -188,10 +189,18 @@ data class ArrangorflatePerson(
     val foedselsdato: LocalDate?,
 ) {
     companion object {
-        fun fromPerson(person: Person) = ArrangorflatePerson(
-            navn = person.navn,
-            foedselsdato = person.foedselsdato,
-        )
+        fun fromPerson(person: PdlPerson) = when (person.gradering) {
+            PdlGradering.UGRADERT ->
+                ArrangorflatePerson(
+                    navn = person.navn ?: "Ukjent navn",
+                    foedselsdato = person.foedselsdato,
+                )
+            else ->
+                ArrangorflatePerson(
+                    navn = "Adressebeskyttet",
+                    foedselsdato = null,
+                )
+        }
     }
 }
 

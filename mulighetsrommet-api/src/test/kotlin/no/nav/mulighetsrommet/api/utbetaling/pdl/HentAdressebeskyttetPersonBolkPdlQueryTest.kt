@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.pdl
 
-import arrow.core.nonEmptyListOf
 import arrow.core.nonEmptySetOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -72,16 +71,10 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
         val query = HentAdressebeskyttetPersonBolkPdlQuery(mockPdlClient(clientEngine))
 
         query.hentPersonBolk(identer) shouldBeRight mapOf(
-            PdlIdent("12345678910") to HentPersonBolkResponse.Person(
-                navn = nonEmptyListOf(
-                    PdlNavn(fornavn = "Ola", etternavn = "Normann"),
-                ),
-                adressebeskyttelse = listOf(
-                    HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
-                ),
-                foedselsdato = nonEmptyListOf(
-                    HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                ),
+            PdlIdent("12345678910") to PdlPerson(
+                navn = "Normann, Ola",
+                gradering = PdlGradering.STRENGT_FORTROLIG,
+                foedselsdato = null,
             ),
         )
     }
@@ -139,16 +132,10 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
         val query = HentAdressebeskyttetPersonBolkPdlQuery(mockPdlClient(clientEngine))
 
         query.hentPersonBolk(nonEmptySetOf(PdlIdent("12345678910"))) shouldBeRight mapOf(
-            PdlIdent("12345678910") to HentPersonBolkResponse.Person(
-                navn = nonEmptyListOf(
-                    PdlNavn(fornavn = "Ola", etternavn = "Normann"),
-                ),
-                adressebeskyttelse = listOf(
-                    HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
-                ),
-                foedselsdato = nonEmptyListOf(
-                    HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                ),
+            PdlIdent("12345678910") to PdlPerson(
+                navn = "Normann, Ola",
+                gradering = PdlGradering.UGRADERT,
+                foedselsdato = null,
             ),
         )
     }

@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
-import arrow.core.right
+import arrow.core.*
+import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -13,9 +11,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -37,14 +33,14 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.flatten
 
 class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
-    private val personService: PersonService,
+    private val personaliaService: PersonaliaService,
     private val journalforUtbetaling: JournalforUtbetaling,
-    private val navEnhetService: NavEnhetService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -497,32 +493,19 @@ class UtbetalingService(
     }
 
     suspend fun getUtbetalingBeregning(utbetaling: Utbetaling, filter: BeregningFilter): UtbetalingBeregningDto = db.session {
-        val norskIdentById = queries.deltaker
-            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-            .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
-            .associate { it.id to it.norskIdent }
-
-        val personerOgGeografiskEnhet = personService.getPersonerMedGeografiskEnhet(norskIdentById.values.mapNotNull { it })
-            .map {
-                val geografiskEnhet = it.second?.let { navEnhetService.hentEnhet(it) }
-                PersonEnhetOgRegion(
-                    person = it.first,
-                    geografiskEnhet = geografiskEnhet,
-                    region = geografiskEnhet?.overordnetEnhet?.let { navEnhetService.hentEnhet(it) },
-                )
-            }
-            .associateBy { it.person.norskIdent }
+        val deltakelser = utbetaling.beregning.output.deltakelser()
+        val personalia = personaliaService.getPersonalia(deltakelser.map { it.deltakelseId })
 
         val regioner = NavEnhetHelpers.buildNavRegioner(
-            personerOgGeografiskEnhet
-                .map { listOfNotNull(it.value.geografiskEnhet, it.value.region) }
+            personalia
+                .map { (_, personalia) ->
+                    listOfNotNull(personalia.geografiskEnhet, personalia.region)
+                }
                 .flatten(),
         )
 
         val deltakelsePersoner = utbetaling.beregning.output.deltakelser().map {
-            val norskIdent = norskIdentById.getValue(it.deltakelseId)
-            val person = norskIdent?.let { personerOgGeografiskEnhet.getValue(norskIdent) }
-            it to person
+            it to personalia[it.deltakelseId]
         }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
@@ -542,9 +525,3 @@ class UtbetalingService(
         },
     )
 }
-
-data class PersonEnhetOgRegion(
-    val person: Person,
-    val geografiskEnhet: NavEnhetDto?,
-    val region: NavEnhetDto?,
-)

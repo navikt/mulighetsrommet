@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
-import no.nav.mulighetsrommet.api.utbetaling.PersonEnhetOgRegion
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
@@ -18,7 +18,7 @@ data class UtbetalingBeregningDto(
     companion object {
         fun from(
             utbetaling: Utbetaling,
-            deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
+            deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>,
             regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {
@@ -124,7 +124,7 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
 }
 
 private fun manedsverkTable(
-    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
+    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = friDeltakelseColumns() + manedsverkDeltakelseColumns(),
@@ -152,7 +152,7 @@ private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
 )
 
 private fun ukesverkTable(
-    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>,
+    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = friDeltakelseColumns() + ukesverkDeltakelseColumns(),
@@ -179,7 +179,7 @@ private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
     "belop" to DataElement.nok(ukesverk * sats),
 )
 
-private fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, PersonEnhetOgRegion?>>) = DataDrivenTableDto(
+private fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonalia?>>) = DataDrivenTableDto(
     columns = friDeltakelseColumns(),
     rows = deltakelsePersoner.map { friDeltakelseCells(it.second) },
 )
@@ -189,13 +189,15 @@ private fun friDeltakelseColumns() = listOf(
     DataDrivenTableDto.Column("foedselsdato", "Fødselsdato"),
     DataDrivenTableDto.Column("region", "Region"),
     DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
+    DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
 )
 
-private fun friDeltakelseCells(person: PersonEnhetOgRegion?) = mapOf(
-    "navn" to person?.person?.navn?.let { DataElement.text(it) },
-    "geografiskEnhet" to person?.geografiskEnhet?.navn?.let { DataElement.text(it) },
-    "region" to person?.region?.navn?.let { DataElement.text(it) },
-    "foedselsdato" to person?.person?.foedselsdato?.let { DataElement.date(it) },
+private fun friDeltakelseCells(personalia: DeltakerPersonalia?) = mapOf(
+    "navn" to personalia?.navn?.let { DataElement.text(it) },
+    "geografiskEnhet" to personalia?.geografiskEnhet?.navn?.let { DataElement.text(it) },
+    "oppfolgingEnhet" to personalia?.oppfolgingEnhet?.navn?.let { DataElement.text(it) },
+    "region" to personalia?.region?.navn?.let { DataElement.text(it) },
+    "foedselsdato" to personalia?.foedselsdato?.let { DataElement.date(it) },
 )
 
 private fun getRegnestykkeManedsverk(

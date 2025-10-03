@@ -9,6 +9,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -47,6 +49,28 @@ class AmtDeltakerClient(
             else -> {
                 val bodyAsText = response.bodyAsText()
                 log.error("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
+                AmtDeltakerError.Error.left()
+            }
+        }
+    }
+
+    suspend fun hentPersonalia(
+        deltakerIds: List<UUID>,
+    ): Either<AmtDeltakerError, List<DeltakerPersonaliaResponse>> {
+        val response = client.post("$baseUrl/external/deltakere/personalia") {
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
+            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            setBody(deltakerIds)
+            setBody(Json.encodeToJsonElement(ListSerializer(UUIDSerializer), deltakerIds))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> Either.Right(response.body<List<DeltakerPersonaliaResponse>>())
+            HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
+            HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
+            else -> {
+                val bodyAsText = response.bodyAsText()
+                log.error("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")
                 AmtDeltakerError.Error.left()
             }
         }
@@ -119,4 +143,24 @@ enum class GruppeTiltakstype {
     JOBBK,
     GRUPPEAMO,
     GRUFAGYRKE,
+}
+
+@Serializable
+data class DeltakerPersonaliaResponse(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerId: UUID,
+    val personident: String,
+    val fornavn: String,
+    val mellomnavn: String?,
+    val etternavn: String,
+    val navEnhetsnummer: String?,
+    val erSkjermet: Boolean,
+    val adressebeskyttelse: AdressebeskyttelseResponse?,
+) {
+    enum class AdressebeskyttelseResponse {
+        STRENGT_FORTROLIG_UTLAND,
+        STRENGT_FORTROLIG,
+        FORTROLIG,
+        UGRADERT,
+    }
 }

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.pdl
 
-import arrow.core.nonEmptyListOf
 import arrow.core.nonEmptySetOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -11,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.clients.pdl.PdlNavn
 import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -101,16 +99,10 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
 
         query.hentPersonOgGeografiskTilknytningBolk(identer, AccessType.M2M) shouldBeRight mapOf(
             PdlIdent("12345678910") to Pair(
-                HentPersonBolkResponse.Person(
-                    navn = nonEmptyListOf(
-                        PdlNavn(fornavn = "Ola", etternavn = "Normann"),
-                    ),
-                    adressebeskyttelse = listOf(
-                        HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.STRENGT_FORTROLIG),
-                    ),
-                    foedselsdato = nonEmptyListOf(
-                        HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                    ),
+                PdlPerson(
+                    navn = "Normann, Ola",
+                    gradering = PdlGradering.STRENGT_FORTROLIG,
+                    foedselsdato = null,
                 ),
                 GeografiskTilknytning.GtBydel(
                     value = "030102",
@@ -178,16 +170,10 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
             AccessType.M2M,
         ) shouldBeRight mapOf(
             PdlIdent("12345678910") to Pair(
-                HentPersonBolkResponse.Person(
-                    navn = nonEmptyListOf(
-                        PdlNavn(fornavn = "Ola", etternavn = "Normann"),
-                    ),
-                    adressebeskyttelse = listOf(
-                        HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
-                    ),
-                    foedselsdato = nonEmptyListOf(
-                        HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                    ),
+                PdlPerson(
+                    navn = "Normann, Ola",
+                    gradering = PdlGradering.UGRADERT,
+                    foedselsdato = null,
                 ),
                 GeografiskTilknytning.GtBydel(
                     value = "030102",
@@ -250,16 +236,10 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
             AccessType.M2M,
         ) shouldBeRight mapOf(
             PdlIdent("12345678910") to Pair(
-                HentPersonBolkResponse.Person(
-                    navn = nonEmptyListOf(
-                        PdlNavn(fornavn = "Ola", etternavn = "Normann"),
-                    ),
-                    adressebeskyttelse = listOf(
-                        HentPersonBolkResponse.Adressebeskyttelse(gradering = PdlGradering.UGRADERT),
-                    ),
-                    foedselsdato = nonEmptyListOf(
-                        HentPersonBolkResponse.Foedselsdato(foedselsaar = 1980, foedselsdato = null),
-                    ),
+                PdlPerson(
+                    navn = "Normann, Ola",
+                    gradering = PdlGradering.UGRADERT,
+                    foedselsdato = null,
                 ),
                 GeografiskTilknytning.GtUdefinert,
             ),

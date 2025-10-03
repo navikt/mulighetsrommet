@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -54,7 +53,7 @@ class ArrangorflateServiceTest : FunSpec({
     )
 
     lateinit var pdlClient: PdlClient
-    lateinit var personService: PersonService
+    lateinit var hentAdressebeskyttetPersonBolkPdlQuery: HentAdressebeskyttetPersonBolkPdlQuery
     lateinit var arrangorflateService: ArrangorflateService
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
@@ -75,12 +74,8 @@ class ArrangorflateServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
         pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
-        personService = PersonService(
-            hentPersonOgGeografiskTilknytningQuery = HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(pdlClient),
-            hentPersonQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient),
-            norg2Client = mockk(),
-        )
-        arrangorflateService = ArrangorflateService(database.db, personService, kontoregisterOrganisasjon)
+        hentAdressebeskyttetPersonBolkPdlQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient)
+        arrangorflateService = ArrangorflateService(database.db, hentAdressebeskyttetPersonBolkPdlQuery, kontoregisterOrganisasjon)
     }
 
     afterEach {

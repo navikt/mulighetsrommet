@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import no.nav.mulighetsrommet.api.utbetaling.Person
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -11,7 +11,7 @@ import java.util.*
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
     status: ArrangorflateUtbetalingStatus,
-    deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>>,
+    deltakerPersoner: Map<UUID, Pair<Deltaker, PdlPerson?>>,
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
@@ -123,7 +123,7 @@ fun toArrangorflateBeregningDeltakelse(
     input: UtbetalingBeregningInputDeltakelse,
     output: UtbetalingBeregningOutputDeltakelse,
     deltaker: Deltaker?,
-    person: Person?,
+    person: PdlPerson?,
 ): ArrangorflateBeregningDeltakelse {
     return when (output) {
         is DeltakelseUkesverk -> ArrangorflateBeregningDeltakelse.PrisPerUkesverk(
