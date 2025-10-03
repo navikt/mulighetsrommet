@@ -51,7 +51,26 @@ fun Route.gjennomforingRoutes() {
 
     route("gjennomforinger") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
-            put {
+            put({
+                tags = setOf("Gjennomforing")
+                operationId = "upsertGjennomforing"
+                request {
+                    body<GjennomforingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Gjennomføring ble upsertet"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val request = call.receive<GjennomforingRequest>()
                 val navIdent = getNavIdent()
 
