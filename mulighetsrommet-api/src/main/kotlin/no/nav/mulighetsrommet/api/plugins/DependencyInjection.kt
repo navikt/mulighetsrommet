@@ -85,6 +85,7 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.notifications.NotificationTask
@@ -98,7 +99,6 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.MaskinportenTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
@@ -397,7 +397,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { PersonService(get(), get(), get()) }
-    single { UnleashService(appConfig.unleash) }
+    single { UnleashFeatureToggleService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single {

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.featuretoggles
+package no.nav.mulighetsrommet.featuretoggle.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*
@@ -8,16 +8,20 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
+import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.unleash.FeatureToggle
-import no.nav.mulighetsrommet.unleash.FeatureToggleContext
-import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
+import java.lang.Long
 import java.util.*
+import kotlin.Boolean
+import kotlin.String
+import kotlin.getValue
 
 fun Route.featureTogglesRoute() {
-    val unleashService: UnleashService by inject()
+    val features: UnleashFeatureToggleService by inject()
 
     route("/features") {
         get({
@@ -56,7 +60,7 @@ fun Route.featureTogglesRoute() {
                 orgnr = emptyList(),
             )
 
-            val isEnabled = unleashService.isEnabled(feature, context)
+            val isEnabled = features.isEnabled(feature, context)
 
             call.respond(isEnabled)
         }
@@ -66,7 +70,7 @@ fun Route.featureTogglesRoute() {
 fun ApplicationCall.generateUnleashSessionId(): String {
     val uuid = UUID.randomUUID()
     val sessionId =
-        java.lang.Long.toHexString(uuid.mostSignificantBits) + java.lang.Long.toHexString(uuid.leastSignificantBits)
+        Long.toHexString(uuid.mostSignificantBits) + Long.toHexString(uuid.leastSignificantBits)
     val cookie = Cookie(name = "UNLEASH_SESSION_ID", value = sessionId, path = "/", maxAge = -1)
     this.response.cookies.append(cookie)
     return sessionId

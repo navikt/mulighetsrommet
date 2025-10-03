@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
 import no.nav.mulighetsrommet.api.avtale.api.prismodellRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
+import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -18,13 +19,12 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
-import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
-import no.nav.mulighetsrommet.api.routes.v1.janzzRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.*
+import no.nav.mulighetsrommet.featuretoggle.api.featureTogglesRoute
 import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
 import no.nav.mulighetsrommet.utdanning.utdanningRoutes
