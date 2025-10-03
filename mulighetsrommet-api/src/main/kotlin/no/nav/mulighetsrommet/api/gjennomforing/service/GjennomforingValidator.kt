@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing
+package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
 import arrow.core.left
@@ -7,17 +7,24 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.SetTilgjengligForArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Tiltakskoder.isKursTiltak
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
 
@@ -76,7 +83,7 @@ object GjennomforingValidator {
                 GjennomforingDbo::antallPlasser,
             )
         }
-        if (isKursTiltak(ctx.avtale.tiltakstype.tiltakskode)) {
+        if (Tiltakskoder.isKursTiltak(ctx.avtale.tiltakstype.tiltakskode)) {
             validateKursTiltak(next)
         } else {
             validate(next.oppstart != GjennomforingOppstartstype.FELLES) {

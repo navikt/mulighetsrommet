@@ -8,18 +8,18 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
-import no.nav.mulighetsrommet.api.routes.featuretoggles.generateUnleashSessionId
+import no.nav.mulighetsrommet.featuretoggle.api.generateUnleashSessionId
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
+import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.unleash.FeatureToggle
-import no.nav.mulighetsrommet.unleash.FeatureToggleContext
-import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
 
 fun Route.arrangorFeatureToggleRoutes() {
-    val unleashService: UnleashService by inject()
+    val features: UnleashFeatureToggleService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -69,6 +69,6 @@ fun Route.arrangorFeatureToggleRoutes() {
             orgnr = listOf(orgnr),
         )
 
-        call.respond(unleashService.isEnabled(feature, context))
+        call.respond(features.isEnabled(feature, context))
     }
 }

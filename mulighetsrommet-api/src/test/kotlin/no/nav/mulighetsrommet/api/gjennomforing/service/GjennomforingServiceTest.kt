@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing
+package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight

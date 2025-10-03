@@ -15,13 +15,13 @@ import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.util.*
 
@@ -48,7 +48,7 @@ data class AppConfig(
     val tasks: TaskConfig,
     val slack: SlackConfig,
     val pamOntologi: AuthenticatedHttpClientConfig,
-    val unleash: UnleashService.Config,
+    val unleash: UnleashFeatureToggleService.Config,
     val pdl: AuthenticatedHttpClientConfig,
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
@@ -88,7 +88,7 @@ data class KafkaTopics(
     val sisteTiltaksgjennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
     val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
     val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
-    val datavaehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
+    val datavarehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
 )
 
 class KafkaClients(
