@@ -137,6 +137,7 @@ function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
 export const ErrorBoundary = () => {
   const navigate = useNavigate();
   const error = useRouteError();
+  const faro = getFaro();
 
   useEffect(() => {
     if (isRouteErrorResponse(error)) {
@@ -148,6 +149,12 @@ export const ErrorBoundary = () => {
       }
     }
   }, [error, navigate]);
+
+  useEffect(() => {
+    if (error instanceof Error) {
+      faro?.api.pushError(error);
+    }
+  }, [error, faro?.api]);
 
   if (isRouteErrorResponse(error)) {
     return (

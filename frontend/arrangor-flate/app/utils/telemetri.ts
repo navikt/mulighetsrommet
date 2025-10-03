@@ -14,7 +14,7 @@ let faro: Faro | undefined;
  *
  * Faro brukes til instrumentering og telemetri og den typen ting i appen.
  */
-export function getFaro(telemetryUrl: string): Faro | null {
+export function getFaro(telemetryUrl?: string): Faro | null {
   if (faro) {
     return faro;
   }
