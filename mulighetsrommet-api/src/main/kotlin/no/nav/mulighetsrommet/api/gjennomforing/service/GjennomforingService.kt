@@ -11,11 +11,14 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.api.*
+import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -151,27 +154,6 @@ class GjennomforingService(
             val data = items.map { GjennomforingDtoMapper.fromGjennomforing(it) }
             PaginatedResponse.of(pagination, totalCount, data)
         }
-    }
-
-    fun getEkstern(id: UUID): TiltaksgjennomforingEksternV1Dto? = db.session {
-        queries.gjennomforing.get(id)?.let { dto ->
-            TiltaksgjennomforingEksternMapper.fromGjennomforing(dto)
-        }
-    }
-
-    fun getAllEkstern(
-        pagination: Pagination,
-        filter: EksternTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingEksternV1Dto> = db.session {
-        queries.gjennomforing
-            .getAll(
-                pagination,
-                arrangorOrgnr = filter.arrangorOrgnr,
-            )
-            .let { (totalCount, items) ->
-                val data = items.map { dto -> TiltaksgjennomforingEksternMapper.fromGjennomforing(dto) }
-                PaginatedResponse.of(pagination, totalCount, data)
-            }
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
@@ -464,7 +446,7 @@ class GjennomforingService(
     }
 
     private fun QueryContext.publishToKafka(dto: Gjennomforing) {
-        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforing(dto)
+        val eksternDto = TiltaksgjennomforingV1Mapper.fromGjennomforing(dto)
 
         val record = StoredProducerRecord(
             config.topic,

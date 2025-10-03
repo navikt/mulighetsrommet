@@ -5,9 +5,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
-import no.nav.mulighetsrommet.api.parameters.getPaginationParams
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -17,21 +16,11 @@ fun Route.gjennomforingPublicRoutes() {
     val arenaAdapterService: ArenaAdapterClient by inject()
 
     route("/api/v1/tiltaksgjennomforinger") {
-        get {
-            val orgnr = call.request.queryParameters.getOrFail<Organisasjonsnummer>("orgnr")
-
-            val filter = EksternTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
-            val pagination = getPaginationParams()
-
-            val result = gjennomforingService.getAllEkstern(pagination, filter)
-
-            call.respond(result)
-        }
-
         get("{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+            val id: UUID by call.parameters
 
-            val result = gjennomforingService.getEkstern(id)
+            val result = gjennomforingService.get(id)
+                ?.let { TiltaksgjennomforingV1Mapper.fromGjennomforing(it) }
                 ?: return@get call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
             call.respond(result)
@@ -60,10 +49,6 @@ fun Route.gjennomforingPublicRoutes() {
         }
     }
 }
-
-data class EksternTiltaksgjennomforingFilter(
-    val arrangorOrgnr: List<Organisasjonsnummer> = emptyList(),
-)
 
 fun toArenaDataDto(tiltaksnummer: String) = TiltaksgjennomforingArenaDataDto(
     opprettetAar = tiltaksnummer.split("#").first().toInt(),

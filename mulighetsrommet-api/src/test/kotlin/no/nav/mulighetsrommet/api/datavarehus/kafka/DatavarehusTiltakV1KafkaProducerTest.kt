@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -66,10 +66,10 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         )
 
         val message = Json.encodeToJsonElement(
-            TiltaksgjennomforingEksternV1Dto(
+            TiltaksgjennomforingV1Dto(
                 id = AFT1.id,
                 navn = AFT1.navn,
-                tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
+                tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
                     id = TiltakstypeFixtures.AFT.id,
                     navn = TiltakstypeFixtures.AFT.navn,
                     arenaKode = TiltakstypeFixtures.AFT.arenaKode,
