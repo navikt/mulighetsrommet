@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit
 class HentHistoriskeIdenterPdlQuery(
     private val pdl: PdlClient,
 ) {
-
     private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse.Identliste> =
         Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.HOURS)

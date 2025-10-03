@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import java.time.LocalDate
 
 @Serializable
 @JvmInline
@@ -21,15 +23,22 @@ enum class IdentGruppe {
 }
 
 @Serializable
-data class PdlPerson(
-    val navn: List<PdlNavn>,
-)
-
-@Serializable
 data class PdlNavn(
     val fornavn: String? = null,
     val mellomnavn: String? = null,
     val etternavn: String? = null,
+)
+
+@Serializable
+data class Foedselsdato(
+    val foedselsaar: Int,
+    @Serializable(with = LocalDateSerializer::class)
+    val foedselsdato: LocalDate?,
+)
+
+@Serializable
+data class Adressebeskyttelse(
+    val gradering: PdlGradering = PdlGradering.UGRADERT,
 )
 
 @Serializable

@@ -1,15 +1,16 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
@@ -19,17 +20,15 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
-import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -53,9 +52,9 @@ class ArrangorflateServiceTest : FunSpec({
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
 
-    lateinit var pdlClient: PdlClient
-    lateinit var personService: PersonService
     lateinit var arrangorflateService: ArrangorflateService
+    val amtDeltakerClient = mockk<AmtDeltakerClient>()
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
         return requireNotNull(queries.utbetaling.get(id))
@@ -74,13 +73,7 @@ class ArrangorflateServiceTest : FunSpec({
 
     beforeEach {
         domain.initialize(database.db)
-        pdlClient = mockPdlClient(ArrangorflateTestUtils.createPdlMockEngine())
-        personService = PersonService(
-            hentPersonOgGeografiskTilknytningQuery = HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(pdlClient),
-            hentPersonQuery = HentAdressebeskyttetPersonBolkPdlQuery(pdlClient),
-            norg2Client = mockk(),
-        )
-        arrangorflateService = ArrangorflateService(database.db, personService, kontoregisterOrganisasjon)
+        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon)
     }
 
     afterEach {
@@ -212,7 +205,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
             it.deltakelser shouldHaveSize 1
-            it.deltakelser[0].person.shouldBeNull()
+            it.deltakelser[0].personalia.shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
     }
@@ -310,40 +303,6 @@ class ArrangorflateServiceTest : FunSpec({
             val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
-        }
-
-        test("getOverlappendePerioder tre overlappende en ikke") {
-            val deltakerPeriode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 5))
-            val utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2024, 1, 1))
-            val deltaker1 = DeltakerFixtures.createDeltaker(
-                startDato = deltakerPeriode.start,
-                sluttDato = deltakerPeriode.slutt,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val deltaker2 = DeltakerFixtures.createDeltaker(
-                startDato = deltakerPeriode.start,
-                sluttDato = deltakerPeriode.slutt,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val deltaker3 = DeltakerFixtures.createDeltaker(
-                startDato = null,
-                sluttDato = deltakerPeriode.slutt,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val deltaker4 = DeltakerFixtures.createDeltaker(
-                startDato = deltakerPeriode.slutt.plusDays(1),
-                sluttDato = null,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val overlappendePerioder = arrangorflateService.getOverlappendePerioder(
-                listOf(deltaker1, deltaker2, deltaker3, deltaker4),
-                utbetalingPeriode,
-            )
-            overlappendePerioder.map { it.deltakerId } shouldContainExactlyInAnyOrder listOf(
-                deltaker1.id,
-                deltaker2.id,
-                deltaker3.id,
-            )
         }
     }
 })

@@ -11,10 +11,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
@@ -58,9 +55,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = ArrangorflatePerson(
+                    personalia = ArrangorflatePersonalia(
                         navn = "Ola Nordmann",
-                        foedselsdato = LocalDate.of(1989, 1, 1),
+                        norskIdent = NorskIdent("01010199999"),
                     ),
                     status = null,
                 ),
@@ -79,9 +76,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                             deltakelsesprosent = 100.0,
                         ),
                     ),
-                    person = ArrangorflatePerson(
+                    personalia = ArrangorflatePersonalia(
                         navn = "Kari Nordmann",
-                        foedselsdato = LocalDate.of(1989, 1, 1),
+                        norskIdent = NorskIdent("01010199998"),
                     ),
                     status = null,
                 ),
@@ -441,7 +438,7 @@ private val expectedJournalpostContent = """
                 "title": "Navn"
               },
               {
-                "title": "Fødselsdato",
+                "title": "Fnr",
                 "align": "RIGHT"
               },
               {
@@ -464,7 +461,7 @@ private val expectedJournalpostContent = """
                     "value": "Ola Nordmann"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": "01010199999"
                   },
                   {
                     "value": "01.01.2025"
@@ -484,7 +481,7 @@ private val expectedJournalpostContent = """
                     "value": "Kari Nordmann"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": "01010199998"
                   },
                   {
                     "value": "01.01.2025"
@@ -504,7 +501,7 @@ private val expectedJournalpostContent = """
                     "value": "Kari Nordmann"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": "01010199998"
                   },
                   {
                     "value": "15.01.2025"
@@ -537,7 +534,7 @@ private val expectedJournalpostContent = """
                 "title": "Navn"
               },
               {
-                "title": "Fødselsdato",
+                "title": "Fnr",
                 "align": "RIGHT"
               },
               {
@@ -552,7 +549,7 @@ private val expectedJournalpostContent = """
                     "value": "Ola Nordmann"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": "01010199999"
                   },
                   {
                     "value": "1.0"
@@ -565,7 +562,7 @@ private val expectedJournalpostContent = """
                     "value": "Kari Nordmann"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": "01010199998"
                   },
                   {
                     "value": "0.75"

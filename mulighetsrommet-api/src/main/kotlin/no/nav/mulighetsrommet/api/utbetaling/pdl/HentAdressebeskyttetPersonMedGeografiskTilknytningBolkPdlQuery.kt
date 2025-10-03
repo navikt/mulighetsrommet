@@ -16,7 +16,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
     suspend fun hentPersonOgGeografiskTilknytningBolk(
         identer: Set<PdlIdent>,
         accessType: AccessType,
-    ): Either<PdlError, Map<PdlIdent, Pair<HentPersonBolkResponse.Person, GeografiskTilknytning?>>> {
+    ): Either<PdlError, Map<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>> {
         val request = GraphqlRequest(
             query = $$"""
                 query($identer: [ID!]!) {
@@ -65,7 +65,11 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
                     val person = requireNotNull(it.person) {
                         "person forventet siden response var OK"
                     }
-                    PdlIdent(it.ident) to person
+                    PdlIdent(it.ident) to PdlPerson(
+                        navn = person.navn.tilNavn(),
+                        foedselsdato = person.foedselsdato.tilFoedselsdato(),
+                        gradering = person.adressebeskyttelse.tilGradering(),
+                    )
                 } else {
                     log.error("Response med ${it.code} fra pdl ved henting av person. Se secure logs for detaljer.")
                     SecureLog.logger.error("Response med ${it.code} fra pdl ved henting av person for ident=${it.ident}")

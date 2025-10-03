@@ -30,7 +30,7 @@ function getDeltakerSelector(
 ): SortBySelector<ArrangorflateBeregningDeltakelse> {
   switch (sortKey) {
     case DeltakerSortKey.PERSON_NAVN:
-      return (d) => d.person?.navn;
+      return (d) => d.personalia?.navn;
     case DeltakerSortKey.PERIODE_START:
       return (d) => d.periode.start;
     case DeltakerSortKey.PERIODE_SLUTT:
@@ -60,11 +60,11 @@ const baseColumns: Column<ArrangorflateBeregningDeltakelse>[] = [
             <ExclamationmarkTriangleIcon fontSize="1.5rem" />
           </Tooltip>
         )}
-        {d.person?.navn ?? "-"}
+        {d.personalia?.navn ?? "-"}
       </HStack>
     ),
   },
-  { label: "Fødselsdato", render: (d) => formaterDato(d.person?.foedselsdato) ?? "-" },
+  { label: "Ident", render: (d) => d.personalia?.norskIdent },
   { label: "Startdato i tiltaket", render: (d) => formaterDato(d.deltakerStartDato) ?? "-" },
   {
     label: "Startdato i perioden",
@@ -220,11 +220,11 @@ function DeltakerAdvarselInfo({
 }) {
   switch (advarsel.type) {
     case "DeltakerAdvarselRelevanteForslag":
-      return `${deltaker?.person?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg`;
+      return `${deltaker?.personalia?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg`;
     case "DeltakerAdvarselFeilSluttDato":
-      return `${deltaker?.person?.navn} har status “${deltaker?.status}” og slutt dato frem i tid`;
+      return `${deltaker?.personalia?.navn} har status “${deltaker?.status}” og slutt dato frem i tid`;
     case "DeltakerAdvarselOverlappendePeriode":
-      return `${deltaker?.person?.navn} har flere deltakelser med overlappende perioder`;
+      return `${deltaker?.personalia?.navn} har flere deltakelser med overlappende perioder`;
     case undefined:
       throw new Error('"type" mangler fra advarsel');
   }

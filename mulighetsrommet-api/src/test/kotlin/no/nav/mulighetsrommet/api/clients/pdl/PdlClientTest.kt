@@ -11,8 +11,13 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class PdlClientTest : FunSpec({
     @Serializable
+    data class Person(
+        val navn: List<PdlNavn>,
+    )
+
+    @Serializable
     data class HentPerson(
-        val hentPerson: PdlPerson?,
+        val hentPerson: Person?,
     )
 
     class HentFornavnMockQuery(private val pdl: PdlClient) {

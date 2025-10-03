@@ -63,7 +63,7 @@ import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateBestillingStatusConsume
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.PersonService
+import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
@@ -393,10 +393,9 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    single { PersonService(get(), get(), get()) }
+    single { PersonaliaService(get(), get(), get(), get()) }
     single { UnleashService(appConfig.unleash) }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { LagretFilterService(get()) }

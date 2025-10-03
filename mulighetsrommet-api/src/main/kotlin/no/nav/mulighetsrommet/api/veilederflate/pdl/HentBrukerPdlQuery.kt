@@ -14,9 +14,14 @@ class HentBrukerPdlQuery(
 ) {
     @Serializable
     data class PdlResponse(
-        val hentPerson: PdlPerson? = null,
+        val hentPerson: Person? = null,
         val hentGeografiskTilknytning: PdlGeografiskTilknytning? = null,
-    )
+    ) {
+        @Serializable
+        data class Person(
+            val navn: List<PdlNavn>,
+        )
+    }
 
     private val hentPersonCache: Cache<PdlIdent, HentBrukerResponse> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
