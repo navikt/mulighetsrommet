@@ -44,6 +44,8 @@ class AvtaleService(
         request: AvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(request.id)
+        require(previous == null) { "Kan ikke opprett avtale som allerede finnes" }
         val avtaleDbo = validator
             .validateCreateAvtale(request)
             .bind()

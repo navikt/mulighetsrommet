@@ -520,7 +520,10 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI), NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100")))),
+                roller = setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100"))),
+                ),
             )
             oppgaver shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
@@ -563,16 +566,25 @@ class OppgaverServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(
                     AvtaleFixtures.AFT.copy(
-                        administratorer = listOf(),
                         status = AvtaleStatusType.AKTIV,
+                        detaljer =
+                        AvtaleFixtures.AFT.detaljer.copy(
+                            administratorer = listOf(),
+                        ),
                     ),
                     AvtaleFixtures.gruppeAmo.copy(
-                        administratorer = listOf(),
                         status = AvtaleStatusType.AVSLUTTET,
+                        detaljer =
+                        AvtaleFixtures.gruppeAmo.detaljer.copy(
+                            administratorer = listOf(),
+                        ),
                     ),
                     AvtaleFixtures.VTA.copy(
-                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                         status = AvtaleStatusType.AKTIV,
+                        detaljer =
+                        AvtaleFixtures.VTA.detaljer.copy(
+                            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                        ),
                     ),
                 ),
             ).initialize(database.db)

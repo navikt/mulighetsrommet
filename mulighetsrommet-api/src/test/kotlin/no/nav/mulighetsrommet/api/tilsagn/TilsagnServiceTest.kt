@@ -106,7 +106,10 @@ class TilsagnServiceTest : FunSpec({
                 okonomiConfig = OkonomiConfig(
                     gyldigTilsagnPeriode = mapOf(
                         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
-                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato, LocalDate.of(2026, 1, 1)),
+                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(
+                            GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
+                            LocalDate.of(2026, 1, 1),
+                        ),
                     ),
                 ),
                 bestillingTopic = "topic",
@@ -127,7 +130,9 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
                 FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt),
                 FieldError.of(
-                    "Maksimum sluttdato for tilsagn til ${TiltakstypeFixtures.AFT.navn} er ${gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                    "Maksimum sluttdato for tilsagn til ${TiltakstypeFixtures.AFT.navn} er ${
+                        gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                    }",
                     TilsagnRequest::periodeSlutt,
                 ),
             )
@@ -196,11 +201,14 @@ class TilsagnServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     AvtaleFixtures.ARR.copy(
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(
-                            AvtaltSats(
-                                gjelderFra = LocalDate.of(2025, 3, 1),
-                                sats = 2000,
+                        prismodell =
+                        AvtaleFixtures.ARR.prismodell.copy(
+                            prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                            satser = listOf(
+                                AvtaltSats(
+                                    gjelderFra = LocalDate.of(2025, 3, 1),
+                                    sats = 2000,
+                                ),
                             ),
                         ),
                     ),
@@ -347,7 +355,11 @@ class TilsagnServiceTest : FunSpec({
 
             service.beslutt(
                 id = requestId,
-                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, aarsaker = emptyList(), forklaring = null),
+                request = BesluttTotrinnskontrollRequest(
+                    Besluttelse.GODKJENT,
+                    aarsaker = emptyList(),
+                    forklaring = null,
+                ),
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 

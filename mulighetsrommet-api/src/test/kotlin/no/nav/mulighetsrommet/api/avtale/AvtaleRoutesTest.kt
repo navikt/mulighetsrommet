@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.*
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 
 class AvtaleRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -129,8 +130,11 @@ class AvtaleRoutesTest : FunSpec({
                 avtaler = listOf(
                     AvtaleFixtures.AFT,
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                        prismodell = PrismodellDbo(
+                            prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                            satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                            prisbetingelser = null,
+                        ),
                     ),
                 ),
             ).initialize(database.db)

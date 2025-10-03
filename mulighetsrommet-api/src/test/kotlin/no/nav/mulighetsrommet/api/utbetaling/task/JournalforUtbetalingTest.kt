@@ -70,9 +70,11 @@ class JournalforUtbetalingTest : FunSpec({
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(
             AvtaleFixtures.AFT.copy(
-                arrangor = AvtaleFixtures.AFT.arrangor?.copy(
-                    hovedenhet = hovedenhet.id,
-                    underenheter = listOf(underenhet.id),
+                detaljer = AvtaleFixtures.AFT.detaljer.copy(
+                    arrangor = AvtaleFixtures.AFT.detaljer.arrangor?.copy(
+                        hovedenhet = hovedenhet.id,
+                        underenheter = listOf(underenhet.id),
+                    ),
                 ),
             ),
         ),

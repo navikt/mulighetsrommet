@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.left
+import arrow.core.nonEmptyListOf
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -18,6 +19,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.OpsjonsmodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -46,7 +48,7 @@ class AvtaleServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        coEvery { avtaleValidator.validate(any(), any()) } answers {
+        coEvery { avtaleValidator.validateCreateAvtale(any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
     }
@@ -66,18 +68,18 @@ class AvtaleServiceTest : FunSpec({
         gjennomforingPublisher,
     )
 
-    context("Upsert avtale") {
+    context("Opprett avtale") {
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(gjennomforingPublisher)
 
         test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
 
-            coEvery { avtaleValidator.validate(any(), any()) } returns listOf(
+            coEvery { avtaleValidator.validateCreateAvtale(any()) } returns nonEmptyListOf(
                 FieldError("navn", "Dårlig navn"),
             ).left()
 
-            avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
+            avtaleService.create(request, bertilNavIdent).shouldBeLeft(
                 listOf(FieldError("navn", "Dårlig navn")),
             )
         }
@@ -85,8 +87,8 @@ class AvtaleServiceTest : FunSpec({
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.avtaleRequest
 
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging.right()
-            avtaleService.upsert(request, bertilNavIdent)
+            coEvery { avtaleValidator.validateCreateAvtale(any()) } returns AvtaleFixtures.oppfolging.right()
+            avtaleService.create(request, bertilNavIdent)
 
             verify {
                 gjennomforingPublisher.schedule(
@@ -208,10 +210,15 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
-                .copy(administratorer = listOf(identAnsatt1))
+            coEvery {
+                avtaleValidator.validateUpdateDetaljer(
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns AvtaleFixtures.avtaleDetaljerDbo.copy(administratorer = listOf(identAnsatt1))
                 .right()
-            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
+            avtaleService.updateDetaljer(avtale.id, avtale.detaljer, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldBeEmpty()
@@ -223,10 +230,16 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
+            coEvery {
+                avtaleValidator.validateUpdateDetaljer(
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns AvtaleFixtures.avtaleDetaljerDbo
                 .copy(administratorer = listOf(identAnsatt2))
                 .right()
-            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
+            avtaleService.updateDetaljer(avtale.id, avtale.detaljer, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldHaveSize(1).first().should {
@@ -252,12 +265,15 @@ class AvtaleServiceTest : FunSpec({
         val theDayAfterTomorrow = today.plusDays(2)
 
         val avtale = AvtaleFixtures.oppfolging.copy(
-            startDato = yesterday,
-            sluttDato = yesterday,
             status = AvtaleStatusType.AVSLUTTET,
-            opsjonsmodell = Opsjonsmodell(
-                type = OpsjonsmodellType.TO_PLUSS_EN,
-                opsjonMaksVarighet = theDayAfterTomorrow,
+            detaljer = AvtaleFixtures.avtaleDetaljerDbo.copy(
+                startDato = yesterday,
+                sluttDato = yesterday,
+                opsjonsmodell = OpsjonsmodellDbo(
+                    type = OpsjonsmodellType.TO_PLUSS_EN,
+                    maksVarighet = theDayAfterTomorrow,
+                    customNavn = null,
+                ),
             ),
         )
 
@@ -284,14 +300,17 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     avtale.copy(
-                        opsjonsmodell = Opsjonsmodell(
-                            type = OpsjonsmodellType.TO_PLUSS_EN,
-                            opsjonMaksVarighet = avtale.startDato.plusYears(10),
+                        detaljer = avtale.detaljer.copy(
+                            opsjonsmodell = OpsjonsmodellDbo(
+                                type = OpsjonsmodellType.TO_PLUSS_EN,
+                                maksVarighet = avtale.detaljer.startDato.plusYears(10),
+                                customNavn = null,
+                            ),
                         ),
                     ),
                 ),
             ).initialize(database.db)
-            val sluttDato = avtale.sluttDato!!
+            val sluttDato = avtale.detaljer.sluttDato!!
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = null,
@@ -382,9 +401,10 @@ class AvtaleServiceTest : FunSpec({
             val dto = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
             dto.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
 
-            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight().should {
-                it.opsjonerRegistrert.shouldBeEmpty()
-            }
+            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight()
+                .should {
+                    it.opsjonerRegistrert.shouldBeEmpty()
+                }
         }
     }
 })

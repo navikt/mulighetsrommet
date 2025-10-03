@@ -12,12 +12,105 @@ paths:
     put:
       tags:
         - Avtaler
-      operationId: upsertAvtale
+      operationId: opprettAvtale
       requestBody:
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/AvtaleRequest"
+      responses:
+        200:
+          description: Avtale response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/avtaler/{id}/detaljer:
+    patch:
+      tags:
+        - Avtaler
+      operationId: upsertAvtaleDetaljer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          deprecated: false
+          explode: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtaleDetaljerRequest"
+      responses:
+        200:
+          description: Avtale response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/avtaler/{id}/personvern:
+    patch:
+      tags:
+        - Avtaler
+      operationId: upsertAvtalePersonvern
+      parameters:
+        - name: id
+          in: path
+          required: true
+          deprecated: false
+          explode: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtalePersonvernRequest"
+      responses:
+        200:
+          description: Avtale response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
+        400:
+          $ref: "#/components/responses/ValidationError"
+        default:
+          $ref: "#/components/responses/ProblemDetail"
+
+  /api/v1/intern/avtaler/{id}/veilederinformasjon:
+    patch:
+      tags:
+        - Avtaler
+      operationId: upsertAvtaleVeilederinfo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          deprecated: false
+          explode: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvtaleVeilederinfoRequest"
       responses:
         200:
           description: Avtale response
@@ -244,6 +337,46 @@ components:
         id:
           type: string
           format: UUID
+        detaljer:
+          $ref: "#/components/schemas/AvtaleDetaljerRequest"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellRequest"
+        personvern:
+          $ref: "#/components/schemas/AvtalePersonvernRequest"
+        veilederinformasjon:
+          $ref: "#/components/schemas/AvtaleVeilederinfoRequest"
+
+    AvtalePersonvernRequest:
+      type: object
+      properties:
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
+      required:
+        - personvernBekreftet
+
+    AvtaleVeilederinfoRequest:
+      type: object
+      properties:
+        navEnheter:
+          type: array
+          items:
+            type: string
+        beskrivelse:
+          type: [string, "null"]
+        faneinnhold:
+          anyOf:
+            - type: "null"
+            - $ref: "#/components/schemas/FaneinnholdRequest"
+      required:
+        - navenheter
+
+    AvtaleDetaljerRequest:
+      type: object
+      properties:
         navn:
           type: string
         tiltakskode:
@@ -284,24 +417,6 @@ components:
             type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        prismodell:
-          $ref: "#/components/schemas/PrismodellRequest"
-        navEnheter:
-          type: array
-          items:
-            type: string
-        beskrivelse:
-          type: [string, "null"]
-        faneinnhold:
-          anyOf:
-            - type: "null"
-            - $ref: "#/components/schemas/FaneinnholdRequest"
-        personopplysninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Personopplysning"
-        personvernBekreftet:
-          type: boolean
         amoKategorisering:
           anyOf:
             - type: "null"
@@ -316,22 +431,10 @@ components:
         - id
         - navn
         - tiltakskode
-        - arrangorOrganisasjonsnummer
-        - arrangorUnderenheter
-        - arrangorKontaktpersonId
-        - avtalenummer
         - startDato
-        - sluttDato
         - administrator
         - avtaletype
-        - navEnheter
-        - beskrivelse
-        - faneinnhold
-        - personopplysninger
-        - personvernBekreftet
-        - amoKategorisering
         - opsjonsmodell
-        - utdanningslop
         - prismodell
 
     PrismodellRequest:
@@ -1182,15 +1285,15 @@ components:
       properties:
         type:
           $ref: "#/components/schemas/OpsjonsmodellType"
-        opsjonMaksVarighet:
+        maksVarighet:
           type: [string, "null"]
           format: date
-        customOpsjonsmodellNavn:
+        customNavn:
           type: [string, "null"]
       required:
         - type
-        - opsjonMaksVarighet
-        - customOpsjonsmodellNavn
+        - maksVarighet
+        - customNavn
 
     OpsjonsmodellType:
       type: string

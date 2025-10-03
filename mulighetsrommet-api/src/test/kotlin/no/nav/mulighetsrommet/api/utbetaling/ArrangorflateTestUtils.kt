@@ -153,10 +153,12 @@ object ArrangorflateTestUtils {
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(
             AvtaleFixtures.AFT.copy(
-                arrangor = AvtaleFixtures.AFT.arrangor?.copy(
+                detaljer =
+                AvtaleFixtures.AFT.detaljer.copy(
+                arrangor = AvtaleFixtures.AFT.detaljer.arrangor?.copy(
                     hovedenhet = hovedenhet.id,
                     underenheter = listOf(underenhet.id),
-                ),
+                ),)
             ),
         ),
         gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),

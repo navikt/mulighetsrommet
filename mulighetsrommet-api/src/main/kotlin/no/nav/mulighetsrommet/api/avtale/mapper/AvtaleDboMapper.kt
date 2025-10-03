@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleArrangor
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleDetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtalePersonvernRequest
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleVeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
@@ -14,12 +16,16 @@ import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.SakarkivNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 
 object AvtaleDboMapper {
     fun fromAvtale(avtale: Avtale) = AvtaleDbo(
@@ -100,6 +106,48 @@ object AvtaleDboMapper {
         opsjonsmodell = opsjonsmodell.toDbo(),
         amoKategorisering = amoKategorisering,
         utdanningslop = utdanningslop,
+    )
+
+    fun AvtaleDbo.toAvtaleRequest(arrangor: AvtaleArrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
+        id = id,
+        detaljer = AvtaleDetaljerRequest(
+            navn = detaljer.navn,
+            tiltakskode = tiltakskode,
+            arrangor = arrangor,
+            sakarkivNummer = detaljer.sakarkivnummer?.let { SakarkivNummer(it) },
+            startDato = detaljer.startDato,
+            sluttDato = detaljer.sluttDato,
+            administratorer = detaljer.administratorer,
+            avtaletype = detaljer.avtaletype,
+            opsjonsmodell = Opsjonsmodell(
+                type = detaljer.opsjonsmodell.type,
+                maksVarighet = detaljer.opsjonsmodell.maksVarighet,
+                customNavn = detaljer.opsjonsmodell.customNavn,
+            ),
+            amoKategorisering = detaljer.amoKategorisering,
+            utdanningslop = detaljer.utdanningslop,
+        ),
+        prismodell = PrismodellRequest(
+            type = prismodell.prismodell,
+            prisbetingelser = prismodell.prisbetingelser,
+            satser = prismodell.satser.map {
+                AvtaltSatsRequest(
+                    pris = it.sats,
+                    valuta = "NOK",
+                    gjelderFra = it.gjelderFra,
+                )
+            },
+        ),
+        veilederinformasjon = AvtaleVeilederinfoRequest(
+            navEnheter = veilederinformasjon.navEnheter.toList(),
+            beskrivelse = veilederinformasjon.redaksjoneltInnhold?.beskrivelse,
+            faneinnhold = veilederinformasjon.redaksjoneltInnhold?.faneinnhold,
+        ),
+        personvern = AvtalePersonvernRequest(
+            personopplysninger = personvern.personopplysninger,
+            personvernBekreftet = personvern.personvernBekreftet,
+        ),
+
     )
 
     fun AvtalePersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
