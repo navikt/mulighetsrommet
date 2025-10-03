@@ -1,5 +1,5 @@
 import { Heading, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, GjennomføringerTabellResponse } from "api-client";
+import { ArrangorflateService, GjennomforingerTableResponse } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -9,7 +9,7 @@ import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
 
 type LoaderData = {
-  gjennomforingerTabeller: GjennomføringerTabellResponse;
+  gjennomforingerTabeller: GjennomforingerTableResponse;
   orgnr: string;
   arrangor: string;
 };

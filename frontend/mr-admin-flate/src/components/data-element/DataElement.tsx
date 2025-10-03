@@ -5,6 +5,7 @@ import { DataElementStatusTag } from "@/components/data-element/DataElementStatu
 import { DataElementMathOperator } from "@/components/data-element/DataElementMathOperator";
 import { compare, formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { ReactNode } from "react";
+import { DataElementMultiLinkModal } from "./DataElementMultiLinkModal";
 
 export function getDataElement(element: DataElement) {
   switch (element.type) {
@@ -18,6 +19,8 @@ export function getDataElement(element: DataElement) {
       return <Lenke to={element.href}>{element.text}</Lenke>;
     case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return <DataElementMathOperator operator={element.operator} />;
+    case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
+      return <DataElementMultiLinkModal data={element} />;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }
@@ -54,6 +57,8 @@ export function getComparableValue(element: DataElement) {
       return element.text;
     case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return element.operator;
+    case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
+      return element.modalContent.links[0].digest;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }

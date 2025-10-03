@@ -12,6 +12,8 @@ import { tekster } from "../tekster";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
+import { useFileStorage } from "~/hooks/useFileStorage";
+import { useEffect } from "react";
 
 type UtbetalingKvitteringData = {
   mottattTidspunkt: string;
@@ -55,6 +57,11 @@ export default function UtbetalingKvittering() {
   const { mottattTidspunkt, kontonummer } = useLoaderData<UtbetalingKvitteringData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
+  const storage = useFileStorage();
+
+  useEffect(() => {
+    storage.clear();
+  });
 
   return (
     <VStack gap="5" className="max-w-[50%] my-5 mx-auto">
