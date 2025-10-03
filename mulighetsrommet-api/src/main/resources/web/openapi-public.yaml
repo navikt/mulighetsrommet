@@ -7,11 +7,37 @@ externalDocs:
 servers: []
 tags: []
 paths:
+  /api/v2/tiltaksgjennomforinger/{id}:
+    get:
+      tags:
+      - Tiltaksgjennomforing
+      operationId: getTiltaksgjennomforingV2
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Gjennomføringen
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksgjennomforingV2Dto"
+        "404":
+          description: Gjennomføringen ble ikke funnet
+          headers: {}
+      deprecated: false
   /api/v1/tiltaksgjennomforinger/{id}:
     get:
       tags:
       - Tiltaksgjennomforing
-      operationId: getTiltaksgjennomforing
+      operationId: getTiltaksgjennomforingV1
       parameters:
       - name: id
         in: path
@@ -86,6 +112,131 @@ paths:
       deprecated: false
 components:
   schemas:
+    TiltaksgjennomforingV2Dto.Tiltakstype:
+      type: object
+      properties:
+        arenakode:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - arenakode
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+    TiltaksgjennomforingV2Dto.Arrangor:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+      required:
+      - organisasjonsnummer
+    TiltaksgjennomforingV2Dto.Gjennomforing:
+      anyOf:
+      - $ref: "#/components/schemas/ENKELTPLASS"
+      - $ref: "#/components/schemas/GRUPPE"
+    ENKELTPLASS:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        opprettetTidspunkt:
+          type: string
+          format: date-time
+        oppdatertTidspunkt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - oppdatertTidspunkt
+      - opprettetTidspunkt
+    GRUPPE:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        opprettetTidspunkt:
+          type: string
+          format: date-time
+        oppdatertTidspunkt:
+          type: string
+          format: date-time
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        tilgjengeligForArrangorFraOgMedDato:
+          type:
+          - "null"
+          - string
+          format: date
+        apentForPamelding:
+          type: boolean
+        antallPlasser:
+          type: integer
+          format: int32
+      required:
+      - antallPlasser
+      - apentForPamelding
+      - id
+      - navn
+      - oppdatertTidspunkt
+      - opprettetTidspunkt
+      - oppstart
+      - sluttDato
+      - startDato
+      - status
+      - tilgjengeligForArrangorFraOgMedDato
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+    TiltaksgjennomforingV2Dto:
+      type: object
+      properties:
+        tiltakstype:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Tiltakstype"
+        arrangor:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
+        gjennomforing:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Gjennomforing"
+      required:
+      - arrangor
+      - gjennomforing
+      - tiltakstype
     TiltaksgjennomforingV1Dto.Tiltakstype:
       type: object
       properties:
@@ -103,33 +254,6 @@ components:
       - id
       - navn
       - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-    GjennomforingStatusType:
-      type: string
-      enum:
-      - GJENNOMFORES
-      - AVSLUTTET
-      - AVBRUTT
-      - AVLYST
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
     TiltaksgjennomforingV1Dto:
       type: object
       properties:
