@@ -86,7 +86,11 @@ class GjennomforingService(
         }
     }
 
-    fun getValidatorCtx(request: GjennomforingRequest, previous: Gjennomforing?, today: LocalDate): GjennomforingValidator.Ctx = db.session {
+    fun getValidatorCtx(
+        request: GjennomforingRequest,
+        previous: Gjennomforing?,
+        today: LocalDate,
+    ): GjennomforingValidator.Ctx = db.session {
         val avtale = requireNotNull(db.session { queries.avtale.get(request.avtaleId) }) {
             "Gjennomføringen manglet avtale"
         }
@@ -363,28 +367,32 @@ class GjennomforingService(
         val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
             ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-        val gjennomforingSkriv = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+        val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+        val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
         val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
         val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
 
         return setOfNotNull(
             GjennomforingHandling.PUBLISER.takeIf {
-                statusGjennomfores && gjennomforingSkriv
+                statusGjennomfores && skrivGjennomforing
             },
             GjennomforingHandling.AVBRYT.takeIf {
-                statusGjennomfores && gjennomforingSkriv
+                statusGjennomfores && skrivGjennomforing
             },
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf {
-                statusGjennomfores && gjennomforingSkriv
+                statusGjennomfores && (skrivGjennomforing || oppfolgerGjennomforing)
+            },
+            GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf {
+                statusGjennomfores && (skrivGjennomforing || oppfolgerGjennomforing)
             },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf {
-                statusGjennomfores && gjennomforingSkriv
+                statusGjennomfores && skrivGjennomforing
             },
             GjennomforingHandling.DUPLISER.takeIf {
-                gjennomforingSkriv
+                skrivGjennomforing
             },
             GjennomforingHandling.REDIGER.takeIf {
-                statusGjennomfores && gjennomforingSkriv
+                statusGjennomfores && skrivGjennomforing
             },
             GjennomforingHandling.OPPRETT_TILSAGN.takeIf {
                 saksbehandlerOkonomi

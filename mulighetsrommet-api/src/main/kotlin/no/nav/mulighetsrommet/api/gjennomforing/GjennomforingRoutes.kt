@@ -127,7 +127,9 @@ fun Route.gjennomforingRoutes() {
                 gjennomforinger.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
+        }
 
+        authorize(anyOf = setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV, Rolle.OPPFOLGER_GJENNOMFORING)) {
             put("{id}/apent-for-pamelding", {
                 tags = setOf("Gjennomforing")
                 operationId = "setApentForPamelding"
@@ -187,7 +189,9 @@ fun Route.gjennomforingRoutes() {
 
                 call.respondWithStatusResponse(response)
             }
+        }
 
+        authorize(anyOf = setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
             put("{id}/stengt-hos-arrangor", {
                 tags = setOf("Gjennomforing")
                 operationId = "setStengtHosArrangor"
@@ -696,6 +700,7 @@ enum class GjennomforingHandling {
     AVBRYT,
     DUPLISER,
     ENDRE_APEN_FOR_PAMELDING,
+    ENDRE_TILGJENGELIG_FOR_ARRANGOR,
     REGISTRER_STENGT_HOS_ARRANGOR,
     OPPRETT_TILSAGN,
     OPPRETT_EKSTRATILSAGN,
