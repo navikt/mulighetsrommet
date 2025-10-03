@@ -149,7 +149,7 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         val consumers = mapOf(
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
-                DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavaehusTiltakTopic),
+                DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavarehusTiltakTopic),
                 get(),
                 get(),
             ),

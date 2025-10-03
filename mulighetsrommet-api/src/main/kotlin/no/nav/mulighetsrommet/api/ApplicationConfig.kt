@@ -88,7 +88,7 @@ data class KafkaTopics(
     val sisteTiltaksgjennomforingerTopic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
     val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
     val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
-    val datavaehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
+    val datavarehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
 )
 
 class KafkaClients(
