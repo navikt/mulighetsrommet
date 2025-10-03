@@ -8,7 +8,7 @@ import io.ktor.server.util.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
+import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
