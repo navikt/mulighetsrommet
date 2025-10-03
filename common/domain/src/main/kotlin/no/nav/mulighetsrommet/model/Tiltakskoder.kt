@@ -20,7 +20,7 @@ object Tiltakskoder {
      * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall), og som
      * skal migreres fra Arena som del av P4.
      */
-    private val GruppetiltakArenaKoder = listOf(
+    private val TiltakskoderGruppe = listOf(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
         Tiltakskode.AVKLARING,
@@ -35,7 +35,7 @@ object Tiltakskoder {
     /**
      * Tiltakskoder for tiltak i egen regi (regi av Nav), og som foreløpig administreres i Sanity ikke i admin-flate.
      */
-    private val EgenRegiTiltak = listOf(
+    private val TiltakskoderEgenRegi = listOf(
         "INDJOBSTOT",
         "IPSUNG",
         "UTVAOONAV",
@@ -51,18 +51,18 @@ object Tiltakskoder {
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     )
 
-    private val TiltakskodeArenaEnkeltplass = listOf(
+    private val TiltakskoderEnkeltplasser = listOf(
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.HOYERE_UTDANNING,
     )
 
     fun isGruppetiltak(arenaKode: String): Boolean {
-        return arenaKode in GruppetiltakArenaKoder.map { it.arenakode }
+        return arenaKode in TiltakskoderGruppe.map { it.arenakode }
     }
 
     fun isEgenRegiTiltak(arenaKode: String): Boolean {
-        return arenaKode in EgenRegiTiltak
+        return arenaKode in TiltakskoderEgenRegi
     }
 
     fun isKursTiltak(tiltakskode: Tiltakskode): Boolean {
@@ -70,6 +70,6 @@ object Tiltakskoder {
     }
 
     fun isEnkeltplassTiltak(arenakode: String): Boolean {
-        return arenakode in TiltakskodeArenaEnkeltplass.map { it.arenakode }
+        return arenakode in TiltakskoderEnkeltplasser.map { it.arenakode }
     }
 }
