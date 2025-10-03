@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing
+package no.nav.mulighetsrommet.api.gjennomforing.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain

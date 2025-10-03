@@ -9,7 +9,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.arrangorflateRoutes
 import no.nav.mulighetsrommet.api.avtale.api.avtaleRoutes
 import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
 import no.nav.mulighetsrommet.api.avtale.api.prismodellRoutes
-import no.nav.mulighetsrommet.api.gjennomforing.gjennomforingRoutes
+import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
+import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -19,7 +20,6 @@ import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
-import no.nav.mulighetsrommet.api.routes.v1.externalRoutes
 import no.nav.mulighetsrommet.api.routes.v1.janzzRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
@@ -37,7 +37,7 @@ fun Route.apiRoutes() {
     }
 
     authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
-        externalRoutes()
+        gjennomforingPublicRoutes()
     }
 
     authenticate(AuthProvider.NAIS_APP_ARENA_ADAPTER_ACCESS) {
