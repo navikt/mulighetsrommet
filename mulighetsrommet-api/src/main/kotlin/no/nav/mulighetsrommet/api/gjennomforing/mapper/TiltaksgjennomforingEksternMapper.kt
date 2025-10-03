@@ -9,7 +9,7 @@ object TiltaksgjennomforingEksternMapper {
         tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
             id = dto.tiltakstype.id,
             navn = dto.tiltakstype.navn,
-            arenaKode = dto.tiltakstype.tiltakskode.toArenaKode(),
+            arenaKode = dto.tiltakstype.tiltakskode.arenakode,
             tiltakskode = dto.tiltakstype.tiltakskode,
         ),
         navn = dto.navn,

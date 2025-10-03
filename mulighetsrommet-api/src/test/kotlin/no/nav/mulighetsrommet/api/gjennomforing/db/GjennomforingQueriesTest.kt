@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
@@ -584,22 +583,6 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.getAll(search = lopenummer).should {
                     it.items.size shouldBe 1
-                    it.items[0].id shouldBe Oppfolging1.id
-                }
-            }
-        }
-
-        test("skal migreres henter kun der tiltakstypen har egen tiltakskode") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.EnkelAmo),
-                    gjennomforinger = listOf(Oppfolging1, EnkelAmo1),
-                ).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                queries.getAll().should {
-                    it.totalCount shouldBe 1
                     it.items[0].id shouldBe Oppfolging1.id
                 }
             }

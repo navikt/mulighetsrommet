@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
-import kotliquery.Query
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -128,23 +127,14 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getAll(): List<TiltakstypeDto> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select *, count(*) over() as total_count
-            from tiltakstype_admin_dto_view
-            order by navn
-        """.trimIndent()
-
-        return list(Query(query)) { it.toTiltakstypeDto() }
-    }
-
-    fun getAllSkalMigreres(
+    fun getAll(
+        tiltakskoder: Set<Tiltakskode> = setOf(),
         statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
     ): List<TiltakstypeDto> = with(session) {
         val parameters = mapOf(
-            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(statuser) },
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createArrayOfTiltakskode(it) },
+            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(it) },
         )
 
         val order = when (sortering) {
@@ -161,7 +151,7 @@ class TiltakstypeQueries(private val session: Session) {
         val query = """
             select *, count(*) over() as total_count
             from tiltakstype_admin_dto_view
-            where tiltakskode is not null
+            where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder))
               and (:statuser::text[] is null or status = any(:statuser))
             order by $order
         """.trimIndent()

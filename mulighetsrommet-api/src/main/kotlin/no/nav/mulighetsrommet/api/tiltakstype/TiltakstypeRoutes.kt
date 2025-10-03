@@ -37,7 +37,7 @@ fun Route.tiltakstypeRoutes() {
         }) {
             val filter = getTiltakstypeFilter()
 
-            val tiltakstyper = tiltakstypeService.getAll(filter)
+            val tiltakstyper = tiltakstypeService.getAllGruppetiltak(filter)
 
             call.respond(tiltakstyper)
         }

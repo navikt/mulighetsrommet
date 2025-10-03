@@ -47,21 +47,27 @@ class TiltakstypeQueriesTest : FunSpec({
             startDato = LocalDate.now().minusMonths(1),
             sluttDato = LocalDate.now().minusDays(1),
         )
-        val tiltakstypeSkalIkkeMigreres = TiltakstypeFixtures.EnkelAmo.copy(
+        val tiltakstypeEnkelAmo = TiltakstypeFixtures.EnkelAmo.copy(
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusMonths(1),
         )
 
-        test("returnerer bare tiltak som skal migreres") {
+        test("filtrering på tiltakskode") {
             database.runAndRollback { session ->
                 val queries = TiltakstypeQueries(session)
 
                 queries.upsert(tiltakstypeStarterIFremtiden)
                 queries.upsert(tiltakstypeHarStartet)
                 queries.upsert(tiltakstypeErAvsluttet)
-                queries.upsert(tiltakstypeSkalIkkeMigreres)
+                queries.upsert(tiltakstypeEnkelAmo)
 
-                queries.getAllSkalMigreres() shouldContainExactlyIds listOf(
+                queries.getAll(
+                    tiltakskoder = setOf(
+                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                        Tiltakskode.JOBBKLUBB,
+                        Tiltakskode.OPPFOLGING,
+                    ),
+                ) shouldContainExactlyIds listOf(
                     tiltakstypeStarterIFremtiden.id,
                     tiltakstypeHarStartet.id,
                     tiltakstypeErAvsluttet.id,
@@ -76,19 +82,19 @@ class TiltakstypeQueriesTest : FunSpec({
                 queries.upsert(tiltakstypeStarterIFremtiden)
                 queries.upsert(tiltakstypeHarStartet)
                 queries.upsert(tiltakstypeErAvsluttet)
-                queries.upsert(tiltakstypeSkalIkkeMigreres)
+                queries.upsert(tiltakstypeEnkelAmo)
 
                 forAll(
                     row(
                         listOf(TiltakstypeStatus.AKTIV),
-                        listOf(tiltakstypeStarterIFremtiden.id, tiltakstypeHarStartet.id),
+                        listOf(tiltakstypeStarterIFremtiden.id, tiltakstypeHarStartet.id, tiltakstypeEnkelAmo.id),
                     ),
                     row(
                         listOf(TiltakstypeStatus.AVSLUTTET),
                         listOf(tiltakstypeErAvsluttet.id),
                     ),
                 ) { statuser, expectedIds ->
-                    queries.getAllSkalMigreres(statuser = statuser) shouldContainExactlyIds expectedIds
+                    queries.getAll(statuser = statuser) shouldContainExactlyIds expectedIds
                 }
             }
         }

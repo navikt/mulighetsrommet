@@ -308,21 +308,12 @@ export function tilsagnTypeToString(type: TilsagnType): string {
   }
 }
 
-export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: string): boolean {
-  if (tiltakskode) {
-    return [
-      Tiltakskode.JOBBKLUBB,
-      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-    ].includes(tiltakskode);
-  }
-
-  if (arenaKode) {
-    // TODO: bli kvitt bruken av arenakode i frontend
-    return ["ENKELAMO", "ENKFAGYRKE"].includes(arenaKode);
-  }
-
-  return false;
+export function isKursTiltak(tiltakskode: Tiltakskode): boolean {
+  return [
+    Tiltakskode.JOBBKLUBB,
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  ].includes(tiltakskode);
 }
 
 export function isValidationError(error: unknown): error is ValidationError {

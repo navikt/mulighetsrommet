@@ -35,32 +35,6 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val EnkelAmo1 = GjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "EnkelAmo 1",
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolging.startDato,
-        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
-        status = GjennomforingStatusType.GJENNOMFORES,
-        antallPlasser = 12,
-        administratorer = listOf(NavIdent("DD1")),
-        navEnheter = setOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
-        oppstart = GjennomforingOppstartstype.LOPENDE,
-        kontaktpersoner = emptyList(),
-        arrangorKontaktpersoner = emptyList(),
-        stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.EnkelAmo.id,
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-    )
-
     val Oppfolging1Request = GjennomforingRequest(
         id = Oppfolging1.id,
         navn = Oppfolging1.navn,
