@@ -4,7 +4,6 @@ import {
   initializeFaro,
   ReactIntegration,
 } from "@grafana/faro-react";
-import { TracingInstrumentation } from "@grafana/faro-web-tracing";
 import { Environment, getEnvironment, isDemo } from "~/services/environment";
 
 let faro: Faro | undefined;
@@ -38,7 +37,6 @@ export function getFaro(telemetryUrl?: string): Faro | null {
       ...getWebInstrumentations({
         captureConsole: true,
       }),
-      new TracingInstrumentation(),
       new ReactIntegration(),
     ],
   });
