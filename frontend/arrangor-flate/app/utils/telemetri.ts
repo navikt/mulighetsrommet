@@ -5,7 +5,7 @@ import {
   ReactIntegration,
 } from "@grafana/faro-react";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
-import { Environment, getEnvironment } from "~/services/environment";
+import { Environment, getEnvironment, isDemo } from "~/services/environment";
 
 let faro: Faro | undefined;
 
@@ -19,9 +19,7 @@ export function getFaro(telemetryUrl: string): Faro | null {
     return faro;
   }
   const env = getEnvironment();
-  if (env === Environment.Lokalt) {
-    // eslint-disable-next-line no-console
-    console.info("Faro er slått av for lokal utvikling");
+  if (env === Environment.Lokalt || isDemo()) {
     return null;
   }
 
