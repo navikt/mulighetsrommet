@@ -129,6 +129,15 @@ private val customSchemaOverwrites: List<SchemaOverwriteModule> = listOf(
         },
     ),
     SchemaOverwriteModule(
+        identifier = "java.time.Instant",
+        schema = {
+            Schema<Any>().also {
+                it.types = setOf("string")
+                it.format = "date-time"
+            }
+        },
+    ),
+    SchemaOverwriteModule(
         identifier = "kotlin.ByteArray",
         schema = {
             Schema<Any>().also {
