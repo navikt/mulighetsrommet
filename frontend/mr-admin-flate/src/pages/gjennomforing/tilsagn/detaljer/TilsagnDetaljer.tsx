@@ -6,11 +6,11 @@ import { EndringshistorikkPopover } from "@/components/endringshistorikk/Endring
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { tilsagnAarsakTilTekst } from "@/utils/Utils";
-import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   Besluttelse,
   BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
+  FieldError,
   TilsagnHandling,
   TilsagnStatus,
   TilsagnStatusAarsak,
@@ -100,8 +100,7 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError | LegacyValidationError) =>
-          setErrors(error.errors),
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
   }
@@ -115,8 +114,7 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError | LegacyValidationError) =>
-          setErrors(error.errors),
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
   }
@@ -130,8 +128,7 @@ export function TilsagnDetaljer() {
       },
       {
         onSuccess: navigerTilbake,
-        onValidationError: (error: ValidationError | LegacyValidationError) =>
-          setErrors(error.errors),
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
   }

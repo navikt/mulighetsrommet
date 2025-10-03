@@ -1,6 +1,9 @@
 import { formaterNavEnheter } from "@/utils/Utils";
-import { NavEnhetDto } from "@mr/api-client-v2";
-import { UtbetalingKompaktDto, UtbetalingStatusDto } from "@tiltaksadministrasjon/api-client";
+import {
+  NavEnhetDto,
+  UtbetalingKompaktDto,
+  UtbetalingStatusDto,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";

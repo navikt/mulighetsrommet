@@ -1,4 +1,3 @@
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   GjennomforingDto,
   OpprettUtbetalingRequest,
@@ -57,7 +56,7 @@ export function OpprettUtbetalingForm({ gjennomforing, kontonummer }: Props) {
           form.reset();
           navigate(`/gjennomforinger/${gjennomforing.id}/utbetalinger/${utbetalingId.current}`);
         },
-        onValidationError: (error: ValidationError | LegacyValidationError) => {
+        onValidationError: (error: ValidationError) => {
           error.errors.forEach((error) => {
             const name = jsonPointerToFieldPath(error.pointer) as keyof Omit<
               OpprettUtbetalingRequest,

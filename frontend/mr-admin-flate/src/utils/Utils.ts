@@ -1,4 +1,3 @@
-import { Avtaletype, NavEnhetDto, Tiltakskode, ValidationError } from "@mr/api-client-v2";
 import {
   AmoKategorisering,
   AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
@@ -8,6 +7,10 @@ import {
   DelutbetalingReturnertAarsak,
   TilsagnStatusAarsak,
   TilsagnType,
+  Avtaletype,
+  NavEnhetDto,
+  Tiltakskode,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 
 export function capitalize(text?: string): string {

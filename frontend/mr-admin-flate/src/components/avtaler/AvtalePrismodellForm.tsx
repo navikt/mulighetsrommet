@@ -1,13 +1,12 @@
 import { Box, Select, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { PrismodellType, Tiltakskode } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
 import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
+import { FeatureToggle, PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   tiltakskode: Tiltakskode;

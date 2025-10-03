@@ -1,7 +1,6 @@
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "@/utils/Utils";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -90,7 +89,7 @@ export function ArrangorKontaktpersonForm({
           putMutation.reset();
           onSubmit();
         },
-        onValidationError: (error: ValidationError | LegacyValidationError) => {
+        onValidationError: (error: ValidationError) => {
           const errors = error.errors.reduce((errors: Record<string, string>, error) => {
             return { ...errors, [jsonPointerToFieldPath(error.pointer)]: error.detail };
           }, {});

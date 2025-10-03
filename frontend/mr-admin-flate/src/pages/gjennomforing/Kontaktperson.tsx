@@ -1,7 +1,7 @@
-import { GjennomforingKontaktperson } from "@mr/api-client-v2";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { TEAMS_DYPLENKE } from "@mr/frontend-common/constants";
 import { BodyShort, VStack } from "@navikt/ds-react";
+import { GjennomforingKontaktperson } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   kontaktperson: GjennomforingKontaktperson;

@@ -1,10 +1,4 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
-import {
-  AmoKategorisering,
-  ArrangorKontaktperson,
-  Personopplysning,
-  PrismodellType,
-} from "@mr/api-client-v2";
 import z from "zod";
 import {
   arrangorSchema,
@@ -15,7 +9,14 @@ import {
 } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
-import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import {
+  AmoKategorisering,
+  AvtaleArrangorKontaktperson,
+  AvtaleDto,
+  NavAnsattDto,
+  Personopplysning,
+  PrismodellType,
+} from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../components/portableText/helper";
 
 export const PrismodellSchema = z.object({
@@ -83,7 +84,7 @@ export function defaultAvtaleData(
       ? []
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
-      avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+      avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
     startDato: avtale?.startDato ?? null,
     sluttDato: avtale?.sluttDato ?? null,
     sakarkivNummer: avtale?.sakarkivNummer ?? null,

@@ -1,4 +1,4 @@
-import { Avtaletype, OpsjonsmodellType } from "@mr/api-client-v2";
+import { OpsjonsmodellType, Avtaletype } from "@tiltaksadministrasjon/api-client";
 
 export interface TilgjengeligOpsjonsmodell {
   type: OpsjonsmodellType;

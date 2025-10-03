@@ -1,4 +1,3 @@
-import { FieldError } from "@mr/api-client-v2";
 import {
   Alert,
   Button,
@@ -11,6 +10,7 @@ import {
   Textarea,
   VStack,
 } from "@navikt/ds-react";
+import { FieldError } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 
 interface Props<T> {

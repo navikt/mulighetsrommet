@@ -1,9 +1,12 @@
-import { ArrangorKontaktperson } from "@mr/api-client-v2";
 import { Box } from "@navikt/ds-react";
 import { MetadataHorisontal } from "../../components/detaljside/Metadata";
+import {
+  ArrangorKontaktperson,
+  GjennomforingArrangorKontaktperson,
+} from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  kontaktperson: ArrangorKontaktperson;
+  kontaktperson: ArrangorKontaktperson | GjennomforingArrangorKontaktperson;
 }
 
 export function ArrangorKontaktpersonDetaljer({ kontaktperson }: Props) {

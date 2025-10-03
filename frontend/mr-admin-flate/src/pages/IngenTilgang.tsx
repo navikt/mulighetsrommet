@@ -1,7 +1,7 @@
 import { BodyShort, Heading, List } from "@navikt/ds-react";
 import { PadlockLockedIcon } from "@navikt/aksel-icons";
 import { TILGANGER_DOKUMENTASJON_URL } from "@/constants";
-import { ProblemDetail } from "@mr/api-client-v2";
+import { ProblemDetail } from "@tiltaksadministrasjon/api-client";
 
 export interface NavAnsattManglerTilgangError extends ProblemDetail {
   type: "mangler-tilgang";

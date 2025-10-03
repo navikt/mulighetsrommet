@@ -1,5 +1,4 @@
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   AvtaleDto,
   OpsjonLoggStatus,
@@ -35,7 +34,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       onSuccess: () => {
         closeAndResetForm();
       },
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+      onValidationError: (error: ValidationError) => {
         error.errors.forEach((error: { pointer: string; detail: string }) => {
           const name = jsonPointerToFieldPath(error.pointer) as keyof OpprettOpsjonLoggRequest;
           setError(name, { type: "custom", message: error.detail });

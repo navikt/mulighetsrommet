@@ -1,8 +1,4 @@
 import { useMutation, UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
-import {
-  ProblemDetail as LegacyProblemDetail,
-  ValidationError as LegacyValidationError,
-} from "@mr/api-client-v2";
 import { ProblemDetail, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { isValidationError } from "@/utils/Utils";
@@ -11,7 +7,7 @@ import { useCallback, useEffect, useRef } from "react";
 interface ApiMutateOptions<TData, TError, TVariables, TContext> {
   onSuccess?: (data: TData, vars: TVariables, ctx: TContext) => void;
   onError?: (error: TError, vars: TVariables, ctx: TContext | undefined) => void;
-  onValidationError?: (error: ValidationError | LegacyValidationError) => void;
+  onValidationError?: (error: ValidationError) => void;
 }
 
 export type ApiMutationResult<TData, TError, TVariables, TContext> = UseMutationResult<
@@ -32,7 +28,7 @@ export type ApiMutationResult<TData, TError, TVariables, TContext> = UseMutation
 
 export function useApiMutation<
   TData,
-  TError = ProblemDetail | LegacyProblemDetail,
+  TError = ProblemDetail,
   TVariables = void,
   TContext = unknown,
 >(

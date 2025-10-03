@@ -1,19 +1,15 @@
-import {
-  ArrangorKontaktperson,
-  GjennomforingDto,
-  GjennomforingOppstartstype,
-  Opphav,
-  Utdanningslop,
-  AmoKategorisering,
-  UtdanningslopDbo,
-} from "@mr/api-client-v2";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
+  AmoKategorisering,
+  ArrangorKontaktperson,
   AvtaleDto,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
   NavAnsattDto,
   Faneinnhold as NyFaneInnhold,
+  UtdanningslopDbo,
 } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../portableText/helper";
 

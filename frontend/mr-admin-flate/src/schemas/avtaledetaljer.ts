@@ -1,13 +1,13 @@
 import { AmoKategoriseringSchema } from "@/components/redaksjoneltInnhold/AmoKategoriseringSchema";
+import z from "zod";
+import { AvtaleFormValues } from "./avtale";
 import {
   Tiltakskode,
   Avtaletype,
   OpsjonsmodellType,
   UtdanningslopDbo,
-  Utdanningslop,
-} from "@mr/api-client-v2";
-import z from "zod";
-import { AvtaleFormValues } from "./avtale";
+  UtdanningslopDto,
+} from "@tiltaksadministrasjon/api-client";
 
 export const avtaleDetaljerSchema = z.object({
   navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
@@ -106,7 +106,7 @@ export const avtaleDetaljerFormSchema = avtaleDetaljerSchema
     validateAvtaledetaljer(ctx, data);
   });
 
-export function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
+export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
   return {
     utdanningsprogram: data.utdanningsprogram.id,
     utdanninger: data.utdanninger.map((utdanning) => utdanning.id),

@@ -1,5 +1,5 @@
-import { GjennomforingOppstartstype } from "@mr/api-client-v2";
 import { ControlledSokeSelect } from "@mr/frontend-common";
+import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
 import { useController } from "react-hook-form";
 
 interface SelectOppstartstypeProps {
