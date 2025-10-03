@@ -1,5 +1,4 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { NavEnhetType } from "@mr/api-client-v2";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
@@ -11,7 +10,7 @@ import {
 } from "@/api/enhet/helpers";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
-import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, NavEnhetType } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 export function AvtaleInformasjonForVeiledereForm() {

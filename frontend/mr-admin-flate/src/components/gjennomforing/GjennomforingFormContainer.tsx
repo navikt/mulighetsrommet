@@ -6,11 +6,11 @@ import {
   InferredGjennomforingSchema,
 } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GjennomforingRequest, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
   GjennomforingDto,
+  GjennomforingRequest,
   NavEnhetDto,
   Tiltakskode,
   ValidationError,
@@ -61,7 +61,7 @@ export function GjennomforingFormContainer(props: Props) {
     [onSuccess],
   );
   const handleValidationError = useCallback(
-    (validation: ValidationError | LegacyValidationError) => {
+    (validation: ValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapFieldToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         form.setError(name, { type: "custom", message: error.detail });

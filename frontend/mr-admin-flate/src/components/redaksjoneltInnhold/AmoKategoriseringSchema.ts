@@ -1,17 +1,22 @@
-import { Bransje, ForerkortKlasse, InnholdElement, Sertifisering } from "@mr/api-client-v2";
+import {
+  AmoKategoriseringBransjeOgYrkesrettetBransje,
+  AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse,
+  AmoKategoriseringBransjeOgYrkesrettetSertifisering,
+  AmoKategoriseringInnholdElement,
+} from "@tiltaksadministrasjon/api-client";
 import z from "zod";
 
 const InnholdElementerSchema = z
-  .enum(InnholdElement, { error: "Du må velge minst ett element" })
+  .enum(AmoKategoriseringInnholdElement, { error: "Du må velge minst ett element" })
   .array()
   .nonempty("Du må velge minst ett element");
 
 export const AmoKategoriseringSchema = z.discriminatedUnion("kurstype", [
   z.object({
     kurstype: z.literal("BRANSJE_OG_YRKESRETTET"),
-    bransje: z.enum(Bransje, { error: "Du må velge bransje" }),
+    bransje: z.enum(AmoKategoriseringBransjeOgYrkesrettetBransje, { error: "Du må velge bransje" }),
     sertifiseringer: z
-      .custom<Sertifisering>()
+      .custom<AmoKategoriseringBransjeOgYrkesrettetSertifisering>()
       .array()
       .nullish()
       .transform((val) => {
@@ -20,8 +25,8 @@ export const AmoKategoriseringSchema = z.discriminatedUnion("kurstype", [
         }
         return val;
       })
-      .pipe(z.custom<Sertifisering>().array()),
-    forerkort: z.enum(ForerkortKlasse).array().default([]),
+      .pipe(z.custom<AmoKategoriseringBransjeOgYrkesrettetSertifisering>().array()),
+    forerkort: z.enum(AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse).array().default([]),
     innholdElementer: InnholdElementerSchema,
   }),
   z.object({

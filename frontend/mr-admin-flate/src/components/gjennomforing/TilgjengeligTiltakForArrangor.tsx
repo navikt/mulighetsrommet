@@ -1,7 +1,7 @@
 import { useSetTilgjengeligForArrangor } from "@/api/gjennomforing/useSetTilgjengeligForArrangor";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
+  FieldError,
   GjennomforingDto,
   GjennomforingHandling,
   SetTilgjengligForArrangorRequest,
@@ -30,7 +30,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
     },
   });
 
-  const onValidationError = (error: ValidationError | LegacyValidationError) => {
+  const onValidationError = (error: ValidationError) => {
     error.errors.forEach((error: FieldError) => {
       form.setError(
         jsonPointerToFieldPath(error.pointer) as keyof SetTilgjengligForArrangorRequest,

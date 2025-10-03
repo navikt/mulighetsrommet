@@ -3,7 +3,6 @@ import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/Avta
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { avtaletypeTilTekst } from "@/utils/Utils";
-import { Avtaletype, Tiltakskode } from "@mr/api-client-v2";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { HGrid, List, Select, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -17,8 +16,10 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import {
   AvtaleOpsjonLoggDto,
+  Avtaletype,
   OpsjonLoggStatus,
   OpsjonsmodellType,
+  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 
 interface AvtaleDetaljerFormProps {

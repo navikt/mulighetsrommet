@@ -1,9 +1,9 @@
 import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
-import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   Besluttelse,
   BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
+  FieldError,
   UtbetalingDto,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
@@ -39,7 +39,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
       { id, body },
       {
         onSuccess: oppdaterLinjer,
-        onValidationError: (error: ValidationError | LegacyValidationError) => {
+        onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
         },
       },

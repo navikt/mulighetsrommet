@@ -1,11 +1,12 @@
 import {
+  ArrangorDto,
   AvtaleStatusType,
   Avtaletype,
   GjennomforingStatusType,
   NavEnhetDto,
   NavEnhetType,
-} from "@mr/api-client-v2";
-import { ArrangorDto, TiltakstypeDto } from "@tiltaksadministrasjon/api-client";
+  TiltakstypeDto,
+} from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {

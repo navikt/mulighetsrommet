@@ -6,7 +6,6 @@ import {
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { ReactNode, useCallback } from "react";
@@ -34,7 +33,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   });
 
   const handleValidationError = useCallback(
-    (validation: ValidationError | LegacyValidationError) => {
+    (validation: ValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         methods.setError(name, { type: "custom", message: error.detail });
@@ -48,7 +47,7 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
       avtale,
       data,
       mutation,
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+      onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
       onSuccess: (dto: { data: AvtaleDto }) => {

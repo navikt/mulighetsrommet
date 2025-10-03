@@ -1,12 +1,12 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { memo } from "react";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { PrismodellType } from "@mr/api-client-v2";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { Button, HStack, Select, Spacer, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
+import { PrismodellType } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   prismodell?: PrismodellType;

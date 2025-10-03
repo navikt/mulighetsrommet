@@ -6,7 +6,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { client as legacyClient } from "@mr/api-client-v2";
 import { client } from "@tiltaksadministrasjon/api-client";
 import "./index.css";
 import { v4 as uuidv4 } from "uuid";
@@ -21,9 +20,8 @@ const queryClient = new QueryClient({
   },
 });
 
-type ClientType = typeof legacyClient | typeof client;
+type ClientType = typeof client;
 
-configureClient(legacyClient);
 configureClient(client);
 
 function configureClient(client: ClientType) {

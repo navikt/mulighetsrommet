@@ -1,7 +1,6 @@
 import { useSetStengtHosArrangor } from "@/api/gjennomforing/useSetStengtHosArrangor";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   GjennomforingDto,
   SetStengtHosArrangorRequest,
@@ -37,7 +36,7 @@ export function RegistrerStengtHosArrangorForm({
           refetchType: "all",
         });
       },
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+      onValidationError: (error: ValidationError) => {
         error.errors.forEach((error) => {
           const name = jsonPointerToFieldPath(error.pointer) as keyof SetStengtHosArrangorRequest;
           setError(name, { type: "custom", message: error.detail });
