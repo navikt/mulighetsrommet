@@ -17,9 +17,9 @@ import java.util.*
 class DeltakerRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val gruppeAmo = TiltaksgjennomforingEksternV1Dto(
+    val gruppeAmo = TiltaksgjennomforingV1Dto(
         id = UUID.randomUUID(),
-        tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
+        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Gruppe AMO",
             arenaKode = "GRUPPEAMO",

@@ -25,7 +25,7 @@ class ArenaAdapterClient(
         install(HttpCache)
     }
 
-    suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
+    suspend fun exchangeTiltaksgjennomforingArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
         val response = client.get("$baseUrl/api/exchange/$arenaId") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
         }

@@ -4,7 +4,6 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
@@ -71,9 +70,6 @@ fun Application.configure(config: AppConfig) {
 
     routing {
         apiRoutes()
-
-        swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
-        swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")
     }
 
     val kafka: KafkaConsumerOrchestrator by inject()
