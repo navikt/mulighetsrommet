@@ -3196,18 +3196,6 @@ components:
       - RAMMEAVTALE
       - FORHANDSGODKJENT
       - OFFENTLIG_OFFENTLIG
-    PersonvernRequest:
-      type: object
-      properties:
-        personopplysninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Personopplysning"
-        personvernBekreftet:
-          type: boolean
-      required:
-      - personopplysninger
-      - personvernBekreftet
     Personopplysning:
       type: string
       enum:
@@ -3497,8 +3485,12 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Faneinnhold"
-        personvern:
-          $ref: "#/components/schemas/PersonvernRequest"
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
         opsjonsmodell:
           $ref: "#/components/schemas/Opsjonsmodell"
         amoKategorisering:
@@ -3523,7 +3515,8 @@ components:
       - navEnheter
       - navn
       - opsjonsmodell
-      - personvern
+      - personopplysninger
+      - personvernBekreftet
       - prismodell
       - sakarkivNummer
       - sluttDato
