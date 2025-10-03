@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
 class EnkeltplassQueriesTest : FunSpec({
@@ -36,7 +37,7 @@ class EnkeltplassQueriesTest : FunSpec({
                     it.tiltakstype shouldBe Enkeltplass.Tiltakstype(
                         id = TiltakstypeFixtures.EnkelAmo.id,
                         navn = TiltakstypeFixtures.EnkelAmo.navn,
-                        tiltakskode = null,
+                        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                     )
                     it.arrangor shouldBe Enkeltplass.Arrangor(
                         id = ArrangorFixtures.underenhet1.id,

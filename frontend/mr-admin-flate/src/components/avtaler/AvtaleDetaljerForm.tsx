@@ -220,15 +220,22 @@ function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; la
     case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
     case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
       return [forhandsgodkjent];
+
     case Tiltakskode.OPPFOLGING:
     case Tiltakskode.JOBBKLUBB:
     case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
     case Tiltakskode.AVKLARING:
     case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
       return [avtale, rammeavtale];
+
     case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
     case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
       return [avtale, offentligOffentlig, rammeavtale];
+
+    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.HOYERE_UTDANNING:
+      return [];
   }
 }
 
