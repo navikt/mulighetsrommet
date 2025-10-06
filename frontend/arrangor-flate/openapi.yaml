@@ -117,15 +117,6 @@ paths:
         explode: false
         schema:
           type: string
-      - name: prismodeller
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/PrismodellType"
       responses:
         "200":
           description: Arrangør sine gjennomføringer (DataDrivenTable)

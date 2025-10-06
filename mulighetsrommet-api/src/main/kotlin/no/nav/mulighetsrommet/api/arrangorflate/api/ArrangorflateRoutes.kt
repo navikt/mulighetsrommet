@@ -211,9 +211,6 @@ fun Route.arrangorflateRoutes() {
             operationId = "getArrangorflateGjennomforingerTabeller"
             request {
                 pathParameter<Organisasjonsnummer>("orgnr")
-                queryParameter<List<PrismodellType>>("prismodeller") {
-                    explode = true
-                }
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -229,17 +226,6 @@ fun Route.arrangorflateRoutes() {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
             requireTilgangHosArrangor(orgnr)
 
-            val prismodeller = call.parameters.getAll("prismodeller")
-                ?.map { PrismodellType.valueOf(it) }
-                ?: emptyList()
-            val gjennomforinger = db.session {
-                queries.gjennomforing
-                    .getAll(
-                        arrangorOrgnr = listOf(orgnr),
-                        prismodeller = prismodeller,
-                    )
-                    .items
-            }
             val context = FeatureToggleContext(
                 userId = "",
                 sessionId = call.generateUnleashSessionId(),
@@ -248,11 +234,26 @@ fun Route.arrangorflateRoutes() {
                 orgnr = listOf(orgnr),
             )
 
-            val isManualDrifttlskuddEnabled = unleashService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
+            val isManualDriftsTilskuddEnabled =
+                unleashService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
+
+            val prismodeller = if (isManualDriftsTilskuddEnabled) {
+                listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, PrismodellType.ANNEN_AVTALT_PRIS)
+            } else {
+                listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK)
+            }
+            val gjennomforinger = db.session {
+                queries.gjennomforing
+                    .getAll(
+                        arrangorOrgnr = listOf(orgnr),
+                        prismodeller = prismodeller,
+                    )
+                    .items
+            }
 
             call.respond(
                 toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
-                    toGjennomforingAction(orgnr, gjennomforing, isManualDrifttlskuddEnabled)
+                    toGjennomforingAction(orgnr, gjennomforing)
                 },
             )
         }
@@ -911,46 +912,28 @@ private fun toGjennomforingDataTable(
     )
 }
 
-private fun toGjennomforingAction(orgnr: Organisasjonsnummer, gjennomforing: Gjennomforing, isManualDrifttlskuddEnabled: Boolean): DataElement {
-    val investeringLink = DataElement.Link(
-        text = "Start innsending",
-        href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
-    )
-
-    if (!isManualDrifttlskuddEnabled) {
-        return investeringLink
-    }
-
-    return when (gjennomforing.tiltakstype.tiltakskode) {
+private fun toGjennomforingAction(
+    orgnr: Organisasjonsnummer,
+    gjennomforing: Gjennomforing,
+): DataElement =
+    when (gjennomforing.tiltakstype.tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        -> investeringLink
+            ->
+            DataElement.Link(
+                text = "Start innsending",
+                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
+            )
 
         else ->
-            if (gjennomforing.avtalePrismodell == PrismodellType.ANNEN_AVTALT_PRIS) {
-                DataElement.MultiLinkModal(
-                    buttonText = "Velg tilskuddstype",
-                    modalContent = DataElement.MultiLinkModal.ModalContent(
-                        header = "Start innsending",
-                        description = "Velg tilskuddstype du vil opprette krav på",
-                        links = listOf(
-                            DataElement.Link(
-                                text = "Opprett driftstilskudd",
-                                href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
-                            ),
-                            DataElement.Link(
-                                text = "Opprett investeringstilskudd",
-                                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
-                            ),
-                        ),
-                    ),
-                )
-            } else {
-                investeringLink
-            }
+            DataElement.Link(
+                text = "Start innsending",
+                href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+            )
     }
-}
 
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
+    "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
+    "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"
