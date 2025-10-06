@@ -1,5 +1,3 @@
-import { isDomException } from "@grafana/faro-react";
-
 export interface StoredFile {
   id?: number;
   name: string;
