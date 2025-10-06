@@ -317,7 +317,7 @@ fun harOverlappendePeriode(
     return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
-private fun toArrangorflateTilsagn(
+fun toArrangorflateTilsagn(
     tilsagn: Tilsagn,
 ): ArrangorflateTilsagnDto {
     return ArrangorflateTilsagnDto(

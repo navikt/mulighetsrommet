@@ -14,12 +14,9 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
-  ArrangorflateGjennomforing,
   ArrangorflateService,
-  ArrangorflateTilsagnDto,
   FieldError,
-  TilsagnStatus,
-  TilsagnType,
+  OpprettKravInnsendingsInformasjon,
   Tilskuddstype,
 } from "api-client";
 import { useEffect, useRef } from "react";
@@ -43,11 +40,9 @@ import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 
 type LoaderData = {
-  gjennomforing: ArrangorflateGjennomforing;
-  tilsagn: ArrangorflateTilsagnDto[];
   orgnr: string;
-  arrangor: string;
-  sessionGjennomforingId?: string;
+  gjennomforingId: string;
+  innsendingsinformasjon: OpprettKravInnsendingsInformasjon;
   sessionTilsagnId?: string;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
@@ -68,7 +63,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
   const session = await getSession(request.headers.get("Cookie"));
 
-  let sessionGjennomforingId: string | undefined;
   let sessionTilsagnId: string | undefined;
   let sessionPeriodeStart: string | undefined;
   let sessionPeriodeSlutt: string | undefined;
@@ -82,68 +76,35 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     sessionPeriodeSlutt = session.get("periodeSlutt");
   }
 
-  const [
-    { data: gjennomforing, error: gjennomforingerError },
-    { data: tilsagn, error: tilsagnError },
-    { data: arrangortilganger, error: arrangorError },
-  ] = await Promise.all([
-    ArrangorflateService.getArrangorflateGjennomforing({
+  const [{ data: innsendingsinformasjon, error: innsendingsinformasjonError }] = await Promise.all([
+    ArrangorflateService.getOpprettKravInnsendingsinformasjon({
       path: { orgnr, gjennomforingId },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getAllArrangorflateTilsagn({
-      path: { orgnr },
-      query: {
-        typer: [TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN],
-        statuser: [TilsagnStatus.GODKJENT],
-        gjennomforingId,
-      },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
+      query: { tilskudsstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD },
       headers: await apiHeaders(request),
     }),
   ]);
 
-  if (gjennomforingerError) {
-    throw problemDetailResponse(gjennomforingerError);
+  if (innsendingsinformasjonError) {
+    throw problemDetailResponse(innsendingsinformasjonError);
   }
-  if (tilsagnError) {
-    throw problemDetailResponse(tilsagnError);
-  }
-  if (!arrangortilganger) {
-    throw problemDetailResponse(arrangorError);
-  }
-
-  const arrangor = arrangortilganger.find((a) => a.organisasjonsnummer === orgnr)?.navn;
-  if (!arrangor) throw new Error("Finner ikke arrangør");
 
   return {
     orgnr,
-    arrangor,
-    gjennomforing,
-    tilsagn,
-    sessionGjennomforingId,
+    gjennomforingId,
+    innsendingsinformasjon,
     sessionTilsagnId,
     sessionPeriodeStart,
     sessionPeriodeSlutt,
   };
 };
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
   const session = await getSession(request.headers.get("Cookie"));
   const errors: FieldError[] = [];
 
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const orgnr = formData.get("orgnr")?.toString();
-  const gjennomforingId = formData.get("gjennomforingId")?.toString();
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  if (!gjennomforingId) {
-    throw new Error("Mangler gjennomføring id");
-  }
 
   if (intent === "cancel") {
     return redirect(pathByOrgnr(orgnr).utbetalinger, {
@@ -196,7 +157,7 @@ interface ActionData {
 }
 
 export default function OpprettKravInnsendingsinformasjon() {
-  const { orgnr, arrangor, gjennomforing, tilsagn, sessionPeriodeStart, sessionPeriodeSlutt } =
+  const { orgnr, innsendingsinformasjon, sessionPeriodeStart, sessionPeriodeSlutt } =
     useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -243,15 +204,7 @@ export default function OpprettKravInnsendingsinformasjon() {
             </BodyLong>
           </GuidePanel>
           <VStack gap="6" className="max-w-2xl">
-            <input type="hidden" name="orgnr" value={orgnr} />
-            <input type="hidden" name="gjennomforingId" value={gjennomforing.id} />
-            <Definisjonsliste
-              definitions={[
-                { key: "Arrangør", value: `${arrangor} - ${orgnr}` },
-                { key: "Tiltaksnavn", value: gjennomforing.navn },
-                { key: "Tiltakstype", value: gjennomforing.tiltakstype.navn },
-              ]}
-            />
+            <Definisjonsliste definitions={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
               <Label size="small">Periode</Label>
               <BodyShort textColor="subtle" size="small">
@@ -285,14 +238,18 @@ export default function OpprettKravInnsendingsinformasjon() {
                 <Heading level="3" size="small">
                   Tilgjengelige tilsagn
                 </Heading>
-                {tilsagn.length < 1 ? (
+                {innsendingsinformasjon.tilsagn.length < 1 ? (
                   <Alert variant="warning">
                     Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
                   </Alert>
                 ) : (
                   <>
-                    <input type="hidden" name="tilsagnId" value={tilsagn[0].id} />
-                    {tilsagn.map((tilsagn) => (
+                    <input
+                      type="hidden"
+                      name="tilsagnId"
+                      value={innsendingsinformasjon.tilsagn[0].id}
+                    />
+                    {innsendingsinformasjon.tilsagn.map((tilsagn) => (
                       <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
                     ))}
                   </>

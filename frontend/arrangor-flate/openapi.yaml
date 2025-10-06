@@ -170,6 +170,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/innsendingsinformasjon:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent innsendingsinformasjon
+      operationId: getOpprettKravInnsendingsinformasjon
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: tilskudsstype
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/Tilskuddstype"
+      responses:
+        "200":
+          description: Innsendingsdetaljer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/utbetaling:
     get:
       tags:
@@ -893,6 +937,157 @@ components:
       required:
       - aktive
       - historiske
+    Tilskuddstype:
+      type: string
+      enum:
+      - TILTAK_DRIFTSTILSKUDD
+      - TILTAK_INVESTERINGER
+    Definition:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+      - key
+      - value
+    ArrangorflateTilsagnDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangor"
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
+        bruktBelop:
+          type: integer
+          format: int32
+        gjenstaendeBelop:
+          type: integer
+          format: int32
+        beregning:
+          $ref: "#/components/schemas/Details"
+        bestillingsnummer:
+          type: string
+      required:
+      - arrangor
+      - beregning
+      - bestillingsnummer
+      - bruktBelop
+      - gjennomforing
+      - gjenstaendeBelop
+      - id
+      - periode
+      - status
+      - tiltakstype
+      - type
+    ArrangorflateGjennomforingInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    ArrangorflateArrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    TilsagnType:
+      type: string
+      enum:
+      - TILSAGN
+      - EKSTRATILSAGN
+      - INVESTERING
+    Periode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+        slutt:
+          type: string
+          format: date
+      required:
+      - slutt
+      - start
+    TilsagnStatus:
+      type: string
+      enum:
+      - TIL_GODKJENNING
+      - GODKJENT
+      - RETURNERT
+      - TIL_ANNULLERING
+      - ANNULLERT
+      - TIL_OPPGJOR
+      - OPPGJORT
+    Details:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsEntry"
+      required:
+      - entries
+    DetailsEntry:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        format:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DetailsFormat"
+      required:
+      - format
+      - key
+      - value
+    DetailsFormat:
+      type: string
+      enum:
+      - NOK
+      - NUMBER
+    OpprettKravInnsendingsInformasjon:
+      type: object
+      properties:
+        definisjonsListe:
+          type: array
+          items:
+            $ref: "#/components/schemas/Definition"
+        tilsagn:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+      required:
+      - definisjonsListe
+      - tilsagn
     ArrangorflateUtbetalingKompaktDto:
       type: object
       properties:
@@ -935,31 +1130,6 @@ components:
       - status
       - tiltakstype
       - type
-    ArrangorflateGjennomforingInfo:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-    ArrangorflateArrangor:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-      - organisasjonsnummer
     UtbetalingTypeDto:
       type: object
       properties:
@@ -977,18 +1147,6 @@ components:
       - displayName
       - displayNameLong
       - tagName
-    Periode:
-      type: object
-      properties:
-        start:
-          type: string
-          format: date
-        slutt:
-          type: string
-          format: date
-      required:
-      - slutt
-      - start
     ArrangorflateUtbetalingStatus:
       type: string
       enum:
@@ -1011,11 +1169,6 @@ components:
       required:
       - aktive
       - historiske
-    Tilskuddstype:
-      type: string
-      enum:
-      - TILTAK_DRIFTSTILSKUDD
-      - TILTAK_INVESTERINGER
     OpprettKravOmUtbetalingRequest:
       type: object
       properties:
@@ -1060,91 +1213,6 @@ components:
           format: uuid
       required:
       - id
-    TilsagnStatus:
-      type: string
-      enum:
-      - TIL_GODKJENNING
-      - GODKJENT
-      - RETURNERT
-      - TIL_ANNULLERING
-      - ANNULLERT
-      - TIL_OPPGJOR
-      - OPPGJORT
-    TilsagnType:
-      type: string
-      enum:
-      - TILSAGN
-      - EKSTRATILSAGN
-      - INVESTERING
-    ArrangorflateTilsagnDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstype"
-        gjennomforing:
-          $ref: "#/components/schemas/ArrangorflateGjennomforingInfo"
-        arrangor:
-          $ref: "#/components/schemas/ArrangorflateArrangor"
-        type:
-          $ref: "#/components/schemas/TilsagnType"
-        periode:
-          $ref: "#/components/schemas/Periode"
-        status:
-          $ref: "#/components/schemas/TilsagnStatus"
-        bruktBelop:
-          type: integer
-          format: int32
-        gjenstaendeBelop:
-          type: integer
-          format: int32
-        beregning:
-          $ref: "#/components/schemas/Details"
-        bestillingsnummer:
-          type: string
-      required:
-      - arrangor
-      - beregning
-      - bestillingsnummer
-      - bruktBelop
-      - gjennomforing
-      - gjenstaendeBelop
-      - id
-      - periode
-      - status
-      - tiltakstype
-      - type
-    Details:
-      type: object
-      properties:
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/DetailsEntry"
-      required:
-      - entries
-    DetailsEntry:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
-        format:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DetailsFormat"
-      required:
-      - format
-      - key
-      - value
-    DetailsFormat:
-      type: string
-      enum:
-      - NOK
-      - NUMBER
     ArrangorflateBetalingsinformasjon:
       type: object
       properties:

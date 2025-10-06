@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.toArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -31,6 +32,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -235,7 +237,10 @@ fun Route.arrangorflateRoutes() {
             )
 
             val isManualDriftsTilskuddEnabled =
-                featureToggleService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
+                featureToggleService.isEnabled(
+                    FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
+                    context,
+                )
 
             val prismodeller = if (isManualDriftsTilskuddEnabled) {
                 listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, PrismodellType.ANNEN_AVTALT_PRIS)
@@ -250,7 +255,6 @@ fun Route.arrangorflateRoutes() {
                     )
                     .items
             }
-
             call.respond(
                 toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
                     toGjennomforingAction(orgnr, gjennomforing)
@@ -258,43 +262,101 @@ fun Route.arrangorflateRoutes() {
             )
         }
 
-        get("/gjennomforing/{gjennomforingId}", {
-            description = "Hent gjennomføring til arrangør"
-            tags = setOf("Arrangorflate")
-            operationId = "getArrangorflateGjennomforing"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                pathParameter<String>("gjennomforingId")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Arrangørens gjennomføring"
-                    body<ArrangorflateGjennomforing>()
+        route("/gjennomforing/{gjennomforingId}") {
+            get({
+                description = "Hent gjennomføring til arrangør"
+                tags = setOf("Arrangorflate")
+                operationId = "getArrangorflateGjennomforing"
+                request {
+                    pathParameter<Organisasjonsnummer>("orgnr")
+                    pathParameter<String>("gjennomforingId")
                 }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Arrangørens gjennomføring"
+                        body<ArrangorflateGjennomforing>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
                 }
+            }) {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                requireTilgangHosArrangor(orgnr)
+
+                val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+
+                val gjennomforing = requireNotNull(
+                    db.session {
+                        queries.gjennomforing
+                            .get(
+                                id = gjennomforingId,
+                            )
+                    },
+                )
+                if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
+                    throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
+                }
+
+                call.respond(toArrangorflateGjennomforing((gjennomforing)))
             }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-            requireTilgangHosArrangor(orgnr)
 
-            val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+            get("/innsendingsinformasjon", {
+                description = "Hent innsendingsinformasjon"
+                tags = setOf("Arrangorflate")
+                operationId = "getOpprettKravInnsendingsinformasjon"
+                request {
+                    pathParameter<Organisasjonsnummer>("orgnr")
+                    pathParameter<String>("gjennomforingId")
+                    queryParameter<Tilskuddstype>("tilskudsstype")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Innsendingsdetaljer"
+                        body<OpprettKravInnsendingsInformasjon>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                requireTilgangHosArrangor(orgnr)
+                val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+                val tilskuddstype = call.parameters["tilskuddstype"]?.let { Tilskuddstype.valueOf(it) }
+                    ?: Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
-            val gjennomforing = requireNotNull(
-                db.session {
-                    queries.gjennomforing
-                        .get(
-                            id = gjennomforingId,
-                        )
-                },
-            )
-            if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
-                throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
+                val gjennomforing = requireNotNull(
+                    db.session {
+                        queries.gjennomforing
+                            .get(
+                                id = gjennomforingId,
+                            )
+                    },
+                )
+                val definisjonsliste = listOf(
+                    Definition("Arrangør", "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}"),
+                    Definition("Tiltaksnavn", gjennomforing.navn),
+                    Definition("Tiltakstype", gjennomforing.tiltakstype.navn),
+                )
+
+                val tilsagnsTyper = if (tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD) {
+                    listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
+                } else {
+                    listOf(TilsagnType.INVESTERING)
+                }
+                val tilsagn = arrangorFlateService.getTilsagn(
+                    ArrangorflateTilsagnFilter(
+                        typer = tilsagnsTyper,
+                        statuser = listOf(TilsagnStatus.GODKJENT),
+                        gjennomforingId = gjennomforingId,
+                    ),
+                    orgnr,
+                )
+                call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn))
             }
-
-            call.respond(toArrangorflateGjennomforing((gjennomforing)))
         }
 
         get("/utbetaling", {
@@ -934,3 +996,9 @@ private fun toGjennomforingAction(
 private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
 private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+
+@Serializable
+data class OpprettKravInnsendingsInformasjon(val definisjonsListe: List<Definition>, val tilsagn: List<ArrangorflateTilsagnDto>)
+
+@Serializable
+data class Definition(val key: String, val value: String)
