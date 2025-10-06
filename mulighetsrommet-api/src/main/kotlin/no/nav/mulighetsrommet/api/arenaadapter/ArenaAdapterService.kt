@@ -142,11 +142,7 @@ class ArenaAdapterService(
         }
 
         val previous = queries.enkeltplass.get(arenaGjennomforing.id)
-        if (
-            previous == null ||
-            arenaGjennomforing.tiltakstypeId != previous.tiltakstype.id ||
-            arenaGjennomforing.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer.value
-        ) {
+        if (previous == null) {
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,
@@ -172,10 +168,10 @@ class ArenaAdapterService(
         )
         if (previous == null || hasRelevantChanges(arenadata, previous)) {
             queries.enkeltplass.setArenaData(arenadata)
-        }
 
-        val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
-        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
+            val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
+            publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
+        }
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): ArrangorDto {
