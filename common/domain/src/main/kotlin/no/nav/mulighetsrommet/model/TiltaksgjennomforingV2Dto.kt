@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.model
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -9,12 +11,16 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class TiltaksgjennomforingV2Dto(
-    val tiltakstype: Tiltakstype,
-    val arrangor: Arrangor,
-    val gjennomforing: Gjennomforing,
-) {
+@JsonClassDiscriminator("type")
+sealed class TiltaksgjennomforingV2Dto {
+    abstract val id: UUID
+    abstract val opprettetTidspunkt: Instant
+    abstract val oppdatertTidspunkt: Instant
+    abstract val tiltakstype: Tiltakstype
+    abstract val arrangor: Arrangor
+
     @Serializable
     data class Tiltakstype(
         val arenakode: String,
@@ -27,14 +33,7 @@ data class TiltaksgjennomforingV2Dto(
     )
 
     @Serializable
-    sealed class Gjennomforing {
-        abstract val id: UUID
-        abstract val opprettetTidspunkt: Instant
-        abstract val oppdatertTidspunkt: Instant
-    }
-
-    @Serializable
-    @SerialName("GRUPPE")
+    @SerialName("TiltaksgjennomforingV2.Gruppe")
     data class Gruppe(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -42,6 +41,8 @@ data class TiltaksgjennomforingV2Dto(
         override val opprettetTidspunkt: Instant,
         @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
+        override val tiltakstype: Tiltakstype,
+        override val arrangor: Arrangor,
         val navn: String,
         @Serializable(with = LocalDateSerializer::class)
         val startDato: LocalDate,
@@ -53,10 +54,10 @@ data class TiltaksgjennomforingV2Dto(
         val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
         val apentForPamelding: Boolean,
         val antallPlasser: Int,
-    ) : Gjennomforing()
+    ) : TiltaksgjennomforingV2Dto()
 
     @Serializable
-    @SerialName("ENKELTPLASS")
+    @SerialName("TiltaksgjennomforingV2.Enkeltplass")
     data class Enkeltplass(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -64,5 +65,7 @@ data class TiltaksgjennomforingV2Dto(
         override val opprettetTidspunkt: Instant,
         @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
-    ) : Gjennomforing()
+        override val tiltakstype: Tiltakstype,
+        override val arrangor: Arrangor,
+    ) : TiltaksgjennomforingV2Dto()
 }

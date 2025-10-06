@@ -112,6 +112,28 @@ paths:
       deprecated: false
 components:
   schemas:
+    TiltaksgjennomforingV2.Enkeltplass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        opprettetTidspunkt:
+          type: string
+          format: date-time
+        oppdatertTidspunkt:
+          type: string
+          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Tiltakstype"
+        arrangor:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
+      required:
+      - arrangor
+      - id
+      - oppdatertTidspunkt
+      - opprettetTidspunkt
+      - tiltakstype
     TiltaksgjennomforingV2Dto.Tiltakstype:
       type: object
       properties:
@@ -144,11 +166,7 @@ components:
           type: string
       required:
       - organisasjonsnummer
-    TiltaksgjennomforingV2Dto.Gjennomforing:
-      anyOf:
-      - $ref: "#/components/schemas/ENKELTPLASS"
-      - $ref: "#/components/schemas/GRUPPE"
-    ENKELTPLASS:
+    TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:
         id:
@@ -160,22 +178,10 @@ components:
         oppdatertTidspunkt:
           type: string
           format: date-time
-      required:
-      - id
-      - oppdatertTidspunkt
-      - opprettetTidspunkt
-    GRUPPE:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        opprettetTidspunkt:
-          type: string
-          format: date-time
-        oppdatertTidspunkt:
-          type: string
-          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Tiltakstype"
+        arrangor:
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         navn:
           type: string
         startDato:
@@ -203,6 +209,7 @@ components:
       required:
       - antallPlasser
       - apentForPamelding
+      - arrangor
       - id
       - navn
       - oppdatertTidspunkt
@@ -212,6 +219,7 @@ components:
       - startDato
       - status
       - tilgjengeligForArrangorFraOgMedDato
+      - tiltakstype
     GjennomforingStatusType:
       type: string
       enum:
@@ -225,18 +233,14 @@ components:
       - LOPENDE
       - FELLES
     TiltaksgjennomforingV2Dto:
-      type: object
-      properties:
-        tiltakstype:
-          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Tiltakstype"
-        arrangor:
-          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
-        gjennomforing:
-          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Gjennomforing"
-      required:
-      - arrangor
-      - gjennomforing
-      - tiltakstype
+      anyOf:
+      - $ref: "#/components/schemas/TiltaksgjennomforingV2.Enkeltplass"
+      - $ref: "#/components/schemas/TiltaksgjennomforingV2.Gruppe"
+      discriminator:
+        propertyName: type
+        mapping:
+          TiltaksgjennomforingV2.Enkeltplass: "#/components/schemas/TiltaksgjennomforingV2.Enkeltplass"
+          TiltaksgjennomforingV2.Gruppe: "#/components/schemas/TiltaksgjennomforingV2.Gruppe"
     TiltaksgjennomforingV1Dto.Tiltakstype:
       type: object
       properties:

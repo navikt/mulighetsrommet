@@ -252,7 +252,7 @@ class ArenaAdapterService(
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {
         val record = StoredProducerRecord(
             config.gjennomforingV2Topic,
-            dto.gjennomforing.id.toString().toByteArray(),
+            dto.id.toString().toByteArray(),
             Json.encodeToString(dto).toByteArray(),
             null,
         )

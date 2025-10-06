@@ -21,10 +21,6 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -437,9 +433,9 @@ class ArenaAdapterServiceTest : FunSpec({
                 record.key shouldBe arenaGjennomforing.id.toString().toByteArray()
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
+                decoded.id shouldBe arenaGjennomforing.id
                 decoded.tiltakstype.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                 decoded.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
-                decoded.gjennomforing.id shouldBe arenaGjennomforing.id
             }
         }
     }
