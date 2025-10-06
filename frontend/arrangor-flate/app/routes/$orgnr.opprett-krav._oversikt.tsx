@@ -1,5 +1,5 @@
 import { Heading, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, GjennomføringerTabellResponse } from "api-client";
+import { ArrangorflateService, GjennomforingerTableResponse } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -7,9 +7,11 @@ import { DataDrivenTable } from "~/components/table/DataDrivenTable";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
+import { useFileStorage } from "~/hooks/useFileStorage";
+import { useEffect } from "react";
 
 type LoaderData = {
-  gjennomforingerTabeller: GjennomføringerTabellResponse;
+  gjennomforingerTabeller: GjennomforingerTableResponse;
   orgnr: string;
   arrangor: string;
 };
@@ -63,7 +65,12 @@ type Tabs = "aktive" | "historiske";
 
 export default function OpprettKravTiltaksOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
+  const storage = useFileStorage();
   const { gjennomforingerTabeller } = useLoaderData<LoaderData>();
+
+  useEffect(() => {
+    storage.clear();
+  });
 
   return (
     <InnsendingLayout contentGap="6">

@@ -669,6 +669,7 @@ class GjennomforingQueries(private val session: Session) {
             apentForPamelding = boolean("apent_for_pamelding"),
             antallPlasser = int("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
+            avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
             oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             beskrivelse = stringOrNull("beskrivelse"),

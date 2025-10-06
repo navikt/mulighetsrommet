@@ -4401,11 +4401,13 @@ components:
       type: string
       enum:
       - left
+      - center
       - right
     DataElement:
       anyOf:
       - $ref: "#/components/schemas/DataElement.Link"
       - $ref: "#/components/schemas/DataElement.MathOperator"
+      - $ref: "#/components/schemas/DataElement.MultiLinkModal"
       - $ref: "#/components/schemas/DataElement.Periode"
       - $ref: "#/components/schemas/DataElement.Status"
       - $ref: "#/components/schemas/DataElement.Text"
@@ -4414,6 +4416,7 @@ components:
         mapping:
           no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
           no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
+          no.nav.mulighetsrommet.model.DataElement.MultiLinkModal: "#/components/schemas/DataElement.MultiLinkModal"
           no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
           no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
           no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
@@ -4424,7 +4427,10 @@ components:
           type: string
         href:
           type: string
+        digest:
+          type: string
       required:
+      - digest
       - href
       - text
     DataElement.MathOperator:
@@ -4442,6 +4448,31 @@ components:
       - multiply
       - divide
       - equals
+    DataElement.MultiLinkModal:
+      type: object
+      properties:
+        buttonText:
+          type: string
+        modalContent:
+          $ref: "#/components/schemas/DataElement.MultiLinkModal.ModalContent"
+      required:
+      - buttonText
+      - modalContent
+    DataElement.MultiLinkModal.ModalContent:
+      type: object
+      properties:
+        header:
+          type: string
+        description:
+          type: string
+        links:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataElement.Link"
+      required:
+      - description
+      - header
+      - links
     DataElement.Periode:
       type: object
       properties:
