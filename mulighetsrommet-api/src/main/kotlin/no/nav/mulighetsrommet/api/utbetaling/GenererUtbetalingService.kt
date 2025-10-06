@@ -267,7 +267,7 @@ class GenererUtbetalingService(
         return CacheUtils.tryCacheFirstNullable(kontonummerCache, organisasjonsnummer.value) {
             kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(organisasjonsnummer).fold(
                 { error ->
-                    log.error(
+                    log.warn(
                         "Kunne ikke hente kontonummer for organisasjon ${organisasjonsnummer.value}. Error: $error",
                     )
                     null
