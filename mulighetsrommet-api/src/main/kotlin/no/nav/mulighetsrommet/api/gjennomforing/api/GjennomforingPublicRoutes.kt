@@ -135,7 +135,12 @@ private fun Route.getGjennomforingIdRoute() {
 }
 
 private fun Route.getGjennomforingArenaDataRoute() {
-    val gjennomforingService: GjennomforingService by inject()
+    val db: ApiDatabase by inject()
+
+    fun toArenaDataDto(tiltaksnummer: String): TiltaksgjennomforingArenaDataDto {
+        val (aar, lopenr) = tiltaksnummer.split("#")
+        return TiltaksgjennomforingArenaDataDto(opprettetAar = aar.toInt(), lopenr = lopenr.toInt())
+    }
 
     get("arenadata/{id}", {
         tags = setOf("Tiltaksgjennomforing")
@@ -155,17 +160,20 @@ private fun Route.getGjennomforingArenaDataRoute() {
     }) {
         val id: UUID by call.parameters
 
-        val gjennomforing = gjennomforingService.get(id)
-            ?: return@get call.respond(HttpStatusCode.NotFound)
+        val tiltaksnummer = db.session {
+            val gjennomoforing = queries.gjennomforing.get(id)
+            val enkeltplass = queries.enkeltplass.get(id)
 
-        val arenaData = gjennomforing.tiltaksnummer?.let { toArenaDataDto(it) }
+            if (gjennomoforing == null && enkeltplass == null) {
+                return@get call.respond(HttpStatusCode.NotFound)
+            }
+
+            gjennomoforing?.tiltaksnummer ?: enkeltplass?.arena?.tiltaksnummer
+        }
+
+        val arenaData = tiltaksnummer?.let { toArenaDataDto(it) }
             ?: return@get call.respond(HttpStatusCode.NoContent)
 
         call.respond(HttpStatusCode.OK, arenaData)
     }
-}
-
-fun toArenaDataDto(tiltaksnummer: String): TiltaksgjennomforingArenaDataDto {
-    val (aar, lopenr) = tiltaksnummer.split("#")
-    return TiltaksgjennomforingArenaDataDto(opprettetAar = aar.toInt(), lopenr = lopenr.toInt())
 }
