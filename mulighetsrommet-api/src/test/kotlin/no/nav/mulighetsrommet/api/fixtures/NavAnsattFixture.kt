@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.*
@@ -37,3 +39,18 @@ object NavAnsattFixture {
         skalSlettesDato = null,
     )
 }
+
+fun NavAnsattDbo.toNavAnsatt(roller: Set<NavAnsattRolle>) = NavAnsatt(
+    navIdent = this.navIdent,
+    fornavn = this.fornavn,
+    etternavn = this.etternavn,
+    hovedenhet = NavAnsatt.Hovedenhet(
+        enhetsnummer = this.hovedenhet,
+        navn = "Hovedenhet",
+    ),
+    entraObjectId = this.entraObjectId,
+    mobilnummer = this.mobilnummer,
+    epost = this.epost,
+    skalSlettesDato = this.skalSlettesDato,
+    roller = roller,
+)

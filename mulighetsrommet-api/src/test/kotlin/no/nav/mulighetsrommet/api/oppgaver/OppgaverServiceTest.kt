@@ -52,9 +52,8 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
@@ -80,11 +79,12 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
-                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
-                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                        NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                    ),
                 ),
             ).shouldBeEmpty()
         }
@@ -112,8 +112,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
             ).size shouldBe 3
         }
 
@@ -138,8 +139,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn3.id, OppgaveType.TILSAGN_RETURNERT),
             )
@@ -168,8 +170,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
                 PartialOppgave(TilsagnFixtures.Tilsagn2.id, OppgaveType.TILSAGN_TIL_GODKJENNING),
@@ -195,9 +198,10 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    ),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilsagnFixtures.Tilsagn1.id, OppgaveType.TILSAGN_RETURNERT),
@@ -227,11 +231,12 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.kontorspesifikk(
-                        Rolle.BESLUTTER_TILSAGN,
-                        setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.kontorspesifikk(
+                            Rolle.BESLUTTER_TILSAGN,
+                            setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                        ),
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
@@ -275,8 +280,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
             )
@@ -286,10 +292,11 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
-                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                        NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                    ),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
@@ -300,9 +307,10 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
-                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    ),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.delutbetaling2.id, OppgaveType.UTBETALING_RETURNERT),
@@ -313,9 +321,10 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN),
+                    ),
                 ),
             ).shouldBeEmpty()
         }
@@ -344,15 +353,16 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
-                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                        NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                    ),
                 ),
             ).shouldBeEmpty()
         }
 
-        test("Skal ikke hente oppgaver som ansatt selv har besluttet tilsagnet") {
+        test("Skal hente oppgaver selv om ansatt selv har besluttet tilsagnet") {
             val service = OppgaverService(database.db)
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -380,20 +390,22 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
-                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ansatt = NavAnsattFixture.DonaldDuck.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                        NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                    ),
                 ),
-            ).shouldBeEmpty()
+            ).shouldHaveSize(1)
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.FetterAnton.navIdent,
-                roller = setOf(
-                    NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
-                    NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                ansatt = NavAnsattFixture.FetterAnton.toNavAnsatt(
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                        NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
+                    ),
                 ),
             ).shouldHaveSize(1)
         }
@@ -450,8 +462,9 @@ class OppgaverServiceTest : FunSpec({
                     oppgavetyper = setOf(),
                     tiltakskoder = setOf(),
                     regioner = setOf(),
-                    ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                    roller = setOf(rolle),
+                    ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                        roller = setOf(rolle),
+                    ),
                 ) shouldMatchAllOppgaver expectedOppgaver
             }
         }
@@ -519,8 +532,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI), NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100")))),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI), NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100")))),
+                ),
             )
             oppgaver shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
@@ -531,8 +545,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
             )
@@ -541,16 +556,18 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+                ),
             ) shouldHaveSize 0
 
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
             )
@@ -583,8 +600,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(OppgaveType.AVTALE_MANGLER_ADMINISTRATOR),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.AVTALER_SKRIV)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(
                     AvtaleFixtures.AFT.id,
@@ -624,8 +642,9 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.navIdent,
-                roller = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
+                ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(
                     AFT1.id,

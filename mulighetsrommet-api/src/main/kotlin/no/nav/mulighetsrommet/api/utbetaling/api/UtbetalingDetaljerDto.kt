@@ -35,6 +35,7 @@ data class UtbetalingLinje(
 enum class UtbetalingLinjeHandling {
     ATTESTER,
     RETURNER,
+    SEND_TIL_ATTESTERING,
 }
 
 @Serializable

@@ -34,9 +34,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.linjeHandlinger
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.utbetalingHandlinger
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -135,7 +137,7 @@ fun Route.utbetalingRoutes() {
 
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = utbetalingService.handlinger(utbetaling, ansatt),
+                        handlinger = utbetalingHandlinger(utbetaling, ansatt),
                     )
                 }
                 call.respond(utbetaling)
@@ -391,12 +393,6 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
     val opprettelse = queries.totrinnskontroll
         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
-    val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
-        Rolle.ATTESTANT_UTBETALING,
-        setOf(tilsagn.kostnadssted.enhetsnummer),
-    )
-    val erSaksbehandler = navAnsatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
     return UtbetalingLinje(
         id = delutbetaling.id,
         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
@@ -404,12 +400,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = setOfNotNull(
-            UtbetalingLinjeHandling.ATTESTER.takeIf {
-                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent
-            },
-            UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
-        ),
+        handlinger = linjeHandlinger(opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
     )
 }
 

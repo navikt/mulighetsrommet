@@ -11,11 +11,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -57,8 +52,7 @@ fun Route.oppgaverRoutes() {
                 oppgavetyper = filter.oppgavetyper,
                 tiltakskoder = filter.tiltakskoder,
                 regioner = filter.regioner,
-                ansatt = ansatt.navIdent,
-                roller = ansatt.roller,
+                ansatt = ansatt,
             )
 
             call.respond(oppgaver)

@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.tilsagnHandlinger
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -61,7 +62,7 @@ fun Route.tilsagnRoutesGet() {
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
-                    handlinger = service.handlinger(tilsagn, ansatt),
+                    handlinger = tilsagnHandlinger(tilsagn, ansatt),
                 )
             }
 
