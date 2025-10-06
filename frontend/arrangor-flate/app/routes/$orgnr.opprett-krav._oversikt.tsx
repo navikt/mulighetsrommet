@@ -7,6 +7,8 @@ import { DataDrivenTable } from "~/components/table/DataDrivenTable";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
+import { useFileStorage } from "~/hooks/useFileStorage";
+import { useEffect } from "react";
 
 type LoaderData = {
   gjennomforingerTabeller: GjennomforingerTableResponse;
@@ -63,7 +65,12 @@ type Tabs = "aktive" | "historiske";
 
 export default function OpprettKravTiltaksOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
+  const storage = useFileStorage();
   const { gjennomforingerTabeller } = useLoaderData<LoaderData>();
+
+  useEffect(() => {
+    storage.clear();
+  });
 
   return (
     <InnsendingLayout contentGap="6">
