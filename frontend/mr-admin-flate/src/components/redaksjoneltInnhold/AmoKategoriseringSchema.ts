@@ -14,7 +14,9 @@ const InnholdElementerSchema = z
 export const AmoKategoriseringSchema = z.discriminatedUnion("kurstype", [
   z.object({
     kurstype: z.literal("BRANSJE_OG_YRKESRETTET"),
-    bransje: z.enum(AmoKategoriseringBransjeOgYrkesrettetBransje, { error: "Du må velge bransje" }),
+    bransje: z.enum(AmoKategoriseringBransjeOgYrkesrettetBransje, {
+      error: "Du må velge bransje",
+    }),
     sertifiseringer: z
       .custom<AmoKategoriseringBransjeOgYrkesrettetSertifisering>()
       .array()

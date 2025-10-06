@@ -78,7 +78,7 @@ export const GjennomforingSchema = z
         verdi: z.number({
           error: "Du må sette en verdi for estimert ventetid",
         }),
-        enhet: z.enum(["uke", "maned"], {
+        enhet: z.string({
           error: "Du må sette en enhet for estimert ventetid",
         }),
       })

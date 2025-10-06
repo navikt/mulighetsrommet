@@ -20,7 +20,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Spacer, Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React, { useCallback } from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "@/components/detaljside/Metadata";
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
@@ -35,7 +35,7 @@ interface Props {
   avtale: AvtaleDto;
   gjennomforing: GjennomforingDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
-  defaultValues: Partial<InferredGjennomforingSchema>;
+  defaultValues: DeepPartial<InferredGjennomforingSchema>;
   enheter: NavEnhetDto[];
 }
 
@@ -104,7 +104,21 @@ export function GjennomforingFormContainer(props: Props) {
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       beskrivelse: data.beskrivelse,
-      faneinnhold: data.faneinnhold ?? null,
+      faneinnhold: data.faneinnhold
+        ? {
+            forHvemInfoboks: data.faneinnhold.forHvemInfoboks || null,
+            forHvem: data.faneinnhold.forHvem || null,
+            detaljerOgInnholdInfoboks: data.faneinnhold.detaljerOgInnholdInfoboks || null,
+            detaljerOgInnhold: data.faneinnhold.detaljerOgInnhold || null,
+            pameldingOgVarighetInfoboks: data.faneinnhold.pameldingOgVarighetInfoboks || null,
+            pameldingOgVarighet: data.faneinnhold.pameldingOgVarighet || null,
+            kontaktinfo: data.faneinnhold.kontaktinfo || null,
+            kontaktinfoInfoboks: data.faneinnhold.kontaktinfoInfoboks || null,
+            lenker: data.faneinnhold.lenker || null,
+            oppskrift: data.faneinnhold.oppskrift || null,
+            delMedBruker: data.faneinnhold.delMedBruker || null,
+          }
+        : null,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,

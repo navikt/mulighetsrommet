@@ -14,6 +14,7 @@ import {
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../portableText/helper";
+import { DeepPartial } from "react-hook-form";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -70,13 +71,14 @@ export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto>,
-): Partial<InferredGjennomforingSchema> {
+): DeepPartial<InferredGjennomforingSchema> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
   // TODO: Fjern casting når avtaler er migrert til @tiltaksadministrasjon/api-client
   const faneInnhold = slateFaneinnholdToPortableText(
     (gjennomforing?.faneinnhold ?? avtale.faneinnhold) as Faneinnhold | null,
   );
+
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
