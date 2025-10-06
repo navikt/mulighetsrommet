@@ -86,6 +86,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-p",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
