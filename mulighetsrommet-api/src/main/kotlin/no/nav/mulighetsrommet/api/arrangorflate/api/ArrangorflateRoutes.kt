@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.routes.featuretoggles.generateUnleashSessionId
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -43,6 +42,10 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.featuretoggle.api.generateUnleashSessionId
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
+import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
@@ -50,9 +53,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.unleash.FeatureToggle
-import no.nav.mulighetsrommet.unleash.FeatureToggleContext
-import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
@@ -65,7 +65,7 @@ fun Route.arrangorflateRoutes() {
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
-    val unleashService: UnleashService by inject()
+    val featureToggleService: UnleashFeatureToggleService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -235,7 +235,7 @@ fun Route.arrangorflateRoutes() {
             )
 
             val isManualDriftsTilskuddEnabled =
-                unleashService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
+                featureToggleService.isEnabled(FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS, context)
 
             val prismodeller = if (isManualDriftsTilskuddEnabled) {
                 listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, PrismodellType.ANNEN_AVTALT_PRIS)
@@ -915,25 +915,22 @@ private fun toGjennomforingDataTable(
 private fun toGjennomforingAction(
     orgnr: Organisasjonsnummer,
     gjennomforing: Gjennomforing,
-): DataElement =
-    when (gjennomforing.tiltakstype.tiltakskode) {
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            ->
-            DataElement.Link(
-                text = "Start innsending",
-                href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
-            )
+): DataElement = when (gjennomforing.tiltakstype.tiltakskode) {
+    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    ->
+        DataElement.Link(
+            text = "Start innsending",
+            href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
+        )
 
-        else ->
-            DataElement.Link(
-                text = "Start innsending",
-                href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
-            )
-    }
+    else ->
+        DataElement.Link(
+            text = "Start innsending",
+            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
+        )
+}
 
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
-    "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
-    "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"

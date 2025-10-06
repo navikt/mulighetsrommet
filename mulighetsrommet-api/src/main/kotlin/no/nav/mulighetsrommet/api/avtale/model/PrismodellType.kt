@@ -37,5 +37,10 @@ object Prismodeller {
         -> listOf(
             PrismodellType.ANNEN_AVTALT_PRIS,
         )
+
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_UTDANNING,
+        -> listOf()
     }
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class TiltaksgjennomforingEksternV1Dto(
+data class TiltaksgjennomforingV1Dto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,

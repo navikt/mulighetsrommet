@@ -36,5 +36,10 @@ object Avtaletyper {
             Avtaletype.AVTALE,
             Avtaletype.OFFENTLIG_OFFENTLIG,
         )
+
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_UTDANNING,
+        -> listOf()
     }
 }

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing
+package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -85,7 +85,7 @@ class GjennomforingServiceTest : FunSpec({
                 record.topic shouldBe PRODUCER_TOPIC
                 record.key shouldBe gjennomforing.id.toString().toByteArray()
 
-                val decoded = Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(record.value.decodeToString())
+                val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
                 decoded.id shouldBe gjennomforing.id
             }
         }
@@ -316,7 +316,7 @@ class GjennomforingServiceTest : FunSpec({
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                val decoded = Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(record.value.decodeToString())
+                val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
                 decoded.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
             }
         }

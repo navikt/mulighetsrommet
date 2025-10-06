@@ -7,7 +7,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -27,9 +27,9 @@ class SisteTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
 
         val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(db)
 
-        val tiltak = TiltaksgjennomforingEksternV1Dto(
+        val tiltak = TiltaksgjennomforingV1Dto(
             id = UUID.randomUUID(),
-            tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Gruppe AMO",
                 arenaKode = "GRUPPEAMO",

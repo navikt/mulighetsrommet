@@ -99,7 +99,7 @@ object TiltakstypeFixtures {
     val EnkelAmo = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Enkel AMO",
-        tiltakskode = null,
+        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arenaKode = "ENKELAMO",
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,

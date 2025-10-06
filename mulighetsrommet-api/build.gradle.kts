@@ -26,6 +26,9 @@ tasks.register<JavaExec>("generateOpenApi") {
 
     // Specs to generate (name of spec -> file output path)
     args = listOf(
+        "public",
+        "src/main/resources/web/openapi-public.yaml",
+
         "tiltaksadministrasjon",
         "../frontend/tiltaksadministrasjon-api-client/openapi.yaml",
 
@@ -42,13 +45,8 @@ val validateOpenapiSpec = tasks.register<ValidateTask>("validateOpenapiSpec") {
     recommend.set(true)
 }
 
-val validateOpenapiExternalSpec = tasks.register<ValidateTask>("validateOpenapiExternalSpec") {
-    inputSpec.set("$rootDir/mulighetsrommet-api/src/main/resources/web/openapi-external.yaml")
-    recommend.set(true)
-}
-
 val validateOpenapiSpecs = tasks.register<Task>("validateOpenapiSpecs") {
-    dependsOn(validateOpenapiSpec.name, validateOpenapiExternalSpec.name)
+    dependsOn(validateOpenapiSpec.name)
 }
 
 tasks.build {
@@ -96,7 +94,6 @@ dependencies {
     implementation(libs.ktor.server.metricsMicrometer)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.sessions)
-    implementation(libs.ktor.server.swagger)
     testImplementation(libs.ktor.server.testHost)
 
     implementation(libs.bundles.ktor.openapi)

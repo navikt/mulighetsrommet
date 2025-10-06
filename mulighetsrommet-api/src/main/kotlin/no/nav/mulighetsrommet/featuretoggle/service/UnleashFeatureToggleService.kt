@@ -1,21 +1,16 @@
-package no.nav.mulighetsrommet.unleash
+package no.nav.mulighetsrommet.featuretoggle.service
 
 import io.getunleash.DefaultUnleash
 import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
-import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
-import no.nav.mulighetsrommet.unleash.strategies.ByOrgnrStrategy
-import no.nav.mulighetsrommet.unleash.strategies.ByTiltakskodeStrategy
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
+import no.nav.mulighetsrommet.featuretoggle.strategies.ByNavIdentStrategy
+import no.nav.mulighetsrommet.featuretoggle.strategies.ByOrgnrStrategy
+import no.nav.mulighetsrommet.featuretoggle.strategies.ByTiltakskodeStrategy
 
-enum class FeatureToggle(val key: String) {
-    MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN("mulighetsrommet.tiltakstype.migrering.tilsagn"),
-    MULIGHETSROMMET_PRISMODELL_HELE_UKER("mulighetsrommet.okonomi.prismodell.hele-uker"),
-    MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING("mulighetsrommet.tiltakstype.migrering.okonomi"),
-    ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS("arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris"),
-}
-
-class UnleashService(config: Config) {
+class UnleashFeatureToggleService(config: Config) {
     data class Config(
         val appName: String,
         val url: String,

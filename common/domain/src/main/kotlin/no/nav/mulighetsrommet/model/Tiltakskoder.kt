@@ -1,30 +1,18 @@
 package no.nav.mulighetsrommet.model
 
-enum class Tiltakskode {
-    AVKLARING,
-    OPPFOLGING,
-    GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    JOBBKLUBB,
-    DIGITALT_OPPFOLGINGSTILTAK,
-    ARBEIDSFORBEREDENDE_TRENING,
-    GRUPPE_FAG_OG_YRKESOPPLAERING,
-    ARBEIDSRETTET_REHABILITERING,
-    VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ;
-
-    fun toArenaKode(): String {
-        return when (this) {
-            ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
-            ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"
-            AVKLARING -> "AVKLARAG"
-            DIGITALT_OPPFOLGINGSTILTAK -> "DIGIOPPARB"
-            GRUPPE_FAG_OG_YRKESOPPLAERING -> "GRUFAGYRKE"
-            GRUPPE_ARBEIDSMARKEDSOPPLAERING -> "GRUPPEAMO"
-            OPPFOLGING -> "INDOPPFAG"
-            JOBBKLUBB -> "JOBBK"
-            VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
-        }
-    }
+enum class Tiltakskode(val arenakode: String) {
+    ARBEIDSFORBEREDENDE_TRENING("ARBFORB"),
+    ARBEIDSRETTET_REHABILITERING("ARBRRHDAG"),
+    AVKLARING("AVKLARAG"),
+    DIGITALT_OPPFOLGINGSTILTAK("DIGIOPPARB"),
+    ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING("ENKELAMO"),
+    ENKELTPLASS_FAG_OG_YRKESOPPLAERING("ENKFAGYRKE"),
+    GRUPPE_ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"),
+    GRUPPE_FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"),
+    HOYERE_UTDANNING("HOYEREUTD"),
+    JOBBKLUBB("JOBBK"),
+    OPPFOLGING("INDOPPFAG"),
+    VARIG_TILRETTELAGT_ARBEID_SKJERMET("VASV"),
 }
 
 object Tiltakskoder {
@@ -32,22 +20,22 @@ object Tiltakskoder {
      * Tiltakskoder for de forhåndsgodkjente og anskaffede tiltakene, kalt "gruppetilak" (av oss i hvert fall), og som
      * skal migreres fra Arena som del av P4.
      */
-    private val GruppetiltakArenaKoder = listOf(
-        "ARBFORB",
-        "ARBRRHDAG",
-        "AVKLARAG",
-        "DIGIOPPARB",
-        "GRUFAGYRKE",
-        "GRUPPEAMO",
-        "INDOPPFAG",
-        "JOBBK",
-        "VASV",
+    private val TiltakskoderGruppe = listOf(
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.AVKLARING,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.OPPFOLGING,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
     )
 
     /**
      * Tiltakskoder for tiltak i egen regi (regi av Nav), og som foreløpig administreres i Sanity ikke i admin-flate.
      */
-    private val EgenRegiTiltak = listOf(
+    private val TiltakskoderEgenRegi = listOf(
         "INDJOBSTOT",
         "IPSUNG",
         "UTVAOONAV",
@@ -63,25 +51,25 @@ object Tiltakskoder {
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     )
 
-    private val TiltakskodeArenaEnkeltplass = listOf(
-        "ENKELAMO",
-        "ENKFAGYRKE",
-        "HOYEREUTD",
+    private val TiltakskoderEnkeltplasser = listOf(
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_UTDANNING,
     )
 
     fun isGruppetiltak(arenaKode: String): Boolean {
-        return arenaKode in GruppetiltakArenaKoder
+        return arenaKode in TiltakskoderGruppe.map { it.arenakode }
     }
 
     fun isEgenRegiTiltak(arenaKode: String): Boolean {
-        return arenaKode in EgenRegiTiltak
+        return arenaKode in TiltakskoderEgenRegi
     }
 
-    fun isKursTiltak(tiltakskode: Tiltakskode?): Boolean {
+    fun isKursTiltak(tiltakskode: Tiltakskode): Boolean {
         return tiltakskode in TiltakMedFellesOppstart
     }
 
     fun isEnkeltplassTiltak(arenakode: String): Boolean {
-        return arenakode in TiltakskodeArenaEnkeltplass
+        return arenakode in TiltakskoderEnkeltplasser.map { it.arenakode }
     }
 }

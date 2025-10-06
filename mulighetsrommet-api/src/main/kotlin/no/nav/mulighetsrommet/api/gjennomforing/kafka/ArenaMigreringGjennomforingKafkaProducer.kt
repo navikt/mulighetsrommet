@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
@@ -32,7 +32,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
     )
 
     override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingEksternV1Dto?>(message)
+        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
             ?: throw UnsupportedOperationException("Arena støtter ikke sletting av gjennomføringer. Tombstone-meldinger er derfor ikke tillatt så lenge data må deles med Arena.")
 
         if (gjennomforingSkalDelesMedArena(gjennomforing)) {
@@ -53,7 +53,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
         publish(migrertGjennomforing)
     }
 
-    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingEksternV1Dto): Boolean {
+    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV1Dto): Boolean {
         return tiltakstyper.isEnabled(gjennomforing.tiltakstype.tiltakskode)
     }
 

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.unleash
+package no.nav.mulighetsrommet.featuretoggle.model
 
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode

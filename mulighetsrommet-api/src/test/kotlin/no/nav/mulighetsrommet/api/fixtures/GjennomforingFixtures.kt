@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.gjennomforing.EstimertVentetid
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto.*
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
@@ -25,32 +24,6 @@ object GjennomforingFixtures {
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
         avtaleId = AvtaleFixtures.oppfolging.id,
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-    )
-
-    val EnkelAmo1 = GjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "EnkelAmo 1",
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolging.startDato,
-        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
-        status = GjennomforingStatusType.GJENNOMFORES,
-        antallPlasser = 12,
-        administratorer = listOf(NavIdent("DD1")),
-        navEnheter = setOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
-        oppstart = GjennomforingOppstartstype.LOPENDE,
-        kontaktpersoner = emptyList(),
-        arrangorKontaktpersoner = emptyList(),
-        stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.EnkelAmo.id,
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,
