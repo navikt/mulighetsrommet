@@ -933,4 +933,4 @@ private fun toGjennomforingAction(
 
 private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/driftstilskudd/innsendingsinformasjon"
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"

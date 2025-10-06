@@ -1,27 +1,30 @@
 import { Button, ErrorSummary, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { ArrangorflateService, FieldError, Tilskuddstype } from "api-client";
 import {
-  ActionFunctionArgs,
-  Form,
-  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
-  redirect,
-  useActionData,
   useLoaderData,
   useRevalidator,
+  Link as ReactRouterLink,
+  Form,
+  ActionFunctionArgs,
+  redirect,
+  useActionData,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
+import {
+  getOrgnrGjennomforingIdFrom,
+  pathByOrgnr,
+  useGjennomforingIdFromUrl,
+  useOrgnrFromUrl,
+} from "~/utils/navigation";
 import { useEffect, useRef } from "react";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type LoaderData = {
-  orgnr: string;
-  gjennomforingId: string;
   kontonummer?: string;
   sessionBelop?: string;
   sessionKid?: string;
@@ -29,7 +32,7 @@ type LoaderData = {
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 2 av 4: Betalingsinformasjon - Opprett krav om utbetaling" },
+    { title: "Steg 2 av 3: Betalingsinformasjon - Opprett krav om utbetaling" },
     {
       name: "description",
       content: "Fyll ut betalingsinformasjon for å opprette et krav om utbetaling",
@@ -39,13 +42,12 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
-
   const session = await getSession(request.headers.get("Cookie"));
   let sessionBelop: string | undefined;
   let sessionKid: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
     session.get("gjennomforingId") === gjennomforingId
   ) {
     sessionBelop = session.get("belop");
@@ -63,13 +65,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return {
-    orgnr,
-    gjennomforingId,
-    kontonummer: data.kontonummer,
-    sessionBelop,
-    sessionKid,
-  };
+  return { kontonummer: data.kontonummer, sessionBelop, sessionKid };
 };
 
 interface ActionData {
@@ -82,10 +78,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   const orgnr = session.get("orgnr");
-  if (!orgnr) throw new Error("Mangler orgnr");
-
+  if (!orgnr) {
+    throw new Error("Mangler orgnr");
+  }
   const gjennomforingId = session.get("gjennomforingId");
-  if (!gjennomforingId) throw new Error("Mangler gjennomføring id");
+  if (!gjennomforingId) {
+    throw new Error("Mangler gjennomføring id");
+  }
 
   const belop = formData.get("belop")?.toString();
   const kontonummer = formData.get("kontonummer")?.toString();
@@ -107,10 +106,11 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
+    session.set("tilskuddstype", Tilskuddstype.TILTAK_DRIFTSTILSKUDD);
     session.set("belop", belop);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);
-    return redirect(pathByOrgnr(orgnr).opprettKrav.investering.vedlegg(gjennomforingId), {
+    return redirect(pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId), {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -120,8 +120,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function OpprettKravUtbetaling() {
   const data = useActionData<ActionData>();
-  const { kontonummer, sessionBelop, sessionKid, orgnr, gjennomforingId } =
-    useLoaderData<LoaderData>();
+  const { kontonummer, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
+  const orgnr = useOrgnrFromUrl();
+  const gjennomforingId = useGjennomforingIdFromUrl();
   const revalidator = useRevalidator();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
@@ -185,7 +186,7 @@ export default function OpprettKravUtbetaling() {
               as={ReactRouterLink}
               type="button"
               variant="tertiary"
-              to={pathByOrgnr(orgnr).opprettKrav.investering.innsendingsinformasjon(
+              to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.innsendingsinformasjon(
                 gjennomforingId,
               )}
             >

@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { Params, useParams } from "react-router";
 import { Tabs } from "~/routes/$orgnr_.oversikt";
 import { Environment } from "~/services/environment";
 
@@ -6,24 +6,36 @@ export function getCurrentTab(request: Request): Tabs {
   return new URL(request.url).searchParams.get("forside-tab") as Tabs;
 }
 
-export function useOrgnrFromUrl() {
-  const { orgnr } = useParams();
-
-  if (!orgnr) {
-    throw new Error("Fant ikke orgnr i url");
+export function requireOrgnr(orgnr?: string): string {
+  if (orgnr) {
+    return orgnr;
   }
-
-  return orgnr;
+  throw new Error("Mangler orgnr");
 }
 
-export function useGjennomforingIdFromUrl() {
-  const { gjennomforingid } = useParams();
-
-  if (!gjennomforingid) {
-    throw new Error("Mangler gjennomføring id");
+export function requireGjennomforingId(gjennomforingId?: string): string {
+  if (gjennomforingId) {
+    return gjennomforingId;
   }
+  throw new Error("Mangler gjennomføring id");
+}
 
-  return gjennomforingid;
+export function useOrgnrFromUrl(): string {
+  const { orgnr } = useParams();
+  return requireOrgnr(orgnr);
+}
+
+export function useGjennomforingIdFromUrl(): string {
+  const { gjennomforingid } = useParams();
+  return requireGjennomforingId(gjennomforingid);
+}
+
+export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
+  orgnr: string;
+  gjennomforingId: string;
+} {
+  const { orgnr, gjennomforingid } = params;
+  return { orgnr: requireOrgnr(orgnr), gjennomforingId: requireGjennomforingId(gjennomforingid) };
 }
 
 export const pathByOrgnr = (orgnr: string) => {
@@ -44,6 +56,15 @@ export const pathByOrgnr = (orgnr: string) => {
           `/${orgnr}/opprett-krav/${gjennomforingId}/investering/vedlegg`,
         oppsummering: (gjennomforingId: string) =>
           `/${orgnr}/opprett-krav/${gjennomforingId}/investering/oppsummering`,
+      },
+      driftstilskuddv2: {
+        innsendingsinformasjon: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
+        utbetaling: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
+        vedlegg: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
+        oppsummering: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
       },
       driftstilskudd: {
         innsendingsinformasjon: `/${orgnr}/opprett-krav/driftstilskudd/innsendingsinformasjon`,

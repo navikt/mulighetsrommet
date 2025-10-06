@@ -62,7 +62,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let kid: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
     session.get("gjennomforingId") === gjennomforingId
   ) {
     tilsagnId = session.get("tilsagnId");
@@ -145,7 +145,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   } else {
     return redirect(
-      `${pathByOrgnr(orgnr!).opprettKrav.investering.oppsummering(gjennomforingId!)}`,
+      `${pathByOrgnr(orgnr!).opprettKrav.driftstilskuddv2.oppsummering(gjennomforingId!)}`,
     );
   }
 };
