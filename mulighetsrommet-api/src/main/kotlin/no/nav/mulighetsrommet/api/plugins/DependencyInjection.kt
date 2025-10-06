@@ -377,7 +377,10 @@ private fun services(appConfig: AppConfig) = module {
     single { DelMedBrukerService(get(), get(), get()) }
     single {
         GjennomforingService(
-            GjennomforingService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV1Topic),
+            GjennomforingService.Config(
+                gjennomforingV1Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV1Topic,
+                gjennomforingV2Topic = appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
+            ),
             get(),
             get(),
         )
