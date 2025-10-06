@@ -2,22 +2,17 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingOppgaveData
 import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.tilsagnHandlinger
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
-import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingOppgaveData
 import no.nav.mulighetsrommet.api.utbetaling.linjeHandlinger
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.utbetalingHandlinger
 import no.nav.mulighetsrommet.model.*
@@ -91,18 +86,11 @@ class OppgaverService(val db: ApiDatabase) {
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.session {
-        queries.tilsagn
-            .getAll(
-                statuser = listOf(
-                    TilsagnStatus.TIL_GODKJENNING,
-                    TilsagnStatus.TIL_ANNULLERING,
-                    TilsagnStatus.TIL_OPPGJOR,
-                    TilsagnStatus.RETURNERT,
-                ),
-            )
+        queries.oppgave
+            .getTilsagnOppgaveData()
             .asSequence()
             .filter { oppgave ->
-                kostnadssteder.isEmpty() || oppgave.kostnadssted.enhetsnummer in kostnadssteder
+                kostnadssteder.isEmpty() || oppgave.kostnadssted in kostnadssteder
             }
             .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
             .mapNotNull { toOppgave(it, ansatt) }
@@ -114,8 +102,8 @@ class OppgaverService(val db: ApiDatabase) {
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.session {
-        queries.delutbetaling
-            .getOppgaveData(
+        queries.oppgave
+            .getDelutbetalingOppgaveData(
                 kostnadssteder = kostnadssteder.ifEmpty { null },
                 tiltakskoder = tiltakskoder.ifEmpty { null },
             )
@@ -129,8 +117,8 @@ class OppgaverService(val db: ApiDatabase) {
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.session {
-        queries.utbetaling
-            .getOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
+        queries.oppgave
+            .getUtbetalingOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
             .asSequence()
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .mapNotNull { toOppgave(it, ansatt) }
@@ -141,37 +129,33 @@ class OppgaverService(val db: ApiDatabase) {
         tiltakskoder: Set<Tiltakskode>,
         regioner: Set<NavEnhetNummer>,
     ): List<Oppgave> = db.session {
-        val tiltakstypeIds = queries.tiltakstype.getAll().filter { it.tiltakskode in tiltakskoder }.map { it.id }
-
-        queries.avtale
-            .getAll(
-                tiltakstypeIder = tiltakstypeIds,
+        queries.oppgave
+            .getAvtaleOppgaveData(
+                tiltakskoder = tiltakskoder,
                 navRegioner = regioner.toList(),
-                statuser = listOf(AvtaleStatusType.UTKAST, AvtaleStatusType.AKTIV),
             )
-            .items
-            .flatMap { toOppgaver(it) }
+            .map { it.toOppgave() }
     }
 
     private fun gjennomforingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
     ): List<Oppgave> = db.session {
-        queries.gjennomforing
-            .getOppgaveData(tiltakskoder = tiltakskoder)
+        queries.oppgave
+            .getGjennomforingOppgaveData(tiltakskoder = tiltakskoder)
             .filter { navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter } }
-            .flatMap { toOppgaver(it) }
+            .map { it.toOppgave() }
     }
 
     private fun QueryContext.byKostnadssted(
-        utbetaling: Utbetaling,
+        data: UtbetalingOppgaveData,
         kostnadssteder: Set<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
         else -> {
-            queries.tilsagn
-                .getAll(gjennomforingId = utbetaling.gjennomforing.id, periodeIntersectsWith = utbetaling.periode)
-                .let { tilsagn -> tilsagn.isEmpty() || tilsagn.any { it.kostnadssted.enhetsnummer in kostnadssteder } }
+            queries.oppgave
+                .getUtbetalingKostnadssteder(data.gjennomforingId, data.periode)
+                .let { it.isEmpty() || it.any { it in kostnadssteder } }
         }
     }
 
@@ -182,34 +166,38 @@ class OppgaverService(val db: ApiDatabase) {
     }
 }
 
-private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavAnsatt): Oppgave? {
+private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt): Oppgave? {
     val tiltakstype = OppgaveTiltakstype(
-        tiltakskode = tilsagn.tiltakstype.tiltakskode,
-        navn = tilsagn.tiltakstype.navn,
+        tiltakskode = data.tiltakstype.tiltakskode,
+        navn = data.tiltakstype.navn,
     )
 
     val link = OppgaveLink(
         linkText = "Se tilsagn",
-        link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
+        link = "/gjennomforinger/${data.gjennomforingId}/tilsagn/${data.id}",
     )
 
-    val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-    val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-    val tilOppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+    val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.OPPRETT)
+    val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.ANNULLER)
+    val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.GJOR_OPP)
 
-    val handlinger = tilsagnHandlinger(tilsagn, ansatt)
+    val handlinger = tilsagnHandlinger(
+        id = data.id,
+        kostnadssted = data.kostnadssted,
+        status = data.status,
+        belopBrukt = data.belopBrukt,
+        ansatt = ansatt,
+    )
 
-    return when (tilsagn.status) {
+    return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
             Oppgave(
-                id = tilsagn.id,
+                id = data.id,
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
                 navn = OppgaveType.TILSAGN_TIL_GODKJENNING.navn,
-                enhet = tilsagn.kostnadssted.let {
-                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
-                },
-                title = tilsagn.gjennomforing.navn,
-                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er sendt til godkjenning",
+                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
+                title = data.gjennomforingNavn,
+                description = "Tilsagnet ${data.bestillingsnummer} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
@@ -222,14 +210,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavAnsatt): Oppgave
         TilsagnStatus.RETURNERT -> {
             requireNotNull(opprettelse.besluttetTidspunkt)
             Oppgave(
-                id = tilsagn.id,
+                id = data.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
                 navn = OppgaveType.TILSAGN_RETURNERT.navn,
-                enhet = tilsagn.kostnadssted.let {
-                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
-                },
-                title = tilsagn.gjennomforing.navn,
-                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er returnert av beslutter",
+                title = data.gjennomforingNavn,
+                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
+                description = "Tilsagnet ${data.bestillingsnummer} er returnert av beslutter",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.besluttetTidspunkt,
@@ -242,14 +228,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavAnsatt): Oppgave
         TilsagnStatus.TIL_ANNULLERING -> {
             requireNotNull(annullering)
             Oppgave(
-                id = tilsagn.id,
+                id = data.id,
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
                 navn = OppgaveType.TILSAGN_TIL_ANNULLERING.navn,
-                enhet = tilsagn.kostnadssted.let {
-                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
-                },
-                title = tilsagn.gjennomforing.navn,
-                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er sendt til annullering",
+                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
+                title = data.gjennomforingNavn,
+                description = "Tilsagnet ${data.bestillingsnummer} er sendt til annullering",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = annullering.behandletTidspunkt,
@@ -262,14 +246,12 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavAnsatt): Oppgave
         TilsagnStatus.TIL_OPPGJOR -> {
             requireNotNull(tilOppgjor)
             Oppgave(
-                id = tilsagn.id,
+                id = data.id,
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
                 navn = OppgaveType.TILSAGN_TIL_OPPGJOR.navn,
-                enhet = tilsagn.kostnadssted.let {
-                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
-                },
-                title = tilsagn.gjennomforing.navn,
-                description = "Tilsagnet ${tilsagn.bestilling.bestillingsnummer} er klar til oppgjør",
+                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
+                title = data.gjennomforingNavn,
+                description = "Tilsagnet ${data.bestillingsnummer} er klar til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = tilOppgjor.behandletTidspunkt,
@@ -283,29 +265,28 @@ private fun QueryContext.toOppgave(tilsagn: Tilsagn, ansatt: NavAnsatt): Oppgave
     }
 }
 
-private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
-    val (delutbetaling, gjennomforingId, gjennomforingsnavn, tiltakstype) = oppgavedata
+private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
     val link = OppgaveLink(
         linkText = "Se utbetaling",
-        link = "/gjennomforinger/$gjennomforingId/utbetalinger/${delutbetaling.utbetalingId}",
+        link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.utbetalingId}",
     )
-    val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
+    val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.OPPRETT)
 
-    val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+    val tilsagn = queries.tilsagn.getOrError(data.tilsagnId)
     val handlinger = linjeHandlinger(opprettelse, tilsagn.kostnadssted.enhetsnummer, ansatt)
 
-    return when (delutbetaling.status) {
+    return when (data.status) {
         DelutbetalingStatus.TIL_ATTESTERING -> {
             Oppgave(
-                id = delutbetaling.id,
+                id = data.id,
                 type = OppgaveType.UTBETALING_TIL_ATTESTERING,
                 navn = OppgaveType.UTBETALING_TIL_ATTESTERING.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = gjennomforingsnavn,
-                description = "Utbetaling for perioden ${delutbetaling.periode.formatPeriode()} er klar til attestering",
-                tiltakstype = tiltakstype,
+                title = data.gjennomforingNavn,
+                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til attestering",
+                tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
                 iconType = OppgaveIconType.UTBETALING,
@@ -315,15 +296,15 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData, ansatt
         }
         DelutbetalingStatus.RETURNERT -> {
             Oppgave(
-                id = delutbetaling.id,
+                id = data.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
                 navn = OppgaveType.UTBETALING_RETURNERT.navn,
                 enhet = tilsagn.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
-                title = gjennomforingsnavn,
-                description = "Utbetaling for perioden ${delutbetaling.periode.formatPeriode()} er returnert av attestant",
-                tiltakstype = tiltakstype,
+                title = data.gjennomforingNavn,
+                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
+                tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                 iconType = OppgaveIconType.UTBETALING,
@@ -336,9 +317,9 @@ private fun QueryContext.toOppgave(oppgavedata: DelutbetalingOppgaveData, ansatt
     }
 }
 
-private fun toOppgave(utbetaling: Utbetaling, ansatt: NavAnsatt): Oppgave? {
-    val handlinger = utbetalingHandlinger(utbetaling, ansatt)
-    return when (utbetaling.status) {
+private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
+    val handlinger = utbetalingHandlinger(data.status, ansatt)
+    return when (data.status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_ATTESTERING,
         UtbetalingStatusType.RETURNERT,
@@ -346,81 +327,70 @@ private fun toOppgave(utbetaling: Utbetaling, ansatt: NavAnsatt): Oppgave? {
         -> null
         UtbetalingStatusType.INNSENDT ->
             Oppgave(
-                id = utbetaling.id,
+                id = data.id,
                 type = OppgaveType.UTBETALING_TIL_BEHANDLING,
                 navn = OppgaveType.UTBETALING_TIL_BEHANDLING.navn,
                 enhet = null,
-                title = utbetaling.gjennomforing.navn,
-                description = "Utbetaling for perioden ${utbetaling.periode.formatPeriode()} er klar til behandling",
+                title = data.gjennomforingNavn,
+                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til behandling",
                 tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = utbetaling.tiltakstype.tiltakskode,
-                    navn = utbetaling.tiltakstype.navn,
+                    tiltakskode = data.tiltakstype.tiltakskode,
+                    navn = data.tiltakstype.navn,
                 ),
                 link = OppgaveLink(
                     linkText = "Se utbetaling",
-                    link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetalinger/${utbetaling.id}",
+                    link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.id}",
                 ),
-                createdAt = utbetaling.createdAt,
+                createdAt = data.createdAt,
                 iconType = OppgaveIconType.UTBETALING,
             ).takeIf { handlinger.contains(UtbetalingHandling.SEND_TIL_ATTESTERING) }
     }
 }
 
-private fun QueryContext.toOppgaver(avtale: Avtale): List<Oppgave> = buildList {
-    if (avtale.administratorer.isEmpty()) {
-        val updatedAt = queries.avtale.getUpdatedAt(avtale.id)
-        add(
-            Oppgave(
-                id = avtale.id,
-                type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
-                navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
-                title = avtale.navn,
-                enhet = avtale.kontorstruktur.firstOrNull()?.region?.let {
-                    OppgaveEnhet(
-                        nummer = it.enhetsnummer,
-                        navn = it.navn,
-                    )
-                },
-                description = """Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = avtale.tiltakstype.tiltakskode,
-                    navn = avtale.tiltakstype.navn,
-                ),
-                link = OppgaveLink(
-                    linkText = "Se avtale",
-                    link = "/avtaler/${avtale.id}",
-                ),
-                createdAt = updatedAt,
-                iconType = OppgaveIconType.AVTALE,
-            ),
+private fun AvtaleOppgaveData.toOppgave() = Oppgave(
+    id = this.id,
+    type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
+    navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
+    title = this.navn,
+    enhet = this.kontorstruktur.firstOrNull()?.region?.let {
+        OppgaveEnhet(
+            nummer = it.enhetsnummer,
+            navn = it.navn,
         )
-    }
-}
+    },
+    description = """Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
+    tiltakstype = OppgaveTiltakstype(
+        tiltakskode = this.tiltakstype.tiltakskode,
+        navn = this.tiltakstype.navn,
+    ),
+    link = OppgaveLink(
+        linkText = "Se avtale",
+        link = "/avtaler/${this.id}",
+    ),
+    createdAt = this.createdAt,
+    iconType = OppgaveIconType.AVTALE,
+)
 
-private fun toOppgaver(data: GjennomforingOppgaveData): List<Oppgave> = buildList {
-    add(
-        Oppgave(
-            id = data.id,
-            type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
-            navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-            title = data.navn,
-            enhet = data.kontorstruktur.firstOrNull()?.region?.let {
-                OppgaveEnhet(
-                    nummer = it.enhetsnummer,
-                    navn = it.navn,
-                )
-            },
-            description = """Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
-            tiltakstype = OppgaveTiltakstype(
-                tiltakskode = data.tiltakskode,
-                navn = data.tiltakstypeNavn,
-            ),
-            link = OppgaveLink(
-                linkText = "Se gjennomføring",
-                link = "/gjennomforinger/${data.id}",
-            ),
-            createdAt = data.updatedAt,
-            iconType = OppgaveIconType.GJENNOMFORING,
-        ),
-    )
-}
+private fun GjennomforingOppgaveData.toOppgave() = Oppgave(
+    id = this.id,
+    type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
+    navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
+    title = this.navn,
+    enhet = this.kontorstruktur.firstOrNull()?.region?.let {
+        OppgaveEnhet(
+            nummer = it.enhetsnummer,
+            navn = it.navn,
+        )
+    },
+    description = """Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
+    tiltakstype = OppgaveTiltakstype(
+        tiltakskode = this.tiltakskode,
+        navn = this.tiltakstypeNavn,
+    ),
+    link = OppgaveLink(
+        linkText = "Se gjennomføring",
+        link = "/gjennomforinger/${this.id}",
+    ),
+    createdAt = this.updatedAt,
+    iconType = OppgaveIconType.GJENNOMFORING,
+)

@@ -529,9 +529,9 @@ class UtbetalingService(
     }
 }
 
-fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+fun utbetalingHandlinger(status: UtbetalingStatusType, ansatt: NavAnsatt) = setOfNotNull(
     UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
-        when (utbetaling.status) {
+        when (status) {
             UtbetalingStatusType.INNSENDT,
             UtbetalingStatusType.RETURNERT,
             -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)

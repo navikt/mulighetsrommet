@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
@@ -350,20 +349,6 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(utbetalingQuery, id)) { it.toUtbetaling() }
-    }
-
-    fun getOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<Utbetaling> {
-        @Language("PostgreSQL")
-        val utbetalingQuery = """
-            select * from utbetaling_dto_view
-            where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
-        """.trimIndent()
-
-        val params = mapOf(
-            "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
-        )
-
-        return session.list(queryOf(utbetalingQuery, params)) { it.toUtbetaling() }
     }
 
     fun getByArrangorIds(

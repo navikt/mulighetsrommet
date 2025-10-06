@@ -137,7 +137,7 @@ fun Route.utbetalingRoutes() {
 
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = utbetalingHandlinger(utbetaling, ansatt),
+                        handlinger = utbetalingHandlinger(utbetaling.status, ansatt),
                     )
                 }
                 call.respond(utbetaling)

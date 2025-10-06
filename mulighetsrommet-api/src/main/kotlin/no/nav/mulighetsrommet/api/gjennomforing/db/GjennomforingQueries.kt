@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -15,7 +14,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
@@ -526,75 +524,6 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    fun getOppgaveData(
-        tiltakskoder: Set<Tiltakskode>,
-    ): List<GjennomforingOppgaveData> {
-        @Language("PostgreSQL")
-        val query = """
-            select
-                gjennomforing.id,
-                gjennomforing.navn,
-                gjennomforing.updated_at,
-                tiltakstype.tiltakskode                                        as tiltakstype_tiltakskode,
-                tiltakstype.navn                                               as tiltakstype_navn,
-                (
-                    select jsonb_agg(
-                        jsonb_build_object(
-                            'enhetsnummer', nav_enhet.enhetsnummer,
-                            'navn', nav_enhet.navn,
-                            'type', nav_enhet.type,
-                            'overordnetEnhet', nav_enhet.overordnet_enhet
-                        )
-                    )
-                    from gjennomforing_nav_enhet
-                    join nav_enhet on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
-                    where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id
-                ) as nav_enheter_json,
-                case when nav_enhet_arena.enhetsnummer is null
-                    then null
-                    else jsonb_build_object(
-                        'enhetsnummer', nav_enhet_arena.enhetsnummer,
-                        'navn', nav_enhet_arena.navn,
-                        'type', nav_enhet_arena.type,
-                        'overordnetEnhet', nav_enhet_arena.overordnet_enhet
-                    )
-                end as arena_ansvarlig_enhet_json
-            from gjennomforing
-                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-                left join gjennomforing_administrator on gjennomforing_administrator.gjennomforing_id = gjennomforing.id
-                left join nav_enhet nav_enhet_arena on nav_enhet_arena.enhetsnummer = gjennomforing.arena_ansvarlig_enhet
-            where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
-                and gjennomforing.status = 'GJENNOMFORES'
-            group by gjennomforing.id, tiltakstype.tiltakskode, tiltakstype.navn, nav_enhet_arena.enhetsnummer
-            having count(gjennomforing_administrator.nav_ident) = 0
-        """.trimIndent()
-
-        val params = mapOf(
-            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createArrayOfTiltakskode(it) },
-        )
-
-        return session.list(queryOf(query, params)) {
-            val arenaAnsvarligEnhet = it.stringOrNull("arena_ansvarlig_enhet_json")
-                ?.let { json -> Json.decodeFromString<NavEnhetDto?>(json) }
-            val navEnheter = it.stringOrNull("nav_enheter_json")
-                ?.let { json -> Json.decodeFromString<List<NavEnhetDto>>(json) }
-                ?.plus(arenaAnsvarligEnhet)
-                ?.filterNotNull()
-                ?: emptyList()
-            val kontorstruktur = fromNavEnheter(navEnheter)
-
-            GjennomforingOppgaveData(
-                id = it.uuid("id"),
-                navn = it.string("navn"),
-                updatedAt = it.localDateTime("updated_at"),
-                tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
-                tiltakstypeNavn = it.string("tiltakstype_navn"),
-                kontorstruktur = kontorstruktur,
-            )
-        }
-    }
-
     private fun GjennomforingDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
         "id" to id,
@@ -713,12 +642,3 @@ class GjennomforingQueries(private val session: Session) {
         )
     }
 }
-
-data class GjennomforingOppgaveData(
-    val id: UUID,
-    val navn: String,
-    val kontorstruktur: List<Kontorstruktur>,
-    val tiltakskode: Tiltakskode,
-    val tiltakstypeNavn: String,
-    val updatedAt: LocalDateTime,
-)

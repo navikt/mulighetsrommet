@@ -62,7 +62,13 @@ fun Route.tilsagnRoutesGet() {
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
-                    handlinger = tilsagnHandlinger(tilsagn, ansatt),
+                    handlinger = tilsagnHandlinger(
+                        id = tilsagn.id,
+                        kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+                        status = tilsagn.status,
+                        belopBrukt = tilsagn.belopBrukt,
+                        ansatt = ansatt,
+                    ),
                 )
             }
 

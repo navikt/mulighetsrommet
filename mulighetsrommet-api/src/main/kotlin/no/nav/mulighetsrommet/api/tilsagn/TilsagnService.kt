@@ -746,26 +746,29 @@ class TilsagnService(
 }
 
 fun QueryContext.tilsagnHandlinger(
-    tilsagn: Tilsagn,
+    id: UUID,
+    status: TilsagnStatus,
+    belopBrukt: Int,
+    kostnadssted: NavEnhetNummer,
     ansatt: NavAnsatt,
 ): Set<TilsagnHandling> {
-    val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))
+    val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
     val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
-    val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
-    val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
-    val tilOppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
+    val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
+    val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)
+    val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)
 
     return setOfNotNull(
-        TilsagnHandling.REDIGER.takeIf { tilsagn.status == TilsagnStatus.RETURNERT && saksbehandler },
-        TilsagnHandling.SLETT.takeIf { tilsagn.status == TilsagnStatus.RETURNERT && saksbehandler },
-        TilsagnHandling.ANNULLER.takeIf { tilsagn.status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt == 0 && saksbehandler },
-        TilsagnHandling.GJOR_OPP.takeIf { tilsagn.status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt > 0 && saksbehandler },
-        TilsagnHandling.GODKJENN.takeIf { tilsagn.status == TilsagnStatus.TIL_GODKJENNING && beslutter && opprettelse.behandletAv != ansatt.navIdent },
-        TilsagnHandling.RETURNER.takeIf { tilsagn.status == TilsagnStatus.TIL_GODKJENNING && (beslutter || saksbehandler) },
-        TilsagnHandling.AVSLA_ANNULLERING.takeIf { tilsagn.status == TilsagnStatus.TIL_ANNULLERING && (beslutter || saksbehandler) },
-        TilsagnHandling.GODKJENN_ANNULLERING.takeIf { tilsagn.status == TilsagnStatus.TIL_ANNULLERING && beslutter && annullering?.behandletAv != ansatt.navIdent },
-        TilsagnHandling.AVSLA_OPPGJOR.takeIf { tilsagn.status == TilsagnStatus.TIL_OPPGJOR && beslutter },
-        TilsagnHandling.GODKJENN_OPPGJOR.takeIf { tilsagn.status == TilsagnStatus.TIL_OPPGJOR && beslutter && tilOppgjor?.behandletAv != ansatt.navIdent },
+        TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT && saksbehandler },
+        TilsagnHandling.SLETT.takeIf { status == TilsagnStatus.RETURNERT && saksbehandler },
+        TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT && belopBrukt == 0 && saksbehandler },
+        TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT && belopBrukt > 0 && saksbehandler },
+        TilsagnHandling.GODKJENN.takeIf { status == TilsagnStatus.TIL_GODKJENNING && beslutter && opprettelse.behandletAv != ansatt.navIdent },
+        TilsagnHandling.RETURNER.takeIf { status == TilsagnStatus.TIL_GODKJENNING && (beslutter || saksbehandler) },
+        TilsagnHandling.AVSLA_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING && (beslutter || saksbehandler) },
+        TilsagnHandling.GODKJENN_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING && beslutter && annullering?.behandletAv != ansatt.navIdent },
+        TilsagnHandling.AVSLA_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR && beslutter },
+        TilsagnHandling.GODKJENN_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR && beslutter && tilOppgjor?.behandletAv != ansatt.navIdent },
     )
 }
