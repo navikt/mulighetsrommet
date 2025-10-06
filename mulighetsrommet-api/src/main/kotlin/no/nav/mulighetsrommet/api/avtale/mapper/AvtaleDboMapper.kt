@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import PersonvernDbo
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -65,8 +67,8 @@ object AvtaleDboMapper {
         navEnheter = request.navEnheter.toSet(),
         beskrivelse = request.beskrivelse,
         faneinnhold = request.faneinnhold,
-        personopplysninger = request.personopplysninger,
-        personvernBekreftet = request.personvernBekreftet,
+        personopplysninger = request.personvern.personopplysninger,
+        personvernBekreftet = request.personvern.personvernBekreftet,
         amoKategorisering = request.amoKategorisering,
         opsjonsmodell = request.opsjonsmodell,
         utdanningslop = request.utdanningslop,
@@ -89,8 +91,10 @@ object AvtaleDboMapper {
         navEnheter = dbo.navEnheter.toList(),
         beskrivelse = dbo.beskrivelse,
         faneinnhold = dbo.faneinnhold,
-        personopplysninger = dbo.personopplysninger,
-        personvernBekreftet = dbo.personvernBekreftet,
+        personvern = PersonvernRequest(
+            personopplysninger = dbo.personopplysninger,
+            personvernBekreftet = dbo.personvernBekreftet,
+        ),
         amoKategorisering = dbo.amoKategorisering,
         opsjonsmodell = dbo.opsjonsmodell,
         utdanningslop = dbo.utdanningslop,
@@ -134,3 +138,8 @@ private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = sat
         sats = it.pris,
     )
 }
+
+fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
+    personvernBekreftet = personvernBekreftet,
+    personopplysninger = personopplysninger,
+)

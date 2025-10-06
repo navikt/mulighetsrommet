@@ -12,8 +12,10 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
+import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -70,6 +72,28 @@ class AvtaleService(
         }
     }
 
+    fun upsertPersonvern(
+        avtaleId: UUID,
+        request: PersonvernRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId)
+            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        val dbo = request.toDbo()
+
+        db.transaction {
+            queries.avtale.updatePersonvern(avtaleId, dbo)
+
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
     fun upsertPrismodell(
         id: UUID,
         request: PrismodellRequest,
@@ -79,7 +103,12 @@ class AvtaleService(
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
         val dbo = validator
-            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn, previous.startDato)
+            .validatePrismodell(
+                request,
+                previous.tiltakstype.tiltakskode,
+                previous.tiltakstype.navn,
+                previous.startDato,
+            )
             .bind()
 
         db.transaction {

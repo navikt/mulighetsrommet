@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -219,8 +220,10 @@ fun Avtale.toAvtaleRequest() = AvtaleRequest(
     navEnheter = this.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } },
     beskrivelse = this.beskrivelse,
     faneinnhold = this.faneinnhold,
-    personopplysninger = this.personopplysninger,
-    personvernBekreftet = this.personvernBekreftet,
+    personvern = PersonvernRequest(
+        personopplysninger = this.personopplysninger,
+        personvernBekreftet = this.personvernBekreftet,
+    ),
     opsjonsmodell = this.opsjonsmodell,
     amoKategorisering = this.amoKategorisering,
     utdanningslop = this.utdanningslop?.toDbo(),

@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -70,8 +71,10 @@ class AvtaleValidatorTest : FunSpec({
         navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
         beskrivelse = null,
         faneinnhold = null,
-        personopplysninger = emptyList(),
-        personvernBekreftet = false,
+        personvern = PersonvernRequest(
+            personopplysninger = emptyList(),
+            personvernBekreftet = false,
+        ),
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,

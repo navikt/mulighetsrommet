@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
@@ -257,8 +258,10 @@ object AvtaleFixtures {
         navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
         beskrivelse = null,
         faneinnhold = null,
-        personopplysninger = emptyList(),
-        personvernBekreftet = false,
+        personvern = PersonvernRequest(
+            personopplysninger = emptyList(),
+            personvernBekreftet = false,
+        ),
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(
             opsjonMaksVarighet = LocalDate.now().plusYears(5),

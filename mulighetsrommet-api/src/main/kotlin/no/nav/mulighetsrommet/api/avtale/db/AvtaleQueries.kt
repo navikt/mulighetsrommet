@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
+import PersonvernDbo
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -144,19 +145,6 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertPersonopplysninger = """
-            insert into avtale_personopplysning (avtale_id, personopplysning)
-            values (?::uuid, ?::personopplysning)
-            on conflict do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deletePersonopplysninger = """
-            delete from avtale_personopplysning
-            where avtale_id = ?::uuid and not (personopplysning = any (?))
-        """.trimIndent()
-
-        @Language("PostgreSQL")
         val deleteUtdanningslop = """
             delete from avtale_utdanningsprogram
             where avtale_id = ?::uuid
@@ -196,18 +184,6 @@ class AvtaleQueries(private val session: Session) {
             ),
         )
 
-        batchPreparedStatement(
-            upsertPersonopplysninger,
-            avtale.personopplysninger.map { listOf<Any>(avtale.id, it.name) },
-        )
-        execute(
-            queryOf(
-                deletePersonopplysninger,
-                avtale.id,
-                createArrayOfPersonopplysning(avtale.personopplysninger),
-            ),
-        )
-
         AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtale.id, avtale.amoKategorisering)
 
         execute(queryOf(deleteUtdanningslop, avtale.id))
@@ -224,6 +200,39 @@ class AvtaleQueries(private val session: Session) {
         }
 
         upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
+        upsertPersonvern(avtale.id, avtale.personopplysninger)
+    }
+
+    fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
+        upsertPersonvern(avtaleId, personvernDbo.personopplysninger)
+    }
+
+    fun upsertPersonvern(id: UUID, personopplysninger: List<Personopplysning>) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val updatePersonopplysninger = """
+                insert into avtale_personopplysning (avtale_id, personopplysning)
+                values (?::uuid, ?::personopplysning)
+                on conflict do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deletePersonopplysninger = """
+                delete from avtale_personopplysning
+                where avtale_id = ?::uuid and not (personopplysning = any (?))
+        """.trimIndent()
+
+        session.batchPreparedStatement(
+            updatePersonopplysninger,
+            personopplysninger.map { listOf<Any>(id, it.name) },
+        )
+
+        session.execute(
+            queryOf(
+                deletePersonopplysninger,
+                id,
+                session.createArrayOfPersonopplysning(personopplysninger),
+            ),
+        )
     }
 
     fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
