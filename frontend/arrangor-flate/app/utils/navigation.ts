@@ -16,6 +16,16 @@ export function useOrgnrFromUrl() {
   return orgnr;
 }
 
+export function useGjennomforingIdFromUrl() {
+  const { gjennomforingid } = useParams();
+
+  if (!gjennomforingid) {
+    throw new Error("Mangler gjennomføring id");
+  }
+
+  return gjennomforingid;
+}
+
 export const pathByOrgnr = (orgnr: string) => {
   return {
     utbetalinger: `/${orgnr}/oversikt`,
@@ -25,6 +35,16 @@ export const pathByOrgnr = (orgnr: string) => {
     opprettKravOppsummering: `/${orgnr}/opprett-krav/oppsummering`,
     opprettKrav: {
       tiltaksOversikt: `/${orgnr}/opprett-krav/`,
+      investering: {
+        innsendingsinformasjon: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/innsendingsinformasjon`,
+        utbetaling: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/utbetaling`,
+        vedlegg: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/vedlegg`,
+        oppsummering: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/oppsummering`,
+      },
       driftstilskudd: {
         innsendingsinformasjon: `/${orgnr}/opprett-krav/driftstilskudd/innsendingsinformasjon`,
         utbetaling: `/${orgnr}/opprett-krav/driftstilskudd/utbetaling`,

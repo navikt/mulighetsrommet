@@ -53,7 +53,7 @@ class KontoregisterOrganisasjonClient(
             response.body<KontonummerResponse>().right()
         } else if (response.status === HttpStatusCode.NotFound) {
             val error = response.body<Feilmelding>()
-            SecureLog.logger.error(
+            SecureLog.logger.warn(
                 "Fant ikke orgnummer: ${organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding}",
                 response.bodyAsText(),
             )
@@ -68,11 +68,11 @@ class KontoregisterOrganisasjonClient(
             log.error("Ugyldig input ved henting av kontonummer fra kontoregisteret. Se detaljer i secureLog.")
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()
         } else {
-            SecureLog.logger.error(
+            SecureLog.logger.warn(
                 "Klarte ikke hente kontonummer for arrangør: ${organisasjonsnummer.value}. Error: {}",
                 response.bodyAsText(),
             )
-            log.error("Klarte ikke hente kontonummer for arrangør. Se detaljer i secureLog.")
+            log.warn("Klarte ikke hente kontonummer for arrangør. Se detaljer i secureLog.")
             KontonummerRegisterOrganisasjonError.Error.left()
         }
     }

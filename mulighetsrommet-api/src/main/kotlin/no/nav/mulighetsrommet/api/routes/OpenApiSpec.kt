@@ -1,14 +1,15 @@
 package no.nav.mulighetsrommet.api.routes
 
-enum class OpenApiSpec(val routePathPrefix: String, val specName: String) {
-    TILTAKSADMINISTRASJON("/api/tiltaksadministrasjon", "tiltaksadministrasjon"),
-    VEILEDERFLATE("/api/veilederflate", "veilederflate"),
-    ARRANGORFLATE("/api/arrangorflate", "arrangorflate"),
+enum class OpenApiSpec(val routePathPrefix: Regex, val specName: String) {
+    PUBLIC("/api/v\\d(?!/intern)".toRegex(), "public"),
+    TILTAKSADMINISTRASJON("/api/tiltaksadministrasjon".toRegex(), "tiltaksadministrasjon"),
+    VEILEDERFLATE("/api/veilederflate".toRegex(), "veilederflate"),
+    ARRANGORFLATE("/api/arrangorflate".toRegex(), "arrangorflate"),
     ;
 
     companion object {
         fun match(url: String): OpenApiSpec? {
-            return entries.find { spec -> url.startsWith(spec.routePathPrefix) }
+            return entries.find { spec -> spec.routePathPrefix.containsMatchIn(url) }
         }
     }
 }

@@ -103,8 +103,8 @@ private fun Row.toEnkeltplass(): Enkeltplass {
 
     return Enkeltplass(
         id = uuid("id"),
-        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
         arrangor = Enkeltplass.Arrangor(
             id = uuid("arrangor_id"),
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),

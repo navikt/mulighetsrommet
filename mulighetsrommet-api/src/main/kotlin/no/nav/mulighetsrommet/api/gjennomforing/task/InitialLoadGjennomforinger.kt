@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -116,7 +116,7 @@ class InitialLoadGjennomforinger(
     }
 
     private fun publish(dto: Gjennomforing) {
-        val message = TiltaksgjennomforingEksternMapper.fromGjennomforing(dto)
+        val message = TiltaksgjennomforingV1Mapper.fromGjennomforing(dto)
 
         val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,
