@@ -144,7 +144,6 @@ class DeltakerQueriesTest : FunSpec({
 fun DeltakerDbo.toDto() = Deltaker(
     id = id,
     gjennomforingId = gjennomforingId,
-    norskIdent = null,
     startDato = startDato,
     sluttDato = startDato,
     registrertDato = registrertDato,

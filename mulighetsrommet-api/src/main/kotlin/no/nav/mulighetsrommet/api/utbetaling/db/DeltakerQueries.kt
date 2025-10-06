@@ -10,12 +10,10 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsak
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.NorskIdent
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class DeltakerQueries(private val session: Session) {
-
     fun upsert(deltaker: DeltakerDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
@@ -86,28 +84,11 @@ class DeltakerQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelsesmengdeQuery, deltakelsesmengder)
     }
 
-    fun setNorskIdent(deltakerId: UUID, norskIdent: NorskIdent): Boolean {
-        @Language("PostgreSQL")
-        val query = """
-            update deltaker
-            set norsk_ident = :norsk_ident
-            where id = :deltaker_id::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "deltaker_id" to deltakerId,
-            "norsk_ident" to norskIdent.value,
-        )
-
-        return session.execute(queryOf(query, params))
-    }
-
     fun get(id: UUID): Deltaker? {
         @Language("PostgreSQL")
         val query = """
             select id,
                    gjennomforing_id,
-                   norsk_ident,
                    start_dato,
                    slutt_dato,
                    registrert_dato,
@@ -148,7 +129,6 @@ class DeltakerQueries(private val session: Session) {
         val query = """
             select id,
                    gjennomforing_id,
-                   norsk_ident,
                    start_dato,
                    slutt_dato,
                    registrert_dato,
@@ -183,7 +163,6 @@ class DeltakerQueries(private val session: Session) {
 private fun Row.toDeltaker() = Deltaker(
     id = uuid("id"),
     gjennomforingId = uuid("gjennomforing_id"),
-    norskIdent = stringOrNull("norsk_ident")?.let { NorskIdent(it) },
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
     registrertDato = localDate("registrert_dato"),

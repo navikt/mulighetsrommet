@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -67,10 +66,8 @@ object DeltakerFixtures {
         startDato: LocalDate?,
         sluttDato: LocalDate?,
         statusType: DeltakerStatusType,
-        norskIdent: NorskIdent = NorskIdent("01010199999"),
     ) = Deltaker(
         id = UUID.randomUUID(),
-        norskIdent = norskIdent,
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,

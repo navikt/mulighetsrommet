@@ -4,7 +4,6 @@ import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -304,40 +303,6 @@ class ArrangorflateServiceTest : FunSpec({
             val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
-        }
-
-        test("getOverlappendePerioder tre overlappende en ikke") {
-            val deltakerPeriode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 5))
-            val utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2024, 1, 1))
-            val deltaker1 = DeltakerFixtures.createDeltaker(
-                startDato = deltakerPeriode.start,
-                sluttDato = deltakerPeriode.slutt,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val deltaker2 = DeltakerFixtures.createDeltaker(
-                startDato = deltakerPeriode.start,
-                sluttDato = deltakerPeriode.slutt,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val deltaker3 = DeltakerFixtures.createDeltaker(
-                startDato = null,
-                sluttDato = deltakerPeriode.slutt,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val deltaker4 = DeltakerFixtures.createDeltaker(
-                startDato = deltakerPeriode.slutt.plusDays(1),
-                sluttDato = null,
-                statusType = DeltakerStatusType.DELTAR,
-            )
-            val overlappendePerioder = arrangorflateService.getOverlappendePerioder(
-                listOf(deltaker1, deltaker2, deltaker3, deltaker4),
-                utbetalingPeriode,
-            )
-            overlappendePerioder.map { it.deltakerId } shouldContainExactlyInAnyOrder listOf(
-                deltaker1.id,
-                deltaker2.id,
-                deltaker3.id,
-            )
         }
     }
 })
