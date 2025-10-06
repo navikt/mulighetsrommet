@@ -21,9 +21,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(db)
 
-        val tiltak = TiltaksgjennomforingEksternV1Dto(
+        val tiltak = TiltaksgjennomforingV1Dto(
             id = UUID.randomUUID(),
-            tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Gruppe AMO",
                 arenaKode = "GRUPPEAMO",

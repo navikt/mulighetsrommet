@@ -6,7 +6,7 @@ kotest = "6.0.3"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.2.20"
 ktor = "3.3.0"
-logback = "1.5.18"
+logback = "1.5.19"
 metrics = "4.2.37"
 arrow = "2.1.2"
 micrometer = "1.15.4"
@@ -27,6 +27,7 @@ logging = [
 ]
 ktor-openapi = [
     "ktor-openapi",
+    "ktor-swagger-ui",
     "schema-kenerator-core",
     "schema-kenerator-reflection",
     "schema-kenerator-serialization",
@@ -38,6 +39,7 @@ arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
 ktor-openapi = "io.github.smiley4:ktor-openapi:5.3.0"
+ktor-swagger-ui = "io.github.smiley4:ktor-swagger-ui:5.3.0"
 schema-kenerator-core = "io.github.smiley4:schema-kenerator-core:2.4.0"
 schema-kenerator-reflection = "io.github.smiley4:schema-kenerator-reflection:2.4.0"
 schema-kenerator-serialization = "io.github.smiley4:schema-kenerator-serialization:2.4.0"
@@ -47,7 +49,7 @@ assertj-db = "org.assertj:assertj-db:3.0.0"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.2"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:16.1.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:16.2.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
@@ -99,7 +101,6 @@ ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor"
 ktor-server-resources = { module = "io.ktor:ktor-server-resources", version.ref = "ktor" }
 ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktor" }
 ktor-server-statusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
-ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor" }
 ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
@@ -112,7 +113,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 
-mockk = "io.mockk:mockk:1.14.5"
+mockk = "io.mockk:mockk:1.14.6"
 
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }

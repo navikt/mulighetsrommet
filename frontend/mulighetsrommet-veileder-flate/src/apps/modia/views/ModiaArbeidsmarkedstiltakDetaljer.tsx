@@ -54,8 +54,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const pagination = useAtomValue(paginationAtom);
 
   const tiltakstype = tiltak.tiltakstype;
-  const kanOppretteAvtaleForTiltak =
-    isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
+  const kanOppretteAvtale =
+    kanOppretteAvtaleOmTiltaksplass(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
 
   const dialogRoute = deltMedBruker
@@ -87,16 +87,16 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               tekst="Gå til oversikt over aktuelle tiltak"
             />
             <div>
-              <DetaljerJoyride opprettAvtale={kanOppretteAvtaleForTiltak} />
-              {kanOppretteAvtaleForTiltak ? (
-                <OpprettAvtaleJoyride opprettAvtale={kanOppretteAvtaleForTiltak} />
+              <DetaljerJoyride opprettAvtale={kanOppretteAvtale} />
+              {kanOppretteAvtale ? (
+                <OpprettAvtaleJoyride opprettAvtale={kanOppretteAvtale} />
               ) : null}
             </div>
           </>
         }
         brukerActions={
           <>
-            {kanOppretteAvtaleForTiltak && (
+            {kanOppretteAvtale && (
               <Button
                 onClick={() => {
                   window.open(TEAM_TILTAK_OPPRETT_AVTALE_URL, "_blank");
@@ -159,6 +159,14 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   );
 }
 
+function resolveName(ansatt: NavVeilederDto) {
+  return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
+}
+
+function kanOppretteAvtaleOmTiltaksplass(tiltakstype: VeilederflateTiltakstype): boolean {
+  return !!tiltakstype.arenakode && whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode);
+}
+
 // TODO: enten fikse enum for arena-koder, eller introdusere Team tiltak sine koder
 const whiteListOpprettAvtaleKnapp: string[] = [
   "MIDLONTIL",
@@ -169,14 +177,6 @@ const whiteListOpprettAvtaleKnapp: string[] = [
   "TILSJOBB",
   "VATIAROR",
 ];
-
-function resolveName(ansatt: NavVeilederDto) {
-  return [ansatt.fornavn, ansatt.etternavn].filter((part) => part !== "").join(" ");
-}
-
-function isIndividueltTiltak(tiltakstype: VeilederflateTiltakstype): boolean {
-  return !!tiltakstype.arenakode && whiteListOpprettAvtaleKnapp.includes(tiltakstype.arenakode);
-}
 
 function harBrukerRettPaaValgtTiltak(
   bruker: Brukerdata,

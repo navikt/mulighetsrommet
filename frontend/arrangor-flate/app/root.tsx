@@ -24,6 +24,7 @@ import { problemDetailResponse } from "./utils/validering";
 import { Header } from "./components/header/Header";
 import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
+import { getFaro } from "./utils/telemetri";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -41,20 +42,27 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (process.env.DISABLE_DEKORATOR !== "true") {
     dekorator = await fetchSsrDekorator();
   }
+  const telemetryUrl = process.env.TELEMETRY_URL;
 
   return {
     dekorator,
     arrangortilganger,
+    telemetryUrl,
   };
 };
 
 export type LoaderData = {
   dekorator: DekoratorElements | null;
   arrangortilganger: ArrangorflateArrangor[];
+  telemetryUrl: string;
 };
 
 function App() {
-  const { dekorator, arrangortilganger } = useLoaderData<LoaderData>();
+  const { dekorator, arrangortilganger, telemetryUrl } = useLoaderData<LoaderData>();
+
+  useEffect(() => {
+    getFaro(telemetryUrl);
+  });
 
   return (
     <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger}>
@@ -129,6 +137,7 @@ function DekoratorHeader({ dekorator }: { dekorator?: DekoratorElements }) {
 export const ErrorBoundary = () => {
   const navigate = useNavigate();
   const error = useRouteError();
+  const faro = getFaro();
 
   useEffect(() => {
     if (isRouteErrorResponse(error)) {
@@ -140,6 +149,12 @@ export const ErrorBoundary = () => {
       }
     }
   }, [error, navigate]);
+
+  useEffect(() => {
+    if (error instanceof Error) {
+      faro?.api.pushError(error);
+    }
+  }, [error, faro?.api]);
 
   if (isRouteErrorResponse(error)) {
     return (

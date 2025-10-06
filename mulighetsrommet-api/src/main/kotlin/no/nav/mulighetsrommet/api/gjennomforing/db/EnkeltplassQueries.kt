@@ -114,7 +114,7 @@ private fun Row.toEnkeltplass(): Enkeltplass {
         tiltakstype = Enkeltplass.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
-            tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         ),
         arena = arena,
     )

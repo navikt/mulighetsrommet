@@ -15,12 +15,12 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.*
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingEksternV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -118,12 +118,12 @@ class UpdateGjennomforingStatusTest : FunSpec({
                         it.topic shouldBe PRODUCER_TOPIC
                     }
 
-                    Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(records[0].value.decodeToString()).should {
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[0].value.decodeToString()).should {
                         it.id shouldBe gjennomforing2.id
                         it.status shouldBe AVSLUTTET
                     }
 
-                    Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(records[1].value.decodeToString()).should {
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[1].value.decodeToString()).should {
                         it.id shouldBe gjennomforing3.id
                         it.status shouldBe AVSLUTTET
                     }
@@ -150,12 +150,12 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.kafkaProducerRecord.getRecords(10).also { records ->
                     records.shouldHaveSize(2)
 
-                    Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(records[0].value.decodeToString()).should {
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[0].value.decodeToString()).should {
                         it.id shouldBe gjennomforing2.id
                         it.status shouldBe AVSLUTTET
                     }
 
-                    Json.decodeFromString<TiltaksgjennomforingEksternV1Dto>(records[1].value.decodeToString()).should {
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[1].value.decodeToString()).should {
                         it.id shouldBe gjennomforing3.id
                         it.status shouldBe AVSLUTTET
                     }

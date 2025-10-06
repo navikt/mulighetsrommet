@@ -42,8 +42,19 @@ class TiltakstypeService(
 
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
-    fun getAll(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
-        queries.tiltakstype.getAllSkalMigreres(
+    fun getAllGruppetiltak(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
+        queries.tiltakstype.getAll(
+            tiltakskoder = setOf(
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+                Tiltakskode.AVKLARING,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+                Tiltakskode.OPPFOLGING,
+                Tiltakskode.JOBBKLUBB,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            ),
             sortering = filter.sortering,
         )
     }

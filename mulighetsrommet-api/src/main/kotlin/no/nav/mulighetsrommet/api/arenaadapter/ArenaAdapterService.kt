@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingEksternMapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -208,7 +208,7 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {
-        val eksternDto = TiltaksgjennomforingEksternMapper.fromGjennomforing(gjennomforing)
+        val eksternDto = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
 
         val record = StoredProducerRecord(
             config.topic,
