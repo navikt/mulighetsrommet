@@ -82,6 +82,11 @@ updates:
           - "react"
           - "react-dom"
 
+      react-router:
+        patterns:
+          - "react-router"
+          - "@react-router/*"
+
       rsjf:
         patterns:
           - "@rjsf/*"
@@ -98,6 +103,8 @@ updates:
           - "react-dom"
           - "@navikt/aksel-*"
           - "@navikt/ds-*"
+          - "react-router"
+          - "@react-router/*"
           - "@rjsf/*"
 
   # Test versjonsoppdatering av docker images i nais config
