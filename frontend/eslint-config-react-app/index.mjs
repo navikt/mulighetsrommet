@@ -18,18 +18,16 @@ export default defineConfig(
     plugins: {
       react,
       "react-refresh": reactRefresh,
-      "react-hooks": reactHooks,
+      'react-hooks': reactHooks,
     },
     settings: {
       react: {
         version: "detect",
       },
     },
+    extends: ['react-hooks/recommended'],
     rules: {
       "react/react-in-jsx-scope": "off",
-
-      "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "warn",
 
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },

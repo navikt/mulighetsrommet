@@ -13,6 +13,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
+import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -26,16 +28,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-private const val GJENNOMFORING_V1_TOPIC = "gjennomforing-v1"
-private const val GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
-
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createArenaAdapterService(
         sanityService: SanityService = mockk(relaxed = true),
     ) = ArenaAdapterService(
-        config = ArenaAdapterService.Config(GJENNOMFORING_V1_TOPIC, GJENNOMFORING_V2_TOPIC),
+        config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
@@ -350,15 +349,25 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
-            service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.topic shouldBe GJENNOMFORING_V1_TOPIC
-                record.key shouldBe gjennomforing1.id.toString().toByteArray()
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2).should { (first, second) ->
+                    first.topic shouldBe TEST_GJENNOMFORING_V1_TOPIC
+                    first.key shouldBe gjennomforing1.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(first.value.decodeToString()).id shouldBe gjennomforing1.id
 
-                val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
-                decoded.id shouldBe gjennomforing1.id
+                    second.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                    second.key shouldBe gjennomforing1.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV2Dto>(second.value.decodeToString()).id shouldBe gjennomforing1.id
+                }
+            }
+
+            // Ny upsert med samme payload
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            // Verifiser at ny upsert ikke produserer meldinger når payload er den samme
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2)
             }
         }
     }
@@ -429,13 +438,29 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.topic shouldBe GJENNOMFORING_V2_TOPIC
+                record.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
                 record.key shouldBe arenaGjennomforing.id.toString().toByteArray()
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
                 decoded.id shouldBe arenaGjennomforing.id
                 decoded.tiltakstype.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                 decoded.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
+            }
+
+            // Ny upsert med samme payload
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            // Verifiser at ny upsert ikke produserer meldinger når payload er den samme
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
+            }
+
+            // Ny upsert med ny data
+            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(navn = "Nytt navn"))
+
+            // Verifiser at upsert med ny data produserer meldinger
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2)
             }
         }
     }
