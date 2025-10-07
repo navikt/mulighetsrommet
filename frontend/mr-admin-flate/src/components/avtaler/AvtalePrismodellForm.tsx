@@ -1,13 +1,12 @@
 import { Box, Select, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { PrismodellType, Tiltakskode } from "@mr/api-client-v2";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
 import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
+import { FeatureToggle, PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -83,9 +82,14 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
 }
 
 function erPrismodellMedAvtalteSatser(prismodell: PrismodellType) {
-  return [
-    PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-    PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-  ].includes(prismodell);
+  switch (prismodell) {
+    case PrismodellType.ANNEN_AVTALT_PRIS:
+    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      return false;
+    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
+    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+      return true;
+  }
 }

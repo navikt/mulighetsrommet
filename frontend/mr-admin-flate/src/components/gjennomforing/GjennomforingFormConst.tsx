@@ -1,21 +1,20 @@
-import {
-  ArrangorKontaktperson,
-  GjennomforingDto,
-  GjennomforingOppstartstype,
-  Opphav,
-  Utdanningslop,
-  AmoKategorisering,
-  UtdanningslopDbo,
-} from "@mr/api-client-v2";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
+  AmoKategorisering,
+  ArenaMigreringOpphav,
   AvtaleDto,
+  GjennomforingArrangorKontaktperson,
+  GjennomforingDto,
+  GjennomforingOppstartstype,
   NavAnsattDto,
-  Faneinnhold as NyFaneInnhold,
+  Faneinnhold,
+  UtdanningslopDbo,
+  UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../portableText/helper";
+import { DeepPartial } from "react-hook-form";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -72,13 +71,14 @@ export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto>,
-): Partial<InferredGjennomforingSchema> {
+): DeepPartial<InferredGjennomforingSchema> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
   // TODO: Fjern casting når avtaler er migrert til @tiltaksadministrasjon/api-client
   const faneInnhold = slateFaneinnholdToPortableText(
-    (gjennomforing?.faneinnhold ?? avtale.faneinnhold) as NyFaneInnhold | null,
+    (gjennomforing?.faneinnhold ?? avtale.faneinnhold) as Faneinnhold | null,
   );
+
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
@@ -106,13 +106,15 @@ export function defaultGjennomforingData(
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: gjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
-      gjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+      gjennomforing?.arrangor?.kontaktpersoner.map(
+        (p: GjennomforingArrangorKontaktperson) => p.id,
+      ) ?? [],
     beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: faneInnhold,
-    opphav: gjennomforing?.opphav ?? Opphav.TILTAKSADMINISTRASJON,
+    opphav: gjennomforing?.opphav ?? ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
-    estimertVentetid: gjennomforing?.estimertVentetid ?? null,
+    estimertVentetid: gjennomforing?.estimertVentetid || null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering:
       gjennomforing?.amoKategorisering ??
@@ -126,7 +128,7 @@ export function defaultGjennomforingData(
   };
 }
 
-function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
+function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
   return {
     utdanningsprogram: data.utdanningsprogram.id,
     utdanninger: data.utdanninger.map((utdanning) => utdanning.id),

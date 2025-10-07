@@ -11,6 +11,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -28,16 +30,18 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
+const val TEST_GJENNOMFORING_V1_TOPIC = "gjennomforing-v1"
+const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
 
 class GjennomforingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createService(): GjennomforingService = GjennomforingService(
-        config = GjennomforingService.Config(PRODUCER_TOPIC),
+        config = GjennomforingService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         navAnsattService = mockk(relaxed = true),
     )
@@ -81,12 +85,15 @@ class GjennomforingServiceTest : FunSpec({
             service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.topic shouldBe PRODUCER_TOPIC
-                record.key shouldBe gjennomforing.id.toString().toByteArray()
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1).should { (record) ->
+                    record.key shouldBe gjennomforing.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString()).id shouldBe gjennomforing.id
+                }
 
-                val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
-                decoded.id shouldBe gjennomforing.id
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
+                    record.key shouldBe gjennomforing.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV2Dto.Gruppe>(record.value.decodeToString()).id shouldBe gjennomforing.id
+                }
             }
         }
 
@@ -117,7 +124,8 @@ class GjennomforingServiceTest : FunSpec({
             service.upsert(gjennomforing, bertilNavIdent)
 
             database.run {
-                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1)
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1)
             }
         }
 
@@ -222,8 +230,16 @@ class GjennomforingServiceTest : FunSpec({
             }
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.key shouldBe gjennomforing.id.toString().toByteArray()
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
+                    decoded.id shouldBe gjennomforing.id
+                    decoded.apentForPamelding shouldBe false
+                }
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto.Gruppe>(record.value.decodeToString())
+                    decoded.id shouldBe gjennomforing.id
+                    decoded.apentForPamelding shouldBe false
+                }
 
                 queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
@@ -284,8 +300,17 @@ class GjennomforingServiceTest : FunSpec({
             }
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.key shouldBe gjennomforing.id.toString().toByteArray()
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
+                    decoded.id shouldBe gjennomforing.id
+                    decoded.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
+
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto.Gruppe>(record.value.decodeToString())
+                    decoded.id shouldBe gjennomforing.id
+                    decoded.status shouldBe GjennomforingStatusType.AVSLUTTET
+                }
 
                 queries.endringshistorikk.getEndringshistorikk(DocumentClass.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
@@ -315,10 +340,20 @@ class GjennomforingServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
-                decoded.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V1_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
+                    decoded.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
+                }
+
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto.Gruppe>(record.value.decodeToString())
+                    decoded.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
+                }
             }
         }
     }
 })
+
+private fun QueryContext.shouldHaveKafkaProducerRecords(topic: String, size: Int): List<StoredProducerRecord> {
+    return queries.kafkaProducerRecord.getRecords(100, listOf(topic)).shouldHaveSize(size)
+}

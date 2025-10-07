@@ -1,8 +1,8 @@
 import { BodyShort, Box, Heading, Page, VStack } from "@navikt/ds-react";
 import { Link, useLocation, useRouteError } from "react-router";
 import { PORTEN_URL } from "@/constants";
-import { ProblemDetail } from "@mr/api-client-v2";
 import { IngenTilgang, NavAnsattManglerTilgangError } from "@/pages/IngenTilgang";
+import { ProblemDetail } from "@tiltaksadministrasjon/api-client";
 
 interface GenericError extends Partial<ProblemDetail> {
   message?: string;

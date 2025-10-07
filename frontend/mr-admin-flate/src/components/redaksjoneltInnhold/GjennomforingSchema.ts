@@ -1,8 +1,12 @@
-import { Opphav, GjennomforingOppstartstype, UtdanningslopDbo } from "@mr/api-client-v2";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
+import {
+  ArenaMigreringOpphav,
+  GjennomforingOppstartstype,
+  UtdanningslopDbo,
+} from "@tiltaksadministrasjon/api-client";
 
 export const GjennomforingSchema = z
   .object({
@@ -67,14 +71,14 @@ export const GjennomforingSchema = z
     oppstart: z.custom<GjennomforingOppstartstype>((val) => !!val, "Du må velge oppstartstype"),
     beskrivelse: z.string().nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
-    opphav: z.enum(Opphav),
+    opphav: z.enum(ArenaMigreringOpphav),
     visEstimertVentetid: z.boolean(),
     estimertVentetid: z
       .object({
         verdi: z.number({
           error: "Du må sette en verdi for estimert ventetid",
         }),
-        enhet: z.enum(["uke", "maned"], {
+        enhet: z.string({
           error: "Du må sette en enhet for estimert ventetid",
         }),
       })

@@ -2,11 +2,11 @@ import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
 import {
+  AvtaleDto,
   AvtaleRequest,
   ProblemDetail,
-  ValidationError as LegacyValidationError,
-} from "@mr/api-client-v2";
-import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
 export async function onSubmitAvtaleForm({
@@ -19,7 +19,7 @@ export async function onSubmitAvtaleForm({
   avtale?: AvtaleDto;
   data: AvtaleFormValues;
   mutation: ApiMutationResult<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest, unknown>;
-  onValidationError: (e: ValidationError | LegacyValidationError) => void;
+  onValidationError: (e: ValidationError) => void;
   onSuccess: (dto: { data: AvtaleDto }) => void;
 }) {
   const {
@@ -27,7 +27,6 @@ export async function onSubmitAvtaleForm({
     startDato,
     beskrivelse,
     avtaletype,
-    faneinnhold,
     personopplysninger,
     personvernBekreftet,
     satser,
@@ -38,7 +37,6 @@ export async function onSubmitAvtaleForm({
     navn,
     administratorer,
     beskrivelse,
-    faneinnhold,
     personopplysninger,
     personvernBekreftet,
     avtaletype,
@@ -47,6 +45,21 @@ export async function onSubmitAvtaleForm({
     sluttDato: data.sluttDato || null,
     navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
     avtalenummer: avtale?.avtalenummer ?? null,
+    faneinnhold: data.faneinnhold
+      ? {
+          forHvemInfoboks: data.faneinnhold.forHvemInfoboks || null,
+          forHvem: data.faneinnhold.forHvem || null,
+          detaljerOgInnholdInfoboks: data.faneinnhold.detaljerOgInnholdInfoboks || null,
+          detaljerOgInnhold: data.faneinnhold.detaljerOgInnhold || null,
+          pameldingOgVarighetInfoboks: data.faneinnhold.pameldingOgVarighetInfoboks || null,
+          pameldingOgVarighet: data.faneinnhold.pameldingOgVarighet || null,
+          kontaktinfo: data.faneinnhold.kontaktinfo || null,
+          kontaktinfoInfoboks: data.faneinnhold.kontaktinfoInfoboks || null,
+          lenker: data.faneinnhold.lenker || null,
+          oppskrift: data.faneinnhold.oppskrift || null,
+          delMedBruker: data.faneinnhold.delMedBruker || null,
+        }
+      : null,
     arrangor:
       data.arrangorHovedenhet && data.arrangorUnderenheter
         ? {
