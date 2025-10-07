@@ -9,6 +9,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
@@ -332,6 +333,11 @@ val ApplicationConfigLocal = AppConfig(
         gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
+        opprettKravPeriode = mapOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+        ),
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",
