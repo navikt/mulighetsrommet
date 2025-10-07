@@ -71,7 +71,7 @@
     "axe-core": "4.10.3",
     "cross-env": "10.1.0",
     "eslint": "9.37.0",
-    "happy-dom": "18.0.1",
+    "happy-dom": "19.0.2",
     "msw": "2.11.3",
     "playwright": "1.55.1",
     "tailwindcss": "4.1.14",

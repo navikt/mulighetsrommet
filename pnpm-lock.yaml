@@ -394,7 +394,7 @@ importers:
         version: 5.1.4(typescript@5.9.3)(vite@7.1.9(@types/node@24.6.2)(jiti@2.6.1)(lightningcss@1.30.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1))
       vitest:
         specifier: 3.2.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
 
   frontend/mr-admin-flate:
     dependencies:
@@ -550,8 +550,8 @@ importers:
         specifier: 9.37.0
         version: 9.37.0(jiti@2.6.1)
       happy-dom:
-        specifier: 18.0.1
-        version: 18.0.1
+        specifier: 19.0.2
+        version: 19.0.2
       msw:
         specifier: 2.11.3
         version: 2.11.3(@types/node@24.6.2)(typescript@5.9.3)
@@ -572,7 +572,7 @@ importers:
         version: 5.1.4(typescript@5.9.3)(vite@7.1.9(@types/node@24.6.2)(jiti@2.6.1)(lightningcss@1.30.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1))
       vitest:
         specifier: 3.2.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
 
   frontend/mulighetsrommet-cms:
     dependencies:
@@ -766,7 +766,7 @@ importers:
         version: 5.1.4(typescript@5.9.3)(vite@7.1.9(@types/node@24.6.2)(jiti@2.6.1)(lightningcss@1.30.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1))
       vitest:
         specifier: 3.2.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
 
   frontend/tiltaksadministrasjon-api-client:
     devDependencies:
@@ -2243,9 +2243,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.31.0':
     resolution: {integrity: sha512-9S5Ovm/4Z7MQOUqOPCaEXciPd1uN+nhuF7LYTMKCKbEeZDvUnXEbQmYkMcT3spLX2sos0gTVICKP0ymuuxzH5g==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.31.0/1da57e8287c33c61d1d8c51d4aa0ad9e4d8db21b}
@@ -2261,9 +2258,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@3.8.0':
     resolution: {integrity: sha512-5CDsv3wop9eIw2YNBCJRr0w6PwwkoTiHzZQXn1+5YZnsksCkHJAFsfKSbRle6zgsD+XRBnc/TPOP0nvNly7NWg==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.8.0/fc6862d934adfbefa382220614af18160688cd1e}
@@ -5257,8 +5251,8 @@ packages:
     engines: {node: '>=0.4.7'}
     hasBin: true
 
-  happy-dom@18.0.1:
-    resolution: {integrity: sha512-qn+rKOW7KWpVTtgIUi6RVmTBZJSe2k0Db0vh1f7CWrWclkkc7/Q+FrOfkZIb2eiErLyqu5AXEzE7XthO9JVxRA==}
+  happy-dom@19.0.2:
+    resolution: {integrity: sha512-831CLbgDyjRbd2lApHZFsBDe56onuFcjsCBPodzWpzedTpeDr8CGZjs7iEIdNW1DVwSFRecfwzLpVyGBPamwGA==}
     engines: {node: '>=20.0.0'}
 
   hard-rejection@2.1.0:
@@ -10459,12 +10453,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.31.0
       '@navikt/ds-tokens': 7.31.0
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -10478,7 +10471,6 @@ snapshots:
       html-react-parser: 5.2.6(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 27.0.0(postcss@8.5.6)
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@3.8.0':
@@ -14044,7 +14036,7 @@ snapshots:
     optionalDependencies:
       uglify-js: 3.19.3
 
-  happy-dom@18.0.1:
+  happy-dom@19.0.2:
     dependencies:
       '@types/node': 20.19.19
       '@types/whatwg-mimetype': 3.0.2
@@ -17637,7 +17629,7 @@ snapshots:
       vite: 7.1.9(@types/node@24.6.2)(jiti@2.6.1)(lightningcss@1.30.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
     optional: true
 
-  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@18.0.1)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1):
+  vitest@3.2.4(@types/debug@4.1.12)(@types/node@24.6.2)(happy-dom@19.0.2)(jiti@2.6.1)(jsdom@27.0.0(postcss@8.5.6))(lightningcss@1.30.1)(msw@2.11.3(@types/node@24.6.2)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
@@ -17665,7 +17657,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 24.6.2
-      happy-dom: 18.0.1
+      happy-dom: 19.0.2
       jsdom: 27.0.0(postcss@8.5.6)
     transitivePeerDependencies:
       - jiti
