@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
@@ -47,7 +48,8 @@ class GjennomforingService(
     private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
-        val topic: String,
+        val gjennomforingV1Topic: String,
+        val gjennomforingV2Topic: String?,
     )
 
     suspend fun upsert(
@@ -445,17 +447,28 @@ class GjennomforingService(
         }
     }
 
-    private fun QueryContext.publishToKafka(dto: Gjennomforing) {
-        val eksternDto = TiltaksgjennomforingV1Mapper.fromGjennomforing(dto)
-
-        val record = StoredProducerRecord(
-            config.topic,
-            eksternDto.id.toString().toByteArray(),
-            Json.encodeToString(eksternDto).toByteArray(),
+    private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {
+        val gjennomforingV1 = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
+        val recordV1 = StoredProducerRecord(
+            config.gjennomforingV1Topic,
+            gjennomforingV1.id.toString().toByteArray(),
+            Json.encodeToString(gjennomforingV1).toByteArray(),
             null,
         )
+        queries.kafkaProducerRecord.storeRecord(recordV1)
 
-        queries.kafkaProducerRecord.storeRecord(record)
+        if (config.gjennomforingV2Topic == null) {
+            return
+        }
+
+        val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
+        val recordV2 = StoredProducerRecord(
+            config.gjennomforingV2Topic,
+            gjennomforingV1.id.toString().toByteArray(),
+            Json.encodeToString(gjennomforingV2).toByteArray(),
+            null,
+        )
+        queries.kafkaProducerRecord.storeRecord(recordV2)
     }
 
     fun sanitizeNavEnheter(navEnheter: Set<NavEnhetNummer>): Set<NavEnhetNummer> = db.session {

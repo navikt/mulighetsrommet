@@ -16,7 +16,7 @@ object AvtalteSatser {
     fun findSats(avtale: Avtale, periode: Periode): Int? {
         val satser = getAvtalteSatser(avtale)
         val startSats = findSats(satser, periode.start)
-        val sluttSats = findSats(satser, periode.slutt)
+        val sluttSats = findSats(satser, periode.getLastInclusiveDate())
         if (startSats != sluttSats) {
             return null
         }

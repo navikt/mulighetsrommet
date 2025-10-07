@@ -13,6 +13,8 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
+import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
@@ -20,16 +22,11 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.*
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-
-private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
 
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -37,7 +34,7 @@ class ArenaAdapterServiceTest : FunSpec({
     fun createArenaAdapterService(
         sanityService: SanityService = mockk(relaxed = true),
     ) = ArenaAdapterService(
-        config = ArenaAdapterService.Config(PRODUCER_TOPIC),
+        config = ArenaAdapterService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
@@ -352,15 +349,25 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
-            service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.topic shouldBe PRODUCER_TOPIC
-                record.key shouldBe gjennomforing1.id.toString().toByteArray()
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2).should { (first, second) ->
+                    first.topic shouldBe TEST_GJENNOMFORING_V1_TOPIC
+                    first.key shouldBe gjennomforing1.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(first.value.decodeToString()).id shouldBe gjennomforing1.id
 
-                val decoded = Json.decodeFromString<TiltaksgjennomforingV1Dto>(record.value.decodeToString())
-                decoded.id shouldBe gjennomforing1.id
+                    second.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                    second.key shouldBe gjennomforing1.id.toString().toByteArray()
+                    Json.decodeFromString<TiltaksgjennomforingV2Dto>(second.value.decodeToString()).id shouldBe gjennomforing1.id
+                }
+            }
+
+            // Ny upsert med samme payload
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            // Verifiser at ny upsert ikke produserer meldinger når payload er den samme
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2)
             }
         }
     }
@@ -378,25 +385,25 @@ class ArenaAdapterServiceTest : FunSpec({
             database.truncateAll()
         }
 
+        val arenaGjennomforing = ArenaGjennomforingDbo(
+            id = UUID.randomUUID(),
+            navn = "En enkeltplass",
+            sanityId = null,
+            tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+            tiltaksnummer = "2025#1",
+            arrangorOrganisasjonsnummer = "976663934",
+            startDato = LocalDate.now(),
+            sluttDato = null,
+            arenaAnsvarligEnhet = "0400",
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            apentForPamelding = true,
+            antallPlasser = null,
+            avtaleId = null,
+            deltidsprosent = 100.0,
+        )
+
         test("oppretter og endrer enkeltplasser fra Arena") {
             val service = createArenaAdapterService()
-
-            val arenaGjennomforing = ArenaGjennomforingDbo(
-                id = UUID.randomUUID(),
-                navn = "En enkeltplass",
-                sanityId = null,
-                tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
-                tiltaksnummer = "2025#1",
-                arrangorOrganisasjonsnummer = "976663934",
-                startDato = LocalDate.now(),
-                sluttDato = null,
-                arenaAnsvarligEnhet = "0400",
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                apentForPamelding = true,
-                antallPlasser = null,
-                avtaleId = null,
-                deltidsprosent = 100.0,
-            )
 
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
@@ -421,6 +428,39 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.arenaAnsvarligEnhet shouldBe "1000"
                 }
+            }
+        }
+
+        test("skal publisere til kafka kun når det er endringer fra Arena") {
+            val service = createArenaAdapterService()
+
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                record.key shouldBe arenaGjennomforing.id.toString().toByteArray()
+
+                val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
+                decoded.id shouldBe arenaGjennomforing.id
+                decoded.tiltakstype.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+                decoded.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
+            }
+
+            // Ny upsert med samme payload
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+
+            // Verifiser at ny upsert ikke produserer meldinger når payload er den samme
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
+            }
+
+            // Ny upsert med ny data
+            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(navn = "Nytt navn"))
+
+            // Verifiser at upsert med ny data produserer meldinger
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(2)
             }
         }
     }
