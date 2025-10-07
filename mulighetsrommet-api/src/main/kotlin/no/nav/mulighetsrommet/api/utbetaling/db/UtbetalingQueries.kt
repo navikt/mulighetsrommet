@@ -317,26 +317,6 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "begrunnelse" to begrunnelse)))
     }
 
-    fun setAvbrutt(id: UUID, tidspunkt: LocalDateTime, aarsaker: List<String>, forklaring: String?) {
-        @Language("PostgreSQL")
-        val query = """
-            update utbetaling set
-                status = 'AVBRUTT',
-                avbrutt_aarsaker = :aarsaker,
-                avbrutt_forklaring = :forklaring,
-                avbrutt_tidspunkt = :tidspunkt
-            where id = :id::uuid
-        """.trimIndent()
-        val params = mapOf(
-            "id" to id,
-            "tidspunkt" to tidspunkt,
-            "aarsaker" to aarsaker.let { session.createTextArray(it) },
-            "forklaring" to forklaring,
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
     fun getOrError(id: UUID): Utbetaling {
         return checkNotNull(get(id)) { "Utbetaling med id $id finnes ikke" }
     }
