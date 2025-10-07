@@ -1,10 +1,14 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -12,6 +16,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -39,7 +45,10 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -1058,6 +1067,38 @@ class UtbetalingServiceTest : FunSpec({
             verify(exactly = 1) {
                 journalforUtbetaling.schedule(utbetaling1Forhandsgodkjent.id, any(), any(), listOf())
             }
+        }
+
+        test("utbetaling kan ikke godkjennes flere ganger samtidig") {
+            val utbetaling = utbetaling1Forhandsgodkjent.copy(
+                beregning = getForhandsgodkjentBeregning(
+                    periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    belop = 1,
+                ),
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1.copy()),
+                utbetalinger = listOf(utbetaling),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val job1 = async(Dispatchers.Default) {
+                service.godkjentAvArrangor(utbetaling1Id, kid = null)
+            }
+            val job2 = async(Dispatchers.Default) {
+                service.godkjentAvArrangor(utbetaling1Id, kid = null)
+            }
+
+            listOf(job1.await(), job2.await()) shouldContainExactlyInAnyOrder listOf(
+                AutomatiskUtbetalingResult.GODKJENT.right(),
+                FieldError.of("Utbetaling er allerede godkjent").nel().left(),
+            )
         }
 
         test("utbetales ikke automatisk hvis det allerede finnes en delutbetaling når arrangør godkjenner") {
