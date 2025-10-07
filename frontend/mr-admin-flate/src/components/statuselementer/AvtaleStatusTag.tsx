@@ -1,5 +1,5 @@
-import { AvtaleDtoStatus } from "@mr/api-client-v2";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { AvtaleDtoStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   status: AvtaleDtoStatus;

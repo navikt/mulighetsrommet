@@ -1,6 +1,5 @@
 import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
   GjennomforingDto,
   TilsagnRequest,
@@ -75,7 +74,7 @@ export function TilsagnForm(props: Props) {
 
     mutation.mutate(request, {
       onSuccess: onSuccess,
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+      onValidationError: (error: ValidationError) => {
         error.errors.forEach((error) => {
           const name = jsonPointerToFieldPath(error.pointer) as keyof TilsagnRequest;
           setError(name, { type: "custom", message: error.detail });

@@ -1,7 +1,6 @@
-import { ArenaNavEnhet as LegacyArenaNavEnhet } from "@mr/api-client-v2";
 import { ArenaNavEnhet, NavEnhetDto, NavEnhetType } from "@tiltaksadministrasjon/api-client";
 
-export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet | LegacyArenaNavEnhet) {
+export function getDisplayName(enhet: NavEnhetDto | ArenaNavEnhet) {
   const { enhetsnummer, navn } = enhet;
   return navn ? `${enhetsnummer} ${navn}` : enhetsnummer;
 }

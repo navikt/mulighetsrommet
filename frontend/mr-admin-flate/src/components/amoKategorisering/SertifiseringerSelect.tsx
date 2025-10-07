@@ -1,10 +1,10 @@
-import { Sertifisering } from "@mr/api-client-v2";
 import { FieldValues, Path, useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
+import { AmoKategoriseringBransjeOgYrkesrettetSertifisering as Sertifisering } from "@tiltaksadministrasjon/api-client";
 
 export function SertifiseringerSkjema<T extends FieldValues>(props: {
   path: Path<T>;

@@ -94,7 +94,26 @@ fun Route.avtaleRoutes() {
 
     route("avtaler") {
         authorize(Rolle.AVTALER_SKRIV) {
-            put {
+            put({
+                tags = setOf("Avtale")
+                operationId = "upsertAvtale"
+                request {
+                    body<AvtaleRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Avtalen ble upsertet"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val navIdent = getNavIdent()
                 val request = call.receive<AvtaleRequest>()
 

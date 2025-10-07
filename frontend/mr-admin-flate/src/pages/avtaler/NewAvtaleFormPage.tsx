@@ -19,7 +19,6 @@ import {
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { AvtaleDto, Rolle, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
@@ -84,7 +83,7 @@ export function NewAvtaleFormPage() {
   });
 
   const handleValidationError = useCallback(
-    (validation: ValidationError | LegacyValidationError) => {
+    (validation: ValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         methods.setError(name, { type: "custom", message: error.detail });
@@ -98,7 +97,7 @@ export function NewAvtaleFormPage() {
       avtale: undefined,
       data,
       mutation,
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+      onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
       onSuccess: (dto: { data: AvtaleDto }) => {

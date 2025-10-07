@@ -1,6 +1,9 @@
 import { delutbetalingAarsakTilTekst, tilsagnTypeToString } from "@/utils/Utils";
-import { FieldError } from "@mr/api-client-v2";
-import { DelutbetalingReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
+import {
+  DelutbetalingReturnertAarsak,
+  FieldError,
+  UtbetalingLinje,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Heading, HStack, List, Table, VStack } from "@navikt/ds-react";
 import React, { useEffect, useState } from "react";

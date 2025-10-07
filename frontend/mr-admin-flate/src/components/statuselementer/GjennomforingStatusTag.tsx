@@ -1,5 +1,5 @@
-import { GjennomforingDtoStatus } from "@mr/api-client-v2";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { GjennomforingDtoStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   status: GjennomforingDtoStatus;

@@ -1,4 +1,3 @@
-import { Avtaletype, OpsjonsmodellType } from "@mr/api-client-v2";
 import { HGrid, Select, TextField, VStack } from "@navikt/ds-react";
 import { useEffect, useMemo, useRef } from "react";
 import { FieldError, useFormContext } from "react-hook-form";
@@ -12,6 +11,7 @@ import {
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { addDuration, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { Avtaletype, OpsjonsmodellType } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   opsjonUtlost: boolean;
