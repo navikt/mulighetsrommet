@@ -7,7 +7,6 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -246,6 +245,17 @@ class UtbetalingQueries(private val session: Session) {
             )
         }
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
+    }
+
+    fun getAndAquireLock(id: UUID): Utbetaling {
+        @Language("PostgreSQL")
+        val query = """
+            select id from utbetaling where id = ?::uuid for update
+        """.trimIndent()
+
+        session.execute(queryOf(query, id))
+
+        return getOrError(id)
     }
 
     fun setStatus(id: UUID, status: UtbetalingStatusType) {

@@ -57,7 +57,7 @@ class UtbetalingService(
         utbetalingId: UUID,
         kid: Kid?,
     ): Either<List<FieldError>, AutomatiskUtbetalingResult> = db.transaction {
-        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
         if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
@@ -540,6 +540,7 @@ class UtbetalingService(
                 UtbetalingStatusType.INNSENDT,
                 UtbetalingStatusType.RETURNERT,
                 -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
                 UtbetalingStatusType.FERDIG_BEHANDLET,
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
