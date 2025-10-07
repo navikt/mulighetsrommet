@@ -392,7 +392,7 @@ val ApplicationConfigProd = AppConfig(
             Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
         ),
         opprettKravPeriode = mapOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     clamav = HttpClientConfig(

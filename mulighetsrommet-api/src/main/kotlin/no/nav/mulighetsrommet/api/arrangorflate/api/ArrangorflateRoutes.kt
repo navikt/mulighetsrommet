@@ -20,10 +20,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
-import no.nav.mulighetsrommet.api.arrangorflate.toArrangorflateTilsagn
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -32,7 +33,6 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -44,9 +44,6 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
-import no.nav.mulighetsrommet.featuretoggle.api.generateUnleashSessionId
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -60,14 +57,13 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
 
-fun Route.arrangorflateRoutes() {
+fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
     val arrangorService: ArrangorService by inject()
     val utbetalingService: UtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
-    val featureToggleService: UnleashFeatureToggleService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -228,30 +224,11 @@ fun Route.arrangorflateRoutes() {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
             requireTilgangHosArrangor(orgnr)
 
-            val context = FeatureToggleContext(
-                userId = "",
-                sessionId = call.generateUnleashSessionId(),
-                remoteAddress = call.request.origin.remoteAddress,
-                tiltakskoder = emptyList(),
-                orgnr = listOf(orgnr),
-            )
-
-            val isManualDriftsTilskuddEnabled =
-                featureToggleService.isEnabled(
-                    FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
-                    context,
-                )
-
-            val prismodeller = if (isManualDriftsTilskuddEnabled) {
-                listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, PrismodellType.ANNEN_AVTALT_PRIS)
-            } else {
-                listOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK)
-            }
             val gjennomforinger = db.session {
                 queries.gjennomforing
                     .getAll(
                         arrangorOrgnr = listOf(orgnr),
-                        prismodeller = prismodeller,
+                        prismodeller = hentOpprettKravPrismodeller(config.okonomi),
                     )
                     .items
             }
@@ -309,7 +286,6 @@ fun Route.arrangorflateRoutes() {
                 request {
                     pathParameter<Organisasjonsnummer>("orgnr")
                     pathParameter<String>("gjennomforingId")
-                    queryParameter<Tilskuddstype>("tilskudsstype")
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -337,7 +313,10 @@ fun Route.arrangorflateRoutes() {
                     },
                 )
                 val definisjonsliste = listOf(
-                    Definition("Arrangør", "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}"),
+                    Definition(
+                        "Arrangør",
+                        "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
+                    ),
                     Definition("Tiltaksnavn", gjennomforing.navn),
                     Definition("Tiltakstype", gjennomforing.tiltakstype.navn),
                 )
@@ -729,6 +708,17 @@ fun Route.arrangorflateRoutes() {
     }
 }
 
+private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig): List<PrismodellType> {
+    val now = LocalDate.now()
+    return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
+        if (entry.value.start.isBefore(now) && entry.value.slutt.isAfter(now)) {
+            entry.key
+        } else {
+            null
+        }
+    }
+}
+
 private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggRequest {
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
     val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
@@ -998,7 +988,10 @@ private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingI
 private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
 
 @Serializable
-data class OpprettKravInnsendingsInformasjon(val definisjonsListe: List<Definition>, val tilsagn: List<ArrangorflateTilsagnDto>)
+data class OpprettKravInnsendingsInformasjon(
+    val definisjonsListe: List<Definition>,
+    val tilsagn: List<ArrangorflateTilsagnDto>,
+)
 
 @Serializable
 data class Definition(val key: String, val value: String)
