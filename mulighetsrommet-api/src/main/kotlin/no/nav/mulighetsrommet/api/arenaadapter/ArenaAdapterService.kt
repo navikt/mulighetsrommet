@@ -40,7 +40,7 @@ class ArenaAdapterService(
 
     data class Config(
         val gjennomforingV1Topic: String,
-        val gjennomforingV2Topic: String,
+        val gjennomforingV2Topic: String? = null,
     )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
@@ -130,6 +130,7 @@ class ArenaAdapterService(
         }
 
         publishTiltaksgjennomforingV1ToKafka(TiltaksgjennomforingV1Mapper.fromGjennomforing(next))
+        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGruppe(next))
     }
 
     private fun upsertEnkeltplass(
@@ -246,6 +247,10 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {
+        if (config.gjennomforingV2Topic == null) {
+            return
+        }
+
         val record = StoredProducerRecord(
             config.gjennomforingV2Topic,
             dto.id.toString().toByteArray(),
