@@ -35,10 +35,13 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.put<PathParams, undefined, GjennomforingDto>("*/api/v1/intern/gjennomforinger", () => {
-    const gjennomforing = mockGjennomforinger[0];
-    return HttpResponse.json(gjennomforing);
-  }),
+  http.put<PathParams, undefined, GjennomforingDto>(
+    "*/api/tiltaksadministrasjon/gjennomforinger",
+    () => {
+      const gjennomforing = mockGjennomforinger[0];
+      return HttpResponse.json(gjennomforing);
+    },
+  ),
 
   http.get<{ id: string }, undefined, GjennomforingDto>(
     "/api/tiltaksadministrasjon/gjennomforinger/:id",
