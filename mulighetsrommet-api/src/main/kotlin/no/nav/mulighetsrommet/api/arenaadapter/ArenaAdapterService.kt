@@ -40,7 +40,7 @@ class ArenaAdapterService(
 
     data class Config(
         val gjennomforingV1Topic: String,
-        val gjennomforingV2Topic: String,
+        val gjennomforingV2Topic: String? = null,
     )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
@@ -130,6 +130,7 @@ class ArenaAdapterService(
         }
 
         publishTiltaksgjennomforingV1ToKafka(TiltaksgjennomforingV1Mapper.fromGjennomforing(next))
+        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGruppe(next))
     }
 
     private fun upsertEnkeltplass(
@@ -142,11 +143,7 @@ class ArenaAdapterService(
         }
 
         val previous = queries.enkeltplass.get(arenaGjennomforing.id)
-        if (
-            previous == null ||
-            arenaGjennomforing.tiltakstypeId != previous.tiltakstype.id ||
-            arenaGjennomforing.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer.value
-        ) {
+        if (previous == null) {
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,
@@ -172,10 +169,10 @@ class ArenaAdapterService(
         )
         if (previous == null || hasRelevantChanges(arenadata, previous)) {
             queries.enkeltplass.setArenaData(arenadata)
-        }
 
-        val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
-        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
+            val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
+            publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
+        }
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): ArrangorDto {
@@ -250,6 +247,10 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {
+        if (config.gjennomforingV2Topic == null) {
+            return
+        }
+
         val record = StoredProducerRecord(
             config.gjennomforingV2Topic,
             dto.id.toString().toByteArray(),

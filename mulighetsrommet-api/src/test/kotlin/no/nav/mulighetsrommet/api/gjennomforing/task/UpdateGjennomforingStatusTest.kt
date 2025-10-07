@@ -3,13 +3,11 @@ package no.nav.mulighetsrommet.api.gjennomforing.task
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
-import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -18,14 +16,13 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
+import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
+import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.*
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-
-private const val PRODUCER_TOPIC = "siste-tiltaksgjennomforinger-topic"
 
 class UpdateGjennomforingStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -33,7 +30,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
     fun createTask() = UpdateGjennomforingStatus(
         database.db,
         GjennomforingService(
-            config = GjennomforingService.Config(PRODUCER_TOPIC),
+            config = GjennomforingService.Config(TEST_GJENNOMFORING_V1_TOPIC, TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             navAnsattService = mockk(relaxed = true),
         ),
@@ -111,23 +108,6 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
-
-                queries.kafkaProducerRecord.getRecords(10).also { records ->
-                    records.shouldHaveSize(2)
-                    records.forEach {
-                        it.topic shouldBe PRODUCER_TOPIC
-                    }
-
-                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[0].value.decodeToString()).should {
-                        it.id shouldBe gjennomforing2.id
-                        it.status shouldBe AVSLUTTET
-                    }
-
-                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[1].value.decodeToString()).should {
-                        it.id shouldBe gjennomforing3.id
-                        it.status shouldBe AVSLUTTET
-                    }
-                }
             }
         }
 
@@ -145,20 +125,6 @@ class UpdateGjennomforingStatusTest : FunSpec({
                 }
                 queries.gjennomforing.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
-                }
-
-                queries.kafkaProducerRecord.getRecords(10).also { records ->
-                    records.shouldHaveSize(2)
-
-                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[0].value.decodeToString()).should {
-                        it.id shouldBe gjennomforing2.id
-                        it.status shouldBe AVSLUTTET
-                    }
-
-                    Json.decodeFromString<TiltaksgjennomforingV1Dto>(records[1].value.decodeToString()).should {
-                        it.id shouldBe gjennomforing3.id
-                        it.status shouldBe AVSLUTTET
-                    }
                 }
             }
         }

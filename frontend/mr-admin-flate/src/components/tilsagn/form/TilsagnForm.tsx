@@ -25,7 +25,7 @@ import { ReactElement } from "react";
 import { useKostnadssted } from "@/api/enhet/useKostnadssted";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { addDuration } from "@mr/frontend-common/utils/date";
+import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
@@ -104,7 +104,7 @@ export function TilsagnForm(props: Props) {
                 <HGrid columns={2}>
                   <ControlledDateInput
                     label={tilsagnTekster.periode.start.label}
-                    fromDate={new Date(gjennomforing.startDato)}
+                    fromDate={subDuration(new Date(gjennomforing.startDato), { months: 1 })}
                     toDate={addDuration(new Date(), { years: 1 })}
                     defaultSelected={form.getValues("periodeStart")}
                     onChange={(val) => form.setValue("periodeStart", val)}
@@ -112,7 +112,7 @@ export function TilsagnForm(props: Props) {
                   />
                   <ControlledDateInput
                     label={tilsagnTekster.periode.slutt.label}
-                    fromDate={new Date(gjennomforing.startDato)}
+                    fromDate={subDuration(new Date(gjennomforing.startDato), { months: 1 })}
                     toDate={addDuration(new Date(), { years: 1 })}
                     defaultSelected={form.getValues("periodeSlutt")}
                     onChange={(val) => form.setValue("periodeSlutt", val)}
