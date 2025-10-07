@@ -74,6 +74,7 @@ data class AvtaleRequest(
             >,
     )
 }
+
 @Serializable
 data class PersonvernRequest(
     val personopplysninger: List<Personopplysning>,
@@ -125,38 +126,6 @@ fun Route.avtaleRoutes() {
                 val result = avtaler.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
-
-                call.respondWithStatusResponse(result)
-            }
-
-            patch("{id}/personvern", {
-                tags = setOf("Avtale")
-                operationId = "upsertPersonvern"
-                request {
-                    pathParameterUuid("id")
-                    body<PrismodellRequest>()
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Oppdatert avtale"
-                        body<AvtaleDto>()
-                    }
-                    code(HttpStatusCode.BadRequest) {
-                        description = "Valideringsfeil"
-                        body<ValidationError>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val navIdent = getNavIdent()
-                val id: UUID by call.parameters
-                val request = call.receive<PersonvernRequest>()
-
-                val result = avtaler.upsertPersonvern(id, request, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -229,6 +198,38 @@ fun Route.avtaleRoutes() {
 
                     call.respondWithStatusResponse(result)
                 }
+            }
+            patch("{id}/personvern", {
+                tags = setOf("Avtale")
+                operationId = "upsertPersonvern"
+                request {
+                    pathParameterUuid("id")
+                    body<PersonvernRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert personvern"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val navIdent = getNavIdent()
+                val id: UUID by call.parameters
+                val request = call.receive<PersonvernRequest>()
+
+                val result = avtaler.upsertPersonvern(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
+
+                call.respondWithStatusResponse(result)
             }
 
             put("{id}/avbryt", {

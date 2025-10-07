@@ -83,9 +83,9 @@ class AvtaleService(
         val dbo = request.toDbo()
 
         db.transaction {
-            queries.avtale.updatePersonvern(avtaleId, dbo)
+            queries.avtale.updatePersonvern(previous.id, dbo)
 
-            val dto = getOrError(avtaleId)
+            val dto = getOrError(previous.id)
             logEndring("Redigerte avtale", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)

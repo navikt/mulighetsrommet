@@ -200,14 +200,28 @@ class AvtaleQueries(private val session: Session) {
         }
 
         upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
-        upsertPersonvern(avtale.id, avtale.personopplysninger)
+        upsertPersonopplysninger(avtale.id, avtale.personopplysninger)
     }
 
     fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
-        upsertPersonvern(avtaleId, personvernDbo.personopplysninger)
+        @Language("PostgreSQL")
+        val updatePersonvernBekreftet = """
+                update avtale
+                set
+                    personvern_bekreftet = :personvern_bekreftet::boolean
+                 where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                updatePersonvernBekreftet,
+                mapOf("id" to avtaleId, "personvern_bekreftet" to personvernDbo.personvernBekreftet),
+            ),
+        )
+        upsertPersonopplysninger(avtaleId, personvernDbo.personopplysninger)
     }
 
-    fun upsertPersonvern(id: UUID, personopplysninger: List<Personopplysning>) = withTransaction(session) {
+    fun upsertPersonopplysninger(id: UUID, personopplysninger: List<Personopplysning>) = withTransaction(session) {
         @Language("PostgreSQL")
         val updatePersonopplysninger = """
                 insert into avtale_personopplysning (avtale_id, personopplysning)
