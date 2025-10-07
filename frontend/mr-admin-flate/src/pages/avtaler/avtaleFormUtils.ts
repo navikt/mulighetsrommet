@@ -1,12 +1,17 @@
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
-import { AvtaleDto, AvtaleRequest, PersonvernRequest } from "@tiltaksadministrasjon/api-client";
+import { AvtaleRequest, PersonvernRequest } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export function toAvtaleRequest(data: AvtaleFormValues, avtale?: AvtaleDto): AvtaleRequest {
+export interface RequestValues {
+  data: AvtaleFormValues;
+  id?: string;
+}
+
+export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
   const { navn, startDato, beskrivelse, avtaletype, satser, administratorer } = data;
   return {
-    id: avtale?.id ?? v4(),
+    id: id ?? v4(),
     navn,
     administratorer,
     beskrivelse,
@@ -15,7 +20,6 @@ export function toAvtaleRequest(data: AvtaleFormValues, avtale?: AvtaleDto): Avt
     sakarkivNummer: data.sakarkivNummer || null,
     sluttDato: data.sluttDato || null,
     navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
-    avtalenummer: avtale?.avtalenummer ?? null,
     faneinnhold: data.faneinnhold
       ? {
           forHvemInfoboks: data.faneinnhold.forHvemInfoboks || null,
@@ -56,13 +60,9 @@ export function toAvtaleRequest(data: AvtaleFormValues, avtale?: AvtaleDto): Avt
   };
 }
 
-export function toPersonvernRequest(
-  values: AvtaleFormValues,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  avtale: AvtaleDto,
-): PersonvernRequest {
+export function toPersonvernRequest({ data }: RequestValues): PersonvernRequest {
   return {
-    ...values.personvern,
+    ...data.personvern,
   };
 }
 

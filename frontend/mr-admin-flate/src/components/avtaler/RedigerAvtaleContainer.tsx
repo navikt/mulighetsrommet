@@ -13,12 +13,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { QueryKeys } from "@/api/QueryKeys";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { mapNameToSchemaPropertyName } from "@/pages/avtaler/avtaleFormUtils";
+import { mapNameToSchemaPropertyName, RequestValues } from "@/pages/avtaler/avtaleFormUtils";
 import { ApiMutationResult } from "@/hooks/useApiMutation";
 
 interface Props<TRequest> {
   avtale: AvtaleDto;
-  mapToRequest: (data: AvtaleFormValues, avtale?: AvtaleDto) => TRequest;
+  mapToRequest: (values: RequestValues) => TRequest;
   mutation: ApiMutationResult<{ data: AvtaleDto }, ProblemDetail, TRequest, unknown>;
   children: ReactNode;
 }
@@ -51,7 +51,7 @@ export function RedigerAvtaleContainer<TRequest>({
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    mutation.mutate(mapToRequest(data, avtale), {
+    mutation.mutate(mapToRequest({ data: data, id: avtale.id }), {
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },

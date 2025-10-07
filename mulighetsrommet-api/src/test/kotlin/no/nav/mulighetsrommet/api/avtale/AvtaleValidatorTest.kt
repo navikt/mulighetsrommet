@@ -62,7 +62,6 @@ class AvtaleValidatorTest : FunSpec({
             underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
             kontaktpersoner = emptyList(),
         ),
-        avtalenummer = "123456",
         sakarkivNummer = SakarkivNummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),

@@ -35,7 +35,6 @@ class AvtaleQueries(private val session: Session) {
                 id,
                 navn,
                 tiltakstype_id,
-                avtalenummer,
                 sakarkiv_nummer,
                 arrangor_hovedenhet_id,
                 start_dato,
@@ -44,7 +43,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
-                opphav,
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
@@ -55,7 +53,6 @@ class AvtaleQueries(private val session: Session) {
                 :id::uuid,
                 :navn,
                 :tiltakstype_id::uuid,
-                :avtalenummer,
                 :sakarkiv_nummer,
                 :arrangor_hovedenhet_id,
                 :start_dato,
@@ -64,7 +61,6 @@ class AvtaleQueries(private val session: Session) {
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
-                :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
@@ -74,7 +70,6 @@ class AvtaleQueries(private val session: Session) {
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
-                avtalenummer                = excluded.avtalenummer,
                 sakarkiv_nummer             = excluded.sakarkiv_nummer,
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
@@ -83,7 +78,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
-                opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
@@ -300,6 +294,22 @@ class AvtaleQueries(private val session: Session) {
                     "sats" to it.sats,
                 )
             },
+        )
+    }
+
+    fun upsertAvtalenummer(id: UUID, avtalenummer: String) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val updateAvtalenummer = """
+                update avtale
+                set avtalenummer = :avtalenummer
+                where id = :id::uuid
+        """.trimIndent()
+
+        execute(
+            queryOf(
+                updateAvtalenummer,
+                mapOf("id" to id, "avtalenummer" to avtalenummer),
+            ),
         )
     }
 
@@ -522,7 +532,6 @@ class AvtaleQueries(private val session: Session) {
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
-        "avtalenummer" to avtalenummer,
         "sakarkiv_nummer" to sakarkivNummer?.value,
         "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,

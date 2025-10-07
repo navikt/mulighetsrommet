@@ -47,7 +47,6 @@ data class AvtaleRequest(
     val navn: String,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor?,
-    val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,

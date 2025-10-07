@@ -3504,10 +3504,6 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/AvtaleRequest.Arrangor"
-        avtalenummer:
-          type:
-          - "null"
-          - string
         sakarkivNummer:
           type:
           - "null"
@@ -3558,7 +3554,6 @@ components:
       - administratorer
       - amoKategorisering
       - arrangor
-      - avtalenummer
       - avtaletype
       - beskrivelse
       - faneinnhold

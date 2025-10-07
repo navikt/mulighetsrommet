@@ -16,7 +16,6 @@ object AvtaleDboMapper {
         id = avtale.id,
         navn = avtale.navn,
         tiltakstypeId = avtale.tiltakstype.id,
-        avtalenummer = avtale.avtalenummer,
         sakarkivNummer = avtale.sakarkivNummer,
         arrangor = avtale.arrangor?.id?.let {
             AvtaleDbo.Arrangor(
@@ -55,7 +54,6 @@ object AvtaleDboMapper {
     ): AvtaleDbo = AvtaleDbo(
         id = request.id,
         navn = request.navn,
-        avtalenummer = request.avtalenummer,
         sakarkivNummer = request.sakarkivNummer,
         tiltakstypeId = tiltakstypeId,
         arrangor = arrangor,
@@ -80,7 +78,6 @@ object AvtaleDboMapper {
     fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: AvtaleRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
         id = dbo.id,
         navn = dbo.navn,
-        avtalenummer = dbo.avtalenummer,
         sakarkivNummer = dbo.sakarkivNummer,
         tiltakskode = tiltakskode,
         arrangor = arrangor,

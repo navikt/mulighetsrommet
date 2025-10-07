@@ -211,7 +211,6 @@ fun Avtale.toAvtaleRequest() = AvtaleRequest(
             kontaktpersoner = it.kontaktpersoner.map { it.id },
         )
     },
-    avtalenummer = this.avtalenummer,
     sakarkivNummer = this.sakarkivNummer,
     startDato = this.startDato,
     sluttDato = this.sluttDato,

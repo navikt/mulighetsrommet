@@ -95,8 +95,8 @@ class AvtaleQueriesTest : FunSpec({
                 val avtale1Id = AvtaleFixtures.oppfolging.id
                 val avtale2Id = UUID.randomUUID()
 
-                queries.upsert(AvtaleFixtures.oppfolging.copy(avtalenummer = null))
-                queries.upsert(AvtaleFixtures.oppfolging.copy(id = avtale2Id, avtalenummer = null))
+                queries.upsert(AvtaleFixtures.oppfolging)
+                queries.upsert(AvtaleFixtures.oppfolging.copy(id = avtale2Id))
 
                 val avtale1Avtalenummer = queries.get(avtale1Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
                 avtale1Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
@@ -565,19 +565,23 @@ class AvtaleQueriesTest : FunSpec({
                 oppfolgingDomain.setup(session)
 
                 val queries = AvtaleQueries(session)
+                val avtalenummer1 = "2024#1000"
+                val avtalenummer2 = "2024#2000"
 
                 val avtale1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale om opplæring av blinde krokodiller",
-                    avtalenummer = "2024#1000",
                 )
+
                 val avtale2 = avtale1.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale om undervisning av underlige ulver",
-                    avtalenummer = "2024#2000",
                 )
+
                 queries.upsert(avtale1)
+                queries.upsertAvtalenummer(avtale1.id, avtalenummer1)
                 queries.upsert(avtale2)
+                queries.upsertAvtalenummer(avtale2.id, avtalenummer2)
 
                 queries.getAll(search = "krokodillen").should {
                     it.totalCount shouldBe 1

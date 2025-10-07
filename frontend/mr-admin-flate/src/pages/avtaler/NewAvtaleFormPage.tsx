@@ -93,7 +93,7 @@ export function NewAvtaleFormPage() {
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    mutation.mutate(toAvtaleRequest(data), {
+    mutation.mutate(toAvtaleRequest({ data: data }), {
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
