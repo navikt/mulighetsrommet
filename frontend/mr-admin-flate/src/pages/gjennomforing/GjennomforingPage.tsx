@@ -17,6 +17,7 @@ import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { FeatureToggle } from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { isProduction } from "@/environment";
 
 function getCurrentTab(pathname: string) {
   if (pathname.includes("tilsagn")) {
@@ -125,7 +126,7 @@ export function GjennomforingPage() {
               }
             />
           ) : null}
-          {gjennomforing.oppstart === GjennomforingOppstartstype.FELLES && (
+          {(!isProduction || gjennomforing.oppstart === GjennomforingOppstartstype.FELLES) && (
             <Tabs.Tab
               value="deltakerliste"
               label="Deltakerliste"
