@@ -12,6 +12,7 @@ data class ArrangorflateGjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
+    val tiltakstype: ArrangorflateTiltakstype,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

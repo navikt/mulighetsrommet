@@ -79,6 +79,7 @@ class ArrangorflateService(
                 arrangor = orgnr,
                 statuser = filter.statuser,
                 typer = filter.typer,
+                gjennomforingId = filter.gjennomforingId,
             )
             .map { toArrangorflateTilsagn(it) }
     }

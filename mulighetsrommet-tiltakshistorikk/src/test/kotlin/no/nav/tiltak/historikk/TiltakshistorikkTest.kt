@@ -312,9 +312,9 @@ private fun mockTiltakDatadeling(
 }
 
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
-    val tiltak = TiltaksgjennomforingEksternV1Dto(
+    val tiltak = TiltaksgjennomforingV1Dto(
         id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
-        tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
+        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
             id = UUID.fromString("af6f4034-08da-4bd4-8735-ffd883e8aab7"),
             navn = "Gruppe AMO",
             arenaKode = "GRUPPEAMO",

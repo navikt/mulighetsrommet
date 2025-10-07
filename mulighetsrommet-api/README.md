@@ -82,6 +82,11 @@ gradle generateOpenApi
 
 Det er også satt opp en egen workflow i Github Actions som skal sørge for at man ikke glemmer å generere skjemaet.
 
+### Eksterne konsumenter
+
+- Swagger UI er tilgjengelig på `<app ingress>/swagger-ui`.
+- Og selve OpenAPI-dokumentasjonen finner du også [definert her](./src/main/resouces/web/openapi-public.yaml).
+
 ## Autentisering
 
 For å kalle APIet lokalt må man være autentisert med et Bearer token. Vi
