@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -63,9 +64,10 @@ class UtbetalingService(
 
         queries.utbetaling.setGodkjentAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
-        journalforUtbetaling.schedule(utbetalingId, Instant.now(), session as TransactionalSession, emptyList())
         queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.INNSENDT)
         logEndring("Utbetaling sendt inn", getOrError(utbetalingId), Arrangor)
+
+        scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
 
         automatiskUtbetaling(utbetalingId)
             .also { log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $it") }
@@ -108,12 +110,7 @@ class UtbetalingService(
         val dto = logEndring("Utbetaling sendt inn", getOrError(request.id), agent)
 
         if (agent is Arrangor) {
-            journalforUtbetaling.schedule(
-                utbetalingId = dto.id,
-                startTime = Instant.now(),
-                tx = session as TransactionalSession,
-                vedlegg = request.vedlegg,
-            )
+            scheduleJournalforUtbetaling(dto.id, request.vedlegg)
         }
 
         dto.right()
@@ -429,6 +426,15 @@ class UtbetalingService(
             Json.encodeToJsonElement(dto)
         }
         return dto
+    }
+
+    private fun QueryContext.scheduleJournalforUtbetaling(utbetalingId: UUID, vedlegg: List<Vedlegg>) {
+        journalforUtbetaling.schedule(
+            utbetalingId = utbetalingId,
+            startTime = Instant.now(),
+            tx = session as TransactionalSession,
+            vedlegg = vedlegg,
+        )
     }
 
     private fun QueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
