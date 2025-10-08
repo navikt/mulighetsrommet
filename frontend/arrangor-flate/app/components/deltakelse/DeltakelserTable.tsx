@@ -64,7 +64,7 @@ const baseColumns: Column<ArrangorflateBeregningDeltakelse>[] = [
       </HStack>
     ),
   },
-  { label: "Fødselsnr.", render: (d) => d.personalia?.norskIdent },
+  { label: "Fødselsnr.", render: (d) => d.personalia?.norskIdent ?? "-" },
   { label: "Startdato i tiltaket", render: (d) => formaterDato(d.deltakerStartDato) ?? "-" },
   {
     label: "Startdato i perioden",
