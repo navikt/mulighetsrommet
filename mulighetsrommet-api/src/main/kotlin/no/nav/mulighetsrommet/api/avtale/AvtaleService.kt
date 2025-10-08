@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
@@ -84,6 +85,29 @@ class AvtaleService(
 
         db.transaction {
             queries.avtale.updatePersonvern(previous.id, dbo)
+
+            val dto = getOrError(previous.id)
+            logEndring("Redigerte avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    fun upsertVeilederinfo(
+        avtaleId: UUID,
+        request: VeilederinfoRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId)
+            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        val navEnheter = validator.validateNavEnheter(request.navEnheter).bind()
+        val dbo = request.toDbo(navEnheter)
+
+        db.transaction {
+            queries.avtale.updateVeilederinfo(previous.id, dbo)
 
             val dto = getOrError(previous.id)
             logEndring("Redigerte avtale", dto, navIdent)

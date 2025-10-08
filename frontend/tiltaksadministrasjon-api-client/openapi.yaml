@@ -362,6 +362,49 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/veilederinfo:
+    patch:
+      tags:
+      - Avtale
+      operationId: upsertVeilederinfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersonvernRequest"
+        required: false
+      responses:
+        "200":
+          description: Oppdatert veilederinfo
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/avtaler/{id}/avbryt:
     put:
       tags:
@@ -3490,6 +3533,25 @@ components:
       - gjelderTil
       - pris
       - valuta
+    VeilederinfoRequest:
+      type: object
+      properties:
+        navEnheter:
+          type: array
+          items:
+            type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+      required:
+      - beskrivelse
+      - faneinnhold
+      - navEnheter
     AvtaleRequest:
       type: object
       properties:
@@ -3524,18 +3586,6 @@ components:
             type: string
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        navEnheter:
-          type: array
-          items:
-            type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
         personvern:
           $ref: "#/components/schemas/PersonvernRequest"
         opsjonsmodell:
@@ -3550,15 +3600,14 @@ components:
           - $ref: "#/components/schemas/UtdanningslopDbo"
         prismodell:
           $ref: "#/components/schemas/PrismodellRequest"
+        veilederinformasjon:
+          $ref: "#/components/schemas/VeilederinfoRequest"
       required:
       - administratorer
       - amoKategorisering
       - arrangor
       - avtaletype
-      - beskrivelse
-      - faneinnhold
       - id
-      - navEnheter
       - navn
       - opsjonsmodell
       - personvern
@@ -3568,6 +3617,7 @@ components:
       - startDato
       - tiltakskode
       - utdanningslop
+      - veilederinformasjon
     FieldError:
       type: object
       properties:

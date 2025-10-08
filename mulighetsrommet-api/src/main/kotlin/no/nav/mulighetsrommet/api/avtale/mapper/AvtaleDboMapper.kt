@@ -3,10 +3,14 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 import PersonvernDbo
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
+import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.*
@@ -62,9 +66,9 @@ object AvtaleDboMapper {
         status = status,
         avtaletype = request.avtaletype,
         administratorer = request.administratorer,
-        navEnheter = request.navEnheter.toSet(),
-        beskrivelse = request.beskrivelse,
-        faneinnhold = request.faneinnhold,
+        navEnheter = request.veilederinformasjon.navEnheter.toSet(),
+        beskrivelse = request.veilederinformasjon.beskrivelse,
+        faneinnhold = request.veilederinformasjon.faneinnhold,
         personopplysninger = request.personvern.personopplysninger,
         personvernBekreftet = request.personvern.personvernBekreftet,
         amoKategorisering = request.amoKategorisering,
@@ -85,9 +89,11 @@ object AvtaleDboMapper {
         sluttDato = dbo.sluttDato,
         avtaletype = dbo.avtaletype,
         administratorer = dbo.administratorer,
-        navEnheter = dbo.navEnheter.toList(),
-        beskrivelse = dbo.beskrivelse,
-        faneinnhold = dbo.faneinnhold,
+        veilederinformasjon = VeilederinfoRequest(
+            navEnheter = dbo.navEnheter.toList(),
+            beskrivelse = dbo.beskrivelse,
+            faneinnhold = dbo.faneinnhold,
+        ),
         personvern = PersonvernRequest(
             personopplysninger = dbo.personopplysninger,
             personvernBekreftet = dbo.personvernBekreftet,
@@ -139,4 +145,12 @@ private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = sat
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personvernBekreftet = personvernBekreftet,
     personopplysninger = personopplysninger,
+)
+
+fun VeilederinfoRequest.toDbo(navenheter: Set<NavEnhetNummer>): VeilederinformasjonDbo = VeilederinformasjonDbo(
+    redaksjoneltInnhold = RedaksjoneltInnholdDbo(
+        beskrivelse = beskrivelse,
+        faneinnhold = faneinnhold,
+    ),
+    navEnheter = navenheter,
 )

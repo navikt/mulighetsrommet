@@ -54,14 +54,12 @@ data class AvtaleRequest(
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
-    val navEnheter: List<NavEnhetNummer>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
     val personvern: PersonvernRequest,
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
     val prismodell: PrismodellRequest,
+    val veilederinformasjon: VeilederinfoRequest,
 ) {
     @Serializable
     data class Arrangor(
@@ -78,6 +76,13 @@ data class AvtaleRequest(
 data class PersonvernRequest(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
+)
+
+@Serializable
+data class VeilederinfoRequest(
+    val navEnheter: List<NavEnhetNummer>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
 )
 
 @Serializable
@@ -225,6 +230,39 @@ fun Route.avtaleRoutes() {
                 val request = call.receive<PersonvernRequest>()
 
                 val result = avtaler.upsertPersonvern(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            patch("{id}/veilederinfo", {
+                tags = setOf("Avtale")
+                operationId = "upsertVeilederinfo"
+                request {
+                    pathParameterUuid("id")
+                    body<PersonvernRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert veilederinfo"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val navIdent = getNavIdent()
+                val id: UUID by call.parameters
+                val request = call.receive<VeilederinfoRequest>()
+
+                val result = avtaler.upsertVeilederinfo(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
 

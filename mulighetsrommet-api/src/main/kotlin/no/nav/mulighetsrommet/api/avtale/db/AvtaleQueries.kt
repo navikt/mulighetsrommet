@@ -215,6 +215,48 @@ class AvtaleQueries(private val session: Session) {
         upsertPersonopplysninger(avtaleId, personvernDbo.personopplysninger)
     }
 
+    fun updateVeilederinfo(avtaleId: UUID, veilederinformasjonDbo: VeilederinformasjonDbo) = withTransaction(session) {
+        veilederinformasjonDbo.redaksjoneltInnhold?.let { upsertRedaksjoneltInnhold(avtaleId, it) }
+        upsertNavEnheter(avtaleId, veilederinformasjonDbo.navEnheter)
+    }
+
+    private fun RedaksjoneltInnholdDbo.params(id: UUID) = mapOf(
+        "id" to id,
+        "beskrivelse" to beskrivelse,
+        "faneinnhold" to faneinnhold.let { Json.encodeToString(it) },
+    )
+
+    fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
+        @Language("PostgreSQL")
+        val query = """
+                update avtale
+                set
+                    beskrivelse = :beskrivelse,
+                    faneinnhold = :faneinnhold::jsonb
+                 where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, redaksjoneltInnhold.params(id)))
+    }
+
+    fun upsertNavEnheter(avtaleId: UUID, enheter: Set<NavEnhetNummer>) {
+        @Language("PostgreSQL")
+        val upsertEnhet = """
+             insert into avtale_nav_enhet (avtale_id, enhetsnummer)
+             values (?::uuid, ?)
+             on conflict (avtale_id, enhetsnummer) do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteEnheter = """
+             delete from avtale_nav_enhet
+             where avtale_id = ?::uuid and not (enhetsnummer = any (?))
+        """.trimIndent()
+
+        session.batchPreparedStatement(upsertEnhet, enheter.map { listOf(avtaleId, it.value) })
+        session.execute(queryOf(deleteEnheter, avtaleId, session.createArrayOfValue(enheter) { it.value }))
+    }
+
     fun upsertPersonopplysninger(id: UUID, personopplysninger: List<Personopplysning>) = withTransaction(session) {
         @Language("PostgreSQL")
         val updatePersonopplysninger = """
