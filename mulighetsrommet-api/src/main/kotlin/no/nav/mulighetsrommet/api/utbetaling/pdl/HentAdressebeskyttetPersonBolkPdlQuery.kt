@@ -6,7 +6,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -16,7 +15,7 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentPersonBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, HentPersonBolkResponse.Person>> {
+    suspend fun hentPersonBolk(identer: NonEmptySet<PdlIdent>): Either<PdlError, Map<PdlIdent, PdlPerson>> {
         val request = GraphqlRequest(
             query = $$"""
                 query($identer: [ID!]!) {
@@ -52,7 +51,11 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
                                 val person = requireNotNull(it.person) {
                                     "person forventet siden response var OK"
                                 }
-                                PdlIdent(it.ident) to person
+                                PdlIdent(it.ident) to PdlPerson(
+                                    navn = person.navn.tilNavn(),
+                                    foedselsdato = person.foedselsdato.tilFoedselsdato(),
+                                    gradering = person.adressebeskyttelse.tilGradering(),
+                                )
                             }
 
                             else -> {
@@ -67,6 +70,12 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
     }
 }
 
+data class PdlPerson(
+    val navn: String?,
+    val gradering: PdlGradering,
+    val foedselsdato: LocalDate?,
+)
+
 @Serializable
 data class HentPersonBolkResponse(
     val hentPersonBolk: List<PersonBolkResponseEntry>,
@@ -76,18 +85,6 @@ data class HentPersonBolkResponse(
         val navn: List<PdlNavn>,
         val adressebeskyttelse: List<Adressebeskyttelse>,
         val foedselsdato: List<Foedselsdato>,
-    )
-
-    @Serializable
-    data class Adressebeskyttelse(
-        val gradering: PdlGradering = PdlGradering.UGRADERT,
-    )
-
-    @Serializable
-    data class Foedselsdato(
-        val foedselsaar: Int,
-        @Serializable(with = LocalDateSerializer::class)
-        val foedselsdato: LocalDate?,
     )
 
     @Serializable

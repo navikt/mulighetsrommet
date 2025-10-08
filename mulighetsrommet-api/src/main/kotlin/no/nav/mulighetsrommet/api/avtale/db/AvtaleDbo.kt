@@ -12,7 +12,6 @@ data class AvtaleDbo(
     val id: UUID,
     val navn: String,
     val tiltakstypeId: UUID,
-    val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     val arrangor: Arrangor?,
     val startDato: LocalDate,

@@ -1,8 +1,8 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
-import { ProblemDetail } from "@mr/api-client-v2";
 import {
   BesluttTotrinnskontrollRequestTilsagnStatusAarsak,
+  ProblemDetail,
   TilsagnService,
 } from "@tiltaksadministrasjon/api-client";
 

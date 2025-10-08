@@ -1,5 +1,5 @@
-import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
+  FieldError,
   OpprettDelutbetalingerRequest,
   TilsagnType,
   Tilskuddstype,
@@ -52,7 +52,7 @@ export function RedigerUtbetalingLinjeView({
 
     opprettMutation.mutate(payload, {
       onSuccess: oppdaterLinjer,
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+      onValidationError: (error: ValidationError) => {
         setErrors(error.errors);
       },
     });

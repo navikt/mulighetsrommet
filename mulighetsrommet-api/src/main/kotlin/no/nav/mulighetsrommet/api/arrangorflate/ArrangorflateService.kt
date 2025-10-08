@@ -1,19 +1,22 @@
 package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
+import arrow.core.getOrElse
+import io.ktor.http.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.*
-import no.nav.mulighetsrommet.api.utbetaling.Person
-import no.nav.mulighetsrommet.api.utbetaling.PersonService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,7 +32,7 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 
 class ArrangorflateService(
     private val db: ApiDatabase,
-    private val personService: PersonService,
+    private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
@@ -100,32 +103,7 @@ class ArrangorflateService(
             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
-        return getRelevanteForslag(utbetaling) +
-            getFeilSluttDato(deltakere, LocalDate.now()) +
-            getOverlappendePerioder(deltakere, utbetaling.periode)
-    }
-
-    fun getOverlappendePerioder(
-        deltakere: List<Deltaker>,
-        utbetalingPeriode: Periode,
-    ): List<DeltakerAdvarsel.OverlappendePeriode> {
-        val deltakerPerioder = deltakere.mapNotNull { deltaker ->
-            deltaker.norskIdent?.let {
-                DeltakerOgPeriode(
-                    deltaker.id,
-                    deltaker.norskIdent,
-                    Periode.fromInclusiveDates(
-                        deltaker.startDato ?: utbetalingPeriode.start,
-                        deltaker.sluttDato ?: utbetalingPeriode.getLastInclusiveDate(),
-                    ),
-                )
-            }
-        }
-        return deltakerPerioder
-            .mapNotNull { deltakerOgPeriode ->
-                DeltakerAdvarsel.OverlappendePeriode(deltakerOgPeriode.id)
-                    .takeIf { _ -> harOverlappendePeriode(deltakerOgPeriode, deltakerPerioder) }
-            }
+        return getRelevanteForslag(utbetaling) + getFeilSluttDato(deltakere, LocalDate.now())
     }
 
     fun getFeilSluttDato(deltakere: List<Deltaker>, today: LocalDate): List<DeltakerAdvarsel.FeilSluttDato> {
@@ -168,18 +146,15 @@ class ArrangorflateService(
                 .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
         }
 
-        val personerByNorskIdent = personService.getPersoner(deltakere.mapNotNull { it.norskIdent })
-            .associateBy { it.norskIdent }
-        val deltakerPersoner: Map<UUID, Pair<Deltaker, Person?>> = deltakere
-            .associateBy { it.id }
-            .mapValues { it.value to it.value.norskIdent?.let { personerByNorskIdent.getValue(it) } }
-
+        val personalia = getPersonalia(deltakere.map { it.id })
         val advarsler = getAdvarsler(utbetaling)
         val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
+
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
             status = status,
-            deltakerPersoner = deltakerPersoner,
+            deltakereById = deltakere.associateBy { it.id },
+            personaliaById = personalia,
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
@@ -235,6 +210,17 @@ class ArrangorflateService(
                 kontonummer = kontonummer,
             )
         }
+    }
+
+    private suspend fun getPersonalia(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonalia> {
+        return amtDeltakerClient.hentPersonalia(deltakerIds)
+            .getOrElse {
+                throw StatusException(
+                    status = HttpStatusCode.InternalServerError,
+                    detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
+                )
+            }
+            .associateBy { it.deltakerId }
     }
 }
 

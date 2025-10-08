@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
@@ -14,7 +15,6 @@ object AvtaleFixtures {
     val oppfolging = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
-        avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -43,7 +43,6 @@ object AvtaleFixtures {
     val oppfolgingMedAvtale = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
-        avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -72,7 +71,6 @@ object AvtaleFixtures {
     val gruppeAmo = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
-        avtalenummer = "2024#8",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -101,7 +99,6 @@ object AvtaleFixtures {
     val gruppeFagYrke = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
-        avtalenummer = "2024#8",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -130,7 +127,6 @@ object AvtaleFixtures {
     val VTA = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn for VTA",
-        avtalenummer = "2024#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -159,7 +155,6 @@ object AvtaleFixtures {
     val AFT = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn for AFT",
-        avtalenummer = "2024#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -188,7 +183,6 @@ object AvtaleFixtures {
     val EnkelAmo = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn for EnkelAmo",
-        avtalenummer = "2024#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -217,7 +211,6 @@ object AvtaleFixtures {
     val jobbklubb = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Jobbklubb avtale",
-        avtalenummer = "2023#13",
         sakarkivNummer = SakarkivNummer("24/3234"),
         tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
         arrangor = AvtaleDbo.Arrangor(
@@ -246,7 +239,6 @@ object AvtaleFixtures {
     val avtaleRequest = AvtaleRequest(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
-        avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
         arrangor = null,
@@ -257,8 +249,10 @@ object AvtaleFixtures {
         navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
         beskrivelse = null,
         faneinnhold = null,
-        personopplysninger = emptyList(),
-        personvernBekreftet = false,
+        personvern = PersonvernRequest(
+            personopplysninger = emptyList(),
+            personvernBekreftet = false,
+        ),
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(
             opsjonMaksVarighet = LocalDate.now().plusYears(5),
@@ -279,7 +273,6 @@ object AvtaleFixtures {
     val ARR = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "ARR avtale",
-        avtalenummer = "2023#13",
         sakarkivNummer = SakarkivNummer("24/3234"),
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
         arrangor = AvtaleDbo.Arrangor(

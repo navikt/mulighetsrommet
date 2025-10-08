@@ -29,10 +29,13 @@ const fyllInnGjennomforing = async (page: Page) => {
   await page.click("input#navRegioner");
   await page.keyboard.press("Enter");
 
+  await page.click("input#navKontorer");
+  await page.keyboard.press("Enter");
+
   await page.click("button[type=submit]");
 
   await page.waitForResponse(
-    (response) => response.url().includes("/intern/gjennomforinger") && response.status() === 200,
+    (response) => response.url().includes("/gjennomforinger") && response.status() === 200,
   );
 };
 

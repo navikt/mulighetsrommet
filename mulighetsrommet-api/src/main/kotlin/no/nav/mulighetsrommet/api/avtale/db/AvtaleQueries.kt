@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
+import PersonvernDbo
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -34,7 +35,6 @@ class AvtaleQueries(private val session: Session) {
                 id,
                 navn,
                 tiltakstype_id,
-                avtalenummer,
                 sakarkiv_nummer,
                 arrangor_hovedenhet_id,
                 start_dato,
@@ -43,7 +43,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
-                opphav,
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
@@ -54,7 +53,6 @@ class AvtaleQueries(private val session: Session) {
                 :id::uuid,
                 :navn,
                 :tiltakstype_id::uuid,
-                :avtalenummer,
                 :sakarkiv_nummer,
                 :arrangor_hovedenhet_id,
                 :start_dato,
@@ -63,7 +61,6 @@ class AvtaleQueries(private val session: Session) {
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
-                :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
@@ -73,7 +70,6 @@ class AvtaleQueries(private val session: Session) {
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
-                avtalenummer                = excluded.avtalenummer,
                 sakarkiv_nummer             = excluded.sakarkiv_nummer,
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
@@ -82,7 +78,6 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
-                opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
@@ -144,19 +139,6 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertPersonopplysninger = """
-            insert into avtale_personopplysning (avtale_id, personopplysning)
-            values (?::uuid, ?::personopplysning)
-            on conflict do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deletePersonopplysninger = """
-            delete from avtale_personopplysning
-            where avtale_id = ?::uuid and not (personopplysning = any (?))
-        """.trimIndent()
-
-        @Language("PostgreSQL")
         val deleteUtdanningslop = """
             delete from avtale_utdanningsprogram
             where avtale_id = ?::uuid
@@ -196,18 +178,6 @@ class AvtaleQueries(private val session: Session) {
             ),
         )
 
-        batchPreparedStatement(
-            upsertPersonopplysninger,
-            avtale.personopplysninger.map { listOf<Any>(avtale.id, it.name) },
-        )
-        execute(
-            queryOf(
-                deletePersonopplysninger,
-                avtale.id,
-                createArrayOfPersonopplysning(avtale.personopplysninger),
-            ),
-        )
-
         AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtale.id, avtale.amoKategorisering)
 
         execute(queryOf(deleteUtdanningslop, avtale.id))
@@ -224,6 +194,53 @@ class AvtaleQueries(private val session: Session) {
         }
 
         upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
+        upsertPersonopplysninger(avtale.id, avtale.personopplysninger)
+    }
+
+    fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val updatePersonvernBekreftet = """
+                update avtale
+                set
+                    personvern_bekreftet = :personvern_bekreftet::boolean
+                 where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                updatePersonvernBekreftet,
+                mapOf("id" to avtaleId, "personvern_bekreftet" to personvernDbo.personvernBekreftet),
+            ),
+        )
+        upsertPersonopplysninger(avtaleId, personvernDbo.personopplysninger)
+    }
+
+    fun upsertPersonopplysninger(id: UUID, personopplysninger: List<Personopplysning>) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val updatePersonopplysninger = """
+                insert into avtale_personopplysning (avtale_id, personopplysning)
+                values (?::uuid, ?::personopplysning)
+                on conflict do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deletePersonopplysninger = """
+                delete from avtale_personopplysning
+                where avtale_id = ?::uuid and not (personopplysning = any (?))
+        """.trimIndent()
+
+        session.batchPreparedStatement(
+            updatePersonopplysninger,
+            personopplysninger.map { listOf<Any>(id, it.name) },
+        )
+
+        session.execute(
+            queryOf(
+                deletePersonopplysninger,
+                id,
+                session.createArrayOfPersonopplysning(personopplysninger),
+            ),
+        )
     }
 
     fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
@@ -277,6 +294,22 @@ class AvtaleQueries(private val session: Session) {
                     "sats" to it.sats,
                 )
             },
+        )
+    }
+
+    fun upsertAvtalenummer(id: UUID, avtalenummer: String) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val updateAvtalenummer = """
+                update avtale
+                set avtalenummer = :avtalenummer
+                where id = :id::uuid
+        """.trimIndent()
+
+        execute(
+            queryOf(
+                updateAvtalenummer,
+                mapOf("id" to id, "avtalenummer" to avtalenummer),
+            ),
         )
     }
 
@@ -499,7 +532,6 @@ class AvtaleQueries(private val session: Session) {
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
-        "avtalenummer" to avtalenummer,
         "sakarkiv_nummer" to sakarkivNummer?.value,
         "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
         "start_dato" to startDato,

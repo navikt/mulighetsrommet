@@ -19,7 +19,6 @@ import {
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { AvtaleDto, Rolle, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
@@ -28,7 +27,7 @@ import { useCallback, useState } from "react";
 import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
-import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
+import { mapNameToSchemaPropertyName, toAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 
@@ -84,7 +83,7 @@ export function NewAvtaleFormPage() {
   });
 
   const handleValidationError = useCallback(
-    (validation: ValidationError | LegacyValidationError) => {
+    (validation: ValidationError) => {
       validation.errors.forEach((error) => {
         const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
         methods.setError(name, { type: "custom", message: error.detail });
@@ -94,11 +93,8 @@ export function NewAvtaleFormPage() {
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    onSubmitAvtaleForm({
-      avtale: undefined,
-      data,
-      mutation,
-      onValidationError: (error: ValidationError | LegacyValidationError) => {
+    mutation.mutate(toAvtaleRequest({ data: data }), {
+      onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
       onSuccess: (dto: { data: AvtaleDto }) => {
@@ -129,7 +125,7 @@ export function NewAvtaleFormPage() {
     } else {
       const result = avtaleFormSchema.safeParse(mergedData);
       if (result.success) {
-        onSubmit(result.data);
+        await onSubmit(result.data);
       } else
         result.error.issues.forEach((err) => {
           methods.setError(err.path.join("."), {

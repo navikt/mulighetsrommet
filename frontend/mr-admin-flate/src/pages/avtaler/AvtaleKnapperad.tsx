@@ -6,11 +6,12 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { FieldError, Opphav, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import {
+  ArenaMigreringOpphav,
   AvbrytAvtaleAarsak,
   AvtaleDto,
   AvtaleHandling,
+  FieldError,
   Rolle,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
@@ -43,7 +44,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
     navigate(`/avtaler/skjema`, {
       state: {
         dupliserAvtale: {
-          opphav: Opphav.TILTAKSADMINISTRASJON,
+          opphav: ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
           beskrivelse: avtale.beskrivelse,
@@ -65,7 +66,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
         onSuccess: () => {
           setAvbrytModalOpen(false);
         },
-        onValidationError: (error: ValidationError | LegacyValidationError) => {
+        onValidationError: (error: ValidationError) => {
           setAvbrytModalErrors(error.errors);
         },
       },

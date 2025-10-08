@@ -228,7 +228,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
     section("Deltakerperioder") {
         table {
             column("Navn")
-            column("Fødselsdato", TableBlock.Table.Column.Align.RIGHT)
+            column("Fnr", TableBlock.Table.Column.Align.RIGHT)
             column("Startdato i perioden", TableBlock.Table.Column.Align.RIGHT)
             column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
             column("Deltakelsesprosent", TableBlock.Table.Column.Align.RIGHT)
@@ -237,10 +237,10 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
                 deltakelse.perioderMedDeltakelsesmengde.forEach { (periode, prosent) ->
                     row(
                         TableBlock.Table.Cell(
-                            deltakelse.person?.navn,
+                            deltakelse.personalia?.navn,
                         ),
                         TableBlock.Table.Cell(
-                            deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                            deltakelse.personalia?.norskIdent?.value,
                         ),
                         TableBlock.Table.Cell(
                             periode.start.formaterDatoTilEuropeiskDatoformat(),
@@ -265,17 +265,17 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
     section("Deltakerperioder") {
         table {
             column("Navn")
-            column("Fødselsdato", TableBlock.Table.Column.Align.RIGHT)
+            column("Fnr", TableBlock.Table.Column.Align.RIGHT)
             column("Startdato i perioden", TableBlock.Table.Column.Align.RIGHT)
             column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
                 row(
                     TableBlock.Table.Cell(
-                        deltakelse.person?.navn,
+                        deltakelse.personalia?.navn,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.personalia?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
                         deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
@@ -297,16 +297,16 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     section(sectionHeader) {
         table {
             column("Navn")
-            column("Fødselsdato", TableBlock.Table.Column.Align.RIGHT)
+            column("Fnr", TableBlock.Table.Column.Align.RIGHT)
             column(deltakelseFaktorColumnName, TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
                 row(
                     TableBlock.Table.Cell(
-                        deltakelse.person?.navn,
+                        deltakelse.personalia?.navn,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.person?.foedselsdato?.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.personalia?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
                         deltakelse.faktor.toString(),
