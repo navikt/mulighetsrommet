@@ -113,7 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   if (intent === "cancel") {
-    return redirect(pathByOrgnr(orgnr).utbetalinger, {
+    return redirect(pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },
