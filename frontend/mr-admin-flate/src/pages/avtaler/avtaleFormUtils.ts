@@ -1,52 +1,40 @@
-import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
-import {
-  AvtaleRequest,
-  ProblemDetail,
-  ValidationError as LegacyValidationError,
-} from "@mr/api-client-v2";
-import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { AvtaleRequest, PersonvernRequest } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export async function onSubmitAvtaleForm({
-  avtale,
-  data,
-  mutation,
-  onValidationError,
-  onSuccess,
-}: {
-  avtale?: AvtaleDto;
+export interface RequestValues {
   data: AvtaleFormValues;
-  mutation: ApiMutationResult<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest, unknown>;
-  onValidationError: (e: ValidationError | LegacyValidationError) => void;
-  onSuccess: (dto: { data: AvtaleDto }) => void;
-}) {
-  const {
-    navn,
-    startDato,
-    beskrivelse,
-    avtaletype,
-    faneinnhold,
-    personopplysninger,
-    personvernBekreftet,
-    satser,
-    administratorer,
-  } = data;
-  const requestBody: AvtaleRequest = {
-    id: avtale?.id ?? v4(),
+  id?: string;
+}
+
+export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
+  const { navn, startDato, beskrivelse, avtaletype, satser, administratorer } = data;
+  return {
+    id: id ?? v4(),
     navn,
     administratorer,
     beskrivelse,
-    faneinnhold,
-    personopplysninger,
-    personvernBekreftet,
     avtaletype,
     startDato,
     sakarkivNummer: data.sakarkivNummer || null,
     sluttDato: data.sluttDato || null,
     navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
-    avtalenummer: avtale?.avtalenummer ?? null,
+    faneinnhold: data.faneinnhold
+      ? {
+          forHvemInfoboks: data.faneinnhold.forHvemInfoboks || null,
+          forHvem: data.faneinnhold.forHvem || null,
+          detaljerOgInnholdInfoboks: data.faneinnhold.detaljerOgInnholdInfoboks || null,
+          detaljerOgInnhold: data.faneinnhold.detaljerOgInnhold || null,
+          pameldingOgVarighetInfoboks: data.faneinnhold.pameldingOgVarighetInfoboks || null,
+          pameldingOgVarighet: data.faneinnhold.pameldingOgVarighet || null,
+          kontaktinfo: data.faneinnhold.kontaktinfo || null,
+          kontaktinfoInfoboks: data.faneinnhold.kontaktinfoInfoboks || null,
+          lenker: data.faneinnhold.lenker || null,
+          oppskrift: data.faneinnhold.oppskrift || null,
+          delMedBruker: data.faneinnhold.delMedBruker || null,
+        }
+      : null,
     arrangor:
       data.arrangorHovedenhet && data.arrangorUnderenheter
         ? {
@@ -56,6 +44,7 @@ export async function onSubmitAvtaleForm({
           }
         : null,
     tiltakskode: data.tiltakskode,
+    personvern: data.personvern,
     amoKategorisering: data.amoKategorisering || null,
     opsjonsmodell: {
       type: data.opsjonsmodell.type,
@@ -69,11 +58,12 @@ export async function onSubmitAvtaleForm({
       satser,
     },
   };
+}
 
-  mutation.mutate(requestBody, {
-    onSuccess,
-    onValidationError,
-  });
+export function toPersonvernRequest({ data }: RequestValues): PersonvernRequest {
+  return {
+    ...data.personvern,
+  };
 }
 
 export function mapNameToSchemaPropertyName(name: string) {

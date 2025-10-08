@@ -1,10 +1,4 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
-import {
-  AmoKategorisering,
-  ArrangorKontaktperson,
-  Personopplysning,
-  PrismodellType,
-} from "@mr/api-client-v2";
 import z from "zod";
 import {
   arrangorSchema,
@@ -15,8 +9,15 @@ import {
 } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
-import { AvtaleDto, NavAnsattDto } from "@tiltaksadministrasjon/api-client";
-import { slateFaneinnholdToPortableText } from "../components/portableText/helper";
+import {
+  AmoKategorisering,
+  AvtaleArrangorKontaktperson,
+  AvtaleDto,
+  NavAnsattDto,
+  Personopplysning,
+  PrismodellType,
+} from "@tiltaksadministrasjon/api-client";
+import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().nullable(),
@@ -44,8 +45,10 @@ export const RedaksjoneltInnholdSchema = z.object({
 });
 
 export const PersonopplysningerSchema = z.object({
-  personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
-  personopplysninger: z.enum(Personopplysning).array(),
+  personvern: z.object({
+    personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
+    personopplysninger: z.enum(Personopplysning).array(),
+  }),
 });
 
 export const avtaleFormSchema = avtaleDetaljerSchema
@@ -83,14 +86,16 @@ export function defaultAvtaleData(
       ? []
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
     arrangorKontaktpersoner:
-      avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
+      avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
     startDato: avtale?.startDato ?? null,
     sluttDato: avtale?.sluttDato ?? null,
     sakarkivNummer: avtale?.sakarkivNummer ?? null,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
-    personvernBekreftet: avtale?.personvernBekreftet,
-    personopplysninger: avtale?.personopplysninger ?? [],
+    personvern: {
+      personvernBekreftet: avtale?.personvernBekreftet,
+      personopplysninger: avtale?.personopplysninger ?? [],
+    },
     // TODO: fiks typer
     amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
     opsjonsmodell: {

@@ -5,7 +5,6 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { FieldError, ValidationError as LegacyValidationError } from "@mr/api-client-v2";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
@@ -20,6 +19,7 @@ import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing
 import {
   ArenaMigreringOpphav,
   AvbrytGjennomforingAarsak,
+  FieldError,
   GjennomforingDto,
   GjennomforingHandling,
   NavAnsattDto,
@@ -74,7 +74,7 @@ export function GjennomforingKnapperad({ ansatt, gjennomforing }: Props) {
         onSuccess: () => {
           setAvbrytModalOpen(false);
         },
-        onValidationError: (error: ValidationError | LegacyValidationError) => {
+        onValidationError: (error: ValidationError) => {
           setAvbrytModalErrors(error.errors);
         },
       },

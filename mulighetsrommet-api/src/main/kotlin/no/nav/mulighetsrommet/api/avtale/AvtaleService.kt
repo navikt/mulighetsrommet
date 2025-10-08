@@ -11,8 +11,10 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
+import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -63,6 +65,28 @@ class AvtaleService(
                 "Redigerte avtale"
             }
             logEndring(operation, dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    fun upsertPersonvern(
+        avtaleId: UUID,
+        request: PersonvernRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId)
+            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        val dbo = request.toDbo()
+
+        db.transaction {
+            queries.avtale.updatePersonvern(previous.id, dbo)
+
+            val dto = getOrError(previous.id)
+            logEndring("Redigerte avtale", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 

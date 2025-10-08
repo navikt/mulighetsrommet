@@ -10,4 +10,7 @@ class DatoUtilsTest : FunSpec({
         val dato = LocalDate.of(2021, 1, 1)
         dato.formaterDatoTilEuropeiskDatoformat() shouldBe "01.01.2021"
     }
+
+    test("fasaf") {
+    }
 })

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.api
 import arrow.core.flatMap
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.patch
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
@@ -47,7 +48,6 @@ data class AvtaleRequest(
     val navn: String,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor?,
-    val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
@@ -58,8 +58,7 @@ data class AvtaleRequest(
     val navEnheter: List<NavEnhetNummer>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
+    val personvern: PersonvernRequest,
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
@@ -75,6 +74,12 @@ data class AvtaleRequest(
             >,
     )
 }
+
+@Serializable
+data class PersonvernRequest(
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
+)
 
 @Serializable
 data class OpprettOpsjonLoggRequest(
@@ -95,7 +100,26 @@ fun Route.avtaleRoutes() {
 
     route("avtaler") {
         authorize(Rolle.AVTALER_SKRIV) {
-            put {
+            put({
+                tags = setOf("Avtale")
+                operationId = "upsertAvtale"
+                request {
+                    body<AvtaleRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Avtalen ble upsertet"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
                 val navIdent = getNavIdent()
                 val request = call.receive<AvtaleRequest>()
 
@@ -174,6 +198,38 @@ fun Route.avtaleRoutes() {
 
                     call.respondWithStatusResponse(result)
                 }
+            }
+            patch("{id}/personvern", {
+                tags = setOf("Avtale")
+                operationId = "upsertPersonvern"
+                request {
+                    pathParameterUuid("id")
+                    body<PersonvernRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert personvern"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val navIdent = getNavIdent()
+                val id: UUID by call.parameters
+                val request = call.receive<PersonvernRequest>()
+
+                val result = avtaler.upsertPersonvern(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
+
+                call.respondWithStatusResponse(result)
             }
 
             put("{id}/avbryt", {

@@ -6,7 +6,6 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -247,6 +246,17 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
 
+    fun getAndAquireLock(id: UUID): Utbetaling {
+        @Language("PostgreSQL")
+        val query = """
+            select id from utbetaling where id = ?::uuid for update
+        """.trimIndent()
+
+        session.execute(queryOf(query, id))
+
+        return getOrError(id)
+    }
+
     fun setStatus(id: UUID, status: UtbetalingStatusType) {
         @Language("PostgreSQL")
         val query = """
@@ -314,26 +324,6 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "begrunnelse" to begrunnelse)))
-    }
-
-    fun setAvbrutt(id: UUID, tidspunkt: LocalDateTime, aarsaker: List<String>, forklaring: String?) {
-        @Language("PostgreSQL")
-        val query = """
-            update utbetaling set
-                status = 'AVBRUTT',
-                avbrutt_aarsaker = :aarsaker,
-                avbrutt_forklaring = :forklaring,
-                avbrutt_tidspunkt = :tidspunkt
-            where id = :id::uuid
-        """.trimIndent()
-        val params = mapOf(
-            "id" to id,
-            "tidspunkt" to tidspunkt,
-            "aarsaker" to aarsaker.let { session.createTextArray(it) },
-            "forklaring" to forklaring,
-        )
-
-        session.execute(queryOf(query, params))
     }
 
     fun getOrError(id: UUID): Utbetaling {

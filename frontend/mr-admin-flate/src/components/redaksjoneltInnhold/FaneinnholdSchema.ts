@@ -22,6 +22,7 @@ export const FaneinnholdSchema = z.object(
     kontaktinfo: z.any().nullish(),
     kontaktinfoInfoboks: z.string().nullish(),
     lenker: FaneinnholdLenkerSchema,
+    oppskrift: z.any().nullish(),
     delMedBruker: z.string().nullish(),
   },
   { error: "Det redaksjonelle innholdet må settes på avtalen" },
