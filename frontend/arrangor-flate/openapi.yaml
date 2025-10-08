@@ -191,13 +191,6 @@ paths:
         explode: false
         schema:
           type: string
-      - name: tilskudsstype
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          $ref: "#/components/schemas/Tilskuddstype"
       responses:
         "200":
           description: Innsendingsdetaljer
@@ -937,11 +930,6 @@ components:
       required:
       - aktive
       - historiske
-    Tilskuddstype:
-      type: string
-      enum:
-      - TILTAK_DRIFTSTILSKUDD
-      - TILTAK_INVESTERINGER
     Definition:
       type: object
       properties:
@@ -1085,8 +1073,15 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+        periodeForslag:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/Periode"
       required:
       - definisjonsListe
+      - periodeForslag
       - tilsagn
     ArrangorflateUtbetalingKompaktDto:
       type: object
@@ -1169,6 +1164,11 @@ components:
       required:
       - aktive
       - historiske
+    Tilskuddstype:
+      type: string
+      enum:
+      - TILTAK_DRIFTSTILSKUDD
+      - TILTAK_INVESTERINGER
     OpprettKravOmUtbetalingRequest:
       type: object
       properties:

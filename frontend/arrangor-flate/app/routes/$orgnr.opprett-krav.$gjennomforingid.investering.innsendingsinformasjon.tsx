@@ -80,7 +80,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const [{ data: innsendingsinformasjon, error: innsendingsinformasjonError }] = await Promise.all([
     ArrangorflateService.getOpprettKravInnsendingsinformasjon({
       path: { orgnr, gjennomforingId },
-      query: { tilskudsstype: Tilskuddstype.TILTAK_INVESTERINGER },
       headers: await apiHeaders(request),
     }),
   ]);

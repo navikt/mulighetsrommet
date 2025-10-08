@@ -55,6 +55,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
+import java.time.YearMonth
 import java.util.*
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
@@ -301,8 +302,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
                 requireTilgangHosArrangor(orgnr)
                 val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-                val tilskuddstype = call.parameters["tilskuddstype"]?.let { Tilskuddstype.valueOf(it) }
-                    ?: Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
                 val gjennomforing = requireNotNull(
                     db.session {
@@ -321,10 +320,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     Definition("Tiltakstype", gjennomforing.tiltakstype.navn),
                 )
 
-                val tilsagnsTyper = if (tilskuddstype == Tilskuddstype.TILTAK_DRIFTSTILSKUDD) {
-                    listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
-                } else {
+                val tilsagnsTyper = if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                     listOf(TilsagnType.INVESTERING)
+                } else {
+                    listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
                 }
                 val tilsagn = arrangorFlateService.getTilsagn(
                     ArrangorflateTilsagnFilter(
@@ -334,7 +333,19 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     ),
                     orgnr,
                 )
-                call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn))
+
+                val suggestedPeriods = if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in config.okonomi.gyldigTilsagnPeriode) {
+                    val tilsagnPeriode = config.okonomi.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
+
+                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
+
+                    Periode(start = maxOf(tilsagnPeriode.start, gjennomforing.startDato), slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth)).splitByMonth()
+                    // TODO: filtrer vekk perioder med registrerte utbetalinger.
+                    // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
+                } else {
+                    null
+                }
+                call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, suggestedPeriods))
             }
         }
 
@@ -991,6 +1002,7 @@ private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforin
 data class OpprettKravInnsendingsInformasjon(
     val definisjonsListe: List<Definition>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
+    val periodeForslag: List<Periode>?,
 )
 
 @Serializable

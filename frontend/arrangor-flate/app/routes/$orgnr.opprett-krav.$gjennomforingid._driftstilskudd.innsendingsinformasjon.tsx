@@ -10,6 +10,7 @@ import {
   HStack,
   Label,
   Link,
+  Select,
   useRangeDatepicker,
   VStack,
 } from "@navikt/ds-react";
@@ -17,9 +18,10 @@ import {
   ArrangorflateService,
   FieldError,
   OpprettKravInnsendingsInformasjon,
+  Periode,
   Tilskuddstype,
 } from "api-client";
-import { useEffect, useRef } from "react";
+import { ReactEventHandler, SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
   Form,
@@ -35,7 +37,12 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import {
+  formaterPeriode,
+  inBetweenInclusive,
+  parseDate,
+  yyyyMMddFormatting,
+} from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 
@@ -79,7 +86,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const [{ data: innsendingsinformasjon, error: innsendingsinformasjonError }] = await Promise.all([
     ArrangorflateService.getOpprettKravInnsendingsinformasjon({
       path: { orgnr, gjennomforingId },
-      query: { tilskudsstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD },
       headers: await apiHeaders(request),
     }),
   ]);
@@ -161,26 +167,32 @@ export default function OpprettKravInnsendingsinformasjon() {
     useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const [valgtPeriode, setValgtPeriode] = useState<Periode | undefined>(() => {
+    if (sessionPeriodeStart && sessionPeriodeSlutt) {
+      return { start: sessionPeriodeStart, slutt: sessionPeriodeSlutt };
+    }
+    return undefined;
+  });
 
   const hasError = data?.errors && data.errors.length > 0;
+
+  const relevanteTilsagn = useMemo(() => {
+    if (!valgtPeriode) {
+      return [];
+    }
+    return innsendingsinformasjon.tilsagn.filter((tilsagn) =>
+      inBetweenInclusive(valgtPeriode.start, {
+        from: tilsagn.periode.start,
+        to: tilsagn.periode.slutt,
+      }),
+    );
+  }, [innsendingsinformasjon.tilsagn, valgtPeriode]);
 
   useEffect(() => {
     if (hasError) {
       errorSummaryRef.current?.focus();
     }
   }, [data, hasError]);
-
-  const {
-    datepickerProps,
-    fromInputProps: periodeStartInputProps,
-    toInputProps: periodeSluttInputProps,
-    selectedRange: valgtPeriode,
-  } = useRangeDatepicker({
-    defaultSelected: {
-      from: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
-      to: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
-    },
-  });
 
   return (
     <>
@@ -210,46 +222,26 @@ export default function OpprettKravInnsendingsinformasjon() {
               <BodyShort textColor="subtle" size="small">
                 Hvilken periode gjelder kravet for?
               </BodyShort>
-              <HStack gap="4">
-                <DatePicker {...datepickerProps} dropdownCaption id="periodeStartDatepicker">
-                  <HStack wrap gap="4" justify="center">
-                    <DatePicker.Input
-                      {...periodeStartInputProps}
-                      label="Fra dato"
-                      size="small"
-                      error={errorAt("/periodeStart", data?.errors)}
-                      name="periodeStart"
-                      id="periodeStart"
-                    />
-                    <DatePicker.Input
-                      {...periodeSluttInputProps}
-                      label="Til dato"
-                      size="small"
-                      error={errorAt("/periodeSlutt", data?.errors)}
-                      name="periodeSlutt"
-                      id="periodeSlutt"
-                    />
-                  </HStack>
-                </DatePicker>
-              </HStack>
+              <DatoVelger
+                onPeriodeSelected={setValgtPeriode}
+                periodeForslag={innsendingsinformasjon.periodeForslag}
+                sessionPeriodeStart={parseDate(sessionPeriodeStart)}
+                sessionPeriodeSlutt={parseDate(sessionPeriodeSlutt)}
+              />
             </VStack>
-            {valgtPeriode?.from && valgtPeriode.to && (
+            {valgtPeriode && (
               <>
                 <Heading level="3" size="small">
                   Tilgjengelige tilsagn
                 </Heading>
-                {innsendingsinformasjon.tilsagn.length < 1 ? (
+                {relevanteTilsagn.length < 1 ? (
                   <Alert variant="warning">
                     Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
                   </Alert>
                 ) : (
                   <>
-                    <input
-                      type="hidden"
-                      name="tilsagnId"
-                      value={innsendingsinformasjon.tilsagn[0].id}
-                    />
-                    {innsendingsinformasjon.tilsagn.map((tilsagn) => (
+                    <input type="hidden" name="tilsagnId" value={relevanteTilsagn[0].id} />
+                    {relevanteTilsagn.map((tilsagn) => (
                       <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
                     ))}
                   </>
@@ -282,5 +274,134 @@ export default function OpprettKravInnsendingsinformasjon() {
         </VStack>
       </Form>
     </>
+  );
+}
+
+interface DatoVelgerProps {
+  onPeriodeSelected: (periode?: Periode) => void;
+  periodeForslag: Array<Periode> | null;
+  sessionPeriodeStart?: Date;
+  sessionPeriodeSlutt?: Date;
+  errors?: FieldError[];
+}
+
+function DatoVelger({
+  onPeriodeSelected,
+  periodeForslag,
+  sessionPeriodeStart,
+  sessionPeriodeSlutt,
+  errors,
+}: DatoVelgerProps) {
+  if (periodeForslag) {
+    return <PeriodeSelect periodeForslag={periodeForslag} onPeriodeSelected={onPeriodeSelected} />;
+  }
+  return (
+    <PeriodeVelger
+      onPeriodeSelected={onPeriodeSelected}
+      sessionPeriodeStart={sessionPeriodeStart}
+      sessionPeriodeSlutt={sessionPeriodeSlutt}
+      errors={errors}
+    />
+  );
+}
+
+interface PeriodeSelectProps {
+  onPeriodeSelected: (periode?: Periode) => void;
+  periodeForslag: Array<Periode>;
+}
+function PeriodeSelect({ onPeriodeSelected, periodeForslag }: PeriodeSelectProps) {
+  const startRef = useRef<HTMLInputElement>(null);
+  const sluttRef = useRef<HTMLInputElement>(null);
+
+  function onChange(e: SyntheticEvent<HTMLSelectElement, Event>) {
+    const selectedValue = (e.target as HTMLSelectElement).value;
+    if (!selectedValue) {
+      startRef.current!.value = "";
+      sluttRef.current!.value = "";
+      onPeriodeSelected();
+      return;
+    }
+    const selectedPeriode = periodeForslag[Number(selectedValue)];
+    startRef.current!.value = selectedPeriode.start;
+    sluttRef.current!.value = selectedPeriode.slutt;
+    onPeriodeSelected(selectedPeriode);
+  }
+  return (
+    <HStack gap="4">
+      <input ref={startRef} name="periodeStart" hidden />
+      <input ref={sluttRef} name="periodeSlutt" hidden />
+      <Select
+        hideLabel
+        label="Hvilken periode gjelder kravet for?"
+        size="small"
+        name="periode"
+        onChange={onChange}
+      >
+        <option value="">Velg periode</option>
+        {periodeForslag.map((periode, index) => (
+          <option key={periode.start} value={index}>
+            {formaterPeriode(periode)}
+          </option>
+        ))}
+      </Select>
+    </HStack>
+  );
+}
+
+interface PeriodeVelgerProps {
+  onPeriodeSelected: (periode?: Periode) => void;
+  sessionPeriodeStart?: Date;
+  sessionPeriodeSlutt?: Date;
+  errors?: FieldError[];
+}
+
+function PeriodeVelger({
+  onPeriodeSelected,
+  sessionPeriodeStart,
+  sessionPeriodeSlutt,
+  errors,
+}: PeriodeVelgerProps) {
+  const {
+    datepickerProps,
+    fromInputProps: periodeStartInputProps,
+    toInputProps: periodeSluttInputProps,
+  } = useRangeDatepicker({
+    defaultSelected: {
+      from: sessionPeriodeStart,
+      to: sessionPeriodeSlutt,
+    },
+    onRangeChange: (dateRange) => {
+      if (dateRange?.from && dateRange.to) {
+        return onPeriodeSelected({
+          start: dateRange.from.toISOString(),
+          slutt: dateRange.to.toISOString(),
+        });
+      }
+      return onPeriodeSelected();
+    },
+  });
+  return (
+    <HStack gap="4">
+      <DatePicker {...datepickerProps} dropdownCaption id="periodeStartDatepicker">
+        <HStack wrap gap="4" justify="center">
+          <DatePicker.Input
+            {...periodeStartInputProps}
+            label="Fra dato"
+            size="small"
+            error={errorAt("/periodeStart", errors)}
+            name="periodeStart"
+            id="periodeStart"
+          />
+          <DatePicker.Input
+            {...periodeSluttInputProps}
+            label="Til dato"
+            size="small"
+            error={errorAt("/periodeSlutt", errors)}
+            name="periodeSlutt"
+            id="periodeSlutt"
+          />
+        </HStack>
+      </DatePicker>
+    </HStack>
   );
 }

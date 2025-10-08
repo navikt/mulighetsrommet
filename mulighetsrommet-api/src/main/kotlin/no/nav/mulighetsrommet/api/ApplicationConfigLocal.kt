@@ -335,8 +335,8 @@ val ApplicationConfigLocal = AppConfig(
         },
         opprettKravPeriode = mapOf(
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
-            PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
