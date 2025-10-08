@@ -21,7 +21,7 @@ import {
   Periode,
   Tilskuddstype,
 } from "api-client";
-import { ReactEventHandler, SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
   Form,
