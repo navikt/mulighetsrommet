@@ -244,6 +244,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
 
         route("/gjennomforing/{gjennomforingId}") {
+
             get({
                 description = "Hent gjennomføring til arrangør"
                 tags = setOf("Arrangorflate")
@@ -283,72 +284,133 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 call.respond(toArrangorflateGjennomforing((gjennomforing)))
             }
 
-            get("/innsendingsinformasjon", {
-                description = "Hent innsendingsinformasjon"
-                tags = setOf("Arrangorflate")
-                operationId = "getOpprettKravInnsendingsinformasjon"
-                request {
-                    pathParameter<Organisasjonsnummer>("orgnr")
-                    pathParameter<String>("gjennomforingId")
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Innsendingsdetaljer"
-                        body<OpprettKravInnsendingsInformasjon>()
+            route("/opprett-krav") {
+                get({
+                    description = "Hent veiviser informasjon"
+                    tags = setOf("Arrangorflate")
+                    operationId = "getOpprettKravVeiviser"
+                    request {
+                        pathParameter<Organisasjonsnummer>("orgnr")
+                        pathParameter<String>("gjennomforingId")
                     }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Veiviser metadata (steg)"
+                            body<OpprettKravVeiviserMeta>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
                     }
+                }) {
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                    requireTilgangHosArrangor(orgnr)
+                    val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+
+                    val gjennomforing = requireNotNull(
+                        db.session {
+                            queries.gjennomforing
+                                .get(
+                                    id = gjennomforingId,
+                                )
+                        },
+                    )
+                    if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
+                        throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
+                    }
+
+                    val stegListe = mutableListOf(
+                        OpprettKravVeiviserSteg.INFORMASJON,
+                        OpprettKravVeiviserSteg.UTBETALING,
+                        OpprettKravVeiviserSteg.VEDLEGG,
+                        OpprettKravVeiviserSteg.OPPSUMMERING,
+                    )
+
+                    if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
+                        stegListe.add(OpprettKravVeiviserSteg.DELTAKERLISTE)
+                    }
+                    stegListe.sortBy { it.order }
+                    call.respond(OpprettKravVeiviserMeta(stegListe.map { it.toDto() }))
                 }
-            }) {
-                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                requireTilgangHosArrangor(orgnr)
-                val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-                val gjennomforing = requireNotNull(
-                    db.session {
-                        queries.gjennomforing
-                            .get(
-                                id = gjennomforingId,
-                            )
-                    },
-                )
-                val definisjonsliste = listOf(
-                    Definition(
-                        "Arrangør",
-                        "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
-                    ),
-                    Definition("Tiltaksnavn", gjennomforing.navn),
-                    Definition("Tiltakstype", gjennomforing.tiltakstype.navn),
-                )
+                get("/innsendingsinformasjon", {
+                    description = "Hent innsendingsinformasjon"
+                    tags = setOf("Arrangorflate")
+                    operationId = "getOpprettKravInnsendingsinformasjon"
+                    request {
+                        pathParameter<Organisasjonsnummer>("orgnr")
+                        pathParameter<String>("gjennomforingId")
+                    }
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Innsendingsdetaljer"
+                            body<OpprettKravInnsendingsInformasjon>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                }) {
+                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                    requireTilgangHosArrangor(orgnr)
+                    val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-                val tilsagnsTyper = if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                    listOf(TilsagnType.INVESTERING)
-                } else {
-                    listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
+                    val gjennomforing = requireNotNull(
+                        db.session {
+                            queries.gjennomforing
+                                .get(
+                                    id = gjennomforingId,
+                                )
+                        },
+                    )
+                    if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
+                        throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
+                    }
+
+                    val definisjonsliste = listOf(
+                        Definition(
+                            "Arrangør",
+                            "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
+                        ),
+                        Definition("Tiltaksnavn", gjennomforing.navn),
+                        Definition("Tiltakstype", gjennomforing.tiltakstype.navn),
+                    )
+
+                    val tilsagnsTyper =
+                        if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                            listOf(TilsagnType.INVESTERING)
+                        } else {
+                            listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
+                        }
+                    val tilsagn = arrangorFlateService.getTilsagn(
+                        ArrangorflateTilsagnFilter(
+                            typer = tilsagnsTyper,
+                            statuser = listOf(TilsagnStatus.GODKJENT),
+                            gjennomforingId = gjennomforingId,
+                        ),
+                        orgnr,
+                    )
+
+                    val suggestedPeriods =
+                        if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in config.okonomi.gyldigTilsagnPeriode) {
+                            val tilsagnPeriode =
+                                config.okonomi.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
+
+                            val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
+
+                            Periode(
+                                start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
+                                slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth)
+                            ).splitByMonth()
+                            // TODO: filtrer vekk perioder med registrerte utbetalinger.
+                            // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
+                        } else {
+                            null
+                        }
+                    call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, suggestedPeriods))
                 }
-                val tilsagn = arrangorFlateService.getTilsagn(
-                    ArrangorflateTilsagnFilter(
-                        typer = tilsagnsTyper,
-                        statuser = listOf(TilsagnStatus.GODKJENT),
-                        gjennomforingId = gjennomforingId,
-                    ),
-                    orgnr,
-                )
-
-                val suggestedPeriods = if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in config.okonomi.gyldigTilsagnPeriode) {
-                    val tilsagnPeriode = config.okonomi.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
-
-                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
-
-                    Periode(start = maxOf(tilsagnPeriode.start, gjennomforing.startDato), slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth)).splitByMonth()
-                    // TODO: filtrer vekk perioder med registrerte utbetalinger.
-                    // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
-                } else {
-                    null
-                }
-                call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, suggestedPeriods))
             }
         }
 
@@ -995,7 +1057,7 @@ private fun toGjennomforingAction(
 ): DataElement = when (gjennomforing.tiltakstype.tiltakskode) {
     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ->
+        ->
         DataElement.Link(
             text = "Start innsending",
             href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
@@ -1008,9 +1070,30 @@ private fun toGjennomforingAction(
         )
 }
 
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
+    "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
+    "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+
+@Serializable
+data class OpprettKravVeiviserMeta(val steg: List<OpprettKravVeiviserStegDto>)
+
+@Serializable
+enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
+    INFORMASJON("Innsendingsinformasjon", 1),
+    DELTAKERLISTE("Deltakere", 2),
+    UTBETALING("Utbetalingsinformasjon", 3),
+    VEDLEGG("Vedlegg", 4),
+    OPPSUMMERING("Oppsummering", 5),
+}
+
+fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto =
+    OpprettKravVeiviserStegDto(type = this, navn = navn, order = order)
+
+@Serializable
+data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val navn: String, val order: Int) {
+}
 
 @Serializable
 data class OpprettKravInnsendingsInformasjon(

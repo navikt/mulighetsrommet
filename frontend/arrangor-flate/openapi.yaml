@@ -170,7 +170,44 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/innsendingsinformasjon:
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent veiviser informasjon
+      operationId: getOpprettKravVeiviser
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Veiviser metadata (steg)
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpprettKravVeiviserMeta"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/innsendingsinformasjon:
     get:
       tags:
       - Arrangorflate
@@ -930,6 +967,37 @@ components:
       required:
       - aktive
       - historiske
+    OpprettKravVeiviserStegDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/OpprettKravVeiviserSteg"
+        navn:
+          type: string
+        order:
+          type: integer
+          format: int32
+      required:
+      - navn
+      - order
+      - type
+    OpprettKravVeiviserSteg:
+      type: string
+      enum:
+      - INFORMASJON
+      - DELTAKERLISTE
+      - UTBETALING
+      - VEDLEGG
+      - OPPSUMMERING
+    OpprettKravVeiviserMeta:
+      type: object
+      properties:
+        steg:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
+      required:
+      - steg
     Definition:
       type: object
       properties:
