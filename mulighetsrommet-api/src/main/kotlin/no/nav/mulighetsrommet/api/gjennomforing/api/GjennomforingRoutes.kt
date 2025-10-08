@@ -18,6 +18,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -533,9 +534,12 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
             gjennomforinger.get(id)
-                ?.let { call.respond(gjennomforinger.handlinger(it, navIdent)) }
+                ?.let { gjennomforinger.handlinger(it, ansatt) }
+                ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
     }

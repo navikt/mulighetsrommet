@@ -3,16 +3,11 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tiltakstype.db.createArrayOfTiltakskode
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.database.utils.periode
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.oppgaver.OppgaveTiltakstype
 import no.nav.tiltak.okonomi.FakturaStatusType
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
@@ -266,55 +261,6 @@ class DelutbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         session.execute(queryOf(query, id))
-    }
-
-    fun getOppgaveData(
-        kostnadssteder: Set<NavEnhetNummer>?,
-        tiltakskoder: Set<Tiltakskode>?,
-    ): List<DelutbetalingOppgaveData> {
-        @Language("PostgreSQL")
-        val query = """
-            select
-                delutbetaling.id,
-                delutbetaling.tilsagn_id,
-                delutbetaling.utbetaling_id,
-                delutbetaling.status,
-                delutbetaling.belop,
-                delutbetaling.gjor_opp_tilsagn,
-                delutbetaling.periode,
-                delutbetaling.lopenummer,
-                delutbetaling.fakturanummer,
-                delutbetaling.faktura_status,
-                delutbetaling.faktura_status_sist_oppdatert,
-                tilsagn.gjennomforing_id,
-                gjennomforing.navn,
-                tiltakstype.tiltakskode,
-                tiltakstype.navn as tiltakstype_navn
-            from delutbetaling
-                inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
-                inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
-                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-            where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[])) and
-                (:kostnadssteder::text[] is null or tilsagn.kostnadssted = any(:kostnadssteder))
-        """.trimIndent()
-
-        val params = mapOf(
-            "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
-            "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
-        )
-
-        return session.list(queryOf(query, params)) {
-            DelutbetalingOppgaveData(
-                delutbetaling = it.toDelutbetalingDto(),
-                gjennomforingId = it.uuid("gjennomforing_id"),
-                gjennomforingsnavn = it.string("navn"),
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
-                    navn = it.string("tiltakstype_navn"),
-                ),
-            )
-        }
     }
 
     fun setFakturaStatus(fakturanummer: String, status: FakturaStatusType, fakturaStatusSistOppdatert: LocalDateTime?) {

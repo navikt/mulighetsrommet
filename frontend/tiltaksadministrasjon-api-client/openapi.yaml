@@ -5561,6 +5561,7 @@ components:
       enum:
       - ATTESTER
       - RETURNER
+      - SEND_TIL_ATTESTERING
     OpprettUtbetalingRequest:
       type: object
       properties:

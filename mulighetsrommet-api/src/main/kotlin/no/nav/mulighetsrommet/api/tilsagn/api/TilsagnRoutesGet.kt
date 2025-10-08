@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*
-import io.ktor.server.http.content.default
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*

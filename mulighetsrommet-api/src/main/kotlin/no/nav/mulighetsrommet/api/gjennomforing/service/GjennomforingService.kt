@@ -6,7 +6,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
@@ -347,52 +347,6 @@ class GjennomforingService(
         )
     }
 
-    fun handlinger(gjennomforing: Gjennomforing, navIdent: NavIdent): Set<GjennomforingHandling> {
-        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-            ?: throw MrExceptions.navAnsattNotFound(navIdent)
-
-        val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
-        val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
-        val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-        val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
-
-        return setOfNotNull(
-            GjennomforingHandling.PUBLISER.takeIf {
-                statusGjennomfores && skrivGjennomforing
-            },
-            GjennomforingHandling.AVBRYT.takeIf {
-                statusGjennomfores && skrivGjennomforing
-            },
-            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf {
-                statusGjennomfores && (skrivGjennomforing || oppfolgerGjennomforing)
-            },
-            GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf {
-                statusGjennomfores && (skrivGjennomforing || oppfolgerGjennomforing)
-            },
-            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf {
-                statusGjennomfores && skrivGjennomforing
-            },
-            GjennomforingHandling.DUPLISER.takeIf {
-                skrivGjennomforing
-            },
-            GjennomforingHandling.REDIGER.takeIf {
-                statusGjennomfores && skrivGjennomforing
-            },
-            GjennomforingHandling.OPPRETT_TILSAGN.takeIf {
-                saksbehandlerOkonomi
-            },
-            GjennomforingHandling.OPPRETT_EKSTRATILSAGN.takeIf {
-                saksbehandlerOkonomi
-            },
-            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
-                saksbehandlerOkonomi && gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-            },
-            GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING.takeIf {
-                saksbehandlerOkonomi
-            },
-        )
-    }
-
     private fun resolveStatus(
         previous: GjennomforingStatusType?,
         request: GjennomforingRequest,
@@ -478,5 +432,52 @@ class GjennomforingService(
         )
             .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
             .toSet()
+    }
+
+    fun handlinger(gjennomforing: Gjennomforing, ansatt: NavAnsatt): Set<GjennomforingHandling> {
+        val statusGjennomfores = gjennomforing.status is GjennomforingStatus.Gjennomfores
+
+        return setOfNotNull(
+            GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
+            GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+            GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
+            GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
+            GjennomforingHandling.REDIGER.takeIf { statusGjennomfores },
+            GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER.takeIf {
+                gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+            },
+
+            GjennomforingHandling.DUPLISER,
+            GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING,
+            GjennomforingHandling.OPPRETT_TILSAGN,
+            GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+        )
+            .filter {
+                tilgangTilHandling(it, ansatt)
+            }
+            .toSet()
+    }
+
+    companion object {
+        fun tilgangTilHandling(handling: GjennomforingHandling, ansatt: NavAnsatt): Boolean {
+            val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+            val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
+            val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+            return when (handling) {
+                GjennomforingHandling.PUBLISER -> skrivGjennomforing
+                GjennomforingHandling.AVBRYT -> skrivGjennomforing
+                GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING -> skrivGjennomforing || oppfolgerGjennomforing
+                GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR -> skrivGjennomforing || oppfolgerGjennomforing
+                GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR -> skrivGjennomforing
+                GjennomforingHandling.DUPLISER -> skrivGjennomforing
+                GjennomforingHandling.REDIGER -> skrivGjennomforing
+                GjennomforingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
+                GjennomforingHandling.OPPRETT_EKSTRATILSAGN -> saksbehandlerOkonomi
+                GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER -> saksbehandlerOkonomi
+                GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING -> saksbehandlerOkonomi
+            }
+        }
     }
 }

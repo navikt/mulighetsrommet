@@ -135,7 +135,7 @@ fun Route.utbetalingRoutes() {
 
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = utbetalingService.handlinger(utbetaling, ansatt),
+                        handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt),
                     )
                 }
                 call.respond(utbetaling)
@@ -391,12 +391,6 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
     val opprettelse = queries.totrinnskontroll
         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
-    val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
-        Rolle.ATTESTANT_UTBETALING,
-        setOf(tilsagn.kostnadssted.enhetsnummer),
-    )
-    val erSaksbehandler = navAnsatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
     return UtbetalingLinje(
         id = delutbetaling.id,
         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
@@ -404,12 +398,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = setOfNotNull(
-            UtbetalingLinjeHandling.ATTESTER.takeIf {
-                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent
-            },
-            UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
-        ),
+        handlinger = UtbetalingService.linjeHandlinger(delutbetaling, opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
     )
 }
 

@@ -13,6 +13,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
@@ -94,7 +95,7 @@ data class OpprettOpsjonLoggRequest(
 }
 
 fun Route.avtaleRoutes() {
-    val avtaler: AvtaleService by inject()
+    val avtaleService: AvtaleService by inject()
     val db: ApiDatabase by inject()
 
     route("avtaler") {
@@ -122,7 +123,7 @@ fun Route.avtaleRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<AvtaleRequest>()
 
-                val result = avtaler.upsert(request, navIdent)
+                val result = avtaleService.upsert(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
 
@@ -154,7 +155,7 @@ fun Route.avtaleRoutes() {
                     val id: UUID by call.parameters
                     val request = call.receive<OpprettOpsjonLoggRequest>()
 
-                    val result = avtaler.registrerOpsjon(id, request, getNavIdent())
+                    val result = avtaleService.registrerOpsjon(id, request, getNavIdent())
                         .mapLeft { ValidationError("Klarte ikke registrere opsjon", it) }
                         .map { HttpStatusCode.OK }
 
@@ -186,7 +187,7 @@ fun Route.avtaleRoutes() {
                     val opsjonId: UUID by call.parameters
                     val userId = getNavIdent()
 
-                    val result = avtaler
+                    val result = avtaleService
                         .slettOpsjon(
                             avtaleId = id,
                             opsjonId = opsjonId,
@@ -224,7 +225,7 @@ fun Route.avtaleRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<PersonvernRequest>()
 
-                val result = avtaler.upsertPersonvern(id, request, navIdent)
+                val result = avtaleService.upsertPersonvern(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
 
@@ -258,7 +259,7 @@ fun Route.avtaleRoutes() {
 
                 validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
                     .flatMap {
-                        avtaler.avbrytAvtale(
+                        avtaleService.avbrytAvtale(
                             id,
                             avbruttAv = navIdent,
                             tidspunkt = LocalDateTime.now(),
@@ -295,7 +296,7 @@ fun Route.avtaleRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<PrismodellRequest>()
 
-                val result = avtaler.upsertPrismodell(id, request, navIdent)
+                val result = avtaleService.upsertPrismodell(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
@@ -322,7 +323,7 @@ fun Route.avtaleRoutes() {
                 val kontaktpersonId: UUID by call.parameters
                 val navIdent = getNavIdent()
 
-                avtaler.frikobleKontaktpersonFraAvtale(
+                avtaleService.frikobleKontaktpersonFraAvtale(
                     kontaktpersonId = kontaktpersonId,
                     avtaleId = id,
                     navIdent = navIdent,
@@ -482,7 +483,7 @@ fun Route.avtaleRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            avtaler.get(id)
+            avtaleService.get(id)
                 ?.let { call.respond(AvtaleDtoMapper.fromAvtale(it)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
@@ -506,9 +507,11 @@ fun Route.avtaleRoutes() {
         }) {
             val id: UUID by call.parameters
             val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-            avtaler.get(id)
-                ?.let { call.respond(avtaler.handlinger(it, navIdent)) }
+            avtaleService.get(id)
+                ?.let { call.respond(avtaleService.handlinger(it, ansatt)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
@@ -531,7 +534,7 @@ fun Route.avtaleRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val avtale = avtaler.get(id)
+            val avtale = avtaleService.get(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound, "Avtale med id $id finnes ikke")
 
             val satser = AvtalteSatser.getAvtalteSatser(avtale).toDto()
@@ -557,7 +560,7 @@ fun Route.avtaleRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val historikk = avtaler.getEndringshistorikk(id)
+            val historikk = avtaleService.getEndringshistorikk(id)
             call.respond(historikk)
         }
     }

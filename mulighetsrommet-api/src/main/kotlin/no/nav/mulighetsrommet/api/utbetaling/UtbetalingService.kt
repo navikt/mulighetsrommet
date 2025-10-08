@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.*
-import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -517,18 +516,65 @@ class UtbetalingService(
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 
-    fun handlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
-        UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
-            when (utbetaling.status) {
-                UtbetalingStatusType.INNSENDT,
-                UtbetalingStatusType.RETURNERT,
-                -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-                UtbetalingStatusType.FERDIG_BEHANDLET,
-                UtbetalingStatusType.GENERERT,
-                UtbetalingStatusType.TIL_ATTESTERING,
-                -> false
+    companion object {
+        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
+                when (utbetaling.status) {
+                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.RETURNERT,
+                    -> true
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    -> false
+                }
+            },
+        )
+            .filter {
+                tilgangTilHandling(handling = it, ansatt = ansatt)
             }
-        },
-    )
+            .toSet()
+
+        fun linjeHandlinger(delutbetaling: Delutbetaling, opprettelse: Totrinnskontroll, kostnadssted: NavEnhetNummer, ansatt: NavAnsatt): Set<UtbetalingLinjeHandling> {
+            return setOfNotNull(
+                UtbetalingLinjeHandling.ATTESTER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
+                UtbetalingLinjeHandling.RETURNER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
+            )
+                .filter {
+                    tilgangTilHandling(
+                        handling = it,
+                        ansatt = ansatt,
+                        kostnadssted = kostnadssted,
+                        opprettelse = opprettelse,
+                    )
+                }
+                .toSet()
+        }
+
+        fun tilgangTilHandling(handling: UtbetalingHandling, ansatt: NavAnsatt): Boolean {
+            return when (handling) {
+                UtbetalingHandling.SEND_TIL_ATTESTERING -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            }
+        }
+
+        fun tilgangTilHandling(
+            handling: UtbetalingLinjeHandling,
+            ansatt: NavAnsatt,
+            kostnadssted: NavEnhetNummer,
+            opprettelse: Totrinnskontroll,
+        ): Boolean {
+            val erBeslutter = ansatt.hasKontorspesifikkRolle(
+                Rolle.ATTESTANT_UTBETALING,
+                setOf(kostnadssted),
+            )
+            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+            return when (handling) {
+                UtbetalingLinjeHandling.ATTESTER ->
+                    erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+                UtbetalingLinjeHandling.RETURNER -> erBeslutter
+                UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
+            }
+        }
+    }
 }
