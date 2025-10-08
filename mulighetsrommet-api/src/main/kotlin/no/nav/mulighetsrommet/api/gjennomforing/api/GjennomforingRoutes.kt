@@ -18,6 +18,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
@@ -28,7 +29,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
-import no.nav.mulighetsrommet.api.plugins.getAnsatt
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -533,7 +533,9 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
-            val ansatt = db.session { getAnsatt() }
+            val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
             gjennomforinger.get(id)
                 ?.let { gjennomforinger.handlinger(it, ansatt) }

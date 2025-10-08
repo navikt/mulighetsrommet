@@ -9,7 +9,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.plugins.getAnsatt
+import no.nav.mulighetsrommet.api.MrExceptions
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -37,7 +38,10 @@ fun Route.oppgaverRoutes() {
                 }
             }
         }) {
-            val ansatt = db.session { getAnsatt() }
+            val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
+
             val filter = call.receive<OppgaverFilter>()
 
             val oppgaver = service.oppgaver(
@@ -64,7 +68,9 @@ fun Route.oppgaverRoutes() {
                 }
             }
         }) {
-            val ansatt = db.session { getAnsatt() }
+            val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
             val ansattesRoller = ansatt.roller.map { it.rolle }
             val oppgavetyper = OppgaveType.entries.filter { it.rolle in ansattesRoller }.map {
