@@ -232,7 +232,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     .getAll(
                         arrangorOrgnr = listOf(orgnr),
                         prismodeller = hentOpprettKravPrismodeller(config.okonomi),
-                        tiltakstypeIder = hentTiltakstyperMedTilsagn(config.okonomi, aktiveTiltakstyper)
+                        tiltakstypeIder = hentTiltakstyperMedTilsagn(config.okonomi, aktiveTiltakstyper),
                     )
                     .items
             }
