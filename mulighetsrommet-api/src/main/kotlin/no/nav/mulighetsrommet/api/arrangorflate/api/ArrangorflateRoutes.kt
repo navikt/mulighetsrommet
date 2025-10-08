@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -226,10 +227,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             requireTilgangHosArrangor(orgnr)
 
             val gjennomforinger = db.session {
+                val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
                 queries.gjennomforing
                     .getAll(
                         arrangorOrgnr = listOf(orgnr),
                         prismodeller = hentOpprettKravPrismodeller(config.okonomi),
+                        tiltakstypeIder = hentTiltakstyperMedTilsagn(config.okonomi, aktiveTiltakstyper)
                     )
                     .items
             }
@@ -724,6 +727,17 @@ private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig): List<Pris
     return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
         if (entry.value.start.isBefore(now) && entry.value.slutt.isAfter(now)) {
             entry.key
+        } else {
+            null
+        }
+    }
+}
+
+private fun hentTiltakstyperMedTilsagn(okonomiConfig: OkonomiConfig, tiltakstyper: List<TiltakstypeDto>): List<UUID> {
+    val now = LocalDate.now()
+    return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { tiltakstypeMedTilsagnPeriode ->
+        if (tiltakstypeMedTilsagnPeriode.value.contains(now)) {
+            tiltakstyper.find { it.tiltakskode == tiltakstypeMedTilsagnPeriode.key }?.id
         } else {
             null
         }
