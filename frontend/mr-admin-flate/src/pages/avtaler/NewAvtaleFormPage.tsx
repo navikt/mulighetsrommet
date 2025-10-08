@@ -27,7 +27,7 @@ import { useCallback, useState } from "react";
 import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
-import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "./avtaleFormUtils";
+import { mapNameToSchemaPropertyName, toAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 
@@ -93,10 +93,7 @@ export function NewAvtaleFormPage() {
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    onSubmitAvtaleForm({
-      avtale: undefined,
-      data,
-      mutation,
+    mutation.mutate(toAvtaleRequest({ data: data }), {
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
@@ -128,7 +125,7 @@ export function NewAvtaleFormPage() {
     } else {
       const result = avtaleFormSchema.safeParse(mergedData);
       if (result.success) {
-        onSubmit(result.data);
+        await onSubmit(result.data);
       } else
         result.error.issues.forEach((err) => {
           methods.setError(err.path.join("."), {

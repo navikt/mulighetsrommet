@@ -17,7 +17,7 @@ import {
   Personopplysning,
   PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
-import { slateFaneinnholdToPortableText } from "../components/portableText/helper";
+import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().nullable(),
@@ -45,8 +45,10 @@ export const RedaksjoneltInnholdSchema = z.object({
 });
 
 export const PersonopplysningerSchema = z.object({
-  personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
-  personopplysninger: z.enum(Personopplysning).array(),
+  personvern: z.object({
+    personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
+    personopplysninger: z.enum(Personopplysning).array(),
+  }),
 });
 
 export const avtaleFormSchema = avtaleDetaljerSchema
@@ -90,8 +92,10 @@ export function defaultAvtaleData(
     sakarkivNummer: avtale?.sakarkivNummer ?? null,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
-    personvernBekreftet: avtale?.personvernBekreftet,
-    personopplysninger: avtale?.personopplysninger ?? [],
+    personvern: {
+      personvernBekreftet: avtale?.personvernBekreftet,
+      personopplysninger: avtale?.personopplysninger ?? [],
+    },
     // TODO: fiks typer
     amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
     opsjonsmodell: {

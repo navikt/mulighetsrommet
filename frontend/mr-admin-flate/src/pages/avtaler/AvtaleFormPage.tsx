@@ -15,6 +15,9 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
+import { toAvtaleRequest, toPersonvernRequest } from "./avtaleFormUtils";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -81,6 +84,10 @@ export function AvtaleFormPage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
   const currentTab = getCurrentTab(pathname);
+
+  const personvernMutation = useUpsertPersonvern(avtale.id);
+  const avtaleMutation = useUpsertAvtale();
+
   return (
     <div data-testid="avtale-form-page">
       <title>{`Redigerer avtale | ${avtale.navn}`}</title>
@@ -92,30 +99,46 @@ export function AvtaleFormPage() {
         </Heading>
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
-      <RedigerAvtaleContainer avtale={avtale}>
-        <Tabs value={currentTab}>
-          <Tabs.List>
-            {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
-              <Tabs.Tab
-                key={value}
-                label={label}
-                value={value}
-                onClick={() => navigateAndReplaceUrl(href)}
-                data-testid={testId}
-              />
-            ))}
-          </Tabs.List>
+      <Tabs value={currentTab}>
+        <Tabs.List>
+          {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
+            <Tabs.Tab
+              key={value}
+              label={label}
+              value={value}
+              onClick={() => navigateAndReplaceUrl(href)}
+              data-testid={testId}
+            />
+          ))}
+        </Tabs.List>
+        <RedigerAvtaleContainer
+          avtale={avtale}
+          mapToRequest={toAvtaleRequest}
+          mutation={avtaleMutation}
+        >
           <FormTabsPanel value={AvtaleTab.DETALJER}>
             <AvtaleDetaljerForm opsjonerRegistrert={avtale.opsjonerRegistrert} />
           </FormTabsPanel>
+        </RedigerAvtaleContainer>
+        <RedigerAvtaleContainer
+          avtale={avtale}
+          mapToRequest={toPersonvernRequest}
+          mutation={personvernMutation}
+        >
           <FormTabsPanel value={AvtaleTab.PERSONVERN}>
             <AvtalePersonvernForm />
           </FormTabsPanel>
+        </RedigerAvtaleContainer>
+        <RedigerAvtaleContainer
+          avtale={avtale}
+          mapToRequest={toAvtaleRequest}
+          mutation={avtaleMutation}
+        >
           <FormTabsPanel value={AvtaleTab.VEILEDERINFORMASJON}>
             <AvtaleInformasjonForVeiledereForm />
           </FormTabsPanel>
-        </Tabs>
-      </RedigerAvtaleContainer>
+        </RedigerAvtaleContainer>
+      </Tabs>
     </div>
   );
 }

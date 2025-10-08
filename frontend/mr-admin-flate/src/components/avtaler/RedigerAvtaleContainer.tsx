@@ -1,4 +1,3 @@
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import {
   AvtaleFormInput,
   avtaleFormSchema,
@@ -6,24 +5,33 @@ import {
   defaultAvtaleData,
 } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { useNavigate } from "react-router";
+import { AvtaleDto, ProblemDetail, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { useLocation, useNavigate } from "react-router";
 import { ReactNode, useCallback } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { QueryKeys } from "@/api/QueryKeys";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { mapNameToSchemaPropertyName, onSubmitAvtaleForm } from "@/pages/avtaler/avtaleFormUtils";
+import { mapNameToSchemaPropertyName, RequestValues } from "@/pages/avtaler/avtaleFormUtils";
+import { ApiMutationResult } from "@/hooks/useApiMutation";
 
-interface Props {
+interface Props<TRequest> {
   avtale: AvtaleDto;
+  mapToRequest: (values: RequestValues) => TRequest;
+  mutation: ApiMutationResult<{ data: AvtaleDto }, ProblemDetail, TRequest, unknown>;
   children: ReactNode;
 }
 
-export function RedigerAvtaleContainer({ avtale, children }: Props) {
-  const mutation = useUpsertAvtale();
+export function RedigerAvtaleContainer<TRequest>({
+  avtale,
+  children,
+  mutation,
+  mapToRequest,
+}: Props<TRequest>) {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const nav = pathname.replace("/skjema", "");
   const queryClient = useQueryClient();
   const { data: ansatt } = useHentAnsatt();
 
@@ -43,16 +51,13 @@ export function RedigerAvtaleContainer({ avtale, children }: Props) {
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    onSubmitAvtaleForm({
-      avtale,
-      data,
-      mutation,
+    mutation.mutate(mapToRequest({ data: data, id: avtale.id }), {
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },
       onSuccess: (dto: { data: AvtaleDto }) => {
         queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
-        navigate(`/avtaler/${dto.data.id}`);
+        navigate(nav);
       },
     });
 
