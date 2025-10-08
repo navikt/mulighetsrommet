@@ -187,7 +187,7 @@ private fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDelt
 
 private fun friDeltakelseColumns() = listOf(
     DataDrivenTableDto.Column("navn", "Navn"),
-    DataDrivenTableDto.Column("foedselsdato", "Fødselsdato"),
+    DataDrivenTableDto.Column("fnr", "Fødselsnr."),
     DataDrivenTableDto.Column("region", "Region"),
     DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
     DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
