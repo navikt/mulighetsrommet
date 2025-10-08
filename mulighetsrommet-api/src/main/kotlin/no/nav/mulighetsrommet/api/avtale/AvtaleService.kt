@@ -6,7 +6,6 @@ import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -242,48 +242,6 @@ class AvtaleService(
         queries.endringshistorikk.getEndringshistorikk(DocumentClass.AVTALE, id)
     }
 
-    fun handlinger(avtale: Avtale, navIdent: NavIdent): Set<AvtaleHandling> {
-        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-            ?: throw MrExceptions.navAnsattNotFound(navIdent)
-
-        val avtalerSkriv = ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
-
-        return setOfNotNull(
-            AvtaleHandling.AVBRYT.takeIf {
-                when (avtale.status) {
-                    AvtaleStatus.Utkast,
-                    AvtaleStatus.Aktiv,
-                    -> avtalerSkriv
-
-                    is AvtaleStatus.Avbrutt,
-                    AvtaleStatus.Avsluttet,
-                    -> false
-                }
-            },
-            AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
-                when (avtale.status) {
-                    AvtaleStatus.Aktiv -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
-                    is AvtaleStatus.Avbrutt,
-                    AvtaleStatus.Avsluttet,
-                    AvtaleStatus.Utkast,
-                    -> false
-                }
-            },
-            AvtaleHandling.OPPDATER_PRIS.takeIf {
-                avtalerSkriv && avtale.prismodell.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-            },
-            AvtaleHandling.REGISTRER_OPSJON.takeIf {
-                avtale.opsjonsmodell.opsjonMaksVarighet != null && avtalerSkriv
-            },
-            AvtaleHandling.DUPLISER.takeIf {
-                avtalerSkriv
-            },
-            AvtaleHandling.REDIGER.takeIf {
-                avtalerSkriv
-            },
-        )
-    }
-
     private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {
         gjennomforingPublisher.schedule(
             input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
@@ -346,6 +304,57 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
         return dto
+    }
+
+    fun handlinger(avtale: Avtale, ansatt: NavAnsatt): Set<AvtaleHandling> {
+        return setOfNotNull(
+            AvtaleHandling.AVBRYT.takeIf {
+                when (avtale.status) {
+                    AvtaleStatus.Utkast,
+                    AvtaleStatus.Aktiv,
+                    -> true
+
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
+                    -> false
+                }
+            },
+            AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
+                when (avtale.status) {
+                    AvtaleStatus.Aktiv -> true
+                    is AvtaleStatus.Avbrutt,
+                    AvtaleStatus.Avsluttet,
+                    AvtaleStatus.Utkast,
+                    -> false
+                }
+            },
+            AvtaleHandling.OPPDATER_PRIS.takeIf {
+                avtale.prismodell.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+            },
+            AvtaleHandling.REGISTRER_OPSJON.takeIf {
+                avtale.opsjonsmodell.opsjonMaksVarighet != null
+            },
+            AvtaleHandling.DUPLISER,
+            AvtaleHandling.REDIGER,
+        )
+            .filter {
+                tilgangTilHandling(it, ansatt)
+            }
+            .toSet()
+    }
+
+    companion object {
+        fun tilgangTilHandling(handling: AvtaleHandling, ansatt: NavAnsatt): Boolean {
+            return when (handling) {
+                AvtaleHandling.OPPRETT_GJENNOMFORING -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                AvtaleHandling.AVBRYT,
+                AvtaleHandling.OPPDATER_PRIS,
+                AvtaleHandling.REGISTRER_OPSJON,
+                AvtaleHandling.DUPLISER,
+                AvtaleHandling.REDIGER,
+                -> ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
+            }
+        }
     }
 }
 

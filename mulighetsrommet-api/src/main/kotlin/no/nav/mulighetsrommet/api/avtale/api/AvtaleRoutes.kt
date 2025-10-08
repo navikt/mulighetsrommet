@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.plugins.getAnsatt
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
@@ -449,10 +450,10 @@ fun Route.avtaleRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val navIdent = getNavIdent()
+            val ansatt = db.session { getAnsatt() }
 
             avtaler.get(id)
-                ?.let { call.respond(avtaler.handlinger(it, navIdent)) }
+                ?.let { call.respond(avtaler.handlinger(it, ansatt)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 

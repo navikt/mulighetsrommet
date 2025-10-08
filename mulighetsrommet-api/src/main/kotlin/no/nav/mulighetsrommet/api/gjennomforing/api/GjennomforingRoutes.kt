@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.plugins.getAnsatt
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -513,10 +514,11 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
+            val ansatt = db.session { getAnsatt() }
 
             gjennomforinger.get(id)
-                ?.let { call.respond(gjennomforinger.handlinger(it, navIdent)) }
+                ?.let { gjennomforinger.handlinger(it, ansatt) }
+                ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
     }

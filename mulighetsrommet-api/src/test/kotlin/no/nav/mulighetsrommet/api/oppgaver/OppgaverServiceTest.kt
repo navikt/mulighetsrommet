@@ -609,6 +609,15 @@ class OppgaverServiceTest : FunSpec({
                     OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
                 ),
             )
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.AVTALE_MANGLER_ADMINISTRATOR),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = emptySet(),
+                ),
+            ) shouldHaveSize 0
         }
     }
 
@@ -651,6 +660,15 @@ class OppgaverServiceTest : FunSpec({
                     OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
                 ),
             )
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = emptySet(),
+                ),
+            ) shouldHaveSize 0
         }
     }
 })

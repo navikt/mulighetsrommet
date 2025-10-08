@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*
-import io.ktor.server.http.content.default
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -13,7 +12,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.tilsagnHandlinger
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -62,13 +60,7 @@ fun Route.tilsagnRoutesGet() {
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
-                    handlinger = tilsagnHandlinger(
-                        id = tilsagn.id,
-                        kostnadssted = tilsagn.kostnadssted.enhetsnummer,
-                        status = tilsagn.status,
-                        belopBrukt = tilsagn.belopBrukt,
-                        ansatt = ansatt,
-                    ),
+                    handlinger = service.handlinger(tilsagn, ansatt),
                 )
             }
 

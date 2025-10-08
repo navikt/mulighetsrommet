@@ -9,8 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.plugins.getAnsatt
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -19,13 +18,6 @@ import org.koin.ktor.ext.inject
 fun Route.oppgaverRoutes() {
     val db: ApiDatabase by inject()
     val service: OppgaverService by inject()
-
-    fun RoutingContext.getAnsatt(): NavAnsatt = db.session {
-        val navIdent = getNavIdent()
-
-        queries.ansatt.getByNavIdent(navIdent)
-            ?: throw IllegalStateException("Fant ikke ansatt med navIdent=$navIdent")
-    }
 
     route("oppgaver") {
         post({
@@ -45,7 +37,7 @@ fun Route.oppgaverRoutes() {
                 }
             }
         }) {
-            val ansatt = getAnsatt()
+            val ansatt = db.session { getAnsatt() }
             val filter = call.receive<OppgaverFilter>()
 
             val oppgaver = service.oppgaver(
@@ -72,7 +64,7 @@ fun Route.oppgaverRoutes() {
                 }
             }
         }) {
-            val ansatt = getAnsatt()
+            val ansatt = db.session { getAnsatt() }
 
             val ansattesRoller = ansatt.roller.map { it.rolle }
             val oppgavetyper = OppgaveType.entries.filter { it.rolle in ansattesRoller }.map {

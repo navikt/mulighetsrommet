@@ -527,36 +527,68 @@ class UtbetalingService(
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
-}
 
-fun utbetalingHandlinger(status: UtbetalingStatusType, ansatt: NavAnsatt) = setOfNotNull(
-    UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
-        when (status) {
-            UtbetalingStatusType.INNSENDT,
-            UtbetalingStatusType.RETURNERT,
-            -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            -> false
+    companion object {
+        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
+                when (utbetaling.status) {
+                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.RETURNERT,
+                    -> true
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    -> false
+                }
+            },
+        )
+            .filter {
+                tilgangTilHandling(handling = it, ansatt = ansatt)
+            }
+            .toSet()
+
+        fun linjeHandlinger(delutbetaling: Delutbetaling, opprettelse: Totrinnskontroll, kostnadssted: NavEnhetNummer, ansatt: NavAnsatt): Set<UtbetalingLinjeHandling> {
+            return setOfNotNull(
+                UtbetalingLinjeHandling.ATTESTER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
+                UtbetalingLinjeHandling.RETURNER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
+            )
+                .filter {
+                    tilgangTilHandling(
+                        handling = it,
+                        ansatt = ansatt,
+                        kostnadssted = kostnadssted,
+                        opprettelse = opprettelse,
+                    )
+                }
+                .toSet()
         }
-    },
-)
 
-fun linjeHandlinger(opprettelse: Totrinnskontroll, kostnadssted: NavEnhetNummer, ansatt: NavAnsatt): Set<UtbetalingLinjeHandling> {
-    val erBeslutter = ansatt.hasKontorspesifikkRolle(
-        Rolle.ATTESTANT_UTBETALING,
-        setOf(kostnadssted),
-    )
-    val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+        fun tilgangTilHandling(handling: UtbetalingHandling, ansatt: NavAnsatt): Boolean {
+            return when (handling) {
+                UtbetalingHandling.SEND_TIL_ATTESTERING -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            }
+        }
 
-    return setOfNotNull(
-        UtbetalingLinjeHandling.ATTESTER.takeIf {
-            erBeslutter && opprettelse.behandletAv != ansatt.navIdent
-        },
-        UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
-        UtbetalingLinjeHandling.SEND_TIL_ATTESTERING.takeIf { erSaksbehandler },
-    )
+        fun tilgangTilHandling(
+            handling: UtbetalingLinjeHandling,
+            ansatt: NavAnsatt,
+            kostnadssted: NavEnhetNummer,
+            opprettelse: Totrinnskontroll,
+        ): Boolean {
+            val erBeslutter = ansatt.hasKontorspesifikkRolle(
+                Rolle.ATTESTANT_UTBETALING,
+                setOf(kostnadssted),
+            )
+            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+            return when (handling) {
+                UtbetalingLinjeHandling.ATTESTER ->
+                    erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+                UtbetalingLinjeHandling.RETURNER -> erBeslutter
+                UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
+            }
+        }
+    }
 }
 
 data class PersonEnhetOgRegion(

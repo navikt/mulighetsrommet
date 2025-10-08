@@ -34,11 +34,9 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
-import no.nav.mulighetsrommet.api.utbetaling.linjeHandlinger
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.utbetalingHandlinger
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -137,7 +135,7 @@ fun Route.utbetalingRoutes() {
 
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = utbetalingHandlinger(utbetaling.status, ansatt),
+                        handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt),
                     )
                 }
                 call.respond(utbetaling)
@@ -400,7 +398,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = linjeHandlinger(opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
+        handlinger = UtbetalingService.linjeHandlinger(delutbetaling, opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
     )
 }
 

@@ -8,7 +8,9 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.AuthConfig
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavIdent
@@ -57,6 +59,15 @@ fun RoutingContext.getNavIdent(): NavIdent {
         "NAVident mangler i JWTPrincipal",
     )
 }
+
+context(ctx: RoutingContext)
+fun QueryContext.getAnsatt(): NavAnsatt {
+    val navIdent = ctx.getNavIdent()
+
+    return queries.ansatt.getByNavIdent(navIdent)
+        ?: throw IllegalStateException("Fant ikke ansatt med navIdent=$navIdent")
+}
+
 
 /**
  * Gets the Microsoft Entra 'oid' claim from the underlying [JWTPrincipal], or throws a [StatusException]

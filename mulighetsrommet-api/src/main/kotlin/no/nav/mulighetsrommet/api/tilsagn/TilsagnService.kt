@@ -743,32 +743,75 @@ class TilsagnService(
         )
         queries.kafkaProducerRecord.storeRecord(record)
     }
-}
 
-fun QueryContext.tilsagnHandlinger(
-    id: UUID,
-    status: TilsagnStatus,
-    belopBrukt: Int,
-    kostnadssted: NavEnhetNummer,
-    ansatt: NavAnsatt,
-): Set<TilsagnHandling> {
-    val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
-    val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+    fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
+        val status = tilsagn.status
 
-    val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
-    val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)
-    val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)
+        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val annullering = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.ANNULLER)
+        val tilOppgjor = queries.totrinnskontroll.get(tilsagn.id, Totrinnskontroll.Type.GJOR_OPP)
 
-    return setOfNotNull(
-        TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT && saksbehandler },
-        TilsagnHandling.SLETT.takeIf { status == TilsagnStatus.RETURNERT && saksbehandler },
-        TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT && belopBrukt == 0 && saksbehandler },
-        TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT && belopBrukt > 0 && saksbehandler },
-        TilsagnHandling.GODKJENN.takeIf { status == TilsagnStatus.TIL_GODKJENNING && beslutter && opprettelse.behandletAv != ansatt.navIdent },
-        TilsagnHandling.RETURNER.takeIf { status == TilsagnStatus.TIL_GODKJENNING && (beslutter || saksbehandler) },
-        TilsagnHandling.AVSLA_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING && (beslutter || saksbehandler) },
-        TilsagnHandling.GODKJENN_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING && beslutter && annullering?.behandletAv != ansatt.navIdent },
-        TilsagnHandling.AVSLA_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR && beslutter },
-        TilsagnHandling.GODKJENN_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR && beslutter && tilOppgjor?.behandletAv != ansatt.navIdent },
-    )
+        return setOfNotNull(
+            TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT },
+            TilsagnHandling.SLETT.takeIf { status == TilsagnStatus.RETURNERT },
+            TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT },
+            TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT },
+            TilsagnHandling.GODKJENN.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
+            TilsagnHandling.RETURNER.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
+            TilsagnHandling.AVSLA_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING },
+            TilsagnHandling.GODKJENN_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING },
+            TilsagnHandling.AVSLA_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR },
+            TilsagnHandling.GODKJENN_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR },
+        )
+            .filter {
+                tilgangTilHandling(
+                    handling = it,
+                    ansatt = ansatt,
+                    kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+                    opprettelse = opprettelse,
+                    annullering = annullering,
+                    tilOppgjor = tilOppgjor,
+                )
+            }
+            .toSet()
+    }
+
+    companion object {
+        fun tilgangTilHandling(
+            handling: TilsagnHandling,
+            ansatt: NavAnsatt,
+            kostnadssted: NavEnhetNummer,
+            opprettelse: Totrinnskontroll,
+            annullering: Totrinnskontroll?,
+            tilOppgjor: Totrinnskontroll?,
+        ): Boolean {
+            val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
+            val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+            return when (handling) {
+                TilsagnHandling.REDIGER,
+                TilsagnHandling.SLETT,
+                TilsagnHandling.ANNULLER,
+                TilsagnHandling.GJOR_OPP,
+                ->
+                    saksbehandler
+
+                TilsagnHandling.RETURNER,
+                TilsagnHandling.AVSLA_ANNULLERING,
+                TilsagnHandling.AVSLA_OPPGJOR,
+                ->
+                    beslutter
+
+                TilsagnHandling.GODKJENN -> {
+                    beslutter && opprettelse.behandletAv != ansatt.navIdent
+                }
+                TilsagnHandling.GODKJENN_ANNULLERING -> {
+                    beslutter && annullering?.behandletAv != ansatt.navIdent
+                }
+                TilsagnHandling.GODKJENN_OPPGJOR -> {
+                    beslutter && tilOppgjor?.behandletAv != ansatt.navIdent
+                }
+            }
+        }
+    }
 }

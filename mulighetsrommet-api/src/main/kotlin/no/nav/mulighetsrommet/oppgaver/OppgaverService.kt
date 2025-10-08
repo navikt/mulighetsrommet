@@ -2,19 +2,20 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
+import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.tilsagnHandlinger
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
-import no.nav.mulighetsrommet.api.utbetaling.linjeHandlinger
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.utbetalingHandlinger
 import no.nav.mulighetsrommet.model.*
 
 class OppgaverService(val db: ApiDatabase) {
@@ -59,6 +60,7 @@ class OppgaverService(val db: ApiDatabase) {
                     avtaleOppgaver(
                         tiltakskoder = tiltakskoder,
                         regioner = regioner,
+                        ansatt = ansatt,
                     ),
                 )
             }
@@ -67,6 +69,7 @@ class OppgaverService(val db: ApiDatabase) {
                     gjennomforingOppgaver(
                         tiltakskoder = tiltakskoder,
                         navEnheter = navEnheterForRegioner,
+                        ansatt = ansatt,
                     ),
                 )
             }
@@ -74,11 +77,6 @@ class OppgaverService(val db: ApiDatabase) {
 
         return oppgaver
             .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
-            .filter { oppgave ->
-                val requiredRole = NavAnsattRolle
-                    .kontorspesifikk(oppgave.type.rolle, setOfNotNull(oppgave.enhet?.nummer))
-                NavAnsattRolleHelper.hasRole(ansatt.roller, requiredRole)
-            }
     }
 
     private fun tilsagnOppgaver(
@@ -125,26 +123,42 @@ class OppgaverService(val db: ApiDatabase) {
             .toList()
     }
 
+    fun tilgangTilOppgave(oppgave: Oppgave, ansatt: NavAnsatt): Boolean {
+        when (oppgave.type) {
+            OppgaveType.TILSAGN_TIL_GODKJENNING -> TODO()
+            OppgaveType.TILSAGN_TIL_ANNULLERING -> TODO()
+            OppgaveType.TILSAGN_TIL_OPPGJOR -> TODO()
+            OppgaveType.TILSAGN_RETURNERT -> TODO()
+            OppgaveType.UTBETALING_TIL_BEHANDLING -> TODO()
+            OppgaveType.UTBETALING_TIL_ATTESTERING -> TODO()
+            OppgaveType.UTBETALING_RETURNERT -> TODO()
+            OppgaveType.AVTALE_MANGLER_ADMINISTRATOR -> TODO()
+            OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR -> TODO()
+        }
+    }
+
     private fun avtaleOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         regioner: Set<NavEnhetNummer>,
+        ansatt: NavAnsatt,
     ): List<Oppgave> = db.session {
         queries.oppgave
             .getAvtaleOppgaveData(
                 tiltakskoder = tiltakskoder,
                 navRegioner = regioner.toList(),
             )
-            .map { it.toOppgave() }
+            .mapNotNull { it.toOppgave(ansatt) }
     }
 
     private fun gjennomforingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
+        ansatt: NavAnsatt,
     ): List<Oppgave> = db.session {
         queries.oppgave
             .getGjennomforingOppgaveData(tiltakskoder = tiltakskoder)
             .filter { navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter } }
-            .map { it.toOppgave() }
+            .mapNotNull { it.toOppgave(ansatt) }
     }
 
     private fun QueryContext.byKostnadssted(
@@ -181,14 +195,6 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
     val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.ANNULLER)
     val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.GJOR_OPP)
 
-    val handlinger = tilsagnHandlinger(
-        id = data.id,
-        kostnadssted = data.kostnadssted,
-        status = data.status,
-        belopBrukt = data.belopBrukt,
-        ansatt = ansatt,
-    )
-
     return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
             Oppgave(
@@ -203,7 +209,14 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = opprettelse.behandletTidspunkt,
                 iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
-                handlinger.contains(TilsagnHandling.GODKJENN)
+                TilsagnService.tilgangTilHandling(
+                    TilsagnHandling.GODKJENN,
+                    ansatt = ansatt,
+                    kostnadssted = data.kostnadssted,
+                    opprettelse = opprettelse,
+                    annullering = annullering,
+                    tilOppgjor = tilOppgjor,
+                )
             }
         }
 
@@ -221,7 +234,14 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = opprettelse.besluttetTidspunkt,
                 iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
-                handlinger.contains(TilsagnHandling.REDIGER)
+                TilsagnService.tilgangTilHandling(
+                    TilsagnHandling.REDIGER,
+                    ansatt = ansatt,
+                    kostnadssted = data.kostnadssted,
+                    opprettelse = opprettelse,
+                    annullering = annullering,
+                    tilOppgjor = tilOppgjor,
+                )
             }
         }
 
@@ -239,7 +259,14 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = annullering.behandletTidspunkt,
                 iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
-                handlinger.contains(TilsagnHandling.GODKJENN_ANNULLERING)
+                TilsagnService.tilgangTilHandling(
+                    TilsagnHandling.GODKJENN_ANNULLERING,
+                    ansatt = ansatt,
+                    kostnadssted = data.kostnadssted,
+                    opprettelse = opprettelse,
+                    annullering = annullering,
+                    tilOppgjor = tilOppgjor,
+                )
             }
         }
 
@@ -257,7 +284,14 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = tilOppgjor.behandletTidspunkt,
                 iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
-                handlinger.contains(TilsagnHandling.GODKJENN_OPPGJOR)
+                TilsagnService.tilgangTilHandling(
+                    TilsagnHandling.GODKJENN_OPPGJOR,
+                    ansatt = ansatt,
+                    kostnadssted = data.kostnadssted,
+                    opprettelse = opprettelse,
+                    annullering = annullering,
+                    tilOppgjor = tilOppgjor,
+                )
             }
         }
 
@@ -273,7 +307,6 @@ private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAn
     val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.OPPRETT)
 
     val tilsagn = queries.tilsagn.getOrError(data.tilsagnId)
-    val handlinger = linjeHandlinger(opprettelse, tilsagn.kostnadssted.enhetsnummer, ansatt)
 
     return when (data.status) {
         DelutbetalingStatus.TIL_ATTESTERING -> {
@@ -291,7 +324,12 @@ private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAn
                 createdAt = opprettelse.behandletTidspunkt,
                 iconType = OppgaveIconType.UTBETALING,
             ).takeIf {
-                handlinger.contains(UtbetalingLinjeHandling.ATTESTER)
+                UtbetalingService.tilgangTilHandling(
+                    handling = UtbetalingLinjeHandling.ATTESTER,
+                    ansatt = ansatt,
+                    kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+                    opprettelse = opprettelse,
+                )
             }
         }
         DelutbetalingStatus.RETURNERT -> {
@@ -309,7 +347,12 @@ private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAn
                 createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
                 iconType = OppgaveIconType.UTBETALING,
             ).takeIf {
-                handlinger.contains(UtbetalingLinjeHandling.SEND_TIL_ATTESTERING)
+                UtbetalingService.tilgangTilHandling(
+                    handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
+                    ansatt = ansatt,
+                    kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+                    opprettelse = opprettelse,
+                )
             }
         }
 
@@ -318,7 +361,6 @@ private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAn
 }
 
 private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
-    val handlinger = utbetalingHandlinger(data.status, ansatt)
     return when (data.status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_ATTESTERING,
@@ -343,11 +385,11 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                 ),
                 createdAt = data.createdAt,
                 iconType = OppgaveIconType.UTBETALING,
-            ).takeIf { handlinger.contains(UtbetalingHandling.SEND_TIL_ATTESTERING) }
+            ).takeIf { UtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
     }
 }
 
-private fun AvtaleOppgaveData.toOppgave() = Oppgave(
+private fun AvtaleOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = this.id,
     type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
@@ -369,9 +411,11 @@ private fun AvtaleOppgaveData.toOppgave() = Oppgave(
     ),
     createdAt = this.createdAt,
     iconType = OppgaveIconType.AVTALE,
-)
+).takeIf {
+    AvtaleService.tilgangTilHandling(AvtaleHandling.REDIGER, ansatt)
+}
 
-private fun GjennomforingOppgaveData.toOppgave() = Oppgave(
+private fun GjennomforingOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = this.id,
     type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
@@ -393,4 +437,6 @@ private fun GjennomforingOppgaveData.toOppgave() = Oppgave(
     ),
     createdAt = this.updatedAt,
     iconType = OppgaveIconType.GJENNOMFORING,
-)
+).takeIf {
+    GjennomforingService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
+}
