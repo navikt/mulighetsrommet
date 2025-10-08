@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -193,31 +192,13 @@ private fun friDeltakelseColumns() = listOf(
     DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
 )
 
-private fun friDeltakelseCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> {
-    return if (personalia == null || personalia.erSkjermet || personalia.adressebeskyttelse != PdlGradering.UGRADERT) {
-        val skjermetNavn = when {
-            personalia == null -> null
-            personalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-            else -> "Skjermet"
-        }
-
-        mapOf(
-            "navn" to skjermetNavn?.let { DataElement.text(it) },
-            "geografiskEnhet" to null,
-            "oppfolgingEnhet" to null,
-            "region" to null,
-            "fnr" to personalia?.norskIdent?.let { DataElement.text(it.value) },
-        )
-    } else {
-        mapOf(
-            "navn" to personalia.navn.let { DataElement.text(it) },
-            "geografiskEnhet" to personalia.geografiskEnhet?.navn?.let { DataElement.text(it) },
-            "oppfolgingEnhet" to personalia.oppfolgingEnhet?.navn?.let { DataElement.text(it) },
-            "region" to personalia.region?.navn?.let { DataElement.text(it) },
-            "fnr" to personalia.norskIdent.let { DataElement.text(it.value) },
-        )
-    }
-}
+private fun friDeltakelseCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(
+    "navn" to personalia?.navn.let { DataElement.text(it) },
+    "geografiskEnhet" to personalia?.geografiskEnhet?.navn?.let { DataElement.text(it) },
+    "oppfolgingEnhet" to personalia?.oppfolgingEnhet?.navn?.let { DataElement.text(it) },
+    "region" to personalia?.region?.navn?.let { DataElement.text(it) },
+    "fnr" to personalia?.norskIdent?.let { DataElement.text(it.value) },
+)
 
 private fun getRegnestykkeManedsverk(
     manedsverkTotal: Double,

@@ -182,7 +182,7 @@ sealed class ArrangorflateBeregningDeltakelse {
 @Serializable
 data class ArrangorflatePersonalia(
     val navn: String,
-    val norskIdent: NorskIdent,
+    val norskIdent: NorskIdent?,
 ) {
     companion object {
         fun fromPersonalia(personalia: DeltakerPersonalia) = when (personalia.adressebeskyttelse) {
@@ -195,7 +195,7 @@ data class ArrangorflatePersonalia(
             else ->
                 ArrangorflatePersonalia(
                     navn = "Adressebeskyttet",
-                    norskIdent = personalia.norskIdent,
+                    norskIdent = null,
                 )
         }
     }
