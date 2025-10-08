@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedPartyType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
@@ -223,12 +224,19 @@ object ArrangorflateTestUtils {
         }
     }
 
+    fun mockAmtDeltaker(builder: MockEngineBuilder) {
+        builder.post("/amt-deltaker/external/deltakere/personalia") {
+            respondJson(emptyList<DeltakerPersonaliaResponse>())
+        }
+    }
+
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
             mockAltinnAuthorizedParties(this)
             mockJournalpost(this)
             mockClamAvScan(this)
+            mockAmtDeltaker(this)
             mockKontoregisterOrganisasjon(this)
         },
     ) = createTestApplicationConfig().copy(
