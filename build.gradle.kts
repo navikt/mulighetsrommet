@@ -22,6 +22,11 @@ allprojects {
         version = rootProject.libs.ktlint.get().version
     }
 
+    dependencyLocking {
+        lockMode = LockMode.STRICT
+        lockAllConfigurations()
+    }
+
     tasks.withType<KotlinCompile> {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
