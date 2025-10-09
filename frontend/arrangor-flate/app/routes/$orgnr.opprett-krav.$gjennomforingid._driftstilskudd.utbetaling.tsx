@@ -23,6 +23,7 @@ import {
 } from "~/utils/navigation";
 import { useEffect, useRef } from "react";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
 type LoaderData = {
   kontonummer?: string;
@@ -30,9 +31,9 @@ type LoaderData = {
   sessionKid?: string;
 };
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
   return [
-    { title: "Steg 2 av 3: Betalingsinformasjon - Opprett krav om utbetaling" },
+    { title: getStepTitle(matches) },
     {
       name: "description",
       content: "Fyll ut betalingsinformasjon for å opprette et krav om utbetaling",

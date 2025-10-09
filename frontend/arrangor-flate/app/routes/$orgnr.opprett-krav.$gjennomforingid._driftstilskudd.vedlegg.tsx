@@ -23,10 +23,11 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
   return [
-    { title: "Steg 3 av 4: Vedlegg - Opprett krav om utbetaling" },
+    { title: getStepTitle(matches) },
     {
       name: "description",
       content: "Last opp vedlegg for utbetalingskravet",

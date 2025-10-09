@@ -63,7 +63,11 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { kontonummer: data.kontonummer, sessionBelop, sessionKid };
+  return {
+    kontonummer: data.kontonummer,
+    sessionBelop,
+    sessionKid,
+  };
 };
 
 interface ActionData {

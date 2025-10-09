@@ -38,10 +38,11 @@ import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
   return [
-    { title: "Steg 3 av 3: Oppsummering - Opprett krav om utbetaling" },
+    { title: getStepTitle(matches) },
     {
       name: "description",
       content: "Oppsummering av krav om utbetaling og last opp vedlegg",

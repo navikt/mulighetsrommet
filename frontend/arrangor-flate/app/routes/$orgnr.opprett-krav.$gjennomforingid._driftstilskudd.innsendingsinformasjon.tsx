@@ -45,7 +45,10 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { LoaderData as ParentLoaderData } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
+import {
+  getStepTitle,
+  isDriftstilskuddRootLoaderData,
+} from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
 type LoaderData = {
   orgnr: string;
@@ -57,12 +60,9 @@ type LoaderData = {
 };
 
 export const meta: MetaFunction = ({ matches }) => {
-  const opprettKravPageLoaderData = matches[matches.length - 2].loaderData as ParentLoaderData;
-  const stepIndex = opprettKravPageLoaderData.steps.indexOf(opprettKravPageLoaderData.activeStep!);
-  const numOfSteps = opprettKravPageLoaderData.steps.length;
   return [
     {
-      title: `Steg ${stepIndex + 1} av ${numOfSteps}: Innsendingsinformasjon - Opprett krav om utbetaling`,
+      title: getStepTitle(matches),
     },
     {
       name: "description",
