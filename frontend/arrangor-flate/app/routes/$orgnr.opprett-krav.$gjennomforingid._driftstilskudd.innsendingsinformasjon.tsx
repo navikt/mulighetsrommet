@@ -19,6 +19,7 @@ import {
   DatoVelger,
   FieldError,
   OpprettKravInnsendingsInformasjon,
+  OpprettKravVeiviserSteg,
   Periode,
   Tilskuddstype,
 } from "api-client";
@@ -44,7 +45,7 @@ import {
   parseDate,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
@@ -115,6 +116,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const nesteSteg = formData.get("nesteSteg") as OpprettKravVeiviserSteg;
 
   if (intent === "cancel") {
     return redirect(pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt, {
@@ -154,7 +156,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     session.set("tilsagnId", tilsagnId);
     session.set("periodeStart", yyyyMMddFormatting(periodeStart));
     session.set("periodeSlutt", yyyyMMddFormatting(periodeSlutt));
-    return redirect(pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId), {
+    return redirect(pathBySteg(nesteSteg, orgnr, gjennomforingId), {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -268,6 +270,11 @@ export default function OpprettKravInnsendingsinformasjon() {
             </ErrorSummary>
           )}
           <HStack gap="4" className="mt-4">
+            <input
+              name="nesteSteg"
+              value={innsendingsinformasjon.navigering.neste?.toString()}
+              hidden
+            />
             <Button type="submit" variant="tertiary" name="intent" value="cancel">
               Avbryt
             </Button>

@@ -62,48 +62,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent gjennomføringene til arrangør
-      operationId: getArrangorflateGjennomforinger
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: prismodeller
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/PrismodellType"
-      responses:
-        "200":
-          description: Arrangør sine gjennomføringer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/tabeller:
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/opprett-krav:
     get:
       tags:
       - Arrangorflate
@@ -125,43 +84,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GjennomforingerTableResponse"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent gjennomføring til arrangør
-      operationId: getArrangorflateGjennomforing
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Arrangørens gjennomføring
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ArrangorflateGjennomforing"
         default:
           description: Problem details
           headers: {}
@@ -236,6 +158,135 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/deltakere:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent deltakertabell
+      operationId: getOpprettKravDeltakere
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: periodeStart
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: periodeSlutt
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Innsendingsdetaljer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpprettKravDeltakere"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent gjennomføringene til arrangør
+      operationId: getArrangorflateGjennomforinger
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: prismodeller
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/PrismodellType"
+      responses:
+        "200":
+          description: Arrangør sine gjennomføringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorflateGjennomforing"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent gjennomføring til arrangør
+      operationId: getArrangorflateGjennomforing
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Arrangørens gjennomføring
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateGjennomforing"
         default:
           description: Problem details
           headers: {}
@@ -734,64 +785,6 @@ components:
           type: string
       required:
       - kontonummer
-    PrismodellType:
-      type: string
-      enum:
-      - ANNEN_AVTALT_PRIS
-      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_UKESVERK
-      - AVTALT_PRIS_PER_HELE_UKESVERK
-      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-    ArrangorflateGjennomforing:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstype"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - id
-      - navn
-      - sluttDato
-      - startDato
-      - tiltakstype
-    ArrangorflateTiltakstype:
-      type: object
-      properties:
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-      required:
-      - navn
-      - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     DataDrivenTableDto:
       type: object
       properties:
@@ -998,16 +991,26 @@ components:
             $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
       required:
       - steg
-    Definition:
+    DetailsEntry:
       type: object
       properties:
         key:
           type: string
         value:
           type: string
+        format:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DetailsFormat"
       required:
+      - format
       - key
       - value
+    DetailsFormat:
+      type: string
+      enum:
+      - NOK
+      - NUMBER
     ArrangorflateTilsagnDto:
       type: object
       properties:
@@ -1048,6 +1051,31 @@ components:
       - status
       - tiltakstype
       - type
+    ArrangorflateTiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     ArrangorflateGjennomforingInfo:
       type: object
       properties:
@@ -1110,26 +1138,6 @@ components:
             $ref: "#/components/schemas/DetailsEntry"
       required:
       - entries
-    DetailsEntry:
-      type: object
-      properties:
-        key:
-          type: string
-        value:
-          type: string
-        format:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DetailsFormat"
-      required:
-      - format
-      - key
-      - value
-    DetailsFormat:
-      type: string
-      enum:
-      - NOK
-      - NUMBER
     DatoVelger:
       anyOf:
       - $ref: "#/components/schemas/DatoVelgerRange"
@@ -1155,23 +1163,104 @@ components:
             $ref: "#/components/schemas/Periode"
       required:
       - periodeForslag
+    OpprettKravVeiviserNavigering:
+      type: object
+      properties:
+        tilbake:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpprettKravVeiviserSteg"
+        neste:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpprettKravVeiviserSteg"
+      required:
+      - neste
+      - tilbake
     OpprettKravInnsendingsInformasjon:
       type: object
       properties:
         definisjonsListe:
           type: array
           items:
-            $ref: "#/components/schemas/Definition"
+            $ref: "#/components/schemas/DetailsEntry"
         tilsagn:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
         datoVelger:
           $ref: "#/components/schemas/DatoVelger"
+        navigering:
+          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - datoVelger
       - definisjonsListe
+      - navigering
       - tilsagn
+    StengtPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - periode
+    OpprettKravDeltakere:
+      type: object
+      properties:
+        stengtHosArrangor:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
+          uniqueItems: true
+        tabell:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        tabellFooter:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsEntry"
+        navigering:
+          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
+      required:
+      - navigering
+      - stengtHosArrangor
+      - tabell
+      - tabellFooter
+    PrismodellType:
+      type: string
+      enum:
+      - ANNEN_AVTALT_PRIS
+      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_HELE_UKESVERK
+      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    ArrangorflateGjennomforing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstype"
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - id
+      - navn
+      - sluttDato
+      - startDato
+      - tiltakstype
     ArrangorflateUtbetalingKompaktDto:
       type: object
       properties:
@@ -1511,16 +1600,6 @@ components:
       - periode
       - personalia
       - status
-    StengtPeriode:
-      type: object
-      properties:
-        periode:
-          $ref: "#/components/schemas/Periode"
-        beskrivelse:
-          type: string
-      required:
-      - beskrivelse
-      - periode
     ArrangorflateBeregningFri:
       type: object
       properties:

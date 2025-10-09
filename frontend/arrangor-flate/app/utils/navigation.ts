@@ -1,3 +1,4 @@
+import { OpprettKravVeiviserSteg } from "@api-client";
 import { Params, useParams } from "react-router";
 import { Tabs } from "~/routes/$orgnr_.oversikt";
 import { Environment } from "~/services/environment";
@@ -60,6 +61,8 @@ export const pathByOrgnr = (orgnr: string) => {
       driftstilskuddv2: {
         innsendingsinformasjon: (gjennomforingId: string) =>
           `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
+        deltakere: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
         utbetaling: (gjennomforingId: string) =>
           `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
         vedlegg: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
@@ -80,6 +83,23 @@ export const pathByOrgnr = (orgnr: string) => {
     tilsagn: (id: string) => `/${orgnr}/tilsagn/${id}`,
   };
 };
+
+export function pathBySteg(steg: OpprettKravVeiviserSteg, orgnr: string, gjennomforingId: string) {
+  switch (steg) {
+    case OpprettKravVeiviserSteg.INFORMASJON:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.innsendingsinformasjon(
+        gjennomforingId,
+      );
+    case OpprettKravVeiviserSteg.DELTAKERLISTE:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.deltakere(gjennomforingId);
+    case OpprettKravVeiviserSteg.UTBETALING:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId);
+    case OpprettKravVeiviserSteg.VEDLEGG:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId);
+    case OpprettKravVeiviserSteg.OPPSUMMERING:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.oppsummering(gjennomforingId);
+  }
+}
 
 export function deltakerOversiktLenke(env: Environment): string {
   if (env === Environment.DevGcp) {
