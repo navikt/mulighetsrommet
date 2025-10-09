@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 private val NORSK_IDENT_REGEX = "^\\d{11}$".toRegex()
 
@@ -13,3 +15,6 @@ value class NorskIdent(val value: String) {
         }
     }
 }
+
+fun NorskIdent.fodselsDato(): LocalDate = this.value.slice(0..6)
+    .let { foedselsnummer -> LocalDate.parse(foedselsnummer, DateTimeFormatter.ofPattern("ddMMyyyy")) }

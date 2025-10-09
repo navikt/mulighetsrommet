@@ -9,6 +9,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.http.content.default
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -45,7 +46,6 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
-import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
@@ -56,8 +56,15 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.YearMonth
 import java.util.*
+
+fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
+    return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
+}
+
+fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) = arrangorTilganger()
+    ?.find { it == organisasjonsnummer }
+    ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
@@ -66,14 +73,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
-
-    fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
-        return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
-    }
-
-    fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) = arrangorTilganger()
-        ?.find { it == organisasjonsnummer }
-        ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
     suspend fun resolveArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto {
         return arrangorService.getArrangorOrSyncFromBrreg(organisasjonsnummer)
@@ -166,85 +165,49 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
         }
 
-        get("/gjennomforing", {
-            description = "Hent gjennomføringene til arrangør"
-            tags = setOf("Arrangorflate")
-            operationId = "getArrangorflateGjennomforinger"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                queryParameter<List<PrismodellType>>("prismodeller") {
-                    explode = true
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Arrangør sine gjennomføringer"
-                    body<List<ArrangorflateGjennomforing>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-            requireTilgangHosArrangor(orgnr)
+        route("/gjennomforing") {
+            arrangorflateRoutesOpprettKrav(config.okonomi)
 
-            val prismodeller = call.parameters.getAll("prismodeller")
-                ?.map { PrismodellType.valueOf(it) }
-                ?: emptyList()
-            val gjeonnomforinger = db.session {
-                queries.gjennomforing
-                    .getAll(
-                        arrangorOrgnr = listOf(orgnr),
-                        prismodeller = prismodeller,
-                    )
-                    .items
-                    .map { toArrangorflateGjennomforing(it) }
-            }
-            call.respond(gjeonnomforinger)
-        }
-
-        get("/gjennomforing/tabeller", {
-            description = "Hent gjennomføringene til arrangør - tabell format"
-            tags = setOf("Arrangorflate")
-            operationId = "getArrangorflateGjennomforingerTabeller"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Arrangør sine gjennomføringer (DataDrivenTable)"
-                    body<GjennomforingerTableResponse>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-            requireTilgangHosArrangor(orgnr)
-
-            val gjennomforinger = db.session {
-                val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
-                queries.gjennomforing
-                    .getAll(
-                        arrangorOrgnr = listOf(orgnr),
-                        prismodeller = hentOpprettKravPrismodeller(config.okonomi),
-                        tiltakstypeIder = hentTiltakstyperMedTilsagn(config.okonomi, aktiveTiltakstyper),
-                    )
-                    .items
-            }
-            call.respond(
-                toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
-                    toGjennomforingAction(orgnr, gjennomforing)
-                },
-            )
-        }
-
-        route("/gjennomforing/{gjennomforingId}") {
             get({
+                description = "Hent gjennomføringene til arrangør"
+                tags = setOf("Arrangorflate")
+                operationId = "getArrangorflateGjennomforinger"
+                request {
+                    pathParameter<Organisasjonsnummer>("orgnr")
+                    queryParameter<List<PrismodellType>>("prismodeller") {
+                        explode = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Arrangør sine gjennomføringer"
+                        body<List<ArrangorflateGjennomforing>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+                requireTilgangHosArrangor(orgnr)
+
+                val prismodeller = call.parameters.getAll("prismodeller")
+                    ?.map { PrismodellType.valueOf(it) }
+                    ?: emptyList()
+                val gjeonnomforinger = db.session {
+                    queries.gjennomforing
+                        .getAll(
+                            arrangorOrgnr = listOf(orgnr),
+                            prismodeller = prismodeller,
+                        )
+                        .items
+                        .map { toArrangorflateGjennomforing(it) }
+                }
+                call.respond(gjeonnomforinger)
+            }
+
+            get("{gjennomforingId}", {
                 description = "Hent gjennomføring til arrangør"
                 tags = setOf("Arrangorflate")
                 operationId = "getArrangorflateGjennomforing"
@@ -281,136 +244,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
 
                 call.respond(toArrangorflateGjennomforing((gjennomforing)))
-            }
-
-            route("/opprett-krav") {
-                get({
-                    description = "Hent veiviser informasjon"
-                    tags = setOf("Arrangorflate")
-                    operationId = "getOpprettKravVeiviser"
-                    request {
-                        pathParameter<Organisasjonsnummer>("orgnr")
-                        pathParameter<String>("gjennomforingId")
-                    }
-                    response {
-                        code(HttpStatusCode.OK) {
-                            description = "Veiviser metadata (steg)"
-                            body<OpprettKravVeiviserMeta>()
-                        }
-                        default {
-                            description = "Problem details"
-                            body<ProblemDetail>()
-                        }
-                    }
-                }) {
-                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                    requireTilgangHosArrangor(orgnr)
-                    val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-
-                    val gjennomforing = requireNotNull(
-                        db.session {
-                            queries.gjennomforing
-                                .get(
-                                    id = gjennomforingId,
-                                )
-                        },
-                    )
-                    if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
-                        throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
-                    }
-
-                    val stegListe = mutableListOf(
-                        OpprettKravVeiviserSteg.INFORMASJON,
-                        OpprettKravVeiviserSteg.UTBETALING,
-                        OpprettKravVeiviserSteg.VEDLEGG,
-                        OpprettKravVeiviserSteg.OPPSUMMERING,
-                    )
-
-                    if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
-                        stegListe.add(OpprettKravVeiviserSteg.DELTAKERLISTE)
-                    }
-                    stegListe.sortBy { it.order }
-                    call.respond(OpprettKravVeiviserMeta(stegListe.map { it.toDto() }))
-                }
-
-                get("/innsendingsinformasjon", {
-                    description = "Hent innsendingsinformasjon"
-                    tags = setOf("Arrangorflate")
-                    operationId = "getOpprettKravInnsendingsinformasjon"
-                    request {
-                        pathParameter<Organisasjonsnummer>("orgnr")
-                        pathParameter<String>("gjennomforingId")
-                    }
-                    response {
-                        code(HttpStatusCode.OK) {
-                            description = "Innsendingsdetaljer"
-                            body<OpprettKravInnsendingsInformasjon>()
-                        }
-                        default {
-                            description = "Problem details"
-                            body<ProblemDetail>()
-                        }
-                    }
-                }) {
-                    val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                    requireTilgangHosArrangor(orgnr)
-                    val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-
-                    val gjennomforing = requireNotNull(
-                        db.session {
-                            queries.gjennomforing
-                                .get(
-                                    id = gjennomforingId,
-                                )
-                        },
-                    )
-                    if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
-                        throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
-                    }
-
-                    val definisjonsliste = listOf(
-                        Definition(
-                            "Arrangør",
-                            "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
-                        ),
-                        Definition("Tiltaksnavn", gjennomforing.navn),
-                        Definition("Tiltakstype", gjennomforing.tiltakstype.navn),
-                    )
-
-                    val tilsagnsTyper =
-                        if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                            listOf(TilsagnType.INVESTERING)
-                        } else {
-                            listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
-                        }
-                    val tilsagn = arrangorFlateService.getTilsagn(
-                        ArrangorflateTilsagnFilter(
-                            typer = tilsagnsTyper,
-                            statuser = listOf(TilsagnStatus.GODKJENT),
-                            gjennomforingId = gjennomforingId,
-                        ),
-                        orgnr,
-                    )
-
-                    val datoVelger =
-                        if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in config.okonomi.gyldigTilsagnPeriode) {
-                            val tilsagnPeriode =
-                                config.okonomi.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
-
-                            val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
-
-                            val perioder = Periode(
-                                start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
-                                slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
-                            ).splitByMonth()
-                            // TODO: filtrer vekk perioder med registrerte utbetalinger.
-                            // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
-                            DatoVelger.DatoSelect(perioder)
-                        } else {
-                            DatoVelger.DatoRange()
-                        }
-                    call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, datoVelger))
-                }
             }
         }
 
@@ -784,28 +617,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     }
 }
 
-private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig): List<PrismodellType> {
-    val now = LocalDate.now()
-    return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
-        if (entry.value.start.isBefore(now) && entry.value.slutt.isAfter(now)) {
-            entry.key
-        } else {
-            null
-        }
-    }
-}
-
-private fun hentTiltakstyperMedTilsagn(okonomiConfig: OkonomiConfig, tiltakstyper: List<TiltakstypeDto>): List<UUID> {
-    val now = LocalDate.now()
-    return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { tiltakstypeMedTilsagnPeriode ->
-        if (tiltakstypeMedTilsagnPeriode.value.contains(now)) {
-            tiltakstyper.find { it.tiltakskode == tiltakstypeMedTilsagnPeriode.key }?.id
-        } else {
-            null
-        }
-    }
-}
-
 private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggRequest {
     val vedlegg: MutableList<Vedlegg> = mutableListOf()
     val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
@@ -1005,113 +816,3 @@ data class OpprettKravOmUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )
-
-@Serializable
-data class GjennomforingerTableResponse(
-    val aktive: DataDrivenTableDto,
-    val historiske: DataDrivenTableDto,
-)
-
-private fun toGjennomforingerTableResponse(
-    gjennomforinger: List<Gjennomforing>,
-    action: (gjennomforing: Gjennomforing) -> DataElement,
-): GjennomforingerTableResponse {
-    val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
-    val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
-
-    return GjennomforingerTableResponse(
-        aktive = toGjennomforingDataTable(aktive, action),
-        historiske = toGjennomforingDataTable(historiske, action),
-    )
-}
-
-private fun toGjennomforingDataTable(
-    gjennomforinger: List<Gjennomforing>,
-    action: (gjennomforing: Gjennomforing) -> DataElement,
-): DataDrivenTableDto {
-    return DataDrivenTableDto(
-        columns = listOf(
-            DataDrivenTableDto.Column("navn", "Tiltaksnavn"),
-            DataDrivenTableDto.Column("tiltaksnummer", "Tiltaksnr."),
-            DataDrivenTableDto.Column("tiltaksType", "Tiltakstype"),
-            DataDrivenTableDto.Column("startDato", "Startdato"),
-            DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
-            DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
-        ),
-        rows = gjennomforinger.map { gjennomforing ->
-            mapOf(
-                "navn" to DataElement.text(gjennomforing.navn),
-                "tiltaksnummer" to DataElement.text(gjennomforing.tiltaksnummer),
-                "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
-                "startDato" to DataElement.date(gjennomforing.startDato),
-                "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to action(gjennomforing),
-            )
-        },
-    )
-}
-
-private fun toGjennomforingAction(
-    orgnr: Organisasjonsnummer,
-    gjennomforing: Gjennomforing,
-): DataElement = when (gjennomforing.tiltakstype.tiltakskode) {
-    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ->
-        DataElement.Link(
-            text = "Start innsending",
-            href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
-        )
-
-    else ->
-        DataElement.Link(
-            text = "Start innsending",
-            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
-        )
-}
-
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
-
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
-
-@Serializable
-data class OpprettKravVeiviserMeta(val steg: List<OpprettKravVeiviserStegDto>)
-
-@Serializable
-enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
-    INFORMASJON("Innsendingsinformasjon", 1),
-    DELTAKERLISTE("Deltakere", 2),
-    UTBETALING("Utbetalingsinformasjon", 3),
-    VEDLEGG("Vedlegg", 4),
-    OPPSUMMERING("Oppsummering", 5),
-}
-
-fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto = OpprettKravVeiviserStegDto(type = this, navn = navn, order = order)
-
-@Serializable
-data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val navn: String, val order: Int)
-
-@Serializable
-data class OpprettKravInnsendingsInformasjon(
-    val definisjonsListe: List<Definition>,
-    val tilsagn: List<ArrangorflateTilsagnDto>,
-    val datoVelger: DatoVelger,
-)
-@Serializable
-data class Definition(val key: String, val value: String)
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-@JsonClassDiscriminator("type")
-sealed class DatoVelger {
-
-    @Serializable
-    @SerialName("DatoVelgerSelect")
-    data class DatoSelect(val periodeForslag: List<Periode>): DatoVelger()
-
-    @Serializable
-    @SerialName("DatoVelgerRange")
-    data class DatoRange(val todo: String = "hello"): DatoVelger();
-}
-
-
