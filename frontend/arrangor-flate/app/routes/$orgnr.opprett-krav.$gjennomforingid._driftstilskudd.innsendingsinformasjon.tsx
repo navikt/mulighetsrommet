@@ -187,7 +187,7 @@ export default function OpprettKravInnsendingsinformasjon() {
       return [];
     }
     return innsendingsinformasjon.tilsagn.filter((tilsagn) =>
-      inBetweenInclusive(valgtPeriode.start, {
+      inBetweenInclusive(valgtPeriode.slutt, {
         from: tilsagn.periode.start,
         to: tilsagn.periode.slutt,
       }),
@@ -231,8 +231,8 @@ export default function OpprettKravInnsendingsinformasjon() {
               <PeriodeVelgerVarianter
                 onPeriodeSelected={setValgtPeriode}
                 type={innsendingsinformasjon.datoVelger}
-                sessionPeriodeStart={parseDate(sessionPeriodeStart)}
-                sessionPeriodeSlutt={parseDate(sessionPeriodeSlutt)}
+                sessionPeriodeStart={sessionPeriodeStart}
+                sessionPeriodeSlutt={sessionPeriodeSlutt}
               />
             </VStack>
             {valgtPeriode && (
@@ -291,8 +291,8 @@ export default function OpprettKravInnsendingsinformasjon() {
 interface PeriodeVelgerVarianterProps {
   onPeriodeSelected: (periode?: Periode) => void;
   type: DatoVelger;
-  sessionPeriodeStart?: Date;
-  sessionPeriodeSlutt?: Date;
+  sessionPeriodeStart?: string;
+  sessionPeriodeSlutt?: string;
   errors?: FieldError[];
 }
 
@@ -306,7 +306,12 @@ function PeriodeVelgerVarianter({
   switch (type.type) {
     case "DatoVelgerSelect":
       return (
-        <PeriodeSelect periodeForslag={type.periodeForslag} onPeriodeSelected={onPeriodeSelected} />
+        <PeriodeSelect
+          periodeForslag={type.periodeForslag}
+          onPeriodeSelected={onPeriodeSelected}
+          sessionPeriodeStart={sessionPeriodeStart}
+          sessionPeriodeSlutt={sessionPeriodeSlutt}
+        />
       );
     case "DatoVelgerRange":
       return (
@@ -325,8 +330,15 @@ function PeriodeVelgerVarianter({
 interface PeriodeSelectProps {
   onPeriodeSelected: (periode?: Periode) => void;
   periodeForslag: Array<Periode>;
+  sessionPeriodeStart?: string;
+  sessionPeriodeSlutt?: string;
 }
-function PeriodeSelect({ onPeriodeSelected, periodeForslag }: PeriodeSelectProps) {
+function PeriodeSelect({
+  onPeriodeSelected,
+  periodeForslag,
+  sessionPeriodeStart,
+  sessionPeriodeSlutt,
+}: PeriodeSelectProps) {
   const startRef = useRef<HTMLInputElement>(null);
   const sluttRef = useRef<HTMLInputElement>(null);
 
@@ -345,13 +357,17 @@ function PeriodeSelect({ onPeriodeSelected, periodeForslag }: PeriodeSelectProps
   }
   return (
     <HStack gap="4">
-      <input ref={startRef} name="periodeStart" hidden />
-      <input ref={sluttRef} name="periodeSlutt" hidden />
+      <input ref={startRef} name="periodeStart" defaultValue={sessionPeriodeStart} hidden />
+      <input ref={sluttRef} name="periodeSlutt" defaultValue={sessionPeriodeSlutt} hidden />
       <Select
         hideLabel
         label="Hvilken periode gjelder kravet for?"
         size="small"
         name="periode"
+        defaultValue={periodeForslag.findIndex(
+          (periode) =>
+            periode.start === sessionPeriodeStart && periode.slutt === sessionPeriodeSlutt,
+        )}
         onChange={onChange}
       >
         <option value="">Velg periode</option>
@@ -367,8 +383,8 @@ function PeriodeSelect({ onPeriodeSelected, periodeForslag }: PeriodeSelectProps
 
 interface PeriodeVelgerProps {
   onPeriodeSelected: (periode?: Periode) => void;
-  sessionPeriodeStart?: Date;
-  sessionPeriodeSlutt?: Date;
+  sessionPeriodeStart?: string;
+  sessionPeriodeSlutt?: string;
   errors?: FieldError[];
 }
 
@@ -384,14 +400,14 @@ function PeriodeVelger({
     toInputProps: periodeSluttInputProps,
   } = useRangeDatepicker({
     defaultSelected: {
-      from: sessionPeriodeStart,
-      to: sessionPeriodeSlutt,
+      from: parseDate(sessionPeriodeStart),
+      to: parseDate(sessionPeriodeSlutt),
     },
     onRangeChange: (dateRange) => {
       if (dateRange?.from && dateRange.to) {
         return onPeriodeSelected({
-          start: dateRange.from.toISOString(),
-          slutt: dateRange.to.toISOString(),
+          start: yyyyMMddFormatting(dateRange.from)!,
+          slutt: yyyyMMddFormatting(dateRange.to)!,
         });
       }
       return onPeriodeSelected();

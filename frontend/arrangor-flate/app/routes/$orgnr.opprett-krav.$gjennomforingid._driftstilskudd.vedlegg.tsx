@@ -204,7 +204,7 @@ export default function OpprettKravOppsummering() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKrav.investering.utbetaling(gjennomforingId)}
+                to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId)}
               >
                 Tilbake
               </Button>
