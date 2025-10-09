@@ -3925,10 +3925,15 @@ components:
           type:
           - "null"
           - string
-        beskrivelse:
+        navn:
           type: string
+        beskrivelse:
+          type: array
+          items:
+            type: string
       required:
       - beskrivelse
+      - navn
       - prisbetingelser
       - satser
       - type
@@ -4689,10 +4694,15 @@ components:
       properties:
         type:
           $ref: "#/components/schemas/PrismodellType"
-        beskrivelse:
+        navn:
           type: string
+        beskrivelse:
+          type: array
+          items:
+            type: string
       required:
       - beskrivelse
+      - navn
       - type
     PersonopplysningData:
       type: object

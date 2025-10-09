@@ -32,7 +32,7 @@ fun Route.prismodellRoutes() {
             val tiltakstype: Tiltakskode by call.queryParameters
 
             val prismodeller = Prismodeller.getPrismodellerForTiltak(tiltakstype)
-                .map { PrismodellInfo(type = it, beskrivelse = it.beskrivelse) }
+                .map { PrismodellInfo(type = it, navn = it.navn, beskrivelse = it.beskrivelse) }
 
             call.respond(prismodeller)
         }
