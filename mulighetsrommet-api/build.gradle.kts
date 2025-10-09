@@ -1,11 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.openapitools.generator.gradle.plugin.tasks.ValidateTask
 
 plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.openapi.generator)
 }
 
 val compileKotlin: KotlinCompile by tasks
@@ -38,19 +36,6 @@ tasks.register<JavaExec>("generateOpenApi") {
         "arrangorflate",
         "../frontend/arrangor-flate/openapi.yaml",
     )
-}
-
-val validateOpenapiSpec = tasks.register<ValidateTask>("validateOpenapiSpec") {
-    inputSpec.set("$rootDir/mulighetsrommet-api/src/main/resources/web/openapi.yaml")
-    recommend.set(true)
-}
-
-val validateOpenapiSpecs = tasks.register<Task>("validateOpenapiSpecs") {
-    dependsOn(validateOpenapiSpec.name)
-}
-
-tasks.build {
-    dependsOn(validateOpenapiSpecs.name)
 }
 
 dependencies {
