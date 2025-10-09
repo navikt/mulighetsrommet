@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -207,23 +207,13 @@ interface UtbetalingLinjeViewProps {
 }
 
 function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProps) {
-  const [reloadLinjer, setReloadLinjer] = useState<boolean>();
-  const { data: utbetalingLinjer, isRefetching } = useUtbetalingsLinjer(utbetaling.id);
+  const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
   const queryClient = useQueryClient();
-
-  const linjerIsUpdated = !isRefetching && reloadLinjer;
-
-  useEffect(() => {
-    if (linjerIsUpdated) {
-      setReloadLinjer(false);
-    }
-  }, [linjerIsUpdated, setReloadLinjer]);
 
   async function oppdaterLinjer() {
     await queryClient.refetchQueries({
       queryKey: QueryKeys.utbetaling(utbetaling.id),
     });
-    setReloadLinjer(true);
   }
 
   switch (utbetaling.status.type) {
@@ -237,7 +227,6 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
           handlinger={handlinger}
           utbetalingLinjer={utbetalingLinjer}
           oppdaterLinjer={oppdaterLinjer}
-          reloadLinjer={linjerIsUpdated}
         />
       );
     case UtbetalingStatusDtoType.TIL_ATTESTERING:

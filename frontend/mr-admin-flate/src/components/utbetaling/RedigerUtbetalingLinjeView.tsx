@@ -10,7 +10,7 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
@@ -18,7 +18,7 @@ import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetal
 import MindreBelopModal from "./MindreBelopModal";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { isBesluttet } from "@/utils/totrinnskontroll";
-import { getChangeSet, RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
+import { RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 import { utbetalingTekster } from "./UtbetalingTekster";
@@ -38,7 +38,6 @@ export function RedigerUtbetalingLinjeView({
   handlinger,
   utbetalingLinjer: apiLinjer,
   oppdaterLinjer,
-  reloadLinjer,
 }: Props) {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const navigate = useNavigate();
@@ -59,26 +58,10 @@ export function RedigerUtbetalingLinjeView({
   }
 
   const form = useForm<RedigerUtbetalingLinjeFormValues>({
-    defaultValues: { formLinjer: apiLinjer },
+    values: { formLinjer: apiLinjer },
     mode: "onSubmit",
   });
-  const { append, update } = useFieldArray<RedigerUtbetalingLinjeFormValues>({
-    name: "formLinjer",
-    control: form.control,
-  });
   const formLinjer = form.watch("formLinjer");
-
-  useEffect(() => {
-    if (reloadLinjer) {
-      const { updatedLinjer, newLinjer } = getChangeSet(formLinjer, apiLinjer);
-      updatedLinjer.forEach(({ index, linje }) => {
-        update(index, linje);
-      });
-      newLinjer.forEach((linje) => {
-        append(linje);
-      });
-    }
-  }, [reloadLinjer, apiLinjer, formLinjer, append, update]);
 
   const tilsagnsTypeFraTilskudd = tilsagnType(utbetaling.tilskuddstype);
 
