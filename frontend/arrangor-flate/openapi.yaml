@@ -1517,7 +1517,9 @@ components:
         navn:
           type: string
         norskIdent:
-          type: string
+          type:
+          - "null"
+          - string
       required:
       - navn
       - norskIdent

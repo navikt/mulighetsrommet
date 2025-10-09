@@ -17,7 +17,8 @@ export const avtaleHandlers = [
       return HttpResponse.json([
         {
           type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-          beskrivelse: "Fast sats per tiltaksplass per måned",
+          navn: "Fast sats per tiltaksplass per måned",
+          beskrivelse: [],
         },
       ]);
     },
@@ -69,10 +70,6 @@ export const avtaleHandlers = [
       return HttpResponse.json(avtale);
     },
   ),
-
-  http.put("*/api/v1/intern/avtaler", () => {
-    return HttpResponse.json(mockAvtaler[0]);
-  }),
 
   http.put("*/api/tiltaksadministrasjon/avtaler", () => {
     return HttpResponse.json(mockAvtaler[0]);

@@ -190,10 +190,13 @@ class GjennomforingRoutesTest : FunSpec({
                     setBody(
                         GjennomforingFixtures.Oppfolging1Request.copy(
                             administratorer = emptyList(),
-                            navEnheter = setOf(
-                                NavEnhetFixtures.Oslo.enhetsnummer,
-                                NavEnhetFixtures.Sagene.enhetsnummer,
+                            veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
+                                navEnheter = listOf(
+                                    NavEnhetFixtures.Oslo.enhetsnummer,
+                                    NavEnhetFixtures.Sagene.enhetsnummer,
+                                ),
                             ),
+
                         ),
                     )
                 }
@@ -225,9 +228,11 @@ class GjennomforingRoutesTest : FunSpec({
                     setBody(
                         GjennomforingFixtures.Oppfolging1Request.copy(
                             avtaleId = avtale.id,
-                            navEnheter = setOf(
-                                NavEnhetFixtures.Oslo.enhetsnummer,
-                                NavEnhetFixtures.Sagene.enhetsnummer,
+                            veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
+                                navEnheter = listOf(
+                                    NavEnhetFixtures.Oslo.enhetsnummer,
+                                    NavEnhetFixtures.Sagene.enhetsnummer,
+                                ),
                             ),
                             tiltakstypeId = avtale.tiltakstypeId,
                         ),

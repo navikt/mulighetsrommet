@@ -1,8 +1,5 @@
 {
   "$schema": "https://turborepo.org/schema.json",
-  "globalDependencies": [
-    "mulighetsrommet-api/src/main/resources/web/openapi.yaml"
-  ],
   "tasks": {
     "dev": {
       "dependsOn": ["^build"],

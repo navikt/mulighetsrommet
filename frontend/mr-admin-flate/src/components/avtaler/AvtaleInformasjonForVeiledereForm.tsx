@@ -27,8 +27,11 @@ export function AvtaleInformasjonForVeiledereForm() {
   const tiltakId = tiltakstyper.find((type) => type.tiltakskode === tiltakskode)?.id;
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
-    setValue("beskrivelse", beskrivelse ?? null);
-    setValue("faneinnhold", slateFaneinnholdToPortableText(faneinnhold ?? null));
+    setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);
+    setValue(
+      "veilederinformasjon.faneinnhold",
+      slateFaneinnholdToPortableText(faneinnhold ?? null),
+    );
   }
 
   const regionerOptions = enheter
@@ -38,8 +41,14 @@ export function AvtaleInformasjonForVeiledereForm() {
       label: enhet.navn,
     }));
 
-  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter);
-  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(watch("navRegioner"), enheter);
+  const kontorEnheterOptions = getLokaleUnderenheterAsSelectOptions(
+    watch("veilederinformasjon.navRegioner"),
+    enheter,
+  );
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
+    watch("veilederinformasjon.navRegioner"),
+    enheter,
+  );
 
   if (!tiltakId) {
     return (

@@ -104,7 +104,7 @@ object GjennomforingValidator {
         if (ctx.avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
             validateGruppeFagOgYrke(next.utdanningslop, ctx.avtale)
         }
-        validateNavEnheter(next.navEnheter, ctx.avtale)
+        validateNavEnheter(next.veilederinformasjon.navEnheter.toSet(), ctx.avtale)
         validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingDbo::kontaktpersoner)
         validateSlettetNavAnsatte(ctx.administratorer, GjennomforingDbo::administratorer)
 

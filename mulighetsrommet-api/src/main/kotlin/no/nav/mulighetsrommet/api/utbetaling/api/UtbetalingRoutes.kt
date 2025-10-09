@@ -135,7 +135,7 @@ fun Route.utbetalingRoutes() {
 
                     UtbetalingDetaljerDto(
                         utbetaling = UtbetalingDto.fromUtbetaling(utbetaling),
-                        handlinger = utbetalingService.handlinger(utbetaling, ansatt),
+                        handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt),
                     )
                 }
                 call.respond(utbetaling)
@@ -228,60 +228,58 @@ fun Route.utbetalingRoutes() {
             call.respond(tilsagn)
         }
 
-        get("/linjer", {
-            tags = setOf("Utbetaling")
-            operationId = "getUtbetalingsLinjer"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Utbetalingslinjer til utbetaling"
-                    body<List<UtbetalingLinje>>()
+        authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
+            get("/linjer", {
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingsLinjer"
+                request {
+                    pathParameterUuid("id")
                 }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val navIdent = getNavIdent()
-
-            val utbetalingsLinjer = db.session {
-                val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
-                if (!ansatt.hasAnyGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_LES)) {
-                    return@session emptyList()
-                }
-                val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
-                val utbetalingLinjer =
-                    delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
-
-                if (utbetalingLinjer.isNotEmpty()) {
-                    return@session utbetalingLinjer
-                }
-
-                val utbetaling = queries.utbetaling.getOrError(id)
-                val tilsagn = queries.tilsagn.getAll(
-                    gjennomforingId = utbetaling.gjennomforing.id,
-                    periodeIntersectsWith = utbetaling.periode,
-                    typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                )
-                return@session tilsagn.filter { it.status === TilsagnStatus.GODKJENT }
-                    .map {
-                        UtbetalingLinje(
-                            id = UUID.randomUUID(),
-                            tilsagn = TilsagnDto.fromTilsagn(it),
-                            status = null,
-                            belop = 0,
-                            gjorOppTilsagn = false,
-                            opprettelse = null,
-                            handlinger = emptySet(),
-                        )
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingslinjer til utbetaling"
+                        body<List<UtbetalingLinje>>()
                     }
-            }.sortedBy { it.tilsagn.bestillingsnummer }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
 
-            call.respond(utbetalingsLinjer)
+                val utbetalingsLinjer = db.session {
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
+                    val utbetalingLinjer = delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
+
+                    val utbetaling = queries.utbetaling.getOrError(id)
+                    val tilsagn = queries.tilsagn.getAll(
+                        statuser = listOf(TilsagnStatus.GODKJENT),
+                        gjennomforingId = utbetaling.gjennomforing.id,
+                        periodeIntersectsWith = utbetaling.periode,
+                        typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                    )
+
+                    tilsagn
+                        .filter { utbetalingLinjer.none { linje -> linje.tilsagn.id == it.id } }
+                        .map {
+                            UtbetalingLinje(
+                                id = UUID.randomUUID(),
+                                tilsagn = TilsagnDto.fromTilsagn(it),
+                                status = null,
+                                belop = 0,
+                                gjorOppTilsagn = false,
+                                opprettelse = null,
+                                handlinger = emptySet(),
+                            )
+                        }
+                        .plus(utbetalingLinjer)
+                }.sortedBy { it.tilsagn.bestillingsnummer }
+
+                call.respond(utbetalingsLinjer)
+            }
         }
 
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
@@ -391,12 +389,6 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
     val opprettelse = queries.totrinnskontroll
         .getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
 
-    val erBeslutter = navAnsatt.hasKontorspesifikkRolle(
-        Rolle.ATTESTANT_UTBETALING,
-        setOf(tilsagn.kostnadssted.enhetsnummer),
-    )
-    val erSaksbehandler = navAnsatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
     return UtbetalingLinje(
         id = delutbetaling.id,
         gjorOppTilsagn = delutbetaling.gjorOppTilsagn,
@@ -404,12 +396,7 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = setOfNotNull(
-            UtbetalingLinjeHandling.ATTESTER.takeIf {
-                erBeslutter && opprettelse.behandletAv != navAnsatt.navIdent
-            },
-            UtbetalingLinjeHandling.RETURNER.takeIf { erSaksbehandler || erBeslutter },
-        ),
+        handlinger = UtbetalingService.linjeHandlinger(delutbetaling, opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
     )
 }
 

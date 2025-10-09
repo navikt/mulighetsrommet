@@ -76,7 +76,8 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodell: {
       type: PrismodellType.ANNEN_AVTALT_PRIS,
-      beskrivelse: "Annen avtalt pris",
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
       satser: null,
       prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
@@ -145,7 +146,8 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodell: {
       type: PrismodellType.ANNEN_AVTALT_PRIS,
-      beskrivelse: "Annen avtalt pris",
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
       satser: null,
       prisbetingelser: "Maskert prisbetingelser",
     },
@@ -201,7 +203,8 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodell: {
       type: PrismodellType.ANNEN_AVTALT_PRIS,
-      beskrivelse: "Annen avtalt pris",
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
       satser: null,
       prisbetingelser: "Maskert prisbetingelser",
     },
@@ -257,7 +260,8 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodell: {
       type: PrismodellType.ANNEN_AVTALT_PRIS,
-      beskrivelse: "Annen avtalt pris",
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
       satser: null,
       prisbetingelser: "Maskert prisbetingelser",
     },

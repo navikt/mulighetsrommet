@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PrismodellInfo(
     val type: PrismodellType,
-    val beskrivelse: String,
+    val navn: String,
+    val beskrivelse: List<String>,
 )

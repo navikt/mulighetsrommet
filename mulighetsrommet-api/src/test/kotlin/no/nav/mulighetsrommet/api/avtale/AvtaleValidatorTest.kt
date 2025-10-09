@@ -16,6 +16,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -67,9 +68,11 @@ class AvtaleValidatorTest : FunSpec({
         sluttDato = LocalDate.now().plusMonths(1),
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         avtaletype = Avtaletype.RAMMEAVTALE,
-        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
-        beskrivelse = null,
-        faneinnhold = null,
+        veilederinformasjon = VeilederinfoRequest(
+            navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+            beskrivelse = null,
+            faneinnhold = null,
+        ),
         personvern = PersonvernRequest(
             personopplysninger = emptyList(),
             personvernBekreftet = false,
@@ -127,7 +130,7 @@ class AvtaleValidatorTest : FunSpec({
         val request = avtaleRequest.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
-            navEnheter = emptyList(),
+            veilederinformasjon = VeilederinfoRequest(navEnheter = emptyList(), beskrivelse = null, faneinnhold = null),
             arrangor = AvtaleRequest.Arrangor(
                 hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
                 underenheter = emptyList(),
@@ -189,7 +192,7 @@ class AvtaleValidatorTest : FunSpec({
         val validator = createValidator()
 
         val request = avtaleRequest.copy(
-            navEnheter = listOf(),
+            veilederinformasjon = VeilederinfoRequest(navEnheter = listOf(), beskrivelse = null, faneinnhold = null),
         )
 
         validator.validate(request, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -590,7 +593,14 @@ class AvtaleValidatorTest : FunSpec({
                 ).initialize(database.db)
 
                 val request = avtaleRequest.copy(
-                    navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer, NavEnhetFixtures.Sagene.enhetsnummer),
+                    veilederinformasjon = VeilederinfoRequest(
+                        navEnheter = listOf(
+                            NavEnhetFixtures.Oslo.enhetsnummer,
+                            NavEnhetFixtures.Sagene.enhetsnummer,
+                        ),
+                        beskrivelse = null,
+                        faneinnhold = null,
+                    ),
                 )
 
                 val previous = database.run { queries.avtale.get(oppfolgingMedRammeAvtale.id) }

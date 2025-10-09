@@ -76,7 +76,9 @@ class GjennomforingValidatorTest : FunSpec({
         avtaleId = avtale.id,
         startDato = avtale.startDato,
         sluttDato = avtale.sluttDato,
-        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+        veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
+            navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+        ),
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
@@ -284,7 +286,7 @@ class GjennomforingValidatorTest : FunSpec({
                 listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
             ),
             row(
-                request.copy(navEnheter = setOf()),
+                request.copy(veilederinformasjon = request.veilederinformasjon.copy(navEnheter = listOf())),
                 listOf(
                     FieldError("/navEnheter", "Du må velge minst én Nav-region fra avtalen"),
                     FieldError("/navEnheter", "Du må velge minst én Nav-enhet fra avtalen"),

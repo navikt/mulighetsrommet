@@ -34,20 +34,33 @@ class PersonaliaService(
                     val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
                         navEnhetService.hentEnhet(it)
                     }
-                    DeltakerPersonaliaMedGeografiskEnhet(
-                        deltakerId = amtPersonalia.deltakerId,
-                        norskIdent = norskIdent,
-                        navn = amtPersonalia.navn,
-                        oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
-                            navEnhetService.hentEnhet(it)
-                        },
-                        geografiskEnhet = geografiskEnhetDto,
-                        erSkjermet = amtPersonalia.erSkjermet,
-                        adressebeskyttelse = amtPersonalia.adressebeskyttelse,
-                        region = geografiskEnhetDto?.overordnetEnhet?.let {
-                            navEnhetService.hentEnhet(it)
-                        },
-                    )
+                    if (amtPersonalia.erSkjermet || amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT) {
+                        val skjermetNavn = when {
+                            amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
+                            else -> "Skjermet"
+                        }
+                        DeltakerPersonaliaMedGeografiskEnhet(
+                            deltakerId = amtPersonalia.deltakerId,
+                            norskIdent = null,
+                            navn = skjermetNavn,
+                            oppfolgingEnhet = null,
+                            geografiskEnhet = null,
+                            region = null,
+                        )
+                    } else {
+                        DeltakerPersonaliaMedGeografiskEnhet(
+                            deltakerId = amtPersonalia.deltakerId,
+                            norskIdent = norskIdent,
+                            navn = amtPersonalia.navn,
+                            oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
+                                navEnhetService.hentEnhet(it)
+                            },
+                            geografiskEnhet = geografiskEnhetDto,
+                            region = geografiskEnhetDto?.overordnetEnhet?.let {
+                                navEnhetService.hentEnhet(it)
+                            },
+                        )
+                    }
                 }
             }
             .getOrElse {
@@ -105,10 +118,8 @@ class PersonaliaService(
 
 data class DeltakerPersonaliaMedGeografiskEnhet(
     val deltakerId: UUID,
-    val norskIdent: NorskIdent,
+    val norskIdent: NorskIdent?,
     val navn: String,
-    val erSkjermet: Boolean,
-    val adressebeskyttelse: PdlGradering,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val region: NavEnhetDto?,

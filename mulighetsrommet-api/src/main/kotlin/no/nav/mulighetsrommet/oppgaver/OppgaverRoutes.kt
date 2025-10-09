@@ -9,13 +9,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -24,13 +19,6 @@ import org.koin.ktor.ext.inject
 fun Route.oppgaverRoutes() {
     val db: ApiDatabase by inject()
     val service: OppgaverService by inject()
-
-    fun RoutingContext.getAnsatt(): NavAnsatt = db.session {
-        val navIdent = getNavIdent()
-
-        queries.ansatt.getByNavIdent(navIdent)
-            ?: throw IllegalStateException("Fant ikke ansatt med navIdent=$navIdent")
-    }
 
     route("oppgaver") {
         post({
@@ -50,15 +38,17 @@ fun Route.oppgaverRoutes() {
                 }
             }
         }) {
-            val ansatt = getAnsatt()
+            val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
+
             val filter = call.receive<OppgaverFilter>()
 
             val oppgaver = service.oppgaver(
                 oppgavetyper = filter.oppgavetyper,
                 tiltakskoder = filter.tiltakskoder,
                 regioner = filter.regioner,
-                ansatt = ansatt.navIdent,
-                roller = ansatt.roller,
+                ansatt = ansatt,
             )
 
             call.respond(oppgaver)
@@ -78,7 +68,9 @@ fun Route.oppgaverRoutes() {
                 }
             }
         }) {
-            val ansatt = getAnsatt()
+            val navIdent = getNavIdent()
+            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+                ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
             val ansattesRoller = ansatt.roller.map { it.rolle }
             val oppgavetyper = OppgaveType.entries.filter { it.rolle in ansattesRoller }.map {
