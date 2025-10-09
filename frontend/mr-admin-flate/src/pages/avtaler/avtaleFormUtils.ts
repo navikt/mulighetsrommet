@@ -1,6 +1,10 @@
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
-import { AvtaleRequest, PersonvernRequest } from "@tiltaksadministrasjon/api-client";
+import {
+  AvtaleRequest,
+  PersonvernRequest,
+  VeilederinfoRequest,
+} from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
 export interface RequestValues {
@@ -9,32 +13,38 @@ export interface RequestValues {
 }
 
 export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
-  const { navn, startDato, beskrivelse, avtaletype, satser, administratorer } = data;
+  const { navn, startDato, veilederinformasjon, avtaletype, satser, administratorer } = data;
   return {
     id: id ?? v4(),
     navn,
     administratorer,
-    beskrivelse,
     avtaletype,
     startDato,
     sakarkivNummer: data.sakarkivNummer || null,
     sluttDato: data.sluttDato || null,
-    navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
-    faneinnhold: data.faneinnhold
-      ? {
-          forHvemInfoboks: data.faneinnhold.forHvemInfoboks || null,
-          forHvem: data.faneinnhold.forHvem || null,
-          detaljerOgInnholdInfoboks: data.faneinnhold.detaljerOgInnholdInfoboks || null,
-          detaljerOgInnhold: data.faneinnhold.detaljerOgInnhold || null,
-          pameldingOgVarighetInfoboks: data.faneinnhold.pameldingOgVarighetInfoboks || null,
-          pameldingOgVarighet: data.faneinnhold.pameldingOgVarighet || null,
-          kontaktinfo: data.faneinnhold.kontaktinfo || null,
-          kontaktinfoInfoboks: data.faneinnhold.kontaktinfoInfoboks || null,
-          lenker: data.faneinnhold.lenker || null,
-          oppskrift: data.faneinnhold.oppskrift || null,
-          delMedBruker: data.faneinnhold.delMedBruker || null,
-        }
-      : null,
+    veilederinformasjon: {
+      navEnheter: veilederinformasjon.navRegioner
+        .concat(veilederinformasjon.navKontorer)
+        .concat(veilederinformasjon.navAndreEnheter),
+      faneinnhold: veilederinformasjon.faneinnhold
+        ? {
+            forHvemInfoboks: veilederinformasjon.faneinnhold.forHvemInfoboks || null,
+            forHvem: veilederinformasjon.faneinnhold.forHvem || null,
+            detaljerOgInnholdInfoboks:
+              veilederinformasjon.faneinnhold.detaljerOgInnholdInfoboks || null,
+            detaljerOgInnhold: veilederinformasjon.faneinnhold.detaljerOgInnhold || null,
+            pameldingOgVarighetInfoboks:
+              veilederinformasjon.faneinnhold.pameldingOgVarighetInfoboks || null,
+            pameldingOgVarighet: veilederinformasjon.faneinnhold.pameldingOgVarighet || null,
+            kontaktinfo: veilederinformasjon.faneinnhold.kontaktinfo || null,
+            kontaktinfoInfoboks: veilederinformasjon.faneinnhold.kontaktinfoInfoboks || null,
+            lenker: veilederinformasjon.faneinnhold.lenker || null,
+            oppskrift: veilederinformasjon.faneinnhold.oppskrift || null,
+            delMedBruker: veilederinformasjon.faneinnhold.delMedBruker || null,
+          }
+        : null,
+      beskrivelse: veilederinformasjon.beskrivelse,
+    },
     arrangor:
       data.arrangorHovedenhet && data.arrangorUnderenheter
         ? {
@@ -63,6 +73,33 @@ export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
 export function toPersonvernRequest({ data }: RequestValues): PersonvernRequest {
   return {
     ...data.personvern,
+  };
+}
+
+export function toVeilederinfoRequest({ data }: RequestValues): VeilederinfoRequest {
+  const veilederinformasjon = data.veilederinformasjon;
+  return {
+    beskrivelse: veilederinformasjon.beskrivelse,
+    faneinnhold: veilederinformasjon.faneinnhold
+      ? {
+          forHvemInfoboks: veilederinformasjon.faneinnhold.forHvemInfoboks || null,
+          forHvem: veilederinformasjon.faneinnhold.forHvem || null,
+          detaljerOgInnholdInfoboks:
+            veilederinformasjon.faneinnhold.detaljerOgInnholdInfoboks || null,
+          detaljerOgInnhold: veilederinformasjon.faneinnhold.detaljerOgInnhold || null,
+          pameldingOgVarighetInfoboks:
+            veilederinformasjon.faneinnhold.pameldingOgVarighetInfoboks || null,
+          pameldingOgVarighet: veilederinformasjon.faneinnhold.pameldingOgVarighet || null,
+          kontaktinfo: veilederinformasjon.faneinnhold.kontaktinfo || null,
+          kontaktinfoInfoboks: veilederinformasjon.faneinnhold.kontaktinfoInfoboks || null,
+          lenker: veilederinformasjon.faneinnhold.lenker || null,
+          oppskrift: veilederinformasjon.faneinnhold.oppskrift || null,
+          delMedBruker: veilederinformasjon.faneinnhold.delMedBruker || null,
+        }
+      : null,
+    navEnheter: veilederinformasjon.navRegioner
+      .concat(veilederinformasjon.navKontorer)
+      .concat(veilederinformasjon.navAndreEnheter),
   };
 }
 

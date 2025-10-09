@@ -34,15 +34,21 @@ export const PrismodellSchema = z.object({
 
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
 
-export const RedaksjoneltInnholdSchema = z.object({
+export const VeilederinformasjonSchema = z.object({
   beskrivelse: z
     .string({ error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
     .nullable(),
   faneinnhold: FaneinnholdSchema.nullable(),
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
-  navEnheterAndre: z.string().array(),
+  navAndreEnheter: z.string().array(),
 });
+
+export const VeilederinformasjonStepSchema = z.object({
+  veilederinformasjon: VeilederinformasjonSchema,
+});
+
+export type VeilederinformasjonValues = z.infer<typeof VeilederinformasjonStepSchema>;
 
 export const PersonopplysningerSchema = z.object({
   personvern: z.object({
@@ -55,7 +61,7 @@ export const avtaleFormSchema = avtaleDetaljerSchema
   .extend(arrangorSchema.shape)
   .extend(PrismodellSchema.shape)
   .extend(PersonopplysningerSchema.shape)
-  .extend(RedaksjoneltInnholdSchema.shape)
+  .extend(VeilederinformasjonStepSchema.shape)
   .superRefine((data, ctx) => {
     validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);
@@ -75,9 +81,13 @@ export function defaultAvtaleData(
 
   return {
     tiltakskode: avtale?.tiltakstype?.tiltakskode,
-    navRegioner: navRegioner,
-    navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
-    navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
+    veilederinformasjon: {
+      navRegioner: navRegioner,
+      navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+      navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
+      beskrivelse: avtale?.beskrivelse ?? null,
+      faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
+    },
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
@@ -90,8 +100,6 @@ export function defaultAvtaleData(
     startDato: avtale?.startDato ?? null,
     sluttDato: avtale?.sluttDato ?? null,
     sakarkivNummer: avtale?.sakarkivNummer ?? null,
-    beskrivelse: avtale?.beskrivelse ?? null,
-    faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger ?? [],
