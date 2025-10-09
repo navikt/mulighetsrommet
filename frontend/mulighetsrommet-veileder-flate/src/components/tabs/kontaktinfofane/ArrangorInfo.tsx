@@ -11,7 +11,7 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
   const { kontaktpersoner } = arrangor;
 
   return (
-    <div className="prose">
+    <div>
       <Heading size="small" spacing={false}>
         Arrangør
       </Heading>
