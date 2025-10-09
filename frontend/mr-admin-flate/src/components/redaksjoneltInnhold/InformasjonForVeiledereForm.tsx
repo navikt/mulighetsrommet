@@ -257,7 +257,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.pameldingOgVarighet"
+          name="veilederinformasjon.faneinnhold.pameldingOgVarighet"
           label="Påmelding og varighet"
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
@@ -267,7 +267,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
 };
 
 const Kontaktinfo = () => {
-  const { register } = useFormContext();
+  const { register } = useFormContext<VeilederinformasjonValues>();
 
   return (
     <VStack className="mt-4">
@@ -278,7 +278,7 @@ const Kontaktinfo = () => {
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.kontaktinfo"
+          name="veilederinformasjon.faneinnhold.kontaktinfo"
           label="Kontaktinfo"
           description="Ekstra tekst om kontaktinfo."
         />

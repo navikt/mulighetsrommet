@@ -71,7 +71,7 @@ export function GjennomforingFormContainer(props: Props) {
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
-          navEnheter: "navKontorer",
+          navEnheter: "veilederinformasjon.navKontorer",
           arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
           utdanningslop: "utdanningslop.utdanninger",
         };

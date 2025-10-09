@@ -15,7 +15,7 @@ import {
   defaultAvtaleData,
   PersonopplysningerSchema,
   PrismodellSchema,
-  VeilederinformasjonSchema,
+  VeilederinformasjonStepSchema,
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +49,7 @@ const steps = [
   },
   {
     key: "Veilederinformasjon",
-    schema: VeilederinformasjonSchema,
+    schema: VeilederinformasjonStepSchema,
     Component: <AvtaleInformasjonForVeiledereForm />,
   },
 ];

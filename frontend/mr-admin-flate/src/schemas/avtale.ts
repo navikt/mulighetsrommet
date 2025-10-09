@@ -35,9 +35,7 @@ export const PrismodellSchema = z.object({
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
 
 export const VeilederinformasjonSchema = z.object({
-  beskrivelse: z
-    .string({ error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
-    .nullable(),
+  beskrivelse: z.string().nullable(),
   faneinnhold: FaneinnholdSchema.nullable(),
   navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
   navKontorer: z.string().array(),
@@ -86,7 +84,7 @@ export function defaultAvtaleData(
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
       beskrivelse: avtale?.beskrivelse ?? null,
-      faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold),
+      faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold) ?? null,
     },
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
