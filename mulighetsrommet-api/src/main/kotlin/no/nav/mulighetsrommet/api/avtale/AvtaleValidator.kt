@@ -240,7 +240,7 @@ class AvtaleValidator(
         if (request.prismodell.type !in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
             add(
                 FieldError.of(
-                    "Tiltakstype kan ikke endres ikke fordi prismodellen “${request.prismodell.type.beskrivelse}” er i bruk",
+                    "Tiltakstype kan ikke endres ikke fordi prismodellen “${request.prismodell.type.navn}” er i bruk",
                     AvtaleRequest::tiltakskode,
                 ),
             )
@@ -330,7 +330,7 @@ class AvtaleValidator(
             if (request.type !in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
                 add(
                     FieldError.of(
-                        "${request.type.beskrivelse} er ikke tillatt for tiltakstype $tiltakstypeNavn",
+                        "${request.type.navn} er ikke tillatt for tiltakstype $tiltakstypeNavn",
                         AvtaleRequest::prismodell,
                     ),
                 )

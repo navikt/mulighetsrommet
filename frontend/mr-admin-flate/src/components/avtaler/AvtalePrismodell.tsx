@@ -3,7 +3,7 @@ import { Metadata, MetadataFritekstfelt } from "@/components/detaljside/Metadata
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { AvtaleDto, AvtaleDtoPrismodell, PrismodellType } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, AvtaltSatsDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   switch (avtale.prismodell.type) {
@@ -12,8 +12,8 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         <Box>
           <PrismodellHeading />
           <VStack gap="4">
-            <PrismodellBeskrivelse prismodell={avtale.prismodell} />
-            <PrismodellSatser prismodell={avtale.prismodell} />
+            <PrismodellNavn navn={avtale.prismodell.navn} />
+            <PrismodellSatser satser={avtale.prismodell.satser} />
           </VStack>
         </Box>
       );
@@ -25,9 +25,9 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         <Box>
           <PrismodellHeading />
           <VStack gap="4">
-            <PrismodellBeskrivelse prismodell={avtale.prismodell} />
-            <PrismodellSatser prismodell={avtale.prismodell} />
-            <PrismodellPrisbetingelser prismodell={avtale.prismodell} />
+            <PrismodellNavn navn={avtale.prismodell.navn} />
+            <PrismodellSatser satser={avtale.prismodell.satser} />
+            <PrismodellPrisbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
           </VStack>
         </Box>
       );
@@ -36,8 +36,8 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         <Box>
           <PrismodellHeading />
           <VStack gap="4">
-            <PrismodellBeskrivelse prismodell={avtale.prismodell} />
-            <PrismodellPrisbetingelser prismodell={avtale.prismodell} />
+            <PrismodellNavn navn={avtale.prismodell.navn} />
+            <PrismodellPrisbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
           </VStack>
         </Box>
       );
@@ -52,12 +52,12 @@ function PrismodellHeading() {
   );
 }
 
-function PrismodellBeskrivelse({ prismodell }: { prismodell: AvtaleDtoPrismodell }) {
-  return <Metadata header={avtaletekster.prismodell.label} value={prismodell.beskrivelse} />;
+function PrismodellNavn({ navn }: { navn: string }) {
+  return <Metadata header={avtaletekster.prismodell.label} value={navn} />;
 }
 
-function PrismodellSatser({ prismodell }: { prismodell: AvtaleDtoPrismodell }) {
-  return (prismodell.satser ?? []).map((sats) => (
+function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
+  return (satser ?? []).map((sats) => (
     <Box
       key={sats.gjelderFra}
       borderColor="border-subtle"
@@ -83,11 +83,8 @@ function PrismodellSatser({ prismodell }: { prismodell: AvtaleDtoPrismodell }) {
   ));
 }
 
-function PrismodellPrisbetingelser({ prismodell }: { prismodell: AvtaleDtoPrismodell }) {
+function PrismodellPrisbetingelser({ prisbetingelser }: { prisbetingelser: string | null }) {
   return (
-    <MetadataFritekstfelt
-      header={avtaletekster.prisOgBetalingLabel}
-      value={prismodell.prisbetingelser}
-    />
+    <MetadataFritekstfelt header={avtaletekster.prisOgBetalingLabel} value={prisbetingelser} />
   );
 }

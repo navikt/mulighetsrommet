@@ -23,7 +23,7 @@ data class UtbetalingBeregningDto(
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
-                    heading = PrismodellType.ANNEN_AVTALT_PRIS.beskrivelse,
+                    heading = PrismodellType.ANNEN_AVTALT_PRIS.navn,
                     deltakerRegioner = regioner,
                     deltakerTableData = friTable(deltakelsePersoner),
                     regnestykke = listOf(
@@ -41,7 +41,7 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.beskrivelse,
+                        heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
                         deltakerTableData = manedsverkTable(deltakelsePersoner, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
@@ -56,7 +56,7 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.beskrivelse,
+                        heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
                         deltakerTableData = manedsverkTable(deltakelsePersoner, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
@@ -71,7 +71,7 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.beskrivelse,
+                        heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
                         deltakerRegioner = regioner,
                         deltakerTableData = ukesverkTable(deltakelsePersoner, sats),
                         regnestykke = listOf(
@@ -94,7 +94,7 @@ data class UtbetalingBeregningDto(
                         sats,
                     )
                     UtbetalingBeregningDto(
-                        heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.beskrivelse,
+                        heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
                         deltakerRegioner = regioner,
                         deltakerTableData = ukesverkTable(deltakelsePersoner, sats),
                         regnestykke = listOf(

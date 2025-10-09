@@ -17,7 +17,8 @@ export const avtaleHandlers = [
       return HttpResponse.json([
         {
           type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-          beskrivelse: "Fast sats per tiltaksplass per måned",
+          navn: "Fast sats per tiltaksplass per måned",
+          beskrivelse: [],
         },
       ]);
     },

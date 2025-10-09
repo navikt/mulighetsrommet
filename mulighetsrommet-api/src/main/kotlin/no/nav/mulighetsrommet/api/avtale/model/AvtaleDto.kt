@@ -50,6 +50,7 @@ data class AvtaleDto(
         val satser: List<AvtaltSatsDto>?,
         val prisbetingelser: String?,
     ) {
-        val beskrivelse: String = type.beskrivelse
+        val navn: String = type.navn
+        val beskrivelse: List<String> = type.beskrivelse
     }
 }

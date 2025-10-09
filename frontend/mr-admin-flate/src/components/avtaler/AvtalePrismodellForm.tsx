@@ -1,4 +1,4 @@
-import { Box, Select, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Select, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
@@ -27,6 +27,8 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
   const prismodell = watch("prismodell");
   const satser = watch("satser");
 
+  const beskrivelse = prismodeller.find((p) => p.type === prismodell)?.beskrivelse;
+
   return (
     <Box
       borderWidth="1"
@@ -35,7 +37,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
       padding="4"
       background="surface-subtle"
     >
-      <VStack gap="2">
+      <VStack gap="4">
         <Select
           readOnly={prismodell === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
           label={avtaletekster.prismodell.label}
@@ -67,12 +69,13 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               ({ type }) =>
                 type !== PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK || enabledHeleUker,
             )
-            .map(({ type, beskrivelse }) => (
+            .map(({ type, navn }) => (
               <option key={type} value={type}>
-                {beskrivelse}
+                {navn}
               </option>
             ))}
         </Select>
+        {beskrivelse && beskrivelse.map((tekst) => <BodyShort>{tekst}</BodyShort>)}
         {avtaleStartDato && (
           <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
         )}
