@@ -263,7 +263,7 @@ fun Route.avtaleRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<VeilederinfoRequest>()
 
-                val result = avtaler.upsertVeilederinfo(id, request, navIdent)
+                val result = avtaleService.upsertVeilederinfo(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
 
