@@ -1,5 +1,4 @@
 import z from "zod";
-import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
 import {
@@ -7,6 +6,7 @@ import {
   GjennomforingOppstartstype,
   UtdanningslopDbo,
 } from "@tiltaksadministrasjon/api-client";
+import { VeilederinformasjonSchema } from "@/schemas/avtale";
 
 export const GjennomforingSchema = z
   .object({
@@ -34,11 +34,6 @@ export const GjennomforingSchema = z
     deltidsprosent: z.number({
       error: "Du må velge deltidsprosent mellom 0 og 100",
     }),
-    navRegioner: z.string().array().nonempty({
-      error: "Du må velge minst én region",
-    }),
-    navKontorer: z.string().array(),
-    navEnheterAndre: z.string().array(),
     kontaktpersoner: z
       .object({
         navIdent: z.string({ error: "Du må velge en kontaktperson" }),
@@ -69,8 +64,7 @@ export const GjennomforingSchema = z
       .array()
       .min(1, "Du må velge minst én administrator"),
     oppstart: z.custom<GjennomforingOppstartstype>((val) => !!val, "Du må velge oppstartstype"),
-    beskrivelse: z.string().nullable(),
-    faneinnhold: FaneinnholdSchema.nullable(),
+    veilederinformasjon: VeilederinformasjonSchema,
     opphav: z.enum(ArenaMigreringOpphav),
     visEstimertVentetid: z.boolean(),
     estimertVentetid: z

@@ -146,7 +146,7 @@ class AvtaleValidator(
                 }
             }
 
-            validateNavEnheter(request.navEnheter)
+            validateNavEnheter(request.veilederinformasjon.navEnheter).onLeft { addAll(it.toList()) }
             validateAdministratorer(request)
 
             if (previous == null) {
@@ -155,6 +155,7 @@ class AvtaleValidator(
                 validateUpdateAvtale(request, arrangor, previous)
             }
         }
+
         if (errors.isNotEmpty()) {
             return errors.left()
         }
@@ -170,7 +171,7 @@ class AvtaleValidator(
                         resolveStatus(request, previous, LocalDate.now()),
                         tiltakstype.id,
                     )
-                    .copy(navEnheter = sanitizeNavEnheter(request.navEnheter))
+                    .copy(navEnheter = sanitizeNavEnheter(request.veilederinformasjon.navEnheter))
             }
     }
 
@@ -369,9 +370,11 @@ class AvtaleValidator(
             OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE -> {
                 request.nySluttDato
             }
+
             OpprettOpsjonLoggRequest.Type.ETT_AAR -> {
                 avtale.sluttDato.plusYears(1)
             }
+
             OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> {
                 null
             }
@@ -462,16 +465,19 @@ class AvtaleValidator(
         }
     }
 
-    private fun MutableList<FieldError>.validateNavEnheter(navEnheter: List<NavEnhetNummer>) {
+    fun validateNavEnheter(navEnheter: List<NavEnhetNummer>): Either<Nel<FieldError>, Set<NavEnhetNummer>> {
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
-        if (!actualNavEnheter.any { it.value.type == NavEnhetType.FYLKE }) {
-            add(FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region"))
-        }
+        val errors = buildList {
+            if (!actualNavEnheter.any { it.value.type == NavEnhetType.FYLKE }) {
+                add(FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region"))
+            }
 
-        if (!actualNavEnheter.any { it.value.type != NavEnhetType.FYLKE }) {
-            add(FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet"))
+            if (!actualNavEnheter.any { it.value.type != NavEnhetType.FYLKE }) {
+                add(FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet"))
+            }
         }
+        return errors.toNonEmptyListOrNull()?.left() ?: sanitizeNavEnheter(navEnheter).right()
     }
 
     private fun resolveNavEnheter(enhetsnummer: List<NavEnhetNummer>): Map<NavEnhetNummer, NavEnhetDto> {
@@ -482,7 +488,7 @@ class AvtaleValidator(
             .associateBy { it.enhetsnummer }
     }
 
-    fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): Set<NavEnhetNummer> {
+    private fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): Set<NavEnhetNummer> {
         // Filtrer vekk underenheter uten fylke
         return NavEnhetHelpers.buildNavRegioner(
             navEnheter.mapNotNull { navEnheterService.hentEnhet(it) },

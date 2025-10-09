@@ -36,6 +36,7 @@ import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { InferredGjennomforingSchema } from "./GjennomforingSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
+import { VeilederinformasjonValues } from "@/schemas/avtale";
 
 interface Props {
   tiltakId: string;
@@ -78,8 +79,8 @@ export function InformasjonForVeiledereForm({
 }
 
 export function RedaksjoneltInnholdForm({ tiltakId }: { tiltakId: string }) {
-  const { register } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakId);
+  const { register } = useFormContext<VeilederinformasjonValues>();
 
   return (
     <RedaksjoneltInnholdContainer>
@@ -90,7 +91,7 @@ export function RedaksjoneltInnholdForm({ tiltakId }: { tiltakId: string }) {
         Ikke del personopplysninger i fritekstfeltene
       </Alert>
       <Textarea
-        {...register("beskrivelse")}
+        {...register("veilederinformasjon.beskrivelse")}
         description="Beskrivelse av formålet med tiltaksgjennomføringen."
         label="Beskrivelse"
       />
@@ -178,7 +179,7 @@ export function RedaksjoneltInnholdForm({ tiltakId }: { tiltakId: string }) {
 }
 
 const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { register } = useFormContext();
+  const { register } = useFormContext<VeilederinformasjonValues>();
 
   return (
     <VStack className="mt-4">
@@ -193,12 +194,12 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
       <Separator />
       <DescriptionRichtextContainer>
         <Textarea
-          {...register("faneinnhold.forHvemInfoboks")}
+          {...register("veilederinformasjon.faneinnhold.forHvemInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.forHvem"
+          name="veilederinformasjon.faneinnhold.forHvem"
           label="For hvem"
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
@@ -208,7 +209,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
 };
 
 const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { register } = useFormContext();
+  const { register } = useFormContext<VeilederinformasjonValues>();
 
   return (
     <VStack className="mt-4">
@@ -222,12 +223,12 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
 
       <DescriptionRichtextContainer>
         <Textarea
-          {...register("faneinnhold.detaljerOgInnholdInfoboks")}
+          {...register("veilederinformasjon.faneinnhold.detaljerOgInnholdInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Detaljer og innhold»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.detaljerOgInnhold"
+          name="veilederinformasjon.faneinnhold.detaljerOgInnhold"
           label="Detaljer og innhold"
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
@@ -237,7 +238,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
 };
 
 const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { register } = useFormContext();
+  const { register } = useFormContext<VeilederinformasjonValues>();
 
   return (
     <VStack className="mt-4">
@@ -251,12 +252,12 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
 
       <DescriptionRichtextContainer>
         <Textarea
-          {...register("faneinnhold.pameldingOgVarighetInfoboks")}
+          {...register("veilederinformasjon.faneinnhold.pameldingOgVarighetInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Påmelding og varighet»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.pameldingOgVarighet"
+          name="veilederinformasjon.faneinnhold.pameldingOgVarighet"
           label="Påmelding og varighet"
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
@@ -266,18 +267,18 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
 };
 
 const Kontaktinfo = () => {
-  const { register } = useFormContext();
+  const { register } = useFormContext<VeilederinformasjonValues>();
 
   return (
     <VStack className="mt-4">
       <VStack gap="5">
         <Textarea
-          {...register("faneinnhold.kontaktinfoInfoboks")}
+          {...register("veilederinformasjon.faneinnhold.kontaktinfoInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.kontaktinfo"
+          name="veilederinformasjon.faneinnhold.kontaktinfo"
           label="Kontaktinfo"
           description="Ekstra tekst om kontaktinfo."
         />
@@ -287,15 +288,15 @@ const Kontaktinfo = () => {
 };
 
 const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) => {
-  const { watch, setValue } = useFormContext();
+  const { watch, setValue } = useFormContext<VeilederinformasjonValues>();
 
   const [tekst, setTekst] = useState<string>(
-    watch("faneinnhold.delMedBruker") ?? tiltakstype?.delingMedBruker ?? "",
+    watch("veilederinformasjon.faneinnhold.delMedBruker") ?? tiltakstype?.delingMedBruker ?? "",
   );
 
   function onChange(value: string) {
     if (value !== tiltakstype?.delingMedBruker) {
-      setValue("faneinnhold.delMedBruker", value);
+      setValue("veilederinformasjon.faneinnhold.delMedBruker", value);
     }
   }
 
@@ -349,8 +350,8 @@ function RegionerOgEnheterOgKontaktpersoner({
           size="small"
           placeholder="Velg en"
           label={avtaletekster.navRegionerLabel}
-          {...register("navRegioner")}
-          name={"navRegioner"}
+          {...register("veilederinformasjon.navRegioner")}
+          name={"veilederinformasjon.navRegioner"}
           options={regionerOptions}
         />
         <ControlledMultiSelect
@@ -360,7 +361,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en"
           label={avtaletekster.navEnheterLabel}
           helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("navKontorer")}
+          {...register("veilederinformasjon.navKontorer")}
           options={kontorerOptions}
         />
         <ControlledMultiSelect
@@ -370,7 +371,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en (valgfritt)"
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("navEnheterAndre")}
+          {...register("veilederinformasjon.navAndreEnheter")}
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (

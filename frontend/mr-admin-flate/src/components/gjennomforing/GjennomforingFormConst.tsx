@@ -82,9 +82,6 @@ export function defaultGjennomforingData(
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
-    navRegioner: defaultNavRegion(avtale, gjennomforing),
-    navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
-    navEnheterAndre: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
@@ -109,9 +106,14 @@ export function defaultGjennomforingData(
       gjennomforing?.arrangor?.kontaktpersoner.map(
         (p: GjennomforingArrangorKontaktperson) => p.id,
       ) ?? [],
-    beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
-    faneinnhold: faneInnhold,
     opphav: gjennomforing?.opphav ?? ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
+    veilederinformasjon: {
+      navRegioner: defaultNavRegion(avtale, gjennomforing),
+      navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
+      navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
+      beskrivelse: gjennomforing?.beskrivelse ?? avtale.beskrivelse,
+      faneinnhold: faneInnhold,
+    },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
     estimertVentetid: gjennomforing?.estimertVentetid || null,

@@ -71,10 +71,6 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.put("*/api/v1/intern/avtaler", () => {
-    return HttpResponse.json(mockAvtaler[0]);
-  }),
-
   http.put("*/api/tiltaksadministrasjon/avtaler", () => {
     return HttpResponse.json(mockAvtaler[0]);
   }),

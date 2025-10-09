@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -624,13 +625,11 @@ data class GjennomforingRequest(
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val administratorer: List<NavIdent>,
-    val navEnheter: Set<NavEnhetNummer>,
-    val oppstart: GjennomforingOppstartstype,
+    val veilederinformasjon: VeilederinfoRequest,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
+    val administratorer: List<NavIdent>,
+    val oppstart: GjennomforingOppstartstype,
     val stedForGjennomforing: String?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)

@@ -29,14 +29,17 @@ export function GjennomforingInformasjonForVeiledereForm({
   const { setValue, watch } = useFormContext<InferredGjennomforingSchema>();
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
-    setValue("beskrivelse", beskrivelse ?? null);
+    setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);
     // Portabletext editoren er litt strengere enn slate
-    setValue("faneinnhold", slateFaneinnholdToPortableText(faneinnhold ?? null));
+    setValue(
+      "veilederinformasjon.faneinnhold",
+      slateFaneinnholdToPortableText(faneinnhold ?? null),
+    );
     // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
     // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
     setKey(key + 1);
   }
-  const navRegioner = watch("navRegioner");
+  const navRegioner = watch("veilederinformasjon.navRegioner");
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)

@@ -17,7 +17,8 @@ import { useLocation } from "react-router";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
-import { toAvtaleRequest, toPersonvernRequest } from "./avtaleFormUtils";
+import { toAvtaleRequest, toPersonvernRequest, toVeilederinfoRequest } from "./avtaleFormUtils";
+import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -86,6 +87,7 @@ export function AvtaleFormPage() {
   const currentTab = getCurrentTab(pathname);
 
   const personvernMutation = useUpsertPersonvern(avtale.id);
+  const veilederinfoMutation = useUpsertVeilederinformasjon(avtale.id);
   const avtaleMutation = useUpsertAvtale();
 
   return (
@@ -131,8 +133,8 @@ export function AvtaleFormPage() {
         </RedigerAvtaleContainer>
         <RedigerAvtaleContainer
           avtale={avtale}
-          mapToRequest={toAvtaleRequest}
-          mutation={avtaleMutation}
+          mapToRequest={toVeilederinfoRequest}
+          mutation={veilederinfoMutation}
         >
           <FormTabsPanel value={AvtaleTab.VEILEDERINFORMASJON}>
             <AvtaleInformasjonForVeiledereForm />
