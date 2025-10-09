@@ -16,7 +16,7 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
   const { tiltaksansvarlige } = kontaktinfo;
 
   return (
-    <div className="prose">
+    <div>
       {tiltaksansvarlige.length === 0 ? (
         <Alert variant="info">Kontaktinfo til tiltaksansvarlig er ikke lagt inn</Alert>
       ) : (
@@ -29,7 +29,7 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
             const { navn, epost, telefon, enhet, beskrivelse } = tiltaksansvarlig;
             return (
               <div key={epost} className="prose bg-bg-subtle p-2 mt-2 rounded-md">
-                <Heading level="4" size="xsmall">
+                <Heading level="4" size="xsmall" className="font-bold mt-5">
                   {navn}
                 </Heading>
                 {beskrivelse && (

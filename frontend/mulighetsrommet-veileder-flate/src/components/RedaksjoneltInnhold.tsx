@@ -1,5 +1,5 @@
 import { PortableText, PortableTextReactComponents } from "@portabletext/react";
-import { Alert, GuidePanel } from "@navikt/ds-react";
+import { Alert, BodyLong, GuidePanel, List } from "@navikt/ds-react";
 
 interface ImageProp {
   value: { asset: { url: string }; altText: string };
@@ -22,6 +22,25 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
         </a>
       );
     },
+  },
+  list: {
+    bullet: ({ children }) => (
+      <List size="small" as="ul">
+        {children}
+      </List>
+    ),
+    number: ({ children }) => (
+      <List size="small" as="ol">
+        {children}
+      </List>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }) => <List.Item>{children}</List.Item>,
+    number: ({ children }) => <List.Item>{children}</List.Item>,
+  },
+  block: {
+    normal: ({ children }) => <BodyLong size="small">{children}</BodyLong>,
   },
   types: {
     image: ({ value }: ImageProp) => {
@@ -53,9 +72,5 @@ interface RedaksjoneltinnholdProps {
 }
 
 export function RedaksjoneltInnhold({ value }: RedaksjoneltinnholdProps) {
-  return (
-    <div className="prose">
-      <PortableText value={value} components={portableTextComponent} />
-    </div>
-  );
+  return <PortableText value={value} components={portableTextComponent} />;
 }
