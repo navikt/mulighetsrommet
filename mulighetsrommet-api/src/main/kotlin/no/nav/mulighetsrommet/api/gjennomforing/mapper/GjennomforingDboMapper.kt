@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -56,7 +57,7 @@ object GjennomforingDboMapper {
         arrangorId = request.arrangorId,
         arrangorKontaktpersoner = request.arrangorKontaktpersoner,
         administratorer = request.administratorer,
-        navEnheter = request.navEnheter,
+        navEnheter = request.veilederinformasjon.navEnheter.toSet(),
         oppstart = request.oppstart,
         kontaktpersoner = request.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
@@ -65,8 +66,8 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = request.stedForGjennomforing,
-        faneinnhold = request.faneinnhold,
-        beskrivelse = request.beskrivelse,
+        faneinnhold = request.veilederinformasjon.faneinnhold,
+        beskrivelse = request.veilederinformasjon.beskrivelse,
         deltidsprosent = request.deltidsprosent,
         estimertVentetidVerdi = request.estimertVentetid?.verdi,
         estimertVentetidEnhet = request.estimertVentetid?.enhet,
@@ -85,8 +86,12 @@ object GjennomforingDboMapper {
         antallPlasser = gjennomforing.antallPlasser,
         arrangorId = gjennomforing.arrangor.id,
         arrangorKontaktpersoner = gjennomforing.arrangor.kontaktpersoner.map { it.id },
+        veilederinformasjon = VeilederinfoRequest(
+            navEnheter = gjennomforing.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } },
+            faneinnhold = gjennomforing.faneinnhold,
+            beskrivelse = gjennomforing.beskrivelse,
+        ),
         administratorer = gjennomforing.administratorer.map { it.navIdent },
-        navEnheter = gjennomforing.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } }.toSet(),
         oppstart = gjennomforing.oppstart,
         kontaktpersoner = gjennomforing.kontaktpersoner.map {
             GjennomforingKontaktpersonDto(
@@ -95,8 +100,6 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = gjennomforing.stedForGjennomforing,
-        faneinnhold = gjennomforing.faneinnhold,
-        beskrivelse = gjennomforing.beskrivelse,
         deltidsprosent = gjennomforing.deltidsprosent,
         estimertVentetid = gjennomforing.estimertVentetid?.verdi?.let {
             EstimertVentetid(

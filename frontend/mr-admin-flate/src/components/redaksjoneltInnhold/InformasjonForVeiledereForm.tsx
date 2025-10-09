@@ -199,7 +199,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.forHvem"
+          name="veilederinformasjon.faneinnhold.forHvem"
           label="For hvem"
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
@@ -228,7 +228,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
           description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
         />
         <PortableTextFormEditor
-          name="faneinnhold.detaljerOgInnhold"
+          name="veilederinformasjon.faneinnhold.detaljerOgInnhold"
           label="Detaljer og innhold"
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
@@ -371,7 +371,7 @@ function RegionerOgEnheterOgKontaktpersoner({
           placeholder="Velg en (valgfritt)"
           label={avtaletekster.navAndreEnheterLabel}
           helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          {...register("veilederinformasjon.navEnheterAndre")}
+          {...register("veilederinformasjon.navAndreEnheter")}
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (

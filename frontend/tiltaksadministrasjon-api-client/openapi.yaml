@@ -4214,11 +4214,6 @@ components:
             $ref: "#/components/schemas/EndringshistorikkDto.Entry"
       required:
       - entries
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
     GjennomforingKontaktpersonDto:
       type: object
       properties:
@@ -4231,6 +4226,11 @@ components:
       required:
       - beskrivelse
       - navIdent
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
     EstimertVentetid:
       type: object
       properties:
@@ -4275,30 +4275,19 @@ components:
           items:
             type: string
             format: uuid
-        administratorer:
-          type: array
-          items:
-            type: string
-        navEnheter:
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-        oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
+        veilederinformasjon:
+          $ref: "#/components/schemas/VeilederinfoRequest"
         kontaktpersoner:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingKontaktpersonDto"
+        administratorer:
+          type: array
+          items:
+            type: string
+        oppstart:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
         stedForGjennomforing:
-          type:
-          - "null"
-          - string
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        beskrivelse:
           type:
           - "null"
           - string
@@ -4329,13 +4318,10 @@ components:
       - arrangorId
       - arrangorKontaktpersoner
       - avtaleId
-      - beskrivelse
       - deltidsprosent
       - estimertVentetid
-      - faneinnhold
       - id
       - kontaktpersoner
-      - navEnheter
       - navn
       - oppstart
       - sluttDato
@@ -4344,6 +4330,7 @@ components:
       - tilgjengeligForArrangorDato
       - tiltakstypeId
       - utdanningslop
+      - veilederinformasjon
     AvbrytGjennomforingAarsak:
       type: string
       enum:

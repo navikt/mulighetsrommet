@@ -86,7 +86,29 @@ export function GjennomforingFormContainer(props: Props) {
       id: gjennomforing?.id || uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
-      navEnheter: data.navRegioner.concat(data.navKontorer).concat(data.navEnheterAndre),
+      veilederinformasjon: {
+        navEnheter: data.veilederinformasjon.navRegioner
+          .concat(data.veilederinformasjon.navKontorer)
+          .concat(data.veilederinformasjon.navAndreEnheter),
+        beskrivelse: data.veilederinformasjon.beskrivelse,
+        faneinnhold: data.veilederinformasjon.faneinnhold
+          ? {
+              forHvemInfoboks: data.veilederinformasjon.faneinnhold.forHvemInfoboks || null,
+              forHvem: data.veilederinformasjon.faneinnhold.forHvem || null,
+              detaljerOgInnholdInfoboks:
+                data.veilederinformasjon.faneinnhold.detaljerOgInnholdInfoboks || null,
+              detaljerOgInnhold: data.veilederinformasjon.faneinnhold.detaljerOgInnhold || null,
+              pameldingOgVarighetInfoboks:
+                data.veilederinformasjon.faneinnhold.pameldingOgVarighetInfoboks || null,
+              pameldingOgVarighet: data.veilederinformasjon.faneinnhold.pameldingOgVarighet || null,
+              kontaktinfo: data.veilederinformasjon.faneinnhold.kontaktinfo || null,
+              kontaktinfoInfoboks: data.veilederinformasjon.faneinnhold.kontaktinfoInfoboks || null,
+              lenker: data.veilederinformasjon.faneinnhold.lenker || null,
+              oppskrift: data.veilederinformasjon.faneinnhold.oppskrift || null,
+              delMedBruker: data.veilederinformasjon.faneinnhold.delMedBruker || null,
+            }
+          : null,
+      },
       navn: data.navn,
       startDato: data.startOgSluttDato.startDato,
       sluttDato: data.startOgSluttDato.sluttDato || null,
@@ -103,22 +125,6 @@ export function GjennomforingFormContainer(props: Props) {
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
-      beskrivelse: data.beskrivelse,
-      faneinnhold: data.faneinnhold
-        ? {
-            forHvemInfoboks: data.faneinnhold.forHvemInfoboks || null,
-            forHvem: data.faneinnhold.forHvem || null,
-            detaljerOgInnholdInfoboks: data.faneinnhold.detaljerOgInnholdInfoboks || null,
-            detaljerOgInnhold: data.faneinnhold.detaljerOgInnhold || null,
-            pameldingOgVarighetInfoboks: data.faneinnhold.pameldingOgVarighetInfoboks || null,
-            pameldingOgVarighet: data.faneinnhold.pameldingOgVarighet || null,
-            kontaktinfo: data.faneinnhold.kontaktinfo || null,
-            kontaktinfoInfoboks: data.faneinnhold.kontaktinfoInfoboks || null,
-            lenker: data.faneinnhold.lenker || null,
-            oppskrift: data.faneinnhold.oppskrift || null,
-            delMedBruker: data.faneinnhold.delMedBruker || null,
-          }
-        : null,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato ?? null,
@@ -135,7 +141,7 @@ export function GjennomforingFormContainer(props: Props) {
     });
   };
 
-  const hasRedaksjoneltInnholdErrors = Boolean(errors.faneinnhold);
+  const hasRedaksjoneltInnholdErrors = Boolean(errors.veilederinformasjon?.faneinnhold);
   const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);
 
   return (

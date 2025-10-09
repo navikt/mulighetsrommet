@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
@@ -61,7 +62,16 @@ class GjennomforingService(
         val ctx = getValidatorCtx(request, previous, today)
 
         val dbo = GjennomforingValidator
-            .validate(request.copy(navEnheter = sanitizeNavEnheter(request.navEnheter)), ctx)
+            .validate(
+                request.copy(
+                    veilederinformasjon = request.veilederinformasjon.copy(
+                        navEnheter = sanitizeNavEnheter(
+                            request.veilederinformasjon.navEnheter,
+                        ),
+                    ),
+                ),
+                ctx,
+            )
             .onRight { dbo ->
                 dbo.kontaktpersoner.forEach {
                     navAnsattService.addUserToKontaktpersoner(it.navIdent)
@@ -471,12 +481,11 @@ class GjennomforingService(
         queries.kafkaProducerRecord.storeRecord(recordV2)
     }
 
-    fun sanitizeNavEnheter(navEnheter: Set<NavEnhetNummer>): Set<NavEnhetNummer> = db.session {
+    fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): List<NavEnhetNummer> = db.session {
         // Filtrer vekk underenheter uten fylke
         return NavEnhetHelpers.buildNavRegioner(
             navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() },
         )
             .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
-            .toSet()
     }
 }

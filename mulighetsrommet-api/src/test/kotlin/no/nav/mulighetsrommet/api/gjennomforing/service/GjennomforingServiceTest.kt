@@ -102,10 +102,12 @@ class GjennomforingServiceTest : FunSpec({
 
             createService().upsert(
                 gjennomforing.copy(
-                    navEnheter = setOf(
-                        Innlandet.enhetsnummer,
-                        Gjovik.enhetsnummer,
-                        Sagene.enhetsnummer,
+                    veilederinformasjon = gjennomforing.veilederinformasjon.copy(
+                        navEnheter = listOf(
+                            Innlandet.enhetsnummer,
+                            Gjovik.enhetsnummer,
+                            Sagene.enhetsnummer,
+                        ),
                     ),
                 ),
                 bertilNavIdent,
