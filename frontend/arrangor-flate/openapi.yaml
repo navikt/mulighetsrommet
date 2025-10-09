@@ -1130,6 +1130,31 @@ components:
       enum:
       - NOK
       - NUMBER
+    DatoVelger:
+      anyOf:
+      - $ref: "#/components/schemas/DatoVelgerRange"
+      - $ref: "#/components/schemas/DatoVelgerSelect"
+      discriminator:
+        propertyName: type
+        mapping:
+          DatoVelgerRange: "#/components/schemas/DatoVelgerRange"
+          DatoVelgerSelect: "#/components/schemas/DatoVelgerSelect"
+    DatoVelgerRange:
+      type: object
+      properties:
+        todo:
+          type: string
+      required:
+      - todo
+    DatoVelgerSelect:
+      type: object
+      properties:
+        periodeForslag:
+          type: array
+          items:
+            $ref: "#/components/schemas/Periode"
+      required:
+      - periodeForslag
     OpprettKravInnsendingsInformasjon:
       type: object
       properties:
@@ -1141,15 +1166,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
-        periodeForslag:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/Periode"
+        datoVelger:
+          $ref: "#/components/schemas/DatoVelger"
       required:
+      - datoVelger
       - definisjonsListe
-      - periodeForslag
       - tilsagn
     ArrangorflateUtbetalingKompaktDto:
       type: object

@@ -1,4 +1,4 @@
-import { LoaderFunction, Outlet, useLoaderData, MetaMatches } from "react-router";
+import { LoaderFunction, Outlet, useLoaderData } from "react-router";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import {
@@ -96,12 +96,12 @@ export default function UtbetalingLayout() {
     text: "Tilbake til tiltaksoversikt",
   };
 
-  const activeStepOrder = activeStep?.order || 0;
+  const activeStepOrder = activeStep.order;
 
   return (
     <InnsendingLayout
       steps={steps}
-      activeStep={activeStepOrder || 0}
+      activeStep={activeStepOrder}
       hideStepper={activeStepOrder === 0}
       topNavigationLink={topNavigationLink}
     >

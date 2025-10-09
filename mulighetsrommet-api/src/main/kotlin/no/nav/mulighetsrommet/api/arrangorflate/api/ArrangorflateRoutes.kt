@@ -392,23 +392,24 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                         orgnr,
                     )
 
-                    val suggestedPeriods =
+                    val datoVelger =
                         if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in config.okonomi.gyldigTilsagnPeriode) {
                             val tilsagnPeriode =
                                 config.okonomi.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
 
                             val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
 
-                            Periode(
+                            val perioder = Periode(
                                 start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
                                 slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
                             ).splitByMonth()
                             // TODO: filtrer vekk perioder med registrerte utbetalinger.
                             // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
+                            DatoVelger.DatoSelect(perioder)
                         } else {
-                            null
+                            DatoVelger.DatoRange()
                         }
-                    call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, suggestedPeriods))
+                    call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, datoVelger))
                 }
             }
         }
@@ -1094,8 +1095,23 @@ data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val nav
 data class OpprettKravInnsendingsInformasjon(
     val definisjonsListe: List<Definition>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
-    val periodeForslag: List<Periode>?,
+    val datoVelger: DatoVelger,
 )
-
 @Serializable
 data class Definition(val key: String, val value: String)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class DatoVelger {
+
+    @Serializable
+    @SerialName("DatoVelgerSelect")
+    data class DatoSelect(val periodeForslag: List<Periode>): DatoVelger()
+
+    @Serializable
+    @SerialName("DatoVelgerRange")
+    data class DatoRange(val todo: String = "hello"): DatoVelger();
+}
+
+

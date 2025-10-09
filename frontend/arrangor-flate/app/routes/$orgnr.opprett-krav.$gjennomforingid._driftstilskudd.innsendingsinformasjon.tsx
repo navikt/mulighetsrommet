@@ -16,6 +16,7 @@ import {
 } from "@navikt/ds-react";
 import {
   ArrangorflateService,
+  DatoVelger,
   FieldError,
   OpprettKravInnsendingsInformasjon,
   Periode,
@@ -45,10 +46,7 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import {
-  getStepTitle,
-  isDriftstilskuddRootLoaderData,
-} from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
 type LoaderData = {
   orgnr: string;
@@ -228,9 +226,9 @@ export default function OpprettKravInnsendingsinformasjon() {
               <BodyShort textColor="subtle" size="small">
                 Hvilken periode gjelder kravet for?
               </BodyShort>
-              <DatoVelger
+              <PeriodeVelgerVarianter
                 onPeriodeSelected={setValgtPeriode}
-                periodeForslag={innsendingsinformasjon.periodeForslag}
+                type={innsendingsinformasjon.datoVelger}
                 sessionPeriodeStart={parseDate(sessionPeriodeStart)}
                 sessionPeriodeSlutt={parseDate(sessionPeriodeSlutt)}
               />
@@ -283,32 +281,38 @@ export default function OpprettKravInnsendingsinformasjon() {
   );
 }
 
-interface DatoVelgerProps {
+interface PeriodeVelgerVarianterProps {
   onPeriodeSelected: (periode?: Periode) => void;
-  periodeForslag: Array<Periode> | null;
+  type: DatoVelger;
   sessionPeriodeStart?: Date;
   sessionPeriodeSlutt?: Date;
   errors?: FieldError[];
 }
 
-function DatoVelger({
+function PeriodeVelgerVarianter({
   onPeriodeSelected,
-  periodeForslag,
+  type,
   sessionPeriodeStart,
   sessionPeriodeSlutt,
   errors,
-}: DatoVelgerProps) {
-  if (periodeForslag) {
-    return <PeriodeSelect periodeForslag={periodeForslag} onPeriodeSelected={onPeriodeSelected} />;
+}: PeriodeVelgerVarianterProps) {
+  switch (type.type) {
+    case "DatoVelgerSelect":
+      return (
+        <PeriodeSelect periodeForslag={type.periodeForslag} onPeriodeSelected={onPeriodeSelected} />
+      );
+    case "DatoVelgerRange":
+      return (
+        <PeriodeVelger
+          onPeriodeSelected={onPeriodeSelected}
+          sessionPeriodeStart={sessionPeriodeStart}
+          sessionPeriodeSlutt={sessionPeriodeSlutt}
+          errors={errors}
+        />
+      );
+    case undefined:
+      throw Error("Ugyldig DatoVelger variant");
   }
-  return (
-    <PeriodeVelger
-      onPeriodeSelected={onPeriodeSelected}
-      sessionPeriodeStart={sessionPeriodeStart}
-      sessionPeriodeSlutt={sessionPeriodeSlutt}
-      errors={errors}
-    />
-  );
 }
 
 interface PeriodeSelectProps {
