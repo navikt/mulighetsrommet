@@ -244,7 +244,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
 
         route("/gjennomforing/{gjennomforingId}") {
-
             get({
                 description = "Hent gjennomføring til arrangør"
                 tags = setOf("Arrangorflate")
@@ -402,7 +401,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
                             Periode(
                                 start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
-                                slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth)
+                                slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
                             ).splitByMonth()
                             // TODO: filtrer vekk perioder med registrerte utbetalinger.
                             // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
@@ -1057,7 +1056,7 @@ private fun toGjennomforingAction(
 ): DataElement = when (gjennomforing.tiltakstype.tiltakskode) {
     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        ->
+    ->
         DataElement.Link(
             text = "Start innsending",
             href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
@@ -1070,11 +1069,9 @@ private fun toGjennomforingAction(
         )
 }
 
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
-    "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
+private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
 
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) =
-    "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
 
 @Serializable
 data class OpprettKravVeiviserMeta(val steg: List<OpprettKravVeiviserStegDto>)
@@ -1088,12 +1085,10 @@ enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
     OPPSUMMERING("Oppsummering", 5),
 }
 
-fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto =
-    OpprettKravVeiviserStegDto(type = this, navn = navn, order = order)
+fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto = OpprettKravVeiviserStegDto(type = this, navn = navn, order = order)
 
 @Serializable
-data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val navn: String, val order: Int) {
-}
+data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val navn: String, val order: Int)
 
 @Serializable
 data class OpprettKravInnsendingsInformasjon(

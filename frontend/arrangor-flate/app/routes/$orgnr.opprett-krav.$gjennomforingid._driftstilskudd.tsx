@@ -1,5 +1,4 @@
-import { LoaderFunction, Outlet, useLocation, useLoaderData } from "react-router";
-import { useEffect, useState } from "react";
+import { LoaderFunction, Outlet, useLoaderData } from "react-router";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import {
@@ -16,10 +15,6 @@ interface Step {
   order: number;
 }
 
-interface LoaderData {
-  steps: Step[];
-}
-
 function getPathFromSteg(step: OpprettKravVeiviserSteg): string {
   switch (step) {
     case OpprettKravVeiviserSteg.INFORMASJON:
@@ -33,6 +28,11 @@ function getPathFromSteg(step: OpprettKravVeiviserSteg): string {
     case OpprettKravVeiviserSteg.OPPSUMMERING:
       return "oppsummering";
   }
+}
+
+export interface LoaderData {
+  steps: Step[];
+  activeStep: Step | undefined;
 }
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
@@ -55,35 +55,32 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     order: steg.order,
   }));
 
-  return { steps };
+  const activeStep = getActiveStep(steps, new URL(request.url).pathname);
+
+  return { steps, activeStep };
 };
 
-function useStep(steps: Step[], path: string) {
+function getActiveStep(steps: Step[], path: string) {
   const [stepPath] = path.split("/").slice(-1);
-  return steps.find(({ path }) => path === stepPath)?.order || 1;
+  return steps.find(({ path }) => path === stepPath);
 }
 
 export default function UtbetalingLayout() {
-  const { steps } = useLoaderData<LoaderData>();
-  const location = useLocation();
-  const step = useStep(steps, location.pathname);
-  const [activeStep, setActiveStep] = useState(step);
+  const { steps, activeStep } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
-
-  useEffect(() => {
-    setActiveStep(step);
-  }, [step]);
 
   const topNavigationLink = {
     path: pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt,
     text: "Tilbake til tiltaksoversikt",
   };
 
+  const activeStepOrder = activeStep?.order || 0;
+
   return (
     <InnsendingLayout
       steps={steps}
-      activeStep={activeStep}
-      hideStepper={activeStep === 0}
+      activeStep={activeStepOrder || 0}
+      hideStepper={activeStepOrder === 0}
       topNavigationLink={topNavigationLink}
     >
       <Outlet />

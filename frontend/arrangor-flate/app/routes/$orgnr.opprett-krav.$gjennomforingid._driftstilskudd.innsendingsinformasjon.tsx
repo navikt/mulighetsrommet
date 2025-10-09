@@ -45,6 +45,7 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { LoaderData as ParentLoaderData } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
 type LoaderData = {
   orgnr: string;
@@ -55,9 +56,14 @@ type LoaderData = {
   sessionPeriodeSlutt?: string;
 };
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
+  const opprettKravPageLoaderData = matches[matches.length - 2].loaderData as ParentLoaderData;
+  const stepIndex = opprettKravPageLoaderData.steps.indexOf(opprettKravPageLoaderData.activeStep!);
+  const numOfSteps = opprettKravPageLoaderData.steps.length;
   return [
-    { title: "Steg 1 av 3: Innsendingsinformasjon - Opprett krav om utbetaling" },
+    {
+      title: `Steg ${stepIndex + 1} av ${numOfSteps}: Innsendingsinformasjon - Opprett krav om utbetaling`,
+    },
     {
       name: "description",
       content: "Fyll ut grunnleggende innsendingsinformasjon for å opprette krav om utbetaling",
