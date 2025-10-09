@@ -15,7 +15,7 @@ import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import AttesterDelutbetalingModal from "./AttesterDelutbetalingModal";
-import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { isBesluttet } from "@/utils/totrinnskontroll";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
@@ -67,7 +67,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
         {utbetalingTekster.delutbetaling.header}
       </Heading>
       <UtbetalingLinjeTable
-        linjer={linjer}
+        linjer={linjer.filter((l) => l.status !== null)}
         utbetaling={utbetaling}
         renderRow={(linje) => {
           return (
@@ -80,80 +80,76 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
               checkboxInput={<GjorOppTilsagnCheckbox linje={linje} />}
               textInput={<UtbetalingBelopInput type="readOnly" linje={linje} />}
               knappeColumn={
-                isTilBeslutning(linje.opprettelse) && (
-                  <HStack gap="4">
-                    {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
-                      <Button
-                        variant="secondary"
-                        size="small"
-                        type="button"
-                        onClick={() => setAvvisModalOpen(true)}
-                      >
-                        {utbetalingTekster.delutbetaling.handlinger.returner}
-                      </Button>
-                    )}
-                    {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
-                      <Button
-                        key={`attester-knapp-${linje.id}`}
-                        size="small"
-                        type="button"
-                        onClick={() => {
-                          const modal = document.getElementById(
-                            `godkjenn-modal-${linje.id}`,
-                          ) as HTMLDialogElement;
-                          modal.showModal();
-                        }}
-                      >
-                        {utbetalingTekster.delutbetaling.handlinger.attester}
-                      </Button>
-                    )}
-                    <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
-                      header={utbetalingTekster.delutbetaling.aarsak.modal.header}
-                      ingress={
-                        <BodyShort>
-                          {utbetalingTekster.delutbetaling.aarsak.modal.ingress}
-                        </BodyShort>
-                      }
-                      open={avvisModalOpen}
-                      buttonLabel={utbetalingTekster.delutbetaling.aarsak.modal.button.label}
-                      errors={errors}
-                      aarsaker={returnerAarsakValg}
-                      onClose={() => {
-                        setAvvisModalOpen(false);
-                        setErrors([]);
-                      }}
-                      onConfirm={({ aarsaker, forklaring }) => {
-                        beslutt(linje.id, {
-                          besluttelse: Besluttelse.AVVIST,
-                          aarsaker,
-                          forklaring: forklaring ?? null,
-                        });
-                        setAvvisModalOpen(false);
-                      }}
-                    />
-                    <AttesterDelutbetalingModal
-                      id={`godkjenn-modal-${linje.id}`}
-                      handleClose={() => {
+                <HStack gap="4">
+                  {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      type="button"
+                      onClick={() => setAvvisModalOpen(true)}
+                    >
+                      {utbetalingTekster.delutbetaling.handlinger.returner}
+                    </Button>
+                  )}
+                  {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
+                    <Button
+                      key={`attester-knapp-${linje.id}`}
+                      size="small"
+                      type="button"
+                      onClick={() => {
                         const modal = document.getElementById(
                           `godkjenn-modal-${linje.id}`,
                         ) as HTMLDialogElement;
-                        modal.close();
+                        modal.showModal();
                       }}
-                      onConfirm={() => {
-                        const modal = document.getElementById(
-                          `godkjenn-modal-${linje.id}`,
-                        ) as HTMLDialogElement;
-                        modal.close();
-                        beslutt(linje.id, {
-                          besluttelse: Besluttelse.GODKJENT,
-                          aarsaker: [],
-                          forklaring: null,
-                        });
-                      }}
-                      linje={linje}
-                    />
-                  </HStack>
-                )
+                    >
+                      {utbetalingTekster.delutbetaling.handlinger.attester}
+                    </Button>
+                  )}
+                  <AarsakerOgForklaringModal<DelutbetalingReturnertAarsak>
+                    header={utbetalingTekster.delutbetaling.aarsak.modal.header}
+                    ingress={
+                      <BodyShort>{utbetalingTekster.delutbetaling.aarsak.modal.ingress}</BodyShort>
+                    }
+                    open={avvisModalOpen}
+                    buttonLabel={utbetalingTekster.delutbetaling.aarsak.modal.button.label}
+                    errors={errors}
+                    aarsaker={returnerAarsakValg}
+                    onClose={() => {
+                      setAvvisModalOpen(false);
+                      setErrors([]);
+                    }}
+                    onConfirm={({ aarsaker, forklaring }) => {
+                      beslutt(linje.id, {
+                        besluttelse: Besluttelse.AVVIST,
+                        aarsaker,
+                        forklaring: forklaring ?? null,
+                      });
+                      setAvvisModalOpen(false);
+                    }}
+                  />
+                  <AttesterDelutbetalingModal
+                    id={`godkjenn-modal-${linje.id}`}
+                    handleClose={() => {
+                      const modal = document.getElementById(
+                        `godkjenn-modal-${linje.id}`,
+                      ) as HTMLDialogElement;
+                      modal.close();
+                    }}
+                    onConfirm={() => {
+                      const modal = document.getElementById(
+                        `godkjenn-modal-${linje.id}`,
+                      ) as HTMLDialogElement;
+                      modal.close();
+                      beslutt(linje.id, {
+                        besluttelse: Besluttelse.GODKJENT,
+                        aarsaker: [],
+                        forklaring: null,
+                      });
+                    }}
+                    linje={linje}
+                  />
+                </HStack>
               }
             />
           );
