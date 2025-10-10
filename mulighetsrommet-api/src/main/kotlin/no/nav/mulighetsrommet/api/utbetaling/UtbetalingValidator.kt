@@ -5,8 +5,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -43,6 +41,7 @@ object UtbetalingValidator {
                 UtbetalingStatusType.INNSENDT,
                 UtbetalingStatusType.RETURNERT,
                 -> true
+
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -208,11 +207,10 @@ object UtbetalingValidator {
         )
     }
 
-    fun validateOpprettKravUtbetaling(
+    fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
-        gjennomforing: Gjennomforing,
         kontonummer: Kontonummer,
-    ): Either<List<FieldError>, OpprettAnnenAvtaltPrisUtbetaling> = validation {
+    ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
             LocalDate.parse(request.periodeStart)
         } catch (t: DateTimeParseException) {
@@ -221,7 +219,7 @@ object UtbetalingValidator {
         validateNotNull(start) {
             FieldError.of(
                 "Dato må være på formatet 'yyyy-mm-dd'",
-                OpprettKravOmUtbetalingRequest::periodeStart,
+                OpprettKravUtbetalingRequest::periodeStart,
             )
         }
         val slutt = try {
@@ -232,7 +230,7 @@ object UtbetalingValidator {
         validateNotNull(slutt) {
             FieldError.of(
                 "Dato må være på formatet 'yyyy-mm-dd'",
-                OpprettKravOmUtbetalingRequest::periodeSlutt,
+                OpprettKravUtbetalingRequest::periodeSlutt,
             )
         }
         requireValid(start != null && slutt != null)
@@ -240,39 +238,56 @@ object UtbetalingValidator {
         validate(start.isBefore(slutt)) {
             FieldError.of(
                 "Periodeslutt må være etter periodestart",
-                OpprettKravOmUtbetalingRequest::periodeStart,
+                OpprettKravUtbetalingRequest::periodeStart,
             )
         }
         validate(request.belop > 0) {
-            FieldError.of("Beløp må være positivt", OpprettKravOmUtbetalingRequest::belop)
+            FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
         validate(request.vedlegg.isNotEmpty()) {
-            FieldError.of("Du må legge ved vedlegg", OpprettKravOmUtbetalingRequest::vedlegg)
+            FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
             FieldError.of(
                 "Ugyldig kid",
-                OpprettKravOmUtbetalingRequest::kidNummer,
+                OpprettKravUtbetalingRequest::kidNummer,
             )
         }
 
-        val tilskuddstype = if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-            Tilskuddstype.TILTAK_INVESTERINGER
-        } else {
-            Tilskuddstype.TILTAK_DRIFTSTILSKUDD
-        }
-
-        OpprettAnnenAvtaltPrisUtbetaling(
-            id = UUID.randomUUID(),
-            gjennomforingId = gjennomforing.id,
+        ValidertUtbetalingKrav(
             periodeStart = LocalDate.parse(request.periodeStart),
             periodeSlutt = LocalDate.parse(request.periodeSlutt),
             belop = request.belop,
             kontonummer = kontonummer,
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
-            tilskuddstype = tilskuddstype,
-            beskrivelse = "",
             vedlegg = request.vedlegg,
+        )
+    }
+
+    data class ValidertUtbetalingKrav(
+        val periodeStart: LocalDate,
+        val periodeSlutt: LocalDate,
+        val kontonummer: Kontonummer,
+        val kidNummer: Kid? = null,
+        val belop: Int,
+        val vedlegg: List<Vedlegg>,
+    )
+
+    fun ValidertUtbetalingKrav.toAnnenAvtaltPris(
+        gjennomforingId: UUID,
+        tilskuddstype: Tilskuddstype,
+    ): OpprettAnnenAvtaltPrisUtbetaling {
+        return OpprettAnnenAvtaltPrisUtbetaling(
+            id = UUID.randomUUID(),
+            gjennomforingId = gjennomforingId,
+            tilskuddstype = tilskuddstype,
+            periodeStart = this.periodeStart,
+            periodeSlutt = this.periodeSlutt,
+            beskrivelse = "",
+            kontonummer = this.kontonummer,
+            kidNummer = this.kidNummer,
+            belop = this.belop,
+            vedlegg = this.vedlegg,
         )
     }
 
