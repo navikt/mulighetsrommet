@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.utils.toUUID
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
+import java.util.UUID
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
@@ -174,6 +175,33 @@ val ApplicationConfigLocal = AppConfig(
     amtDeltakerConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/amt-deltaker",
         scope = "default",
+        engine = MockEngine { request ->
+            if (request.url.toString().endsWith("/external/deltakere/personalia")) {
+                val jsonString = (request.body as TextContent).text
+                val deltakerIds = JsonIgnoreUnknownKeys.decodeFromString<List<String>>(jsonString)
+                val content = deltakerIds.joinToString(prefix = "[", postfix = "]", separator = ",\n") { id ->
+                    """
+                          {
+                            "deltakerId": "$id",
+                            "personident": "27017809100",
+                            "fornavn": "Ola",
+                            "mellomnavn": null,
+                            "etternavn": "Nordmann",
+                            "navEnhetsnummer": "1206",
+                            "erSkjermet": false,
+                            "adressebeskyttelse": "UGRADERT"
+                          }
+                    """.trimIndent()
+                }
+                respond(
+                    content = ByteReadChannel(content),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            } else {
+                respondError(HttpStatusCode.NotFound)
+            }
+        },
     ),
     pdl = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/pdl",

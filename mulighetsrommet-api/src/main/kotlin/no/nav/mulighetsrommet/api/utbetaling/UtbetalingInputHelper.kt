@@ -19,11 +19,12 @@ object UtbetalingInputHelper {
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
         val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
-        return AvtaltPrisPerTimeOppfolgingPerDeltaker(sats, stengtHosArrangor, deltakelser)
+        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforing.id)
+        val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
+        return AvtaltPrisPerTimeOppfolgingPerDeltaker(sats, stengtHosArrangor, deltakere, deltakelsePerioder)
     }
 
-    data class AvtaltPrisPerTimeOppfolgingPerDeltaker(val sats: Int, val stengtHosArrangor: Set<StengtPeriode>, val deltakelser: Set<DeltakelsePeriode>)
+    data class AvtaltPrisPerTimeOppfolgingPerDeltaker(val sats: Int, val stengtHosArrangor: Set<StengtPeriode>, val deltakere: List<Deltaker>, val deltakelsePerioder: Set<DeltakelsePeriode>)
 
     private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))

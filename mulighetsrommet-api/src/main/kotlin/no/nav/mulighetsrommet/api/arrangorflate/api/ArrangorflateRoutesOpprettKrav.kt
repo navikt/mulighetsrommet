@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
@@ -262,15 +263,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             val avtaltPrisPerTimeOppfolgingPerDeltaker =
                 db.session { resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode) }
-            val deltakelser = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelser.sortedBy { it.periode.start }
+            val deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere
+            val deltakelsePerioder =
+                avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.sortedBy { it.periode.start }
             val sats = avtaltPrisPerTimeOppfolgingPerDeltaker.sats
             val stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor
 
-            val personalia = arrangorFlateService.getPersonalia(deltakelser.map { it.deltakelseId })
+            val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId })
 
-            val table = createDeltakerTable(deltakelser, personalia)
+            val table = createDeltakerTable(deltakere, deltakelsePerioder, personalia)
             val tableFooter = listOf(
-                DetailsEntry.number("Antall deltakere", deltakelser.size),
+                DetailsEntry.number("Antall deltakere", deltakelsePerioder.size),
                 DetailsEntry.nok("Pris", sats),
             )
             val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing)
@@ -434,25 +437,36 @@ sealed class DatoVelger {
 }
 
 @Serializable
-data class OpprettKravDeltakere(val stengtHosArrangor: Set<StengtPeriode>, val tabell: DataDrivenTableDto, val tabellFooter: List<DetailsEntry>, val navigering: OpprettKravVeiviserNavigering)
+data class OpprettKravDeltakere(
+    val stengtHosArrangor: Set<StengtPeriode>,
+    val tabell: DataDrivenTableDto,
+    val tabellFooter: List<DetailsEntry>,
+    val navigering: OpprettKravVeiviserNavigering,
+)
 
-fun createDeltakerTable(deltakere: List<DeltakelsePeriode>, personalia: Map<UUID, DeltakerPersonalia>): DataDrivenTableDto {
+fun createDeltakerTable(
+    deltakere: List<Deltaker>,
+    deltakelsePerioder: List<DeltakelsePeriode>,
+    personalia: Map<UUID, DeltakerPersonalia>,
+): DataDrivenTableDto {
+    val periodeMap = deltakelsePerioder.associateBy { it.deltakelseId }
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("navn", "Navn", sortable = false),
-            DataDrivenTableDto.Column("fodelsdato", "Fødelsdato", sortable = false),
+            DataDrivenTableDto.Column("identitetsnummer", "Identitetsnummer", sortable = false),
             DataDrivenTableDto.Column("tiltakStart", "Startdato i tiltaket", sortable = false),
             DataDrivenTableDto.Column("periodeStart", "Startdato i perioden"),
             DataDrivenTableDto.Column("periodeSlutt", "Sluttdato i perioden"),
         ),
         rows = deltakere.map { deltaker ->
-            val personalia = personalia[deltaker.deltakelseId]
+            val deltakerPeriode = periodeMap[deltaker.id]
+            val personalia = personalia[deltaker.id]
             mapOf(
                 "navn" to DataElement.text(personalia?.navn),
-                "fodelsdato" to DataElement.date(personalia?.norskIdent?.fodselsDato()),
-                "tiltakStart" to DataElement.date(null),
-                "periodeStart" to DataElement.date(deltaker.periode.start),
-                "periodeSlutt" to DataElement.date(deltaker.periode.slutt),
+                "identitetsnummer" to DataElement.text(personalia?.norskIdent?.value),
+                "tiltakStart" to DataElement.date(deltaker.startDato),
+                "periodeStart" to DataElement.date(deltakerPeriode?.periode?.start),
+                "periodeSlutt" to DataElement.date(deltakerPeriode?.periode?.slutt),
             )
         },
     )
