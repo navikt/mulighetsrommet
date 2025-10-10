@@ -76,8 +76,8 @@ class UtbetalingServiceTest : FunSpec({
         personaliaService = personaliaService,
     )
 
-    context("opprett utbetaling") {
-        val opprettUtbetaling = UtbetalingValidator.OpprettUtbetaling(
+    context("opprett utbetaling - annen avtalt pris") {
+        val opprettAnnenAvtaltPrisUtbetaling = UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
             periodeStart = LocalDate.of(2025, 1, 1),
@@ -101,8 +101,8 @@ class UtbetalingServiceTest : FunSpec({
         test("utbetaling blir opprettet med fri-beregning") {
             val service = createUtbetalingService()
 
-            val utbetaling = service.opprettUtbetaling(
-                request = opprettUtbetaling,
+            val utbetaling = service.opprettAnnenAvtaltPrisUtbetaling(
+                request = opprettAnnenAvtaltPrisUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight()
 
@@ -117,13 +117,13 @@ class UtbetalingServiceTest : FunSpec({
         test("utbetaling kan ikke endres hvis den først har blitt opprettet") {
             val service = createUtbetalingService()
 
-            service.opprettUtbetaling(
-                request = opprettUtbetaling.copy(belop = 5),
+            service.opprettAnnenAvtaltPrisUtbetaling(
+                request = opprettAnnenAvtaltPrisUtbetaling.copy(belop = 5),
                 agent = Arrangor,
             ).shouldBeRight()
 
-            service.opprettUtbetaling(
-                request = opprettUtbetaling.copy(belop = 10),
+            service.opprettAnnenAvtaltPrisUtbetaling(
+                request = opprettAnnenAvtaltPrisUtbetaling.copy(belop = 10),
                 agent = Arrangor,
             ) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen er allerede opprettet"),
@@ -135,8 +135,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
-            service.opprettUtbetaling(
-                request = opprettUtbetaling,
+            service.opprettAnnenAvtaltPrisUtbetaling(
+                request = opprettAnnenAvtaltPrisUtbetaling,
                 agent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.INNSENDT
 
@@ -148,8 +148,8 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
-            val utbetaling = service.opprettUtbetaling(
-                request = opprettUtbetaling,
+            val utbetaling = service.opprettAnnenAvtaltPrisUtbetaling(
+                request = opprettAnnenAvtaltPrisUtbetaling,
                 agent = Arrangor,
             ).shouldBeRight()
 

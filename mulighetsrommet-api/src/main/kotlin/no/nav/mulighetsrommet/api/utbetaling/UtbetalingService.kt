@@ -69,8 +69,8 @@ class UtbetalingService(
             .right()
     }
 
-    fun opprettUtbetaling(
-        request: UtbetalingValidator.OpprettUtbetaling,
+    fun opprettAnnenAvtaltPrisUtbetaling(
+        request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         if (queries.utbetaling.get(request.id) != null) {
