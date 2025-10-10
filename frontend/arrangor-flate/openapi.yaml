@@ -142,6 +142,13 @@ paths:
         explode: false
         schema:
           type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
       requestBody:
         description: Request for creating a payment claim
         content:

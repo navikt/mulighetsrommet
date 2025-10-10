@@ -309,6 +309,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             operationId = "postOpprettKrav"
             request {
                 pathParameter<Organisasjonsnummer>("orgnr")
+                pathParameter<String>("gjennomforingId")
                 body<OpprettKravUtbetalingRequest> {
                     description = "Request for creating a payment claim"
                     mediaTypes(ContentType.MultiPart.FormData)
@@ -330,11 +331,6 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             requireTilgangHosArrangor(orgnr)
             val request = receiveOpprettKravUtbetalingRequest(call)
 
-            // Scan vedlegg for virus
-            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
-            }
-
             val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
             val gjennomforing = requireNotNull(
                 db.session {
@@ -345,6 +341,11 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 },
             )
             requireGjennomforingTilArrangor(gjennomforing, orgnr)
+
+            // Scan vedlegg for virus
+            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
+                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
+            }
 
             if (gjennomforing.avtalePrismodell !in hentOpprettKravPrismodeller(okonomiConfig)) {
                 throw StatusException(HttpStatusCode.Forbidden, "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen")
