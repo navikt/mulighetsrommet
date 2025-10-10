@@ -98,22 +98,21 @@ class UtbetalingService(
                     agent,
                 )
 
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
-                Either.Left(
-                    listOf(
-                        FieldError.of(
-                            "Kan ikke opprette utbetaling for denne gjennomføringen",
-                            OpprettKravUtbetalingRequest::tilsagnId,
-                        ),
-                    ),
-                )
-            }
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                opprettAvtaltPrisPerTimeOppfolging(utbetalingKrav, gjennomforing, agent)
 
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-            null,
             -> Either.Left(
+                listOf(
+                    FieldError.of(
+                        "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
+                        OpprettKravUtbetalingRequest::tilsagnId,
+                    ),
+                ),
+            )
+            null -> Either.Left(
                 listOf(
                     FieldError.of(
                         "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
@@ -124,46 +123,82 @@ class UtbetalingService(
         }
     }
 
+    fun opprettAvtaltPrisPerTimeOppfolging(
+        utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
+        gjennomforing: Gjennomforing,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val dbo = UtbetalingDbo(
+            id = UUID.randomUUID(),
+            gjennomforingId = gjennomforing.id,
+            kontonummer = utbetalingKrav.kontonummer,
+            kid = utbetalingKrav.kidNummer,
+            beregning = UtbetalingBeregningFri.beregn(
+                input = UtbetalingBeregningFri.Input(utbetalingKrav.belop),
+            ),
+            periode = Periode.fromInclusiveDates(
+                utbetalingKrav.periodeStart,
+                utbetalingKrav.periodeSlutt,
+            ),
+            innsender = agent,
+            beskrivelse = "",
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
+                LocalDateTime.now()
+            } else {
+                null
+            },
+            status = UtbetalingStatusType.INNSENDT,
+        )
+        return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
+    }
+
     fun opprettAnnenAvtaltPrisUtbetaling(
         request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        if (queries.utbetaling.get(request.id) != null) {
+        val dbo = UtbetalingDbo(
+            id = request.id,
+            gjennomforingId = request.gjennomforingId,
+            kontonummer = request.kontonummer,
+            kid = request.kidNummer,
+            beregning = UtbetalingBeregningFri.beregn(
+                input = UtbetalingBeregningFri.Input(request.belop),
+            ),
+            periode = Periode.fromInclusiveDates(
+                request.periodeStart,
+                request.periodeSlutt,
+            ),
+            innsender = agent,
+            beskrivelse = request.beskrivelse,
+            tilskuddstype = request.tilskuddstype,
+            godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
+                LocalDateTime.now()
+            } else {
+                null
+            },
+            status = UtbetalingStatusType.INNSENDT,
+        )
+
+        return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
+    }
+
+    private fun QueryContext.opprettUtbetalingTransaction(utbetaling: UtbetalingDbo, vedlegg: List<Vedlegg>, agent: Agent): Either<List<FieldError>, Utbetaling> {
+        require(session is TransactionalSession)
+
+        if (queries.utbetaling.get(utbetaling.id) != null) {
             return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
         }
 
-        queries.utbetaling.upsert(
-            UtbetalingDbo(
-                id = request.id,
-                gjennomforingId = request.gjennomforingId,
-                kontonummer = request.kontonummer,
-                kid = request.kidNummer,
-                beregning = UtbetalingBeregningFri.beregn(
-                    input = UtbetalingBeregningFri.Input(request.belop),
-                ),
-                periode = Periode.fromInclusiveDates(
-                    request.periodeStart,
-                    request.periodeSlutt,
-                ),
-                innsender = agent,
-                beskrivelse = request.beskrivelse,
-                tilskuddstype = request.tilskuddstype,
-                godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
-                    LocalDateTime.now()
-                } else {
-                    null
-                },
-                status = UtbetalingStatusType.INNSENDT,
-            ),
-        )
+        queries.utbetaling.upsert(utbetaling)
 
-        val dto = logEndring("Utbetaling sendt inn", getOrError(request.id), agent)
+        val dto = logEndring("Utbetaling sendt inn", getOrError(utbetaling.id), agent)
 
         if (agent is Arrangor) {
-            scheduleJournalforUtbetaling(dto.id, request.vedlegg)
+            scheduleJournalforUtbetaling(dto.id, vedlegg)
         }
 
-        dto.right()
+        return dto.right()
     }
 
     fun opprettDelutbetalinger(
@@ -259,6 +294,7 @@ class UtbetalingService(
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
             is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
             -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
