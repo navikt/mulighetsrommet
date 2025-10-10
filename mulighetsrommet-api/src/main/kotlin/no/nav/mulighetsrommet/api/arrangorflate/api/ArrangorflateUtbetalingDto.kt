@@ -183,6 +183,7 @@ sealed class ArrangorflateBeregningDeltakelse {
 data class ArrangorflatePersonalia(
     val navn: String,
     val norskIdent: NorskIdent?,
+    val erSkjermet: Boolean,
 ) {
     companion object {
         fun fromPersonalia(personalia: DeltakerPersonalia) = when (personalia.adressebeskyttelse) {
@@ -190,12 +191,14 @@ data class ArrangorflatePersonalia(
                 ArrangorflatePersonalia(
                     navn = personalia.navn,
                     norskIdent = personalia.norskIdent,
+                    erSkjermet = personalia.erSkjermet,
                 )
             }
             else ->
                 ArrangorflatePersonalia(
                     navn = "Adressebeskyttet",
                     norskIdent = null,
+                    erSkjermet = personalia.erSkjermet,
                 )
         }
     }
