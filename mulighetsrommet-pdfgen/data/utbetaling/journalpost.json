@@ -115,7 +115,7 @@
                 "title": "Navn"
               },
               {
-                "title": "Fødselsdato",
+                "title": "Fødselsnr.",
                 "align": "RIGHT"
               },
               {
@@ -211,7 +211,7 @@
                 "title": "Navn"
               },
               {
-                "title": "Fødselsdato",
+                "title": "Fødselsnr.",
                 "align": "RIGHT"
               },
               {
