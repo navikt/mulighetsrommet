@@ -7,7 +7,10 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
@@ -18,6 +21,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.toAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.api.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -27,6 +31,7 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -67,6 +72,56 @@ class UtbetalingService(
         automatiskUtbetaling(utbetalingId)
             .also { log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $it") }
             .right()
+    }
+
+    fun opprettUtbetaling(
+        utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
+        gjennomforing: Gjennomforing,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> {
+        return when (gjennomforing.avtalePrismodell) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                opprettAnnenAvtaltPrisUtbetaling(
+                    utbetalingKrav.toAnnenAvtaltPris(
+                        gjennomforingId = gjennomforing.id,
+                        tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+                    ),
+                    agent,
+                )
+
+            PrismodellType.ANNEN_AVTALT_PRIS ->
+                opprettAnnenAvtaltPrisUtbetaling(
+                    utbetalingKrav.toAnnenAvtaltPris(
+                        gjennomforingId = gjennomforing.id,
+                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                    ),
+                    agent,
+                )
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
+                Either.Left(
+                    listOf(
+                        FieldError.of(
+                            "Kan ikke opprette utbetaling for denne gjennomføringen",
+                            OpprettKravUtbetalingRequest::tilsagnId,
+                        ),
+                    ),
+                )
+            }
+
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            null,
+            -> Either.Left(
+                listOf(
+                    FieldError.of(
+                        "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
+                        OpprettKravUtbetalingRequest::tilsagnId,
+                    ),
+                ),
+            )
+        }
     }
 
     fun opprettAnnenAvtaltPrisUtbetaling(
@@ -140,7 +195,14 @@ class UtbetalingService(
                     }
 
                 delutbetalinger.forEach {
-                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, requireNotNull(it.belop), it.gjorOppTilsagn, navIdent)
+                    upsertDelutbetaling(
+                        utbetaling,
+                        it.tilsagn,
+                        it.id,
+                        requireNotNull(it.belop),
+                        it.gjorOppTilsagn,
+                        navIdent,
+                    )
                 }
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
                 queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
@@ -511,7 +573,8 @@ class UtbetalingService(
 
         val deltakelsePersoner = utbetaling.beregning.output.deltakelser().map {
             it to personalia[it.deltakelseId]
-        }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+        }
+            .filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
         return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
@@ -523,6 +586,7 @@ class UtbetalingService(
                     UtbetalingStatusType.INNSENDT,
                     UtbetalingStatusType.RETURNERT,
                     -> true
+
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
@@ -535,7 +599,12 @@ class UtbetalingService(
             }
             .toSet()
 
-        fun linjeHandlinger(delutbetaling: Delutbetaling, opprettelse: Totrinnskontroll, kostnadssted: NavEnhetNummer, ansatt: NavAnsatt): Set<UtbetalingLinjeHandling> {
+        fun linjeHandlinger(
+            delutbetaling: Delutbetaling,
+            opprettelse: Totrinnskontroll,
+            kostnadssted: NavEnhetNummer,
+            ansatt: NavAnsatt,
+        ): Set<UtbetalingLinjeHandling> {
             return setOfNotNull(
                 UtbetalingLinjeHandling.ATTESTER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
                 UtbetalingLinjeHandling.RETURNER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
@@ -572,6 +641,7 @@ class UtbetalingService(
             return when (handling) {
                 UtbetalingLinjeHandling.ATTESTER ->
                     erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+
                 UtbetalingLinjeHandling.RETURNER -> erBeslutter
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
             }

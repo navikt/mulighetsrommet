@@ -8,7 +8,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.server.http.content.default
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -353,8 +352,8 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             arrangorFlateService.getKontonummer(orgnr)
                 .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
-                .flatMap { UtbetalingValidator.validateOpprettKravUtbetaling(request, gjennomforing, it) }
-                .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, Arrangor) }
+                .flatMap { UtbetalingValidator.validateOpprettKravArrangorflate(request, it) }
+                .flatMap { utbetalingService.opprettUtbetaling(it, gjennomforing, Arrangor) }
                 .onLeft { errors ->
                     call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                 }
