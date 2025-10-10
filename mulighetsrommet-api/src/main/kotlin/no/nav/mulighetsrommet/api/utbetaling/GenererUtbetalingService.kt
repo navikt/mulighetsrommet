@@ -303,6 +303,7 @@ class GenererUtbetalingService(
                     from utbetaling
                     where utbetaling.gjennomforing_id = gjennomforing.id
                       and utbetaling.periode && :periode::daterange
+                      and utbetaling.tilskuddstype <> 'TILTAK_INVESTERINGER'
                 )
         """.trimIndent()
 
