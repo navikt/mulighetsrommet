@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -529,6 +530,27 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             // Februar finnes allerede så ingen nye
             service.genererUtbetalingForPeriode(februar).shouldHaveSize(0)
+            database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
+        }
+
+        test("genererer utbetaling hvis det allerede finnes en med overlappende periode som er tilskuddstype TILTAK_INVESTERINGER") {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2026, 2, 1),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+                utbetalinger = listOf(
+                    utbetaling1.copy(tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER),
+                ),
+            ).initialize(database.db)
+
+            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
             database.run { queries.utbetaling.getByArrangorIds(organisasjonsnummer).shouldHaveSize(2) }
         }
 
