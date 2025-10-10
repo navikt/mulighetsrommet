@@ -1,4 +1,5 @@
-import { useParams } from "react-router";
+import { OpprettKravVeiviserSteg } from "@api-client";
+import { Params, useParams } from "react-router";
 import { Tabs } from "~/routes/$orgnr_.oversikt";
 import { Environment } from "~/services/environment";
 
@@ -6,24 +7,36 @@ export function getCurrentTab(request: Request): Tabs {
   return new URL(request.url).searchParams.get("forside-tab") as Tabs;
 }
 
-export function useOrgnrFromUrl() {
-  const { orgnr } = useParams();
-
-  if (!orgnr) {
-    throw new Error("Fant ikke orgnr i url");
+export function requireOrgnr(orgnr?: string): string {
+  if (orgnr) {
+    return orgnr;
   }
-
-  return orgnr;
+  throw new Error("Mangler orgnr");
 }
 
-export function useGjennomforingIdFromUrl() {
-  const { gjennomforingid } = useParams();
-
-  if (!gjennomforingid) {
-    throw new Error("Mangler gjennomføring id");
+export function requireGjennomforingId(gjennomforingId?: string): string {
+  if (gjennomforingId) {
+    return gjennomforingId;
   }
+  throw new Error("Mangler gjennomføring id");
+}
 
-  return gjennomforingid;
+export function useOrgnrFromUrl(): string {
+  const { orgnr } = useParams();
+  return requireOrgnr(orgnr);
+}
+
+export function useGjennomforingIdFromUrl(): string {
+  const { gjennomforingid } = useParams();
+  return requireGjennomforingId(gjennomforingid);
+}
+
+export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
+  orgnr: string;
+  gjennomforingId: string;
+} {
+  const { orgnr, gjennomforingid } = params;
+  return { orgnr: requireOrgnr(orgnr), gjennomforingId: requireGjennomforingId(gjennomforingid) };
 }
 
 export const pathByOrgnr = (orgnr: string) => {
@@ -45,6 +58,17 @@ export const pathByOrgnr = (orgnr: string) => {
         oppsummering: (gjennomforingId: string) =>
           `/${orgnr}/opprett-krav/${gjennomforingId}/investering/oppsummering`,
       },
+      driftstilskuddv2: {
+        innsendingsinformasjon: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
+        deltakere: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
+        utbetaling: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
+        vedlegg: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
+        oppsummering: (gjennomforingId: string) =>
+          `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
+      },
       driftstilskudd: {
         innsendingsinformasjon: `/${orgnr}/opprett-krav/driftstilskudd/innsendingsinformasjon`,
         utbetaling: `/${orgnr}/opprett-krav/driftstilskudd/utbetaling`,
@@ -59,6 +83,23 @@ export const pathByOrgnr = (orgnr: string) => {
     tilsagn: (id: string) => `/${orgnr}/tilsagn/${id}`,
   };
 };
+
+export function pathBySteg(steg: OpprettKravVeiviserSteg, orgnr: string, gjennomforingId: string) {
+  switch (steg) {
+    case OpprettKravVeiviserSteg.INFORMASJON:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.innsendingsinformasjon(
+        gjennomforingId,
+      );
+    case OpprettKravVeiviserSteg.DELTAKERLISTE:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.deltakere(gjennomforingId);
+    case OpprettKravVeiviserSteg.UTBETALING:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId);
+    case OpprettKravVeiviserSteg.VEDLEGG:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId);
+    case OpprettKravVeiviserSteg.OPPSUMMERING:
+      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.oppsummering(gjennomforingId);
+  }
+}
 
 export function deltakerOversiktLenke(env: Environment): string {
   if (env === Environment.DevGcp) {

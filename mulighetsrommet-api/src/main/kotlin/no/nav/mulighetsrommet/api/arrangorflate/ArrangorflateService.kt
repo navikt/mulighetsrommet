@@ -212,7 +212,7 @@ class ArrangorflateService(
         }
     }
 
-    private suspend fun getPersonalia(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonalia> {
+    suspend fun getPersonalia(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonalia> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
@@ -303,7 +303,7 @@ fun harOverlappendePeriode(
     return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
-private fun toArrangorflateTilsagn(
+fun toArrangorflateTilsagn(
     tilsagn: Tilsagn,
 ): ArrangorflateTilsagnDto {
     return ArrangorflateTilsagnDto(

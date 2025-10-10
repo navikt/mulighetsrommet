@@ -23,10 +23,11 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
   return [
-    { title: "Steg 3 av 4: Vedlegg - Opprett krav om utbetaling" },
+    { title: getStepTitle(matches) },
     {
       name: "description",
       content: "Last opp vedlegg for utbetalingskravet",
@@ -62,7 +63,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let kid: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
     session.get("gjennomforingId") === gjennomforingId
   ) {
     tilsagnId = session.get("tilsagnId");
@@ -145,7 +146,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
   } else {
     return redirect(
-      `${pathByOrgnr(orgnr!).opprettKrav.investering.oppsummering(gjennomforingId!)}`,
+      `${pathByOrgnr(orgnr!).opprettKrav.driftstilskuddv2.oppsummering(gjennomforingId!)}`,
     );
   }
 };
@@ -203,7 +204,7 @@ export default function OpprettKravOppsummering() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKrav.investering.utbetaling(gjennomforingId)}
+                to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId)}
               >
                 Tilbake
               </Button>

@@ -30,22 +30,19 @@ import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/u
 import { useEffect, useRef, useState } from "react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import {
-  FileUpload as FileUploadParser,
-  FileUploadHandler,
-  parseFormData,
-} from "@mjackson/form-data-parser";
+import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { pathByOrgnr } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
-import { useFileStorage } from "~/hooks/useFileStorage";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
+import { useFileStorage } from "~/hooks/useFileStorage";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ matches }) => {
   return [
-    { title: "Steg 4 av 4: Oppsummering - Opprett krav om utbetaling" },
+    { title: getStepTitle(matches) },
     {
       name: "description",
       content: "Oppsummering av krav om utbetaling og last opp vedlegg",
@@ -69,13 +66,7 @@ interface ActionData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr, gjennomforingid } = params;
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  if (!gjennomforingid) {
-    throw new Error("Mangler gjennomføring id");
-  }
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
 
   const session = await getSession(request.headers.get("Cookie"));
 
@@ -87,8 +78,8 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let kid: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
-    session.get("gjennomforingId") === gjennomforingid
+    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
+    session.get("gjennomforingId") === gjennomforingId
   ) {
     tilsagnId = session.get("tilsagnId");
     periodeStart = session.get("periodeStart");
@@ -97,7 +88,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kontonummer = session.get("kontonummer");
     kid = session.get("kid");
   }
-
   if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
     throw new Error("Formdata mangler");
 
@@ -111,7 +101,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
   return {
     orgnr,
-    gjennomforingId: gjennomforingid,
+    gjennomforingId,
     tilsagn,
     periodeStart,
     periodeSlutt,
@@ -121,7 +111,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   };
 };
 
-const uploadHandler: FileUploadHandler = async (fileUpload: FileUploadParser) => {
+const uploadHandler: FileUploadHandler = async (fileUpload: FileUpload) => {
   if (fileUpload.fieldName === "vedlegg" && fileUpload.name.endsWith(".pdf")) {
     const bytes = await fileUpload.bytes();
     return new File([bytes], fileUpload.name, { type: fileUpload.type });
@@ -155,6 +145,7 @@ export const action: ActionFunction = async ({ request }) => {
       detail: "Du må bekrefte at opplysningene er korrekte",
     });
   }
+
   const orgnr = session.get("orgnr");
   const belop = Number(session.get("belop"));
   const gjennomforingId = session.get("gjennomforingId");
@@ -176,7 +167,7 @@ export const action: ActionFunction = async ({ request }) => {
       periodeStart: yyyyMMddFormatting(periodeStart)!,
       periodeSlutt: yyyyMMddFormatting(periodeSlutt)!,
       kidNummer: kid || null,
-      tilskuddstype: Tilskuddstype.TILTAK_INVESTERINGER,
+      tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
       vedlegg: vedlegg,
     },
     headers: await apiHeaders(request),
@@ -236,8 +227,6 @@ export default function OpprettKravOppsummering() {
               value: `${tilsagn.arrangor.navn} - ${orgnr}`,
             },
             { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
-            { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
-            { key: "Tilsagn", value: tilsagn.bestillingsnummer },
           ]}
         />
         <Separator />
@@ -288,7 +277,7 @@ export default function OpprettKravOppsummering() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKrav.investering.vedlegg(gjennomforingId)}
+                to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId)}
               >
                 Tilbake
               </Button>
