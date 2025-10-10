@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.toAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.utbetaling.api.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
@@ -112,6 +113,7 @@ class UtbetalingService(
                     ),
                 ),
             )
+
             null -> Either.Left(
                 listOf(
                     FieldError.of(
@@ -128,18 +130,25 @@ class UtbetalingService(
         gjennomforing: Gjennomforing,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val periode = Periode.fromInclusiveDates(
+            utbetalingKrav.periodeStart,
+            utbetalingKrav.periodeSlutt,
+        )
+        val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = gjennomforing.id,
             kontonummer = utbetalingKrav.kontonummer,
             kid = utbetalingKrav.kidNummer,
-            beregning = UtbetalingBeregningFri.beregn(
-                input = UtbetalingBeregningFri.Input(utbetalingKrav.belop),
+            beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
+                input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                    belop = utbetalingKrav.belop,
+                    pris = utbetalingInfo.sats,
+                    stengt = utbetalingInfo.stengtHosArrangor,
+                    deltakelser = utbetalingInfo.deltakelsePerioder,
+                ),
             ),
-            periode = Periode.fromInclusiveDates(
-                utbetalingKrav.periodeStart,
-                utbetalingKrav.periodeSlutt,
-            ),
+            periode = periode,
             innsender = agent,
             beskrivelse = "",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -183,7 +192,11 @@ class UtbetalingService(
         return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
     }
 
-    private fun QueryContext.opprettUtbetalingTransaction(utbetaling: UtbetalingDbo, vedlegg: List<Vedlegg>, agent: Agent): Either<List<FieldError>, Utbetaling> {
+    private fun QueryContext.opprettUtbetalingTransaction(
+        utbetaling: UtbetalingDbo,
+        vedlegg: List<Vedlegg>,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> {
         require(session is TransactionalSession)
 
         if (queries.utbetaling.get(utbetaling.id) != null) {
