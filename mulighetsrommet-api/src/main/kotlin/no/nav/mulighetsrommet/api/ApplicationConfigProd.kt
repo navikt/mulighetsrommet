@@ -389,6 +389,8 @@ val ApplicationConfigProd = AppConfig(
             Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
             Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
             Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            // DOFA Digitalt oppfølgingstiltak
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     clamav = HttpClientConfig(
