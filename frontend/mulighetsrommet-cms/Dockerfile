@@ -1,4 +1,4 @@
-FROM nginxinc/nginx-unprivileged AS builder
+FROM nginxinc/nginx-unprivileged:alpine AS builder
 
 COPY dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
