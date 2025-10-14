@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
-import no.nav.mulighetsrommet.model.fodselsDato
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -453,7 +452,7 @@ fun createDeltakerTable(
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("navn", "Navn", sortable = false),
-            DataDrivenTableDto.Column("identitetsnummer", "Identitetsnummer", sortable = false),
+            DataDrivenTableDto.Column("identitetsnummer", "Fødselsnr.", sortable = false),
             DataDrivenTableDto.Column("tiltakStart", "Startdato i tiltaket", sortable = false),
             DataDrivenTableDto.Column("periodeStart", "Startdato i perioden"),
             DataDrivenTableDto.Column("periodeSlutt", "Sluttdato i perioden"),
