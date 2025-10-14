@@ -56,8 +56,27 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         ),
                     ),
                     personalia = ArrangorflatePersonalia(
+                        navn = "Ola Skjermet",
+                        norskIdent = NorskIdent("01010199999"),
+                        erSkjermet = true,
+                    ),
+                    status = null,
+                ),
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
+                    id = UUID.randomUUID(),
+                    deltakerStartDato = LocalDate.of(2025, 1, 1),
+                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                    faktor = 1.0,
+                    perioderMedDeltakelsesmengde = listOf(
+                        DeltakelsesprosentPeriode(
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                            deltakelsesprosent = 100.0,
+                        ),
+                    ),
+                    personalia = ArrangorflatePersonalia(
                         navn = "Ola Nordmann",
                         norskIdent = NorskIdent("01010199999"),
+                        erSkjermet = false,
                     ),
                     status = null,
                 ),
@@ -79,6 +98,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     personalia = ArrangorflatePersonalia(
                         navn = "Kari Nordmann",
                         norskIdent = NorskIdent("01010199998"),
+                        erSkjermet = false,
                     ),
                     status = null,
                 ),
@@ -438,7 +458,7 @@ private val expectedJournalpostContent = """
                 "title": "Navn"
               },
               {
-                "title": "Fnr",
+                "title": "Fødselsnr.",
                 "align": "RIGHT"
               },
               {
@@ -455,6 +475,26 @@ private val expectedJournalpostContent = """
               }
             ],
             "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Skjermet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
               {
                 "cells": [
                   {
@@ -534,7 +574,7 @@ private val expectedJournalpostContent = """
                 "title": "Navn"
               },
               {
-                "title": "Fnr",
+                "title": "Fødselsnr.",
                 "align": "RIGHT"
               },
               {
@@ -543,6 +583,19 @@ private val expectedJournalpostContent = """
               }
             ],
             "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Skjermet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "1.0"
+                  }
+                ]
+              },
               {
                 "cells": [
                   {

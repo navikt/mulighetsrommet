@@ -1520,7 +1520,10 @@ components:
           type:
           - "null"
           - string
+        erSkjermet:
+          type: boolean
       required:
+      - erSkjermet
       - navn
       - norskIdent
     DeltakerStatusType:

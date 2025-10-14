@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.veilederflate.routes
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.post
-import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -187,6 +185,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         val result = veilederflateService.hentTiltaksgjennomforing(
             id = id,
             sanityPerspective = SanityPerspective.PUBLISHED,
+            cacheUsage = CacheUsage.UseCache,
         )
 
         call.respond(result)
@@ -290,6 +289,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             val result = veilederflateService.hentTiltaksgjennomforing(
                 id = id,
                 sanityPerspective = SanityPerspective.PUBLISHED,
+                cacheUsage = CacheUsage.UseCache,
             )
 
             call.respond(result)
@@ -364,6 +364,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 val result = veilederflateService.hentTiltaksgjennomforing(
                     id = id,
                     sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
+                    cacheUsage = CacheUsage.NoCache,
                 )
 
                 call.respond(result)

@@ -1,6 +1,6 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { GjennomforingDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
-import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { HelpText, HGrid, HStack, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { Metadata } from "@/components/detaljside/Metadata";
@@ -70,7 +70,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
           value={sats?.pris ?? 0}
         />
       </HGrid>
-      <HGrid columns={2}>
+      <HStack gap="2" align="start">
         <TextField
           size="small"
           type="number"
@@ -81,7 +81,10 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
             setValueAs: (v) => (v === "" ? null : Number(v)),
           })}
         />
-      </HGrid>
+        <HelpText>
+          Antall timer per deltaker til oppfølging, inkludert reisetid og rapportskriving
+        </HelpText>
+      </HStack>
     </VStack>
   );
 }

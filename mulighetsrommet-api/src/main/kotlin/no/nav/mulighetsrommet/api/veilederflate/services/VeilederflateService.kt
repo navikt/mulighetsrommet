@@ -139,6 +139,7 @@ class VeilederflateService(
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
         sanityPerspective: SanityPerspective,
+        cacheUsage: CacheUsage,
     ): VeilederflateTiltak = db.session {
         return queries.veilderTiltak.get(id)
             ?.let { gjennomforing ->
@@ -148,7 +149,7 @@ class VeilederflateService(
                 gjennomforing.copy(tiltakstype = sanityTiltakstype)
             }
             ?: run {
-                val gjennomforing = sanityService.getTiltak(id, sanityPerspective)
+                val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
                 toVeilederTiltaksgjennomforing(gjennomforing)
             }
     }
