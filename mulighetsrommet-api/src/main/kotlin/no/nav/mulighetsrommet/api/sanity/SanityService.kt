@@ -35,6 +35,13 @@ class SanityService(
             .recordStats()
             .build()
 
+    private val sanityTiltaksgjennomforingCache: Cache<UUID, SanityTiltaksgjennomforing> =
+        Caffeine.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10_000)
+            .recordStats()
+            .build()
+
     private val sanityTiltaksgjennomforingQuery = """
         {
               _id,
@@ -108,7 +115,14 @@ class SanityService(
     suspend fun getTiltak(
         id: UUID,
         perspective: SanityPerspective,
+        cacheUsage: CacheUsage,
     ): SanityTiltaksgjennomforing {
+        sanityTiltaksgjennomforingCache.getIfPresent(id)?.let {
+            if (cacheUsage == CacheUsage.UseCache) {
+                return@getTiltak it
+            }
+        }
+
         val query = $$"""
             *[_type == "tiltaksgjennomforing" && _id == $id]
             $$sanityTiltaksgjennomforingQuery
@@ -122,7 +136,10 @@ class SanityService(
                 if (result.result == null) {
                     throw NotFoundException("Fant ikke tiltak med id=$id")
                 } else {
-                    return result.decode()
+                    return result.decode<SanityTiltaksgjennomforing>()
+                        .also {
+                            sanityTiltaksgjennomforingCache.put(id, it)
+                        }
                 }
             }
 
