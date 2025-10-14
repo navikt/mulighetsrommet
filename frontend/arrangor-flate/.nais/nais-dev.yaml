@@ -59,7 +59,7 @@ spec:
     enabled: true
     sidecar:
       enabled: true
-      level: Level4
+      level: Level3
       autoLogin: true
       autoLoginIgnorePaths:
         - /internal/*
