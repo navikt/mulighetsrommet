@@ -165,7 +165,7 @@ fun Application.configureAuthentication(
                     return@validate null
                 }
                 val amr = credentials["amr"]?.let { IdPortenAmr.fromString(it) } ?: run {
-                    application.log.warn("'amr' claim is missing from token")
+                    application.log.info("'amr' claim is missing from token")
                     null
                 }
 
