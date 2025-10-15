@@ -2,9 +2,12 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 
 import PersonvernDbo
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
@@ -12,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import java.time.LocalDate
 import java.util.*
 
 object AvtaleDboMapper {
@@ -22,7 +24,7 @@ object AvtaleDboMapper {
         tiltakstypeId = avtale.tiltakstype.id,
         sakarkivNummer = avtale.sakarkivNummer,
         arrangor = avtale.arrangor?.id?.let {
-            AvtaleDbo.Arrangor(
+            ArrangorDbo(
                 hovedenhet = it,
                 underenheter = avtale.arrangor.underenheter.map { it.id },
                 kontaktpersoner = avtale.arrangor.kontaktpersoner.map { it.id },
@@ -48,47 +50,52 @@ object AvtaleDboMapper {
         satser = avtale.prismodell.satser(),
     )
 
-    fun fromAvtaleRequest(
-        request: AvtaleRequest,
-        startDato: LocalDate,
+    fun fromValidatedAvtaleRequest(
+        avtaleId: UUID,
+        detaljerDbo: DetaljerDbo,
         prismodellDbo: PrismodellDbo,
-        arrangor: AvtaleDbo.Arrangor?,
-        status: AvtaleStatusType,
-        tiltakstypeId: UUID,
+        personvernDbo: PersonvernDbo,
+        veilederinformasjonDbo: VeilederinformasjonDbo,
     ): AvtaleDbo = AvtaleDbo(
-        id = request.id,
-        navn = request.navn,
-        sakarkivNummer = request.sakarkivNummer,
-        tiltakstypeId = tiltakstypeId,
-        arrangor = arrangor,
-        startDato = startDato,
-        sluttDato = request.sluttDato,
-        status = status,
-        avtaletype = request.avtaletype,
-        administratorer = request.administratorer,
-        navEnheter = request.veilederinformasjon.navEnheter.toSet(),
-        beskrivelse = request.veilederinformasjon.beskrivelse,
-        faneinnhold = request.veilederinformasjon.faneinnhold,
-        personopplysninger = request.personvern.personopplysninger,
-        personvernBekreftet = request.personvern.personvernBekreftet,
-        amoKategorisering = request.amoKategorisering,
-        opsjonsmodell = request.opsjonsmodell,
-        utdanningslop = request.utdanningslop,
+        id = avtaleId,
+        navn = detaljerDbo.navn,
+        sakarkivNummer = detaljerDbo.sakarkivNummer,
+        tiltakstypeId = detaljerDbo.tiltakstypeId,
+        arrangor = detaljerDbo.arrangor,
+        startDato = detaljerDbo.startDato,
+        sluttDato = detaljerDbo.sluttDato,
+        status = detaljerDbo.status,
+        avtaletype = detaljerDbo.avtaletype,
+        administratorer = detaljerDbo.administratorer,
+        navEnheter = veilederinformasjonDbo.navEnheter.toSet(),
+        beskrivelse = veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
+        faneinnhold = veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold,
+        personopplysninger = personvernDbo.personopplysninger,
+        personvernBekreftet = personvernDbo.personvernBekreftet,
+        amoKategorisering = detaljerDbo.amoKategorisering,
+        opsjonsmodell = detaljerDbo.opsjonsmodell,
+        utdanningslop = detaljerDbo.utdanningslop,
         prismodell = prismodellDbo.prismodell,
         prisbetingelser = prismodellDbo.prisbetingelser,
         satser = prismodellDbo.satser,
     )
 
-    fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: AvtaleRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
+    fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
         id = dbo.id,
-        navn = dbo.navn,
-        sakarkivNummer = dbo.sakarkivNummer,
-        tiltakskode = tiltakskode,
-        arrangor = arrangor,
-        startDato = dbo.startDato,
-        sluttDato = dbo.sluttDato,
-        avtaletype = dbo.avtaletype,
-        administratorer = dbo.administratorer,
+        detaljer = DetaljerRequest(
+            navn = dbo.navn,
+            sakarkivNummer = dbo.sakarkivNummer,
+            tiltakskode = tiltakskode,
+            arrangor = arrangor,
+            startDato = dbo.startDato,
+            sluttDato = dbo.sluttDato,
+            avtaletype = dbo.avtaletype,
+            administratorer = dbo.administratorer,
+            amoKategorisering = dbo.amoKategorisering,
+            opsjonsmodell = dbo.opsjonsmodell,
+            utdanningslop = dbo.utdanningslop,
+        ),
+
         veilederinformasjon = VeilederinfoRequest(
             navEnheter = dbo.navEnheter.toList(),
             beskrivelse = dbo.beskrivelse,
@@ -98,9 +105,6 @@ object AvtaleDboMapper {
             personopplysninger = dbo.personopplysninger,
             personvernBekreftet = dbo.personvernBekreftet,
         ),
-        amoKategorisering = dbo.amoKategorisering,
-        opsjonsmodell = dbo.opsjonsmodell,
-        utdanningslop = dbo.utdanningslop,
         prismodell = PrismodellRequest(
             type = dbo.prismodell,
             prisbetingelser = dbo.prisbetingelser,
@@ -141,6 +145,21 @@ private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = sat
         sats = it.pris,
     )
 }
+
+fun DetaljerRequest.toDbo(tiltakstypeId: UUID, arrangor: ArrangorDbo?, status: AvtaleStatusType): DetaljerDbo = DetaljerDbo(
+    navn = navn,
+    status = status,
+    sakarkivNummer = sakarkivNummer,
+    tiltakstypeId = tiltakstypeId,
+    arrangor = arrangor,
+    startDato = startDato,
+    sluttDato = sluttDato,
+    avtaletype = avtaletype,
+    administratorer = administratorer,
+    amoKategorisering = amoKategorisering,
+    opsjonsmodell = opsjonsmodell,
+    utdanningslop = utdanningslop,
+)
 
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personvernBekreftet = personvernBekreftet,

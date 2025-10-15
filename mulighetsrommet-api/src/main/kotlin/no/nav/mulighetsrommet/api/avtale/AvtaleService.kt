@@ -10,9 +10,11 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
@@ -23,6 +25,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tasks.toAvtaleRequest
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -44,28 +47,46 @@ class AvtaleService(
         request: AvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val previous = get(request.id)
-
         val dbo = validator
-            .validate(request, previous)
+            .validateCreateAvtale(request)
             .bind()
-
-        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
-            return@either previous
-        }
 
         db.transaction {
             queries.avtale.upsert(dbo)
 
-            dispatchNotificationToNewAdministrators(dbo, navIdent)
+            dispatchNotificationToNewAdministrators(dbo.id, dbo.navn, dbo.administratorer, navIdent)
 
             val dto = getOrError(dbo.id)
-            val operation = if (previous == null) {
-                "Opprettet avtale"
-            } else {
-                "Redigerte avtale"
-            }
-            logEndring(operation, dto, navIdent)
+
+            logEndring("Opprettet avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    suspend fun upsertDetaljer(
+        avtaleId: UUID,
+        request: DetaljerRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId)
+            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        if (previous.toAvtaleRequest().detaljer == request) {
+            return@either previous
+        }
+
+        val dbo = validator
+            .validateUpdateDetaljer(avtaleId, request, previous)
+            .bind()
+
+        db.transaction {
+            queries.avtale.updateDetaljer(avtaleId, dbo)
+            dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 
@@ -321,16 +342,18 @@ class AvtaleService(
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: AvtaleDbo,
+        avtaleId: UUID,
+        avtalenavn: String,
+        administratorer: List<NavIdent>,
         navIdent: NavIdent,
     ) {
-        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+        val currentAdministratorer = get(avtaleId)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
-            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
+            (administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
-            title = "Du har blitt satt som administrator på avtalen \"${dbo.navn}\"",
+            title = "Du har blitt satt som administrator på avtalen \"${avtalenavn}\"",
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
@@ -407,14 +430,15 @@ class AvtaleService(
 }
 
 fun resolveStatus(
-    request: AvtaleRequest,
+    arrangor: ArrangorDbo?,
+    sluttDato: LocalDate?,
     previous: Avtale?,
     today: LocalDate,
-): AvtaleStatusType = if (request.arrangor == null) {
+): AvtaleStatusType = if (arrangor == null) {
     AvtaleStatusType.UTKAST
 } else if (previous?.status?.type == AvtaleStatusType.AVBRUTT) {
     previous.status.type
-} else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+} else if (sluttDato == null || !sluttDato.isBefore(today)) {
     AvtaleStatusType.AKTIV
 } else {
     AvtaleStatusType.AVSLUTTET

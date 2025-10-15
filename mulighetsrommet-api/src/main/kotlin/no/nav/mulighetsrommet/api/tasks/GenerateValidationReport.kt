@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
@@ -118,7 +119,7 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler(): Map<Avtale, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
-                avtaleValidator.validate(dto.toAvtaleRequest(), dto).onLeft { validationErrors ->
+                avtaleValidator.validateCreateAvtale(dto.toAvtaleRequest()).onLeft { validationErrors ->
                     put(dto, validationErrors)
                 }
             }
@@ -202,42 +203,44 @@ class GenerateValidationReport(
 }
 
 fun Avtale.toAvtaleRequest() = AvtaleRequest(
-    id = this.id,
-    navn = this.navn,
-    tiltakskode = this.tiltakstype.tiltakskode,
-    arrangor = this.arrangor?.let {
-        AvtaleRequest.Arrangor(
-            hovedenhet = it.organisasjonsnummer,
-            underenheter = it.underenheter.map { it.organisasjonsnummer },
-            kontaktpersoner = it.kontaktpersoner.map { it.id },
-        )
-    },
-    sakarkivNummer = this.sakarkivNummer,
-    startDato = this.startDato,
-    sluttDato = this.sluttDato,
-    administratorer = this.administratorer.map { it.navIdent },
-    avtaletype = this.avtaletype,
+    id = id,
+    detaljer = DetaljerRequest(
+        navn = navn,
+        tiltakskode = tiltakstype.tiltakskode,
+        arrangor = arrangor?.let {
+            DetaljerRequest.Arrangor(
+                hovedenhet = it.organisasjonsnummer,
+                underenheter = it.underenheter.map { it.organisasjonsnummer },
+                kontaktpersoner = it.kontaktpersoner.map { it.id },
+            )
+        },
+        sakarkivNummer = sakarkivNummer,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        administratorer = administratorer.map { it.navIdent },
+        avtaletype = avtaletype,
+        opsjonsmodell = opsjonsmodell,
+        amoKategorisering = amoKategorisering,
+        utdanningslop = utdanningslop?.toDbo(),
+    ),
     veilederinformasjon = VeilederinfoRequest(
-        navEnheter = this.kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } },
-        beskrivelse = this.beskrivelse,
-        faneinnhold = this.faneinnhold,
+        navEnheter = kontorstruktur.flatMap { listOf(it.region.enhetsnummer) + it.kontorer.map { it.enhetsnummer } },
+        beskrivelse = beskrivelse,
+        faneinnhold = faneinnhold,
     ),
     personvern = PersonvernRequest(
-        personopplysninger = this.personopplysninger,
-        personvernBekreftet = this.personvernBekreftet,
+        personopplysninger = personopplysninger,
+        personvernBekreftet = personvernBekreftet,
     ),
-    opsjonsmodell = this.opsjonsmodell,
-    amoKategorisering = this.amoKategorisering,
-    utdanningslop = this.utdanningslop?.toDbo(),
     prismodell = PrismodellRequest(
-        type = this.prismodell.type,
-        satser = this.prismodell.satser().map {
+        type = prismodell.type,
+        satser = prismodell.satser().map {
             AvtaltSatsRequest(
                 pris = it.sats,
                 gjelderFra = it.gjelderFra,
                 valuta = "NOK",
             )
         },
-        prisbetingelser = this.prismodell.prisbetingelser(),
+        prisbetingelser = prismodell.prisbetingelser(),
     ),
 )

@@ -46,7 +46,7 @@ class AvtaleServiceTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        coEvery { avtaleValidator.validate(any(), any()) } answers {
+        coEvery { avtaleValidator.validateCreateAvtale(any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
     }
@@ -73,7 +73,7 @@ class AvtaleServiceTest : FunSpec({
         test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
 
-            coEvery { avtaleValidator.validate(any(), any()) } returns listOf(
+            coEvery { avtaleValidator.validateCreateAvtale(any()) } returns listOf(
                 FieldError("navn", "Dårlig navn"),
             ).left()
 
@@ -85,7 +85,7 @@ class AvtaleServiceTest : FunSpec({
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.avtaleRequest
 
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging.right()
+            coEvery { avtaleValidator.validateCreateAvtale(any()) } returns AvtaleFixtures.oppfolging.right()
             avtaleService.upsert(request, bertilNavIdent)
 
             verify {
@@ -208,7 +208,7 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
+            coEvery { avtaleValidator.validateCreateAvtale(any()) } returns AvtaleFixtures.oppfolging
                 .copy(administratorer = listOf(identAnsatt1))
                 .right()
             avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
@@ -222,11 +222,16 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
-            val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
+            val avtale = AvtaleFixtures.oppfolging
+            val request = AvtaleFixtures.avtaleRequest.detaljer
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+            ).initialize(database.db)
+
+            coEvery { avtaleValidator.validateUpdateDetaljer(avtale.id, any(), any()) } returns AvtaleFixtures.detaljerDbo
                 .copy(administratorer = listOf(identAnsatt2))
                 .right()
-            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
+            avtaleService.upsertDetaljer(avtale.id, request, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldHaveSize(1).first().should {

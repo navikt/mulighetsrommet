@@ -41,26 +41,30 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-@Serializable
 data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val detaljer: DetaljerRequest,
+    val prismodell: PrismodellRequest,
+    val personvern: PersonvernRequest,
+    val veilederinformasjon: VeilederinfoRequest,
+)
+
+@Serializable
+data class DetaljerRequest(
     val navn: String,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate?,
+    val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
-    val personvern: PersonvernRequest,
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: PrismodellRequest,
-    val veilederinformasjon: VeilederinfoRequest,
 ) {
     @Serializable
     data class Arrangor(
@@ -204,6 +208,39 @@ fun Route.avtaleRoutes() {
                     call.respondWithStatusResponse(result)
                 }
             }
+            patch("{id}/detaljer", {
+                tags = setOf("Avtale")
+                operationId = "upsertDetaljer"
+                request {
+                    pathParameterUuid("id")
+                    body<VeilederinfoRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert avtaledetaljer"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val navIdent = getNavIdent()
+                val id: UUID by call.parameters
+                val request = call.receive<DetaljerRequest>()
+
+                val result = avtaleService.upsertDetaljer(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
             patch("{id}/personvern", {
                 tags = setOf("Avtale")
                 operationId = "upsertPersonvern"
@@ -263,7 +300,7 @@ fun Route.avtaleRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<VeilederinfoRequest>()
 
-                val result = avtaler.upsertVeilederinfo(id, request, navIdent)
+                val result = avtaleService.upsertVeilederinfo(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
 
