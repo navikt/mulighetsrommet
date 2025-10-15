@@ -4,6 +4,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
+import no.nav.mulighetsrommet.api.plugins.IdPortenAmr
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
@@ -13,6 +14,7 @@ import java.time.Instant
 class AltinnRettigheterQueries(private val session: Session) {
     fun upsertRettigheter(
         norskIdent: NorskIdent,
+        authenticationMethod: IdPortenAmr,
         bedriftRettigheter: List<BedriftRettigheter>,
         expiry: Instant,
     ) {
@@ -20,11 +22,13 @@ class AltinnRettigheterQueries(private val session: Session) {
         val upsertRolle = """
              insert into altinn_person_rettighet (
                 norsk_ident,
+                authentication_method,
                 organisasjonsnummer,
                 rettighet,
                 expiry
              ) values (
                 :norsk_ident,
+                :authentication_method,
                 :organisasjonsnummer,
                 :rettighet::altinn_ressurs,
                 :expiry
@@ -45,6 +49,7 @@ class AltinnRettigheterQueries(private val session: Session) {
             val roller = bedriftRettighet.rettigheter.map {
                 mapOf(
                     "norsk_ident" to norskIdent.value,
+                    "authentication_method" to authenticationMethod.toString(),
                     "organisasjonsnummer" to bedriftRettighet.organisasjonsnummer.value,
                     "rettighet" to it.name,
                     "expiry" to expiry,
