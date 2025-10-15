@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api
 
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
@@ -43,15 +44,15 @@ class ApiDatabase(
     }
 
     inline fun <T> transaction(
-        operation: QueryContext.() -> T,
+        operation: TransactionalQueryContext.() -> T,
     ): T {
         return db.transaction { session ->
-            QueryContext(session).operation()
+            TransactionalQueryContext(session).operation()
         }
     }
 }
 
-class QueryContext(val session: Session) {
+open class QueryContext(open val session: Session) {
     val queries by lazy { Queries() }
 
     inner class Queries {
@@ -80,3 +81,5 @@ class QueryContext(val session: Session) {
         val oppgave = OppgaveQueries(session)
     }
 }
+
+class TransactionalQueryContext(override val session: TransactionalSession) : QueryContext(session)
