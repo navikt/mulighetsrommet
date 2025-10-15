@@ -32,6 +32,7 @@ class InitialLoadGjennomforingerV2(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    @Serializable
     enum class GjennomforingType {
         ENKELTPLASS,
         GRUPPE,

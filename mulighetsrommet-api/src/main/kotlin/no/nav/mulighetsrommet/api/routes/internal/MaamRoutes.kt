@@ -69,7 +69,7 @@ fun Route.maamRoutes() {
             }
 
             post("initial-load-gjennomforinger-v2") {
-                val input = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
+                val input = call.receive<StartInitialLoadTiltaksgjennomforingV2Request>()
 
                 val taskInput = if (input.id != null) {
                     val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
@@ -187,6 +187,13 @@ data class StartInitialLoadTiltaksgjennomforingRequest(
     val id: String? = null,
     val tiltakstyper: List<Tiltakskode>? = null,
     val opphav: ArenaMigrering.Opphav? = null,
+)
+
+@Serializable
+data class StartInitialLoadTiltaksgjennomforingV2Request(
+    val type: InitialLoadGjennomforingerV2.GjennomforingType,
+    val id: String? = null,
+    val tiltakstyper: List<Tiltakskode>? = null,
 )
 
 @Serializable
