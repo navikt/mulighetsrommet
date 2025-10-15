@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
-import no.nav.mulighetsrommet.api.plugins.IdPortenAmr
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag.Status
@@ -86,7 +85,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.get("/api/arrangorflate/tilgang-arrangor") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922", "amr" to IdPortenAmr.MinidWebAuthn.toString())).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
@@ -103,7 +102,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.get("/api/arrangorflate/tilgang-arrangor") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID.toString())).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
 
@@ -119,7 +118,7 @@ class ArrangorflateRoutesTest : FunSpec({
     test("403 hent tilsagn uten tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922", "amr" to "BankID")).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
             response.status shouldBe HttpStatusCode.Forbidden
@@ -135,7 +134,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
 
@@ -150,7 +149,7 @@ class ArrangorflateRoutesTest : FunSpec({
     test("403 hent utbetaling uten tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response = client.get("/api/arrangorflate/utbetaling/${utbetaling.id}") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922", "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
                 contentType(ContentType.Application.Json)
             }
             response.status shouldBe HttpStatusCode.Forbidden
@@ -166,7 +165,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.get("/api/arrangorflate/utbetaling/${utbetaling.id}") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
             }
 
@@ -187,7 +186,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = "d3b07384d113edec49eaa6238ad5ff00", kid = null))
             }
@@ -222,7 +221,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
@@ -245,14 +244,14 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
             var response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
             response.status shouldBe HttpStatusCode.OK
 
             response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
@@ -278,7 +277,7 @@ class ArrangorflateRoutesTest : FunSpec({
                 }
             }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
@@ -309,7 +308,7 @@ class ArrangorflateRoutesTest : FunSpec({
             }
 
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
                 setBody(GodkjennUtbetaling(digest = utbetaling.beregning.getDigest(), kid = null))
             }
@@ -367,7 +366,7 @@ class ArrangorflateRoutesTest : FunSpec({
                     )
                 },
             ) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value, "amr" to IdPortenAmr.BankID)).serialize())
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
