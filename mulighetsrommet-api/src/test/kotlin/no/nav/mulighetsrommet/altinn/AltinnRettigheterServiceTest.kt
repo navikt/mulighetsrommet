@@ -8,6 +8,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.plugins.IdPortenAmr
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -56,12 +57,12 @@ class AltinnRettigheterServiceTest : FunSpec({
 
         val service = createService(expiry = Duration.ofMinutes(1), altinnClient)
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter1
+        service.getRettigheter(norskIdent, IdPortenAmr.BankID) shouldBe rettigheter1
         coVerify(exactly = 1) { altinnClient.hentRettigheter(norskIdent) }
 
         coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter2
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter1
+        service.getRettigheter(norskIdent, IdPortenAmr.BankID) shouldBe rettigheter1
         coVerify(exactly = 1) { altinnClient.hentRettigheter(norskIdent) }
     }
 
@@ -71,12 +72,12 @@ class AltinnRettigheterServiceTest : FunSpec({
 
         val service = createService(expiry = Duration.ofSeconds(0), altinnClient)
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter1
+        service.getRettigheter(norskIdent, IdPortenAmr.BankID) shouldBe rettigheter1
         coVerify(exactly = 1) { altinnClient.hentRettigheter(norskIdent) }
 
         coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter2
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter2
+        service.getRettigheter(norskIdent, IdPortenAmr.BankID) shouldBe rettigheter2
         coVerify(exactly = 2) { altinnClient.hentRettigheter(norskIdent) }
     }
 })

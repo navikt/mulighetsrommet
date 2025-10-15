@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
+import no.nav.mulighetsrommet.api.plugins.IdPortenAmr
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDateTime
@@ -33,11 +34,13 @@ class AltinnRettigheterQueriesTest : FunSpec({
 
             queries.upsertRettigheter(
                 norskIdent = norskIdent1,
+                authenticationMethod = IdPortenAmr.BankID,
                 bedriftRettigheter = listOf(rettighetUnderenhet1),
                 expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
             )
             queries.upsertRettigheter(
                 norskIdent = norskIdent2,
+                authenticationMethod = IdPortenAmr.BankID,
                 bedriftRettigheter = listOf(rettighetUnderenhet2),
                 expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
             )
@@ -56,6 +59,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
 
             queries.upsertRettigheter(
                 norskIdent = norskIdent1,
+                authenticationMethod = IdPortenAmr.BankID,
                 bedriftRettigheter = listOf(rettighetUnderenhet1, rettighetUnderenhet2),
                 expiry = LocalDateTime.of(2025, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
             )

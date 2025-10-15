@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.altinn.db.BedriftRettigheterDbo
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.plugins.IdPortenAmr
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.Duration
 import java.time.Instant
@@ -17,10 +18,10 @@ class AltinnRettigheterService(
         val rettighetExpiryDuration: Duration = Duration.ofHours(1),
     )
 
-    suspend fun getRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> = db.session {
+    suspend fun getRettigheter(norskIdent: NorskIdent, authenticationMethod: IdPortenAmr): List<BedriftRettigheter> = db.session {
         val bedriftRettigheter = queries.altinnRettigheter.getRettigheter(norskIdent)
         return if (bedriftRettigheter.isEmpty() || anyExpiredBefore(bedriftRettigheter, Instant.now())) {
-            syncRettigheter(norskIdent)
+            syncRettigheter(norskIdent, authenticationMethod)
         } else {
             bedriftRettigheter.map { it.toBedriftRettigheter() }
         }
@@ -32,11 +33,12 @@ class AltinnRettigheterService(
         }
     }
 
-    private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
+    private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent, authenticationMethod: IdPortenAmr): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
 
         queries.altinnRettigheter.upsertRettigheter(
             norskIdent = norskIdent,
+            authenticationMethod = authenticationMethod,
             bedriftRettigheter = rettigheter,
             expiry = Instant.now().plus(config.rettighetExpiryDuration),
         )
