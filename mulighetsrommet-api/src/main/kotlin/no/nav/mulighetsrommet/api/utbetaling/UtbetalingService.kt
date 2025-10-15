@@ -3,10 +3,10 @@ package no.nav.mulighetsrommet.api.utbetaling
 import arrow.core.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.TransactionalSession
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -189,7 +189,7 @@ class UtbetalingService(
         delutbetaling
     }
 
-    private fun QueryContext.automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
+    private fun TransactionalQueryContext.automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
         val utbetaling = queries.utbetaling.getOrError(utbetalingId)
 
         when (utbetaling.beregning) {
@@ -239,7 +239,7 @@ class UtbetalingService(
         return AutomatiskUtbetalingResult.GODKJENT
     }
 
-    private fun QueryContext.upsertDelutbetaling(
+    private fun TransactionalQueryContext.upsertDelutbetaling(
         utbetaling: Utbetaling,
         tilsagn: Tilsagn,
         id: UUID,
@@ -296,7 +296,7 @@ class UtbetalingService(
         )
     }
 
-    private fun QueryContext.godkjennDelutbetaling(
+    private fun TransactionalQueryContext.godkjennDelutbetaling(
         delutbetaling: Delutbetaling,
         besluttetAv: Agent,
     ) {
@@ -336,7 +336,7 @@ class UtbetalingService(
         }
     }
 
-    private fun QueryContext.godkjennUtbetaling(
+    private fun TransactionalQueryContext.godkjennUtbetaling(
         utbetaling: Utbetaling,
         delutbetalinger: List<Delutbetaling>,
     ) {
@@ -359,7 +359,7 @@ class UtbetalingService(
         logEndring("Overført til utbetaling", utbetaling, Tiltaksadministrasjon)
     }
 
-    private fun QueryContext.returnerDelutbetaling(
+    private fun TransactionalQueryContext.returnerDelutbetaling(
         delutbetaling: Delutbetaling,
         aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
@@ -387,7 +387,7 @@ class UtbetalingService(
         )
     }
 
-    private fun QueryContext.setReturnertDelutbetaling(
+    private fun TransactionalQueryContext.setReturnertDelutbetaling(
         delutbetaling: Delutbetaling,
         aarsaker: List<DelutbetalingReturnertAarsak>,
         forklaring: String?,
@@ -406,7 +406,7 @@ class UtbetalingService(
         )
     }
 
-    private fun QueryContext.logEndring(
+    private fun TransactionalQueryContext.logEndring(
         operation: String,
         dto: Utbetaling,
         endretAv: Agent,
@@ -423,16 +423,16 @@ class UtbetalingService(
         return dto
     }
 
-    private fun QueryContext.scheduleJournalforUtbetaling(utbetalingId: UUID, vedlegg: List<Vedlegg>) {
+    private fun TransactionalQueryContext.scheduleJournalforUtbetaling(utbetalingId: UUID, vedlegg: List<Vedlegg>) {
         journalforUtbetaling.schedule(
             utbetalingId = utbetalingId,
             startTime = Instant.now(),
-            tx = session as TransactionalSession,
+            tx = session,
             vedlegg = vedlegg,
         )
     }
 
-    private fun QueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
+    private fun TransactionalQueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
         check(delutbetaling.status == DelutbetalingStatus.GODKJENT) {
             "Delutbetaling må være godkjent for "
         }
@@ -481,7 +481,7 @@ class UtbetalingService(
         storeOkonomiMelding(faktura.bestillingsnummer, message)
     }
 
-    private fun QueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+    private fun TransactionalQueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
         log.info("Lagrer faktura for delutbeatling med bestillingsnummer=$bestillingsnummer for publisering på kafka")
 
         val record = StoredProducerRecord(
