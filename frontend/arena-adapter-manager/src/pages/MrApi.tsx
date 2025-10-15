@@ -2,6 +2,7 @@ import { Box, Heading, Link, VStack } from "@chakra-ui/react";
 import { RunTask } from "../sections/RunTask";
 import TopicOverview from "../sections/TopicOverview.tsx";
 import { ApiBase } from "../core/api.tsx";
+import { RJSFSchema } from "@rjsf/utils";
 
 export function MrApi() {
   return (
@@ -69,7 +70,7 @@ export function MrApi() {
                 type: "object",
                 title: "Send ny melding basert på id",
                 description:
-                  "Hvis det ikke finnes gjennomdøring for gitt id blir det sendt en tombstone-melding i stedet.",
+                  "Hvis det ikke finnes gjennomføring for gitt id blir det sendt en tombstone-melding i stedet.",
                 properties: {
                   id: {
                     title: "ID til gjennomføring",
@@ -87,6 +88,12 @@ export function MrApi() {
               },
             },
           }}
+        />
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task="initial-load-gjennomforinger-v2"
+          input={initialLoadGjennomforingerV2}
         />
 
         <RunTask
@@ -195,3 +202,145 @@ export function MrApi() {
     </Box>
   );
 }
+
+const initialLoadGjennomforingerV2: RJSFSchema = {
+  type: "object",
+  properties: {
+    type: {
+      title: "Type gjennomføring",
+      type: "string",
+      enum: ["GRUPPE", "ENKELTPLASS"],
+      default: "GRUPPE",
+    },
+  },
+  required: ["type"],
+  allOf: [
+    {
+      if: {
+        properties: {
+          type: {
+            const: "GRUPPE",
+          },
+        },
+      },
+      then: {
+        oneOf: [
+          { $ref: "#/definitions/tiltakstyperInputGruppe" },
+          { $ref: "#/definitions/idsInputGruppe" },
+        ],
+      },
+    },
+    {
+      if: {
+        properties: {
+          type: {
+            const: "ENKELTPLASS",
+          },
+        },
+      },
+      then: {
+        oneOf: [
+          { $ref: "#/definitions/tiltakstyperInputEnkeltplass" },
+          { $ref: "#/definitions/idsInputEnkeltplass" },
+        ],
+      },
+    },
+  ],
+  definitions: {
+    tiltakstyperInputGruppe: {
+      type: "object",
+      title: "Initial load basert på tiltakstyper",
+      description:
+        "Starter en initial load av gjennomføringer filtrert basert på input fra skjemaet.",
+      properties: {
+        tiltakstyper: {
+          title: "Tiltakstyper",
+          description: "For hvilke tiltakstyper skal gjennomføringer relastes på topic?",
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "AVKLARING",
+              "OPPFOLGING",
+              "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
+              "JOBBKLUBB",
+              "DIGITALT_OPPFOLGINGSTILTAK",
+              "ARBEIDSFORBEREDENDE_TRENING",
+              "GRUPPE_FAG_OG_YRKESOPPLAERING",
+              "ARBEIDSRETTET_REHABILITERING",
+              "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
+            ],
+          },
+          uniqueItems: true,
+          minItems: 1,
+        },
+      },
+      required: ["tiltakstyper"],
+    },
+    tiltakstyperInputEnkeltplass: {
+      type: "object",
+      title: "Initial load basert på tiltakstyper",
+      description:
+        "Starter en initial load av enkeltplass gjennomføringer filtrert basert på input fra skjemaet.",
+      properties: {
+        tiltakstyper: {
+          title: "Tiltakstyper",
+          description:
+            "For hvilke tiltakstyper skal enkeltplass gjennomføringer relastes på topic?",
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING",
+              "ENKELTPLASS_FAG_OG_YRKESOPPLAERING",
+              "HOYERE_UTDANNING",
+            ],
+          },
+          uniqueItems: true,
+          minItems: 1,
+        },
+      },
+      required: ["tiltakstyper"],
+    },
+    idsInputGruppe: {
+      type: "object",
+      title: "Send ny melding basert på id",
+      description:
+        "Hvis det ikke finnes gjennomføring for gitt id blir det sendt en tombstone-melding i stedet.",
+      properties: {
+        id: {
+          title: "ID til gjennomføring",
+          description: "Flere id'er kan separeres med et komma (,)",
+          type: "string",
+        },
+        bekreftelse: {
+          title:
+            "Jeg forstår at tombstone-melding vil bli sendt om det ikke finnes noen gjennomføring for gitt id",
+          type: "boolean",
+          enum: [true],
+        },
+      },
+      required: ["id", "bekreftelse"],
+    },
+    idsInputEnkeltplass: {
+      type: "object",
+      title: "Send ny melding basert på id",
+      description:
+        "Hvis det ikke finnes enkeltplass gjennomdøring for gitt id blir det sendt en tombstone-melding i stedet.",
+      properties: {
+        id: {
+          title: "ID til enkeltplass gjennomføring",
+          description: "Flere id'er kan separeres med et komma (,)",
+          type: "string",
+        },
+        bekreftelse: {
+          title:
+            "Jeg forstår at tombstone-melding vil bli sendt om det ikke finnes noen enkeltplass gjennomføring for gitt id",
+          type: "boolean",
+          enum: [true],
+        },
+      },
+      required: ["id", "bekreftelse"],
+    },
+  },
+};

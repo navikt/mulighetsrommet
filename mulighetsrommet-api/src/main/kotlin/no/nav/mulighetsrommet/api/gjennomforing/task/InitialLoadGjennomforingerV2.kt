@@ -62,7 +62,6 @@ class InitialLoadGjennomforingerV2(
                     GjennomforingType.GRUPPE -> initialLoadTiltaksgjennomforingerGruppeByIds(input.ids)
                     GjennomforingType.ENKELTPLASS -> Unit
                 }
-
             }
 
             if (input.tiltakskoder != null) {

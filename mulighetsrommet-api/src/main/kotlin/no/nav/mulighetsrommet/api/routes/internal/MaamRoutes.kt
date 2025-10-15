@@ -73,14 +73,14 @@ fun Route.maamRoutes() {
 
                 val taskInput = if (input.id != null) {
                     val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
-                    InitialLoadGjennomforingerV2.Input(ids = ids)
+                    InitialLoadGjennomforingerV2.Input(type = input.type, ids = ids)
                 } else if (input.tiltakstyper != null) {
-                    InitialLoadGjennomforingerV2.Input(tiltakskoder = input.tiltakstyper)
+                    InitialLoadGjennomforingerV2.Input(type = input.type, tiltakskoder = input.tiltakstyper)
                 } else {
                     throw BadRequestException("Ugyldig input")
                 }
 
-                val taskId = InitialLoadGjennomforingerV2.schedule(taskInput)
+                val taskId = initialLoadGjennomforingerV2.schedule(taskInput)
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
