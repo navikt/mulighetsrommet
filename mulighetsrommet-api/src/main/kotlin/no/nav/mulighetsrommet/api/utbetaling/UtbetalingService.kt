@@ -142,8 +142,9 @@ class UtbetalingService(
             kid = utbetalingKrav.kidNummer,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                    periode = periode,
                     belop = utbetalingKrav.belop,
-                    pris = utbetalingInfo.sats,
+                    sats = utbetalingInfo.sats,
                     stengt = utbetalingInfo.stengtHosArrangor,
                     deltakelser = utbetalingInfo.deltakelsePerioder,
                 ),
@@ -192,13 +193,11 @@ class UtbetalingService(
         return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
     }
 
-    private fun QueryContext.opprettUtbetalingTransaction(
+    private fun TransactionalQueryContext.opprettUtbetalingTransaction(
         utbetaling: UtbetalingDbo,
         vedlegg: List<Vedlegg>,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> {
-        require(session is TransactionalSession)
-
         if (queries.utbetaling.get(utbetaling.id) != null) {
             return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
         }

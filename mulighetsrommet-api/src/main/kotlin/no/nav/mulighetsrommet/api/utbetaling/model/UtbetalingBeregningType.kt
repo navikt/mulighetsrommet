@@ -6,4 +6,5 @@ enum class UtbetalingBeregningType {
     PRIS_PER_MANEDSVERK,
     PRIS_PER_UKESVERK,
     PRIS_PER_HELE_UKESVERK,
+    PRIS_PER_TIME_OPPFOLGING,
 }

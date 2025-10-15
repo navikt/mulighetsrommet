@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -39,14 +40,14 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 
     val beregning = when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> {
-            ArrangorflateBeregning.Fri(
+            Fri(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
             )
         }
 
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-            ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
+            FastSatsPerTiltaksplassPerManed(
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
                 belop = beregning.output.belop,
@@ -57,7 +58,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerManedsverk -> {
-            ArrangorflateBeregning.PrisPerManedsverk(
+            PrisPerManedsverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
@@ -68,7 +69,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerUkesverk -> {
-            ArrangorflateBeregning.PrisPerUkesverk(
+            PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
@@ -79,7 +80,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         }
 
         is UtbetalingBeregningPrisPerHeleUkesverk -> {
-            ArrangorflateBeregning.PrisPerUkesverk(
+            PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
@@ -88,6 +89,15 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 sats = beregning.input.sats,
             )
         }
+
+        is UtbetalingBeregningPrisPerTimeOppfolging ->
+            PrisPerTimeOppfolging(
+                belop = beregning.output.belop,
+                digest = beregning.getDigest(),
+                deltakelser = deltakelser,
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                sats = beregning.input.sats
+            )
     }
 
     return ArrangorflateUtbetalingDto(

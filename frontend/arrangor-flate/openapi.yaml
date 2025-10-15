@@ -1490,6 +1490,7 @@ components:
       - $ref: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
       - $ref: "#/components/schemas/ArrangorflateBeregningFri"
       - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
+      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerTimeOppfolging"
       - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
       discriminator:
         propertyName: type
@@ -1497,6 +1498,7 @@ components:
           ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
           ArrangorflateBeregningFri: "#/components/schemas/ArrangorflateBeregningFri"
           ArrangorflateBeregningPrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
+          ArrangorflateBeregningPrisPerTimeOppfolging: "#/components/schemas/ArrangorflateBeregningPrisPerTimeOppfolging"
           ArrangorflateBeregningPrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
     ArrangorflateBeregningFastSatsPerTiltaksplassPerManed:
       type: object
@@ -1537,12 +1539,14 @@ components:
       anyOf:
       - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed"
       - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
+      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging"
       - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
       discriminator:
         propertyName: type
         mapping:
           ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed: "#/components/schemas/ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed"
           ArrangorflateBeregningDeltakelsePrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
+          ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging"
           ArrangorflateBeregningDeltakelsePrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
     ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed:
       type: object
@@ -1654,6 +1658,33 @@ components:
       - periode
       - personalia
       - status
+    ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deltakerStartDato:
+          type:
+          - "null"
+          - string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        personalia:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ArrangorflatePersonalia"
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerStatusType"
+      required:
+      - deltakerStartDato
+      - id
+      - periode
+      - personalia
+      - status
     ArrangorflateBeregningDeltakelsePrisPerUkesverk:
       type: object
       properties:
@@ -1730,6 +1761,37 @@ components:
           $ref: "#/components/schemas/Details"
       required:
       - antallManedsverk
+      - belop
+      - deltakelser
+      - detaljer
+      - digest
+      - displayName
+      - sats
+      - stengt
+    ArrangorflateBeregningPrisPerTimeOppfolging:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        digest:
+          type: string
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
+        sats:
+          type: integer
+          format: int32
+        displayName:
+          type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
+      required:
       - belop
       - deltakelser
       - detaljer

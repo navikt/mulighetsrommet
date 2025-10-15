@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import java.util.*
+import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
 data class UtbetalingBeregningPrisPerTimeOppfolging(
@@ -11,8 +11,9 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
 
     @Serializable
     data class Input(
+        val periode: Periode,
         val belop: Int,
-        val pris: Int,
+        val sats: Int,
         val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput() {

@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.DataElement.*
 
 @Serializable
 data class UtbetalingBeregningDto(
@@ -28,7 +29,7 @@ data class UtbetalingBeregningDto(
                     deltakerTableData = friTable(deltakelsePersoner),
                     regnestykke = listOf(
                         DataElement.text("Innsendt beløp"),
-                        DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                        MathOperator(DataElement.MathOperator.Type.EQUALS),
                         DataElement.nok(utbetaling.beregning.output.belop),
                     ),
                 )
@@ -77,10 +78,10 @@ data class UtbetalingBeregningDto(
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
-                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.nok(sats),
                             DataElement.text("per tiltaksplass per uke"),
-                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                            MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.nok(belop),
                         ),
                     )
@@ -100,14 +101,24 @@ data class UtbetalingBeregningDto(
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
-                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.nok(sats),
                             DataElement.text("per tiltaksplass per uke"),
-                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+                            MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.nok(belop),
                         ),
                     )
                 }
+
+                is UtbetalingBeregningPrisPerTimeOppfolging ->
+                    UtbetalingBeregningDto(
+                        heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
+                        deltakerRegioner = regioner,
+                        deltakerTableData = friTable(deltakelsePersoner),
+                        regnestykke = listOf(
+                            DataElement.number(utbetaling.beregning.output.belop)
+                        )
+                    )
             }
         }
     }
@@ -119,6 +130,7 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
         is UtbetalingBeregningPrisPerManedsverk.Input -> input.sats
         is UtbetalingBeregningPrisPerUkesverk.Input -> input.sats
         is UtbetalingBeregningPrisPerHeleUkesverk.Input -> input.sats
+        is UtbetalingBeregningPrisPerTimeOppfolging.Input -> input.sats
         is UtbetalingBeregningFri.Input -> throw IllegalArgumentException("UtbetalingBeregningFri har ingen sats")
     }
 }
