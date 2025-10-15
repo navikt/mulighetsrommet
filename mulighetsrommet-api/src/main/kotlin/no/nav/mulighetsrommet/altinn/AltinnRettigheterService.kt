@@ -18,7 +18,7 @@ class AltinnRettigheterService(
         val rettighetExpiryDuration: Duration = Duration.ofHours(1),
     )
 
-    suspend fun getRettigheter(norskIdent: NorskIdent, authenticationMethod: IdPortenAmr): List<BedriftRettigheter> = db.session {
+    suspend fun getRettigheter(norskIdent: NorskIdent, authenticationMethod: IdPortenAmr?): List<BedriftRettigheter> = db.session {
         val bedriftRettigheter = queries.altinnRettigheter.getRettigheter(norskIdent)
         return if (bedriftRettigheter.isEmpty() || anyExpiredBefore(bedriftRettigheter, Instant.now())) {
             syncRettigheter(norskIdent, authenticationMethod)
@@ -33,7 +33,10 @@ class AltinnRettigheterService(
         }
     }
 
-    private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent, authenticationMethod: IdPortenAmr): List<BedriftRettigheter> {
+    private suspend fun QueryContext.syncRettigheter(
+        norskIdent: NorskIdent,
+        authenticationMethod: IdPortenAmr?,
+    ): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
 
         queries.altinnRettigheter.upsertRettigheter(

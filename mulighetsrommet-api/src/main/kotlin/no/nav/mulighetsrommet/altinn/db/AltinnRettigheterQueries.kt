@@ -14,7 +14,7 @@ import java.time.Instant
 class AltinnRettigheterQueries(private val session: Session) {
     fun upsertRettigheter(
         norskIdent: NorskIdent,
-        authenticationMethod: IdPortenAmr,
+        authenticationMethod: IdPortenAmr?,
         bedriftRettigheter: List<BedriftRettigheter>,
         expiry: Instant,
     ) {
@@ -49,7 +49,7 @@ class AltinnRettigheterQueries(private val session: Session) {
             val roller = bedriftRettighet.rettigheter.map {
                 mapOf(
                     "norsk_ident" to norskIdent.value,
-                    "authentication_method" to authenticationMethod.toString(),
+                    "authentication_method" to authenticationMethod?.toString(),
                     "organisasjonsnummer" to bedriftRettighet.organisasjonsnummer.value,
                     "rettighet" to it.name,
                     "expiry" to expiry,

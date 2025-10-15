@@ -166,7 +166,6 @@ fun Application.configureAuthentication(
                 }
                 val amr = credentials["amr"]?.let { IdPortenAmr.fromString(it) } ?: run {
                     application.log.warn("'amr' claim is missing from token")
-                    return@validate null
                 }
 
                 val norskIdent = runCatching { NorskIdent(pid) }
