@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforingerV2
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -35,6 +36,7 @@ fun Route.maamRoutes() {
 
     val generateValidationReport: GenerateValidationReport by inject()
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
+    val initialLoadGjennomforingerV2: InitialLoadGjennomforingerV2 by inject()
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
@@ -62,6 +64,23 @@ fun Route.maamRoutes() {
                 }
 
                 val taskId = initialLoadGjennomforinger.schedule(taskInput)
+
+                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
+            }
+
+            post("initial-load-gjennomforinger-v2") {
+                val input = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
+
+                val taskInput = if (input.id != null) {
+                    val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
+                    InitialLoadGjennomforingerV2.Input(ids = ids)
+                } else if (input.tiltakstyper != null) {
+                    InitialLoadGjennomforingerV2.Input(tiltakskoder = input.tiltakstyper)
+                } else {
+                    throw BadRequestException("Ugyldig input")
+                }
+
+                val taskId = InitialLoadGjennomforingerV2.schedule(taskInput)
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
