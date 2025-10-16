@@ -115,13 +115,20 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
-            queries.gjennomforing
-                .getAll(
-                    arrangorOrgnr = listOf(orgnr),
-                    prismodeller = hentOpprettKravPrismodeller(okonomiConfig),
-                    tiltakstypeIder = hentTiltakstyperMedTilsagn(okonomiConfig, aktiveTiltakstyper),
-                )
-                .items
+            val opprettKravPrismodeller = hentOpprettKravPrismodeller(okonomiConfig)
+            val opprettKravTiltakstyperMedTilsagn = hentTiltakstyperMedTilsagn(okonomiConfig, aktiveTiltakstyper)
+
+            if (opprettKravPrismodeller.isEmpty() || opprettKravTiltakstyperMedTilsagn.isEmpty()) {
+                return@session emptyList()
+            } else {
+                queries.gjennomforing
+                    .getAll(
+                        arrangorOrgnr = listOf(orgnr),
+                        prismodeller = opprettKravPrismodeller,
+                        tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
+                    )
+                    .items
+            }
         }
         call.respond(
             toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
@@ -236,9 +243,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
                         slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
                     ).splitByMonth()
-                    // TODO: filtrer vekk perioder med registrerte utbetalinger.
-                    // val utbetalinger = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }
-                    DatoVelger.DatoSelect(perioder)
+                    val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
+
+                    val filtrertePerioder = perioder.subtract(tidligereUtbetalingsPerioder).sortedBy { it.start }
+                    DatoVelger.DatoSelect(filtrertePerioder)
                 } else {
                     DatoVelger.DatoRange()
                 }
@@ -348,7 +356,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
 
             if (gjennomforing.avtalePrismodell !in hentOpprettKravPrismodeller(okonomiConfig)) {
-                throw StatusException(HttpStatusCode.Forbidden, "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen")
+                throw StatusException(
+                    HttpStatusCode.Forbidden,
+                    "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
+                )
             }
 
             arrangorFlateService.getKontonummer(orgnr)

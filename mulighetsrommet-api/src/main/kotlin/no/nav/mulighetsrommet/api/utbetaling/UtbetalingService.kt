@@ -130,7 +130,7 @@ class UtbetalingService(
         gjennomforing: Gjennomforing,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val periode = Periode.fromInclusiveDates(
+        val periode = Periode(
             utbetalingKrav.periodeStart,
             utbetalingKrav.periodeSlutt,
         )
