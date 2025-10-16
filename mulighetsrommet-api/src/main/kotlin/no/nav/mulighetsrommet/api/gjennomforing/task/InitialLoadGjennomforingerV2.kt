@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -60,7 +61,7 @@ class InitialLoadGjennomforingerV2(
             if (input.ids != null) {
                 when (input.type) {
                     GjennomforingType.GRUPPE -> initialLoadTiltaksgjennomforingerGruppeByIds(input.ids)
-                    GjennomforingType.ENKELTPLASS -> Unit
+                    GjennomforingType.ENKELTPLASS -> initialLoadTiltaksgjennomforingerEnkeltplassByIds(input.ids)
                 }
             }
 
@@ -71,7 +72,7 @@ class InitialLoadGjennomforingerV2(
                             tiltakskoder = input.tiltakskoder,
                         )
 
-                    GjennomforingType.ENKELTPLASS -> Unit
+                    GjennomforingType.ENKELTPLASS -> initialLoadTiltaksgjennomforingerEnkeltplass(tiltakskoder = input.tiltakskoder)
                 }
             }
 
@@ -117,6 +118,19 @@ class InitialLoadGjennomforingerV2(
         logger.info("v2: Antall relastet på topic: $total")
     }
 
+    private suspend fun initialLoadTiltaksgjennomforingerEnkeltplass(
+        tiltakskoder: List<Tiltakskode>,
+    ): Unit = db.session {
+        val tiltakstypeIder = tiltakskoder.map { queries.tiltakstype.getByTiltakskode(it).id }
+
+        val total = queries.enkeltplass.getAll(
+            tiltakstypeIder = tiltakstypeIder,
+        )
+        total.map { publishEnkeltplass(it) }
+
+        logger.info("v2: Antall relastet på topic: $total")
+    }
+
     private fun initialLoadTiltaksgjennomforingerGruppeByIds(ids: List<UUID>) = db.session {
         ids.forEach { id ->
             val gjennomforing = queries.gjennomforing.get(id)
@@ -126,6 +140,19 @@ class InitialLoadGjennomforingerV2(
             } else {
                 logger.info("v2: Publiserer melding for $id")
                 publishGruppe(gjennomforing)
+            }
+        }
+    }
+
+    private fun initialLoadTiltaksgjennomforingerEnkeltplassByIds(ids: List<UUID>) = db.session {
+        ids.forEach { id ->
+            val enkeltplass = queries.enkeltplass.get(id)
+            if (enkeltplass == null) {
+                logger.info("v2: Sender tombstone for enkeltplass id $id")
+                retractEnkeltplass(id)
+            } else {
+                logger.info("v2: Publiserer melding for enkeltplass id $id")
+                publishEnkeltplass(enkeltplass)
             }
         }
     }
@@ -152,6 +179,33 @@ class InitialLoadGjennomforingerV2(
     }
 
     fun retractGruppe(id: UUID) {
+        if (config.topic == null) {
+            throw ApplicationConfigurationException("Mangler InitialLoadGjennomforingerV2 topic - retract forsøkt")
+        }
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
+            config.topic,
+            id.toString().toByteArray(),
+            null,
+        )
+        kafkaProducerClient.sendSync(record)
+    }
+
+    private fun publishEnkeltplass(dto: Enkeltplass) {
+        val message = TiltaksgjennomforingV2Mapper.fromEnkeltplass(dto)
+
+        if (config.topic == null) {
+            throw ApplicationConfigurationException("Mangler InitialLoadGjennomforingerV2 topic - publish forsøkt")
+        }
+        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
+            config.topic,
+            message.id.toString().toByteArray(),
+            Json.encodeToString(message).toByteArray(),
+        )
+
+        kafkaProducerClient.sendSync(record)
+    }
+
+    fun retractEnkeltplass(id: UUID) {
         if (config.topic == null) {
             throw ApplicationConfigurationException("Mangler InitialLoadGjennomforingerV2 topic - retract forsøkt")
         }
