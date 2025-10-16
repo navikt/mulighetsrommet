@@ -32,7 +32,9 @@ class AltinnRettigheterService(
         }
     }
 
-    private suspend fun QueryContext.syncRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
+    private suspend fun QueryContext.syncRettigheter(
+        norskIdent: NorskIdent,
+    ): List<BedriftRettigheter> {
         val rettigheter = altinnClient.hentRettigheter(norskIdent)
 
         queries.altinnRettigheter.upsertRettigheter(
