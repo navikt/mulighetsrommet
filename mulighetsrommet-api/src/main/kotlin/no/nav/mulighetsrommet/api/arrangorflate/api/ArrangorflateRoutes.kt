@@ -9,7 +9,6 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.http.content.default
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -22,7 +21,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
@@ -36,7 +34,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -308,7 +305,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             arrangorFlateService.getKontonummer(orgnr)
                 .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
                 .flatMap { UtbetalingValidator.validateOpprettKravOmUtbetaling(request, it) }
-                .flatMap { utbetalingService.opprettUtbetaling(it, Arrangor) }
+                .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, Arrangor) }
                 .onLeft { errors ->
                     call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
                 }
@@ -405,7 +402,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-            call.respond(arrangorFlateService.toArrangorflateUtbetaling(utbetaling))
+            val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
+            call.respond(arrangorFlateUtbetaling)
         }
 
         get("/advarsler", {

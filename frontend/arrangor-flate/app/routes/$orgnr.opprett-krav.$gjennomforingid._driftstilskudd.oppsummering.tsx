@@ -118,7 +118,9 @@ const uploadHandler: FileUploadHandler = async (fileUpload: FileUpload) => {
   }
 };
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
+
   const formData = await parseFormData(
     request,
     {
@@ -146,9 +148,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
 
-  const orgnr = session.get("orgnr");
   const belop = Number(session.get("belop"));
-  const gjennomforingId = session.get("gjennomforingId");
   const tilsagnId = session.get("gjennomforingId");
   const periodeStart = session.get("periodeStart");
   const periodeSlutt = session.get("periodeSlutt");
@@ -158,16 +158,14 @@ export const action: ActionFunction = async ({ request }) => {
     return { errors };
   }
 
-  const { error, data } = await ArrangorflateService.opprettKravOmUtbetaling({
-    path: { orgnr: orgnr! },
+  const { error, data } = await ArrangorflateService.postOpprettKrav({
+    path: { orgnr: orgnr!, gjennomforingId: gjennomforingId },
     body: {
       belop: belop!,
-      gjennomforingId: gjennomforingId!,
       tilsagnId: tilsagnId!,
       periodeStart: yyyyMMddFormatting(periodeStart)!,
       periodeSlutt: yyyyMMddFormatting(periodeSlutt)!,
       kidNummer: kid || null,
-      tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
       vedlegg: vedlegg,
     },
     headers: await apiHeaders(request),

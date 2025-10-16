@@ -393,9 +393,7 @@ val ApplicationConfigProd = AppConfig(
             // DOFA Digitalt oppfølgingstiltak
             Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
         ),
-        opprettKravPeriode = mapOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2026, 1, 1)),
-        ),
+        opprettKravPeriode = emptyMap(),
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

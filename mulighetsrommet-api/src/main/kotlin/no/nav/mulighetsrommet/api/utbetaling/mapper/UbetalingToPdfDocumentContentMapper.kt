@@ -59,6 +59,10 @@ object UbetalingToPdfDocumentContentMapper {
             is ArrangorflateBeregning.PrisPerUkesverk -> {
                 addDeltakerperioderSection(utbetaling.beregning.deltakelser)
             }
+
+            is ArrangorflateBeregning.PrisPerTimeOppfolging -> {
+                addDeltakerperioderSection(utbetaling.beregning.deltakelser)
+            }
         }
 
         when (utbetaling.beregning) {
@@ -81,6 +85,8 @@ object UbetalingToPdfDocumentContentMapper {
                 deltakelseFaktorColumnName = "Ukesverk",
                 deltakelser = utbetaling.beregning.deltakelser,
             )
+
+            is ArrangorflateBeregning.PrisPerTimeOppfolging -> Unit
         }
     }
 }
@@ -148,6 +154,10 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
                         Format.NOK,
                     )
                 }
+
+                is ArrangorflateBeregning.PrisPerTimeOppfolging -> {
+                    entry("Pris", utbetaling.beregning.sats, Format.NOK)
+                }
             }
 
             entry(
@@ -207,6 +217,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
         is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> beregning.stengt
         is ArrangorflateBeregning.PrisPerManedsverk -> beregning.stengt
         is ArrangorflateBeregning.PrisPerUkesverk -> beregning.stengt
+        is ArrangorflateBeregning.PrisPerTimeOppfolging -> beregning.stengt
     }
     if (stengt.isNotEmpty()) {
         section("Stengt hos arrangør") {
@@ -312,7 +323,18 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
                         if (erSkjermet) null else deltakelse.personalia?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.faktor.toString(),
+                        when (deltakelse) {
+                            is ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed ->
+                                deltakelse.faktor.toString()
+
+                            is ArrangorflateBeregningDeltakelse.PrisPerUkesverk ->
+                                deltakelse.faktor.toString()
+
+                            is ArrangorflateBeregningDeltakelse.PrisPerManedsverk ->
+                                deltakelse.faktor.toString()
+
+                            else -> null
+                        },
                     ),
                 )
             }

@@ -305,7 +305,7 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = UtbetalingValidator.validateOpprettUtbetalingRequest(id, request)
-                    .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
+                    .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
 

@@ -94,6 +94,20 @@ function perioder(deltakelse: ArrangorflateBeregningDeltakelse): TimelinePeriode
         },
       ];
     }
+    case "ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging": {
+      const start = new Date(deltakelse.periode.start);
+      const end = subDuration(new Date(deltakelse.periode.slutt), { days: 1 })!;
+      const label = formaterPeriode(deltakelse.periode);
+
+      return [
+        {
+          key: deltakelse.periode.start + deltakelse.periode.slutt,
+          start,
+          end,
+          label,
+        },
+      ];
+    }
     case undefined:
       throw new Error('"type" mangler fra deltakelse');
   }

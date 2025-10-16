@@ -41,7 +41,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
   formaterPeriode,
-  inBetweenInclusive,
+  isLaterOrSameDay,
   parseDate,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
@@ -186,11 +186,10 @@ export default function OpprettKravInnsendingsinformasjon() {
     if (!valgtPeriode) {
       return [];
     }
-    return innsendingsinformasjon.tilsagn.filter((tilsagn) =>
-      inBetweenInclusive(valgtPeriode.slutt, {
-        from: tilsagn.periode.start,
-        to: tilsagn.periode.slutt,
-      }),
+    return innsendingsinformasjon.tilsagn.filter(
+      (tilsagn) =>
+        isLaterOrSameDay(valgtPeriode.start, tilsagn.periode.start) &&
+        isLaterOrSameDay(tilsagn.periode.slutt, valgtPeriode.slutt),
     );
   }, [innsendingsinformasjon.tilsagn, valgtPeriode]);
 
@@ -246,7 +245,7 @@ export default function OpprettKravInnsendingsinformasjon() {
                   </Alert>
                 ) : (
                   <>
-                    <input type="hidden" name="tilsagnId" value={relevanteTilsagn[0].id} />
+                    <input type="hidden" name="tilsagnId" value={relevanteTilsagn[0].id} readOnly />
                     {relevanteTilsagn.map((tilsagn) => (
                       <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
                     ))}
@@ -274,6 +273,7 @@ export default function OpprettKravInnsendingsinformasjon() {
               name="nesteSteg"
               value={innsendingsinformasjon.navigering.neste?.toString()}
               hidden
+              readOnly
             />
             <Button type="submit" variant="tertiary" name="intent" value="cancel">
               Avbryt
