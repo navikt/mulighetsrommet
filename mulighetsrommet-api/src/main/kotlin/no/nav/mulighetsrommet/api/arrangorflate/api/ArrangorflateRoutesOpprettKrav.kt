@@ -243,10 +243,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
                         slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
                     ).splitByMonth()
-                    val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
-
-                    val filtrertePerioder = perioder.subtract(tidligereUtbetalingsPerioder).sortedBy { it.start }
-                    DatoVelger.DatoSelect(filtrertePerioder)
+                    // TODO: Ikluder filtrering på eksisternde utbetalinger
+                    // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
+                    // val filtrertePerioder = perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
+                    DatoVelger.DatoSelect(perioder)
                 } else {
                     DatoVelger.DatoRange()
                 }
@@ -541,6 +541,7 @@ fun createDeltakerTable(
     personalia: Map<UUID, DeltakerPersonalia>,
 ): DataDrivenTableDto {
     val periodeMap = deltakelsePerioder.associateBy { it.deltakelseId }
+    val deltakerMap = deltakere.associateBy { it.id }
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("navn", "Navn", sortable = false),
@@ -549,15 +550,15 @@ fun createDeltakerTable(
             DataDrivenTableDto.Column("periodeStart", "Startdato i perioden"),
             DataDrivenTableDto.Column("periodeSlutt", "Sluttdato i perioden"),
         ),
-        rows = deltakere.map { deltaker ->
-            val deltakerPeriode = periodeMap[deltaker.id]
-            val personalia = personalia[deltaker.id]
+        rows = periodeMap.map { (key, value) ->
+            val deltaker = deltakerMap[key]
+            val personalia = personalia[key]
             mapOf(
                 "navn" to DataElement.text(personalia?.navn),
                 "identitetsnummer" to DataElement.text(personalia?.norskIdent?.value),
-                "tiltakStart" to DataElement.date(deltaker.startDato),
-                "periodeStart" to DataElement.date(deltakerPeriode?.periode?.start),
-                "periodeSlutt" to DataElement.date(deltakerPeriode?.periode?.slutt),
+                "tiltakStart" to DataElement.date(deltaker?.startDato),
+                "periodeStart" to DataElement.date(value.periode.start),
+                "periodeSlutt" to DataElement.date(value.periode.slutt),
             )
         },
     )

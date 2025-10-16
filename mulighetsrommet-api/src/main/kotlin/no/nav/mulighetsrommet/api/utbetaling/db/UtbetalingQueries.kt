@@ -126,13 +126,21 @@ class UtbetalingQueries(private val session: Session) {
                 dbo.beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerTimeOppfolging -> upsertBeregning(
-                dbo.id,
-                dbo.beregning.input.sats,
-                dbo.beregning.input.stengt,
-                dbo.beregning.input.deltakelser,
-                emptySet(),
-            )
+            is UtbetalingBeregningPrisPerTimeOppfolging ->
+                {
+                    upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                    upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                    // TODO: lagre perioder uten deltakelsesprosent?
+                    val perioder = dbo.beregning.input.deltakelser
+                        .map {
+                            DeltakelseDeltakelsesprosentPerioder(
+                                it.deltakelseId,
+                                listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                            )
+                        }
+                        .toSet()
+                    upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+                }
         }
     }
 
