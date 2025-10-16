@@ -116,8 +116,8 @@ data class UtbetalingBeregningDto(
                         deltakerRegioner = regioner,
                         deltakerTableData = friTable(deltakelsePersoner),
                         regnestykke = listOf(
-                            DataElement.number(utbetaling.beregning.output.belop)
-                        )
+                            DataElement.number(utbetaling.beregning.output.belop),
+                        ),
                     )
             }
         }

@@ -126,12 +126,13 @@ class UtbetalingQueries(private val session: Session) {
                 dbo.beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerTimeOppfolging -> upsertBeregning(dbo.id,
+            is UtbetalingBeregningPrisPerTimeOppfolging -> upsertBeregning(
+                dbo.id,
                 dbo.beregning.input.sats,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
-                emptySet()
-                )
+                emptySet(),
+            )
         }
     }
 

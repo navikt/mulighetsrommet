@@ -71,7 +71,7 @@ object UbetalingToPdfDocumentContentMapper {
             is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet månedsverk",
                 deltakelseFaktorColumnName = "Månedsverk",
-                deltakelser = utbetaling.beregning.deltakelser
+                deltakelser = utbetaling.beregning.deltakelser,
             )
 
             is ArrangorflateBeregning.PrisPerManedsverk -> addDeltakelsesfaktorSection(
@@ -334,7 +334,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
                                 deltakelse.faktor.toString()
 
                             else -> null
-                        }
+                        },
                     ),
                 )
             }

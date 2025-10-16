@@ -402,7 +402,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-            call.respond(arrangorFlateService.toArrangorflateUtbetaling(utbetaling))
+            try {
+                val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
+                call.respond(arrangorFlateUtbetaling)
+            } catch (ex: Exception) {
+                call.respond(HttpStatusCode.BadRequest, ex.localizedMessage)
+            }
         }
 
         get("/advarsler", {
