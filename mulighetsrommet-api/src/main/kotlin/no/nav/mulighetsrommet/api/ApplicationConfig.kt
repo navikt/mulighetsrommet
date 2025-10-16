@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -60,6 +61,7 @@ data class AppConfig(
 
 data class OkonomiConfig(
     val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+    val opprettKravPeriode: Map<PrismodellType, Periode>,
 )
 
 data class AuthConfig(

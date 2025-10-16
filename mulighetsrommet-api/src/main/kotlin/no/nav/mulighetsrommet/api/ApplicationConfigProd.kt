@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -391,6 +392,9 @@ val ApplicationConfigProd = AppConfig(
             Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
             // DOFA Digitalt oppfølgingstiltak
             Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
+        ),
+        opprettKravPeriode = mapOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2026, 1, 1)),
         ),
     ),
     clamav = HttpClientConfig(
