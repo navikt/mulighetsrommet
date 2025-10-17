@@ -1,12 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/altinn/accessmanagement/api/v1/resourceowner/authorizedparties",
-    "queryParameters": {
-      "includeAltinn2": {
-        "equalTo": "true"
-      }
-    }
+    "urlPath": "/altinn/accessmanagement/api/v1/resourceowner/authorizedparties"
   },
   "response": {
     "status": 200,
