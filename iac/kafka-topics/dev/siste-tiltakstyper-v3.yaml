@@ -30,6 +30,9 @@ spec:
     - team: amt
       application: amt-kafka-manager
       access: read
+    - team: amt
+      application: amt-aktivitetskort-publisher
+      access: read
 
     # DVH
     - team: teamoppfolging
