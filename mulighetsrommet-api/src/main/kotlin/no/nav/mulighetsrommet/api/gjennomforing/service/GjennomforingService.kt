@@ -429,7 +429,7 @@ class GjennomforingService(
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
             gjennomforingV2.id.toString().toByteArray(),
-            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(),gjennomforingV2).toByteArray(),
+            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(), gjennomforingV2).toByteArray(),
             null,
         )
         queries.kafkaProducerRecord.storeRecord(recordV2)
