@@ -23,7 +23,7 @@ import {
 } from "~/utils/navigation";
 import { useEffect, useRef } from "react";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 
 type LoaderData = {
   kontonummer?: string;

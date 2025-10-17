@@ -131,9 +131,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }
         call.respond(
-            toGjennomforingerTableResponse(gjennomforinger) { gjennomforing ->
-                toGjennomforingAction(orgnr, gjennomforing)
-            },
+            toGjennomforingerTableResponse(orgnr, gjennomforinger),
         )
     }
 
@@ -250,8 +248,14 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 } else {
                     DatoVelger.DatoRange()
                 }
+            val guidePanelType = if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                InnsendingsInformasjonGuideType.INVESTERING
+            } else {
+                InnsendingsInformasjonGuideType.DRIFTSTILSKUDD
+            }
             val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.INFORMASJON, gjennomforing)
-            call.respond(OpprettKravInnsendingsInformasjon(definisjonsliste, tilsagn, datoVelger, navigering))
+            val payload = OpprettKravInnsendingsInformasjon(guidePanelType, definisjonsliste, tilsagn, datoVelger, navigering)
+            call.respond(payload)
         }
 
         get("/deltakere", {
@@ -403,21 +407,21 @@ data class GjennomforingerTableResponse(
 )
 
 private fun toGjennomforingerTableResponse(
+    orgNr: Organisasjonsnummer,
     gjennomforinger: List<Gjennomforing>,
-    action: (gjennomforing: Gjennomforing) -> DataElement,
 ): GjennomforingerTableResponse {
     val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
     val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
 
     return GjennomforingerTableResponse(
-        aktive = toGjennomforingDataTable(aktive, action),
-        historiske = toGjennomforingDataTable(historiske, action),
+        aktive = toGjennomforingDataTable(orgNr, aktive),
+        historiske = toGjennomforingDataTable(orgNr, historiske),
     )
 }
 
 private fun toGjennomforingDataTable(
+    orgNr: Organisasjonsnummer,
     gjennomforinger: List<Gjennomforing>,
-    action: (gjennomforing: Gjennomforing) -> DataElement,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
@@ -435,34 +439,17 @@ private fun toGjennomforingDataTable(
                 "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
                 "startDato" to DataElement.date(gjennomforing.startDato),
                 "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to action(gjennomforing),
+                "action" to
+                    DataElement.Link(
+                        text = "Start innsending",
+                        href = hrefOpprettKravInnsendingsInformasjon(orgNr, gjennomforing.id),
+                    ),
             )
         },
     )
 }
 
-private fun toGjennomforingAction(
-    orgnr: Organisasjonsnummer,
-    gjennomforing: Gjennomforing,
-): DataElement = when (gjennomforing.tiltakstype.tiltakskode) {
-    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ->
-        DataElement.Link(
-            text = "Start innsending",
-            href = hrefInvesteringInnsending(orgnr, gjennomforing.id),
-        )
-
-    else ->
-        DataElement.Link(
-            text = "Start innsending",
-            href = hrefDrifttilskuddInnsending(orgnr, gjennomforing.id),
-        )
-}
-
-private fun hrefInvesteringInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/investering/innsendingsinformasjon"
-
-private fun hrefDrifttilskuddInnsending(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+private fun hrefOpprettKravInnsendingsInformasjon(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
 
 @Serializable
 data class OpprettKravVeiviserMeta(val steg: List<OpprettKravVeiviserStegDto>)
@@ -502,16 +489,23 @@ data class OpprettKravVeiviserNavigering(val tilbake: OpprettKravVeiviserSteg?, 
 fun getVeiviserNavigering(steg: OpprettKravVeiviserSteg, gjennomforing: Gjennomforing): OpprettKravVeiviserNavigering {
     val stegListe = getVeiviserSteg(gjennomforing)
     val stegIndex = stegListe.indexOf(steg)
-    return OpprettKravVeiviserNavigering(stegListe.getOrNull(stegIndex - 1), stegListe.getOrNull(stegIndex + 1))
+    return OpprettKravVeiviserNavigering(tilbake = stegListe.getOrNull(stegIndex - 1), neste = stegListe.getOrNull(stegIndex + 1))
 }
 
 @Serializable
 data class OpprettKravInnsendingsInformasjon(
+    val guidePanelType: InnsendingsInformasjonGuideType,
     val definisjonsListe: List<DetailsEntry>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
     val datoVelger: DatoVelger,
     val navigering: OpprettKravVeiviserNavigering,
 )
+
+@Serializable
+enum class InnsendingsInformasjonGuideType {
+    INVESTERING,
+    DRIFTSTILSKUDD,
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
