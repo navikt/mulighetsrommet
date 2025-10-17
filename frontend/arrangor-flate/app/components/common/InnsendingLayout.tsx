@@ -44,11 +44,11 @@ export function InnsendingLayout({
         {steps && steps.length > 0 && (
           <Hide below="sm" hidden={hideStepper}>
             <Stepper aria-label="Steg" activeStep={activeStep || 0} orientation="horizontal">
-              {steps.map(({ name, order }) => (
+              {steps.map(({ name }, index) => (
                 <Stepper.Step
                   key={name}
                   interactive={false}
-                  completed={!!activeStep && activeStep > order}
+                  completed={!!activeStep && activeStep > index + 1}
                 >
                   {name}
                 </Stepper.Step>

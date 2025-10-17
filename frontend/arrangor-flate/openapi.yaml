@@ -1034,6 +1034,11 @@ components:
             $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
       required:
       - steg
+    InnsendingsInformasjonGuideType:
+      type: string
+      enum:
+      - INVESTERING
+      - DRIFTSTILSKUDD
     DetailsEntry:
       type: object
       properties:
@@ -1223,6 +1228,8 @@ components:
     OpprettKravInnsendingsInformasjon:
       type: object
       properties:
+        guidePanelType:
+          $ref: "#/components/schemas/InnsendingsInformasjonGuideType"
         definisjonsListe:
           type: array
           items:
@@ -1238,6 +1245,7 @@ components:
       required:
       - datoVelger
       - definisjonsListe
+      - guidePanelType
       - navigering
       - tilsagn
     StengtPeriode:

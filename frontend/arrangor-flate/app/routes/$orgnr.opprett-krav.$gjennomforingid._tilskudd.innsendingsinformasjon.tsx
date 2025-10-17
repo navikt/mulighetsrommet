@@ -18,6 +18,7 @@ import {
   ArrangorflateService,
   DatoVelger,
   FieldError,
+  InnsendingsInformasjonGuideType,
   OpprettKravInnsendingsInformasjon,
   OpprettKravVeiviserSteg,
   Periode,
@@ -47,7 +48,7 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 
 type LoaderData = {
   orgnr: string;
@@ -206,20 +207,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           <Heading level="3" size="large">
             Innsendingsinformasjon
           </Heading>
-          <GuidePanel className="mb-2">
-            <BodyLong spacing>
-              I dette skjemaet kan du sende inn krav som gjelder tilsagn for driftstilskudd.
-              <br />
-              Andre krav om utbetaling (feks <abbr title="Arbeidsforberedende trening">
-                AFT
-              </abbr>{" "}
-              eller <abbr title="Varig tilrettelagt arbeid">VTA</abbr>) skal sendes inn via
-              utbetalingene i{" "}
-              <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
-                Utbetalingsoversikten.
-              </Link>
-            </BodyLong>
-          </GuidePanel>
+          <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanelType} />
           <VStack gap="6" className="max-w-2xl">
             <Definisjonsliste definitions={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
@@ -437,4 +425,43 @@ function PeriodeVelger({
       </DatePicker>
     </HStack>
   );
+}
+
+interface GuidePanelInformationProps {
+  orgnr: string;
+  type: InnsendingsInformasjonGuideType;
+}
+
+function GuidePanelInformation({ orgnr, type }: GuidePanelInformationProps) {
+  switch (type) {
+    case InnsendingsInformasjonGuideType.DRIFTSTILSKUDD:
+      return (
+        <GuidePanel className="mb-2">
+          <BodyLong spacing>
+            I dette skjemaet kan du sende inn krav som gjelder tilsagn for driftstilskudd.
+            <br />
+            Andre krav om utbetaling (feks <abbr title="Arbeidsforberedende trening">AFT</abbr>{" "}
+            eller <abbr title="Varig tilrettelagt arbeid">VTA</abbr>) skal sendes inn via
+            utbetalingene i{" "}
+            <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
+              Utbetalingsoversikten.
+            </Link>
+          </BodyLong>
+        </GuidePanel>
+      );
+    case InnsendingsInformasjonGuideType.INVESTERING:
+      return (
+        <GuidePanel className="mb-2">
+          <BodyLong spacing>
+            I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre krav
+            om utbetaling skal sendes inn via utbetalingene i{" "}
+            <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
+              Utbetalingsoversikten.
+            </Link>
+          </BodyLong>
+        </GuidePanel>
+      );
+    default:
+      return null;
+  }
 }
