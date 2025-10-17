@@ -40,6 +40,7 @@ import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/Gjennomforin
 import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -61,18 +62,28 @@ export function App() {
 
 function AppLayout() {
   return (
-    <Page background="bg-subtle">
-      <Page.Block as="header" className="max-w-[1920px]">
-        <AdministratorHeader />
-      </Page.Block>
-      <Page.Block as="main" className="max-w-[1920px]">
-        <Suspense fallback={<Laster tekst="Laster..." />}>
-          <InlineErrorBoundary>
-            <Outlet />
-          </InlineErrorBoundary>
-        </Suspense>
-      </Page.Block>
-    </Page>
+    <HelmetProvider>
+      <Helmet>
+        <script
+          defer
+          src="https://cdn.nav.no/team-researchops/sporing/sporing.js"
+          data-host-url="https://umami.nav.no"
+          data-website-id="7b4a1f84-e34c-46d9-ae4a-de244d3c9ea9"
+        ></script>
+      </Helmet>
+      <Page background="bg-subtle">
+        <Page.Block as="header" className="max-w-[1920px]">
+          <AdministratorHeader />
+        </Page.Block>
+        <Page.Block as="main" className="max-w-[1920px]">
+          <Suspense fallback={<Laster tekst="Laster..." />}>
+            <InlineErrorBoundary>
+              <Outlet />
+            </InlineErrorBoundary>
+          </Suspense>
+        </Page.Block>
+      </Page>
+    </HelmetProvider>
   );
 }
 
