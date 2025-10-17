@@ -6,6 +6,7 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
+import io.ktor.server.http.content.default
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -17,9 +18,12 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.gjennomforing.api.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -37,8 +41,11 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -102,6 +109,37 @@ fun Route.utbetalingRoutes() {
         }
 
         call.respond(utbetalinger)
+    }
+
+    get("/innsendinger", {
+        description = "Hent filtrerte innsendinger"
+        tags = setOf("Utbetaling")
+        operationId = "getInnsendinger"
+        request {
+            queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                explode = true
+            }
+            queryParameter<Periode>("periode")
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle innsendinger for gitte filtre"
+                body<List<UtbetalingKompaktDto>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val pagination = getPaginationParams()
+        val filter = getAdminInnsendingerFilter()
+
+        val innsendinger = db.session {
+            queries.utbetaling.getAll(pagination, filter)
+        }
+
+        call.respond(innsendinger)
     }
 
     route("/utbetaling/{id}") {
@@ -250,9 +288,11 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val utbetalingsLinjer = db.session {
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
+                    val ansatt =
+                        queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
                     val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
-                    val utbetalingLinjer = delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
+                    val utbetalingLinjer =
+                        delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
 
                     val utbetaling = queries.utbetaling.getOrError(id)
                     val tilsagn = queries.tilsagn.getAll(
@@ -396,7 +436,31 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = UtbetalingService.linjeHandlinger(delutbetaling, opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
+        handlinger = UtbetalingService.linjeHandlinger(
+            delutbetaling,
+            opprettelse,
+            tilsagn.kostnadssted.enhetsnummer,
+            navAnsatt,
+        ),
+    )
+}
+
+data class AdminInnsendingerFilter(
+    val search: String? = null,
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
+    val sortering: String? = null,
+    val periode: Periode,
+)
+
+fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
+    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
+    val sortering = call.request.queryParameters["sort"]
+    val periode = call.request.queryParameters["periode"].let { Periode.forMonthOf(LocalDate.parse(it)) }
+
+    return AdminInnsendingerFilter(
+        navEnheter = navEnheter,
+        periode = periode,
+        sortering = sortering,
     )
 }
 
