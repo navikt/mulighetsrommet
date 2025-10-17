@@ -5,6 +5,7 @@ import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
+import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -41,6 +42,12 @@ const forsidekortData: ForsideKortProps[] = [
     ikon: <ForhandsvisningIkon inkluderBakgrunn aria-label="Preview" />,
     url: PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
     tekst: "Her kan du se hvordan tiltakene vises for veileder i Modia",
+  },
+  {
+    navn: "Oversikt manglende innsendinger",
+    ikon: <UtbetalingerIkon />,
+    url: "/innsendingsoversikt",
+    tekst: "Her kan du få oversikt over manglende innsendinger fra tiltaksarrangør",
   },
 ];
 
