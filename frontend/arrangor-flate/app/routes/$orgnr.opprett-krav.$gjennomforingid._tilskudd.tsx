@@ -96,13 +96,13 @@ export default function UtbetalingLayout() {
     text: "Tilbake til tiltaksoversikt",
   };
 
-  const activeStepOrder = activeStep.order;
+  const activeStepPosition = steps.indexOf(activeStep) + 1;
 
   return (
     <InnsendingLayout
       steps={steps}
-      activeStep={activeStepOrder}
-      hideStepper={activeStepOrder === 0}
+      activeStep={activeStepPosition}
+      hideStepper={activeStepPosition === 0}
       topNavigationLink={topNavigationLink}
     >
       <Outlet />

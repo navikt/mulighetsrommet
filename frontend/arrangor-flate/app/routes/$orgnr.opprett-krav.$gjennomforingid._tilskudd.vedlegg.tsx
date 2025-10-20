@@ -23,7 +23,7 @@ import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-dat
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
-import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._driftstilskudd";
+import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [
