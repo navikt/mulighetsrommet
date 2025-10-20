@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
-import java.util.UUID
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.util.UUID
 
-data class InnsendingKompaktDto (
+data class InnsendingKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val periode: Periode,
@@ -16,4 +16,3 @@ data class InnsendingKompaktDto (
     val arrangor: String,
     val tiltakstype: Utbetaling.Tiltakstype,
 )
-

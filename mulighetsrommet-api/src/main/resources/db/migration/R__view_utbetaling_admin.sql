@@ -32,9 +32,10 @@ from utbetaling
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'enhetsnummer', enhet.enhetsnummer,
-                                                   'navn', enhet.navn,
+                                                   'navn', enhet.navn
                                            )
                                    ) as nav_enheter_json
                             from tilsagn
                                      join nav_enhet enhet on enhet.enhetsnummer = tilsagn.kostnadssted
-                            where gjennomforing_id = tilsagn.gjennomforing_id) on true
+                            where tilsagn.gjennomforing_id = gjennomforing.id
+    ) on true

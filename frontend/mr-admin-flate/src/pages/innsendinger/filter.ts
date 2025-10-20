@@ -2,10 +2,9 @@ import { atom } from "jotai";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";
-import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 export const InnsendingFilterSchema = z.object({
-  tiltakstyper: z.enum(Tiltakskode).array(),
+  tiltakstyper: z.string().array(),
   regioner: z.array(z.string()),
 });
 

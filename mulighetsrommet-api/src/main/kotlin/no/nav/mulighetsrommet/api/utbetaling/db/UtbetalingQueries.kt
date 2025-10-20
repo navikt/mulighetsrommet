@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -28,7 +29,6 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
@@ -397,7 +397,7 @@ class UtbetalingQueries(private val session: Session) {
 
     fun getAll(
         pagination: Pagination = Pagination.all(),
-        filter: AdminInnsendingerFilter
+        filter: AdminInnsendingerFilter,
     ): PaginatedResult<InnsendingKompaktDto> = with(session) {
         val parameters = mapOf(
             "periode" to filter.periode.toDaterange(),
