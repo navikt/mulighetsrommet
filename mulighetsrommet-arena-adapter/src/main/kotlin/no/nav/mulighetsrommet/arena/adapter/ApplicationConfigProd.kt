@@ -19,25 +19,7 @@ val ApplicationConfigProd = AppConfig(
         port = 8084,
         host = "0.0.0.0",
     ),
-    migrering = MigreringConfig(
-        tiltakskoder = setOf(
-            // Gruppe
-            "ARBFORB",
-            "ARBRRHDAG",
-            "AVKLARAG",
-            "DIGIOPPARB",
-            "GRUFAGYRKE",
-            "GRUPPEAMO",
-            "INDOPPFAG",
-            "JOBBK",
-            "VASV",
-
-            // Egen regi
-            "INDJOBSTOT",
-            "IPSUNG",
-            "UTVAOONAV",
-        ),
-    ),
+    migrering = MigreringConfig(),
     enableFailedRecordProcessor = true,
     tasks = TaskConfig(
         retryFailedEvents = RetryFailedEvents.Config(
