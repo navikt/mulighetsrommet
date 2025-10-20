@@ -4,15 +4,15 @@
   "version": "1.0.0",
   "main": "index.mjs",
   "devDependencies": {
-    "@eslint/js": "9.37.0",
-    "@tanstack/eslint-plugin-query": "5.91.0",
-    "eslint": "9.37.0",
+    "@eslint/js": "9.38.0",
+    "@tanstack/eslint-plugin-query": "5.91.2",
+    "eslint": "9.38.0",
     "eslint-plugin-prettier": "5.5.4",
     "eslint-plugin-promise": "7.2.1",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "6.1.1",
-    "eslint-plugin-react-refresh": "0.4.23",
+    "eslint-plugin-react-refresh": "0.4.24",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.45.0"
+    "typescript-eslint": "8.46.1"
   }
 }
