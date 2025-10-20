@@ -42,9 +42,6 @@ val ApplicationConfigProd = AppConfig(
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
         clients = KafkaClients(::aivenDefaultConsumerProperties),
-        topics = KafkaTopics().copy(
-            sisteTiltaksgjennomforingerV2Topic = null,
-        ),
     ),
     auth = AuthConfig(
         azure = AuthProvider(
