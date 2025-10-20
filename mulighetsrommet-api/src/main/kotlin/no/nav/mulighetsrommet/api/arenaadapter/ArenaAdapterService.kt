@@ -40,7 +40,7 @@ class ArenaAdapterService(
 
     data class Config(
         val gjennomforingV1Topic: String,
-        val gjennomforingV2Topic: String? = null,
+        val gjennomforingV2Topic: String,
     )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
@@ -247,14 +247,10 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {
-        if (config.gjennomforingV2Topic == null) {
-            return
-        }
-
         val record = StoredProducerRecord(
             config.gjennomforingV2Topic,
             dto.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
+            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(), dto).toByteArray(),
             null,
         )
         queries.kafkaProducerRecord.storeRecord(record)
