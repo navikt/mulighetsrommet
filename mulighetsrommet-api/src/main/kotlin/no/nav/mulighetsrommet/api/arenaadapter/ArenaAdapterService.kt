@@ -147,7 +147,7 @@ class ArenaAdapterService(
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,
-                    tiltakstypeId = arenaGjennomforing.tiltakstypeId,
+                    tiltakstypeId = tiltakstype.id,
                     arrangorId = arrangor.id,
                 ),
             )
