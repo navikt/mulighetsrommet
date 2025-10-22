@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforin
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforingerV2
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
@@ -432,6 +433,13 @@ private fun tasks(config: AppConfig) = module {
     single {
         InitialLoadGjennomforinger(
             InitialLoadGjennomforinger.Config(config.kafka.topics.sisteTiltaksgjennomforingerV1Topic),
+            get(),
+            get(),
+        )
+    }
+    single {
+        InitialLoadGjennomforingerV2(
+            InitialLoadGjennomforingerV2.Config(config.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
             get(),
         )

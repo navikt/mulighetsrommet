@@ -3,11 +3,22 @@ package no.nav.mulighetsrommet.api.gjennomforing.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
 import java.util.*
 
 class EnkeltplassQueries(private val session: Session) {
@@ -75,6 +86,23 @@ class EnkeltplassQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toEnkeltplass() }
+    }
+
+    fun getAll(
+        tiltakstypeIder: List<UUID> = emptyList(),
+    ): List<Enkeltplass> = with(session) {
+        val parameters = mapOf(
+            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { createUuidArray(it) },
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+            select *, count(*) over () as total_count
+            from gjennomforing_admin_dto_view
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
+        """.trimIndent()
+
+        return list(queryOf(query, parameters)) { it.toEnkeltplass() }
     }
 
     fun delete(id: UUID): Int {
