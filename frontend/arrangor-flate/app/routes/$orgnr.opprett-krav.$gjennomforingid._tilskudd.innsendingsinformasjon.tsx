@@ -42,7 +42,7 @@ import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
   formaterPeriode,
-  isLaterOrSameDay,
+  inBetweenInclusive,
   parseDate,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
@@ -189,8 +189,14 @@ export default function OpprettKravInnsendingsinformasjon() {
     }
     return innsendingsinformasjon.tilsagn.filter(
       (tilsagn) =>
-        isLaterOrSameDay(valgtPeriode.start, tilsagn.periode.start) &&
-        isLaterOrSameDay(tilsagn.periode.slutt, valgtPeriode.slutt),
+        inBetweenInclusive(valgtPeriode.start, {
+          from: tilsagn.periode.start,
+          to: tilsagn.periode.slutt,
+        }) ||
+        inBetweenInclusive(valgtPeriode.slutt, {
+          from: tilsagn.periode.start,
+          to: tilsagn.periode.slutt,
+        }),
     );
   }, [innsendingsinformasjon.tilsagn, valgtPeriode]);
 
