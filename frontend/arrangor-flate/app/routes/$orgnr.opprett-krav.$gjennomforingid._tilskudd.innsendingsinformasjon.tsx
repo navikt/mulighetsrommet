@@ -233,6 +233,11 @@ export default function OpprettKravInnsendingsinformasjon() {
                 <Heading level="3" size="small">
                   Tilgjengelige tilsagn
                 </Heading>
+                <BodyShort size="small" textColor="subtle">
+                  Under vises informasjon om antatt forbruk.
+                  <br />
+                  Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
+                </BodyShort>
                 {relevanteTilsagn.length < 1 ? (
                   <Alert variant="warning">
                     Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
