@@ -1,6 +1,5 @@
 import {
   Alert,
-  BodyLong,
   BodyShort,
   Button,
   DatePicker,
@@ -16,10 +15,10 @@ import {
 } from "@navikt/ds-react";
 import {
   ArrangorflateService,
-  DatoVelger,
   FieldError,
-  InnsendingsInformasjonGuideType,
   OpprettKravInnsendingsInformasjon,
+  OpprettKravInnsendingsInformasjonDatoVelger,
+  OpprettKravInnsendingsInformasjonGuidePanelType,
   OpprettKravVeiviserSteg,
   Periode,
   Tilskuddstype,
@@ -213,7 +212,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           <Heading level="3" size="large">
             Innsendingsinformasjon
           </Heading>
-          <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanelType} />
+          <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanel} />
           <VStack gap="6" className="max-w-2xl">
             <Definisjonsliste definitions={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
@@ -289,7 +288,7 @@ export default function OpprettKravInnsendingsinformasjon() {
 
 interface PeriodeVelgerVarianterProps {
   onPeriodeSelected: (periode?: Periode) => void;
-  type: DatoVelger;
+  type: OpprettKravInnsendingsInformasjonDatoVelger;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
   errors?: FieldError[];
@@ -440,38 +439,36 @@ function PeriodeVelger({
 
 interface GuidePanelInformationProps {
   orgnr: string;
-  type: InnsendingsInformasjonGuideType;
+  type: OpprettKravInnsendingsInformasjonGuidePanelType | null;
 }
 
 function GuidePanelInformation({ orgnr, type }: GuidePanelInformationProps) {
   switch (type) {
-    case InnsendingsInformasjonGuideType.DRIFTSTILSKUDD:
+    case OpprettKravInnsendingsInformasjonGuidePanelType.INVESTERING_VTA_AFT:
       return (
-        <GuidePanel className="mb-2">
-          <BodyLong spacing>
-            I dette skjemaet kan du sende inn krav som gjelder tilsagn for driftstilskudd.
-            <br />
-            Andre krav om utbetaling (feks <abbr title="Arbeidsforberedende trening">AFT</abbr>{" "}
-            eller <abbr title="Varig tilrettelagt arbeid">VTA</abbr>) skal sendes inn via
-            utbetalingene i{" "}
-            <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
-              Utbetalingsoversikten.
-            </Link>
-          </BodyLong>
+        <GuidePanel>
+          I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre krav
+          om utbetaling skal sendes inn via utbetalingene i{" "}
+          <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
+            Utbetalingsoversikten.
+          </Link>
         </GuidePanel>
       );
-    case InnsendingsInformasjonGuideType.INVESTERING:
+    case OpprettKravInnsendingsInformasjonGuidePanelType.TIMESPRIS:
       return (
-        <GuidePanel className="mb-2">
-          <BodyLong spacing>
-            I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre krav
-            om utbetaling skal sendes inn via utbetalingene i{" "}
-            <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
-              Utbetalingsoversikten.
-            </Link>
-          </BodyLong>
+        <GuidePanel>
+          I dette skjemaet kan du sende inn fakturakrav for tiltaksgjennomføringer med avtalt
+          timespris.
         </GuidePanel>
       );
+    case OpprettKravInnsendingsInformasjonGuidePanelType.AVTALT_PRIS:
+      return (
+        <GuidePanel>
+          I dette skjemaet kan du sende inn fakturakrav i henhold til avtalt pris med Nav.
+        </GuidePanel>
+      );
+
+    case null:
     default:
       return null;
   }
