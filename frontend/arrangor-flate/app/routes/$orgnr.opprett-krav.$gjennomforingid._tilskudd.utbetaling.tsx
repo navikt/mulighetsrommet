@@ -137,13 +137,14 @@ export default function OpprettKravUtbetaling() {
 
   return (
     <>
-      <Heading size="large" spacing level="3">
-        Utbetalingsinformasjon
-      </Heading>
       <Form method="post">
         <VStack gap="4">
+          <Heading size="large" level="3">
+            Utbetalingsinformasjon
+          </Heading>
           <TextField
             label="Beløp til utbetaling"
+            description="Oppgi samlet beløp som skal faktureres Nav for denne utbetalingsperioden"
             defaultValue={sessionBelop}
             error={errorAt("/belop", data?.errors)}
             inputMode="numeric"
