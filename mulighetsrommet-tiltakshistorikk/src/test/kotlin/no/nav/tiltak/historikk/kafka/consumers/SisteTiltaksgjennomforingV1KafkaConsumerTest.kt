@@ -5,15 +5,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class SisteTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -27,27 +21,7 @@ class SisteTiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
 
         val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(db)
 
-        val tiltak = TiltaksgjennomforingV1Dto(
-            id = UUID.randomUUID(),
-            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-                id = UUID.randomUUID(),
-                navn = "Gruppe AMO",
-                arenaKode = "GRUPPEAMO",
-                tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            ),
-            navn = "Gruppe AMO",
-            virksomhetsnummer = "123123123",
-            startDato = LocalDate.now(),
-            sluttDato = null,
-            status = GjennomforingStatusType.GJENNOMFORES,
-            oppstart = GjennomforingOppstartstype.FELLES,
-            tilgjengeligForArrangorFraOgMedDato = null,
-            apentForPamelding = true,
-            antallPlasser = 10,
-            deltidsprosent = 100.0,
-            opprettetTidspunkt = LocalDateTime.now(),
-            oppdatertTidspunkt = LocalDateTime.now(),
-        )
+        val tiltak = TestFixtures.tiltak
 
         test("upsert gruppetiltak from topic") {
             consumer.consume(tiltak.id, Json.encodeToJsonElement(tiltak))
