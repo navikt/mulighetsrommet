@@ -8,6 +8,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
+import io.ktor.server.http.content.default
+import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -54,6 +56,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import org.apache.xmlbeans.impl.soap.Detail
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -223,7 +226,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             // TODO: Ikluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
-            val payload = OpprettKravInnsendingsInformasjon.from(okonomiConfig, gjennomforing, tilsagn, tidligereUtbetalinger = emptyList())
+            val payload = OpprettKravInnsendingsInformasjon.from(
+                okonomiConfig,
+                gjennomforing,
+                tilsagn,
+                tidligereUtbetalinger = emptyList(),
+            )
             call.respond(payload)
         }
 
@@ -282,6 +290,90 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing)
 
             call.respond(OpprettKravDeltakere(stengtHosArrangor, table, tableFooter, navigering))
+        }
+
+        post("/oppsummering", {
+            description = "Hent oppsummering"
+            tags = setOf("Arrangorflate")
+            operationId = "getOpprettKravOppsummering"
+            request {
+                pathParameter<Organisasjonsnummer>("orgnr")
+                pathParameter<String>("gjennomforingId")
+                body<OpprettKravOppsummeringRequest> {
+                    description = "Request for creating a payment claim"
+                }
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Informasjon om opprettet krav om utbetaling"
+                    body<OpprettKravOppsummering>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
+            requireTilgangHosArrangor(orgnr)
+            val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+            val gjennomforing = requireNotNull(
+                db.session {
+                    queries.gjennomforing
+                        .get(
+                            id = gjennomforingId,
+                        )
+                },
+            )
+            requireGjennomforingTilArrangor(gjennomforing, orgnr)
+
+            val request = call.receive<OpprettKravOppsummeringRequest>()
+
+            val periodeStart = LocalDate.parse(request.periodeStart)
+            val periodeSlutt = LocalDate.parse(request.periodeSlutt)
+            val periode = if (request.periodeInklusiv == true) {
+                Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+            } else {
+                Periode(periodeStart, periodeSlutt)
+            }
+            val kontonummer = arrangorFlateService.getKontonummer(orgnr).getOrNull()
+            call.respond(
+                OpprettKravOppsummering(
+                    innsendingsInformasjon = listOf(
+                        DetailsEntry(
+                            key = "Arrangør",
+                            value = "${gjennomforing.arrangor.navn} - $orgnr",
+                        ),
+                        DetailsEntry(
+                            key = "Tiltaksnavn",
+                            value = gjennomforing.navn,
+                        ),
+                        DetailsEntry(
+                            key = "Tiltakstype",
+                            value = gjennomforing.tiltakstype.navn,
+                        ),
+                    ),
+                    utbetalingInformasjon = listOf(
+                        DetailsEntry(
+                            key = "UtbetalingsPeriode",
+                            value = periode.formatPeriode(),
+                        ),
+                        DetailsEntry(
+                            key = "Kontonummer",
+                            value = kontonummer?.value ?: "Klarte ikke hente kontonummer",
+                        ),
+                        DetailsEntry(
+                            key = "KID-nummer",
+                            value = request.kidNummer ?: "",
+                        ),
+                    ),
+                    innsendingsData = OpprettKravOppsummering.InnsendingsData(
+                        periode = periode,
+                        belop = request.belop,
+                        kidNummer = request.kidNummer,
+                    ),
+                ),
+            )
         }
 
         post({
@@ -599,6 +691,29 @@ fun createDeltakerTable(
                 "periodeSlutt" to DataElement.date(value.periode.slutt),
             )
         },
+    )
+}
+
+@Serializable
+data class OpprettKravOppsummeringRequest(
+    val periodeStart: String,
+    val periodeSlutt: String,
+    val periodeInklusiv: Boolean?,
+    val kidNummer: String? = null,
+    val belop: Int,
+)
+
+@Serializable
+data class OpprettKravOppsummering(
+    val innsendingsInformasjon: List<DetailsEntry>,
+    val utbetalingInformasjon: List<DetailsEntry>,
+    val innsendingsData: InnsendingsData,
+) {
+    @Serializable
+    data class InnsendingsData(
+        val periode: Periode,
+        val belop: Int,
+        val kidNummer: String?,
     )
 }
 

@@ -40,9 +40,13 @@ import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
+  addDuration,
   formaterPeriode,
   inBetweenInclusive,
+  isEarlier,
+  isLater,
   isLaterOrSameDay,
+  parseDate,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
@@ -128,19 +132,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const periodeStart = formData.get("periodeStart")?.toString();
   const periodeSlutt = formData.get("periodeSlutt")?.toString();
+  const periodeInklusiv = formData.get("periodeInklusiv")?.toString();
   const tilsagnId = formData.get("tilsagnId")?.toString();
 
-  if (!tilsagnId) {
-    errors.push({
-      pointer: "/tilsagnId",
-      detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
-    });
-  } else if (!periodeStart) {
+  if (!periodeStart) {
     errors.push({
       pointer: "/periodeStart",
       detail: "Du må fylle ut fra dato",
     });
-  } else if (!periodeSlutt) {
+  }
+  if (!periodeSlutt) {
     errors.push({
       pointer: "/periodeSlutt",
       detail: "Du må fylle ut til dato",
@@ -149,6 +150,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     errors.push({
       pointer: "/periodeSlutt",
       detail: "Periodeslutt må være etter periodestart",
+    });
+  } else if (!tilsagnId) {
+    errors.push({
+      pointer: "/tilsagnId",
+      detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
     });
   }
 
@@ -159,6 +165,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
+    session.set("periodeInklusiv", periodeInklusiv);
     session.set("periodeStart", yyyyMMddFormatting(periodeStart));
     session.set("periodeSlutt", yyyyMMddFormatting(periodeSlutt));
     return redirect(pathBySteg(nesteSteg, orgnr, gjennomforingId), {
@@ -191,17 +198,15 @@ export default function OpprettKravInnsendingsinformasjon() {
     if (!valgtPeriode) {
       return [];
     }
-    return innsendingsinformasjon.tilsagn.filter(
-      (tilsagn) =>
-        inBetweenInclusive(valgtPeriode.start, {
-          from: tilsagn.periode.start,
-          to: tilsagn.periode.slutt,
-        }) ||
-        inBetweenInclusive(valgtPeriode.slutt, {
-          from: tilsagn.periode.start,
-          to: tilsagn.periode.slutt,
-        }),
-    );
+    return innsendingsinformasjon.tilsagn.filter((tilsagn) => {
+      const innenforStart =
+        isLaterOrSameDay(valgtPeriode.start, tilsagn.periode.start) &&
+        isLater(tilsagn.periode.slutt, valgtPeriode.start);
+      const innenforSlutt =
+        isLater(valgtPeriode.slutt, tilsagn.periode.start) &&
+        isLater(tilsagn.periode.slutt, valgtPeriode.slutt);
+      return innenforStart || innenforSlutt;
+    });
   }, [innsendingsinformasjon.tilsagn, valgtPeriode]);
 
   useEffect(() => {
@@ -336,6 +341,10 @@ interface PeriodeSelectProps {
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
 }
+
+/**
+ * Valg av forhåndsdefinerte perioder, sluttdato eksklusiv
+ */
 function PeriodeSelect({
   onPeriodeSelected,
   periodeForslag,
@@ -360,6 +369,7 @@ function PeriodeSelect({
   }
   return (
     <HStack gap="4">
+      <input name="periodeInklusiv" defaultValue="false" readOnly hidden />
       <input ref={startRef} name="periodeStart" defaultValue={sessionPeriodeStart} hidden />
       <input ref={sluttRef} name="periodeSlutt" defaultValue={sessionPeriodeSlutt} hidden />
       <Select
@@ -391,6 +401,9 @@ interface PeriodeVelgerProps {
   errors?: FieldError[];
 }
 
+/**
+ * Fritt valg av periode, sluttdato inklusiv
+ */
 function PeriodeVelger({
   onPeriodeSelected,
   sessionPeriodeStart,
@@ -402,21 +415,22 @@ function PeriodeVelger({
     inputProps: periodeStartInputProps,
     selectedDay: selectedStartDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
+    defaultSelected: sessionPeriodeStart ? parseDate(sessionPeriodeStart) : undefined,
   });
   const {
     datepickerProps: periodeSluttPickerProps,
     inputProps: periodeSluttInputProps,
     selectedDay: selectedSluttDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
+    defaultSelected: sessionPeriodeSlutt ? parseDate(sessionPeriodeSlutt) : undefined,
   });
 
   useEffect(() => {
     if (selectedStartDato && selectedSluttDato) {
       return onPeriodeSelected({
         start: yyyyMMddFormatting(selectedStartDato)!,
-        slutt: yyyyMMddFormatting(selectedSluttDato)!,
+        // Normaliser til eksklusiv sluttdato, slik som Perioder ellers er
+        slutt: yyyyMMddFormatting(addDuration(selectedSluttDato, { days: 1 }))!,
       });
     }
     return onPeriodeSelected();
@@ -424,6 +438,7 @@ function PeriodeVelger({
 
   return (
     <HStack wrap gap="4">
+      <input name="periodeInklusiv" defaultValue="true" readOnly hidden />
       <DatePicker
         {...periodeStartPickerProps}
         showWeekNumber

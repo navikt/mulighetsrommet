@@ -22,6 +22,7 @@ import {
   ArrangorflateService,
   ArrangorflateTilsagnDto,
   FieldError,
+  OpprettKravOppsummering,
   Tilskuddstype,
 } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
@@ -39,6 +40,7 @@ import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import { isNull } from "@grafana/faro-react";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [
@@ -53,12 +55,7 @@ export const meta: MetaFunction = ({ matches }) => {
 type LoaderData = {
   orgnr: string;
   gjennomforingId: string;
-  tilsagn: ArrangorflateTilsagnDto;
-  periodeStart: string;
-  periodeSlutt: string;
-  belop: number;
-  kontonummer: string;
-  kid?: string;
+  oppsummering: OpprettKravOppsummering;
 };
 
 interface ActionData {
@@ -73,9 +70,10 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let tilsagnId: string | undefined;
   let periodeStart: string | undefined;
   let periodeSlutt: string | undefined;
+  let periodeInklusiv: boolean | undefined;
   let belop: number | undefined;
   let kontonummer: string | undefined;
-  let kid: string | undefined;
+  let kidNummer: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
     session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
@@ -84,16 +82,24 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     tilsagnId = session.get("tilsagnId");
     periodeStart = session.get("periodeStart");
     periodeSlutt = session.get("periodeSlutt");
+    periodeInklusiv = session.get("periodeInklusiv") == "true" || false;
     belop = Number(session.get("belop"));
     kontonummer = session.get("kontonummer");
-    kid = session.get("kid");
+    kidNummer = session.get("kid");
   }
   if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
     throw new Error("Formdata mangler");
 
-  const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id: tilsagnId },
+  const { data: oppsummering, error } = await ArrangorflateService.getOpprettKravOppsummering({
+    path: { orgnr, gjennomforingId },
     headers: await apiHeaders(request),
+    body: {
+      periodeStart,
+      periodeSlutt,
+      periodeInklusiv: periodeInklusiv ?? null,
+      kidNummer: kidNummer ?? null,
+      belop,
+    },
   });
   if (error) {
     throw problemDetailResponse(error);
@@ -102,12 +108,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   return {
     orgnr,
     gjennomforingId,
-    tilsagn,
-    periodeStart,
-    periodeSlutt,
-    belop,
-    kontonummer,
-    kid,
+    oppsummering,
   };
 };
 
@@ -133,6 +134,11 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   const vedlegg = formData.getAll("vedlegg") as File[];
   const bekreftelse = formData.get("bekreftelse");
+  const belop = Number(formData.get("belop"));
+  const periodeStart = formData.get("periodeStart");
+  const periodeSlutt = formData.get("periodeSlutt");
+  const kidNummer = formData.get("kidNummer");
+  const tilsagnId = session.get("tilsagnId");
 
   if (vedlegg.length < 1) {
     errors.push({
@@ -148,12 +154,6 @@ export const action: ActionFunction = async ({ request, params }) => {
     });
   }
 
-  const belop = Number(session.get("belop"));
-  const tilsagnId = session.get("gjennomforingId");
-  const periodeStart = session.get("periodeStart");
-  const periodeSlutt = session.get("periodeSlutt");
-  const kid = session.get("kid");
-
   if (errors.length > 0) {
     return { errors };
   }
@@ -163,9 +163,9 @@ export const action: ActionFunction = async ({ request, params }) => {
     body: {
       belop: belop!,
       tilsagnId: tilsagnId!,
-      periodeStart: yyyyMMddFormatting(periodeStart)!,
-      periodeSlutt: yyyyMMddFormatting(periodeSlutt)!,
-      kidNummer: kid || null,
+      periodeStart: periodeStart!.toString(),
+      periodeSlutt: periodeSlutt!.toString(),
+      kidNummer: kidNummer?.toString() || null,
       vedlegg: vedlegg,
     },
     headers: await apiHeaders(request),
@@ -187,8 +187,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 export default function OpprettKravOppsummering() {
-  const { orgnr, tilsagn, periodeStart, periodeSlutt, belop, kontonummer, kid, gjennomforingId } =
-    useLoaderData<LoaderData>();
+  const { orgnr, gjennomforingId, oppsummering } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const storage = useFileStorage();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -219,30 +218,35 @@ export default function OpprettKravOppsummering() {
         <Definisjonsliste
           title="Innsendingsinformasjon"
           headingLevel="3"
-          definitions={[
-            {
-              key: "Arrangør",
-              value: `${tilsagn.arrangor.navn} - ${orgnr}`,
-            },
-            { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
-          ]}
+          definitions={oppsummering.innsendingsInformasjon}
         />
         <Separator />
         <Definisjonsliste
           title={"Utbetaling"}
           headingLevel="3"
-          definitions={[
-            {
-              key: "Utbetalingsperiode",
-              value: formaterPeriode({ start: periodeStart, slutt: periodeSlutt }),
-            },
-            { key: "Kontonummer", value: kontonummer },
-            { key: "KID-nummer", value: kid },
-            { key: "Beløp til utbetaling", value: formaterNOK(belop) },
-          ]}
+          definitions={oppsummering.utbetalingInformasjon}
         />
         <Separator />
         <Form method="post" encType="multipart/form-data">
+          <input
+            name="periodeStart"
+            defaultValue={oppsummering.innsendingsData.periode.start}
+            readOnly
+            hidden
+          />
+          <input
+            name="periodeSlutt"
+            defaultValue={oppsummering.innsendingsData.periode.slutt}
+            readOnly
+            hidden
+          />
+          <input
+            name="kidNummer"
+            defaultValue={oppsummering.innsendingsData.kidNummer ?? undefined}
+            readOnly
+            hidden
+          />
+          <input name="belop" defaultValue={oppsummering.innsendingsData.belop} readOnly hidden />
           <VStack gap="6">
             <VedleggUtlisting files={files} fileInputRef={fileInputRef} />
             <Separator />
