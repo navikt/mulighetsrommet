@@ -38,6 +38,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                         stengtHosArrangor,
                     )
                 }
+                .flatten()
                 .toSet()
 
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(manedsverk, input.sats)

@@ -44,7 +44,12 @@ with stengt as (select utbetaling_id,
                            jsonb_agg(
                                    jsonb_build_object(
                                            'deltakelseId', deltakelse_id,
-                                           'manedsverk', faktor
+                                           'manedsverk', faktor,
+                                           'periode',
+                                           jsonb_build_object(
+                                                   'start', lower(periode),
+                                                   'slutt', upper(periode)
+                                           )
                                    )
                            ) as deltakelser
                     from utbetaling_deltakelse_faktor

@@ -249,8 +249,8 @@ class UtbetalingQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val insertDeltakelseFaktor = """
-            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor)
-            values (:utbetaling_id, :deltakelse_id, :faktor)
+            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor, periode)
+            values (:utbetaling_id, :deltakelse_id, :faktor, :periode::daterange)
         """.trimIndent()
 
         val deltakelseFaktorParams = deltakelser.map {
@@ -258,6 +258,7 @@ class UtbetalingQueries(private val session: Session) {
                 "utbetaling_id" to id,
                 "deltakelse_id" to it.deltakelseId,
                 "faktor" to it.faktor,
+                "periode" to it.periode.toDaterange(),
             )
         }
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
