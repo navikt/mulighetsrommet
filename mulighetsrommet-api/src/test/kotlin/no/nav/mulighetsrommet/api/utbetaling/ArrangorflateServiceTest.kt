@@ -54,7 +54,7 @@ class ArrangorflateServiceTest : FunSpec({
 
     lateinit var arrangorflateService: ArrangorflateService
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
         return requireNotNull(queries.utbetaling.get(id))
