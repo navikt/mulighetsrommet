@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.DataElement.*
 
 @Serializable
 data class UtbetalingBeregningDto(
@@ -29,7 +28,7 @@ data class UtbetalingBeregningDto(
                     deltakerTableData = friTable(deltakelsePersoner),
                     regnestykke = listOf(
                         DataElement.text("Innsendt beløp"),
-                        MathOperator(DataElement.MathOperator.Type.EQUALS),
+                        DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                         DataElement.nok(utbetaling.beregning.output.belop),
                     ),
                 )
@@ -78,10 +77,10 @@ data class UtbetalingBeregningDto(
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
-                            MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.nok(sats),
                             DataElement.text("per tiltaksplass per uke"),
-                            MathOperator(DataElement.MathOperator.Type.EQUALS),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.nok(belop),
                         ),
                     )
@@ -101,10 +100,10 @@ data class UtbetalingBeregningDto(
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
-                            MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.nok(sats),
                             DataElement.text("per tiltaksplass per uke"),
-                            MathOperator(DataElement.MathOperator.Type.EQUALS),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.nok(belop),
                         ),
                     )
