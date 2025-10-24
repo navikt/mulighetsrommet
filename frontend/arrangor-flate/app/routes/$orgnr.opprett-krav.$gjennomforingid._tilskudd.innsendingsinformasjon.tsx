@@ -10,7 +10,7 @@ import {
   Label,
   Link,
   Select,
-  useRangeDatepicker,
+  useDatepicker,
   VStack,
 } from "@navikt/ds-react";
 import {
@@ -42,7 +42,7 @@ import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
   formaterPeriode,
   inBetweenInclusive,
-  parseDate,
+  isLaterOrSameDay,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
@@ -144,6 +144,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     errors.push({
       pointer: "/periodeSlutt",
       detail: "Du må fylle ut til dato",
+    });
+  } else if (isLaterOrSameDay(periodeStart, periodeSlutt)) {
+    errors.push({
+      pointer: "/periodeSlutt",
+      detail: "Periodeslutt må være etter periodestart",
     });
   }
 
@@ -393,45 +398,61 @@ function PeriodeVelger({
   errors,
 }: PeriodeVelgerProps) {
   const {
-    datepickerProps,
-    fromInputProps: periodeStartInputProps,
-    toInputProps: periodeSluttInputProps,
-  } = useRangeDatepicker({
-    defaultSelected: {
-      from: parseDate(sessionPeriodeStart),
-      to: parseDate(sessionPeriodeSlutt),
-    },
-    onRangeChange: (dateRange) => {
-      if (dateRange?.from && dateRange.to) {
-        return onPeriodeSelected({
-          start: yyyyMMddFormatting(dateRange.from)!,
-          slutt: yyyyMMddFormatting(dateRange.to)!,
-        });
-      }
-      return onPeriodeSelected();
-    },
+    datepickerProps: periodeStartPickerProps,
+    inputProps: periodeStartInputProps,
+    selectedDay: selectedStartDato,
+  } = useDatepicker({
+    defaultSelected: sessionPeriodeStart ? new Date(sessionPeriodeStart) : undefined,
   });
+  const {
+    datepickerProps: periodeSluttPickerProps,
+    inputProps: periodeSluttInputProps,
+    selectedDay: selectedSluttDato,
+  } = useDatepicker({
+    defaultSelected: sessionPeriodeSlutt ? new Date(sessionPeriodeSlutt) : undefined,
+  });
+
+  useEffect(() => {
+    if (selectedStartDato && selectedSluttDato) {
+      return onPeriodeSelected({
+        start: yyyyMMddFormatting(selectedStartDato)!,
+        slutt: yyyyMMddFormatting(selectedSluttDato)!,
+      });
+    }
+    return onPeriodeSelected();
+  }, [selectedStartDato, selectedSluttDato, onPeriodeSelected]);
+
   return (
-    <HStack gap="4">
-      <DatePicker {...datepickerProps} dropdownCaption id="periodeStartDatepicker">
-        <HStack wrap gap="4" justify="center">
-          <DatePicker.Input
-            {...periodeStartInputProps}
-            label="Fra dato"
-            size="small"
-            error={errorAt("/periodeStart", errors)}
-            name="periodeStart"
-            id="periodeStart"
-          />
-          <DatePicker.Input
-            {...periodeSluttInputProps}
-            label="Til dato"
-            size="small"
-            error={errorAt("/periodeSlutt", errors)}
-            name="periodeSlutt"
-            id="periodeSlutt"
-          />
-        </HStack>
+    <HStack wrap gap="4">
+      <DatePicker
+        {...periodeStartPickerProps}
+        showWeekNumber
+        dropdownCaption
+        id="periodeStartDatepicker"
+      >
+        <DatePicker.Input
+          label="Fra dato"
+          size="small"
+          error={errorAt("/periodeStart", errors)}
+          name="periodeStart"
+          id="periodeStart"
+          {...periodeStartInputProps}
+        />
+      </DatePicker>
+      <DatePicker
+        {...periodeSluttPickerProps}
+        showWeekNumber
+        dropdownCaption
+        id="periodeSluttDatepicker"
+      >
+        <DatePicker.Input
+          label="Til dato"
+          size="small"
+          error={errorAt("/periodeSlutt", errors)}
+          name="periodeSlutt"
+          id="periodeSlutt"
+          {...periodeSluttInputProps}
+        />
       </DatePicker>
     </HStack>
   );
