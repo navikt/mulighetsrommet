@@ -165,7 +165,7 @@ class UtbetalingRoutesTest : FunSpec({
                     }
                 }
 
-                val id = UtbetalingFixtures.utbetaling1.id
+                val id = UtbetalingFixtures.delutbetaling1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
@@ -175,27 +175,6 @@ class UtbetalingRoutesTest : FunSpec({
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
-            }
-        }
-
-        // TODO: fiks test - tittel matcher ikke forventet status
-        xtest("Skal returnere 200 OK med attestant-tilgang") {
-            withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
-                val id = UtbetalingFixtures.utbetaling1.id
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
-
-                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
-                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
     }
