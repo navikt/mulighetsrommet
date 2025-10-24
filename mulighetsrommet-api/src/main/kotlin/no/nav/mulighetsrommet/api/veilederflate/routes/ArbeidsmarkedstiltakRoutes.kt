@@ -7,11 +7,11 @@ import io.ktor.http.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.swagger.v3.oas.models.media.Schema
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
@@ -156,16 +156,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         tags = setOf("VeilederTiltak")
         operationId = "getVeilederTiltak"
         request {
-            // TODO: fant ikke noen god måte å spesifere uuid, men det er kanskje bare like greit å dokumentere det en string
-            pathParameter(
-                "id",
-                Schema<Any>().also {
-                    it.types = setOf("string")
-                    it.format = "uuid"
-                },
-            ) {
-                required = true
-            }
+            pathParameterUuid("id")
         }
         response {
             code(HttpStatusCode.OK) {
