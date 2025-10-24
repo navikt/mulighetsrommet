@@ -223,7 +223,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             // TODO: Ikluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
-            val payload = OpprettKravInnsendingsInformasjon.from(okonomiConfig, gjennomforing, tilsagn, tidligereUtbetalinger = emptyList())
+            val payload = OpprettKravInnsendingsInformasjon.from(
+                okonomiConfig,
+                gjennomforing,
+                tilsagn,
+                tidligereUtbetalinger = emptyList(),
+            )
             call.respond(payload)
         }
 
@@ -264,15 +269,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             val periode = getPeriodeFromQuery()
 
-            val avtaltPrisPerTimeOppfolgingPerDeltaker =
-                db.session { resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode) }
+            val avtaltPrisPerTimeOppfolgingPerDeltaker = db.session {
+                resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
+            }
+
             val deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere
             val deltakelsePerioder =
                 avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.sortedBy { it.periode.start }
             val sats = avtaltPrisPerTimeOppfolgingPerDeltaker.sats
             val stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor
 
-            val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId })
+            val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId }.toSet())
 
             val table = createDeltakerTable(deltakere, deltakelsePerioder, personalia)
             val tableFooter = listOf(

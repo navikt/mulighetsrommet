@@ -100,7 +100,7 @@ class JournalforUtbetalingTest : FunSpec({
         )
     }
 
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,

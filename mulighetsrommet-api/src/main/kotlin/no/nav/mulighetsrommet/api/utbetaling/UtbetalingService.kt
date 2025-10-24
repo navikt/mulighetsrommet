@@ -609,7 +609,7 @@ class UtbetalingService(
 
     suspend fun getUtbetalingBeregning(utbetaling: Utbetaling, filter: BeregningFilter): UtbetalingBeregningDto = db.session {
         val deltakelser = utbetaling.beregning.output.deltakelser()
-        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.deltakelseId })
+        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.deltakelseId }.toSet())
 
         val regioner = NavEnhetHelpers.buildNavRegioner(
             personalia
