@@ -1034,11 +1034,12 @@ components:
             $ref: "#/components/schemas/OpprettKravVeiviserStegDto"
       required:
       - steg
-    InnsendingsInformasjonGuideType:
+    OpprettKravInnsendingsInformasjon.GuidePanelType:
       type: string
       enum:
-      - INVESTERING
-      - DRIFTSTILSKUDD
+      - INVESTERING_VTA_AFT
+      - TIMESPRIS
+      - AVTALT_PRIS
     DetailsEntry:
       type: object
       properties:
@@ -1186,7 +1187,7 @@ components:
             $ref: "#/components/schemas/DetailsEntry"
       required:
       - entries
-    DatoVelger:
+    OpprettKravInnsendingsInformasjon.DatoVelger:
       anyOf:
       - $ref: "#/components/schemas/DatoVelgerRange"
       - $ref: "#/components/schemas/DatoVelgerSelect"
@@ -1228,8 +1229,10 @@ components:
     OpprettKravInnsendingsInformasjon:
       type: object
       properties:
-        guidePanelType:
-          $ref: "#/components/schemas/InnsendingsInformasjonGuideType"
+        guidePanel:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon.GuidePanelType"
         definisjonsListe:
           type: array
           items:
@@ -1239,13 +1242,13 @@ components:
           items:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
         datoVelger:
-          $ref: "#/components/schemas/DatoVelger"
+          $ref: "#/components/schemas/OpprettKravInnsendingsInformasjon.DatoVelger"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - datoVelger
       - definisjonsListe
-      - guidePanelType
+      - guidePanel
       - navigering
       - tilsagn
     StengtPeriode:

@@ -37,6 +37,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -51,7 +52,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -206,15 +206,6 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             )
             requireGjennomforingTilArrangor(gjennomforing, orgnr)
 
-            val definisjonsliste = listOf(
-                DetailsEntry(
-                    "Arrangør",
-                    "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
-                ),
-                DetailsEntry("Tiltaksnavn", gjennomforing.navn),
-                DetailsEntry("Tiltakstype", gjennomforing.tiltakstype.navn),
-            )
-
             val tilsagnsTyper =
                 if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                     listOf(TilsagnType.INVESTERING)
@@ -230,31 +221,9 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 orgnr,
             )
 
-            val datoVelger =
-                if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in okonomiConfig.gyldigTilsagnPeriode) {
-                    val tilsagnPeriode =
-                        okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
-
-                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
-
-                    val perioder = Periode(
-                        start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
-                        slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
-                    ).splitByMonth()
-                    // TODO: Ikluder filtrering på eksisternde utbetalinger
-                    // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
-                    // val filtrertePerioder = perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
-                    DatoVelger.DatoSelect(perioder)
-                } else {
-                    DatoVelger.DatoRange()
-                }
-            val guidePanelType = if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
-                InnsendingsInformasjonGuideType.INVESTERING
-            } else {
-                InnsendingsInformasjonGuideType.DRIFTSTILSKUDD
-            }
-            val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.INFORMASJON, gjennomforing)
-            val payload = OpprettKravInnsendingsInformasjon(guidePanelType, definisjonsliste, tilsagn, datoVelger, navigering)
+            // TODO: Ikluder filtrering på eksisternde utbetalinger
+            // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
+            val payload = OpprettKravInnsendingsInformasjon.from(okonomiConfig, gjennomforing, tilsagn, tidligereUtbetalinger = emptyList())
             call.respond(payload)
         }
 
@@ -489,36 +458,111 @@ data class OpprettKravVeiviserNavigering(val tilbake: OpprettKravVeiviserSteg?, 
 fun getVeiviserNavigering(steg: OpprettKravVeiviserSteg, gjennomforing: Gjennomforing): OpprettKravVeiviserNavigering {
     val stegListe = getVeiviserSteg(gjennomforing)
     val stegIndex = stegListe.indexOf(steg)
-    return OpprettKravVeiviserNavigering(tilbake = stegListe.getOrNull(stegIndex - 1), neste = stegListe.getOrNull(stegIndex + 1))
+    return OpprettKravVeiviserNavigering(
+        tilbake = stegListe.getOrNull(stegIndex - 1),
+        neste = stegListe.getOrNull(stegIndex + 1),
+    )
 }
 
 @Serializable
 data class OpprettKravInnsendingsInformasjon(
-    val guidePanelType: InnsendingsInformasjonGuideType,
+    val guidePanel: GuidePanelType?,
     val definisjonsListe: List<DetailsEntry>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
     val datoVelger: DatoVelger,
     val navigering: OpprettKravVeiviserNavigering,
-)
+) {
+    companion object {
+        fun from(
+            okonomiConfig: OkonomiConfig,
+            gjennomforing: Gjennomforing,
+            tilsagn: List<ArrangorflateTilsagnDto>,
+            tidligereUtbetalinger: List<Utbetaling>,
+        ): OpprettKravInnsendingsInformasjon {
+            val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.INFORMASJON, gjennomforing)
+            val datoVelger = DatoVelger.from(
+                okonomiConfig,
+                gjennomforing,
+                tidligereUtbetalingsPerioder = tidligereUtbetalinger.map { it.periode }.toSet(),
+            )
 
-@Serializable
-enum class InnsendingsInformasjonGuideType {
-    INVESTERING,
-    DRIFTSTILSKUDD,
-}
+            return OpprettKravInnsendingsInformasjon(
+                guidePanel = panelGuide(gjennomforing.avtalePrismodell),
+                definisjonsListe = definisjonsListe(gjennomforing),
+                tilsagn = tilsagn,
+                datoVelger = datoVelger,
+                navigering = navigering,
+            )
+        }
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-@JsonClassDiscriminator("type")
-sealed class DatoVelger {
+        fun panelGuide(prismodell: PrismodellType?): GuidePanelType? = when (prismodell) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                GuidePanelType.INVESTERING_VTA_AFT
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                GuidePanelType.TIMESPRIS
+
+            PrismodellType.ANNEN_AVTALT_PRIS ->
+                GuidePanelType.AVTALT_PRIS
+
+            else -> null
+        }
+
+        fun definisjonsListe(gjennomforing: Gjennomforing): List<DetailsEntry> = listOf(
+            DetailsEntry(
+                "Arrangør",
+                "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
+            ),
+            DetailsEntry("Tiltaksnavn", gjennomforing.navn),
+            DetailsEntry("Tiltakstype", gjennomforing.tiltakstype.navn),
+        )
+    }
 
     @Serializable
-    @SerialName("DatoVelgerSelect")
-    data class DatoSelect(val periodeForslag: List<Periode>) : DatoVelger()
+    enum class GuidePanelType {
+        INVESTERING_VTA_AFT,
+        TIMESPRIS,
+        AVTALT_PRIS,
+    }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Serializable
-    @SerialName("DatoVelgerRange")
-    data class DatoRange(val todo: String = "hello") : DatoVelger()
+    @JsonClassDiscriminator("type")
+    sealed class DatoVelger {
+
+        @Serializable
+        @SerialName("DatoVelgerSelect")
+        data class DatoSelect(val periodeForslag: List<Periode>) : DatoVelger()
+
+        @Serializable
+        @SerialName("DatoVelgerRange")
+        data class DatoRange(val todo: String = "hello") : DatoVelger()
+
+        companion object {
+            fun from(
+                okonomiConfig: OkonomiConfig,
+                gjennomforing: Gjennomforing,
+                tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
+            ): DatoVelger {
+                if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in okonomiConfig.gyldigTilsagnPeriode) {
+                    val tilsagnPeriode =
+                        okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
+
+                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
+
+                    val perioder = Periode(
+                        start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
+                        slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
+                    ).splitByMonth()
+                    val filtrertePerioder =
+                        perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
+                    return DatoSelect(filtrertePerioder)
+                } else {
+                    return DatoRange()
+                }
+            }
+        }
+    }
 }
 
 @Serializable
