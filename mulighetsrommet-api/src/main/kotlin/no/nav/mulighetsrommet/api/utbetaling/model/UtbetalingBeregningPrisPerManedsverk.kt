@@ -35,6 +35,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
                 .map { deltakelse ->
                     UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(deltakelse, stengtHosArrangor)
                 }
+                .flatten()
                 .toSet()
 
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(manedsverk, input.sats)

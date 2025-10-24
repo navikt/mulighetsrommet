@@ -87,45 +87,42 @@ object ArrangorflateTestUtils {
         kommentar = null,
     )
 
-    fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-                sats = 20205,
-                stengt = setOf(),
-                deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2024, 8, 1), LocalDate.of(2024, 8, 31)),
-                                deltakelsesprosent = 100.0,
+    fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo {
+        val periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
+        return UtbetalingDbo(
+            id = UUID.randomUUID(),
+            gjennomforingId = GjennomforingFixtures.AFT1.id,
+            beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                    periode = periode,
+                    sats = 20205,
+                    stengt = setOf(),
+                    deltakelser = setOf(
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = deltakerId,
+                            perioder = listOf(
+                                DeltakelsesprosentPeriode(periode, 100.0),
                             ),
                         ),
                     ),
                 ),
-            ),
-            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                belop = 10000,
-                deltakelser = setOf(
-                    DeltakelseManedsverk(
-                        deltakelseId = deltakerId,
-                        manedsverk = 1.0,
+                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    belop = 10000,
+                    deltakelser = setOf(
+                        DeltakelseManedsverk(deltakerId, 1.0, periode),
                     ),
                 ),
             ),
-        ),
-        kontonummer = Kontonummer("12312312312"),
-        kid = null,
-        periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-        innsender = null,
-        beskrivelse = null,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
-    )
+            kontonummer = Kontonummer("12312312312"),
+            kid = null,
+            periode = periode,
+            innsender = null,
+            beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = null,
+            status = UtbetalingStatusType.GENERERT,
+        )
+    }
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
