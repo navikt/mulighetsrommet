@@ -4,24 +4,25 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 
 object TiltaksgjennomforingV1Mapper {
-    fun fromGjennomforing(dto: Gjennomforing) = TiltaksgjennomforingV1Dto(
-        id = dto.id,
+    fun fromGjennomforing(gjennomforing: Gjennomforing) = TiltaksgjennomforingV1Dto(
+        id = gjennomforing.id,
         tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-            id = dto.tiltakstype.id,
-            navn = dto.tiltakstype.navn,
-            arenaKode = dto.tiltakstype.tiltakskode.arenakode,
-            tiltakskode = dto.tiltakstype.tiltakskode,
+            id = gjennomforing.tiltakstype.id,
+            navn = gjennomforing.tiltakstype.navn,
+            arenaKode = gjennomforing.tiltakstype.tiltakskode.arenakode,
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
         ),
-        navn = dto.navn,
-        startDato = dto.startDato,
-        sluttDato = dto.sluttDato,
-        status = dto.status.type,
-        virksomhetsnummer = dto.arrangor.organisasjonsnummer.value,
-        oppstart = dto.oppstart,
-        tilgjengeligForArrangorFraOgMedDato = dto.tilgjengeligForArrangorDato,
-        apentForPamelding = dto.apentForPamelding,
-        antallPlasser = dto.antallPlasser,
-        opprettetTidspunkt = dto.opprettetTidspunkt,
-        oppdatertTidspunkt = dto.oppdatertTidspunkt,
+        navn = gjennomforing.navn,
+        startDato = gjennomforing.startDato,
+        sluttDato = gjennomforing.sluttDato,
+        status = gjennomforing.status.type,
+        virksomhetsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
+        oppstart = gjennomforing.oppstart,
+        tilgjengeligForArrangorFraOgMedDato = gjennomforing.tilgjengeligForArrangorDato,
+        apentForPamelding = gjennomforing.apentForPamelding,
+        antallPlasser = gjennomforing.antallPlasser,
+        deltidsprosent = gjennomforing.deltidsprosent,
+        opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+        oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
     )
 }

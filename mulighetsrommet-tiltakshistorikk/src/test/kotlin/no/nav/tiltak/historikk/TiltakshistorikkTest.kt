@@ -193,7 +193,7 @@ class TiltakshistorikkTest : FunSpec({
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
                         gjennomforing = Tiltakshistorikk.Gjennomforing(
-                            id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
+                            id = TestFixtures.tiltak.id,
                             navn = "Gruppe AMO",
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         ),
@@ -312,26 +312,7 @@ private fun mockTiltakDatadeling(
 }
 
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
-    val tiltak = TiltaksgjennomforingV1Dto(
-        id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
-        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-            id = UUID.fromString("af6f4034-08da-4bd4-8735-ffd883e8aab7"),
-            navn = "Gruppe AMO",
-            arenaKode = "GRUPPEAMO",
-            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        ),
-        navn = "Gruppe AMO",
-        virksomhetsnummer = "123123123",
-        startDato = LocalDate.now(),
-        sluttDato = null,
-        status = GjennomforingStatusType.GJENNOMFORES,
-        oppstart = GjennomforingOppstartstype.FELLES,
-        tilgjengeligForArrangorFraOgMedDato = null,
-        apentForPamelding = true,
-        antallPlasser = 10,
-        opprettetTidspunkt = LocalDateTime.now(),
-        oppdatertTidspunkt = LocalDateTime.now(),
-    )
+    val tiltak = TestFixtures.tiltak
     queries.gruppetiltak.upsert(tiltak)
 
     val arbeidstrening = ArenaDeltakerDbo(
@@ -373,7 +354,6 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.deltaker.upsertArenaDeltaker(enkeltAMO)
 
-    val deltakelsesdato = LocalDateTime.of(2002, 3, 1, 0, 0, 0)
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
         gjennomforingId = tiltak.id,
@@ -383,10 +363,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         status = DeltakerStatus(
             type = DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
-            opprettetDato = deltakelsesdato,
+            opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
         ),
-        registrertDato = deltakelsesdato,
-        endretDato = deltakelsesdato,
+        registrertDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
+        endretDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
         dagerPerUke = 2.5f,
         prosentStilling = null,
         deltakelsesmengder = listOf(),
