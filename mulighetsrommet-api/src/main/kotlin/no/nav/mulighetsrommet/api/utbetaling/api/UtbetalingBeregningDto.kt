@@ -18,7 +18,7 @@ data class UtbetalingBeregningDto(
     companion object {
         fun from(
             utbetaling: Utbetaling,
-            deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>,
+            deltakelsePersoner: List<DeltakelsePerson>,
             regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (utbetaling.beregning) {
@@ -37,7 +37,7 @@ data class UtbetalingBeregningDto(
                     val sats = getSats(utbetaling.beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.first }.toSet(),
+                        deltakelsePersoner.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -52,7 +52,7 @@ data class UtbetalingBeregningDto(
                     val sats = getSats(utbetaling.beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.first }.toSet(),
+                        deltakelsePersoner.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -67,7 +67,7 @@ data class UtbetalingBeregningDto(
                     val sats = getSats(utbetaling.beregning.input)
                     val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.first }.toSet(),
+                        deltakelsePersoner.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -90,7 +90,7 @@ data class UtbetalingBeregningDto(
                     val sats = getSats(utbetaling.beregning.input)
                     val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.first }.toSet(),
+                        deltakelsePersoner.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -135,7 +135,7 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
 }
 
 private fun manedsverkTable(
-    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>,
+    deltakelsePersoner: List<DeltakelsePerson>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = friDeltakelseColumns() + manedsverkDeltakelseColumns(),
@@ -163,7 +163,7 @@ private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
 )
 
 private fun ukesverkTable(
-    deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>,
+    deltakelsePersoner: List<DeltakelsePerson>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = friDeltakelseColumns() + ukesverkDeltakelseColumns(),
@@ -190,9 +190,9 @@ private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
     "belop" to DataElement.nok(ukesverk * sats),
 )
 
-private fun friTable(deltakelsePersoner: List<Pair<UtbetalingBeregningOutputDeltakelse, DeltakerPersonaliaMedGeografiskEnhet?>>) = DataDrivenTableDto(
+private fun friTable(deltakelsePersoner: List<DeltakelsePerson>) = DataDrivenTableDto(
     columns = friDeltakelseColumns(),
-    rows = deltakelsePersoner.map { friDeltakelseCells(it.second) },
+    rows = deltakelsePersoner.map { friDeltakelseCells(it.person) },
 )
 
 private fun friDeltakelseColumns() = listOf(

@@ -65,7 +65,6 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
-        personaliaService: PersonaliaService = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "bestilling-topic",
@@ -73,7 +72,6 @@ class UtbetalingServiceTest : FunSpec({
         db = database.db,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
-        personaliaService = personaliaService,
     )
 
     context("opprett utbetaling - annen avtalt pris") {
