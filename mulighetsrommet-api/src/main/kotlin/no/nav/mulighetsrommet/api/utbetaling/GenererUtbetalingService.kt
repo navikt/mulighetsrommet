@@ -181,8 +181,7 @@ class GenererUtbetalingService(
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
         return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-            periode = periode,
-            sats = sats,
+            satser = setOf(SatsPeriode(periode, sats)),
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -196,8 +195,7 @@ class GenererUtbetalingService(
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerManedsverk.Input(
-            periode = periode,
-            sats = sats,
+            satser = setOf(SatsPeriode(periode, sats)),
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -211,8 +209,7 @@ class GenererUtbetalingService(
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerUkesverk.Input(
-            periode = periode,
-            sats = sats,
+            satser = setOf(SatsPeriode(periode, sats)),
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -223,13 +220,11 @@ class GenererUtbetalingService(
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
         val sats = resolveAvtaltSats(gjennomforing, periode)
-
         val heleUkerPeriode = heleUkerPeriode(periode)
         val stengtHosArrangor = resolveStengtHosArrangor(heleUkerPeriode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, heleUkerPeriode)
         return UtbetalingBeregningPrisPerHeleUkesverk.Input(
-            periode = periode,
-            sats = sats,
+            satser = setOf(SatsPeriode(periode, sats)),
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -260,7 +255,7 @@ class GenererUtbetalingService(
 
     private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
         val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
-        return resolveAvtaltSats(gjennomforing, avtale, periode)
+        return UtbetalingInputHelper.resolveAvtaltSats(gjennomforing, avtale, periode)
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
@@ -489,15 +484,4 @@ private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
-}
-
-fun resolveAvtaltSats(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Int {
-    val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
-        maxOf(gjennomforing.startDato, periode.start)
-    } else {
-        periode.start
-    }
-    val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
-    return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
-        ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
 }

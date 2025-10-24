@@ -49,6 +49,12 @@ data class UtbetalingBeregningOutputDeltakelse(
 }
 
 @Serializable
+data class SatsPeriode(
+    val periode: Periode,
+    val sats: Int,
+)
+
+@Serializable
 data class StengtPeriode(
     val periode: Periode,
     val beskrivelse: String,
@@ -195,7 +201,12 @@ object UtbetalingBeregningHelpers {
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
     }
 
-    fun calculateBelopForDeltakelser(deltakelser: Set<UtbetalingBeregningOutputDeltakelse>, sats: Int): Int {
+    fun calculateBelopForDeltakelser(
+        deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+        satser: Set<SatsPeriode>,
+    ): Int {
+        // TODO: ta høyde for flere satser
+        val sats = satser.first().sats
         return deltakelser
             .flatMap { deltakelse -> deltakelse.perioder.map { it.faktor } }
             .fold(BigDecimal.ZERO) { sum, faktor ->

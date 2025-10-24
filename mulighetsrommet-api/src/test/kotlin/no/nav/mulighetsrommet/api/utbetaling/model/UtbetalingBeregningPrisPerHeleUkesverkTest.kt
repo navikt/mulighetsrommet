@@ -15,10 +15,9 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             UtbetalingBeregningPrisPerHeleUkesverk.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    periode,
-                    50,
-                    setOf(),
-                    setOf(DeltakelsePeriode(deltakerId1, periode)),
+                    satser = setOf(SatsPeriode(periode, 50)),
+                    stengt = setOf(),
+                    deltakelser = setOf(DeltakelsePeriode(deltakerId1, periode)),
                 ),
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 250,
@@ -38,10 +37,9 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             val ukesverk = UtbetalingBeregningPrisPerHeleUkesverk.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    periode,
-                    50,
-                    setOf(),
-                    setOf(
+                    satser = setOf(SatsPeriode(periode, 50)),
+                    stengt = setOf(),
+                    deltakelser = setOf(
                         DeltakelsePeriode(
                             UUID.randomUUID(),
                             Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2024, 12, 31)),
@@ -80,10 +78,9 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             UtbetalingBeregningPrisPerHeleUkesverk.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    periode,
-                    10,
-                    setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
-                    setOf(
+                    satser = setOf(SatsPeriode(periode, 10)),
+                    stengt = setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
+                    deltakelser = setOf(
                         DeltakelsePeriode(deltakerId1, Periode(periodeStart, periodeSlutt)),
                     ),
                 ),
@@ -108,10 +105,9 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             UtbetalingBeregningPrisPerHeleUkesverk.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    periode,
-                    10,
-                    setOf(StengtPeriode(Periode(mandag, lordag.minusDays(1)), "Stengt")),
-                    setOf(
+                    satser = setOf(SatsPeriode(periode, 10)),
+                    stengt = setOf(StengtPeriode(Periode(mandag, lordag.minusDays(1)), "Stengt")),
+                    deltakelser = setOf(
                         DeltakelsePeriode(deltakerId1, periode),
                     ),
                 ),

@@ -21,10 +21,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
             forAll(
                 row(
                     setOf(
-                        DeltakelsePeriode(
-                            deltakelseId = deltakerId1,
-                            periode = Periode(periodeStart, periodeSlutt),
-                        ),
+                        DeltakelsePeriode(deltakerId1, Periode(periodeStart, periodeSlutt)),
                     ),
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 100,
@@ -43,10 +40,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePeriode(
-                            deltakelseId = deltakerId1,
-                            periode = Periode(periodeStart, LocalDate.of(2023, 6, 5)),
-                        ),
+                        DeltakelsePeriode(deltakerId1, Periode(periodeStart, LocalDate.of(2023, 6, 5))),
                     ),
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 20,
@@ -65,14 +59,8 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                 ),
                 row(
                     setOf(
-                        DeltakelsePeriode(
-                            deltakelseId = deltakerId1,
-                            periode = Periode(periodeStart, periodeSlutt),
-                        ),
-                        DeltakelsePeriode(
-                            deltakelseId = deltakerId2,
-                            periode = Periode(periodeStart, periodeMidt),
-                        ),
+                        DeltakelsePeriode(deltakerId1, Periode(periodeStart, periodeSlutt)),
+                        DeltakelsePeriode(deltakerId2, Periode(periodeStart, periodeMidt)),
                     ),
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 150,
@@ -99,8 +87,8 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     ),
                 ),
             ) { deltakelser, expectedBeregning ->
-                val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningPrisPerUkesverk.Input(periode, 50, setOf(), deltakelser)
+                val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), 50))
+                val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, setOf(), deltakelser)
 
                 val beregning = UtbetalingBeregningPrisPerUkesverk.beregn(input)
 
@@ -184,8 +172,8 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     ),
                 ),
             ) { stengt, deltakelser, expectedBeregning ->
-                val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningPrisPerUkesverk.Input(periode, 50, stengt, deltakelser)
+                val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), 50))
+                val input = UtbetalingBeregningPrisPerUkesverk.Input(satser, stengt, deltakelser)
 
                 val beregning = UtbetalingBeregningPrisPerUkesverk.beregn(input)
 
@@ -202,14 +190,10 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
             val deltakerId1 = UUID.randomUUID()
 
             val input = UtbetalingBeregningPrisPerUkesverk.Input(
-                periode,
-                10,
-                setOf(),
-                setOf(
-                    DeltakelsePeriode(
-                        deltakelseId = deltakerId1,
-                        periode = periode,
-                    ),
+                satser = setOf(SatsPeriode(periode, 10)),
+                stengt = setOf(),
+                deltakelser = setOf(
+                    DeltakelsePeriode(deltakerId1, periode),
                 ),
             )
 

@@ -96,15 +96,15 @@ class UtbetalingQueries(private val session: Session) {
             is UtbetalingBeregningFri -> Unit
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
+                upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(dbo.id, dbo.beregning.input.deltakelser)
                 upsertUtbetalingBeregningOutputDeltakelseFaktor(dbo.id, dbo.beregning.output.deltakelser)
             }
 
             is UtbetalingBeregningPrisPerManedsverk -> upsertBeregning(
                 dbo.id,
-                dbo.beregning.input.sats,
+                dbo.beregning.input.satser,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
@@ -112,7 +112,7 @@ class UtbetalingQueries(private val session: Session) {
 
             is UtbetalingBeregningPrisPerUkesverk -> upsertBeregning(
                 dbo.id,
-                dbo.beregning.input.sats,
+                dbo.beregning.input.satser,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
@@ -120,64 +120,55 @@ class UtbetalingQueries(private val session: Session) {
 
             is UtbetalingBeregningPrisPerHeleUkesverk -> upsertBeregning(
                 dbo.id,
-                dbo.beregning.input.sats,
+                dbo.beregning.input.satser,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
             )
 
             is UtbetalingBeregningPrisPerTimeOppfolging -> {
-                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                // TODO: lagre perioder uten deltakelsesprosent?
-                val perioder = dbo.beregning.input.deltakelser
-                    .map {
-                        DeltakelseDeltakelsesprosentPerioder(
-                            it.deltakelseId,
-                            listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
-                        )
-                    }
-                    .toSet()
-                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
             }
         }
     }
 
     private fun TransactionalSession.upsertBeregning(
         utbetalingId: UUID,
-        sats: Int,
+        satser: Set<SatsPeriode>,
         stengtPerioder: Set<StengtPeriode>,
         deltakelserPeriode: Set<DeltakelsePeriode>,
         deltakelserFaktor: Set<UtbetalingBeregningOutputDeltakelse>,
     ) {
-        upsertUtbetalingBeregningInputSats(utbetalingId, sats)
+        upsertUtbetalingBeregningInputSats(utbetalingId, satser)
         upsertUtbetalingBeregningInputStengt(utbetalingId, stengtPerioder)
-        // TODO: lagre perioder uten deltakelsesprosent?
-        val perioder = deltakelserPeriode
-            .map {
-                DeltakelseDeltakelsesprosentPerioder(
-                    it.deltakelseId,
-                    listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
-                )
-            }
-            .toSet()
-        upsertUtbetalingBeregningInputDeltakelsePerioder(utbetalingId, perioder)
+        upsertUtbetalingBeregningInputDeltakelsePerioder(utbetalingId, deltakelserPeriode)
         upsertUtbetalingBeregningOutputDeltakelseFaktor(utbetalingId, deltakelserFaktor)
     }
 
-    private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, sats: Int) {
+    private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, satser: Set<SatsPeriode>) {
         @Language("PostgreSQL")
-        val query = """
-            insert into utbetaling_beregning_sats (utbetaling_id, sats)
-            values (:utbetaling_id::uuid, :sats)
-            on conflict (utbetaling_id) do update set
-                sats = excluded.sats
+        val deleteSatsPerioder = """
+            delete
+            from utbetaling_sats_periode
+            where utbetaling_id = ?::uuid
         """.trimIndent()
-        val params = mapOf(
-            "utbetaling_id" to id,
-            "sats" to sats,
-        )
-        execute(queryOf(query, params))
+        execute(queryOf(deleteSatsPerioder, id))
+
+        @Language("PostgreSQL")
+        val insertSatsPeriode = """
+            insert into utbetaling_sats_periode (utbetaling_id, sats, periode)
+            values (:utbetaling_id::uuid, :sats, :periode::daterange)
+        """.trimIndent()
+        val perioder = satser.map {
+            mapOf(
+                "utbetaling_id" to id,
+                "sats" to it.sats,
+                "periode" to it.periode.toDaterange(),
+            )
+        }
+        batchPreparedNamedStatement(insertSatsPeriode, perioder)
     }
 
     private fun Session.upsertUtbetalingBeregningInputStengt(id: UUID, stengt: Set<StengtPeriode>) {
@@ -204,7 +195,23 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertStengtHosArrangorQuery, perioder)
     }
 
-    private fun Session.upsertUtbetalingBeregningInputDeltakelsePerioder(
+    private fun TransactionalSession.upsertUtbetalingBeregningInputDeltakelsePerioder(
+        utbetalingId: UUID,
+        deltakelser: Set<DeltakelsePeriode>,
+    ) {
+        // TODO: lagre disse periodene uten deltakelsesprosent i stedet?
+        val perioder = deltakelser
+            .map {
+                DeltakelseDeltakelsesprosentPerioder(
+                    it.deltakelseId,
+                    listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                )
+            }
+            .toSet()
+        upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(utbetalingId, perioder)
+    }
+
+    private fun Session.upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(
         id: UUID,
         perioder: Set<DeltakelseDeltakelsesprosentPerioder>,
     ) {
@@ -486,9 +493,8 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningPrisPerTimeOppfolging(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                    periode = row.periode("periode"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     belop = row.int("belop_beregnet"),
-                    sats = row.int("sats"),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
@@ -523,15 +529,14 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_utbetaling_beregning_manedsverk_fast_sats_admin
+            from view_utbetaling_beregning_manedsverk_fast_sats
             where id = ?::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
@@ -554,8 +559,7 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningPrisPerManedsverk(
                 input = UtbetalingBeregningPrisPerManedsverk.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
@@ -578,8 +582,7 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningPrisPerUkesverk(
                 input = UtbetalingBeregningPrisPerUkesverk.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),
@@ -602,8 +605,7 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningPrisPerHeleUkesverk(
                 input = UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
                 ),

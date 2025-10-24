@@ -157,8 +157,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                sats = 20975,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 20975)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelseDeltakelsesprosentPerioder(
@@ -761,8 +760,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
         val beregning = UtbetalingBeregningPrisPerManedsverk(
             input = UtbetalingBeregningPrisPerManedsverk.Input(
-                periode = periode,
-                sats = 100,
+                satser = setOf(SatsPeriode(periode, 100)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePeriode(deltaker.id, periode),
@@ -898,8 +896,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
             utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                sats = 100,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100)),
                 stengt = setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
                 ),
@@ -952,8 +949,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
             utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerUkesverk.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                sats = 100,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100)),
                 stengt = setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
                 ),
@@ -1125,8 +1121,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
             utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                periode = januar,
-                sats = 100,
+                satser = setOf(SatsPeriode(januar, 100)),
                 stengt = emptySet(),
                 deltakelser = setOf(
                     DeltakelsePeriode(

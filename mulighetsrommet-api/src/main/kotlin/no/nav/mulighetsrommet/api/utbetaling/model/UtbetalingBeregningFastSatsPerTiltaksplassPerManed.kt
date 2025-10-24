@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
 data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
@@ -11,8 +10,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
 
     @Serializable
     data class Input(
-        val periode: Periode,
-        val sats: Int,
+        val satser: Set<SatsPeriode>,
         val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelseDeltakelsesprosentPerioder>,
     ) : UtbetalingBeregningInput() {
@@ -40,7 +38,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk, input.satser)
 
             return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop, manedsverk))
         }

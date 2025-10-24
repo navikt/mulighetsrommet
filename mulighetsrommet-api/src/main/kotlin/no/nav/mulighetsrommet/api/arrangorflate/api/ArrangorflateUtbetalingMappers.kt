@@ -58,7 +58,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -86,7 +87,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -114,7 +116,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -142,7 +145,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -166,7 +170,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 digest = beregning.getDigest(),
                 deltakelser = deltakerlser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
     }
