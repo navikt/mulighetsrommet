@@ -61,6 +61,15 @@ data class DeltakelsesprosentPeriode(
 )
 
 @Serializable
+data class DeltakelsePeriode(
+    @Serializable(with = UUIDSerializer::class)
+    override val deltakelseId: UUID,
+    val periode: Periode,
+) : UtbetalingBeregningInputDeltakelse() {
+    override fun periode() = periode
+}
+
+@Serializable
 data class DeltakelseManedsverk(
     @Serializable(with = UUIDSerializer::class)
     override val deltakelseId: UUID,
@@ -68,15 +77,6 @@ data class DeltakelseManedsverk(
 ) : UtbetalingBeregningOutputDeltakelse() {
     override val faktor: Double
         get() = manedsverk
-}
-
-@Serializable
-data class DeltakelsePeriode(
-    @Serializable(with = UUIDSerializer::class)
-    override val deltakelseId: UUID,
-    val periode: Periode,
-) : UtbetalingBeregningInputDeltakelse() {
-    override fun periode() = periode
 }
 
 @Serializable
