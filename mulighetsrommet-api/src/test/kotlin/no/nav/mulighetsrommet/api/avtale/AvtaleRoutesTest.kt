@@ -53,7 +53,7 @@ class AvtaleRoutesTest : FunSpec({
     context("hent avtaler") {
         test("401 Unauthorized for kall uten autentisering") {
             withTestApplication(appConfig()) {
-                val response = client.get("/api/v1/intern/avtaler")
+                val response = client.get("/api/tiltaksadministrasjon/avtaler")
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -62,7 +62,7 @@ class AvtaleRoutesTest : FunSpec({
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response = client.get("/api/v1/intern/avtaler") {
+                val response = client.get("/api/tiltaksadministrasjon/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response.status shouldBe HttpStatusCode.OK
@@ -81,7 +81,7 @@ class AvtaleRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(avtaleSkrivRolle))
 
-                val response = client.put("/api/v1/intern/avtaler") {
+                val response = client.put("/api/tiltaksadministrasjon/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -100,7 +100,7 @@ class AvtaleRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response = client.put("/api/v1/intern/avtaler") {
+                val response = client.put("/api/tiltaksadministrasjon/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -113,7 +113,7 @@ class AvtaleRoutesTest : FunSpec({
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, avtaleSkrivRolle))
 
-                val response = client.put("/api/v1/intern/avtaler") {
+                val response = client.put("/api/tiltaksadministrasjon/avtaler") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody("{}")
@@ -146,7 +146,7 @@ class AvtaleRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response1 = client.get("/api/v1/intern/avtaler/${AvtaleFixtures.AFT.id}/satser") {
+                val response1 = client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.AFT.id}/satser") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response1.status shouldBe HttpStatusCode.OK
@@ -158,7 +158,7 @@ class AvtaleRoutesTest : FunSpec({
                     ),
                 )
 
-                val response2 = client.get("/api/v1/intern/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
+                val response2 = client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response2.status shouldBe HttpStatusCode.OK
