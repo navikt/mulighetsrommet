@@ -78,11 +78,11 @@ class GenererUtbetalingService(
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.get(id)
+        val gjennomforing = queries.gjennomforing.getOrError(id)
         val prismodell = queries.gjennomforing.getPrismodell(id)
 
-        if (gjennomforing == null || prismodell == null) {
-            log.warn("Klarte ikke utlede gjennomføring og/eller prismodell for id=$id")
+        if (prismodell == null) {
+            log.info("Prismodell er ikke satt for gjennomføring med id=$id")
             return listOf()
         }
 
