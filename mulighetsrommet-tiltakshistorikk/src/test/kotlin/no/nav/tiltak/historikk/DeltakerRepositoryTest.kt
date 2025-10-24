@@ -34,6 +34,7 @@ class DeltakerRepositoryTest : FunSpec({
         tilgjengeligForArrangorFraOgMedDato = null,
         apentForPamelding = true,
         antallPlasser = 10,
+        deltidsprosent = 100.0,
         opprettetTidspunkt = LocalDateTime.now(),
         oppdatertTidspunkt = LocalDateTime.now(),
     )

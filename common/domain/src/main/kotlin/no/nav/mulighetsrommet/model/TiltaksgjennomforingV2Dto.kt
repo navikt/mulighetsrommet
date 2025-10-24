@@ -54,6 +54,7 @@ sealed class TiltaksgjennomforingV2Dto {
         val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
         val apentForPamelding: Boolean,
         val antallPlasser: Int,
+        val deltidsprosent: Double,
     ) : TiltaksgjennomforingV2Dto()
 
     @Serializable

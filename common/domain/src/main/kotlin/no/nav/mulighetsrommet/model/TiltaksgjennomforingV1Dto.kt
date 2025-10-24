@@ -25,6 +25,7 @@ data class TiltaksgjennomforingV1Dto(
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
+    val deltidsprosent: Double,
     @Serializable(with = LocalDateTimeSerializer::class)
     val opprettetTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
