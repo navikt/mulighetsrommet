@@ -5541,7 +5541,9 @@ components:
           items:
             $ref: "#/components/schemas/NavRegionDto"
         deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
         regnestykke:
           type: array
           items:

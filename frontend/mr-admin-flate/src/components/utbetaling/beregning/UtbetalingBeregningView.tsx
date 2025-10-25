@@ -18,7 +18,7 @@ export default function UtbetalingBeregningView({ beregning, utbetalingId }: Pro
         <UtbetalingBeregning beregning={beregning} />
       </div>
       <HStack justify="start" align="start">
-        {beregning.deltakerTableData.rows.length > 0 && (
+        {beregning.deltakerTableData && (
           <Button variant="secondary" size="small" onClick={() => setBeregningModalOpen(true)}>
             Filtreringshjelp
           </Button>

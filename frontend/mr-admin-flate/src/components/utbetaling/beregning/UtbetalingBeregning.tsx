@@ -1,9 +1,5 @@
 import { CopyButton, HStack, VStack } from "@navikt/ds-react";
-import {
-  DataDrivenTableDto,
-  DataElement,
-  UtbetalingBeregningDto,
-} from "@tiltaksadministrasjon/api-client";
+import { DataElement, UtbetalingBeregningDto } from "@tiltaksadministrasjon/api-client";
 import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
 import { getDataElement } from "@/components/data-element/DataElement";
 
@@ -14,9 +10,7 @@ interface Props {
 export default function UtbetalingBeregning({ beregning }: Props) {
   return (
     <VStack gap="2">
-      {beregning.deltakerTableData.rows.length > 0 && (
-        <DataDrivenTable data={beregning.deltakerTableData as unknown as DataDrivenTableDto} />
-      )}
+      {beregning.deltakerTableData && <DataDrivenTable data={beregning.deltakerTableData} />}
       <UtbetalingRegnestykke {...beregning} />
     </VStack>
   );
