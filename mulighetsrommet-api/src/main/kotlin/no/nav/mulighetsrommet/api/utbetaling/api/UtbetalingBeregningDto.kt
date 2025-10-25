@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.model.DataElement
 data class UtbetalingBeregningDto(
     val heading: String,
     val deltakerRegioner: List<NavRegionDto>,
-    val deltakerTableData: DataDrivenTableDto,
+    val deltakerTableData: DataDrivenTableDto?,
     val regnestykke: List<DataElement>,
 ) {
     companion object {
@@ -25,7 +25,7 @@ data class UtbetalingBeregningDto(
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
                     heading = PrismodellType.ANNEN_AVTALT_PRIS.navn,
                     deltakerRegioner = regioner,
-                    deltakerTableData = friTable(deltakelsePersoner),
+                    deltakerTableData = null,
                     regnestykke = listOf(
                         DataElement.text("Innsendt beløp"),
                         DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
@@ -43,7 +43,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = manedsverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakelsePersoner, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
                     )
                 }
@@ -58,7 +58,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = manedsverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakelsePersoner, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
                     )
                 }
@@ -73,7 +73,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = ukesverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakelsePersoner, sats),
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
@@ -96,7 +96,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = ukesverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakelsePersoner, sats),
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
@@ -113,7 +113,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = friTable(deltakelsePersoner),
+                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakelsePersoner),
                         regnestykke = listOf(
                             DataElement.number(utbetaling.beregning.output.belop),
                         ),
@@ -134,17 +134,17 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
     }
 }
 
-private fun manedsverkTable(
+private fun deltakelsePrisPerManedsverkTable(
     deltakelsePersoner: List<DeltakelsePerson>,
     sats: Int,
 ) = DataDrivenTableDto(
-    columns = friDeltakelseColumns() + manedsverkDeltakelseColumns(),
+    columns = deltakelsePersonaliaColumns() + deltakelseManedsverkColumns(),
     rows = deltakelsePersoner.map { (deltakelse, person) ->
-        friDeltakelseCells(person) + manedsverkDeltakelseCells(deltakelse.faktor, sats)
+        deltakelsePersonaliaCells(person) + deltakelseManedsverkCells(deltakelse.faktor, sats)
     },
 )
 
-private fun manedsverkDeltakelseColumns() = listOf(
+private fun deltakelseManedsverkColumns() = listOf(
     DataDrivenTableDto.Column(
         "manedsverk",
         "Månedsverk",
@@ -157,22 +157,22 @@ private fun manedsverkDeltakelseColumns() = listOf(
     ),
 )
 
-private fun manedsverkDeltakelseCells(manedsverk: Double, sats: Int) = mapOf(
+private fun deltakelseManedsverkCells(manedsverk: Double, sats: Int) = mapOf(
     "manedsverk" to DataElement.number(manedsverk),
     "belop" to DataElement.nok(manedsverk * sats),
 )
 
-private fun ukesverkTable(
+private fun deltakelsePrisPerUkesverkTable(
     deltakelsePersoner: List<DeltakelsePerson>,
     sats: Int,
 ) = DataDrivenTableDto(
-    columns = friDeltakelseColumns() + ukesverkDeltakelseColumns(),
+    columns = deltakelsePersonaliaColumns() + deltakelseUkesverkColumns(),
     rows = deltakelsePersoner.map { (deltakelse, person) ->
-        friDeltakelseCells(person) + ukesverkDeltakelseCells(deltakelse.faktor, sats)
+        deltakelsePersonaliaCells(person) + deltakelseUkesverkCells(deltakelse.faktor, sats)
     },
 )
 
-private fun ukesverkDeltakelseColumns() = listOf(
+private fun deltakelseUkesverkColumns() = listOf(
     DataDrivenTableDto.Column(
         "ukesverk",
         "Ukesverk",
@@ -185,17 +185,17 @@ private fun ukesverkDeltakelseColumns() = listOf(
     ),
 )
 
-private fun ukesverkDeltakelseCells(ukesverk: Double, sats: Int) = mapOf(
+private fun deltakelseUkesverkCells(ukesverk: Double, sats: Int) = mapOf(
     "ukesverk" to DataElement.number(ukesverk),
     "belop" to DataElement.nok(ukesverk * sats),
 )
 
-private fun friTable(deltakelsePersoner: List<DeltakelsePerson>) = DataDrivenTableDto(
-    columns = friDeltakelseColumns(),
-    rows = deltakelsePersoner.map { friDeltakelseCells(it.person) },
+private fun deltakelsePrisPerTimeOppfolgingTable(deltakelsePersoner: List<DeltakelsePerson>) = DataDrivenTableDto(
+    columns = deltakelsePersonaliaColumns(),
+    rows = deltakelsePersoner.map { deltakelsePersonaliaCells(it.person) },
 )
 
-private fun friDeltakelseColumns() = listOf(
+private fun deltakelsePersonaliaColumns() = listOf(
     DataDrivenTableDto.Column("navn", "Navn"),
     DataDrivenTableDto.Column("fnr", "Fødselsnr."),
     DataDrivenTableDto.Column("region", "Region"),
@@ -203,7 +203,7 @@ private fun friDeltakelseColumns() = listOf(
     DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
 )
 
-private fun friDeltakelseCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(
+private fun deltakelsePersonaliaCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(
     "navn" to personalia?.navn.let { DataElement.text(it) },
     "geografiskEnhet" to personalia?.geografiskEnhet?.navn?.let { DataElement.text(it) },
     "oppfolgingEnhet" to personalia?.oppfolgingEnhet?.navn?.let { DataElement.text(it) },

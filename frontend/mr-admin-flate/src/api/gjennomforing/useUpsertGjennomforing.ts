@@ -13,10 +13,7 @@ export function useUpsertGjennomforing() {
 
   return useApiMutation<{ data: GjennomforingDto }, ProblemDetail, GjennomforingRequest>({
     mutationFn: async (body: GjennomforingRequest) => {
-      const { data, request, response } = await GjennomforingService.upsertGjennomforing({
-        body,
-      });
-      return { data: data as unknown as GjennomforingDto, request, response };
+      return GjennomforingService.upsertGjennomforing({ body });
     },
 
     onSuccess(_, request) {

@@ -63,6 +63,7 @@ fun Route.gjennomforingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Gjennomføring ble upsertet"
+                        body<GjennomforingDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
