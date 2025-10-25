@@ -17,11 +17,11 @@ data class UtbetalingBeregningDto(
 ) {
     companion object {
         fun from(
-            utbetaling: Utbetaling,
+            beregning: UtbetalingBeregning,
             deltakelsePersoner: List<DeltakelsePerson>,
             regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
-            return when (utbetaling.beregning) {
+            return when (beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
                     heading = PrismodellType.ANNEN_AVTALT_PRIS.navn,
                     deltakerRegioner = regioner,
@@ -29,12 +29,12 @@ data class UtbetalingBeregningDto(
                     regnestykke = listOf(
                         DataElement.text("Innsendt beløp"),
                         DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-                        DataElement.nok(utbetaling.beregning.output.belop),
+                        DataElement.nok(beregning.output.belop),
                     ),
                 )
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-                    val sats = getSats(utbetaling.beregning.input)
+                    val sats = getSats(beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
                         deltakelsePersoner.map { it.deltakelse }.toSet(),
@@ -49,7 +49,7 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerManedsverk -> {
-                    val sats = getSats(utbetaling.beregning.input)
+                    val sats = getSats(beregning.input)
                     val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
                         deltakelsePersoner.map { it.deltakelse }.toSet(),
@@ -64,7 +64,7 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerUkesverk -> {
-                    val sats = getSats(utbetaling.beregning.input)
+                    val sats = getSats(beregning.input)
                     val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
                         deltakelsePersoner.map { it.deltakelse }.toSet(),
@@ -87,7 +87,7 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerHeleUkesverk -> {
-                    val sats = getSats(utbetaling.beregning.input)
+                    val sats = getSats(beregning.input)
                     val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
                         deltakelsePersoner.map { it.deltakelse }.toSet(),
@@ -115,7 +115,7 @@ data class UtbetalingBeregningDto(
                         deltakerRegioner = regioner,
                         deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakelsePersoner),
                         regnestykke = listOf(
-                            DataElement.number(utbetaling.beregning.output.belop),
+                            DataElement.number(beregning.output.belop),
                         ),
                     )
             }

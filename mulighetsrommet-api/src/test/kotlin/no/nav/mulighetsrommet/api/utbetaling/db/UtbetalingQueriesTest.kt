@@ -168,8 +168,8 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                         belop = 100_000,
                         deltakelser = setOf(
-                            DeltakelseManedsverk(deltakelse1Id, 1.0, periode),
-                            DeltakelseManedsverk(deltakelse2Id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 1.0, periode),
                         ),
                     ),
                 )
@@ -247,8 +247,8 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningPrisPerManedsverk.Output(
                         belop = 100_000,
                         deltakelser = setOf(
-                            DeltakelseManedsverk(deltakelse1Id, 0.5, periode),
-                            DeltakelseManedsverk(deltakelse2Id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 0.5, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 1.0, periode),
                         ),
                     ),
                 )
@@ -295,8 +295,8 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 5999,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakelse1Id, 2.2, periode),
-                            DeltakelseUkesverk(deltakelse2Id, 4.2, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 2.2, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 4.2, periode),
                         ),
                     ),
                 )
@@ -343,8 +343,8 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
                         belop = 5999,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakelse1Id, 2.0, periode),
-                            DeltakelseUkesverk(deltakelse2Id, 4.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 2.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 4.0, periode),
                         ),
                     ),
                 )

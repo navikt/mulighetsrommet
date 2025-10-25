@@ -109,7 +109,7 @@ object ArrangorflateTestUtils {
                 output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                     belop = 10000,
                     deltakelser = setOf(
-                        DeltakelseManedsverk(deltakerId, 1.0, periode),
+                        UtbetalingBeregningOutputDeltakelse(deltakerId, 1.0, periode),
                     ),
                 ),
             ),
