@@ -22,7 +22,7 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
     @Serializable
     data class Output(
         override val belop: Int,
-        val deltakelser: Set<DeltakelseUkesverk>,
+        val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser
     }

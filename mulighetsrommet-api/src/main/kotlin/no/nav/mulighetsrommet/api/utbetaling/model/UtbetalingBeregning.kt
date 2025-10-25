@@ -34,11 +34,14 @@ sealed class UtbetalingBeregningOutput {
     abstract fun deltakelser(): Set<UtbetalingBeregningOutputDeltakelse>
 }
 
-sealed class UtbetalingBeregningOutputDeltakelse {
-    abstract val deltakelseId: UUID
-    abstract val faktor: Double
-    abstract val periode: Periode
-}
+// TODO: eller burde denne være en deltakelseId + Set<Pair<faktor, periode>>?
+@Serializable
+data class UtbetalingBeregningOutputDeltakelse(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakelseId: UUID,
+    val faktor: Double,
+    val periode: Periode,
+)
 
 @Serializable
 data class StengtPeriode(
@@ -70,31 +73,6 @@ data class DeltakelsePeriode(
     override fun periode() = periode
 }
 
-// TODO: vurdere å erstatte DeltakelseManedsverk og DeltakelseUkesverk med UtbetalingBeregningOutputDeltakelse og ikke ha den som en sealed class?
-//  Usikker på hvor mye gevinst det gir oss å skille på månedsverk/ukesverk direkte i beregningen, det er kanskje en forenkling å bare kalle det "faktor" i stedet for "verk"
-//  Deretter må i så fall mappere oppdateres basert på Beregning-klassen i stedet for OutputDeltkalse-klassen slik at vi fortsatt kan vise det som enten måned eller uker
-@Serializable
-data class DeltakelseManedsverk(
-    @Serializable(with = UUIDSerializer::class)
-    override val deltakelseId: UUID,
-    val manedsverk: Double,
-    override val periode: Periode,
-) : UtbetalingBeregningOutputDeltakelse() {
-    override val faktor: Double
-        get() = manedsverk
-}
-
-@Serializable
-data class DeltakelseUkesverk(
-    @Serializable(with = UUIDSerializer::class)
-    override val deltakelseId: UUID,
-    val ukesverk: Double,
-    override val periode: Periode,
-) : UtbetalingBeregningOutputDeltakelse() {
-    override val faktor: Double
-        get() = ukesverk
-}
-
 object UtbetalingBeregningHelpers {
     /**
      * Presisjon underveis for å oppnå en god beregning av totalbeløpet.
@@ -114,7 +92,7 @@ object UtbetalingBeregningHelpers {
     fun calculateDeltakelseManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
         stengtHosArrangor: List<Periode>,
-    ): Set<DeltakelseManedsverk> {
+    ): Set<UtbetalingBeregningOutputDeltakelse> {
         return deltakelse.perioder
             .flatMap { deltakelsePeriode ->
                 deltakelsePeriode.periode
@@ -132,7 +110,7 @@ object UtbetalingBeregningHelpers {
                     }
                     .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
                     .toDouble()
-                DeltakelseManedsverk(deltakelse.deltakelseId, faktor, deltakelsePeriode.periode)
+                UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, faktor, deltakelsePeriode.periode)
             }
             .filter { it.faktor > 0 }
             .toSet()
@@ -141,14 +119,14 @@ object UtbetalingBeregningHelpers {
     fun calculateDeltakelseManedsverk(
         deltakelse: DeltakelsePeriode,
         stengtHosArrangor: List<Periode>,
-    ): Set<DeltakelseManedsverk> {
+    ): Set<UtbetalingBeregningOutputDeltakelse> {
         return deltakelse.periode
             .subtractPeriods(stengtHosArrangor)
             .map { deltakelsePeriode ->
                 val faktor = getMonthsFraction(deltakelsePeriode)
                     .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
                     .toDouble()
-                DeltakelseManedsverk(deltakelse.deltakelseId, faktor, deltakelsePeriode)
+                UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, faktor, deltakelsePeriode)
             }
             .filter { it.faktor > 0 }
             .toSet()
@@ -163,12 +141,12 @@ object UtbetalingBeregningHelpers {
     fun calculateDeltakelseUkesverk(
         deltakelse: DeltakelsePeriode,
         stengtHosArrangor: List<Periode>,
-    ): Set<DeltakelseUkesverk> {
+    ): Set<UtbetalingBeregningOutputDeltakelse> {
         return deltakelse.periode
             .subtractPeriods(stengtHosArrangor)
             .map { periode ->
                 val faktor = getWeeksFraction(periode).toDouble()
-                DeltakelseUkesverk(deltakelse.deltakelseId, faktor, periode)
+                UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, faktor, periode)
             }
             .filter { it.faktor > 0 }
             .toSet()
@@ -177,7 +155,7 @@ object UtbetalingBeregningHelpers {
     fun calculateDeltakelseHeleUkesverk(
         deltakelse: DeltakelsePeriode,
         stengtHosArrangor: List<Periode>,
-    ): Set<DeltakelseUkesverk> {
+    ): Set<UtbetalingBeregningOutputDeltakelse> {
         return deltakelse.periode
             .subtractPeriods(stengtHosArrangor)
             .map { periode ->
@@ -187,7 +165,7 @@ object UtbetalingBeregningHelpers {
                         week.getWeekdayCount() > 0
                     }
                     .toDouble()
-                DeltakelseUkesverk(deltakelse.deltakelseId, faktor, periode)
+                UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, faktor, periode)
             }
             .filter { it.faktor > 0 }
             .toSet()

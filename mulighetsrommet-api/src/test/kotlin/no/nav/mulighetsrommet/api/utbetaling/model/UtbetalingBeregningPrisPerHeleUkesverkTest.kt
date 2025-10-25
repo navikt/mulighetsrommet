@@ -23,7 +23,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 250,
                 deltakelser = setOf(
-                    DeltakelseUkesverk(deltakerId1, 5.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 5.0, periode),
                 ),
             )
         }
@@ -61,7 +61,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                 ),
             ).output.deltakelser
             ukesverk.shouldHaveSize(5)
-            ukesverk.sumOf { it.ukesverk } shouldBe 5.0
+            ukesverk.sumOf { it.faktor } shouldBe 5.0
         }
 
         test("stengt halve måneden gir 2 uker") {
@@ -85,7 +85,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 20,
                 deltakelser = setOf(
-                    DeltakelseUkesverk(deltakerId1, 2.0, Periode(periodeMidt, periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 2.0, Periode(periodeMidt, periodeSlutt)),
                 ),
             )
         }
@@ -110,7 +110,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 10,
                 deltakelser = setOf(
-                    DeltakelseUkesverk(deltakerId1, 1.0, Periode(LocalDate.of(2025, 2, 7), lordag)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 1.0, Periode(LocalDate.of(2025, 2, 7), lordag)),
                 ),
             )
         }

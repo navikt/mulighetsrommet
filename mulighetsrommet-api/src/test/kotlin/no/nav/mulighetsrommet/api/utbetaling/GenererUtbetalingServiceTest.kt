@@ -433,9 +433,9 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .should {
                     it.belop shouldBe 20975
                     it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(
+                        UtbetalingBeregningOutputDeltakelse(
                             deltakelseId = domain.deltakere[0].id,
-                            manedsverk = 1.0,
+                            faktor = 1.0,
                             periode = januar,
                         ),
                     )
@@ -474,7 +474,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
                     it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(
+                        UtbetalingBeregningOutputDeltakelse(
                             domain.deltakere[0].id,
                             0.48387,
                             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
@@ -514,7 +514,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output>()
                 .should {
                     it.deltakelser shouldBe setOf(
-                        DeltakelseManedsverk(
+                        UtbetalingBeregningOutputDeltakelse(
                             domain.deltakere[0].id,
                             0.48387,
                             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
@@ -762,7 +762,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             output = UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 100,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltaker.id, 1.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltaker.id, 1.0, periode),
                 ),
             ),
         )
@@ -788,7 +788,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().should {
                 it.belop shouldBe 50
                 it.deltakelser shouldBe setOf(
-                    DeltakelseManedsverk(
+                    UtbetalingBeregningOutputDeltakelse(
                         deltaker.id,
                         0.5,
                         Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 16)),
@@ -823,7 +823,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     .should {
                         it.belop shouldBe 100
                         it.deltakelser shouldBe setOf(
-                            DeltakelseManedsverk(deltaker.id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(deltaker.id, 1.0, periode),
                         )
                     }
             }
@@ -1115,9 +1115,9 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.beregning.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 100,
                 deltakelser = setOf(
-                    DeltakelseUkesverk(
+                    UtbetalingBeregningOutputDeltakelse(
                         deltakelseId = domain.deltakere[0].id,
-                        ukesverk = 1.0,
+                        faktor = 1.0,
                         periode = Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 1, 1)),
                     ),
                 ),

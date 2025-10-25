@@ -25,7 +25,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 100,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 1.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 1.0, periode),
                 ),
             )
         }
@@ -50,7 +50,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 350_000,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 0.5, Periode(periodeStart, periodeMidt)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.5, Periode(periodeStart, periodeMidt)),
                 ),
             )
         }
@@ -83,8 +83,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 202,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 0.5, Periode(periodeStart, periodeMidt)),
-                    DeltakelseManedsverk(deltakerId2, 0.5, Periode(periodeMidt, periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.5, Periode(periodeStart, periodeMidt)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId2, 0.5, Periode(periodeMidt, periodeSlutt)),
                 ),
             )
         }
@@ -110,7 +110,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 0.5, Periode(periodeMidt, periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.5, Periode(periodeMidt, periodeSlutt)),
                 ),
             )
         }
@@ -135,8 +135,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 0.25, Periode(periodeStart, periodeStart.plusWeeks(1))),
-                    DeltakelseManedsverk(deltakerId1, 0.25, Periode(periodeMidt.plusWeeks(1), periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.25, Periode(periodeStart, periodeStart.plusWeeks(1))),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.25, Periode(periodeMidt.plusWeeks(1), periodeSlutt)),
                 ),
             )
         }
@@ -163,12 +163,12 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(
+                    UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         0.1,
                         Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
                     ),
-                    DeltakelseManedsverk(
+                    UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         0.4,
                         Periode(LocalDate.of(2023, 4, 19), LocalDate.of(2023, 5, 1)),
@@ -229,8 +229,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 2.0, periode),
-                    DeltakelseManedsverk(deltakerId2, 2.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 2.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId2, 2.0, periode),
                 ),
             )
         }
@@ -272,9 +272,9 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
             beregning.output.deltakelser shouldBe setOf(
-                DeltakelseManedsverk(deltakerId1, 0.22581, heleUke37),
-                DeltakelseManedsverk(deltakerId2, 0.16129, hverdagerUke37),
-                DeltakelseManedsverk(deltakerId3, 0.29032, helgFraUke36OgHeleUke37),
+                UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.22581, heleUke37),
+                UtbetalingBeregningOutputDeltakelse(deltakerId2, 0.16129, hverdagerUke37),
+                UtbetalingBeregningOutputDeltakelse(deltakerId3, 0.29032, helgFraUke36OgHeleUke37),
             )
         }
     }
@@ -300,8 +300,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
                 deltakelser = setOf(
-                    DeltakelseManedsverk(deltakerId1, 2.0, periode),
-                    DeltakelseManedsverk(deltakerId2, 2.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 2.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(deltakerId2, 2.0, periode),
                 ),
             )
         }
@@ -343,9 +343,9 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
             beregning.output.deltakelser shouldBe setOf(
-                DeltakelseManedsverk(deltakerId1, 0.22727, heleUke37),
-                DeltakelseManedsverk(deltakerId2, 0.22727, hverdagerUke37),
-                DeltakelseManedsverk(deltakerId3, 0.22727, helgFraUke36OgHeleUke37),
+                UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.22727, heleUke37),
+                UtbetalingBeregningOutputDeltakelse(deltakerId2, 0.22727, hverdagerUke37),
+                UtbetalingBeregningOutputDeltakelse(deltakerId3, 0.22727, helgFraUke36OgHeleUke37),
             )
         }
     }

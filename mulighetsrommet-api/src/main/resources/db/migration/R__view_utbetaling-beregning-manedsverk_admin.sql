@@ -33,7 +33,7 @@ with stengt as (select utbetaling_id,
                            jsonb_agg(
                                    jsonb_build_object(
                                            'deltakelseId', deltakelse_id,
-                                           'manedsverk', faktor,
+                                           'faktor', faktor,
                                            'periode',
                                            jsonb_build_object(
                                                    'start', lower(periode),

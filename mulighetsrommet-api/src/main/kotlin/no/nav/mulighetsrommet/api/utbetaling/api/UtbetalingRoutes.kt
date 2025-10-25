@@ -187,11 +187,12 @@ fun Route.utbetalingRoutes() {
                             .flatten(),
                     )
 
-                    val deltakelsePersoner = utbetaling.beregning.output.deltakelser()
+                    val deltakelsePersoner = deltakelser
+                        // TODO: nå finnes det "duplikater" her, altså flere perioder per deltakerId, blir det en problem her?
                         .map { DeltakelsePerson(it, personalia.getValue(it.deltakelseId)) }
                         .filter { filter.navEnheter.isEmpty() || it.person.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
-                    UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
+                    UtbetalingBeregningDto.from(utbetaling.beregning, deltakelsePersoner, regioner)
                 }
 
                 call.respond(beregning)
