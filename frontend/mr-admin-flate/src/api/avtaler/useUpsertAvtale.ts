@@ -14,7 +14,7 @@ export function useUpsertAvtale() {
   return useApiMutation<{ data: AvtaleDto }, ProblemDetail, AvtaleRequest>({
     mutationFn: async (body: AvtaleRequest) => {
       const { data, request, response } = await AvtaleService.upsertAvtale({ body });
-      return { data: data as unknown as AvtaleDto, request, response };
+      return { data, request, response };
     },
 
     onSuccess(_, request) {

@@ -16,7 +16,7 @@ export function useUpsertGjennomforing() {
       const { data, request, response } = await GjennomforingService.upsertGjennomforing({
         body,
       });
-      return { data: data as unknown as GjennomforingDto, request, response };
+      return { data, request, response };
     },
 
     onSuccess(_, request) {
