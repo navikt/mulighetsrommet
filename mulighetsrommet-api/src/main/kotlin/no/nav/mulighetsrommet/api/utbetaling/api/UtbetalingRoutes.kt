@@ -276,20 +276,21 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val utbetalingsLinjer = db.session {
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
-                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
-                    val utbetalingLinjer = delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
-
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val tilsagn = queries.tilsagn.getAll(
-                        statuser = listOf(TilsagnStatus.GODKJENT),
-                        gjennomforingId = utbetaling.gjennomforing.id,
-                        periodeIntersectsWith = utbetaling.periode,
-                        typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                    )
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-                    tilsagn
-                        .filter { utbetalingLinjer.none { linje -> linje.tilsagn.id == it.id } }
+                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
+                        .map { delutbetalingToUtbetalingLinje(it, ansatt) }
+
+                    val nyeLinjer = queries.tilsagn
+                        .getAll(
+                            statuser = listOf(TilsagnStatus.GODKJENT),
+                            gjennomforingId = utbetaling.gjennomforing.id,
+                            periodeIntersectsWith = utbetaling.periode,
+                            typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                        )
+                        .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map {
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
@@ -301,8 +302,9 @@ fun Route.utbetalingRoutes() {
                                 handlinger = emptySet(),
                             )
                         }
-                        .plus(utbetalingLinjer)
-                }.sortedBy { it.tilsagn.bestillingsnummer }
+
+                    (linjer + nyeLinjer).sortedBy { it.tilsagn.bestillingsnummer }
+                }
 
                 call.respond(utbetalingsLinjer)
             }
@@ -422,7 +424,12 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = UtbetalingService.linjeHandlinger(delutbetaling, opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
+        handlinger = UtbetalingService.linjeHandlinger(
+            delutbetaling,
+            opprettelse,
+            tilsagn.kostnadssted.enhetsnummer,
+            navAnsatt,
+        ),
     )
 }
 
