@@ -23,7 +23,7 @@ class PersonaliaService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: Set<UUID>): Map<UUID, DeltakerPersonaliaMedGeografiskEnhet> {
+    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: Set<UUID>): Set<DeltakerPersonaliaMedGeografiskEnhet> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
                 val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
@@ -69,7 +69,7 @@ class PersonaliaService(
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
-            .associateBy { it.deltakerId }
+            .toSet()
     }
 
     private suspend fun getPersonerMedGeografiskEnhet(identer: List<NorskIdent>): Map<NorskIdent, Pair<PdlPerson, GeografiskTilknytning?>> {
@@ -78,7 +78,8 @@ class PersonaliaService(
             .toNonEmptySetOrNull()
             ?: return emptyMap()
 
-        val pdlPersonData = hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(pdlIdenter, AccessType.M2M)
+        val pdlPersonData = hentPersonOgGeografiskTilknytningQuery
+            .hentPersonOgGeografiskTilknytningBolk(pdlIdenter, AccessType.M2M)
             .getOrElse {
                 throw StatusException(
                     status = HttpStatusCode.InternalServerError,

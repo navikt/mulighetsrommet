@@ -34,13 +34,14 @@ sealed class UtbetalingBeregningOutput {
     abstract fun deltakelser(): Set<UtbetalingBeregningOutputDeltakelse>
 }
 
-// TODO: eller burde denne være en deltakelseId + Set<Pair<faktor, periode>>?
+// TODO: eller burde denne være en (deltakelseId, perioder=Set<(faktor, periode, sats)>>)?
 @Serializable
 data class UtbetalingBeregningOutputDeltakelse(
     @Serializable(with = UUIDSerializer::class)
     val deltakelseId: UUID,
     val faktor: Double,
     val periode: Periode,
+    // TODO: lagre benyttet sats i samme periode
 )
 
 @Serializable

@@ -18,7 +18,7 @@ data class UtbetalingBeregningDto(
     companion object {
         fun from(
             beregning: UtbetalingBeregning,
-            deltakelsePersoner: List<DeltakelsePerson>,
+            deltakere: List<UtbetalingBeregningDeltaker>,
             regioner: List<NavRegionDto>,
         ): UtbetalingBeregningDto {
             return when (beregning) {
@@ -35,45 +35,45 @@ data class UtbetalingBeregningDto(
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
                     val sats = getSats(beregning.input)
-                    val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
+                    val manedsverkTotal = getTotalFaktor(deltakere)
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.deltakelse }.toSet(),
+                        deltakere.flatMap { it.deltakelser }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
                         heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakere, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
                     )
                 }
 
                 is UtbetalingBeregningPrisPerManedsverk -> {
                     val sats = getSats(beregning.input)
-                    val manedsverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
+                    val manedsverkTotal = getTotalFaktor(deltakere)
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.deltakelse }.toSet(),
+                        deltakere.flatMap { it.deltakelser }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakere, sats),
                         regnestykke = getRegnestykkeManedsverk(manedsverkTotal, sats, belop),
                     )
                 }
 
                 is UtbetalingBeregningPrisPerUkesverk -> {
                     val sats = getSats(beregning.input)
-                    val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
+                    val ukesverkTotal = getTotalFaktor(deltakere)
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.deltakelse }.toSet(),
+                        deltakere.flatMap { it.deltakelser }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakere, sats),
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
@@ -88,15 +88,15 @@ data class UtbetalingBeregningDto(
 
                 is UtbetalingBeregningPrisPerHeleUkesverk -> {
                     val sats = getSats(beregning.input)
-                    val ukesverkTotal = deltakelsePersoner.sumOf { (deltakelse) -> deltakelse.faktor }
+                    val ukesverkTotal = getTotalFaktor(deltakere)
                     val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakelsePersoner.map { it.deltakelse }.toSet(),
+                        deltakere.flatMap { it.deltakelser }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakelsePersoner, sats),
+                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakere, sats),
                         regnestykke = listOf(
                             DataElement.number(ukesverkTotal),
                             DataElement.text("uker"),
@@ -113,7 +113,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakelsePersoner),
+                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakere),
                         regnestykke = listOf(
                             DataElement.number(beregning.output.belop),
                         ),
@@ -134,13 +134,18 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
     }
 }
 
+private fun getTotalFaktor(deltakere: List<UtbetalingBeregningDeltaker>): Double {
+    return deltakere.sumOf { deltaker -> deltaker.deltakelser.sumOf { it.faktor } }
+}
+
 private fun deltakelsePrisPerManedsverkTable(
-    deltakelsePersoner: List<DeltakelsePerson>,
+    deltakere: List<UtbetalingBeregningDeltaker>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns() + deltakelseManedsverkColumns(),
-    rows = deltakelsePersoner.map { (deltakelse, person) ->
-        deltakelsePersonaliaCells(person) + deltakelseManedsverkCells(deltakelse.faktor, sats)
+    rows = deltakere.map { deltaker ->
+        val manedsverk = deltaker.deltakelser.sumOf { it.faktor }
+        deltakelsePersonaliaCells(deltaker.personalia) + deltakelseManedsverkCells(manedsverk, sats)
     },
 )
 
@@ -163,12 +168,13 @@ private fun deltakelseManedsverkCells(manedsverk: Double, sats: Int) = mapOf(
 )
 
 private fun deltakelsePrisPerUkesverkTable(
-    deltakelsePersoner: List<DeltakelsePerson>,
+    deltakere: List<UtbetalingBeregningDeltaker>,
     sats: Int,
 ) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns() + deltakelseUkesverkColumns(),
-    rows = deltakelsePersoner.map { (deltakelse, person) ->
-        deltakelsePersonaliaCells(person) + deltakelseUkesverkCells(deltakelse.faktor, sats)
+    rows = deltakere.map { deltaker ->
+        val ukesverk = deltaker.deltakelser.sumOf { it.faktor }
+        deltakelsePersonaliaCells(deltaker.personalia) + deltakelseUkesverkCells(ukesverk, sats)
     },
 )
 
@@ -190,9 +196,9 @@ private fun deltakelseUkesverkCells(ukesverk: Double, sats: Int) = mapOf(
     "belop" to DataElement.nok(ukesverk * sats),
 )
 
-private fun deltakelsePrisPerTimeOppfolgingTable(deltakelsePersoner: List<DeltakelsePerson>) = DataDrivenTableDto(
+private fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<UtbetalingBeregningDeltaker>) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns(),
-    rows = deltakelsePersoner.map { deltakelsePersonaliaCells(it.person) },
+    rows = deltakere.map { deltakelsePersonaliaCells(it.personalia) },
 )
 
 private fun deltakelsePersonaliaColumns() = listOf(

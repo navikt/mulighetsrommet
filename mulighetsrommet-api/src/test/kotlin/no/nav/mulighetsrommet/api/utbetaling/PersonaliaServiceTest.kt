@@ -49,13 +49,15 @@ class PersonaliaServiceTest : FunSpec({
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonaliaMedGeografiskEnhet(setOf())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
-                deltakerId = deltakelseId,
-                norskIdent = null,
-                navn = "Skjermet",
-                oppfolgingEnhet = null,
-                geografiskEnhet = null,
-                region = null,
+            service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
+                DeltakerPersonaliaMedGeografiskEnhet(
+                    deltakerId = deltakelseId,
+                    norskIdent = null,
+                    navn = "Skjermet",
+                    oppfolgingEnhet = null,
+                    geografiskEnhet = null,
+                    region = null,
+                ),
             )
         }
 
@@ -73,13 +75,15 @@ class PersonaliaServiceTest : FunSpec({
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonaliaMedGeografiskEnhet(setOf())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
-                deltakerId = deltakelseId,
-                norskIdent = null,
-                navn = "Adressebeskyttet",
-                oppfolgingEnhet = null,
-                geografiskEnhet = null,
-                region = null,
+            service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
+                DeltakerPersonaliaMedGeografiskEnhet(
+                    deltakerId = deltakelseId,
+                    norskIdent = null,
+                    navn = "Adressebeskyttet",
+                    oppfolgingEnhet = null,
+                    geografiskEnhet = null,
+                    region = null,
+                ),
             )
         }
 
@@ -100,13 +104,15 @@ class PersonaliaServiceTest : FunSpec({
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonaliaMedGeografiskEnhet(setOf())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
-                deltakerId = deltakelseId,
-                norskIdent = null,
-                navn = "Adressebeskyttet",
-                oppfolgingEnhet = null,
-                geografiskEnhet = null,
-                region = null,
+            service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
+                DeltakerPersonaliaMedGeografiskEnhet(
+                    deltakerId = deltakelseId,
+                    norskIdent = null,
+                    navn = "Adressebeskyttet",
+                    oppfolgingEnhet = null,
+                    geografiskEnhet = null,
+                    region = null,
+                ),
             )
         }
     }

@@ -181,16 +181,18 @@ fun Route.utbetalingRoutes() {
 
                     val regioner = NavEnhetHelpers.buildNavRegioner(
                         personalia
-                            .map { (_, personalia) ->
+                            .map { personalia ->
                                 listOfNotNull(personalia.geografiskEnhet, personalia.region)
                             }
                             .flatten(),
                     )
 
-                    val deltakelsePersoner = deltakelser
-                        // TODO: nå finnes det "duplikater" her, altså flere perioder per deltakerId, blir det en problem her?
-                        .map { DeltakelsePerson(it, personalia.getValue(it.deltakelseId)) }
-                        .filter { filter.navEnheter.isEmpty() || it.person.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+                    val deltakelsePersoner = personalia
+                        .map { personalia ->
+                            val perioder = deltakelser.filter { it.deltakelseId == personalia.deltakerId }
+                            UtbetalingBeregningDeltaker(personalia, perioder.toSet())
+                        }
+                        .filter { filter.navEnheter.isEmpty() || it.personalia.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
                     UtbetalingBeregningDto.from(utbetaling.beregning, deltakelsePersoner, regioner)
                 }
@@ -481,7 +483,7 @@ fun RoutingContext.getBeregningFilter() = BeregningFilter(
     navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList(),
 )
 
-data class DeltakelsePerson(
-    val deltakelse: UtbetalingBeregningOutputDeltakelse,
-    val person: DeltakerPersonaliaMedGeografiskEnhet,
+data class UtbetalingBeregningDeltaker(
+    val personalia: DeltakerPersonaliaMedGeografiskEnhet,
+    val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
 )
