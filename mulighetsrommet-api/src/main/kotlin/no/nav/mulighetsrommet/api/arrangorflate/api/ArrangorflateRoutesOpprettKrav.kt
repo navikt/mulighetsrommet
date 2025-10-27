@@ -342,7 +342,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     innsendingsInformasjon = listOf(
                         DetailsEntry(
                             key = "Arrangør",
-                            value = "${gjennomforing.arrangor.navn} - $orgnr",
+                            value = "${gjennomforing.arrangor.navn} - ${orgnr.value}",
                         ),
                         DetailsEntry(
                             key = "Tiltaksnavn",

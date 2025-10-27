@@ -80,14 +80,17 @@ class UtbetalingService(
         gjennomforing: Gjennomforing,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> {
+        val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
         return when (gjennomforing.avtalePrismodell) {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
                 opprettAnnenAvtaltPrisUtbetaling(
                     utbetalingKrav.toAnnenAvtaltPris(
                         gjennomforingId = gjennomforing.id,
                         tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+
                     ),
                     agent,
+                    periode,
                 )
 
             PrismodellType.ANNEN_AVTALT_PRIS ->
@@ -97,6 +100,7 @@ class UtbetalingService(
                         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                     ),
                     agent,
+                    periode,
                 )
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
@@ -166,6 +170,19 @@ class UtbetalingService(
     fun opprettAnnenAvtaltPrisUtbetaling(
         request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
         agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> = opprettAnnenAvtaltPrisUtbetaling(
+        request,
+        agent,
+        Periode.fromInclusiveDates(
+            request.periodeStart,
+            request.periodeSlutt,
+        ),
+    )
+
+    fun opprettAnnenAvtaltPrisUtbetaling(
+        request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
+        agent: Agent,
+        periode: Periode,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val dbo = UtbetalingDbo(
             id = request.id,
@@ -175,10 +192,7 @@ class UtbetalingService(
             beregning = UtbetalingBeregningFri.beregn(
                 input = UtbetalingBeregningFri.Input(request.belop),
             ),
-            periode = Periode.fromInclusiveDates(
-                request.periodeStart,
-                request.periodeSlutt,
-            ),
+            periode = periode,
             innsender = agent,
             beskrivelse = request.beskrivelse,
             tilskuddstype = request.tilskuddstype,
@@ -591,7 +605,10 @@ class UtbetalingService(
         storeOkonomiMelding(faktura.bestillingsnummer, message)
     }
 
-    private fun TransactionalQueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+    private fun TransactionalQueryContext.storeOkonomiMelding(
+        bestillingsnummer: String,
+        message: OkonomiBestillingMelding,
+    ) {
         log.info("Lagrer faktura for delutbeatling med bestillingsnummer=$bestillingsnummer for publisering på kafka")
 
         val record = StoredProducerRecord(
