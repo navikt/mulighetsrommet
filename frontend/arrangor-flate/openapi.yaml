@@ -260,6 +260,43 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/vedlegg:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent vedleggsinfo
+      operationId: getOpprettKravVedlegg
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Vedleggsinfo
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpprettKravVedlegg"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/oppsummering:
     post:
       tags:
@@ -1326,6 +1363,28 @@ components:
       - stengtHosArrangor
       - tabell
       - tabellFooter
+    OpprettKravVedlegg.GuidePanelType:
+      type: string
+      enum:
+      - INVESTERING_VTA_AFT
+      - TIMESPRIS
+      - AVTALT_PRIS
+    OpprettKravVedlegg:
+      type: object
+      properties:
+        guidePanel:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpprettKravVedlegg.GuidePanelType"
+        minAntallVedlegg:
+          type: integer
+          format: int32
+        navigering:
+          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
+      required:
+      - guidePanel
+      - minAntallVedlegg
+      - navigering
     OpprettKravOppsummeringRequest:
       type: object
       properties:
