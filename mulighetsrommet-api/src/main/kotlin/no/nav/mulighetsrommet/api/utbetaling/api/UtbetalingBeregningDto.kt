@@ -36,8 +36,8 @@ data class UtbetalingBeregningDto(
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
                     val sats = getSats(beregning.input)
                     val manedsverkTotal = getTotalFaktor(deltakere)
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakere.flatMap { it.deltakelser }.toSet(),
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(
+                        deltakere.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -51,8 +51,8 @@ data class UtbetalingBeregningDto(
                 is UtbetalingBeregningPrisPerManedsverk -> {
                     val sats = getSats(beregning.input)
                     val manedsverkTotal = getTotalFaktor(deltakere)
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakere.flatMap { it.deltakelser }.toSet(),
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(
+                        deltakere.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -66,8 +66,8 @@ data class UtbetalingBeregningDto(
                 is UtbetalingBeregningPrisPerUkesverk -> {
                     val sats = getSats(beregning.input)
                     val ukesverkTotal = getTotalFaktor(deltakere)
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakere.flatMap { it.deltakelser }.toSet(),
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(
+                        deltakere.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -89,8 +89,8 @@ data class UtbetalingBeregningDto(
                 is UtbetalingBeregningPrisPerHeleUkesverk -> {
                     val sats = getSats(beregning.input)
                     val ukesverkTotal = getTotalFaktor(deltakere)
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(
-                        deltakere.flatMap { it.deltakelser }.toSet(),
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(
+                        deltakere.map { it.deltakelse }.toSet(),
                         sats,
                     )
                     UtbetalingBeregningDto(
@@ -135,7 +135,7 @@ private fun getSats(input: UtbetalingBeregningInput): Int {
 }
 
 private fun getTotalFaktor(deltakere: List<UtbetalingBeregningDeltaker>): Double {
-    return deltakere.sumOf { deltaker -> deltaker.deltakelser.sumOf { it.faktor } }
+    return deltakere.sumOf { deltaker -> deltaker.deltakelse.perioder.sumOf { it.faktor } }
 }
 
 private fun deltakelsePrisPerManedsverkTable(
@@ -144,7 +144,7 @@ private fun deltakelsePrisPerManedsverkTable(
 ) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns() + deltakelseManedsverkColumns(),
     rows = deltakere.map { deltaker ->
-        val manedsverk = deltaker.deltakelser.sumOf { it.faktor }
+        val manedsverk = deltaker.deltakelse.perioder.sumOf { it.faktor }
         deltakelsePersonaliaCells(deltaker.personalia) + deltakelseManedsverkCells(manedsverk, sats)
     },
 )
@@ -173,7 +173,7 @@ private fun deltakelsePrisPerUkesverkTable(
 ) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns() + deltakelseUkesverkColumns(),
     rows = deltakere.map { deltaker ->
-        val ukesverk = deltaker.deltakelser.sumOf { it.faktor }
+        val ukesverk = deltaker.deltakelse.perioder.sumOf { it.faktor }
         deltakelsePersonaliaCells(deltaker.personalia) + deltakelseUkesverkCells(ukesverk, sats)
     },
 )

@@ -173,11 +173,9 @@ fun Route.utbetalingRoutes() {
 
                 val beregning = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val deltakelser = utbetaling.beregning.output.deltakelser()
+                    val deltakelser = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
 
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
-                        deltakelser.map { it.deltakelseId }.toSet(),
-                    )
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
 
                     val regioner = NavEnhetHelpers.buildNavRegioner(
                         personalia
@@ -189,8 +187,7 @@ fun Route.utbetalingRoutes() {
 
                     val deltakelsePersoner = personalia
                         .map { personalia ->
-                            val perioder = deltakelser.filter { it.deltakelseId == personalia.deltakerId }
-                            UtbetalingBeregningDeltaker(personalia, perioder.toSet())
+                            UtbetalingBeregningDeltaker(personalia, deltakelser.getValue(personalia.deltakerId))
                         }
                         .filter { filter.navEnheter.isEmpty() || it.personalia.geografiskEnhet?.enhetsnummer in filter.navEnheter }
 
@@ -485,5 +482,5 @@ fun RoutingContext.getBeregningFilter() = BeregningFilter(
 
 data class UtbetalingBeregningDeltaker(
     val personalia: DeltakerPersonaliaMedGeografiskEnhet,
-    val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    val deltakelse: UtbetalingBeregningOutputDeltakelse,
 )

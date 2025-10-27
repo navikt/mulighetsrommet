@@ -23,7 +23,12 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 250,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 5.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 5.0),
+                        ),
+                    ),
                 ),
             )
         }
@@ -61,7 +66,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                 ),
             ).output.deltakelser
             ukesverk.shouldHaveSize(5)
-            ukesverk.sumOf { it.faktor } shouldBe 5.0
+            ukesverk.sumOf { it.perioder.sumOf { it.faktor } } shouldBe 5.0
         }
 
         test("stengt halve måneden gir 2 uker") {
@@ -85,7 +90,10 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 20,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 2.0, Periode(periodeMidt, periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeMidt, periodeSlutt), 2.0)),
+                    ),
                 ),
             )
         }
@@ -110,7 +118,15 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 belop = 10,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 1.0, Periode(LocalDate.of(2025, 2, 7), lordag)),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(LocalDate.of(2025, 2, 7), lordag),
+                                1.0,
+                            ),
+                        ),
+                    ),
                 ),
             )
         }

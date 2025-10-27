@@ -25,7 +25,12 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 100,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 1.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                        ),
+                    ),
                 ),
             )
         }
@@ -50,7 +55,10 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 350_000,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.5, Periode(periodeStart, periodeMidt)),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeStart, periodeMidt), 0.5)),
+                    ),
                 ),
             )
         }
@@ -83,8 +91,14 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 202,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.5, Periode(periodeStart, periodeMidt)),
-                    UtbetalingBeregningOutputDeltakelse(deltakerId2, 0.5, Periode(periodeMidt, periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeStart, periodeMidt), 0.5)),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId2,
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeMidt, periodeSlutt), 0.5)),
+                    ),
                 ),
             )
         }
@@ -110,7 +124,10 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.5, Periode(periodeMidt, periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeMidt, periodeSlutt), 0.5)),
+                    ),
                 ),
             )
         }
@@ -135,8 +152,19 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.25, Periode(periodeStart, periodeStart.plusWeeks(1))),
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.25, Periode(periodeMidt.plusWeeks(1), periodeSlutt)),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeStart, periodeStart.plusWeeks(1)),
+                                0.25,
+                            ),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeMidt.plusWeeks(1), periodeSlutt),
+                                0.25,
+                            ),
+                        ),
+                    ),
                 ),
             )
         }
@@ -165,13 +193,16 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
-                        0.1,
-                        Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
-                    ),
-                    UtbetalingBeregningOutputDeltakelse(
-                        deltakerId1,
-                        0.4,
-                        Periode(LocalDate.of(2023, 4, 19), LocalDate.of(2023, 5, 1)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
+                                0.1,
+                            ),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(LocalDate.of(2023, 4, 19), LocalDate.of(2023, 5, 1)),
+                                0.4,
+                            ),
+                        ),
                     ),
                 ),
             )
@@ -229,8 +260,18 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 2.0, periode),
-                    UtbetalingBeregningOutputDeltakelse(deltakerId2, 2.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                        ),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId2,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                        ),
+                    ),
                 ),
             )
         }
@@ -272,9 +313,24 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
             beregning.output.deltakelser shouldBe setOf(
-                UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.22581, heleUke37),
-                UtbetalingBeregningOutputDeltakelse(deltakerId2, 0.16129, hverdagerUke37),
-                UtbetalingBeregningOutputDeltakelse(deltakerId3, 0.29032, helgFraUke36OgHeleUke37),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakerId1,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22581),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakerId2,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.16129),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakerId3,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.29032),
+                    ),
+                ),
             )
         }
     }
@@ -300,8 +356,18 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltakerId1, 2.0, periode),
-                    UtbetalingBeregningOutputDeltakelse(deltakerId2, 2.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                        ),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId2,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                        ),
+                    ),
                 ),
             )
         }
@@ -343,9 +409,24 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
             beregning.output.deltakelser shouldBe setOf(
-                UtbetalingBeregningOutputDeltakelse(deltakerId1, 0.22727, heleUke37),
-                UtbetalingBeregningOutputDeltakelse(deltakerId2, 0.22727, hverdagerUke37),
-                UtbetalingBeregningOutputDeltakelse(deltakerId3, 0.22727, helgFraUke36OgHeleUke37),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakerId1,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22727),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakerId2,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.22727),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakerId3,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.22727),
+                    ),
+                ),
             )
         }
     }

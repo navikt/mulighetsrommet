@@ -44,21 +44,29 @@ with stengt as (select utbetaling_id,
                            jsonb_agg(
                                    jsonb_build_object(
                                            'deltakelseId', deltakelse_id,
-                                           'faktor', faktor,
-                                           'periode',
-                                           jsonb_build_object(
-                                                   'start', lower(periode),
-                                                   'slutt', upper(periode)
-                                           )
+                                           'perioder',
+                                           (select jsonb_agg(
+                                                           jsonb_build_object(
+                                                                   'periode',
+                                                                   jsonb_build_object(
+                                                                           'start', lower(periode),
+                                                                           'slutt', upper(periode)
+                                                                   ),
+                                                                   'faktor', faktor
+                                                           )
+                                                   )
+                                            from utbetaling_deltakelse_faktor p2
+                                            where p2.utbetaling_id = p1.utbetaling_id
+                                              and p2.deltakelse_id = p1.deltakelse_id)
                                    )
-                           ) as deltakelser
-                    from utbetaling_deltakelse_faktor
+                           ) as manedsverk_json
+                    from utbetaling_deltakelse_faktor p1
                     group by utbetaling_id)
 select utbetaling.id,
        utbetaling.periode,
        utbetaling.belop_beregnet,
        beregning.sats,
-       coalesce(manedsverk.deltakelser, '[]'::jsonb)                as manedsverk_json,
+       coalesce(manedsverk.manedsverk_json, '[]'::jsonb)            as manedsverk_json,
        coalesce(stengt.stengt_perioder_json, '[]'::jsonb)           as stengt_perioder_json,
        coalesce(deltakelser.deltakelser_perioder_json, '[]'::jsonb) as deltakelser_perioder_json
 from utbetaling

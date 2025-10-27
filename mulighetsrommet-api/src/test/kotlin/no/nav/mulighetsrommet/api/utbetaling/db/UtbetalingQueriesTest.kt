@@ -168,8 +168,18 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                         belop = 100_000,
                         deltakelser = setOf(
-                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 1.0, periode),
-                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse1Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                ),
+                            ),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse2Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                ),
+                            ),
                         ),
                     ),
                 )
@@ -247,8 +257,18 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningPrisPerManedsverk.Output(
                         belop = 100_000,
                         deltakelser = setOf(
-                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 0.5, periode),
-                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse1Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 0.5),
+                                ),
+                            ),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse2Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                ),
+                            ),
                         ),
                     ),
                 )
@@ -295,8 +315,18 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 5999,
                         deltakelser = setOf(
-                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 2.2, periode),
-                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 4.2, periode),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse1Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.2),
+                                ),
+                            ),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse2Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 4.2),
+                                ),
+                            ),
                         ),
                     ),
                 )
@@ -343,8 +373,18 @@ class UtbetalingQueriesTest : FunSpec({
                     output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
                         belop = 5999,
                         deltakelser = setOf(
-                            UtbetalingBeregningOutputDeltakelse(deltakelse1Id, 2.0, periode),
-                            UtbetalingBeregningOutputDeltakelse(deltakelse2Id, 4.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse1Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                                ),
+                            ),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakelse2Id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 4.0),
+                                ),
+                            ),
                         ),
                     ),
                 )

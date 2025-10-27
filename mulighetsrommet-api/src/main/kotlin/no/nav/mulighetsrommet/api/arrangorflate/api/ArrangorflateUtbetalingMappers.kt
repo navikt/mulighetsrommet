@@ -19,7 +19,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     kanViseBeregning: Boolean,
 ): ArrangorflateUtbetalingDto {
     val totalFaktor = utbetaling.beregning.output.deltakelser()
-        .map { BigDecimal(it.faktor) }
+        .flatMap { deltakelse -> deltakelse.perioder.map { it.faktor } }
+        .map { BigDecimal(it) }
         .sumOf { it }
         .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
         .toDouble()
@@ -45,7 +46,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                         deltakerStartDato = deltaker?.startDato,
                         personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
                         periode = deltakelse.periode(),
-                        faktor = deltakelseOutput.faktor,
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
                         perioderMedDeltakelsesmengde = deltakelse.perioder,
                         status = deltaker?.status?.type,
                     )
@@ -74,7 +75,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                         deltakerStartDato = deltaker?.startDato,
                         personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
                         periode = deltakelse.periode(),
-                        faktor = deltakelseOutput.faktor,
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
                         status = deltaker?.status?.type,
                     )
                 }
@@ -102,7 +103,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                         deltakerStartDato = deltaker?.startDato,
                         personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
                         periode = deltakelse.periode(),
-                        faktor = deltakelseOutput.faktor,
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
                         status = deltaker?.status?.type,
                     )
                 }
@@ -130,7 +131,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                         deltakerStartDato = deltaker?.startDato,
                         personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
                         periode = deltakelse.periode(),
-                        faktor = deltakelseOutput.faktor,
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
                         status = deltaker?.status?.type,
                     )
                 }

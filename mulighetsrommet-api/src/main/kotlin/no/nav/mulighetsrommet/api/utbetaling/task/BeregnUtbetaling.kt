@@ -138,7 +138,7 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
                 utbetaling.beregning.output.belop,
                 utbetaling.beregning.output.belop - (otherUtbetaling?.beregning?.output?.belop ?: 0),
                 deltakelse.deltakelseId,
-                deltakelse.faktor,
+                deltakelse.perioder.sumOf { it.faktor },
             )
         }
     }

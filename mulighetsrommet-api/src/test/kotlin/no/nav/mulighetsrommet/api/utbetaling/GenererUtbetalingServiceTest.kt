@@ -434,9 +434,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                     it.belop shouldBe 20975
                     it.deltakelser shouldBe setOf(
                         UtbetalingBeregningOutputDeltakelse(
-                            deltakelseId = domain.deltakere[0].id,
-                            faktor = 1.0,
-                            periode = januar,
+                            domain.deltakere[0].id,
+                            setOf(
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(januar, 1.0),
+                            ),
                         ),
                     )
                 }
@@ -476,8 +477,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                     it.deltakelser shouldBe setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             domain.deltakere[0].id,
-                            0.48387,
-                            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                            setOf(
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                    Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                                    0.48387,
+                                ),
+                            ),
                         ),
                     )
                 }
@@ -516,8 +521,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                     it.deltakelser shouldBe setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             domain.deltakere[0].id,
-                            0.48387,
-                            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                            setOf(
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                    Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                                    0.48387,
+                                ),
+                            ),
                         ),
                     )
                 }
@@ -762,7 +771,12 @@ class GenererUtbetalingServiceTest : FunSpec({
             output = UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 100,
                 deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(deltaker.id, 1.0, periode),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltaker.id,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                        ),
+                    ),
                 ),
             ),
         )
@@ -790,8 +804,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                 it.deltakelser shouldBe setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltaker.id,
-                        0.5,
-                        Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 16)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 16)),
+                                0.5,
+                            ),
+                        ),
                     ),
                 )
             }
@@ -823,7 +841,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                     .should {
                         it.belop shouldBe 100
                         it.deltakelser shouldBe setOf(
-                            UtbetalingBeregningOutputDeltakelse(deltaker.id, 1.0, periode),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltaker.id,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                ),
+                            ),
                         )
                     }
             }
@@ -1116,9 +1139,13 @@ class GenererUtbetalingServiceTest : FunSpec({
                 belop = 100,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
-                        deltakelseId = domain.deltakere[0].id,
-                        faktor = 1.0,
-                        periode = Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 1, 1)),
+                        domain.deltakere[0].id,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 1, 1)),
+                                1.0,
+                            ),
+                        ),
                     ),
                 ),
             )

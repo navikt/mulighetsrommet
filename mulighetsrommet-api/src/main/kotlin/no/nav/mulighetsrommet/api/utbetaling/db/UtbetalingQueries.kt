@@ -126,21 +126,20 @@ class UtbetalingQueries(private val session: Session) {
                 dbo.beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerTimeOppfolging ->
-                {
-                    upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
-                    upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                    // TODO: lagre perioder uten deltakelsesprosent?
-                    val perioder = dbo.beregning.input.deltakelser
-                        .map {
-                            DeltakelseDeltakelsesprosentPerioder(
-                                it.deltakelseId,
-                                listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
-                            )
-                        }
-                        .toSet()
-                    upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
-                }
+            is UtbetalingBeregningPrisPerTimeOppfolging -> {
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                // TODO: lagre perioder uten deltakelsesprosent?
+                val perioder = dbo.beregning.input.deltakelser
+                    .map {
+                        DeltakelseDeltakelsesprosentPerioder(
+                            it.deltakelseId,
+                            listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                        )
+                    }
+                    .toSet()
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+            }
         }
     }
 
@@ -253,13 +252,15 @@ class UtbetalingQueries(private val session: Session) {
             values (:utbetaling_id, :deltakelse_id, :faktor, :periode::daterange)
         """.trimIndent()
 
-        val deltakelseFaktorParams = deltakelser.map {
-            mapOf(
-                "utbetaling_id" to id,
-                "deltakelse_id" to it.deltakelseId,
-                "faktor" to it.faktor,
-                "periode" to it.periode.toDaterange(),
-            )
+        val deltakelseFaktorParams = deltakelser.flatMap { deltakelse ->
+            deltakelse.perioder.map { periode ->
+                mapOf(
+                    "utbetaling_id" to id,
+                    "deltakelse_id" to deltakelse.deltakelseId,
+                    "faktor" to periode.faktor,
+                    "periode" to periode.periode.toDaterange(),
+                )
+            }
         }
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
