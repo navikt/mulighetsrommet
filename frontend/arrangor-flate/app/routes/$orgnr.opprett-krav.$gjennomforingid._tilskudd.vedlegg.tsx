@@ -1,4 +1,4 @@
-import { ErrorSummary, GuidePanel, Heading, VStack } from "@navikt/ds-react";
+import { BodyShort, ErrorSummary, GuidePanel, Heading, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -211,12 +211,22 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
     case OpprettKravVedleggGuidePanelType.TIMESPRIS:
       return (
         <GuidePanel>
-          Fakturering skal skje i henhold til prisbilag i avtalen og eventuelle presiseringer. Dere
-          må sikre at opplysningene dere oppgir er korrekte. Det skal kun faktureres for faktisk
-          medgått tid, eventuelt rundet av til nærmeste hele kvarter. Nav vil kunne gjennomføre
-          kontroller og kreve innsyn for å verifisere at tjenesten og tilhørerende fakturering er i
-          henhold til avtalen. Fakturavedleggsskjema kan lastes ned her{" "}
-          <b>Oppfølging - fakturagrunnlag 2021 (excel)</b>
+          <BodyShort spacing>
+            Fakturering skal skje i henhold til prisbilag i avtalen og eventuelle presiseringer.
+            Dere må sikre at opplysningene dere oppgir er korrekte.
+          </BodyShort>
+          <BodyShort spacing>
+            Det skal kun faktureres for faktisk medgått tid, eventuelt rundet av til nærmeste hele
+            kvarter.
+          </BodyShort>
+          <BodyShort spacing>
+            Nav vil kunne gjennomføre kontroller og kreve innsyn for å verifisere at tjenesten og
+            tilhørerende fakturering er i henhold til avtalen.
+          </BodyShort>
+          <BodyShort>
+            Fakturavedleggsskjema kan lastes ned her{" "}
+            <b>Oppfølging - fakturagrunnlag 2021 (excel)</b>
+          </BodyShort>
         </GuidePanel>
       );
     case OpprettKravVedleggGuidePanelType.AVTALT_PRIS:
