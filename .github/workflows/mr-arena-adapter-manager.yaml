@@ -39,7 +39,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run lint typecheck build --filter=arena-adapter-manager
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dist
           path: frontend/arena-adapter-manager/dist
