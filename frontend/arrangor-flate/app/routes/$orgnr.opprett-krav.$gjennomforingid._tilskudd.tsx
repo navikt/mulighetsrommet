@@ -87,7 +87,7 @@ function getActiveStep(steps: Step[], path: string) {
   return steps.find(({ path }) => path === stepPath)!;
 }
 
-export default function UtbetalingLayout() {
+export default function OpprettKravLayout() {
   const { steps, activeStep } = useLoaderData<OpprettKravLoaderData>();
   const orgnr = useOrgnrFromUrl();
 

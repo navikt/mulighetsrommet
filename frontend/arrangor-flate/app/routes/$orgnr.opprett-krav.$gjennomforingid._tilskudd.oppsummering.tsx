@@ -20,27 +20,24 @@ import {
 } from "react-router";
 import {
   ArrangorflateService,
-  ArrangorflateTilsagnDto,
   FieldError,
   OpprettKravOppsummering,
   Tilskuddstype,
 } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
-import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useEffect, useRef, useState } from "react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
-import { isNull } from "@grafana/faro-react";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [
@@ -186,7 +183,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 };
 
-export default function OpprettKravOppsummering() {
+export default function OppsummeringOpprettKrav() {
   const { orgnr, gjennomforingId, oppsummering } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const storage = useFileStorage();
