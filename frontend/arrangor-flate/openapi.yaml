@@ -260,6 +260,50 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/oppsummering:
+    post:
+      tags:
+      - Arrangorflate
+      description: Hent oppsummering
+      operationId: getOpprettKravOppsummering
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Request for creating a payment claim
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpprettKravOppsummeringRequest"
+        required: false
+      responses:
+        "200":
+          description: Informasjon om opprettet krav om utbetaling
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpprettKravOppsummering"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/gjennomforing:
     get:
       tags:
@@ -1282,6 +1326,63 @@ components:
       - stengtHosArrangor
       - tabell
       - tabellFooter
+    OpprettKravOppsummeringRequest:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+        periodeSlutt:
+          type: string
+        periodeInklusiv:
+          type:
+          - "null"
+          - boolean
+        kidNummer:
+          type:
+          - "null"
+          - string
+        belop:
+          type: integer
+          format: int32
+      required:
+      - belop
+      - kidNummer
+      - periodeInklusiv
+      - periodeSlutt
+      - periodeStart
+    OpprettKravOppsummering.InnsendingsData:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        belop:
+          type: integer
+          format: int32
+        kidNummer:
+          type:
+          - "null"
+          - string
+      required:
+      - belop
+      - kidNummer
+      - periode
+    OpprettKravOppsummering:
+      type: object
+      properties:
+        innsendingsInformasjon:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsEntry"
+        utbetalingInformasjon:
+          type: array
+          items:
+            $ref: "#/components/schemas/DetailsEntry"
+        innsendingsData:
+          $ref: "#/components/schemas/OpprettKravOppsummering.InnsendingsData"
+      required:
+      - innsendingsData
+      - innsendingsInformasjon
+      - utbetalingInformasjon
     OpprettKravUtbetalingRequest:
       type: object
       properties:

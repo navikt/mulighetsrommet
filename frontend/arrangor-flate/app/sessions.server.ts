@@ -10,6 +10,7 @@ interface InvesteringstilskuddSessionData {
   tilsagnId?: string;
   periodeStart?: string;
   periodeSlutt?: string;
+  periodeInklusiv?: string;
   vedlegg?: File[];
   belop?: string;
   kontonummer?: string;
@@ -24,6 +25,7 @@ interface DrifttilskuddSessionData {
   tilsagnId?: string;
   periodeStart?: string;
   periodeSlutt?: string;
+  periodeInklusiv?: string;
   vedlegg?: File[];
   belop?: string;
   kontonummer?: string;

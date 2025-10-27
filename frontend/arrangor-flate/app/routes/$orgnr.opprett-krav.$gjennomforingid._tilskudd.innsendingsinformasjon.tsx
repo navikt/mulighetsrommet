@@ -10,7 +10,7 @@ import {
   Label,
   Link,
   Select,
-  useRangeDatepicker,
+  useDatepicker,
   VStack,
 } from "@navikt/ds-react";
 import {
@@ -40,8 +40,10 @@ import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
+  addDuration,
   formaterPeriode,
-  inBetweenInclusive,
+  isLater,
+  isLaterOrSameDay,
   parseDate,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
@@ -128,22 +130,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const periodeStart = formData.get("periodeStart")?.toString();
   const periodeSlutt = formData.get("periodeSlutt")?.toString();
+  const periodeInklusiv = formData.get("periodeInklusiv")?.toString();
   const tilsagnId = formData.get("tilsagnId")?.toString();
 
-  if (!tilsagnId) {
-    errors.push({
-      pointer: "/tilsagnId",
-      detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
-    });
-  } else if (!periodeStart) {
+  if (!periodeStart) {
     errors.push({
       pointer: "/periodeStart",
       detail: "Du må fylle ut fra dato",
     });
-  } else if (!periodeSlutt) {
+  }
+  if (!periodeSlutt) {
     errors.push({
       pointer: "/periodeSlutt",
       detail: "Du må fylle ut til dato",
+    });
+  } else if (isLaterOrSameDay(periodeStart, periodeSlutt)) {
+    errors.push({
+      pointer: "/periodeSlutt",
+      detail: "Periodeslutt må være etter periodestart",
+    });
+  } else if (!tilsagnId) {
+    errors.push({
+      pointer: "/tilsagnId",
+      detail: "Kan ikke opprette utbetalingskrav uten gyldig tilsagn",
     });
   }
 
@@ -154,6 +163,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
+    session.set("periodeInklusiv", periodeInklusiv);
     session.set("periodeStart", yyyyMMddFormatting(periodeStart));
     session.set("periodeSlutt", yyyyMMddFormatting(periodeSlutt));
     return redirect(pathBySteg(nesteSteg, orgnr, gjennomforingId), {
@@ -186,17 +196,15 @@ export default function OpprettKravInnsendingsinformasjon() {
     if (!valgtPeriode) {
       return [];
     }
-    return innsendingsinformasjon.tilsagn.filter(
-      (tilsagn) =>
-        inBetweenInclusive(valgtPeriode.start, {
-          from: tilsagn.periode.start,
-          to: tilsagn.periode.slutt,
-        }) ||
-        inBetweenInclusive(valgtPeriode.slutt, {
-          from: tilsagn.periode.start,
-          to: tilsagn.periode.slutt,
-        }),
-    );
+    return innsendingsinformasjon.tilsagn.filter((tilsagn) => {
+      const innenforStart =
+        isLaterOrSameDay(valgtPeriode.start, tilsagn.periode.start) &&
+        isLater(tilsagn.periode.slutt, valgtPeriode.start);
+      const innenforSlutt =
+        isLater(valgtPeriode.slutt, tilsagn.periode.start) &&
+        isLater(tilsagn.periode.slutt, valgtPeriode.slutt);
+      return innenforStart || innenforSlutt;
+    });
   }, [innsendingsinformasjon.tilsagn, valgtPeriode]);
 
   useEffect(() => {
@@ -331,6 +339,10 @@ interface PeriodeSelectProps {
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
 }
+
+/**
+ * Valg av forhåndsdefinerte perioder, sluttdato eksklusiv
+ */
 function PeriodeSelect({
   onPeriodeSelected,
   periodeForslag,
@@ -355,6 +367,7 @@ function PeriodeSelect({
   }
   return (
     <HStack gap="4">
+      <input name="periodeInklusiv" defaultValue="false" readOnly hidden />
       <input ref={startRef} name="periodeStart" defaultValue={sessionPeriodeStart} hidden />
       <input ref={sluttRef} name="periodeSlutt" defaultValue={sessionPeriodeSlutt} hidden />
       <Select
@@ -386,6 +399,9 @@ interface PeriodeVelgerProps {
   errors?: FieldError[];
 }
 
+/**
+ * Fritt valg av periode, sluttdato inklusiv
+ */
 function PeriodeVelger({
   onPeriodeSelected,
   sessionPeriodeStart,
@@ -393,45 +409,63 @@ function PeriodeVelger({
   errors,
 }: PeriodeVelgerProps) {
   const {
-    datepickerProps,
-    fromInputProps: periodeStartInputProps,
-    toInputProps: periodeSluttInputProps,
-  } = useRangeDatepicker({
-    defaultSelected: {
-      from: parseDate(sessionPeriodeStart),
-      to: parseDate(sessionPeriodeSlutt),
-    },
-    onRangeChange: (dateRange) => {
-      if (dateRange?.from && dateRange.to) {
-        return onPeriodeSelected({
-          start: yyyyMMddFormatting(dateRange.from)!,
-          slutt: yyyyMMddFormatting(dateRange.to)!,
-        });
-      }
-      return onPeriodeSelected();
-    },
+    datepickerProps: periodeStartPickerProps,
+    inputProps: periodeStartInputProps,
+    selectedDay: selectedStartDato,
+  } = useDatepicker({
+    defaultSelected: sessionPeriodeStart ? parseDate(sessionPeriodeStart) : undefined,
   });
+  const {
+    datepickerProps: periodeSluttPickerProps,
+    inputProps: periodeSluttInputProps,
+    selectedDay: selectedSluttDato,
+  } = useDatepicker({
+    defaultSelected: sessionPeriodeSlutt ? parseDate(sessionPeriodeSlutt) : undefined,
+  });
+
+  useEffect(() => {
+    if (selectedStartDato && selectedSluttDato) {
+      return onPeriodeSelected({
+        start: yyyyMMddFormatting(selectedStartDato)!,
+        // Normaliser til eksklusiv sluttdato, slik som Perioder ellers er
+        slutt: yyyyMMddFormatting(addDuration(selectedSluttDato, { days: 1 }))!,
+      });
+    }
+    return onPeriodeSelected();
+  }, [selectedStartDato, selectedSluttDato, onPeriodeSelected]);
+
   return (
-    <HStack gap="4">
-      <DatePicker {...datepickerProps} dropdownCaption id="periodeStartDatepicker">
-        <HStack wrap gap="4" justify="center">
-          <DatePicker.Input
-            {...periodeStartInputProps}
-            label="Fra dato"
-            size="small"
-            error={errorAt("/periodeStart", errors)}
-            name="periodeStart"
-            id="periodeStart"
-          />
-          <DatePicker.Input
-            {...periodeSluttInputProps}
-            label="Til dato"
-            size="small"
-            error={errorAt("/periodeSlutt", errors)}
-            name="periodeSlutt"
-            id="periodeSlutt"
-          />
-        </HStack>
+    <HStack wrap gap="4">
+      <input name="periodeInklusiv" defaultValue="true" readOnly hidden />
+      <DatePicker
+        {...periodeStartPickerProps}
+        showWeekNumber
+        dropdownCaption
+        id="periodeStartDatepicker"
+      >
+        <DatePicker.Input
+          label="Fra dato"
+          size="small"
+          error={errorAt("/periodeStart", errors)}
+          name="periodeStart"
+          id="periodeStart"
+          {...periodeStartInputProps}
+        />
+      </DatePicker>
+      <DatePicker
+        {...periodeSluttPickerProps}
+        showWeekNumber
+        dropdownCaption
+        id="periodeSluttDatepicker"
+      >
+        <DatePicker.Input
+          label="Til dato"
+          size="small"
+          error={errorAt("/periodeSlutt", errors)}
+          name="periodeSlutt"
+          id="periodeSlutt"
+          {...periodeSluttInputProps}
+        />
       </DatePicker>
     </HStack>
   );

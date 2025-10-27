@@ -151,7 +151,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export default function OpprettKravOppsummering() {
+export default function OpprettKravVedlegg() {
   const { orgnr, gjennomforingId } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);

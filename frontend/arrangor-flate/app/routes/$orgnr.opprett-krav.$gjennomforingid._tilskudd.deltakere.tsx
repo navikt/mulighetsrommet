@@ -61,7 +61,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   return { deltakselseInfo, deltakerlisteUrl };
 };
 
-export default function UtbetalingBeregning() {
+export default function OpprettKravDeltakerTabell() {
   const orgnr = useOrgnrFromUrl();
   const gjennomforingId = useGjennomforingIdFromUrl();
   const { deltakselseInfo, deltakerlisteUrl } = useLoaderData<LoaderData>();
