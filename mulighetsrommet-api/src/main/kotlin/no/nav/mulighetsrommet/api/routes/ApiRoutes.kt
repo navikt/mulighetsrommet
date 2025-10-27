@@ -97,16 +97,6 @@ fun Route.apiRoutes(config: AppConfig) {
                 }
             }
         }
-
-        // TODO: fjern når alle routes er flyttet til nytt api
-        route("/v1/intern") {
-            authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-                authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
-                    gjennomforingRoutes()
-                    avtaleRoutes()
-                }
-            }
-        }
     }
 }
 

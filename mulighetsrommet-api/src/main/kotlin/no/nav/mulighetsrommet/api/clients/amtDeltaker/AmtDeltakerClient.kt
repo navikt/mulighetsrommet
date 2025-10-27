@@ -58,31 +58,33 @@ class AmtDeltakerClient(
     }
 
     suspend fun hentPersonalia(
-        deltakerIds: List<UUID>,
-    ): Either<AmtDeltakerError, List<DeltakerPersonalia>> {
+        deltakerIds: Set<UUID>,
+    ): Either<AmtDeltakerError, Set<DeltakerPersonalia>> {
         val response = client.post("$baseUrl/external/deltakere/personalia") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(deltakerIds)
-            setBody(Json.encodeToJsonElement(ListSerializer(UUIDSerializer), deltakerIds))
+            setBody(Json.encodeToJsonElement(ListSerializer(UUIDSerializer), deltakerIds.toList()))
         }
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body<List<DeltakerPersonaliaResponse>>()
-                .map {
-                    val fornavnOgMellomnavn = listOfNotNull(it.fornavn, it.mellomnavn).joinToString(" ")
-                    val navn = listOf(it.etternavn, fornavnOgMellomnavn).joinToString(", ")
+                .map { personalia ->
+                    val fornavnOgMellomnavn = listOfNotNull(personalia.fornavn, personalia.mellomnavn).joinToString(" ")
+                    val navn = listOf(personalia.etternavn, fornavnOgMellomnavn).joinToString(", ")
 
                     DeltakerPersonalia(
-                        deltakerId = it.deltakerId,
-                        norskIdent = NorskIdent(it.personident),
+                        deltakerId = personalia.deltakerId,
+                        norskIdent = NorskIdent(personalia.personident),
                         navn = navn,
-                        oppfolgingEnhet = it.navEnhetsnummer?.let { NavEnhetNummer(it) },
-                        erSkjermet = it.erSkjermet,
-                        adressebeskyttelse = it.adressebeskyttelse ?: PdlGradering.UGRADERT,
+                        oppfolgingEnhet = personalia.navEnhetsnummer?.let { NavEnhetNummer(it) },
+                        erSkjermet = personalia.erSkjermet,
+                        adressebeskyttelse = personalia.adressebeskyttelse ?: PdlGradering.UGRADERT,
                     )
                 }
+                .toSet()
                 .right()
+
             HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
             else -> {

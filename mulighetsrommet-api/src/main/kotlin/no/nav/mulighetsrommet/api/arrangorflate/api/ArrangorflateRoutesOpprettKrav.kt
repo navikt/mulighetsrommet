@@ -272,15 +272,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             val periode = getPeriodeFromQuery()
 
-            val avtaltPrisPerTimeOppfolgingPerDeltaker =
-                db.session { resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode) }
+            val avtaltPrisPerTimeOppfolgingPerDeltaker = db.session {
+                resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
+            }
+
             val deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere
             val deltakelsePerioder =
                 avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.sortedBy { it.periode.start }
             val sats = avtaltPrisPerTimeOppfolgingPerDeltaker.sats
             val stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor
 
-            val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId })
+            val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId }.toSet())
 
             val table = createDeltakerTable(deltakere, deltakelsePerioder, personalia)
             val tableFooter = listOf(

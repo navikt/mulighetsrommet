@@ -114,6 +114,7 @@ fun Route.avtaleRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Avtalen ble upsertet"
+                        body<AvtaleDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"

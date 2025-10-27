@@ -21,6 +21,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    gjennomforing.start_dato,
                    gjennomforing.slutt_dato,
                    gjennomforing.status,
+                   gjennomforing.deltidsprosent,
                    gjennomforing.tiltaksnummer,
                    gjennomforing.created_at     as opprettet_tidspunkt,
                    gjennomforing.updated_at     as oppdatert_tidspunkt,
@@ -206,6 +207,7 @@ private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
         opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
         oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
         status = GjennomforingStatusType.valueOf(string("status")),
+        deltidsprosent = double("deltidsprosent"),
         arrangor = DatavarehusTiltak.Arrangor(
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
         ),

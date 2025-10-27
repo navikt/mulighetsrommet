@@ -46,3 +46,8 @@ spec:
     - team: pto
       application: veilarbportefolje
       access: read
+
+    # Tiltakspenger
+    - team: tpts
+      application: tiltakspenger-tiltak
+      access: read

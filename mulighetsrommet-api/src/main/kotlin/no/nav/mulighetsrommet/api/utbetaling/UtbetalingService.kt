@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -13,7 +16,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -23,7 +25,10 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.toAnnenAvtaltPris
-import no.nav.mulighetsrommet.api.utbetaling.api.*
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -39,13 +44,11 @@ import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.flatten
 
 class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
-    private val personaliaService: PersonaliaService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     data class Config(
@@ -622,26 +625,6 @@ class UtbetalingService(
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
-    }
-
-    suspend fun getUtbetalingBeregning(utbetaling: Utbetaling, filter: BeregningFilter): UtbetalingBeregningDto = db.session {
-        val deltakelser = utbetaling.beregning.output.deltakelser()
-        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.deltakelseId })
-
-        val regioner = NavEnhetHelpers.buildNavRegioner(
-            personalia
-                .map { (_, personalia) ->
-                    listOfNotNull(personalia.geografiskEnhet, personalia.region)
-                }
-                .flatten(),
-        )
-
-        val deltakelsePersoner = utbetaling.beregning.output.deltakelser().map {
-            it to personalia[it.deltakelseId]
-        }
-            .filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
-
-        return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
     }
 
     companion object {

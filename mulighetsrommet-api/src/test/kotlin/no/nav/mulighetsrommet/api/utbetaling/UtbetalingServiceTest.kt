@@ -65,7 +65,6 @@ class UtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
-        personaliaService: PersonaliaService = mockk(relaxed = true),
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "bestilling-topic",
@@ -73,7 +72,6 @@ class UtbetalingServiceTest : FunSpec({
         db = database.db,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
-        personaliaService = personaliaService,
     )
 
     context("opprett utbetaling - annen avtalt pris") {
@@ -371,7 +369,11 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
             service.besluttDelutbetaling(
                 id = delutbetaling.id,
-                BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, listOf(DelutbetalingReturnertAarsak.ANNET), "Maksbeløp er 5"),
+                BesluttTotrinnskontrollRequest(
+                    Besluttelse.AVVIST,
+                    listOf(DelutbetalingReturnertAarsak.ANNET),
+                    "Maksbeløp er 5",
+                ),
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
         }
@@ -410,7 +412,11 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 id = delutbetaling.id,
-                BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, listOf(DelutbetalingReturnertAarsak.ANNET), "Maksbeløp er 5"),
+                BesluttTotrinnskontrollRequest(
+                    Besluttelse.AVVIST,
+                    listOf(DelutbetalingReturnertAarsak.ANNET),
+                    "Maksbeløp er 5",
+                ),
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -613,7 +619,11 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling1.id,
-                BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, listOf(DelutbetalingReturnertAarsak.FEIL_BELOP), null),
+                BesluttTotrinnskontrollRequest(
+                    Besluttelse.AVVIST,
+                    listOf(DelutbetalingReturnertAarsak.FEIL_BELOP),
+                    null,
+                ),
                 domain.ansatte[1].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -674,7 +684,11 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling2.id,
-                BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, listOf(DelutbetalingReturnertAarsak.ANNET), "Maksbeløp er 5"),
+                BesluttTotrinnskontrollRequest(
+                    Besluttelse.AVVIST,
+                    listOf(DelutbetalingReturnertAarsak.ANNET),
+                    "Maksbeløp er 5",
+                ),
                 domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -805,7 +819,11 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling1.id,
-                BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, listOf(DelutbetalingReturnertAarsak.ANNET), "Maksbeløp er 5"),
+                BesluttTotrinnskontrollRequest(
+                    Besluttelse.AVVIST,
+                    listOf(DelutbetalingReturnertAarsak.ANNET),
+                    "Maksbeløp er 5",
+                ),
                 NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 
@@ -824,7 +842,11 @@ class UtbetalingServiceTest : FunSpec({
 
             service.besluttDelutbetaling(
                 delutbetaling1.id,
-                BesluttTotrinnskontrollRequest(Besluttelse.AVVIST, listOf(DelutbetalingReturnertAarsak.ANNET), "Maksbeløp er 5"),
+                BesluttTotrinnskontrollRequest(
+                    Besluttelse.AVVIST,
+                    listOf(DelutbetalingReturnertAarsak.ANNET),
+                    "Maksbeløp er 5",
+                ),
                 NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe DelutbetalingStatus.RETURNERT
 

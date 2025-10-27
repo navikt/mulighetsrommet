@@ -23,7 +23,7 @@ class PersonaliaService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonaliaMedGeografiskEnhet> {
+    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: Set<UUID>): Map<UUID, DeltakerPersonaliaMedGeografiskEnhet> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
                 val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
