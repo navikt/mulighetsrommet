@@ -259,7 +259,7 @@ object UtbetalingValidator {
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
-        validate(request.vedlegg.size < minAntallVedleggVedOpprettKrav(prismodellType)) {
+        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(prismodellType)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {

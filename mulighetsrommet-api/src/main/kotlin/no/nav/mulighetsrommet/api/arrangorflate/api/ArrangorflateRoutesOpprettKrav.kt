@@ -690,7 +690,7 @@ data class OpprettKravOppsummering(
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
-        fun from(requestData: OpprettKravOppsummeringRequest, gjennomforing: Gjennomforing, kontonummer: Kontonummer?) {
+        fun from(requestData: OpprettKravOppsummeringRequest, gjennomforing: Gjennomforing, kontonummer: Kontonummer?): OpprettKravOppsummering {
             val periodeStart = LocalDate.parse(requestData.periodeStart)
             val periodeSlutt = LocalDate.parse(requestData.periodeSlutt)
             val periode = if (requestData.periodeInklusiv == true) {
@@ -699,7 +699,7 @@ data class OpprettKravOppsummering(
                 Periode(periodeStart, periodeSlutt)
             }
 
-            OpprettKravOppsummering(
+            return OpprettKravOppsummering(
                 innsendingsInformasjon = listOf(
                     DetailsEntry(
                         key = "Arrangør",
@@ -732,6 +732,7 @@ data class OpprettKravOppsummering(
                     periode = periode,
                     belop = requestData.belop,
                     kidNummer = requestData.kidNummer,
+                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.avtalePrismodell),
                 ),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.OPPSUMMERING, gjennomforing),
             )
@@ -743,6 +744,7 @@ data class OpprettKravOppsummering(
         val periode: Periode,
         val belop: Int,
         val kidNummer: String?,
+        val minAntallVedlegg: Int,
     )
 }
 

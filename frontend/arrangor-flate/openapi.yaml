@@ -1421,9 +1421,13 @@ components:
           type:
           - "null"
           - string
+        minAntallVedlegg:
+          type: integer
+          format: int32
       required:
       - belop
       - kidNummer
+      - minAntallVedlegg
       - periode
     OpprettKravOppsummering:
       type: object

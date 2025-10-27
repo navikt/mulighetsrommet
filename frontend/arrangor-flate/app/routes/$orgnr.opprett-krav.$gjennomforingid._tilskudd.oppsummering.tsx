@@ -137,7 +137,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const kidNummer = formData.get("kidNummer");
   const tilsagnId = session.get("tilsagnId");
 
-  if (vedlegg.length < 1) {
+  const minAntallVedleggField = formData.get("minAntallVedlegg");
+  const minAntallVedlegg =
+    typeof minAntallVedleggField === "string" ? parseInt(minAntallVedleggField) : 1;
+  if (vedlegg.length < minAntallVedlegg) {
     errors.push({
       pointer: "/vedlegg",
       detail: "Du må legge ved vedlegg",
@@ -183,7 +186,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   }
 };
 
-export default function OppsummeringOpprettKrav() {
+export default function OpprettKrav() {
   const { orgnr, gjennomforingId, oppsummering } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const storage = useFileStorage();
@@ -240,6 +243,12 @@ export default function OppsummeringOpprettKrav() {
           <input
             name="kidNummer"
             defaultValue={oppsummering.innsendingsData.kidNummer ?? undefined}
+            readOnly
+            hidden
+          />
+          <input
+            name="minAntallVedlegg"
+            defaultValue={oppsummering.innsendingsData.minAntallVedlegg}
             readOnly
             hidden
           />
