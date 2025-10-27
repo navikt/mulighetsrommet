@@ -1438,9 +1438,12 @@ components:
             $ref: "#/components/schemas/DetailsEntry"
         innsendingsData:
           $ref: "#/components/schemas/OpprettKravOppsummering.InnsendingsData"
+        navigering:
+          $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
       - innsendingsData
       - innsendingsInformasjon
+      - navigering
       - utbetalingInformasjon
     OpprettKravUtbetalingRequest:
       type: object

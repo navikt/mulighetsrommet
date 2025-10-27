@@ -1,4 +1,4 @@
-import { ErrorSummary, GuidePanel, Heading, HStack, VStack } from "@navikt/ds-react";
+import { ErrorSummary, GuidePanel, Heading, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -22,7 +22,7 @@ import { useEffect, useRef } from "react";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathBySteg } from "~/utils/navigation";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import {
   OpprettKravVeiviserButtons,
@@ -204,23 +204,24 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
     case OpprettKravVedleggGuidePanelType.INVESTERING_VTA_AFT:
       return (
         <GuidePanel>
-          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt
-          forinvesteringer
+          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt for
+          investeringer
         </GuidePanel>
       );
     case OpprettKravVedleggGuidePanelType.TIMESPRIS:
       return (
         <GuidePanel>
-          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt
-          forinvesteringer
+          Fakturering skal skje i henhold til prisbilag i avtalen og eventuelle presiseringer. Dere
+          må sikre at opplysningene dere oppgir er korrekte. Det skal kun faktureres for faktisk
+          medgått tid, eventuelt rundet av til nærmeste hele kvarter. Nav vil kunne gjennomføre
+          kontroller og kreve innsyn for å verifisere at tjenesten og tilhørerende fakturering er i
+          henhold til avtalen. Fakturavedleggsskjema kan lastes ned her{" "}
+          <b>Oppfølging - fakturagrunnlag 2021 (excel)</b>
         </GuidePanel>
       );
     case OpprettKravVedleggGuidePanelType.AVTALT_PRIS:
       return (
-        <GuidePanel>
-          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt
-          forinvesteringer
-        </GuidePanel>
+        <GuidePanel>Her kan du laste opp vedlegg som er relevante for utbetalingen</GuidePanel>
       );
 
     case null:

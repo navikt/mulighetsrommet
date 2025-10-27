@@ -5,6 +5,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -207,8 +209,21 @@ object UtbetalingValidator {
         )
     }
 
+    fun minAntallVedleggVedOpprettKrav(prismodellType: PrismodellType?): Int = when (prismodellType) {
+        PrismodellType.ANNEN_AVTALT_PRIS -> 0
+        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+        null,
+        ->
+            1
+    }
+
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
+        prismodellType: PrismodellType?,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
@@ -244,7 +259,7 @@ object UtbetalingValidator {
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
-        validate(request.vedlegg.isNotEmpty()) {
+        validate(request.vedlegg.size < minAntallVedleggVedOpprettKrav(prismodellType)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
