@@ -217,6 +217,7 @@ export default function OpprettKravOppsummering() {
             },
             { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
             { key: "Tilsagn", value: tilsagn.bestillingsnummer },
+            { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
           ]}
         />
         <Separator />
