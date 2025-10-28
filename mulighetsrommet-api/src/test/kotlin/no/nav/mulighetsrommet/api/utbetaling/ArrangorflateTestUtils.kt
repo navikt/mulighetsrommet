@@ -244,38 +244,4 @@ object ArrangorflateTestUtils {
         auth = createAuthConfig(oauth, roles = setOf()),
         engine = engine,
     )
-
-    fun createPdlMockEngine() = createMockEngine {
-        post("/graphql") {
-            respondJson(
-                """
-                {
-                    "data": {
-                        "hentPersonBolk": [
-                            {
-                                "ident": "${identMedTilgang.value}",
-                                "person": {
-                                    "navn": [
-                                        {
-                                            "fornavn": "Test",
-                                            "mellomnavn": null,
-                                            "etternavn": "Testersen"
-                                        }
-                                    ],
-                                    "foedselsdato": [
-                                        {
-                                            "foedselsdato": "1990-01-01",
-                                            "foedselsaar": 1990
-                                        }
-                                    ],
-                                    "adressebeskyttelse": []
-                                }
-                            }
-                        ]
-                    }
-                }
-                """.trimIndent(),
-            )
-        }
-    }
 }
