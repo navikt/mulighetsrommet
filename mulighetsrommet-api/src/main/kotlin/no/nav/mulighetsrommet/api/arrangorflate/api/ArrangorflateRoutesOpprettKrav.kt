@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -63,6 +64,7 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.collections.Set
 import kotlin.getValue
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
@@ -266,15 +268,16 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor
 
             val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId }.toSet())
-
-            val table = createDeltakerTable(deltakere, deltakelsePerioder, personalia)
-            val tableFooter = listOf(
-                DetailsEntry.number("Antall deltakere", deltakelsePerioder.size),
-                DetailsEntry.nok("Pris", sats),
+            call.respond(
+                OpprettKravDeltakere.from(
+                    gjennomforing,
+                    sats,
+                    stengtHosArrangor,
+                    deltakere,
+                    deltakelsePerioder,
+                    personalia,
+                ),
             )
-            val navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing)
-
-            call.respond(OpprettKravDeltakere(stengtHosArrangor, table, tableFooter, navigering))
         }
 
         get("/vedlegg", {
@@ -373,7 +376,13 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
             arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
                 .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
-                .flatMap { UtbetalingValidator.validateOpprettKravArrangorflate(request, gjennomforing.avtalePrismodell, it) }
+                .flatMap {
+                    UtbetalingValidator.validateOpprettKravArrangorflate(
+                        request,
+                        gjennomforing.avtalePrismodell,
+                        it,
+                    )
+                }
                 .flatMap { utbetalingService.opprettUtbetaling(it, gjennomforing, Arrangor) }
                 .onLeft { errors ->
                     call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
@@ -638,11 +647,58 @@ data class OpprettKravVedlegg(
 
 @Serializable
 data class OpprettKravDeltakere(
+    val guidePanel: GuidePanelType,
     val stengtHosArrangor: Set<StengtPeriode>,
     val tabell: DataDrivenTableDto,
     val tabellFooter: List<DetailsEntry>,
     val navigering: OpprettKravVeiviserNavigering,
-)
+) {
+    companion object {
+        fun from(
+            gjennomforing: Gjennomforing,
+            sats: Int,
+            stengtHosArrangor: Set<StengtPeriode>,
+            deltakere: List<Deltaker>,
+            deltakelsePerioder: List<DeltakelsePeriode>,
+            personalia: Map<UUID, DeltakerPersonalia>,
+        ): OpprettKravDeltakere {
+            return OpprettKravDeltakere(
+                guidePanel = GuidePanelType.from(gjennomforing.avtalePrismodell),
+                stengtHosArrangor = stengtHosArrangor,
+                tabell = createDeltakerTable(deltakere, deltakelsePerioder, personalia),
+                tabellFooter = tableFooter(gjennomforing.avtalePrismodell, sats, deltakelsePerioder.size),
+                navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing),
+            )
+        }
+
+        fun tableFooter(prismodellType: PrismodellType?, sats: Int, antallDeltakere: Int): List<DetailsEntry> {
+            return listOf(
+                DetailsEntry.number("Antall deltakere", antallDeltakere),
+                DetailsEntry.nok(prismodellType?.navn ?: "Pris", sats),
+            )
+        }
+    }
+
+    @Serializable
+    enum class GuidePanelType {
+        GENERELL,
+        TIMESPRIS,
+        ;
+
+        companion object {
+            fun from(prismodellType: PrismodellType?): GuidePanelType = when (prismodellType) {
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> TIMESPRIS
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                null,
+                -> GENERELL
+            }
+        }
+    }
+}
 
 fun createDeltakerTable(
     deltakere: List<Deltaker>,
@@ -690,7 +746,11 @@ data class OpprettKravOppsummering(
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
-        fun from(requestData: OpprettKravOppsummeringRequest, gjennomforing: Gjennomforing, kontonummer: Kontonummer?): OpprettKravOppsummering {
+        fun from(
+            requestData: OpprettKravOppsummeringRequest,
+            gjennomforing: Gjennomforing,
+            kontonummer: Kontonummer?,
+        ): OpprettKravOppsummering {
             val periodeStart = LocalDate.parse(requestData.periodeStart)
             val periodeSlutt = LocalDate.parse(requestData.periodeSlutt)
             val periode = if (requestData.periodeInklusiv == true) {
