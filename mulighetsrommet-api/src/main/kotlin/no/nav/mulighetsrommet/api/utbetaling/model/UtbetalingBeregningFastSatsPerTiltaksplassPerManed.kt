@@ -39,7 +39,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk, input.satser)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk)
 
             return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop, manedsverk))
         }

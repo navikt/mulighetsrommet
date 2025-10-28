@@ -49,4 +49,28 @@ class UtbetalingBeregningHelpersTest : FunSpec({
             ),
         )
     }
+
+    test("skal beregne riktig beløp for deltakelser med flere perioder og satser") {
+        val deltakelseId = UUID.randomUUID()
+        val perioder = setOf(
+            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                periode = Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 10)),
+                faktor = 1.0,
+                sats = 100,
+            ),
+            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                periode = Periode(LocalDate.of(2026, 1, 11), LocalDate.of(2026, 1, 20)),
+                faktor = 0.5,
+                sats = 200,
+            ),
+        )
+        val deltakelser = setOf(
+            UtbetalingBeregningOutputDeltakelse(deltakelseId, perioder),
+        )
+
+        val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakelser)
+
+        // Forventet: 1.0 * 100 + 0.5 * 200 = 200
+        belop shouldBe 200
+    }
 })

@@ -40,7 +40,7 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk, input.satser)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk)
 
             return UtbetalingBeregningPrisPerHeleUkesverk(input, Output(belop, ukesverk))
         }

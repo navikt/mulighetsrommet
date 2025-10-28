@@ -198,16 +198,12 @@ object UtbetalingBeregningHelpers {
 
     fun calculateBelopForDeltakelser(
         deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
-        satser: Set<SatsPeriode>,
     ): Int {
-        // TODO: ta høyde for flere satser
-        val sats = satser.first().sats
         return deltakelser
-            .flatMap { deltakelse -> deltakelse.perioder.map { it.faktor } }
-            .fold(BigDecimal.ZERO) { sum, faktor ->
-                sum.add(BigDecimal(faktor))
+            .flatMap { deltakelse ->
+                deltakelse.perioder.map { BigDecimal(it.faktor).multiply(BigDecimal(it.sats)) }
             }
-            .multiply(BigDecimal(sats))
+            .sumOf { it }
             .setScale(0, RoundingMode.HALF_UP)
             .toInt()
     }
