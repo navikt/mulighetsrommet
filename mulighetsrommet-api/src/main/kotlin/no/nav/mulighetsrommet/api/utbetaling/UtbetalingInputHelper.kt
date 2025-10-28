@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
-import java.util.UUID
 
 object UtbetalingInputHelper {
     fun QueryContext.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(
@@ -40,14 +39,6 @@ object UtbetalingInputHelper {
         val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
         return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
             ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
-    }
-
-    private fun QueryContext.resolveDeltakelsePerioder(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): Set<DeltakelsePeriode> {
-        val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        return resolveDeltakelsePerioder(deltakere, periode)
     }
 
     private fun resolveDeltakelsePerioder(
