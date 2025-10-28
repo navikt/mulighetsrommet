@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.plugins.IdPortenAmr
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -250,10 +249,10 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
         }
         val requestWithPidAmrWithoutRettighet = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931", "amr" to IdPortenAmr.BankID.toString())).serialize())
+            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
         }
         val requestWithPidAmrWithRettighet = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to personMedRettighet, "amr" to IdPortenAmr.BankID.toString())).serialize())
+            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to personMedRettighet)).serialize())
         }
 
         val config = createTestApplicationConfig().copy(

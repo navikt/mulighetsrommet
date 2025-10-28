@@ -4,7 +4,6 @@ import {
   CheckboxGroup,
   ErrorSummary,
   FileObject,
-  FileUpload,
   Heading,
   HStack,
   VStack,
@@ -42,6 +41,7 @@ import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/d
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { useFileStorage } from "~/hooks/useFileStorage";
+import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 
 export const meta: MetaFunction = () => {
   return [
@@ -257,28 +257,7 @@ export default function OpprettKravOppsummering() {
         <Separator />
         <Form method="post" encType="multipart/form-data">
           <VStack gap="6">
-            <VStack gap="4">
-              <Heading level="3" size="medium">
-                Vedlegg
-              </Heading>
-              <VStack gap="2">
-                <Heading level="4" size="xsmall">
-                  {`Vedlegg (${files.length})`}
-                </Heading>
-                <VStack as="ul" gap="3">
-                  {files.map((file, index) => (
-                    <FileUpload.Item as="li" key={index} file={file.file} />
-                  ))}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    name="vedlegg"
-                    multiple
-                    style={{ display: "none" }}
-                  />
-                </VStack>
-              </VStack>
-            </VStack>
+            <VedleggUtlisting files={files} fileInputRef={fileInputRef} />
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
               <Checkbox

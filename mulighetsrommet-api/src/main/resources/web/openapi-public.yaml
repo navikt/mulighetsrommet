@@ -206,10 +206,14 @@ components:
         antallPlasser:
           type: integer
           format: int32
+        deltidsprosent:
+          type: number
+          format: double
       required:
       - antallPlasser
       - apentForPamelding
       - arrangor
+      - deltidsprosent
       - id
       - navn
       - oppdatertTidspunkt
@@ -292,6 +296,9 @@ components:
         antallPlasser:
           type: integer
           format: int32
+        deltidsprosent:
+          type: number
+          format: double
         opprettetTidspunkt:
           type: string
           format: date-time
@@ -301,6 +308,7 @@ components:
       required:
       - antallPlasser
       - apentForPamelding
+      - deltidsprosent
       - id
       - navn
       - oppdatertTidspunkt

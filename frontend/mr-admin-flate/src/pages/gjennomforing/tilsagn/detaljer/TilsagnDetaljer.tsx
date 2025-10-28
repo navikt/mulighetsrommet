@@ -505,7 +505,7 @@ export function TilsagnDetaljer() {
           headingIconType="warning"
           headingText="Slette tilsagnet?"
           open={slettTilsagnModalOpen}
-          handleClose={() => setTilOppgjorModalOpen(false)}
+          handleClose={() => setSlettTilsagnModalOpen(false)}
           body={
             <p>
               Er du sikker på at du vil slette tilsagnet?
@@ -518,7 +518,7 @@ export function TilsagnDetaljer() {
             </Button>
           }
           secondaryButton
-          secondaryButtonHandleAction={() => setTilOppgjorModalOpen(false)}
+          secondaryButtonHandleAction={() => setSlettTilsagnModalOpen(false)}
         />
       </VStack>
     </>

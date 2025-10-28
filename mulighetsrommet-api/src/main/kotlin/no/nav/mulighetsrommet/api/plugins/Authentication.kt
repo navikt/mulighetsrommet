@@ -164,16 +164,12 @@ fun Application.configureAuthentication(
                     application.log.warn("'pid' claim is missing from token")
                     return@validate null
                 }
-                val amr = credentials["amr"]?.let { IdPortenAmr.fromString(it) } ?: run {
-                    application.log.info("'amr' claim is missing from token")
-                    null
-                }
 
                 val norskIdent = runCatching { NorskIdent(pid) }
                     .onFailure { application.log.warn("Failed to parse 'pid' claim as NorskIdent") }
                     .getOrElse { return@validate null }
 
-                val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent, authenticationMethod = amr)
+                val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent)
                     .filter { AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING in it.rettigheter }
                     .map { it.organisasjonsnummer }
 

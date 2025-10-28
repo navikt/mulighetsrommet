@@ -46,6 +46,7 @@ sealed class DatavarehusTiltak {
         val oppdatertTidspunkt: LocalDateTime,
         val status: GjennomforingStatusType,
         val arena: ArenaData?,
+        val deltidsprosent: Double,
     )
 
     @Serializable

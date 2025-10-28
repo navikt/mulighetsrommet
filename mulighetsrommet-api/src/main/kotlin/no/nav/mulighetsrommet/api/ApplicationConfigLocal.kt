@@ -9,6 +9,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
@@ -34,6 +35,7 @@ import no.nav.mulighetsrommet.utils.toUUID
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
+import java.util.UUID
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
@@ -173,6 +175,33 @@ val ApplicationConfigLocal = AppConfig(
     amtDeltakerConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/amt-deltaker",
         scope = "default",
+        engine = MockEngine { request ->
+            if (request.url.toString().endsWith("/external/deltakere/personalia")) {
+                val jsonString = (request.body as TextContent).text
+                val deltakerIds = JsonIgnoreUnknownKeys.decodeFromString<List<String>>(jsonString)
+                val content = deltakerIds.joinToString(prefix = "[", postfix = "]", separator = ",\n") { id ->
+                    """
+                          {
+                            "deltakerId": "$id",
+                            "personident": "27017809100",
+                            "fornavn": "Ola",
+                            "mellomnavn": null,
+                            "etternavn": "Nordmann",
+                            "navEnhetsnummer": "1206",
+                            "erSkjermet": false,
+                            "adressebeskyttelse": "UGRADERT"
+                          }
+                    """.trimIndent()
+                }
+                respond(
+                    content = ByteReadChannel(content),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            } else {
+                respondError(HttpStatusCode.NotFound)
+            }
+        },
     ),
     pdl = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/pdl",
@@ -332,6 +361,11 @@ val ApplicationConfigLocal = AppConfig(
         gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
+        opprettKravPeriode = mapOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
+        ),
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

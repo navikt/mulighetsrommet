@@ -115,6 +115,24 @@ sealed class ArrangorflateBeregning {
     }
 
     @Serializable
+    @SerialName("ArrangorflateBeregningPrisPerTimeOppfolging")
+    data class PrisPerTimeOppfolging(
+        override val belop: Int,
+        override val digest: String,
+        val deltakelser: List<ArrangorflateBeregningDeltakelse>,
+        val stengt: List<StengtPeriode>,
+        val sats: Int,
+    ) : ArrangorflateBeregning() {
+        override val displayName: String = "Avtalt pris per time oppfølging per tiltaksplass"
+        override val detaljer: Details = Details(
+            entries = listOf(
+                DetailsEntry.nok("Pris", sats),
+                DetailsEntry.nok("Beløp", belop),
+            ),
+        )
+    }
+
+    @Serializable
     @SerialName("ArrangorflateBeregningFri")
     data class Fri(
         override val belop: Int,
@@ -135,7 +153,6 @@ sealed class ArrangorflateBeregningDeltakelse {
     abstract val deltakerStartDato: LocalDate?
     abstract val periode: Periode
     abstract val personalia: ArrangorflatePersonalia?
-    abstract val faktor: Double
     abstract val status: DeltakerStatusType?
 
     @Serializable
@@ -145,7 +162,7 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)
         override val deltakerStartDato: LocalDate?,
-        override val faktor: Double,
+        val faktor: Double,
         val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
         override val periode: Periode,
         override val personalia: ArrangorflatePersonalia?,
@@ -159,7 +176,7 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)
         override val deltakerStartDato: LocalDate?,
-        override val faktor: Double,
+        val faktor: Double,
         override val periode: Periode,
         override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,
@@ -172,7 +189,19 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)
         override val deltakerStartDato: LocalDate?,
-        override val faktor: Double,
+        val faktor: Double,
+        override val periode: Periode,
+        override val personalia: ArrangorflatePersonalia?,
+        override val status: DeltakerStatusType?,
+    ) : ArrangorflateBeregningDeltakelse()
+
+    @Serializable
+    @SerialName("ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging")
+    data class PrisPerTimeOppfolging(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = LocalDateSerializer::class)
+        override val deltakerStartDato: LocalDate?,
         override val periode: Periode,
         override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,

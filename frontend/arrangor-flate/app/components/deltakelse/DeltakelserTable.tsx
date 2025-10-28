@@ -123,7 +123,11 @@ export function DeltakelserTable({
 }) {
   const { sort, handleSort } = useSortState<DeltakerSortKey>();
 
-  if (!beregning.type || !("deltakelser" in beregning)) {
+  if (
+    !beregning.type ||
+    !("deltakelser" in beregning) ||
+    beregning.type === "ArrangorflateBeregningPrisPerTimeOppfolging"
+  ) {
     return null;
   }
 

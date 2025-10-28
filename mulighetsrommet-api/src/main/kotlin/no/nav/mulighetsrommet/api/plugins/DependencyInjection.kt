@@ -306,7 +306,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.amtDeltakerConfig.engine ?: appConfig.engine,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
         )
     }
@@ -395,7 +395,6 @@ private fun services(appConfig: AppConfig) = module {
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
             ),
-            get(),
             get(),
             get(),
             get(),

@@ -18,14 +18,13 @@ export default defineConfig(
     plugins: {
       react,
       "react-refresh": reactRefresh,
-      'react-hooks': reactHooks,
+      "react-hooks": reactHooks.configs.recommended,
     },
     settings: {
       react: {
         version: "detect",
       },
     },
-    extends: ['react-hooks/recommended'],
     rules: {
       "react/react-in-jsx-scope": "off",
 
@@ -42,7 +41,7 @@ export default defineConfig(
   },
   {
     rules: {
-      "eqeqeq": "error",
+      eqeqeq: "error",
       "no-console": "error",
 
       "@typescript-eslint/no-explicit-any": ["off"],
@@ -65,5 +64,4 @@ export default defineConfig(
       "@typescript-eslint/no-unnecessary-condition": "error",
     },
   },
-
 );

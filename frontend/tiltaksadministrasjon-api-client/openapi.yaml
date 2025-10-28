@@ -224,6 +224,10 @@ paths:
         "200":
           description: Avtalen ble upsertet
           headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -883,6 +887,10 @@ paths:
         "200":
           description: Gjennomføring ble upsertet
           headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GjennomforingDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -3668,70 +3676,6 @@ components:
       - tiltakskode
       - utdanningslop
       - veilederinformasjon
-    FieldError:
-      type: object
-      properties:
-        pointer:
-          type: string
-        detail:
-          type: string
-      required:
-      - detail
-      - pointer
-    JsonElement:
-      type: object
-      properties: {}
-    ValidationError:
-      type: object
-      properties:
-        detail:
-          type: string
-        errors:
-          type: array
-          items:
-            $ref: "#/components/schemas/FieldError"
-        type:
-          type: string
-        title:
-          type: string
-        status:
-          type: integer
-          format: int32
-        extensions:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/JsonElement"
-        instance:
-          type:
-          - "null"
-          - string
-      required:
-      - detail
-      - errors
-      - extensions
-      - instance
-      - status
-      - title
-      - type
-    OpprettOpsjonLoggRequest.Type:
-      type: string
-      enum:
-      - CUSTOM_LENGDE
-      - ETT_AAR
-      - SKAL_IKKE_UTLOSE_OPSJON
-    OpprettOpsjonLoggRequest:
-      type: object
-      properties:
-        nySluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        type:
-          $ref: "#/components/schemas/OpprettOpsjonLoggRequest.Type"
-      required:
-      - nySluttDato
-      - type
     Avtale.Tiltakstype:
       type: object
       properties:
@@ -4160,6 +4104,70 @@ components:
       - status
       - tiltakstype
       - utdanningslop
+    FieldError:
+      type: object
+      properties:
+        pointer:
+          type: string
+        detail:
+          type: string
+      required:
+      - detail
+      - pointer
+    JsonElement:
+      type: object
+      properties: {}
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/FieldError"
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        extensions:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/JsonElement"
+        instance:
+          type:
+          - "null"
+          - string
+      required:
+      - detail
+      - errors
+      - extensions
+      - instance
+      - status
+      - title
+      - type
+    OpprettOpsjonLoggRequest.Type:
+      type: string
+      enum:
+      - CUSTOM_LENGDE
+      - ETT_AAR
+      - SKAL_IKKE_UTLOSE_OPSJON
+    OpprettOpsjonLoggRequest:
+      type: object
+      properties:
+        nySluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        type:
+          $ref: "#/components/schemas/OpprettOpsjonLoggRequest.Type"
+      required:
+      - nySluttDato
+      - type
     AvbrytAvtaleAarsak:
       type: string
       enum:
@@ -4386,74 +4394,6 @@ components:
       - tiltakstypeId
       - utdanningslop
       - veilederinformasjon
-    AvbrytGjennomforingAarsak:
-      type: string
-      enum:
-      - ENDRING_HOS_ARRANGOR
-      - BUDSJETT_HENSYN
-      - FOR_FAA_DELTAKERE
-      - FEILREGISTRERING
-      - AVBRUTT_I_ARENA
-      - ANNET
-    AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
-      type: object
-      properties:
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - forklaring
-    PublisertRequest:
-      type: object
-      properties:
-        publisert:
-          type: boolean
-      required:
-      - publisert
-    SetApentForPameldingRequest:
-      type: object
-      properties:
-        apentForPamelding:
-          type: boolean
-      required:
-      - apentForPamelding
-    SetTilgjengligForArrangorRequest:
-      type: object
-      properties:
-        tilgjengeligForArrangorDato:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - tilgjengeligForArrangorDato
-    SetStengtHosArrangorRequest:
-      type: object
-      properties:
-        periodeStart:
-          type:
-          - "null"
-          - string
-          format: date
-        periodeSlutt:
-          type:
-          - "null"
-          - string
-          format: date
-        beskrivelse:
-          type:
-          - "null"
-          - string
-      required:
-      - beskrivelse
-      - periodeSlutt
-      - periodeStart
     Gjennomforing.Tiltakstype:
       type: object
       properties:
@@ -4719,6 +4659,74 @@ components:
       - tiltaksnummer
       - tiltakstype
       - utdanningslop
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+      - ENDRING_HOS_ARRANGOR
+      - BUDSJETT_HENSYN
+      - FOR_FAA_DELTAKERE
+      - FEILREGISTRERING
+      - AVBRUTT_I_ARENA
+      - ANNET
+    AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+    PublisertRequest:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+      required:
+      - publisert
+    SetApentForPameldingRequest:
+      type: object
+      properties:
+        apentForPamelding:
+          type: boolean
+      required:
+      - apentForPamelding
+    SetTilgjengligForArrangorRequest:
+      type: object
+      properties:
+        tilgjengeligForArrangorDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - tilgjengeligForArrangorDato
+    SetStengtHosArrangorRequest:
+      type: object
+      properties:
+        periodeStart:
+          type:
+          - "null"
+          - string
+          format: date
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+          format: date
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - periodeSlutt
+      - periodeStart
     PaginatedResponse_GjennomforingDto:
       type: object
       properties:
@@ -5636,7 +5644,9 @@ components:
           items:
             $ref: "#/components/schemas/NavRegionDto"
         deltakerTableData:
-          $ref: "#/components/schemas/DataDrivenTableDto"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
         regnestykke:
           type: array
           items:

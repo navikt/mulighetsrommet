@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -41,9 +42,6 @@ val ApplicationConfigProd = AppConfig(
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
         clients = KafkaClients(::aivenDefaultConsumerProperties),
-        topics = KafkaTopics().copy(
-            sisteTiltaksgjennomforingerV2Topic = null,
-        ),
     ),
     auth = AuthConfig(
         azure = AuthProvider(
@@ -392,6 +390,7 @@ val ApplicationConfigProd = AppConfig(
             // DOFA Digitalt oppfølgingstiltak
             Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
         ),
+        opprettKravPeriode = emptyMap(),
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

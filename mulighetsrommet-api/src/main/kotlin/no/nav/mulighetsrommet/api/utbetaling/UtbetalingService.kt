@@ -1,16 +1,21 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -18,7 +23,12 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.api.*
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.toAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -27,19 +37,18 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.flatten
 
 class UtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
-    private val personaliaService: PersonaliaService,
     private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     data class Config(
@@ -70,45 +79,155 @@ class UtbetalingService(
     }
 
     fun opprettUtbetaling(
-        request: UtbetalingValidator.OpprettUtbetaling,
+        utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
+        gjennomforing: Gjennomforing,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> {
+        val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
+        return when (gjennomforing.avtalePrismodell) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                opprettAnnenAvtaltPrisUtbetaling(
+                    utbetalingKrav.toAnnenAvtaltPris(
+                        gjennomforingId = gjennomforing.id,
+                        tilskuddstype = Tilskuddstype.TILTAK_INVESTERINGER,
+
+                    ),
+                    agent,
+                    periode,
+                )
+
+            PrismodellType.ANNEN_AVTALT_PRIS ->
+                opprettAnnenAvtaltPrisUtbetaling(
+                    utbetalingKrav.toAnnenAvtaltPris(
+                        gjennomforingId = gjennomforing.id,
+                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                    ),
+                    agent,
+                    periode,
+                )
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                opprettAvtaltPrisPerTimeOppfolging(utbetalingKrav, gjennomforing, agent)
+
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            -> Either.Left(
+                listOf(
+                    FieldError.of(
+                        "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
+                        OpprettKravUtbetalingRequest::tilsagnId,
+                    ),
+                ),
+            )
+
+            null -> Either.Left(
+                listOf(
+                    FieldError.of(
+                        "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
+                        OpprettKravUtbetalingRequest::tilsagnId,
+                    ),
+                ),
+            )
+        }
+    }
+
+    fun opprettAvtaltPrisPerTimeOppfolging(
+        utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
+        gjennomforing: Gjennomforing,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        if (queries.utbetaling.get(request.id) != null) {
+        val periode = Periode(
+            utbetalingKrav.periodeStart,
+            utbetalingKrav.periodeSlutt,
+        )
+        val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
+        val dbo = UtbetalingDbo(
+            id = UUID.randomUUID(),
+            gjennomforingId = gjennomforing.id,
+            kontonummer = utbetalingKrav.kontonummer,
+            kid = utbetalingKrav.kidNummer,
+            beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
+                input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                    periode = periode,
+                    belop = utbetalingKrav.belop,
+                    sats = utbetalingInfo.sats,
+                    stengt = utbetalingInfo.stengtHosArrangor,
+                    deltakelser = utbetalingInfo.deltakelsePerioder,
+                ),
+            ),
+            periode = periode,
+            innsender = agent,
+            beskrivelse = "",
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
+                LocalDateTime.now()
+            } else {
+                null
+            },
+            status = UtbetalingStatusType.INNSENDT,
+        )
+        return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
+    }
+
+    fun opprettAnnenAvtaltPrisUtbetaling(
+        request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> = opprettAnnenAvtaltPrisUtbetaling(
+        request,
+        agent,
+        Periode.fromInclusiveDates(
+            request.periodeStart,
+            request.periodeSlutt,
+        ),
+    )
+
+    fun opprettAnnenAvtaltPrisUtbetaling(
+        request: UtbetalingValidator.OpprettAnnenAvtaltPrisUtbetaling,
+        agent: Agent,
+        periode: Periode,
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        val dbo = UtbetalingDbo(
+            id = request.id,
+            gjennomforingId = request.gjennomforingId,
+            kontonummer = request.kontonummer,
+            kid = request.kidNummer,
+            beregning = UtbetalingBeregningFri.beregn(
+                input = UtbetalingBeregningFri.Input(request.belop),
+            ),
+            periode = periode,
+            innsender = agent,
+            beskrivelse = request.beskrivelse,
+            tilskuddstype = request.tilskuddstype,
+            godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
+                LocalDateTime.now()
+            } else {
+                null
+            },
+            status = UtbetalingStatusType.INNSENDT,
+        )
+
+        return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
+    }
+
+    private fun TransactionalQueryContext.opprettUtbetalingTransaction(
+        utbetaling: UtbetalingDbo,
+        vedlegg: List<Vedlegg>,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> {
+        if (queries.utbetaling.get(utbetaling.id) != null) {
             return listOf(FieldError.of("Utbetalingen er allerede opprettet")).left()
         }
 
-        queries.utbetaling.upsert(
-            UtbetalingDbo(
-                id = request.id,
-                gjennomforingId = request.gjennomforingId,
-                kontonummer = request.kontonummer,
-                kid = request.kidNummer,
-                beregning = UtbetalingBeregningFri.beregn(
-                    input = UtbetalingBeregningFri.Input(request.belop),
-                ),
-                periode = Periode.fromInclusiveDates(
-                    request.periodeStart,
-                    request.periodeSlutt,
-                ),
-                innsender = agent,
-                beskrivelse = request.beskrivelse,
-                tilskuddstype = request.tilskuddstype,
-                godkjentAvArrangorTidspunkt = if (agent is Arrangor) {
-                    LocalDateTime.now()
-                } else {
-                    null
-                },
-                status = UtbetalingStatusType.INNSENDT,
-            ),
-        )
+        queries.utbetaling.upsert(utbetaling)
 
-        val dto = logEndring("Utbetaling sendt inn", getOrError(request.id), agent)
+        val dto = logEndring("Utbetaling sendt inn", getOrError(utbetaling.id), agent)
 
         if (agent is Arrangor) {
-            scheduleJournalforUtbetaling(dto.id, request.vedlegg)
+            scheduleJournalforUtbetaling(dto.id, vedlegg)
         }
 
-        dto.right()
+        return dto.right()
     }
 
     fun opprettDelutbetalinger(
@@ -140,7 +259,14 @@ class UtbetalingService(
                     }
 
                 delutbetalinger.forEach {
-                    upsertDelutbetaling(utbetaling, it.tilsagn, it.id, requireNotNull(it.belop), it.gjorOppTilsagn, navIdent)
+                    upsertDelutbetaling(
+                        utbetaling,
+                        it.tilsagn,
+                        it.id,
+                        requireNotNull(it.belop),
+                        it.gjorOppTilsagn,
+                        navIdent,
+                    )
                 }
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
                 queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
@@ -197,6 +323,7 @@ class UtbetalingService(
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerUkesverk,
             is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
             -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
@@ -481,7 +608,10 @@ class UtbetalingService(
         storeOkonomiMelding(faktura.bestillingsnummer, message)
     }
 
-    private fun TransactionalQueryContext.storeOkonomiMelding(bestillingsnummer: String, message: OkonomiBestillingMelding) {
+    private fun TransactionalQueryContext.storeOkonomiMelding(
+        bestillingsnummer: String,
+        message: OkonomiBestillingMelding,
+    ) {
         log.info("Lagrer faktura for delutbeatling med bestillingsnummer=$bestillingsnummer for publisering på kafka")
 
         val record = StoredProducerRecord(
@@ -497,25 +627,6 @@ class UtbetalingService(
         return queries.utbetaling.getOrError(id)
     }
 
-    suspend fun getUtbetalingBeregning(utbetaling: Utbetaling, filter: BeregningFilter): UtbetalingBeregningDto = db.session {
-        val deltakelser = utbetaling.beregning.output.deltakelser()
-        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.map { it.deltakelseId })
-
-        val regioner = NavEnhetHelpers.buildNavRegioner(
-            personalia
-                .map { (_, personalia) ->
-                    listOfNotNull(personalia.geografiskEnhet, personalia.region)
-                }
-                .flatten(),
-        )
-
-        val deltakelsePersoner = utbetaling.beregning.output.deltakelser().map {
-            it to personalia[it.deltakelseId]
-        }.filter { (_, person) -> filter.navEnheter.isEmpty() || person?.geografiskEnhet?.enhetsnummer in filter.navEnheter }
-
-        return UtbetalingBeregningDto.from(utbetaling, deltakelsePersoner, regioner)
-    }
-
     companion object {
         fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
@@ -523,6 +634,7 @@ class UtbetalingService(
                     UtbetalingStatusType.INNSENDT,
                     UtbetalingStatusType.RETURNERT,
                     -> true
+
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
@@ -535,7 +647,12 @@ class UtbetalingService(
             }
             .toSet()
 
-        fun linjeHandlinger(delutbetaling: Delutbetaling, opprettelse: Totrinnskontroll, kostnadssted: NavEnhetNummer, ansatt: NavAnsatt): Set<UtbetalingLinjeHandling> {
+        fun linjeHandlinger(
+            delutbetaling: Delutbetaling,
+            opprettelse: Totrinnskontroll,
+            kostnadssted: NavEnhetNummer,
+            ansatt: NavAnsatt,
+        ): Set<UtbetalingLinjeHandling> {
             return setOfNotNull(
                 UtbetalingLinjeHandling.ATTESTER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
                 UtbetalingLinjeHandling.RETURNER.takeIf { delutbetaling.status == DelutbetalingStatus.TIL_ATTESTERING },
@@ -572,6 +689,7 @@ class UtbetalingService(
             return when (handling) {
                 UtbetalingLinjeHandling.ATTESTER ->
                     erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+
                 UtbetalingLinjeHandling.RETURNER -> erBeslutter
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
             }

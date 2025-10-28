@@ -37,11 +37,15 @@ class GenererUtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
     fun createUtbetalingService(
         config: OkonomiConfig = OkonomiConfig(
             gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
-                Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
+                gyldigTilsagnPeriode
             },
+            opprettKravPeriode = mapOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to gyldigTilsagnPeriode.copy(start = gyldigTilsagnPeriode.start.plusMonths(1)),
+            ),
         ),
     ) = GenererUtbetalingService(
         config = config,
@@ -185,8 +189,11 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(
                 config = OkonomiConfig(
-                    mapOf(
+                    gyldigTilsagnPeriode = mapOf(
                         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar,
+                    ),
+                    opprettKravPeriode = mapOf(
+                        PrismodellType.ANNEN_AVTALT_PRIS to mars,
                     ),
                 ),
             )

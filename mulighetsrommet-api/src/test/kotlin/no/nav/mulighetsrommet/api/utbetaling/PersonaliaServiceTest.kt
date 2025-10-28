@@ -42,13 +42,14 @@ class PersonaliaServiceTest : FunSpec({
                 amtDeltakerClient,
                 navEnhetService,
             )
-            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns listOf(
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(erSkjermet = true),
             ).right()
-            coEvery { hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any()) } returns
-                emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonaliaMedGeografiskEnhet(emptyList())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
+            service.getPersonaliaMedGeografiskEnhet(setOf())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
                 deltakerId = deltakelseId,
                 norskIdent = null,
                 navn = "Skjermet",
@@ -65,13 +66,14 @@ class PersonaliaServiceTest : FunSpec({
                 amtDeltakerClient,
                 navEnhetService,
             )
-            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns listOf(
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND),
             ).right()
-            coEvery { hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any()) } returns
-                emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonaliaMedGeografiskEnhet(emptyList())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
+            service.getPersonaliaMedGeografiskEnhet(setOf())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
                 deltakerId = deltakelseId,
                 norskIdent = null,
                 navn = "Adressebeskyttet",
@@ -88,16 +90,17 @@ class PersonaliaServiceTest : FunSpec({
                 amtDeltakerClient,
                 navEnhetService,
             )
-            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns listOf(
+            coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf(
                 personalia.copy(
                     erSkjermet = true,
                     adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
                 ),
             ).right()
-            coEvery { hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any()) } returns
-                emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+            coEvery {
+                hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
+            } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
 
-            service.getPersonaliaMedGeografiskEnhet(emptyList())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
+            service.getPersonaliaMedGeografiskEnhet(setOf())[deltakelseId] shouldBe DeltakerPersonaliaMedGeografiskEnhet(
                 deltakerId = deltakelseId,
                 norskIdent = null,
                 navn = "Adressebeskyttet",

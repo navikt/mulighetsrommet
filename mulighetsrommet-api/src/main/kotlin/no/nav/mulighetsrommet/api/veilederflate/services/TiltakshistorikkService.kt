@@ -85,13 +85,13 @@ class TiltakshistorikkService(
         })
     }
 
-    private suspend fun toDeltakelse(it: Tiltakshistorikk) = when (it) {
+    private suspend fun toDeltakelse(it: Tiltakshistorikk): Deltakelse = when (it) {
         is Tiltakshistorikk.ArenaDeltakelse -> toDeltakelse(it)
         is Tiltakshistorikk.GruppetiltakDeltakelse -> toDeltakelse(it)
         is Tiltakshistorikk.ArbeidsgiverAvtale -> toDeltakelse(it)
     }
 
-    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArenaDeltakelse) = coroutineScope {
+    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArenaDeltakelse): DeltakelseArena = coroutineScope {
         val tiltakstype = async { tiltakstypeService.getByArenaTiltakskode(deltakelse.arenaTiltakskode) }
         val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
 
@@ -113,7 +113,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.GruppetiltakDeltakelse) = coroutineScope {
+    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.GruppetiltakDeltakelse): DeltakelseGruppetiltak = coroutineScope {
         val tiltakstype = async { tiltakstypeService.getByTiltakskode(deltakelse.gjennomforing.tiltakskode) }
         val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
 

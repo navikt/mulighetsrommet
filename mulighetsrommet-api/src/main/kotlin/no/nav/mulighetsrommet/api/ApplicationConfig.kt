@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -60,6 +61,7 @@ data class AppConfig(
 
 data class OkonomiConfig(
     val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+    val opprettKravPeriode: Map<PrismodellType, Periode>,
 )
 
 data class AuthConfig(
@@ -86,7 +88,7 @@ data class KafkaConfig(
 data class KafkaTopics(
     val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
     val sisteTiltaksgjennomforingerV1Topic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-    val sisteTiltaksgjennomforingerV2Topic: String? = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
+    val sisteTiltaksgjennomforingerV2Topic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
     val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
     val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
     val datavarehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",

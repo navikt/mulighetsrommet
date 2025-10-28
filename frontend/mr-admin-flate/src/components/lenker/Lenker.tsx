@@ -4,8 +4,10 @@ import z from "zod";
 import { FaneinnholdLenkerSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 
 type Lenke = {
-  faneinnhold: {
-    lenker: z.infer<typeof FaneinnholdLenkerSchema>;
+  veilederinformasjon: {
+    faneinnhold: {
+      lenker: z.infer<typeof FaneinnholdLenkerSchema>;
+    };
   };
 };
 
@@ -32,7 +34,7 @@ function LenkerSkjema() {
   } = useFormContext<Lenke>();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "faneinnhold.lenker",
+    name: "veilederinformasjon.faneinnhold.lenker",
   });
 
   return (
@@ -54,20 +56,24 @@ function LenkerSkjema() {
               <TextField
                 size="small"
                 label="Lenkenavn"
-                {...register(`faneinnhold.lenker.${index}.lenkenavn`)}
-                error={errors.faneinnhold?.lenker?.[index]?.lenkenavn?.message}
+                {...register(`veilederinformasjon.faneinnhold.lenker.${index}.lenkenavn`)}
+                error={errors.veilederinformasjon?.faneinnhold?.lenker?.[index]?.lenkenavn?.message}
               />
               <TextField
                 size="small"
                 label="Lenke"
-                {...register(`faneinnhold.lenker.${index}.lenke`)}
-                error={errors.faneinnhold?.lenker?.[index]?.lenke?.message}
+                {...register(`veilederinformasjon.faneinnhold.lenker.${index}.lenke`)}
+                error={errors.veilederinformasjon?.faneinnhold?.lenker?.[index]?.lenke?.message}
               />
               <HStack gap="2">
-                <Switch {...register(`faneinnhold.lenker.${index}.apneINyFane`)}>
+                <Switch
+                  {...register(`veilederinformasjon.faneinnhold.lenker.${index}.apneINyFane`)}
+                >
                   Åpne i ny fane
                 </Switch>
-                <Switch {...register(`faneinnhold.lenker.${index}.visKunForVeileder`)}>
+                <Switch
+                  {...register(`veilederinformasjon.faneinnhold.lenker.${index}.visKunForVeileder`)}
+                >
                   Vis kun i Modia
                 </Switch>
               </HStack>

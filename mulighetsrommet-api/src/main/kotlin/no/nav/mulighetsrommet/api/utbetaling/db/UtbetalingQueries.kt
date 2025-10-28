@@ -83,6 +83,7 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
                 is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
                 is UtbetalingBeregningPrisPerHeleUkesverk -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
+                is UtbetalingBeregningPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
             }.name,
             "belop_beregnet" to dbo.beregning.output.belop,
             "innsender" to dbo.innsender?.textRepr(),
@@ -129,6 +130,22 @@ class UtbetalingQueries(private val session: Session) {
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
             )
+
+            is UtbetalingBeregningPrisPerTimeOppfolging ->
+                {
+                    upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                    upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                    // TODO: lagre perioder uten deltakelsesprosent?
+                    val perioder = dbo.beregning.input.deltakelser
+                        .map {
+                            DeltakelseDeltakelsesprosentPerioder(
+                                it.deltakelseId,
+                                listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                            )
+                        }
+                        .toSet()
+                    upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+                }
         }
     }
 
@@ -499,10 +516,34 @@ class UtbetalingQueries(private val session: Session) {
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
             UtbetalingBeregningType.PRIS_PER_UKESVERK -> getBeregningPrisPerUkesverk(id)
             UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK -> getBeregningPrisPerHeleUkesverk(id)
+            UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING -> getBeregningPrisPerTimeOppfolging(id)
         }
     }
 
-    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
+    private fun getBeregningPrisPerTimeOppfolging(id: UUID): UtbetalingBeregningPrisPerTimeOppfolging {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling_beregning_pris_per_time_oppfolging
+            where id = ?::uuid
+        """.trimIndent()
+        return session.requireSingle(queryOf(query, id)) { row ->
+            UtbetalingBeregningPrisPerTimeOppfolging(
+                input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                    periode = row.periode("periode"),
+                    belop = row.int("belop_beregnet"),
+                    sats = row.int("sats"),
+                    stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
+                ),
+                output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
+                    belop = row.int("belop_beregnet"),
+                ),
+            )
+        }
+    }
+
+    private fun getBeregningFri(id: UUID): UtbetalingBeregningFri {
         @Language("PostgreSQL")
         val query = """
             select *

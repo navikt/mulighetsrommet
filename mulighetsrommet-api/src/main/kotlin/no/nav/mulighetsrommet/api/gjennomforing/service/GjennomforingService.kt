@@ -50,7 +50,7 @@ class GjennomforingService(
 ) {
     data class Config(
         val gjennomforingV1Topic: String,
-        val gjennomforingV2Topic: String?,
+        val gjennomforingV2Topic: String,
     )
 
     suspend fun upsert(
@@ -421,15 +421,11 @@ class GjennomforingService(
         )
         queries.kafkaProducerRecord.storeRecord(recordV1)
 
-        if (config.gjennomforingV2Topic == null) {
-            return
-        }
-
         val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
-            gjennomforingV1.id.toString().toByteArray(),
-            Json.encodeToString(gjennomforingV2).toByteArray(),
+            gjennomforingV2.id.toString().toByteArray(),
+            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(), gjennomforingV2).toByteArray(),
             null,
         )
         queries.kafkaProducerRecord.storeRecord(recordV2)
