@@ -1332,6 +1332,11 @@ components:
       - guidePanel
       - navigering
       - tilsagn
+    OpprettKravDeltakere.GuidePanelType:
+      type: string
+      enum:
+      - GENERELL
+      - TIMESPRIS
     StengtPeriode:
       type: object
       properties:
@@ -1345,6 +1350,8 @@ components:
     OpprettKravDeltakere:
       type: object
       properties:
+        guidePanel:
+          $ref: "#/components/schemas/OpprettKravDeltakere.GuidePanelType"
         stengtHosArrangor:
           type: array
           items:
@@ -1359,6 +1366,7 @@ components:
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
+      - guidePanel
       - navigering
       - stengtHosArrangor
       - tabell

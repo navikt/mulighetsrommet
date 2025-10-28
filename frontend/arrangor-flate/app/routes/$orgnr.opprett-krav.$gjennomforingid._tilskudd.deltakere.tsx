@@ -1,5 +1,10 @@
 import { Alert, BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
-import { ArrangorflateService, OpprettKravDeltakere } from "api-client";
+import {
+  ArrangorflateService,
+  OpprettKravDeltakere,
+  OpprettKravDeltakereGuidePanelType,
+  StengtPeriode,
+} from "api-client";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -69,27 +74,18 @@ export default function OpprettKravDeltakerTabell() {
   return (
     <VStack gap="4">
       <Heading level="2" spacing size="large">
-        Beregning
+        Oversikt over deltakere
       </Heading>
-      <GuidePanel>
-        <BodyShort>
-          {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
-          <Link as={ReactRouterLink} to={deltakerlisteUrl}>
-            Deltakeroversikten
-          </Link>
-          .
-        </BodyShort>
-        <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
-      </GuidePanel>
-      <Heading level="3" size="medium">
-        Deltakere
-      </Heading>
+      <DeltakelseGuidePanel
+        deltakerlisteUrl={deltakerlisteUrl}
+        guidePanelType={deltakselseInfo.guidePanel}
+      />
       <VStack gap="4">
         {deltakselseInfo.stengtHosArrangor.length > 0 && (
           <Alert variant={"info"}>
             {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
             <ul>
-              {deltakselseInfo.stengtHosArrangor.map(({ periode, beskrivelse }) => (
+              {deltakselseInfo.stengtHosArrangor.map(({ periode, beskrivelse }: StengtPeriode) => (
                 <li key={periode.start + periode.slutt}>
                   {formaterPeriode(periode)}: {beskrivelse}
                 </li>
@@ -107,4 +103,37 @@ export default function OpprettKravDeltakerTabell() {
       </VStack>
     </VStack>
   );
+}
+
+interface DeltakelseGuidePanelProps {
+  deltakerlisteUrl: string;
+  guidePanelType: OpprettKravDeltakereGuidePanelType;
+}
+
+function DeltakelseGuidePanel({ deltakerlisteUrl, guidePanelType }: DeltakelseGuidePanelProps) {
+  switch (guidePanelType) {
+    case OpprettKravDeltakereGuidePanelType.TIMESPRIS:
+      return (
+        <GuidePanel>
+          <BodyShort>
+            Her vises deltakere som er registrert på tiltaket. Det er disse deltakerne det skal
+            faktureres for. Kontrollér at deltakelsene stemmer.
+          </BodyShort>
+        </GuidePanel>
+      );
+    case OpprettKravDeltakereGuidePanelType.GENERELL:
+    default:
+      return (
+        <GuidePanel>
+          <BodyShort>
+            {tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.intro}{" "}
+            <Link as={ReactRouterLink} to={deltakerlisteUrl}>
+              Deltakeroversikten
+            </Link>
+            .
+          </BodyShort>
+          <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
+        </GuidePanel>
+      );
+  }
 }
