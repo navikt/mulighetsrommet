@@ -17,7 +17,11 @@ export function getDataElement(element: DataElement) {
     case "no.nav.mulighetsrommet.model.DataElement.Periode":
       return `${formaterDato(element.start)} - ${formaterDato(element.slutt)}`;
     case "no.nav.mulighetsrommet.model.DataElement.Link":
-      return <Lenke to={element.href}>{element.text}</Lenke>;
+      return (
+        <Lenke to={element.href} className="whitespace-nowrap">
+          {element.text}
+        </Lenke>
+      );
     case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
       return <DataElementMathOperator operator={element.operator} />;
     case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
