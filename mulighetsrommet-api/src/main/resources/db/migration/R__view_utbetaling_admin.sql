@@ -16,6 +16,7 @@ select utbetaling.id,
        utbetaling.periode,
        utbetaling.tilskuddstype,
        utbetaling.status,
+       utbetaling.belop_beregnet,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.navn                as gjennomforing_navn,
        arrangor.id                       as arrangor_id,
@@ -30,12 +31,13 @@ from utbetaling
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join lateral (select jsonb_agg(
-                                           jsonb_build_object(
+                                           DISTINCT jsonb_build_object(
                                                    'enhetsnummer', enhet.enhetsnummer,
                                                    'navn', enhet.navn
                                            )
                                    ) as nav_enheter_json
                             from tilsagn
                                      join nav_enhet enhet on enhet.enhetsnummer = tilsagn.kostnadssted
-                            where tilsagn.gjennomforing_id = gjennomforing.id
+                            where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id
+                              AND utbetaling.periode && tilsagn.periode
     ) on true

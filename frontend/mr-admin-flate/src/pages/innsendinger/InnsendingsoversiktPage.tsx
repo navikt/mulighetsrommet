@@ -13,7 +13,8 @@ import { Suspense } from "react";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import { InnsendingFilterSchema, InnsendingFilterStateAtom } from "./filter";
-import { UtbetalingerForGjennomforingContainer } from "../gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
+import { InnsendingFilter } from "./Innsendingfilter";
+import { InnsendingTable } from "./InnsendingTable";
 
 export function InnsendingoversiktPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -22,6 +23,7 @@ export function InnsendingoversiktPage() {
     resetFilterToDefault,
     selectFilter,
     hasChanged,
+    updateFilter,
     filters,
     saveFilter,
     deleteFilter,
@@ -38,7 +40,7 @@ export function InnsendingoversiktPage() {
       />
       <ContentBox>
         <FilterAndTableLayout
-          filter={null}
+          filter={<InnsendingFilter filter={filter.values} updateFilter={updateFilter} />}
           nullstillFilterButton={
             hasChanged ? (
               <>
@@ -63,7 +65,7 @@ export function InnsendingoversiktPage() {
           buttons={null}
           table={
             <Suspense fallback={<ListSkeleton />}>
-              <UtbetalingerForGjennomforingContainer />
+              <InnsendingTable />
             </Suspense>
           }
           filterOpen={filterOpen}

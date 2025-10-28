@@ -6,7 +6,6 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.*
-import io.ktor.server.http.content.default
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -18,12 +17,9 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.gjennomforing.api.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -41,10 +37,8 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -99,7 +93,7 @@ fun Route.utbetalingRoutes() {
 
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                     belopUtbetalt = belopUtbetalt,
@@ -116,15 +110,20 @@ fun Route.utbetalingRoutes() {
         tags = setOf("Utbetaling")
         operationId = "getInnsendinger"
         request {
-            queryParameter<List<NavEnhetNummer>>("navRegioner") {
+            queryParameter<List<String>>("tiltakstyper") {
                 explode = true
             }
-            queryParameter<Periode>("periode")
+            queryParameter<List<NavEnhetNummer>>("navEnheter") {
+                explode = true
+            }
+            queryParameter<String>("dato") {
+                explode = true
+            }
         }
         response {
             code(HttpStatusCode.OK) {
                 description = "Alle innsendinger for gitte filtre"
-                body<List<UtbetalingKompaktDto>>()
+                body<List<InnsendingKompaktDto>>()
             }
             default {
                 description = "Problem details"
@@ -132,11 +131,10 @@ fun Route.utbetalingRoutes() {
             }
         }
     }) {
-        val pagination = getPaginationParams()
         val filter = getAdminInnsendingerFilter()
 
         val innsendinger = db.session {
-            queries.utbetaling.getAll(pagination, filter)
+            queries.utbetaling.getAll(filter)
         }
 
         call.respond(innsendinger)
@@ -446,21 +444,20 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
 }
 
 data class AdminInnsendingerFilter(
-    val search: String? = null,
     val navEnheter: List<NavEnhetNummer> = emptyList(),
-    val sortering: String? = null,
+    val tiltakstyper: List<UUID> = emptyList(),
     val periode: Periode,
 )
 
 fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
     val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
-    val sortering = call.request.queryParameters["sort"]
-    val periode = call.request.queryParameters["periode"].let { Periode.forMonthOf(LocalDate.parse(it)) }
+    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
+    val periode = call.request.queryParameters["dato"].let { Periode.forMonthOf(LocalDate.parse(it)) }
 
     return AdminInnsendingerFilter(
         navEnheter = navEnheter,
+        tiltakstyper = tiltakstypeIder,
         periode = periode,
-        sortering = sortering,
     )
 }
 

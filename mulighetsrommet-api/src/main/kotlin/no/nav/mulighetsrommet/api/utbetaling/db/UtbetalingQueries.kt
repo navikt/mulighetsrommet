@@ -5,30 +5,21 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
@@ -396,9 +387,8 @@ class UtbetalingQueries(private val session: Session) {
     }
 
     fun getAll(
-        pagination: Pagination = Pagination.all(),
         filter: AdminInnsendingerFilter,
-    ): PaginatedResult<InnsendingKompaktDto> = with(session) {
+    ): List<InnsendingKompaktDto> = with(session) {
         val parameters = mapOf(
             "periode" to filter.periode.toDaterange(),
             "nav_enheter" to filter.navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
@@ -415,12 +405,11 @@ class UtbetalingQueries(private val session: Session) {
                     WHERE nav_enhet ->> 'enhetsnummer' = ANY(:nav_enheter)
                 ))
             AND (periode = :periode::daterange)
+            AND (status != 'FERDIG_BEHANDLET')
         LIMIT :limit
         OFFSET :offset
         """.trimIndent()
-        return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toInnsendingKompaktDto() }
-            .runWithSession(this)
+        return session.list(queryOf(query, parameters)) { it.toInnsendingKompaktDto() }
     }
 
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? {
@@ -487,15 +476,17 @@ class UtbetalingQueries(private val session: Session) {
 
     private fun Row.toInnsendingKompaktDto(): InnsendingKompaktDto = InnsendingKompaktDto(
         id = uuid("id"),
+        gjennomforingId = uuid("gjennomforing_id"),
         periode = periode("periode"),
         kostnadssteder = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<KostnadsstedDto>>(it) } ?: emptyList(),
         arrangor = string("arrangor_navn"),
-        belop = null,
+        belop = intOrNull("belop_beregnet"),
         tiltakstype = Utbetaling.Tiltakstype(
             navn = string("tiltakstype_navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
         ),
+        status = UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.valueOf(string("status"))),
     )
 
     private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {
