@@ -1,5 +1,5 @@
-import { Heading, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, GjennomforingerTableResponse } from "api-client";
+import { Alert, BodyShort, Heading, HStack, Tabs } from "@navikt/ds-react";
+import { ArrangorflateService, DataDrivenTableDto, GjennomforingerTableResponse } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -86,12 +86,33 @@ export default function OpprettKravTiltaksOversikt() {
           />
         </Tabs.List>
         <Tabs.Panel value="aktive" className="w-full">
-          <DataDrivenTable data={gjennomforingerTabeller.aktive} />
+          <TabellVisning tabell={gjennomforingerTabeller.aktive} />
         </Tabs.Panel>
         <Tabs.Panel value="historiske" className="w-full">
-          <DataDrivenTable data={gjennomforingerTabeller.historiske} />
+          <TabellVisning tabell={gjennomforingerTabeller.historiske} />
         </Tabs.Panel>
       </Tabs>
     </InnsendingLayout>
   );
+}
+
+interface TabellVisningProps {
+  tabell: DataDrivenTableDto;
+}
+
+function TabellVisning({ tabell }: TabellVisningProps) {
+  if (tabell.rows.length == 0) {
+    return (
+      <HStack align="center" justify="center" padding="32">
+        <Alert variant="info">
+          <BodyShort>
+            Det finnes ingen registrerte tiltaksgjennomføringer du kan sende inn utbetalingskrav
+            for.
+          </BodyShort>
+          <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
+        </Alert>
+      </HStack>
+    );
+  }
+  return <DataDrivenTable data={tabell} />;
 }
