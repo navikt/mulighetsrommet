@@ -75,18 +75,21 @@ export default function OpprettKravTiltaksOversikt() {
   return (
     <InnsendingLayout contentGap="6">
       <Heading level="2" size="large">
-        Opprett krav om utbetaling
+        {tekster.bokmal.gjennomforing.headingTitle}
       </Heading>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
-          <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
-          <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
+          <Tabs.Tab value="aktive" label={tekster.bokmal.gjennomforing.oversiktFaner.aktive} />
+          <Tabs.Tab
+            value="historiske"
+            label={tekster.bokmal.gjennomforing.oversiktFaner.historiske}
+          />
         </Tabs.List>
         <Tabs.Panel value="aktive" className="w-full">
-          <DataDrivenTable data={gjennomforingerTabeller.aktive} zebraStripes />
+          <DataDrivenTable data={gjennomforingerTabeller.aktive} />
         </Tabs.Panel>
         <Tabs.Panel value="historiske" className="w-full">
-          <DataDrivenTable data={gjennomforingerTabeller.historiske} zebraStripes />
+          <DataDrivenTable data={gjennomforingerTabeller.historiske} />
         </Tabs.Panel>
       </Tabs>
     </InnsendingLayout>

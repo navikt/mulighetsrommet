@@ -440,7 +440,6 @@ private fun toGjennomforingDataTable(
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("navn", "Tiltaksnavn"),
-            DataDrivenTableDto.Column("tiltaksnummer", "Tiltaksnr."),
             DataDrivenTableDto.Column("tiltaksType", "Tiltakstype"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
@@ -449,7 +448,6 @@ private fun toGjennomforingDataTable(
         rows = gjennomforinger.map { gjennomforing ->
             mapOf(
                 "navn" to DataElement.text(gjennomforing.navn),
-                "tiltaksnummer" to DataElement.text(gjennomforing.tiltaksnummer),
                 "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
                 "startDato" to DataElement.date(gjennomforing.startDato),
                 "sluttDato" to DataElement.date(gjennomforing.sluttDato),
