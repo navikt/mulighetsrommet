@@ -408,6 +408,8 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
     }
 
+    fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
+
     fun get(id: UUID): Avtale? = with(session) {
         @Language("PostgreSQL")
         val query = """

@@ -1213,10 +1213,12 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
     }
 
-    context("resolve avtalt sats") {
-        test("finner sats hvis gjennomføringen og satsen begynner midt i en måned") {
-            val oppfolging = GjennomforingFixtures.Oppfolging1
-            val service = createUtbetalingService()
+    context("utledning av avtalte satser") {
+        val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+        val service = createUtbetalingService()
+
+        test("finner sats hvis gjennomføringen og satsen begynner midt i perioden") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
@@ -1227,10 +1229,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(avtale),
-                gjennomforinger = listOf(oppfolging.copy(startDato = LocalDate.of(2025, 1, 15))),
+                gjennomforinger = listOf(gjennomforing.copy(startDato = LocalDate.of(2025, 1, 15))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
-                        oppfolging.id,
+                        gjennomforing.id,
                         startDato = LocalDate.of(2025, 1, 15),
                         sluttDato = null,
                         statusType = DeltakerStatusType.DELTAR,
@@ -1238,7 +1240,49 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
+            val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().should {
+                it.input.satser shouldBe setOf(
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1)), 100),
+                )
+            }
+        }
+
+        test("finner alle relevante satser innenfor utbetalingsperioden") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2024, 1, 1), 1),
+                    AvtaltSats(LocalDate.of(2025, 1, 2), 2),
+                    AvtaltSats(LocalDate.of(2025, 1, 3), 3),
+                    AvtaltSats(LocalDate.of(2025, 2, 1), 4),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        gjennomforing.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = null,
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().should {
+                it.input.satser shouldBe setOf(
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2)), 1),
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 2), LocalDate.of(2025, 1, 3)), 2),
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 3), LocalDate.of(2025, 2, 1)), 3),
+                )
+            }
         }
     }
 })
