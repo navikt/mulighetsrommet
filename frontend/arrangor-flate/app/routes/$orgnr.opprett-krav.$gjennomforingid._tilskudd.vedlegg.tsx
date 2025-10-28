@@ -1,8 +1,7 @@
-import { Button, ErrorSummary, GuidePanel, Heading, HStack, VStack } from "@navikt/ds-react";
+import { BodyShort, ErrorSummary, GuidePanel, Heading, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
-  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
   redirect,
@@ -11,9 +10,10 @@ import {
 } from "react-router";
 import {
   ArrangorflateService,
-  ArrangorflateTilsagnDto,
+  OpprettKravVedlegg,
   FieldError,
-  Tilskuddstype,
+  OpprettKravVedleggGuidePanelType,
+  OpprettKravVeiviserSteg,
 } from "api-client";
 import { getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
@@ -22,8 +22,14 @@ import { useEffect, useRef } from "react";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathBySteg } from "~/utils/navigation";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import {
+  OpprettKravVeiviserButtons,
+  nesteStegFieldName,
+} from "~/components/OpprettKravVeiviserButtons";
+
+const minAntallVedleggFieldName = "minAntallVedlegg";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [
@@ -38,12 +44,7 @@ export const meta: MetaFunction = ({ matches }) => {
 type LoaderData = {
   orgnr: string;
   gjennomforingId: string;
-  tilsagn: ArrangorflateTilsagnDto;
-  periodeStart: string;
-  periodeSlutt: string;
-  belop: number;
-  kontonummer: string;
-  kid?: string;
+  vedleggInfo: OpprettKravVedlegg;
 };
 
 interface ActionData {
@@ -53,32 +54,8 @@ interface ActionData {
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
 
-  const session = await getSession(request.headers.get("Cookie"));
-
-  let tilsagnId: string | undefined;
-  let periodeStart: string | undefined;
-  let periodeSlutt: string | undefined;
-  let belop: number | undefined;
-  let kontonummer: string | undefined;
-  let kid: string | undefined;
-  if (
-    session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
-    session.get("gjennomforingId") === gjennomforingId
-  ) {
-    tilsagnId = session.get("tilsagnId");
-    periodeStart = session.get("periodeStart");
-    periodeSlutt = session.get("periodeSlutt");
-    belop = Number(session.get("belop"));
-    kontonummer = session.get("kontonummer");
-    kid = session.get("kid");
-  }
-
-  if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
-    throw new Error("Formdata mangler");
-
-  const { data: tilsagn, error } = await ArrangorflateService.getArrangorflateTilsagn({
-    path: { id: tilsagnId },
+  const { data: vedleggInfo, error } = await ArrangorflateService.getOpprettKravVedlegg({
+    path: { orgnr, gjennomforingId },
     headers: await apiHeaders(request),
   });
   if (error) {
@@ -88,12 +65,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   return {
     orgnr,
     gjennomforingId,
-    tilsagn,
-    periodeStart,
-    periodeSlutt,
-    belop,
-    kontonummer,
-    kid,
+    vedleggInfo,
   };
 };
 
@@ -115,9 +87,12 @@ export const action: ActionFunction = async ({ request }) => {
   const session = await getSession(request.headers.get("Cookie"));
   const errors: FieldError[] = [];
 
+  const minAntallVedleggField = formData.get(minAntallVedleggFieldName);
+  const minAntallVedlegg =
+    typeof minAntallVedleggField === "string" ? parseInt(minAntallVedleggField) : 1;
   const vedlegg = formData.getAll("vedlegg") as File[];
 
-  if (vedlegg.length < 1) {
+  if (vedlegg.length < minAntallVedlegg) {
     errors.push({
       pointer: "/vedlegg",
       detail: "Du må legge ved vedlegg",
@@ -129,6 +104,13 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (errors.length > 0) {
     return { errors };
+  }
+
+  const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
+  const redirectPath = pathBySteg(nesteSteg, orgnr, gjennomforingId);
+
+  if (vedlegg.length === 0) {
+    return redirect(redirectPath);
   }
 
   const { error } = await ArrangorflateService.scanVedlegg({
@@ -145,14 +127,12 @@ export const action: ActionFunction = async ({ request }) => {
       throw problemDetailResponse(error);
     }
   } else {
-    return redirect(
-      `${pathByOrgnr(orgnr!).opprettKrav.driftstilskuddv2.oppsummering(gjennomforingId!)}`,
-    );
+    return redirect(redirectPath);
   }
 };
 
-export default function OpprettKravVedlegg() {
-  const { orgnr, gjennomforingId } = useLoaderData<LoaderData>();
+export default function OpprettKravVedleggSteg() {
+  const { orgnr, gjennomforingId, vedleggInfo } = useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = data?.errors && data.errors.length > 0;
@@ -169,13 +149,16 @@ export default function OpprettKravVedlegg() {
         Vedlegg
       </Heading>
       <VStack gap="6">
-        <GuidePanel>
-          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt
-          forinvesteringer
-        </GuidePanel>
+        <GuidePanelVedlegg type={vedleggInfo.guidePanel} />
         <Form method="post" encType="multipart/form-data">
           <VStack gap="6">
             <VStack gap="4">
+              <input
+                name={minAntallVedleggFieldName}
+                defaultValue={vedleggInfo.minAntallVedlegg}
+                readOnly
+                hidden
+              />
               <FileUploader
                 fileStorage
                 error={errorAt("/vedlegg", data?.errors)}
@@ -199,20 +182,60 @@ export default function OpprettKravVedlegg() {
                 })}
               </ErrorSummary>
             )}
-            <HStack gap="4">
-              <Button
-                as={ReactRouterLink}
-                type="button"
-                variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId)}
-              >
-                Tilbake
-              </Button>
-              <Button type="submit">Neste</Button>
-            </HStack>
+            <OpprettKravVeiviserButtons
+              navigering={vedleggInfo.navigering}
+              orgnr={orgnr}
+              gjennomforingId={gjennomforingId}
+              submitNeste
+            />
           </VStack>
         </Form>
       </VStack>
     </>
   );
+}
+
+interface GuidePanelVedleggProps {
+  type: OpprettKravVedleggGuidePanelType | null;
+}
+
+function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
+  switch (type) {
+    case OpprettKravVedleggGuidePanelType.INVESTERING_VTA_AFT:
+      return (
+        <GuidePanel>
+          Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt for
+          investeringer
+        </GuidePanel>
+      );
+    case OpprettKravVedleggGuidePanelType.TIMESPRIS:
+      return (
+        <GuidePanel>
+          <BodyShort spacing>
+            Fakturering skal skje i henhold til prisbilag i avtalen og eventuelle presiseringer.
+            Dere må sikre at opplysningene dere oppgir er korrekte.
+          </BodyShort>
+          <BodyShort spacing>
+            Det skal kun faktureres for faktisk medgått tid, eventuelt rundet av til nærmeste hele
+            kvarter.
+          </BodyShort>
+          <BodyShort spacing>
+            Nav vil kunne gjennomføre kontroller og kreve innsyn for å verifisere at tjenesten og
+            tilhørerende fakturering er i henhold til avtalen.
+          </BodyShort>
+          <BodyShort>
+            Fakturavedleggsskjema kan lastes ned her{" "}
+            <b>Oppfølging - fakturagrunnlag 2021 (excel)</b>
+          </BodyShort>
+        </GuidePanel>
+      );
+    case OpprettKravVedleggGuidePanelType.AVTALT_PRIS:
+      return (
+        <GuidePanel>Her kan du laste opp vedlegg som er relevante for utbetalingen</GuidePanel>
+      );
+
+    case null:
+    default:
+      return null;
+  }
 }

@@ -19,6 +19,9 @@ class ClamAvClient(
     }
 
     suspend fun virusScanVedlegg(vedleggList: List<Vedlegg>): List<ScanResult> {
+        if (vedleggList.isEmpty()) {
+            return emptyList()
+        }
         log.info("Scanner ${vedleggList.size} vedlegg for virus")
         val httpResponse =
             client.submitFormWithBinaryData(

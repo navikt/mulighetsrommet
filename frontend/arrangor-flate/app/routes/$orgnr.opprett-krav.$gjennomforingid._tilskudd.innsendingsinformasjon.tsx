@@ -50,6 +50,7 @@ import {
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
 
 type LoaderData = {
   orgnr: string;
@@ -118,7 +119,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const nesteSteg = formData.get("nesteSteg") as OpprettKravVeiviserSteg;
+  const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
 
   if (intent === "cancel") {
     return redirect(pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt, {
@@ -276,7 +277,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           )}
           <HStack gap="4" className="mt-4">
             <input
-              name="nesteSteg"
+              name={nesteStegFieldName}
               value={innsendingsinformasjon.navigering.neste?.toString()}
               hidden
               readOnly
