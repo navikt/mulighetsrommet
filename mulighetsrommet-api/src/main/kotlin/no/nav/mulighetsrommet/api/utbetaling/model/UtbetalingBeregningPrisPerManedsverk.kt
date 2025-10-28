@@ -31,7 +31,11 @@ data class UtbetalingBeregningPrisPerManedsverk(
 
             val manedsverk = input.deltakelser
                 .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(deltakelse, stengtHosArrangor)
+                    UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(
+                        deltakelse,
+                        input.satser,
+                        stengtHosArrangor,
+                    )
                 }
                 .toSet()
 

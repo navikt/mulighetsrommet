@@ -177,6 +177,7 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
+        // TODO: inkluder alle relevante satser
         val sats = resolveAvtaltSats(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
@@ -219,12 +220,12 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
-        val sats = resolveAvtaltSats(gjennomforing, periode)
         val heleUkerPeriode = heleUkerPeriode(periode)
+        val sats = resolveAvtaltSats(gjennomforing, heleUkerPeriode)
         val stengtHosArrangor = resolveStengtHosArrangor(heleUkerPeriode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, heleUkerPeriode)
         return UtbetalingBeregningPrisPerHeleUkesverk.Input(
-            satser = setOf(SatsPeriode(periode, sats)),
+            satser = setOf(SatsPeriode(heleUkerPeriode, sats)),
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )

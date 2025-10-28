@@ -27,7 +27,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 100),
                         ),
                     ),
                 ),
@@ -55,7 +55,13 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeStart, periodeMidt), 0.5)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeStart, periodeMidt),
+                                0.5,
+                                700_000,
+                            ),
+                        ),
                     ),
                 ),
             )
@@ -90,11 +96,23 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeStart, periodeMidt), 0.5)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeStart, periodeMidt),
+                                0.5,
+                                202,
+                            ),
+                        ),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId2,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeMidt, periodeSlutt), 0.5)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeMidt, periodeSlutt),
+                                0.5,
+                                202,
+                            ),
+                        ),
                     ),
                 ),
             )
@@ -122,7 +140,13 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeMidt, periodeSlutt), 0.5)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeMidt, periodeSlutt),
+                                0.5,
+                                100,
+                            ),
+                        ),
                     ),
                 ),
             )
@@ -153,10 +177,12 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeStart, periodeStart.plusWeeks(1)),
                                 0.25,
+                                100,
                             ),
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeMidt.plusWeeks(1), periodeSlutt),
                                 0.25,
+                                100,
                             ),
                         ),
                     ),
@@ -177,8 +203,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 satser = setOf(SatsPeriode(periode, 100)),
                 stengt = stengt,
                 deltakelser = setOf(
-                DeltakelsePeriode(deltakerId1, periode),
-            ),
+                    DeltakelsePeriode(deltakerId1, periode),
+                ),
             )
             val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
 
@@ -191,10 +217,12 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
                                 0.1,
+                                100,
                             ),
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2023, 4, 19), LocalDate.of(2023, 5, 1)),
                                 0.4,
+                                100,
                             ),
                         ),
                     ),
@@ -252,13 +280,13 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10),
                         ),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId2,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10),
                         ),
                     ),
                 ),
@@ -304,19 +332,19 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22581),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22581, 100),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId2,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.16129),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.16129, 100),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId3,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.29032),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.29032, 100),
                     ),
                 ),
             )
@@ -346,13 +374,13 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10),
                         ),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId2,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 10),
                         ),
                     ),
                 ),
@@ -398,19 +426,19 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22727),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22727, 100),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId2,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.22727),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.22727, 100),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId3,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.22727),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.22727, 100),
                     ),
                 ),
             )

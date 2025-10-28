@@ -170,13 +170,13 @@ class UtbetalingQueriesTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse1Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20_205),
                                 ),
                             ),
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse2Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20_205),
                                 ),
                             ),
                         ),
@@ -260,13 +260,13 @@ class UtbetalingQueriesTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse1Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 0.5),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 0.5, 20_205),
                                 ),
                             ),
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse2Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20_205),
                                 ),
                             ),
                         ),
@@ -317,13 +317,13 @@ class UtbetalingQueriesTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse1Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.2),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.2, 20_205),
                                 ),
                             ),
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse2Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 4.2),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 4.2, 20_205),
                                 ),
                             ),
                         ),
@@ -374,13 +374,13 @@ class UtbetalingQueriesTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse1Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0, 20_205),
                                 ),
                             ),
                             UtbetalingBeregningOutputDeltakelse(
                                 deltakelse2Id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 4.0),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 4.0, 20_205),
                                 ),
                             ),
                         ),

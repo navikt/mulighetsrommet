@@ -54,7 +54,8 @@ with satser as (select utbetaling_id,
                                                                          'start', lower(periode),
                                                                          'slutt', upper(periode)
                                                                  ),
-                                                                 'faktor', faktor
+                                                                 'faktor', faktor,
+                                                                 'sats', sats
                                                          )
                                                  )
                                           from utbetaling_deltakelse_faktor p2

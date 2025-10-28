@@ -255,8 +255,8 @@ class UtbetalingQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val insertDeltakelseFaktor = """
-            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor, periode)
-            values (:utbetaling_id, :deltakelse_id, :faktor, :periode::daterange)
+            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor, periode, sats)
+            values (:utbetaling_id, :deltakelse_id, :faktor, :periode::daterange, :sats)
         """.trimIndent()
 
         val deltakelseFaktorParams = deltakelser.flatMap { deltakelse ->
@@ -266,6 +266,7 @@ class UtbetalingQueries(private val session: Session) {
                     "deltakelse_id" to deltakelse.deltakelseId,
                     "faktor" to periode.faktor,
                     "periode" to periode.periode.toDaterange(),
+                    "sats" to periode.sats,
                 )
             }
         }

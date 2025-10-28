@@ -110,7 +110,7 @@ object ArrangorflateTestUtils {
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             deltakerId,
-                            setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0)),
+                            setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20205)),
                         ),
                     ),
                 ),

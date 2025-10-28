@@ -32,6 +32,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeSlutt),
                                         2.0,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -51,6 +52,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, LocalDate.of(2023, 6, 5)),
                                         0.4,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -71,6 +73,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeSlutt),
                                         2.0,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -80,6 +83,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeMidt),
                                         1.0,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -122,6 +126,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeMidt, periodeSlutt),
                                         1.0,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -152,10 +157,12 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(LocalDate.of(2025, 2, 5), LocalDate.of(2025, 2, 10)),
                                         0.6,
+                                        50,
                                     ),
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(LocalDate.of(2025, 2, 11), LocalDate.of(2025, 2, 15)),
                                         0.8,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -165,6 +172,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(LocalDate.of(2025, 2, 11), LocalDate.of(2025, 2, 15)),
                                         0.8,
+                                        50,
                                     ),
                                 ),
                             ),
@@ -204,7 +212,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 6.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 6.0, 10),
                         ),
                     ),
                 ),

@@ -33,6 +33,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 .map { deltakelse ->
                     UtbetalingBeregningHelpers.calculateDeltakelseManedsverkForDeltakelsesprosent(
                         deltakelse,
+                        input.satser,
                         stengtHosArrangor,
                     )
                 }

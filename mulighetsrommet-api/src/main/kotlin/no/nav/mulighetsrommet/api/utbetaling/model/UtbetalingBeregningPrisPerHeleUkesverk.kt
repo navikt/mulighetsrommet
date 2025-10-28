@@ -32,7 +32,11 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
 
             val ukesverk = input.deltakelser
                 .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(deltakelse, stengtHosArrangor)
+                    UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(
+                        deltakelse,
+                        input.satser,
+                        stengtHosArrangor,
+                    )
                 }
                 .toSet()
 

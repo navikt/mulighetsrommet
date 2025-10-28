@@ -25,7 +25,11 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 5.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                periode,
+                                5.0,
+                                50,
+                            ),
                         ),
                     ),
                 ),
@@ -33,38 +37,93 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
         }
 
         test("Hel uke beregnes selv med kun en dag deltatt") {
-            val periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
+            val deltakelseId1 = UUID.randomUUID()
+            val deltakelseId2 = UUID.randomUUID()
+            val deltakelseId3 = UUID.randomUUID()
+            val deltakelseId4 = UUID.randomUUID()
+            val deltakelseId5 = UUID.randomUUID()
 
-            val ukesverk = UtbetalingBeregningPrisPerHeleUkesverk.beregn(
+            val beregning = UtbetalingBeregningPrisPerHeleUkesverk.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    satser = setOf(SatsPeriode(periode, 50)),
+                    satser = setOf(SatsPeriode(Periode.forYear(2024), 10), SatsPeriode(Periode.forYear(2025), 50)),
                     stengt = setOf(),
                     deltakelser = setOf(
                         DeltakelsePeriode(
-                            UUID.randomUUID(),
+                            deltakelseId1,
                             Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2024, 12, 31)),
                         ),
                         DeltakelsePeriode(
-                            UUID.randomUUID(),
+                            deltakelseId2,
                             Periode(LocalDate.of(2025, 1, 8), LocalDate.of(2025, 1, 9)),
                         ),
                         DeltakelsePeriode(
-                            UUID.randomUUID(),
+                            deltakelseId3,
                             Periode(LocalDate.of(2025, 1, 17), LocalDate.of(2025, 1, 18)),
                         ),
                         DeltakelsePeriode(
-                            UUID.randomUUID(),
+                            deltakelseId4,
                             Periode(LocalDate.of(2025, 1, 24), LocalDate.of(2025, 1, 25)),
                         ),
                         DeltakelsePeriode(
-                            UUID.randomUUID(),
+                            deltakelseId5,
                             Periode(LocalDate.of(2025, 1, 31), LocalDate.of(2025, 2, 1)),
                         ),
                     ),
                 ),
-            ).output.deltakelser
-            ukesverk.shouldHaveSize(5)
-            ukesverk.sumOf { it.perioder.sumOf { it.faktor } } shouldBe 5.0
+            )
+
+            beregning.output.deltakelser shouldBe setOf(
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakelseId1,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2024, 12, 31)),
+                            1.0,
+                            10,
+                        ),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakelseId2,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            Periode(LocalDate.of(2025, 1, 8), LocalDate.of(2025, 1, 9)),
+                            1.0,
+                            50,
+                        ),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakelseId3,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            Periode(LocalDate.of(2025, 1, 17), LocalDate.of(2025, 1, 18)),
+                            1.0,
+                            50,
+                        ),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakelseId4,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            Periode(LocalDate.of(2025, 1, 24), LocalDate.of(2025, 1, 25)),
+                            1.0,
+                            50,
+                        ),
+                    ),
+                ),
+                UtbetalingBeregningOutputDeltakelse(
+                    deltakelseId5,
+                    setOf(
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            Periode(LocalDate.of(2025, 1, 31), LocalDate.of(2025, 2, 1)),
+                            1.0,
+                            50,
+                        ),
+                    ),
+                ),
+            )
         }
 
         test("stengt halve måneden gir 2 uker") {
@@ -89,7 +148,13 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
-                        setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(Periode(periodeMidt, periodeSlutt), 2.0)),
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                Periode(periodeMidt, periodeSlutt),
+                                2.0,
+                                10,
+                            ),
+                        ),
                     ),
                 ),
             )
@@ -120,6 +185,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2025, 2, 7), lordag),
                                 1.0,
+                                10,
                             ),
                         ),
                     ),

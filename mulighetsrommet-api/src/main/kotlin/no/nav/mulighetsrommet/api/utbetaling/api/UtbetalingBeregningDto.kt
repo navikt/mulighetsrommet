@@ -149,7 +149,7 @@ private fun deltakelsePrisPerManedsverkTable(
     return DataDrivenTableDto(
         columns = deltakelsePersonaliaColumns() + deltakelseManedsverkColumns(),
         rows = deltakere.map { deltaker ->
-        val manedsverk = deltaker.deltakelse.perioder.sumOf { it.faktor }
+            val manedsverk = deltaker.deltakelse.perioder.sumOf { it.faktor }
             deltakelsePersonaliaCells(deltaker.personalia) + deltakelseManedsverkCells(manedsverk, sats)
         },
     )
@@ -182,7 +182,7 @@ private fun deltakelsePrisPerUkesverkTable(
     return DataDrivenTableDto(
         columns = deltakelsePersonaliaColumns() + deltakelseUkesverkColumns(),
         rows = deltakere.map { deltaker ->
-        val ukesverk = deltaker.deltakelse.perioder.sumOf { it.faktor }
+            val ukesverk = deltaker.deltakelse.perioder.sumOf { it.faktor }
             deltakelsePersonaliaCells(deltaker.personalia) + deltakelseUkesverkCells(ukesverk, sats)
         },
     )
