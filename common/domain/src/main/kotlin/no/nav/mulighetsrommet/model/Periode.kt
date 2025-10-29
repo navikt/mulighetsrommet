@@ -46,6 +46,17 @@ data class Periode(
         }
 
         /**
+         * Oppretter en [Periode] for gitt år.
+         *
+         * @param year Året som perioden gjelder for.
+         */
+        fun forYear(year: Int): Periode {
+            val start = LocalDate.of(year, 1, 1)
+            val slutt = start.plusYears(1)
+            return Periode(start, slutt)
+        }
+
+        /**
          * Oppretter en [Periode] fra og med den gitte startdatoen til og med den gitte sluttdatoen.
          *
          * @param inclusiveStart Startdatoen for perioden (inkludert).
