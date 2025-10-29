@@ -45,7 +45,6 @@ function getPathFromSteg(step: OpprettKravVeiviserSteg): string {
 }
 
 export interface OpprettKravLoaderData {
-  type: "driftstilskudd";
   steps: Step[];
   activeStep: Step;
 }
@@ -79,7 +78,7 @@ export const loader: LoaderFunction = async ({
 
   const activeStep = getActiveStep(steps, new URL(request.url).pathname);
 
-  return { type: "driftstilskudd", steps, activeStep };
+  return { steps, activeStep };
 };
 
 function getActiveStep(steps: Step[], path: string) {

@@ -1,11 +1,15 @@
-import { Button, ErrorSummary, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
-import { ArrangorflateService, FieldError, Tilskuddstype } from "api-client";
+import { ErrorSummary, Heading, TextField, VStack } from "@navikt/ds-react";
+import {
+  ArrangorflateService,
+  FieldError,
+  OpprettKravUtbetalingsinformasjon,
+  OpprettKravVeiviserSteg,
+} from "api-client";
 import {
   LoaderFunction,
   MetaFunction,
   useLoaderData,
   useRevalidator,
-  Link as ReactRouterLink,
   Form,
   ActionFunctionArgs,
   redirect,
@@ -17,16 +21,20 @@ import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
 import {
   getOrgnrGjennomforingIdFrom,
-  pathByOrgnr,
+  pathBySteg,
   useGjennomforingIdFromUrl,
   useOrgnrFromUrl,
 } from "~/utils/navigation";
 import { useEffect, useRef } from "react";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
+import {
+  nesteStegFieldName,
+  OpprettKravVeiviserButtons,
+} from "~/components/OpprettKravVeiviserButtons";
 
 type LoaderData = {
-  kontonummer?: string;
+  innsendingsinformasjon: OpprettKravUtbetalingsinformasjon;
   sessionBelop?: string;
   sessionKid?: string;
 };
@@ -46,18 +54,14 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const session = await getSession(request.headers.get("Cookie"));
   let sessionBelop: string | undefined;
   let sessionKid: string | undefined;
-  if (
-    session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
-    session.get("gjennomforingId") === gjennomforingId
-  ) {
+  if (session.get("orgnr") === orgnr && session.get("gjennomforingId") === gjennomforingId) {
     sessionBelop = session.get("belop");
     sessionKid = session.get("kid");
   }
 
   const [{ data, error: kontonummerError }] = await Promise.all([
-    ArrangorflateService.getKontonummer({
-      path: { orgnr },
+    ArrangorflateService.getOpprettKravUtbetalingsinformasjon({
+      path: { orgnr, gjennomforingId },
       headers: await apiHeaders(request),
     }),
   ]);
@@ -66,7 +70,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { kontonummer: data.kontonummer, sessionBelop, sessionKid };
+  return { innsendingsinformasjon: data, sessionBelop, sessionKid };
 };
 
 interface ActionData {
@@ -107,11 +111,11 @@ export async function action({ request }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    session.set("tilskuddstype", Tilskuddstype.TILTAK_DRIFTSTILSKUDD);
+    const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
     session.set("belop", belop);
     session.set("kid", kid);
     session.set("kontonummer", kontonummer);
-    return redirect(pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId), {
+    return redirect(pathBySteg(nesteSteg, orgnr, gjennomforingId), {
       headers: {
         "Set-Cookie": await commitSession(session),
       },
@@ -121,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function OpprettKravUtbetaling() {
   const data = useActionData<ActionData>();
-  const { kontonummer, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
+  const { innsendingsinformasjon, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
   const orgnr = useOrgnrFromUrl();
   const gjennomforingId = useGjennomforingIdFromUrl();
   const revalidator = useRevalidator();
@@ -156,7 +160,7 @@ export default function OpprettKravUtbetaling() {
           <VStack gap="4">
             <KontonummerInput
               error={errorAt("/kontonummer", data?.errors)}
-              kontonummer={kontonummer}
+              kontonummer={innsendingsinformasjon.kontonummer}
               onClick={() => revalidator.revalidate()}
             />
             <TextField
@@ -183,19 +187,12 @@ export default function OpprettKravUtbetaling() {
               })}
             </ErrorSummary>
           )}
-          <HStack gap="4">
-            <Button
-              as={ReactRouterLink}
-              type="button"
-              variant="tertiary"
-              to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.innsendingsinformasjon(
-                gjennomforingId,
-              )}
-            >
-              Tilbake
-            </Button>
-            <Button type="submit">Neste</Button>
-          </HStack>
+          <OpprettKravVeiviserButtons
+            navigering={innsendingsinformasjon.navigering}
+            orgnr={orgnr}
+            gjennomforingId={gjennomforingId}
+            submitNeste
+          />
         </VStack>
       </Form>
     </>
