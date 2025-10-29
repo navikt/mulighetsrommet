@@ -186,9 +186,7 @@ export function UtbetalingPage() {
                 <Accordion.Item>
                   <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
                   <Accordion.Content>
-                    {utbetaling.id && (
-                      <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
-                    )}
+                    <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
                   </Accordion.Content>
                 </Accordion.Item>
               </Accordion>

@@ -29,7 +29,15 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 100,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 2.0),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId1,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(periodeStart, periodeSlutt),
+                                        2.0,
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -43,7 +51,15 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 20,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 0.4),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId1,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(periodeStart, LocalDate.of(2023, 6, 5)),
+                                        0.4,
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -61,8 +77,24 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 150,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 2.0),
-                            DeltakelseUkesverk(deltakerId2, 1.0),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId1,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(periodeStart, periodeSlutt),
+                                        2.0,
+                                    ),
+                                ),
+                            ),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId2,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(periodeStart, periodeMidt),
+                                        1.0,
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -96,7 +128,15 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 50,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 1.0),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId1,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(periodeMidt, periodeSlutt),
+                                        1.0,
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -118,8 +158,28 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     UtbetalingBeregningPrisPerUkesverk.Output(
                         belop = 110,
                         deltakelser = setOf(
-                            DeltakelseUkesverk(deltakerId1, 1.4),
-                            DeltakelseUkesverk(deltakerId2, 0.8),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId1,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(LocalDate.of(2025, 2, 5), LocalDate.of(2025, 2, 10)),
+                                        0.6,
+                                    ),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(LocalDate.of(2025, 2, 11), LocalDate.of(2025, 2, 15)),
+                                        0.8,
+                                    ),
+                                ),
+                            ),
+                            UtbetalingBeregningOutputDeltakelse(
+                                deltakerId2,
+                                setOf(
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                        Periode(LocalDate.of(2025, 2, 11), LocalDate.of(2025, 2, 15)),
+                                        0.8,
+                                    ),
+                                ),
+                            ),
                         ),
                     ),
                 ),
@@ -157,7 +217,12 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
             beregning.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
                 belop = 60,
                 deltakelser = setOf(
-                    DeltakelseUkesverk(deltakerId1, 6.0),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakerId1,
+                        setOf(
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 6.0),
+                        ),
+                    ),
                 ),
             )
         }
