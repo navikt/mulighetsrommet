@@ -157,8 +157,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.kontonummer shouldBe Kontonummer("12345678901")
             utbetaling.beregning.input shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                sats = 20975,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 20975)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelseDeltakelsesprosentPerioder(
@@ -436,7 +435,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                         UtbetalingBeregningOutputDeltakelse(
                             domain.deltakere[0].id,
                             setOf(
-                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(januar, 1.0),
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(januar, 1.0, 20_975),
                             ),
                         ),
                     )
@@ -481,6 +480,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                                 UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                     Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
                                     0.48387,
+                                    20_975,
                                 ),
                             ),
                         ),
@@ -525,6 +525,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                                 UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                     Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
                                     0.48387,
+                                    20_975,
                                 ),
                             ),
                         ),
@@ -761,8 +762,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
         val beregning = UtbetalingBeregningPrisPerManedsverk(
             input = UtbetalingBeregningPrisPerManedsverk.Input(
-                periode = periode,
-                sats = 100,
+                satser = setOf(SatsPeriode(periode, 100)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePeriode(deltaker.id, periode),
@@ -774,7 +774,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltaker.id,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 100),
                         ),
                     ),
                 ),
@@ -808,6 +808,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 16)),
                                 0.5,
+                                100,
                             ),
                         ),
                     ),
@@ -844,7 +845,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse(
                                 deltaker.id,
                                 setOf(
-                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0),
+                                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 100),
                                 ),
                             ),
                         )
@@ -898,8 +899,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
             utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                sats = 100,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100)),
                 stengt = setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
                 ),
@@ -952,8 +952,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
             utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerUkesverk.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                sats = 100,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 100)),
                 stengt = setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 1)), "Ferie!"),
                 ),
@@ -1101,7 +1100,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 satser = listOf(
-                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                    AvtaltSats(LocalDate.of(2024, 1, 1), 100),
                 ),
             )
 
@@ -1123,10 +1122,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .shouldHaveSize(1)
                 .first()
 
+            utbetaling.periode shouldBe januar
             utbetaling.gjennomforing.id shouldBe oppfolging.id
             utbetaling.beregning.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                periode = januar,
-                sats = 100,
+                satser = setOf(SatsPeriode(Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3)), 100)),
                 stengt = emptySet(),
                 deltakelser = setOf(
                     DeltakelsePeriode(
@@ -1144,6 +1143,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 1, 1)),
                                 1.0,
+                                100,
                             ),
                         ),
                     ),
@@ -1180,7 +1180,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                 satser = listOf(
-                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+                    AvtaltSats(LocalDate.of(2024, 1, 1), 100),
                 ),
             )
 
@@ -1213,10 +1213,12 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
     }
 
-    context("resolve avtalt sats") {
-        test("finner sats hvis gjennomføringen og satsen begynner midt i en måned") {
-            val oppfolging = GjennomforingFixtures.Oppfolging1
-            val service = createUtbetalingService()
+    context("utledning av avtalte satser") {
+        val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+        val service = createUtbetalingService()
+
+        test("finner sats hvis gjennomføringen og satsen begynner midt i perioden") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(
@@ -1227,10 +1229,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(avtale),
-                gjennomforinger = listOf(oppfolging.copy(startDato = LocalDate.of(2025, 1, 15))),
+                gjennomforinger = listOf(gjennomforing.copy(startDato = LocalDate.of(2025, 1, 15))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
-                        oppfolging.id,
+                        gjennomforing.id,
                         startDato = LocalDate.of(2025, 1, 15),
                         sluttDato = null,
                         statusType = DeltakerStatusType.DELTAR,
@@ -1238,7 +1240,49 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1)
+            val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().should {
+                it.input.satser shouldBe setOf(
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1)), 100),
+                )
+            }
+        }
+
+        test("finner alle relevante satser innenfor utbetalingsperioden") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2024, 1, 1), 1),
+                    AvtaltSats(LocalDate.of(2025, 1, 2), 2),
+                    AvtaltSats(LocalDate.of(2025, 1, 3), 3),
+                    AvtaltSats(LocalDate.of(2025, 2, 1), 4),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        gjennomforing.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = null,
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().should {
+                it.input.satser shouldBe setOf(
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2)), 1),
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 2), LocalDate.of(2025, 1, 3)), 2),
+                    SatsPeriode(Periode(LocalDate.of(2025, 1, 3), LocalDate.of(2025, 2, 1)), 3),
+                )
+            }
         }
     }
 })

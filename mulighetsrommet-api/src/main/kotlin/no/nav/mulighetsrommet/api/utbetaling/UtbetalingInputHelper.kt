@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
@@ -20,6 +21,7 @@ object UtbetalingInputHelper {
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforing.id)
         val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
+        // TODO: støtte satsperioder her også
         return AvtaltPrisPerTimeOppfolgingPerDeltaker(sats, stengtHosArrangor, deltakere, deltakelsePerioder)
     }
 
@@ -39,6 +41,36 @@ object UtbetalingInputHelper {
         val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
         return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
             ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
+    }
+
+    fun resolveAvtalteSatser(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Set<SatsPeriode> {
+        val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
+            maxOf(gjennomforing.startDato, periode.start)
+        } else {
+            periode.start
+        }
+        val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
+
+        return AvtalteSatser.getAvtalteSatser(avtale)
+            .sortedBy { it.gjelderFra }
+            .windowed(size = 2, partialWindows = true)
+            .mapNotNull { satser ->
+                val current = satser[0]
+
+                val start = maxOf(current.gjelderFra, avtaltSatsPeriode.start)
+                val slutt = if (satser.size == 2) {
+                    minOf(satser[1].gjelderFra, avtaltSatsPeriode.slutt)
+                } else {
+                    avtaltSatsPeriode.slutt
+                }
+
+                if (slutt.isAfter(start)) {
+                    SatsPeriode(Periode(start, slutt), current.sats)
+                } else {
+                    null
+                }
+            }
+            .toSet()
     }
 
     private fun resolveDeltakelsePerioder(

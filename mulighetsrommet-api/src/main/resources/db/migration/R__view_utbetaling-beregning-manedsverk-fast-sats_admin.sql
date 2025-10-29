@@ -1,9 +1,22 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_utbetaling_beregning_manedsverk_fast_sats_admin;
+drop view if exists view_utbetaling_beregning_manedsverk_fast_sats;
 
-create view view_utbetaling_beregning_manedsverk_fast_sats_admin as
-with stengt as (select utbetaling_id,
+create view view_utbetaling_beregning_manedsverk_fast_sats as
+with satser as (select utbetaling_id,
+                       jsonb_agg(
+                               jsonb_build_object(
+                                       'periode',
+                                       jsonb_build_object(
+                                               'start', lower(periode),
+                                               'slutt', upper(periode)
+                                       ),
+                                       'sats', sats
+                               )
+                       ) as sats_perioder_json
+                from utbetaling_sats_periode
+                group by utbetaling_id),
+    stengt as (select utbetaling_id,
                        jsonb_agg(
                                jsonb_build_object(
                                        'periode',
@@ -52,7 +65,8 @@ with stengt as (select utbetaling_id,
                                                                            'start', lower(periode),
                                                                            'slutt', upper(periode)
                                                                    ),
-                                                                   'faktor', faktor
+                                                                   'faktor', faktor,
+                                                                   'sats', sats
                                                            )
                                                    )
                                             from utbetaling_deltakelse_faktor p2
@@ -65,12 +79,12 @@ with stengt as (select utbetaling_id,
 select utbetaling.id,
        utbetaling.periode,
        utbetaling.belop_beregnet,
-       beregning.sats,
+       satser.sats_perioder_json,
        coalesce(manedsverk.manedsverk_json, '[]'::jsonb)            as manedsverk_json,
        coalesce(stengt.stengt_perioder_json, '[]'::jsonb)           as stengt_perioder_json,
        coalesce(deltakelser.deltakelser_perioder_json, '[]'::jsonb) as deltakelser_perioder_json
 from utbetaling
-         join utbetaling_beregning_sats beregning on utbetaling.id = beregning.utbetaling_id
+         join satser on utbetaling.id = satser.utbetaling_id
          left join manedsverk on utbetaling.id = manedsverk.utbetaling_id
          left join stengt on utbetaling.id = stengt.utbetaling_id
          left join deltakelser on utbetaling.id = deltakelser.utbetaling_id

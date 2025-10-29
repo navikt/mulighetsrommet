@@ -11,9 +11,8 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
 
     @Serializable
     data class Input(
-        val periode: Periode,
+        val satser: Set<SatsPeriode>,
         val belop: Int,
-        val sats: Int,
         val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput() {

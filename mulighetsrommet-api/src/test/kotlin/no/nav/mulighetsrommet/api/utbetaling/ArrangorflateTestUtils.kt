@@ -94,8 +94,7 @@ object ArrangorflateTestUtils {
             gjennomforingId = GjennomforingFixtures.AFT1.id,
             beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    periode = periode,
-                    sats = 20205,
+                    satser = setOf(SatsPeriode(periode, 20205)),
                     stengt = setOf(),
                     deltakelser = setOf(
                         DeltakelseDeltakelsesprosentPerioder(
@@ -111,7 +110,7 @@ object ArrangorflateTestUtils {
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             deltakerId,
-                            setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0)),
+                            setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20205)),
                         ),
                     ),
                 ),

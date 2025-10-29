@@ -10,6 +10,8 @@ import java.time.LocalDate
 import java.util.*
 
 class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
+    val sats = 100
+
     context("beregning for fast sats per tiltaksplass per måned") {
         test("beløp beregnes fra månedsverk til deltakere og sats") {
             val periodeStart = LocalDate.of(2023, 6, 1)
@@ -38,6 +40,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeSlutt),
                                         1.0,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -62,6 +65,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeSlutt),
                                         1.0,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -86,6 +90,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeMidt),
                                         0.25,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -111,10 +116,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeMidt),
                                         0.25,
+                                        sats,
                                     ),
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeMidt, periodeSlutt),
                                         0.5,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -145,6 +152,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeSlutt),
                                         1.0,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -154,6 +162,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeSlutt),
                                         0.5,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -185,10 +194,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeMidt),
                                         0.25,
+                                        sats,
                                     ),
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeMidt, periodeSlutt),
                                         0.5,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -198,6 +209,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeMidt),
                                         0.25,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -205,8 +217,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
             ) { deltakelser, expectedBeregning ->
-                val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(periode, 100, setOf(), deltakelser)
+                val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), sats))
+                val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, setOf(), deltakelser)
 
                 val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
 
@@ -242,6 +254,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeMidt, periodeSlutt),
                                         0.5,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -267,10 +280,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeStart.plusWeeks(1)),
                                         0.25,
+                                        sats,
                                     ),
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeMidt.plusWeeks(1), periodeSlutt),
                                         0.25,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -303,10 +318,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeStart.plusWeeks(1)),
                                         0.125,
+                                        sats,
                                     ),
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeMidt.plusWeeks(1), periodeSlutt),
                                         0.25,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -316,6 +333,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                                     UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                         Periode(periodeStart, periodeStart.plusWeeks(1)),
                                         0.125,
+                                        sats,
                                     ),
                                 ),
                             ),
@@ -323,8 +341,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
             ) { stengt, deltakelser, expectedBeregning ->
-                val periode = Periode(periodeStart, periodeSlutt)
-                val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(periode, 100, stengt, deltakelser)
+                val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), sats))
+                val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
                 val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
 
@@ -344,8 +362,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
             val periode = Periode(periodeStart, periodeSlutt)
             val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = periode,
-                sats = 100,
+                satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(StengtPeriode(Periode(stengtPeriodeStart, stengtPeriodeSlutt), "Stengt")),
                 deltakelser = setOf(
                     DeltakelseDeltakelsesprosentPerioder(
@@ -375,10 +392,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeStart, stengtPeriodeStart),
                                 0.11364,
+                                sats,
                             ),
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(stengtPeriodeSlutt, periodeSlutt),
                                 0.27273,
+                                sats,
                             ),
                         ),
                     ),
@@ -388,6 +407,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(periodeStart, stengtPeriodeStart),
                                 0.11364,
+                                sats,
                             ),
                         ),
                     ),
@@ -411,8 +431,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     ),
                 ),
             )
-            val periode = Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1))
-            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(periode, 100, stengt, deltakelser)
+            val satser = setOf(SatsPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), sats))
+            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
             val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
 
@@ -425,10 +445,12 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2023, 4, 2), LocalDate.of(2023, 4, 5)),
                                 0.1,
+                                sats,
                             ),
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                 Periode(LocalDate.of(2023, 4, 19), LocalDate.of(2023, 5, 1)),
                                 0.4,
+                                sats,
                             ),
                         ),
                     ),
@@ -450,8 +472,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
             val periode = Periode.forMonthOf(LocalDate.of(2025, 12, 1))
             val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = periode,
-                sats = 20205,
+                satser = setOf(SatsPeriode(periode, 20205)),
                 stengt = emptySet(),
                 deltakelser = setOf(
                     DeltakelseDeltakelsesprosentPerioder(
@@ -474,13 +495,21 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(deltakelse1, 0.21739),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                deltakelse1,
+                                0.21739,
+                                20205,
+                            ),
                         ),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId2,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(deltakelse2, 0.26087),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                deltakelse2,
+                                0.26087,
+                                20205,
+                            ),
                         ),
                     ),
                 ),
@@ -493,10 +522,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
                 val utbetaling = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                        periode = Periode.forMonthOf(LocalDate.of(2023, 3, 1)),
-                        20205,
-                        emptySet(),
-                        setOf(
+                        satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2023, 3, 1)), 20205)),
+                        stengt = emptySet(),
+                        deltakelser = setOf(
                             DeltakelseDeltakelsesprosentPerioder(
                                 deltakelseId = UUID.randomUUID(),
                                 perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
@@ -526,10 +554,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakerId2 = UUID.randomUUID()
 
             val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode,
-                10,
-                setOf(),
-                setOf(
+                satser = setOf(SatsPeriode(periode, 10)),
+                stengt = setOf(),
+                deltakelser = setOf(
                     DeltakelseDeltakelsesprosentPerioder(
                         deltakelseId = deltakerId1,
                         perioder = listOf(DeltakelsesprosentPeriode(periode, 100.0)),
@@ -548,13 +575,21 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId1,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                periode,
+                                2.0,
+                                10,
+                            ),
                         ),
                     ),
                     UtbetalingBeregningOutputDeltakelse(
                         deltakerId2,
                         setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 2.0),
+                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                periode,
+                                2.0,
+                                10,
+                            ),
                         ),
                     ),
                 ),
@@ -585,8 +620,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
             val periode = Periode.forMonthOf(LocalDate.of(2025, 7, 1))
             val input = UtbetalingBeregningPrisPerManedsverk.Input(
-                periode = periode,
-                sats = 100,
+                satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePeriode(deltakerId1, heleUke37),
@@ -602,19 +636,31 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22581),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            heleUke37,
+                            0.22581,
+                            sats,
+                        ),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId2,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.16129),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            hverdagerUke37,
+                            0.16129,
+                            sats,
+                        ),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId3,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.29032),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            helgFraUke36OgHeleUke37,
+                            0.29032,
+                            sats,
+                        ),
                     ),
                 ),
             )
@@ -644,8 +690,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
             val periode = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
             val input = UtbetalingBeregningPrisPerManedsverk.Input(
-                periode = periode,
-                sats = 100,
+                satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePeriode(deltakerId1, heleUke37),
@@ -661,19 +706,31 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(heleUke37, 0.22727),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            heleUke37,
+                            0.22727,
+                            sats,
+                        ),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId2,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(hverdagerUke37, 0.22727),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            hverdagerUke37,
+                            0.22727,
+                            sats,
+                        ),
                     ),
                 ),
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId3,
                     setOf(
-                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(helgFraUke36OgHeleUke37, 0.22727),
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                            helgFraUke36OgHeleUke37,
+                            0.22727,
+                            sats,
+                        ),
                     ),
                 ),
             )

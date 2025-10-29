@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -46,8 +47,7 @@ class JournalforUtbetalingTest : FunSpec({
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-                sats = 20205,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2024, 8, 1)), 20205)),
                 stengt = setOf(),
                 deltakelser = emptySet(),
             ),
