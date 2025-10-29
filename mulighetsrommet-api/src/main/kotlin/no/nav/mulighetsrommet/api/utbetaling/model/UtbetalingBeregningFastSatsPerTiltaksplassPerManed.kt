@@ -22,7 +22,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
     @Serializable
     data class Output(
         override val belop: Int,
-        val deltakelser: Set<DeltakelseManedsverk>,
+        val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser
     }
@@ -40,7 +40,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(manedsverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(manedsverk, input.sats)
 
             return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, Output(belop, manedsverk))
         }

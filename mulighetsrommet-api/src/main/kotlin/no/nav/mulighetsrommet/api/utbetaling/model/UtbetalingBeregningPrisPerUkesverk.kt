@@ -22,7 +22,7 @@ data class UtbetalingBeregningPrisPerUkesverk(
     @Serializable
     data class Output(
         override val belop: Int,
-        val deltakelser: Set<DeltakelseUkesverk>,
+        val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser
     }
@@ -37,7 +37,7 @@ data class UtbetalingBeregningPrisPerUkesverk(
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(ukesverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk, input.sats)
 
             return UtbetalingBeregningPrisPerUkesverk(input, Output(belop, ukesverk))
         }
