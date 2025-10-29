@@ -18,12 +18,7 @@ import {
   useActionData,
   useLoaderData,
 } from "react-router";
-import {
-  ArrangorflateService,
-  FieldError,
-  OpprettKravOppsummering,
-  Tilskuddstype,
-} from "api-client";
+import { ArrangorflateService, FieldError, OpprettKravOppsummering } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
