@@ -71,11 +71,8 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let belop: number | undefined;
   let kontonummer: string | undefined;
   let kidNummer: string | undefined;
-  if (
-    session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
-    session.get("gjennomforingId") === gjennomforingId
-  ) {
+
+  if (session.get("orgnr") === orgnr && session.get("gjennomforingId") === gjennomforingId) {
     tilsagnId = session.get("tilsagnId");
     periodeStart = session.get("periodeStart");
     periodeSlutt = session.get("periodeSlutt");
@@ -84,9 +81,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     kontonummer = session.get("kontonummer");
     kidNummer = session.get("kid");
   }
-  if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer)
+  if (!tilsagnId || !periodeStart || !periodeSlutt || !belop || !kontonummer) {
     throw new Error("Formdata mangler");
-
+  }
   const { data: oppsummering, error } = await ArrangorflateService.getOpprettKravOppsummering({
     path: { orgnr, gjennomforingId },
     headers: await apiHeaders(request),

@@ -81,11 +81,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   let sessionTilsagnId: string | undefined;
   let sessionPeriodeStart: string | undefined;
   let sessionPeriodeSlutt: string | undefined;
-  if (
-    session.get("orgnr") === orgnr &&
-    session.get("tilskuddstype") === Tilskuddstype.TILTAK_DRIFTSTILSKUDD &&
-    session.get("gjennomforingId") === gjennomforingId
-  ) {
+  if (session.get("orgnr") === orgnr && session.get("gjennomforingId") === gjennomforingId) {
     sessionTilsagnId = session.get("tilsagnId");
     sessionPeriodeStart = session.get("periodeStart");
     sessionPeriodeSlutt = session.get("periodeSlutt");

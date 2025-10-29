@@ -47,6 +47,7 @@ import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Arrangor
@@ -280,6 +281,40 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             )
         }
 
+        get("/utbetalingsinformasjon", {
+            description = "Hent utbetalingsinformasjon"
+            tags = setOf("Arrangorflate")
+            operationId = "getOpprettKravUtbetalingsinformasjon"
+            request {
+                pathParameter<Organisasjonsnummer>("orgnr")
+                pathParameter<String>("gjennomforingId")
+                queryParameter<String>("periodeStart")
+                queryParameter<String>("periodeSlutt")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetalingsinformasjon"
+                    body<OpprettKravUtbetalingsinformasjon>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val gjennomforing = requireGjennomforing()
+            arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+                .onLeft { call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
+                .onRight { kontonummer ->
+                    call.respond(
+                        OpprettKravUtbetalingsinformasjon.from(
+                            gjennomforing,
+                            kontonummer,
+                        ),
+                    )
+                }
+        }
+
         get("/vedlegg", {
             description = "Hent vedleggsinfo"
             tags = setOf("Arrangorflate")
@@ -329,11 +364,13 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }) {
             val gjennomforing = requireGjennomforing()
             val request = call.receive<OpprettKravOppsummeringRequest>()
-            val kontonummer =
-                arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer).getOrNull()
-            call.respond(
-                OpprettKravOppsummering.from(request, gjennomforing, kontonummer),
-            )
+            arrangorFlateService.getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+                .onLeft { call.respondWithProblemDetail(InternalServerError("Klarte ikke å hente kontonummeret")) }
+                .onRight { kontonummer ->
+                    call.respond(
+                        OpprettKravOppsummering.from(request, gjennomforing, kontonummer),
+                    )
+                }
         }
 
         post({
@@ -725,6 +762,24 @@ fun createDeltakerTable(
             )
         },
     )
+}
+
+@Serializable
+data class OpprettKravUtbetalingsinformasjon(
+    val kontonummer: Kontonummer,
+    val navigering: OpprettKravVeiviserNavigering,
+) {
+    companion object {
+        fun from(gjennomforing: Gjennomforing, kontonummer: Kontonummer): OpprettKravUtbetalingsinformasjon {
+            return OpprettKravUtbetalingsinformasjon(
+                kontonummer = kontonummer,
+                navigering = getVeiviserNavigering(
+                    OpprettKravVeiviserSteg.UTBETALING,
+                    gjennomforing,
+                ),
+            )
+        }
+    }
 }
 
 @Serializable
