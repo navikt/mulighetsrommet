@@ -31,10 +31,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
                             adressebeskyttelse {
                                 gradering
                             }
-                            foedselsdato {
-                                foedselsdato
-                                foedselsaar
-                            }
                         }
                         code
                     }
@@ -67,7 +63,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
                     }
                     PdlIdent(it.ident) to PdlPerson(
                         navn = person.navn.tilNavn(),
-                        foedselsdato = person.foedselsdato.tilFoedselsdato(),
                         gradering = person.adressebeskyttelse.tilGradering(),
                     )
                 } else {

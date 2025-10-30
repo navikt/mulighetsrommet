@@ -40,12 +40,6 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
                                                  {
                                                      "gradering": "STRENGT_FORTROLIG"
                                                  }
-                                             ],
-                                             "foedselsdato": [
-                                                 {
-                                                     "foedselsaar": 1980,
-                                                     "foedselsdato": null
-                                                 }
                                              ]
                                         },
                                         "code": "ok"
@@ -74,7 +68,6 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
             PdlIdent("12345678910") to PdlPerson(
                 navn = "Normann, Ola",
                 gradering = PdlGradering.STRENGT_FORTROLIG,
-                foedselsdato = null,
             ),
         )
     }
@@ -100,12 +93,6 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
                                              "adressebeskyttelse": [
                                                  {
                                                      "gradering": null
-                                                 }
-                                             ],
-                                             "foedselsdato": [
-                                                 {
-                                                     "foedselsaar": 1980,
-                                                     "foedselsdato": null
                                                  }
                                              ]
                                         },
@@ -135,7 +122,6 @@ class HentAdressebeskyttetPersonBolkPdlQueryTest : FunSpec({
             PdlIdent("12345678910") to PdlPerson(
                 navn = "Normann, Ola",
                 gradering = PdlGradering.UGRADERT,
-                foedselsdato = null,
             ),
         )
     }
