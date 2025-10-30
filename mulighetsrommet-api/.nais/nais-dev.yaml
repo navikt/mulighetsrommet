@@ -167,6 +167,11 @@ spec:
           permissions:
             roles:
               - tiltaksgjennomforing-read
+        - application: amt-deltaker
+          namespace: amt
+          permissions:
+            roles:
+              - tiltaksgjennomforing-read
         - application: amt-arena-acl
           namespace: amt
           permissions:
