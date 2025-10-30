@@ -282,7 +282,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from gjennomforing_admin_dto_view
+            from view_gjennomforing
             where id = ?::uuid
         """.trimIndent()
 
@@ -356,7 +356,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over () as total_count
-            from gjennomforing_admin_dto_view
+            from view_gjennomforing
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))

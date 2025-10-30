@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists veilederflate_tiltak_view;
+drop view if exists view_veilederflate_tiltak;
 
-create view veilederflate_tiltak_view as
+create view view_veilederflate_tiltak as
 select gjennomforing.id,
        gjennomforing.fts,
        gjennomforing.navn,

@@ -19,7 +19,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from veilederflate_tiltak_view
+            from view_veilederflate_tiltak
             where id = ?::uuid
         """.trimIndent()
 
@@ -46,7 +46,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from veilederflate_tiltak_view
+            from view_veilederflate_tiltak
             where publisert
               and (
                 (:innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper))
