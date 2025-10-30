@@ -42,6 +42,7 @@ data class Gjennomforing(
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
+    val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     @Serializable(with = LocalDateTimeSerializer::class)

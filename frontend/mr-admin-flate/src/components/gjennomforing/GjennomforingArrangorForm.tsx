@@ -1,5 +1,5 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { Textarea, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
+import { TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -10,7 +10,6 @@ import { Controller, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
-import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
@@ -22,7 +21,6 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const {
-    register,
     watch,
     formState: { errors },
     setValue,
@@ -102,18 +100,6 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
             knappetekst="Opprett eller rediger kontaktpersoner"
           />
         </VStack>
-        <Textarea
-          size="small"
-          resize
-          value={watch("stedForGjennomforing") || ""}
-          maxLength={STED_FOR_GJENNOMFORING_MAX_LENGTH}
-          label={gjennomforingTekster.stedForGjennomforingLabel}
-          description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
-          {...register("stedForGjennomforing")}
-          error={
-            errors.stedForGjennomforing ? (errors.stedForGjennomforing.message as string) : null
-          }
-        />
       </VStack>
 
       <ArrangorKontaktpersonerModal

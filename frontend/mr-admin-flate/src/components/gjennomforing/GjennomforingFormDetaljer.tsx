@@ -19,8 +19,10 @@ import {
   HStack,
   Select,
   Switch,
+  Textarea,
   TextField,
   UNSAFE_Combobox,
+  VStack,
 } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -35,6 +37,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import { OPPMOTE_STED_MAX_LENGTH, STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 
 interface Props {
   avtale: AvtaleDto;
@@ -256,6 +259,32 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                     </Select>
                   </HStack>
                 ) : null}
+                <VStack gap="2">
+                  <Textarea
+                    size="small"
+                    resize
+                    value={watch("oppmoteSted") || ""}
+                    maxLength={OPPMOTE_STED_MAX_LENGTH}
+                    label="Oppmøtested"
+                    description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digital jobbklubb), kan du la feltet stå tomt."
+                    {...register("oppmoteSted")}
+                    error={errors.oppmoteSted ? (errors.oppmoteSted.message as string) : null}
+                  />
+                  <Textarea
+                    className="opacity-75"
+                    size="small"
+                    resize
+                    value={watch("stedForGjennomforing") || ""}
+                    maxLength={STED_FOR_GJENNOMFORING_MAX_LENGTH}
+                    label={gjennomforingTekster.stedForGjennomforingLabel}
+                    {...register("stedForGjennomforing")}
+                    error={
+                      errors.stedForGjennomforing
+                        ? (errors.stedForGjennomforing.message as string)
+                        : null
+                    }
+                  />
+                </VStack>
               </fieldset>
             ) : null}
           </FormGroup>

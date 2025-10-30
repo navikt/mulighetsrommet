@@ -1,5 +1,5 @@
 import z from "zod";
-import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
+import { OPPMOTE_STED_MAX_LENGTH, STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
 import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
 import {
   ArenaMigreringOpphav,
@@ -44,6 +44,20 @@ export const GjennomforingSchema = z
     arrangorId: z.uuid({
       error: "Du må velge en underenhet for tiltaksarrangør",
     }),
+    oppmoteSted: z
+      .string()
+      .nullable()
+      .refine(
+        (val) => {
+          if (!val) {
+            return true;
+          }
+          return val.length <= OPPMOTE_STED_MAX_LENGTH;
+        },
+        {
+          error: `Du kan bare skrive ${OPPMOTE_STED_MAX_LENGTH} tegn i "Sted for gjennomføring"`,
+        },
+      ),
     stedForGjennomforing: z
       .string()
       .nullable()

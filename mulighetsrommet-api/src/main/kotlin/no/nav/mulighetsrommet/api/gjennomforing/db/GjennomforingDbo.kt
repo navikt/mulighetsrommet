@@ -21,6 +21,7 @@ data class GjennomforingDbo(
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String?,
+    val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     val deltidsprosent: Double,
