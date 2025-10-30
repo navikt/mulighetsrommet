@@ -141,9 +141,10 @@ class ArrangorflateService(
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
         } else {
+            val deltakelser = utbetaling.beregning.input.deltakelser().map { it.deltakelseId }
             queries.deltaker
                 .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
+                .filter { it.id in deltakelser }
         }
 
         val personalia = getPersonalia(deltakere.map { it.id }.toSet())

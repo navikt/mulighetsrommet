@@ -227,6 +227,7 @@ class VeilederflateService(
                     stedForGjennomforing = stedForGjennomforing,
                     fylker = fylker,
                     enheter = enheter,
+                    oppmoteSted = null,
                 )
             }
 
@@ -243,6 +244,7 @@ class VeilederflateService(
                 fylker = fylker,
                 enheter = enheter,
                 arrangor = arrangor,
+                oppmoteSted = null,
             )
 
             else -> VeilederflateTiltakEnkeltplass(
@@ -256,6 +258,7 @@ class VeilederflateService(
                 stedForGjennomforing = stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
+                oppmoteSted = null,
             )
         }
     }

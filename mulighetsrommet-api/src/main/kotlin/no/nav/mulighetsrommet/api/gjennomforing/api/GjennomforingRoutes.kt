@@ -631,6 +631,7 @@ data class GjennomforingRequest(
     val administratorer: List<NavIdent>,
     val oppstart: GjennomforingOppstartstype,
     val stedForGjennomforing: String?,
+    val oppmoteSted: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)

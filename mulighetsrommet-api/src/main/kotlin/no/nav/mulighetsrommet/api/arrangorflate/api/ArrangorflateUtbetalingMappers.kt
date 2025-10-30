@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning.*
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregningDeltakelse.PrisPerUkesverk
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -18,99 +18,160 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrangorflateUtbetalingDto {
-    val deltakelserMedFaktor = {
-        val perioderById = utbetaling.beregning.input.deltakelser().associateBy { it.deltakelseId }
-        val ukesverkById = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
-
-        perioderById.map { (id, deltakelse) ->
-            val deltaker = deltakereById[id]
-            val personalia = personaliaById[id]
-            toArrangorflateBeregningDeltakelse(
-                deltakelse,
-                ukesverkById.getValue(id),
-                deltaker,
-                personalia,
-            )
-        }.sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
-    }
-
     val totalFaktor = utbetaling.beregning.output.deltakelser()
-        .map { BigDecimal(it.faktor) }
+        .flatMap { deltakelse -> deltakelse.perioder.map { it.faktor } }
+        .map { BigDecimal(it) }
         .sumOf { it }
         .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
         .toDouble()
 
     val beregning = when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> {
-            Fri(
+            ArrangorflateBeregning.Fri(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
             )
         }
 
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-            FastSatsPerTiltaksplassPerManed(
-                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
-                antallManedsverk = totalFaktor,
+            val perioderById = utbetaling.beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val deltakelseById = utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId }
+            val deltakelser = perioderById
+                .map { (id, deltakelse) ->
+                    val deltaker = deltakereById[id]
+                    val personalia = personaliaById[id]
+                    val deltakelseOutput = deltakelseById.getValue(id)
+                    ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
+                        id = deltakelseOutput.deltakelseId,
+                        deltakerStartDato = deltaker?.startDato,
+                        personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
+                        periode = deltakelse.periode(),
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
+                        perioderMedDeltakelsesmengde = deltakelse.perioder,
+                        status = deltaker?.status?.type,
+                    )
+                }
+                .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
-                deltakelser = deltakelserMedFaktor(),
-                sats = beregning.input.sats,
+                deltakelser = deltakelser,
+                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                antallManedsverk = totalFaktor,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
         is UtbetalingBeregningPrisPerManedsverk -> {
-            PrisPerManedsverk(
+            val perioderById = utbetaling.beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val deltakelseById = utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId }
+            val deltakelser = perioderById
+                .map { (id, deltakelse) ->
+                    val deltaker = deltakereById[id]
+                    val personalia = personaliaById[id]
+                    val deltakelseOutput = deltakelseById.getValue(id)
+                    ArrangorflateBeregningDeltakelse.PrisPerManedsverk(
+                        id = deltakelseOutput.deltakelseId,
+                        deltakerStartDato = deltaker?.startDato,
+                        personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
+                        periode = deltakelse.periode(),
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
+                        status = deltaker?.status?.type,
+                    )
+                }
+                .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            ArrangorflateBeregning.PrisPerManedsverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
-                deltakelser = deltakelserMedFaktor(),
+                deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
         is UtbetalingBeregningPrisPerUkesverk -> {
-            PrisPerUkesverk(
+            val perioderById = utbetaling.beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val deltakelseById = utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId }
+            val deltakelser = perioderById
+                .map { (id, deltakelse) ->
+                    val deltaker = deltakereById[id]
+                    val personalia = personaliaById[id]
+                    val deltakelseOutput = deltakelseById.getValue(id)
+                    PrisPerUkesverk(
+                        id = deltakelseOutput.deltakelseId,
+                        deltakerStartDato = deltaker?.startDato,
+                        personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
+                        periode = deltakelse.periode(),
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
+                        status = deltaker?.status?.type,
+                    )
+                }
+                .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            ArrangorflateBeregning.PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
-                deltakelser = deltakelserMedFaktor(),
+                deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
         is UtbetalingBeregningPrisPerHeleUkesverk -> {
-            PrisPerUkesverk(
+            val perioderById = utbetaling.beregning.input.deltakelser.associateBy { it.deltakelseId }
+            val deltakelseById = utbetaling.beregning.output.deltakelser.associateBy { it.deltakelseId }
+            val deltakelser = perioderById
+                .map { (id, deltakelse) ->
+                    val deltaker = deltakereById[id]
+                    val personalia = personaliaById[id]
+                    val deltakelseOutput = deltakelseById.getValue(id)
+                    PrisPerUkesverk(
+                        id = deltakelseOutput.deltakelseId,
+                        deltakerStartDato = deltaker?.startDato,
+                        personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
+                        periode = deltakelse.periode(),
+                        faktor = deltakelseOutput.perioder.sumOf { it.faktor },
+                        status = deltaker?.status?.type,
+                    )
+                }
+                .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            ArrangorflateBeregning.PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
-                deltakelser = deltakelserMedFaktor(),
+                deltakelser = deltakelser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
 
         is UtbetalingBeregningPrisPerTimeOppfolging -> {
             val perioderById = utbetaling.beregning.input.deltakelser().associateBy { it.deltakelseId }
-            val deltakerlser = perioderById.map { (id, deltakelse) ->
-                val deltaker = deltakereById[id]
-                val personalia = personaliaById[id]
-                ArrangorflateBeregningDeltakelse.PrisPerTimeOppfolging(
-                    id = id,
-                    deltakerStartDato = deltaker?.startDato,
-                    personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
-                    periode = deltakelse.periode(),
-                    status = deltaker?.status?.type,
-                )
-            }.sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
-            PrisPerTimeOppfolging(
+            val deltakerlser = perioderById
+                .map { (id, deltakelse) ->
+                    val deltaker = deltakereById[id]
+                    val personalia = personaliaById[id]
+                    ArrangorflateBeregningDeltakelse.PrisPerTimeOppfolging(
+                        id = id,
+                        deltakerStartDato = deltaker?.startDato,
+                        personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
+                        periode = deltakelse.periode(),
+                        status = deltaker?.status?.type,
+                    )
+                }
+                .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            ArrangorflateBeregning.PrisPerTimeOppfolging(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakerlser,
                 stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
-                sats = beregning.input.sats,
+                // TODO: støtte flere satser
+                sats = beregning.input.satser.first().sats,
             )
         }
     }
@@ -144,45 +205,4 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         linjer = linjer,
         advarsler = advarsler,
     )
-}
-
-fun toArrangorflateBeregningDeltakelse(
-    input: UtbetalingBeregningInputDeltakelse,
-    output: UtbetalingBeregningOutputDeltakelse,
-    deltaker: Deltaker?,
-    personalia: DeltakerPersonalia?,
-): ArrangorflateBeregningDeltakelse {
-    return when (output) {
-        is DeltakelseUkesverk -> ArrangorflateBeregningDeltakelse.PrisPerUkesverk(
-            id = output.deltakelseId,
-            deltakerStartDato = deltaker?.startDato,
-            personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
-            periode = input.periode(),
-            faktor = output.faktor,
-            status = deltaker?.status?.type,
-        )
-
-        is DeltakelseManedsverk -> when (input) {
-            is DeltakelsePeriode ->
-                ArrangorflateBeregningDeltakelse.PrisPerManedsverk(
-                    id = output.deltakelseId,
-                    deltakerStartDato = deltaker?.startDato,
-                    personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
-                    periode = input.periode(),
-                    faktor = output.faktor,
-                    status = deltaker?.status?.type,
-                )
-
-            is DeltakelseDeltakelsesprosentPerioder ->
-                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
-                    id = output.deltakelseId,
-                    deltakerStartDato = deltaker?.startDato,
-                    personalia = personalia?.let { ArrangorflatePersonalia.fromPersonalia(it) },
-                    periode = input.periode(),
-                    faktor = output.faktor,
-                    perioderMedDeltakelsesmengde = input.perioder,
-                    status = deltaker?.status?.type,
-                )
-        }
-    }
 }

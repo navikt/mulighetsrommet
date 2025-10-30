@@ -34,6 +34,7 @@ object GjennomforingDtoMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
+        oppmoteSted = gjennomforing.oppmoteSted,
     )
 
     private fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {

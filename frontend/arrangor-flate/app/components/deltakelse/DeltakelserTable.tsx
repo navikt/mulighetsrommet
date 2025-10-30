@@ -10,6 +10,7 @@ import {
   ArrangorflateBeregningDeltakelse,
   ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed,
   ArrangorflateBeregningDeltakelsePrisPerManedsverk,
+  ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging,
   ArrangorflateBeregningDeltakelsePrisPerUkesverk,
   DeltakerAdvarsel,
   Periode,
@@ -84,6 +85,7 @@ type DeltakerTypeMap = {
   ArrangorflateBeregningPrisPerManedsverk: ArrangorflateBeregningDeltakelsePrisPerManedsverk;
   ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed;
   ArrangorflateBeregningPrisPerUkesverk: ArrangorflateBeregningDeltakelsePrisPerUkesverk;
+  ArrangorflateBeregningPrisPerTimeOppfolging: ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging;
 };
 
 const columns: {
@@ -109,6 +111,7 @@ const columns: {
     { label: "Ukesverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
+  ArrangorflateBeregningPrisPerTimeOppfolging: [...baseColumns],
 };
 
 export function DeltakelserTable({
@@ -123,11 +126,7 @@ export function DeltakelserTable({
 }) {
   const { sort, handleSort } = useSortState<DeltakerSortKey>();
 
-  if (
-    !beregning.type ||
-    !("deltakelser" in beregning) ||
-    beregning.type === "ArrangorflateBeregningPrisPerTimeOppfolging"
-  ) {
+  if (!beregning.type || !("deltakelser" in beregning)) {
     return null;
   }
 

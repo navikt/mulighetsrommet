@@ -9,10 +9,6 @@ fun List<PdlNavn>.tilNavn(): String? {
     }
 }
 
-fun List<Foedselsdato>.tilFoedselsdato(): LocalDate? {
-    return this.firstOrNull()?.foedselsdato
-}
-
 fun List<Adressebeskyttelse>.tilGradering(): PdlGradering {
     return this.firstOrNull()?.gradering ?: PdlGradering.UGRADERT
 }

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate

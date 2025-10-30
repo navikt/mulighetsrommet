@@ -35,6 +35,7 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = gjennomforing.stedForGjennomforing,
+        oppmoteSted = gjennomforing.oppmoteSted,
         faneinnhold = gjennomforing.faneinnhold,
         beskrivelse = gjennomforing.beskrivelse,
         deltidsprosent = gjennomforing.deltidsprosent,
@@ -66,6 +67,7 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = request.stedForGjennomforing,
+        oppmoteSted = request.oppmoteSted,
         faneinnhold = request.veilederinformasjon.faneinnhold,
         beskrivelse = request.veilederinformasjon.beskrivelse,
         deltidsprosent = request.deltidsprosent,
@@ -110,5 +112,6 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
+        oppmoteSted = gjennomforing.oppmoteSted,
     )
 }

@@ -34,10 +34,25 @@ sealed class UtbetalingBeregningOutput {
     abstract fun deltakelser(): Set<UtbetalingBeregningOutputDeltakelse>
 }
 
-sealed class UtbetalingBeregningOutputDeltakelse {
-    abstract val deltakelseId: UUID
-    abstract val faktor: Double
+@Serializable
+data class UtbetalingBeregningOutputDeltakelse(
+    @Serializable(with = UUIDSerializer::class)
+    val deltakelseId: UUID,
+    val perioder: Set<BeregnetPeriode>,
+) {
+    @Serializable
+    data class BeregnetPeriode(
+        val periode: Periode,
+        val faktor: Double,
+        val sats: Int,
+    )
 }
+
+@Serializable
+data class SatsPeriode(
+    val periode: Periode,
+    val sats: Int,
+)
 
 @Serializable
 data class StengtPeriode(
@@ -61,32 +76,12 @@ data class DeltakelsesprosentPeriode(
 )
 
 @Serializable
-data class DeltakelseManedsverk(
-    @Serializable(with = UUIDSerializer::class)
-    override val deltakelseId: UUID,
-    val manedsverk: Double,
-) : UtbetalingBeregningOutputDeltakelse() {
-    override val faktor: Double
-        get() = manedsverk
-}
-
-@Serializable
 data class DeltakelsePeriode(
     @Serializable(with = UUIDSerializer::class)
     override val deltakelseId: UUID,
     val periode: Periode,
 ) : UtbetalingBeregningInputDeltakelse() {
     override fun periode() = periode
-}
-
-@Serializable
-data class DeltakelseUkesverk(
-    @Serializable(with = UUIDSerializer::class)
-    override val deltakelseId: UUID,
-    val ukesverk: Double,
-) : UtbetalingBeregningOutputDeltakelse() {
-    override val faktor: Double
-        get() = ukesverk
 }
 
 object UtbetalingBeregningHelpers {
@@ -107,42 +102,62 @@ object UtbetalingBeregningHelpers {
 
     fun calculateDeltakelseManedsverkForDeltakelsesprosent(
         deltakelse: DeltakelseDeltakelsesprosentPerioder,
+        satser: Set<SatsPeriode>,
         stengtHosArrangor: List<Periode>,
-    ): DeltakelseManedsverk {
-        val manedsverk = deltakelse.perioder
-            .flatMap { deltakelsePeriode ->
-                deltakelsePeriode.periode
-                    .subtractPeriods(stengtHosArrangor)
-                    .map { DeltakelsesprosentPeriode(it, deltakelsePeriode.deltakelsesprosent) }
-            }
-            .map { deltakelsePeriode ->
-                val fraction = getMonthsFraction(deltakelsePeriode.periode)
-                if (deltakelsePeriode.deltakelsesprosent < 50) {
-                    fraction.divide(BigDecimal(2), CALCULATION_PRECISION, RoundingMode.HALF_UP)
-                } else {
-                    fraction
+    ): UtbetalingBeregningOutputDeltakelse {
+        val perioder = deltakelse.perioder.flatMap { deltakelsePeriode ->
+            deltakelsePeriode.periode
+                .subtractPeriods(stengtHosArrangor)
+                .map { DeltakelsesprosentPeriode(it, deltakelsePeriode.deltakelsesprosent) }
+        }
+        return calculateDeltakelseOutput(
+            deltakelse.deltakelseId,
+            perioder.map { it.periode },
+            satser,
+        ) { periode ->
+            val prosent = perioder.find { it.periode == periode }?.deltakelsesprosent ?: 100.0
+            getMonthsFraction(periode)
+                .let { fraction ->
+                    if (prosent < 50) {
+                        fraction.divide(BigDecimal(2), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+                    } else {
+                        fraction
+                    }
                 }
-            }
-            .sumOf { it }
-            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
-            .toDouble()
-
-        return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
+        }
     }
 
     fun calculateDeltakelseManedsverk(
         deltakelse: DeltakelsePeriode,
+        satser: Set<SatsPeriode>,
         stengtHosArrangor: List<Periode>,
-    ): DeltakelseManedsverk {
-        val manedsverk = deltakelse.periode
-            .subtractPeriods(stengtHosArrangor)
-            .map { deltakelsePeriode ->
-                getMonthsFraction(deltakelsePeriode)
-            }
-            .sumOf { it }
-            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
-            .toDouble()
-        return DeltakelseManedsverk(deltakelse.deltakelseId, manedsverk)
+    ): UtbetalingBeregningOutputDeltakelse {
+        val perioder = deltakelse.periode.subtractPeriods(stengtHosArrangor)
+        return calculateDeltakelseOutput(deltakelse.deltakelseId, perioder, satser) { periode ->
+            getMonthsFraction(periode)
+        }
+    }
+
+    fun calculateDeltakelseUkesverk(
+        deltakelse: DeltakelsePeriode,
+        satser: Set<SatsPeriode>,
+        stengtHosArrangor: List<Periode>,
+    ): UtbetalingBeregningOutputDeltakelse {
+        val perioder = deltakelse.periode.subtractPeriods(stengtHosArrangor)
+        return calculateDeltakelseOutput(deltakelse.deltakelseId, perioder, satser) { periode ->
+            getWeeksFraction(periode)
+        }
+    }
+
+    fun calculateDeltakelseHeleUkesverk(
+        deltakelse: DeltakelsePeriode,
+        satser: Set<SatsPeriode>,
+        stengtHosArrangor: List<Periode>,
+    ): UtbetalingBeregningOutputDeltakelse {
+        val perioder = deltakelse.periode.subtractPeriods(stengtHosArrangor)
+        return calculateDeltakelseOutput(deltakelse.deltakelseId, perioder, satser) { periode ->
+            periode.splitByWeek().count { it.getWeekdayCount() > 0 }.toBigDecimal()
+        }
     }
 
     fun calculateManedsverkBelop(periode: Periode, sats: Int, antallPlasser: Int): Int = calculateMonthsInPeriode(periode)
@@ -150,41 +165,6 @@ object UtbetalingBeregningHelpers {
         .multiply(BigDecimal(antallPlasser))
         .setScale(0, RoundingMode.HALF_UP)
         .intValueExact()
-
-    fun calculateDeltakelseUkesverk(
-        deltakelse: DeltakelsePeriode,
-        stengtHosArrangor: List<Periode>,
-    ): DeltakelseUkesverk {
-        val ukesverk = deltakelse.periode
-            .subtractPeriods(stengtHosArrangor)
-            .map { periode ->
-                getWeeksFraction(periode)
-            }
-            .sumOf { it }
-            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
-            .toDouble()
-        return DeltakelseUkesverk(deltakelse.deltakelseId, ukesverk)
-    }
-
-    fun calculateDeltakelseHeleUkesverk(
-        deltakelse: DeltakelsePeriode,
-        stengtHosArrangor: List<Periode>,
-    ): DeltakelseUkesverk {
-        val ukesverk = deltakelse.periode
-            .subtractPeriods(stengtHosArrangor)
-            .map { periode ->
-                periode
-                    .splitByWeek()
-                    .count { week ->
-                        week.getWeekdayCount() > 0
-                    }
-                    .toBigDecimal()
-            }
-            .sumOf { it }
-            .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
-            .toDouble()
-        return DeltakelseUkesverk(deltakelse.deltakelseId, ukesverk)
-    }
 
     fun calculateMonthsInPeriode(periode: Periode): BigDecimal {
         return getMonthsFraction(periode)
@@ -216,14 +196,42 @@ object UtbetalingBeregningHelpers {
             .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
     }
 
-    fun calculateBelopForDeltakelse(deltakelser: Set<UtbetalingBeregningOutputDeltakelse>, sats: Int): Int {
+    fun calculateBelopForDeltakelser(
+        deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    ): Int {
         return deltakelser
-            .fold(BigDecimal.ZERO) { sum, deltakelse ->
-                sum.add(BigDecimal(deltakelse.faktor))
+            .flatMap { deltakelse ->
+                deltakelse.perioder.map { BigDecimal(it.faktor).multiply(BigDecimal(it.sats)) }
             }
-            .multiply(BigDecimal(sats))
+            .sumOf { it }
             .setScale(0, RoundingMode.HALF_UP)
             .toInt()
+    }
+
+    fun calculateDeltakelseOutput(
+        deltakelseId: UUID,
+        perioder: List<Periode>,
+        satser: Set<SatsPeriode>,
+        calculateFaktor: (Periode) -> BigDecimal,
+    ): UtbetalingBeregningOutputDeltakelse {
+        val perioderOutput = perioder
+            .asSequence()
+            .flatMap { periode ->
+                satser.mapNotNull { satsPeriode ->
+                    periode.intersect(satsPeriode.periode)?.let { SatsPeriode(it, satsPeriode.sats) }
+                }
+            }
+            .mapNotNull { (periode, sats) ->
+                calculateFaktor(periode)
+                    .setScale(OUTPUT_PRECISION, RoundingMode.HALF_UP)
+                    .toDouble()
+                    .takeIf { it > 0 }
+                    ?.let { faktor ->
+                        UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, faktor, sats)
+                    }
+            }
+            .toSet()
+        return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
 
     private fun getMonthsFraction(periode: Periode): BigDecimal {
