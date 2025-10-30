@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.oppgaver
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.http.content.default
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
