@@ -59,6 +59,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.apache.xmlbeans.impl.soap.Detail
 import org.koin.ktor.ext.inject
@@ -609,14 +610,16 @@ data class OpprettKravInnsendingsInformasjon(
     @Serializable
     @JsonClassDiscriminator("type")
     sealed class DatoVelger {
-
         @Serializable
         @SerialName("DatoVelgerSelect")
         data class DatoSelect(val periodeForslag: List<Periode>) : DatoVelger()
 
         @Serializable
         @SerialName("DatoVelgerRange")
-        data class DatoRange(val todo: String = "hello") : DatoVelger()
+        data class DatoRange(
+            @Serializable(with = LocalDateSerializer::class)
+            val maksSluttdato: LocalDate? = null,
+        ) : DatoVelger()
 
         companion object {
             fun from(
@@ -624,21 +627,35 @@ data class OpprettKravInnsendingsInformasjon(
                 gjennomforing: Gjennomforing,
                 tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
             ): DatoVelger {
-                if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER && gjennomforing.tiltakstype.tiltakskode in okonomiConfig.gyldigTilsagnPeriode) {
-                    val tilsagnPeriode =
-                        okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
+                val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
+                when (gjennomforing.avtalePrismodell) {
+                    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
+                        // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
+                        val tilsagnPeriode =
+                            okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
 
-                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
+                        val perioder = Periode(
+                            start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
+                            slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
+                        ).splitByMonth()
+                        val filtrertePerioder =
+                            perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
+                        return DatoSelect(filtrertePerioder)
+                    }
 
-                    val perioder = Periode(
-                        start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
-                        slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
-                    ).splitByMonth()
-                    val filtrertePerioder =
-                        perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
-                    return DatoSelect(filtrertePerioder)
-                } else {
-                    return DatoRange()
+                    PrismodellType.ANNEN_AVTALT_PRIS -> {
+                        return DatoRange(null)
+                    }
+
+                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
+                        return DatoRange(firstOfThisMonth.minusDays(1))
+                    }
+
+                    else ->
+                        throw StatusException(
+                            HttpStatusCode.Forbidden,
+                            "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
+                        )
                 }
             }
         }

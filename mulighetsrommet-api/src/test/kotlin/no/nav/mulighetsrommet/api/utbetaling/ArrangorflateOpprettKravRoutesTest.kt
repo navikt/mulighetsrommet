@@ -23,12 +23,10 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
-    val utbetaling = ArrangorflateTestUtils.createTestUtbetalingForhandsgodkjent(deltaker.id)
 
     val domain = ArrangorflateTestUtils.createTestDomain(
         deltaker = deltaker,
         tilsagn = tilsagn,
-        utbetalinger = listOf(utbetaling),
     )
 
     val oauth = MockOAuth2Server()
@@ -72,12 +70,6 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("200 Ok med rett pid") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/opprett-krav") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
             }
@@ -119,17 +111,10 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             opprettKravPeriode = emptyMap(),
         )
         val gjennomforingId = tilsagn.gjennomforingId
+        val fil = "Innhold".toByteArray()
+        val filnavn = "innhold.pdf"
 
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth).copy(okonomi = okonomiConfig)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
-            val fil = "Innhold".toByteArray()
-            val filnavn = "innhold.pdf"
-
             val response =
                 client.post("/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
