@@ -119,7 +119,7 @@ class NavAnsattQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_nav_ansatt_dto
+            from view_nav_ansatt
             where (:roller::jsonb is null or (roller_json @> :roller::jsonb))
               and (:hovedenhet::text[] is null or hovedenhet_enhetsnummer = any(:hovedenhet))
               and (:skal_slettes_dato::date is null or skal_slettes_dato <= :skal_slettes_dato)
@@ -132,29 +132,29 @@ class NavAnsattQueries(private val session: Session) {
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
 
-        return list(queryOf(query, params)) { it.toNavAnsattDto() }
+        return list(queryOf(query, params)) { it.toNavAnsatt() }
     }
 
     fun getByNavIdent(navIdent: NavIdent): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_nav_ansatt_dto
+            from view_nav_ansatt
             where nav_ident = ?
         """.trimIndent()
 
-        return single(queryOf(query, navIdent.value)) { it.toNavAnsattDto() }
+        return single(queryOf(query, navIdent.value)) { it.toNavAnsatt() }
     }
 
     fun getByEntraObjectId(objectId: UUID): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_nav_ansatt_dto
+            from view_nav_ansatt
             where entra_object_id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, objectId)) { it.toNavAnsattDto() }
+        return single(queryOf(query, objectId)) { it.toNavAnsatt() }
     }
 
     fun deleteByEntraObjectId(objectId: UUID): Int = with(session) {
@@ -179,10 +179,10 @@ class NavAnsattQueries(private val session: Session) {
     }
 }
 
-private fun Row.toNavAnsattDto(): NavAnsatt {
+private fun Row.toNavAnsatt(): NavAnsatt {
     val roller = stringOrNull("roller_json")
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<NavAnsattRolle>>(it) }
-        ?: setOf<NavAnsattRolle>()
+        ?: setOf()
     return NavAnsatt(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),

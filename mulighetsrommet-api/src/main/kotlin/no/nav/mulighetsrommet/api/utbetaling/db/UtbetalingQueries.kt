@@ -361,7 +361,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where id = ?::uuid
         """.trimIndent()
 
@@ -374,7 +374,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where arrangor_organisasjonsnummer = ?
             order by periode desc
         """.trimIndent()
@@ -386,7 +386,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where gjennomforing_id = :id::uuid
         """.trimIndent()
 
@@ -399,7 +399,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where periode = :periode::daterange
         """.trimIndent()
 
@@ -412,7 +412,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where gjennomforing_id = ?::uuid
             order by godkjent_av_arrangor_tidspunkt desc
             limit 1

@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_nav_ansatt_dto;
+drop view if exists view_nav_ansatt;
 
-create view view_nav_ansatt_dto as
+create view view_nav_ansatt as
 select nav_ansatt.nav_ident,
        nav_ansatt.fornavn,
        nav_ansatt.etternavn,

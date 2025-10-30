@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists gjennomforing_admin_dto_view;
+drop view if exists view_gjennomforing;
 
-create view gjennomforing_admin_dto_view as
+create view view_gjennomforing as
 select gjennomforing.id,
        gjennomforing.fts,
        gjennomforing.navn,

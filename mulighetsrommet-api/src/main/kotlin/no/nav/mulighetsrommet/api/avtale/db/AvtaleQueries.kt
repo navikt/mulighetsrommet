@@ -414,7 +414,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from avtale_admin_dto_view
+            from view_avtale
             where id = ?::uuid
         """.trimIndent()
 
@@ -462,7 +462,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
-            from avtale_admin_dto_view
+            from view_avtale
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_hovedenhet_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (

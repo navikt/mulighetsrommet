@@ -218,7 +218,7 @@ class OppgaveQueries(private val session: Session) {
     fun getUtbetalingOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<UtbetalingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
-            select * from utbetaling_dto_view
+            select * from view_utbetaling
             where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
         """.trimIndent()
 

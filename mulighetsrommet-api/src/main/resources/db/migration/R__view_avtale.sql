@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists avtale_admin_dto_view;
+drop view if exists view_avtale;
 
-create view avtale_admin_dto_view as
+create view view_avtale as
 select avtale.id,
        avtale.fts,
        avtale.navn,

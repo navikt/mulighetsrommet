@@ -1,6 +1,6 @@
-drop view if exists view_gjennomforing_enkeltplass_admin;
+drop view if exists view_gjennomforing_enkeltplass;
 
-create view view_gjennomforing_enkeltplass_admin as
+create view view_gjennomforing_enkeltplass as
 select enkeltplass.id,
        enkeltplass.created_at            as opprettet_tidspunkt,
        enkeltplass.updated_at            as oppdatert_tidspunkt,
