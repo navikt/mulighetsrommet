@@ -72,7 +72,7 @@ export function InnsendingoversiktPage() {
           buttons={null}
           table={
             <Suspense fallback={<ListSkeleton />}>
-              <InnsendingTable />
+              <InnsendingTable updateFilter={updateFilter} />
             </Suspense>
           }
           filterOpen={filterOpen}

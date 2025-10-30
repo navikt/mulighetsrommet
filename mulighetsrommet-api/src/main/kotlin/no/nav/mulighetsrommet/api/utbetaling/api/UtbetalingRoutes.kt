@@ -120,6 +120,7 @@ fun Route.utbetalingRoutes() {
             queryParameter<List<NavEnhetNummer>>("navEnheter") {
                 explode = true
             }
+            queryParameter<String>("sort")
         }
         response {
             code(HttpStatusCode.OK) {
@@ -468,15 +469,18 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
 data class AdminInnsendingerFilter(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstyper: List<UUID> = emptyList(),
+    val sortering: String? = null,
 )
 
 fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
     val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
+    val sortering = call.request.queryParameters["sort"]
 
     return AdminInnsendingerFilter(
         navEnheter = navEnheter,
         tiltakstyper = tiltakstypeIder,
+        sortering = sortering,
     )
 }
 

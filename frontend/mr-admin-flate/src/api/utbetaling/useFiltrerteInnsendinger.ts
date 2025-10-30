@@ -11,6 +11,7 @@ export function useGetInnsendinger(filter: InnsendingFilterType) {
         query: {
           navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
           tiltakstyper: filter.tiltakstyper,
+          sort: filter.sortering.sortString,
         },
       }),
   });

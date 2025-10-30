@@ -2,7 +2,7 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { Alert, BodyShort, Box, Table } from "@navikt/ds-react";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useGetInnsendinger } from "@/api/utbetaling/useFiltrerteInnsendinger";
-import { InnsendingFilterStateAtom } from "./filter";
+import { InnsendingFilterStateAtom, InnsendingFilterType } from "./filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import { Link } from "react-router";
@@ -10,11 +10,30 @@ import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag
 
 interface Props {
   skjulKolonner?: Partial<Record<Kolonne, boolean>>;
+  updateFilter: (values: Partial<InnsendingFilterType>) => void;
 }
 
-export function InnsendingTable({ skjulKolonner }: Props) {
+export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
   const { filter } = useSavedFiltersState(InnsendingFilterStateAtom, LagretFilterType.INNSENDING);
   const { data: innsendinger } = useGetInnsendinger(filter.values);
+
+  const sort = filter.values.sortering.tableSort;
+
+  const handleSort = (sortKey: string) => {
+    // Hvis man bytter sortKey starter vi med ascending
+    const direction =
+      sort.orderBy === sortKey
+        ? sort.direction === "descending"
+          ? "ascending"
+          : "descending"
+        : "ascending";
+    updateFilter({
+      sortering: {
+        sortString: `${sortKey}-${direction}`,
+        tableSort: { orderBy: sortKey, direction },
+      },
+    });
+  };
 
   return (
     <Box paddingInline="2">
@@ -22,7 +41,11 @@ export function InnsendingTable({ skjulKolonner }: Props) {
         {innsendinger.length === 0 ? (
           <Alert variant="info">Fant ingen innsendinger</Alert>
         ) : (
-          <Table data-testid="innsending-tabell">
+          <Table
+            data-testid="innsending-tabell"
+            sort={sort}
+            onSortChange={(sortKey) => handleSort(sortKey)}
+          >
             <Table.Header>
               <Table.Row>
                 {headers
@@ -108,13 +131,13 @@ const headers: ColumnHeader[] = [
   {
     sortKey: "tiltakstype",
     tittel: "Tiltakstype",
-    sortable: false,
+    sortable: true,
     width: "2fr",
   },
   {
     sortKey: "kostnadssted",
     tittel: "Kostnadssted",
-    sortable: true,
+    sortable: false,
     width: "1fr",
   },
   {
@@ -132,7 +155,7 @@ const headers: ColumnHeader[] = [
   {
     sortKey: "status",
     tittel: "Status",
-    sortable: true,
+    sortable: false,
     width: "2fr",
   },
   {

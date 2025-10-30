@@ -11,7 +11,7 @@ import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 
-type Filters = "tiltakstype" | "navEnhet";
+type Filters = "tiltakstype" | "navEnhet" | "sortering";
 
 interface Props {
   filter: InnsendingFilterType;

@@ -423,6 +423,16 @@ class UtbetalingQueries(private val session: Session) {
             "tiltakstyper" to filter.tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
         )
 
+        val order = when (filter.sortering) {
+            "arrangor-ascending" -> "arrangor_navn asc"
+            "arrangor-descending" -> "arrangor_navn desc"
+            "periode-ascending" -> "periode asc"
+            "periode-descending" -> "periode desc"
+            "tiltakstype-ascending" -> "tiltakstype_navn asc, arrangor_navn asc"
+            "tiltakstype-descending" -> "tiltakstype_navn desc, arrangor_navn desc"
+            else -> "arrangor_navn asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
             SELECT *
@@ -433,6 +443,7 @@ class UtbetalingQueries(private val session: Session) {
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter))))
             AND (status = 'GENERERT')
+        order by $order
         """.trimIndent()
         return session.list(queryOf(query, parameters)) { it.toInnsendingKompaktDto() }
     }

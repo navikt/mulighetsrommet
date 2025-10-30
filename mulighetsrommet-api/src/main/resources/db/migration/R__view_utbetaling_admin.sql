@@ -24,6 +24,7 @@ select utbetaling.id,
        arrangor.navn                     as arrangor_navn,
        arrangor.slettet_dato is not null as arrangor_slettet,
        tiltakstype.navn                  as tiltakstype_navn,
+       tiltakstype.id                    as tiltakstype_id,
        tiltakstype.tiltakskode,
        nav_enheter_json
 from utbetaling
