@@ -30,13 +30,6 @@ data class PdlNavn(
 )
 
 @Serializable
-data class Foedselsdato(
-    val foedselsaar: Int,
-    @Serializable(with = LocalDateSerializer::class)
-    val foedselsdato: LocalDate?,
-)
-
-@Serializable
 data class Adressebeskyttelse(
     val gradering: PdlGradering = PdlGradering.UGRADERT,
 )

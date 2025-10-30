@@ -224,14 +224,7 @@ val ApplicationConfigLocal = AppConfig(
                                   "etternavn": "Nordmann"
                                 }
                               ],
-                              "adressebeskyttelse": [
-                              ],
-                              "foedselsdato": [
-                                {
-                                  "foedselsaar": 1993,
-                                  "foedselsdato": "1993-11-01"
-                                }
-                              ]
+                              "adressebeskyttelse": []
                             },
                             "code": "ok"
                           }
