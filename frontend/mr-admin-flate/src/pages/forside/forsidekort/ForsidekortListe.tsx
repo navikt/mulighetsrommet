@@ -44,10 +44,10 @@ const forsidekortData: ForsideKortProps[] = [
     tekst: "Her kan du se hvordan tiltakene vises for veileder i Modia",
   },
   {
-    navn: "Oversikt manglende innsendinger",
+    navn: "Manglende innsendinger",
     ikon: <UtbetalingerIkon />,
     url: "/innsendingsoversikt",
-    tekst: "Her kan du få oversikt over manglende innsendinger fra tiltaksarrangør",
+    tekst: "Her finner du en oversikt over manglende innsendinger",
   },
 ];
 

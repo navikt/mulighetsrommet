@@ -15,6 +15,7 @@ import { LagretFilterType } from "@tiltaksadministrasjon/api-client";
 import { InnsendingFilterSchema, InnsendingFilterStateAtom } from "./filter";
 import { InnsendingFilter } from "./Innsendingfilter";
 import { InnsendingTable } from "./InnsendingTable";
+import { InnsendingFilterTags } from "./InnsendingFilterTags";
 
 export function InnsendingoversiktPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -36,7 +37,7 @@ export function InnsendingoversiktPage() {
       <HeaderBanner
         heading="Oversikt over manglende innsendinger"
         harUndermeny
-        ikon={<CurrencyExchangeIcon />}
+        ikon={<CurrencyExchangeIcon width="40" height="40" color="#3380A5" />}
       />
       <ContentBox>
         <FilterAndTableLayout
@@ -61,7 +62,13 @@ export function InnsendingoversiktPage() {
               }}
             />
           }
-          tags={null}
+          tags={
+            <InnsendingFilterTags
+              filter={filter.values}
+              updateFilter={updateFilter}
+              filterOpen={filterOpen}
+            />
+          }
           buttons={null}
           table={
             <Suspense fallback={<ListSkeleton />}>

@@ -2,25 +2,18 @@ import { atom } from "jotai";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";
+import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 
 export const InnsendingFilterSchema = z.object({
   tiltakstyper: z.string().array(),
-  periode: z.object({
-    start: z.string().min(1),
-    slutt: z.string().min(1),
-  }),
-  regioner: z.array(z.string()),
+  navEnheter: z.custom<NavEnhetDto>().array(),
 });
 
 export type InnsendingFilterType = z.infer<typeof InnsendingFilterSchema>;
 
 const defaultInnsendingFilter: InnsendingFilterType = {
   tiltakstyper: [],
-  periode: {
-    start: "2025-10-01",
-    slutt: "2025-10-31",
-  },
-  regioner: [],
+  navEnheter: [],
 };
 
 export const InnsendingFilterStateAtom = createFilterStateAtom<InnsendingFilterType>(
@@ -29,4 +22,4 @@ export const InnsendingFilterStateAtom = createFilterStateAtom<InnsendingFilterT
   createFilterValidator(InnsendingFilterSchema),
 );
 
-export const InnsendingFilterAccordionAtom = atom<string[]>(["periode", "type", "regioner"]);
+export const InnsendingFilterAccordionAtom = atom<string[]>(["tiltakstype", "navEnheter"]);

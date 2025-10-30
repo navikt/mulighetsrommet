@@ -121,9 +121,6 @@ fun Route.utbetalingRoutes() {
             queryParameter<List<NavEnhetNummer>>("navEnheter") {
                 explode = true
             }
-            queryParameter<String>("dato") {
-                explode = true
-            }
         }
         response {
             code(HttpStatusCode.OK) {
@@ -472,18 +469,15 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
 data class AdminInnsendingerFilter(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstyper: List<UUID> = emptyList(),
-    val periode: Periode,
 )
 
 fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
     val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
-    val periode = call.request.queryParameters["dato"].let { Periode.forMonthOf(LocalDate.parse(it)) }
 
     return AdminInnsendingerFilter(
         navEnheter = navEnheter,
         tiltakstyper = tiltakstypeIder,
-        periode = periode,
     )
 }
 

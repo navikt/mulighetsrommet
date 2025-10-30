@@ -1878,13 +1878,6 @@ paths:
           type: array
           items:
             type: string
-      - name: dato
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: string
       responses:
         "200":
           description: Alle innsendinger for gitte filtre

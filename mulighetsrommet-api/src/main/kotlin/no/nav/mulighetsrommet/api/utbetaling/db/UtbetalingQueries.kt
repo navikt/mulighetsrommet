@@ -8,8 +8,10 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -19,7 +21,6 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
@@ -131,21 +132,20 @@ class UtbetalingQueries(private val session: Session) {
                 dbo.beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerTimeOppfolging ->
-                {
-                    upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
-                    upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                    // TODO: lagre perioder uten deltakelsesprosent?
-                    val perioder = dbo.beregning.input.deltakelser
-                        .map {
-                            DeltakelseDeltakelsesprosentPerioder(
-                                it.deltakelseId,
-                                listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
-                            )
-                        }
-                        .toSet()
-                    upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
-                }
+            is UtbetalingBeregningPrisPerTimeOppfolging -> {
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                // TODO: lagre perioder uten deltakelsesprosent?
+                val perioder = dbo.beregning.input.deltakelser
+                    .map {
+                        DeltakelseDeltakelsesprosentPerioder(
+                            it.deltakelseId,
+                            listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                        )
+                    }
+                    .toSet()
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, perioder)
+            }
         }
     }
 
@@ -407,24 +407,20 @@ class UtbetalingQueries(private val session: Session) {
         filter: AdminInnsendingerFilter,
     ): List<InnsendingKompaktDto> = with(session) {
         val parameters = mapOf(
-            "periode" to filter.periode.toDaterange(),
             "nav_enheter" to filter.navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "tiltakstyper" to filter.tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
         )
 
         @Language("PostgreSQL")
         val query = """
-        SELECT *, count(*) OVER () AS total_count
+            SELECT *
         FROM utbetaling_dto_view
-        WHERE ( :nav_enheter::text[] IS NULL
-                OR EXISTS (
-                    SELECT 1
-                    FROM jsonb_array_elements(nav_enheter_json) AS nav_enhet
-                    WHERE nav_enhet ->> 'enhetsnummer' = ANY(:nav_enheter)
-                ))
-            AND (periode = :periode::daterange)
-            AND (status != 'FERDIG_BEHANDLET')
-        LIMIT :limit
-        OFFSET :offset
+        where (:tiltakstyper::uuid[] is null or tiltakstype_id = any (:tiltakstyper))
+        and (:nav_enheter::text[] is null or (
+                   exists(select true
+                          from jsonb_array_elements(nav_enheter_json) as nav_enhet
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter))))
+            AND (status = 'GENERERT')
         """.trimIndent()
         return session.list(queryOf(query, parameters)) { it.toInnsendingKompaktDto() }
     }

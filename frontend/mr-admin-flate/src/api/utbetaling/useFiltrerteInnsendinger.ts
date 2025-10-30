@@ -9,8 +9,7 @@ export function useGetInnsendinger(filter: InnsendingFilterType) {
     queryFn: () =>
       UtbetalingService.getInnsendinger({
         query: {
-          dato: filter.periode.start,
-          navEnheter: filter.regioner,
+          navEnheter: filter.navEnheter.map((enhet) => enhet.enhetsnummer),
           tiltakstyper: filter.tiltakstyper,
         },
       }),
