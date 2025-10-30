@@ -124,6 +124,7 @@ export function GjennomforingFormContainer(props: Props) {
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
       stedForGjennomforing: data.stedForGjennomforing,
+      oppmoteSted: data.oppmoteSted,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,

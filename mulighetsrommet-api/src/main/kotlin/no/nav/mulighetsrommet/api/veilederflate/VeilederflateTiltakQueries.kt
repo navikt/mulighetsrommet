@@ -123,6 +123,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         },
         personvernBekreftet = boolean("personvern_bekreftet"),
         personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
+        oppmoteSted = stringOrNull("oppmote_sted"),
         status = VeilederflateTiltakGruppeStatus(
             type = status,
             beskrivelse = status.beskrivelse,

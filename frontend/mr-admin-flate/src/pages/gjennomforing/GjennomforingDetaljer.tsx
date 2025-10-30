@@ -41,6 +41,7 @@ export function GjennomforingDetaljer() {
     arenaAnsvarligEnhet,
     arrangor,
     stedForGjennomforing,
+    oppmoteSted,
     amoKategorisering,
     utdanningslop,
   } = gjennomforing;
@@ -215,13 +216,14 @@ export function GjennomforingDetaljer() {
                 }
               />
             )}
-            {stedForGjennomforing && (
+            {(stedForGjennomforing || oppmoteSted) && (
               <>
                 <Separator />
                 <Metadata
                   header={gjennomforingTekster.stedForGjennomforingLabel}
                   value={stedForGjennomforing}
                 />
+                <Metadata header={gjennomforingTekster.oppmoteStedLabel} value={oppmoteSted} />
               </>
             )}
           </VStack>
