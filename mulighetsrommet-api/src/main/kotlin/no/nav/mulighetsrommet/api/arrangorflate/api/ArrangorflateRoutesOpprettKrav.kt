@@ -846,7 +846,7 @@ data class OpprettKravOppsummering(
                 ),
                 utbetalingInformasjon = listOf(
                     DetailsEntry(
-                        key = "UtbetalingsPeriode",
+                        key = "Utbetalingsperiode",
                         value = periode.formatPeriode(),
                     ),
                     DetailsEntry(
