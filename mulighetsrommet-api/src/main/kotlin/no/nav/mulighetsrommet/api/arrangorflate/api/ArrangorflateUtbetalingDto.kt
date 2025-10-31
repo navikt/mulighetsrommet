@@ -64,7 +64,7 @@ sealed class ArrangorflateBeregning {
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
     ) : ArrangorflateBeregning() {
-        override val displayName: String = "Sats per tiltaksplass per måned"
+        override val displayName: String = "Fast sats per tiltaksplass per måned"
     }
 
     @Serializable
@@ -100,7 +100,7 @@ sealed class ArrangorflateBeregning {
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
     ) : ArrangorflateBeregning() {
-        override val displayName: String = "Avtalt pris per time oppfølging per tiltaksplass"
+        override val displayName: String = "Avtalt pris per time oppfølging per deltaker"
     }
 
     @Serializable
