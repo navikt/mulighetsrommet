@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -616,17 +615,17 @@ data class GjennomforingRequest(
     val avtaleId: UUID,
     val navn: String,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val antallPlasser: Int,
+    val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID,
+    val arrangorId: UUID?,
     val arrangorKontaktpersoner: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val veilederinformasjon: VeilederinfoRequest,
+    val veilederinformasjon: GjennomforingVeilederinfoRequest,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val administratorer: List<NavIdent>,
     val oppstart: GjennomforingOppstartstype,
@@ -638,6 +637,15 @@ data class GjennomforingRequest(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
+)
+
+@Serializable
+data class GjennomforingVeilederinfoRequest(
+    val navRegioner: List<NavEnhetNummer>,
+    val navKontorer: List<NavEnhetNummer>,
+    val navAndreEnheter: List<NavEnhetNummer>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
 )
 
 @Serializable

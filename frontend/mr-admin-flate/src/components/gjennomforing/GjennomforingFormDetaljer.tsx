@@ -1,7 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAdministratorer";
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
-import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { isKursTiltak } from "@/utils/Utils";
@@ -10,6 +9,7 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  GjennomforingRequest,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import {
@@ -24,7 +24,7 @@ import {
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModal";
@@ -48,6 +48,9 @@ interface Props {
 export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: Props) {
   const { data: administratorer } = useGjennomforingAdministratorer();
   const { data: ansatt } = useHentAnsatt();
+  const [visEstimertVentetid, setVisEstimertVentetid] = useState<boolean>(
+    !!gjennomforing?.estimertVentetid?.enhet,
+  );
 
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -58,21 +61,19 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
     getValues,
     setValue,
     watch,
-  } = useFormContext<InferredGjennomforingSchema>();
-
-  const watchVisEstimertVentetid = watch("visEstimertVentetid");
+  } = useFormContext<GjennomforingRequest>();
 
   useEffect(() => {
     const resetEstimertVentetid = () => {
-      if (!watchVisEstimertVentetid) {
+      if (!visEstimertVentetid) {
         setValue("estimertVentetid", null);
       }
     };
 
     resetEstimertVentetid();
-  }, [setValue, watchVisEstimertVentetid]);
+  }, [setValue, visEstimertVentetid]);
 
-  const watchStartDato = watch("startOgSluttDato.startDato");
+  const watchStartDato = watch("startDato");
 
   useEffect(() => {
     if (watchStartDato && new Date(watchStartDato) < new Date()) {
@@ -80,7 +81,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
     }
   }, [setValue, watchStartDato]);
 
-  const watchSluttDato = watch("startOgSluttDato.sluttDato");
+  const watchSluttDato = watch("sluttDato");
 
   const antallDeltakere = deltakere?.antallDeltakere ?? 0;
 
@@ -173,25 +174,21 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                 label={gjennomforingTekster.startdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxStartdato}
-                defaultSelected={getValues("startOgSluttDato.startDato")}
-                onChange={(val) =>
-                  setValue("startOgSluttDato.startDato", (val ?? undefined) as unknown as never, {
-                    shouldValidate: true,
-                  })
-                }
-                error={errors.startOgSluttDato?.startDato?.message}
+                defaultSelected={getValues("startDato")}
+                onChange={(val) => setValue("startDato", val)}
+                error={errors.startDato?.message}
               />
               <ControlledDateInput
                 key={watchSluttDato}
                 label={gjennomforingTekster.sluttdatoLabel}
                 fromDate={minStartdato}
                 toDate={maxSluttdato}
-                defaultSelected={getValues("startOgSluttDato.sluttDato")}
+                defaultSelected={getValues("sluttDato")}
                 onChange={(val) => {
-                  setValue("startOgSluttDato.sluttDato", val);
+                  setValue("sluttDato", val);
                   visAdvarselForSluttDato();
                 }}
-                error={errors.startOgSluttDato?.sluttDato?.message}
+                error={errors.sluttDato?.message}
               />
             </HGrid>
             <HGrid align="start" columns={2}>
@@ -233,10 +230,13 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                     det synlig for alle ansatte i Nav.
                   </LabelWithHelpText>
                 </HStack>
-                <Switch checked={watch("visEstimertVentetid")} {...register("visEstimertVentetid")}>
+                <Switch
+                  checked={visEstimertVentetid}
+                  onClick={() => setVisEstimertVentetid(!visEstimertVentetid)}
+                >
                   Registrer estimert ventetid
                 </Switch>
-                {watch("visEstimertVentetid") ? (
+                {visEstimertVentetid && (
                   <HStack align="start" justify="start" gap="10">
                     <TextField
                       size="small"
@@ -258,35 +258,35 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                       <option value="maned">Måneder</option>
                     </Select>
                   </HStack>
-                ) : null}
-                <VStack gap="2">
-                  <Textarea
-                    size="small"
-                    resize
-                    value={watch("oppmoteSted") || ""}
-                    maxLength={OPPMOTE_STED_MAX_LENGTH}
-                    label="Oppmøtested"
-                    description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digital jobbklubb), kan du la feltet stå tomt."
-                    {...register("oppmoteSted")}
-                    error={errors.oppmoteSted ? (errors.oppmoteSted.message as string) : null}
-                  />
-                  <Textarea
-                    className="opacity-75"
-                    size="small"
-                    resize
-                    value={watch("stedForGjennomforing") || ""}
-                    maxLength={STED_FOR_GJENNOMFORING_MAX_LENGTH}
-                    label={gjennomforingTekster.stedForGjennomforingLabel}
-                    {...register("stedForGjennomforing")}
-                    error={
-                      errors.stedForGjennomforing
-                        ? (errors.stedForGjennomforing.message as string)
-                        : null
-                    }
-                  />
-                </VStack>
+                )}
               </fieldset>
             ) : null}
+            <VStack gap="2">
+              <Textarea
+                size="small"
+                resize
+                value={watch("oppmoteSted") || ""}
+                maxLength={OPPMOTE_STED_MAX_LENGTH}
+                label="Oppmøtested"
+                description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digital jobbklubb), kan du la feltet stå tomt."
+                {...register("oppmoteSted")}
+                error={errors.oppmoteSted ? (errors.oppmoteSted.message as string) : null}
+              />
+              <Textarea
+                className="opacity-75"
+                size="small"
+                resize
+                value={watch("stedForGjennomforing") || ""}
+                maxLength={STED_FOR_GJENNOMFORING_MAX_LENGTH}
+                label={gjennomforingTekster.stedForGjennomforingLabel}
+                {...register("stedForGjennomforing")}
+                error={
+                  errors.stedForGjennomforing
+                    ? (errors.stedForGjennomforing.message as string)
+                    : null
+                }
+              />
+            </VStack>
           </FormGroup>
           <FormGroup>
             <Controller
@@ -344,7 +344,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
       {gjennomforing && (
         <EndreDatoAdvarselModal
           modalRef={endreSluttDatoModalRef}
-          onCancel={() => setValue("startOgSluttDato.sluttDato", gjennomforing.sluttDato)}
+          onCancel={() => setValue("sluttDato", gjennomforing.sluttDato)}
           antallDeltakere={antallDeltakere}
         />
       )}

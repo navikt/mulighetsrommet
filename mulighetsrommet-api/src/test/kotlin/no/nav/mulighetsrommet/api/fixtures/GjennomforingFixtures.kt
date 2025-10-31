@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
@@ -45,8 +45,10 @@ object GjennomforingFixtures {
         sluttDato = Oppfolging1.sluttDato,
         antallPlasser = Oppfolging1.antallPlasser,
         administratorer = listOf(NavIdent("DD1")),
-        veilederinformasjon = VeilederinfoRequest(
-            navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
+        veilederinformasjon = GjennomforingVeilederinfoRequest(
+            navRegioner = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+            navKontorer = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+            navAndreEnheter = emptyList(),
             faneinnhold = Oppfolging1.faneinnhold,
             beskrivelse = Oppfolging1.beskrivelse,
         ),
