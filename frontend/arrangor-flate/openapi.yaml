@@ -1669,9 +1669,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateUtbetalingKompaktDto"
+        kanOppretteManueltKrav:
+          type: boolean
       required:
       - aktive
       - historiske
+      - kanOppretteManueltKrav
     Tilskuddstype:
       type: string
       enum:

@@ -807,6 +807,7 @@ private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = Arrango
 data class ArrangorflateUtbetalinger(
     val aktive: List<ArrangorflateUtbetalingKompaktDto>,
     val historiske: List<ArrangorflateUtbetalingKompaktDto>,
+    val kanOppretteManueltKrav: Boolean,
 )
 
 @Serializable

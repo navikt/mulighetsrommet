@@ -97,6 +97,7 @@ class JournalforUtbetalingTest : FunSpec({
             db = db,
             amtDeltakerClient = amtDeltakerClient,
             kontoregisterOrganisasjonClient = mockk(relaxed = true),
+            okonomiConfig = mockk(relaxed = true),
         )
     }
 
