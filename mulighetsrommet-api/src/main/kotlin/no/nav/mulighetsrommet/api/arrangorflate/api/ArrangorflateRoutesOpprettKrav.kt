@@ -430,10 +430,9 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     }
 }
 
-private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig): List<PrismodellType> {
-    val now = LocalDate.now()
+private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig, relativeDate: LocalDate = LocalDate.now()): List<PrismodellType> {
     return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
-        if (entry.value.start.isBefore(now) && entry.value.slutt.isAfter(now)) {
+        if (entry.value.start.isBefore(relativeDate) && entry.value.slutt.isAfter(relativeDate)) {
             entry.key
         } else {
             null
@@ -441,10 +440,9 @@ private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig): List<Pris
     }
 }
 
-private fun hentTiltakstyperMedTilsagn(okonomiConfig: OkonomiConfig, tiltakstyper: List<TiltakstypeDto>): List<UUID> {
-    val now = LocalDate.now()
+private fun hentTiltakstyperMedTilsagn(okonomiConfig: OkonomiConfig, tiltakstyper: List<TiltakstypeDto>, relativeDate: LocalDate = LocalDate.now()): List<UUID> {
     return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { tiltakstypeMedTilsagnPeriode ->
-        if (tiltakstypeMedTilsagnPeriode.value.contains(now)) {
+        if (tiltakstypeMedTilsagnPeriode.value.contains(relativeDate)) {
             tiltakstyper.find { it.tiltakskode == tiltakstypeMedTilsagnPeriode.key }?.id
         } else {
             null

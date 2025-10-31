@@ -11,8 +11,11 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkClass
 import no.nav.amt.model.Melding
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.DeltakerOgPeriode
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning
@@ -20,9 +23,11 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -51,7 +56,6 @@ class ArrangorflateServiceTest : FunSpec({
         tilsagn = tilsagn,
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
-
     lateinit var arrangorflateService: ArrangorflateService
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
     coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
@@ -68,10 +72,11 @@ class ArrangorflateServiceTest : FunSpec({
         beregning.belop shouldBe expectedBelop
         beregning.deltakelser shouldHaveSize expectedDeltakelserCount
     }
+    val okonomiConfig = mockk<OkonomiConfig>()
 
     beforeEach {
         domain.initialize(database.db)
-        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon)
+        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon, okonomiConfig)
     }
 
     afterEach {
@@ -301,6 +306,21 @@ class ArrangorflateServiceTest : FunSpec({
             val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
+        }
+
+        test("kanOppretteManueltKrav false hvis det ikke finnes konfigurert prismodell") {
+            every { okonomiConfig.opprettKravPeriode } returns emptyMap()
+            arrangorflateService.kanOpretteManueltKrav() shouldBe false
+        }
+
+        test("kanOppretteManueltKrav false hvis relativ dato utenfor konfigurert periode") {
+            every { okonomiConfig.opprettKravPeriode } returns mapOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(2025))
+            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2026, 1, 1)) shouldBe false
+        }
+
+        test("kanOppretteManueltKrav true hvis relativ dato utenfor konfigurert periode") {
+            every { okonomiConfig.opprettKravPeriode } returns mapOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(2025))
+            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2025, 10, 1)) shouldBe true
         }
     }
 })
