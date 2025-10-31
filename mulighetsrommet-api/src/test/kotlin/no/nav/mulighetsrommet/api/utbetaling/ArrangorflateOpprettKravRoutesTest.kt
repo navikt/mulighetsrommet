@@ -237,7 +237,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                 is DatoVelger.DatoSelect ->
                     fail { "Skal vise en liste av perioder for timespris innsending" }
                 is DatoVelger.DatoRange ->
-                    data.datoVelger.maksSluttdato shouldBe LocalDate.now().withDayOfMonth(1).minusDays(1) // Siste dag forrige måned
+                    data.datoVelger.maksSluttdato shouldBe LocalDate.now().minusDays(1) // Gårsdagen
             }
         }
     }
