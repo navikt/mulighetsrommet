@@ -36,7 +36,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 10149,
-      sats: 129,
+      satser: [],
       digest: "b3602d2a",
       deltakelser: [
         {
@@ -114,7 +114,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 242904,
-      sats: 129,
+      satser: [],
       digest: "db0c7c6e",
       deltakelser: [
         {
@@ -325,7 +325,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 16848,
-      sats: 129,
+      satser: [],
       digest: "38c07a43",
       deltakelser: [
         {

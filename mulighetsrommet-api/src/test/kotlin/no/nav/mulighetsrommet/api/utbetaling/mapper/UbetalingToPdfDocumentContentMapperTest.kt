@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
@@ -110,7 +111,9 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 ),
             ),
             antallManedsverk = 1.0,
-            sats = 34,
+            satser = listOf(
+                SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34),
+            ),
         ),
         betalingsinformasjon = ArrangorflateBetalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
@@ -213,13 +216,13 @@ private val expectedUtbetalingsdetaljerContent = """
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Antall månedsverk",
-              "value": "1.0"
-            },
-            {
               "label": "Sats",
               "value": "34",
               "format": "NOK"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "1.0"
             },
             {
               "label": "Beløp",
@@ -391,13 +394,13 @@ private val expectedJournalpostContent = """
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Antall månedsverk",
-              "value": "1.0"
-            },
-            {
               "label": "Sats",
               "value": "34",
               "format": "NOK"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "1.0"
             },
             {
               "label": "Beløp",
