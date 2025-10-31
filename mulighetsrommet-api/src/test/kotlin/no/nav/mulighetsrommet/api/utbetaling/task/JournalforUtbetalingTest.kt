@@ -10,6 +10,10 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -22,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -30,10 +35,6 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.junit.jupiter.api.assertThrows
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class JournalforUtbetalingTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -46,8 +47,7 @@ class JournalforUtbetalingTest : FunSpec({
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-                sats = 20205,
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2024, 8, 1)), 20205)),
                 stengt = setOf(),
                 deltakelser = emptySet(),
             ),
@@ -97,10 +97,11 @@ class JournalforUtbetalingTest : FunSpec({
             db = db,
             amtDeltakerClient = amtDeltakerClient,
             kontoregisterOrganisasjonClient = mockk(relaxed = true),
+            okonomiConfig = mockk(relaxed = true),
         )
     }
 
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,

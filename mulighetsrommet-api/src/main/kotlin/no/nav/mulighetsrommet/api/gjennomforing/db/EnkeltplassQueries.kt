@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
+import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -8,7 +9,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
-import java.util.*
 
 class EnkeltplassQueries(private val session: Session) {
     fun upsert(dbo: EnkeltplassDbo) {
@@ -70,7 +70,7 @@ class EnkeltplassQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing_enkeltplass_admin
+            from view_gjennomforing_enkeltplass
             where id = ?::uuid
         """.trimIndent()
 

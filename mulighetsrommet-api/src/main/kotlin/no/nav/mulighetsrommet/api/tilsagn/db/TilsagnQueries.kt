@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
+import java.sql.Array
+import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
@@ -20,8 +22,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
-import java.sql.Array
-import java.util.*
 
 class TilsagnQueries(private val session: Session) {
     fun upsert(dbo: TilsagnDbo): Unit = withTransaction(session) {
@@ -231,7 +231,7 @@ class TilsagnQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tilsagn_admin_dto_view
+            from view_tilsagn
             where id = ?::uuid
         """.trimIndent()
 
@@ -246,7 +246,7 @@ class TilsagnQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tilsagn_admin_dto_view
+            from view_tilsagn
             where bestillingsnummer = ?
         """.trimIndent()
 
@@ -263,7 +263,7 @@ class TilsagnQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tilsagn_admin_dto_view
+            from view_tilsagn
             where
               (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)

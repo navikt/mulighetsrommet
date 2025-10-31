@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.model
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 @Serializable
 data class TiltaksgjennomforingV1Dto(
@@ -25,6 +25,7 @@ data class TiltaksgjennomforingV1Dto(
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
+    val deltidsprosent: Double,
     @Serializable(with = LocalDateTimeSerializer::class)
     val opprettetTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)

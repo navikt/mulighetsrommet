@@ -28,9 +28,9 @@ function getOrAddKey(obj: { _key?: string | null }): string {
 // Only attemt to fix block if null-key is detected
 export function convertSlateToPortableText(
   slateData: PortableTextTypedObject[] | undefined | null,
-): PortableTextTypedObject[] | undefined {
+): PortableTextTypedObject[] | null {
   if (!slateData) {
-    return undefined;
+    return null;
   }
   if (!slateData.length) {
     return [];
@@ -85,7 +85,7 @@ export function convertSlateToPortableText(
 
 export function slateFaneinnholdToPortableText(
   faneinnhold: Faneinnhold | null | undefined,
-): Partial<Faneinnhold> | null {
+): Faneinnhold | null {
   if (!faneinnhold) {
     return null;
   }

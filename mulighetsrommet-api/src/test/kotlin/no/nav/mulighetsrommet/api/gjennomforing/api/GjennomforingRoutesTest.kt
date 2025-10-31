@@ -7,12 +7,20 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -26,9 +34,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class GjennomforingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -71,7 +76,7 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("401 Unauthorized for uautentisert kall") {
             withTestApplication(appConfig()) {
-                val response = client.get("/api/v1/intern/gjennomforinger")
+                val response = client.get("/api/tiltaksadministrasjon/gjennomforinger")
                 response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
@@ -86,7 +91,7 @@ class GjennomforingRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
-                val response = client.get("/api/v1/intern/gjennomforinger") {
+                val response = client.get("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -99,7 +104,7 @@ class GjennomforingRoutesTest : FunSpec({
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response = client.get("/api/v1/intern/gjennomforinger") {
+                val response = client.get("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -144,7 +149,7 @@ class GjennomforingRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
-                val response = client.put("/api/v1/intern/gjennomforinger") {
+                val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody("""{}""")
@@ -165,7 +170,7 @@ class GjennomforingRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
-                val response = client.put("/api/v1/intern/gjennomforinger") {
+                val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -184,19 +189,16 @@ class GjennomforingRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
-                val response = client.put("/api/v1/intern/gjennomforinger") {
+                val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         GjennomforingFixtures.Oppfolging1Request.copy(
                             administratorer = emptyList(),
                             veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-                                navEnheter = listOf(
-                                    NavEnhetFixtures.Oslo.enhetsnummer,
-                                    NavEnhetFixtures.Sagene.enhetsnummer,
-                                ),
+                                navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                                navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                             ),
-
                         ),
                     )
                 }
@@ -222,17 +224,15 @@ class GjennomforingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
                 val avtale = AvtaleFixtures.oppfolging
 
-                val response = client.put("/api/v1/intern/gjennomforinger") {
+                val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
                         GjennomforingFixtures.Oppfolging1Request.copy(
                             avtaleId = avtale.id,
                             veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-                                navEnheter = listOf(
-                                    NavEnhetFixtures.Oslo.enhetsnummer,
-                                    NavEnhetFixtures.Sagene.enhetsnummer,
-                                ),
+                                navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                                navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                             ),
                             tiltakstypeId = avtale.tiltakstypeId,
                         ),
@@ -291,7 +291,7 @@ class GjennomforingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
-                    .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
+                    .put("/api/tiltaksadministrasjon/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody("{}")
@@ -312,7 +312,7 @@ class GjennomforingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
-                    .put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
+                    .put("/api/tiltaksadministrasjon/gjennomforinger/$aktivGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -338,7 +338,7 @@ class GjennomforingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
-                    .put("/api/v1/intern/gjennomforinger/$avbruttGjennomforingId/avbryt") {
+                    .put("/api/tiltaksadministrasjon/gjennomforinger/$avbruttGjennomforingId/avbryt") {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -366,7 +366,7 @@ class GjennomforingRoutesTest : FunSpec({
 
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
-                val response = client.put("/api/v1/intern/gjennomforinger/$aktivGjennomforingId/avbryt") {
+                val response = client.put("/api/tiltaksadministrasjon/gjennomforinger/$aktivGjennomforingId/avbryt") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(

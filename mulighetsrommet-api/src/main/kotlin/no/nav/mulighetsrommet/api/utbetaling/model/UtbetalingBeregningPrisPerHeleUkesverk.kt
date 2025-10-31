@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
 data class UtbetalingBeregningPrisPerHeleUkesverk(
@@ -11,8 +10,7 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
 
     @Serializable
     data class Input(
-        val periode: Periode,
-        val sats: Int,
+        val satser: Set<SatsPeriode>,
         val stengt: Set<StengtPeriode>,
         val deltakelser: Set<DeltakelsePeriode>,
     ) : UtbetalingBeregningInput() {
@@ -22,7 +20,7 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
     @Serializable
     data class Output(
         override val belop: Int,
-        val deltakelser: Set<DeltakelseUkesverk>,
+        val deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser
     }
@@ -33,11 +31,15 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
 
             val ukesverk = input.deltakelser
                 .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(deltakelse, stengtHosArrangor)
+                    UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(
+                        deltakelse,
+                        input.satser,
+                        stengtHosArrangor,
+                    )
                 }
                 .toSet()
 
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelse(ukesverk, input.sats)
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk)
 
             return UtbetalingBeregningPrisPerHeleUkesverk(input, Output(belop, ukesverk))
         }

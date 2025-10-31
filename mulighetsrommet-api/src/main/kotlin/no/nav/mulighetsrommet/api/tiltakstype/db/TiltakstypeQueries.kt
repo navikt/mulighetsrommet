@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
+import java.sql.Array
+import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -7,8 +9,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
-import java.sql.Array
-import java.util.*
 
 class TiltakstypeQueries(private val session: Session) {
 
@@ -46,7 +46,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltakstype_admin_dto_view
+            from view_tiltakstype_dto
             where id = ?::uuid
         """.trimIndent()
 
@@ -70,7 +70,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltakstype_admin_dto_view
+            from view_tiltakstype_dto
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
 
@@ -85,7 +85,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltakstype_admin_dto_view
+            from view_tiltakstype_dto
             where arena_kode = ?
         """.trimIndent()
 
@@ -100,7 +100,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltakstype_admin_dto_view
+            from view_tiltakstype_dto
             where sanity_id = ?::uuid
         """.trimIndent()
 
@@ -115,7 +115,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select t.*
-            from tiltakstype_admin_dto_view t
+            from view_tiltakstype_dto t
             join gjennomforing g on g.tiltakstype_id = t.id
             where g.id = ?::uuid
         """.trimIndent()
@@ -150,7 +150,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
-            from tiltakstype_admin_dto_view
+            from view_tiltakstype_dto
             where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder))
               and (:statuser::text[] is null or status = any(:statuser))
             order by $order

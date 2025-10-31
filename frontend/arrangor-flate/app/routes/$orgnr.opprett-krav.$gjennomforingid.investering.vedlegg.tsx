@@ -7,14 +7,9 @@ import {
   MetaFunction,
   redirect,
   useActionData,
-  useLoaderData,
+  useLoaderData
 } from "react-router";
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  FieldError,
-  Tilskuddstype,
-} from "api-client";
+import { ArrangorflateService, ArrangorflateTilsagnDto, FieldError, Tilskuddstype } from "api-client";
 import { getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
@@ -22,7 +17,7 @@ import { useEffect, useRef } from "react";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { pathByOrgnr } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 
 export const meta: MetaFunction = () => {
   return [
@@ -50,13 +45,7 @@ interface ActionData {
 }
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr, gjennomforingid } = params;
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  if (!gjennomforingid) {
-    throw new Error("Mangler gjennomføring id");
-  }
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
 
   const session = await getSession(request.headers.get("Cookie"));
 
@@ -69,7 +58,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (
     session.get("orgnr") === orgnr &&
     session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
-    session.get("gjennomforingId") === gjennomforingid
+    session.get("gjennomforingId") === gjennomforingId
   ) {
     tilsagnId = session.get("tilsagnId");
     periodeStart = session.get("periodeStart");
@@ -92,7 +81,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
   return {
     orgnr,
-    gjennomforingId: gjennomforingid,
+    gjennomforingId,
     tilsagn,
     periodeStart,
     periodeSlutt,
@@ -213,7 +202,7 @@ export default function OpprettKravOppsummering() {
               >
                 Tilbake
               </Button>
-              <Button type="submit">Nexte</Button>
+              <Button type="submit">Neste</Button>
             </HStack>
           </VStack>
         </Form>

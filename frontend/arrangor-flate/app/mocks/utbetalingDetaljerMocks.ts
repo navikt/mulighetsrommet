@@ -4,7 +4,7 @@ import {
   DeltakerStatusType,
   DelutbetalingStatus,
   DetailsFormat,
-  Tiltakskode,
+  Tiltakskode
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 
@@ -36,7 +36,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 10149,
-      sats: 129,
       digest: "b3602d2a",
       deltakelser: [
         {
@@ -48,12 +47,11 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-17", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 0.48387,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
       ],
       stengt: [],
-      antallManedsverk: 0.48,
     },
     advarsler: [],
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
@@ -114,7 +112,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 242904,
-      sats: 129,
       digest: "db0c7c6e",
       deltakelser: [
         {
@@ -126,7 +123,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 60.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.HAR_SLUTTET,
         },
         {
@@ -138,7 +135,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
         {
@@ -150,7 +147,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
         {
@@ -162,7 +159,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
         {
@@ -174,7 +171,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
         {
@@ -186,7 +183,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-01-15" }, deltakelsesprosent: 80.0 },
           ],
           faktor: 0.45161,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
         {
@@ -198,7 +195,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
         {
@@ -210,12 +207,11 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-01-17", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
           ],
           faktor: 0.48387,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
       ],
       stengt: [],
-      antallManedsverk: 11.58,
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
     periode: { start: "2025-01-01", slutt: "2025-02-01" },
@@ -325,7 +321,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 16848,
-      sats: 129,
       digest: "38c07a43",
       deltakelser: [
         {
@@ -338,12 +333,11 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
             { periode: { start: "2025-06-12", slutt: "2025-07-01" }, deltakelsesprosent: 50.0 },
           ],
           faktor: 1.0,
-          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999" },
+          personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
           status: DeltakerStatusType.DELTAR,
         },
       ],
       stengt: [],
-      antallManedsverk: 1.0,
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: "123123123" },
     periode: { start: "2025-06-01", slutt: "2025-07-01" },

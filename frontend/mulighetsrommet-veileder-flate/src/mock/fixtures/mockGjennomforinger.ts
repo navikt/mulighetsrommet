@@ -3,7 +3,7 @@ import {
   GjennomforingStatusType,
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
-  VeilederflateTiltakGruppe,
+  VeilederflateTiltakGruppe
 } from "@api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
@@ -23,6 +23,9 @@ export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = 
     enhet: "maned",
   },
   stedForGjennomforing:
+    "Valpekullsveien 69, 1424" +
+    " Taumatawhakatangi­hangakoauauotamatea­turipukakapikimaunga­horonukupokaiwhen­uakitanatahu",
+  oppmoteSted:
     "Valpekullsveien 69, 1424" +
     " Taumatawhakatangi­hangakoauauotamatea­turipukakapikimaunga­horonukupokaiwhen­uakitanatahu",
   tiltakstype: mockTiltakstyper.avklaring,
@@ -126,6 +129,7 @@ export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass 
   navn: "Sindres mentorordning med Yoda",
   oppstart: GjennomforingOppstartstype.LOPENDE,
   stedForGjennomforing: "Oslo",
+  oppmoteSted: "Oslo",
   tiltakstype: mockTiltakstyper.mentor,
   kontaktinfo: {
     tiltaksansvarlige: [
@@ -159,6 +163,7 @@ export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   tiltaksnummer: "2024/123",
   navn: "Kurs i overlevelsesteknikk",
   stedForGjennomforing: "2050 JESSHEIM",
+  oppmoteSted: "2050 JESSHEIM",
   apentForPamelding: true,
   tiltakstype: mockTiltakstyper.gruppe_amo,
   oppstart: GjennomforingOppstartstype.FELLES,
@@ -275,6 +280,7 @@ export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
     beskrivelse: "Gjennomføres",
   },
   stedForGjennomforing: "2050",
+  oppmoteSted: "2050",
   apentForPamelding: true,
   tiltakstype: mockTiltakstyper.VTA,
   oppstart: GjennomforingOppstartstype.LOPENDE,
@@ -381,6 +387,7 @@ export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = 
     beskrivelse: "Gjennomføres",
   },
   stedForGjennomforing: "Kautokeino",
+  oppmoteSted: "2050",
   apentForPamelding: true,
   tiltakstype: mockTiltakstyper.jobbklubb,
   oppstart: GjennomforingOppstartstype.LOPENDE,
@@ -443,6 +450,7 @@ export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   id: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
   navn: "AFT",
   stedForGjennomforing: "Sinsen",
+  oppmoteSted: "2050",
   status: {
     type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
@@ -494,6 +502,7 @@ export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe =
   id: "3c110e8c-5867-4ece-b343-e9b1c547f548",
   navn: "Oppfølging",
   stedForGjennomforing: "Sinsen",
+  oppmoteSted: "2050",
   status: {
     type: GjennomforingStatusType.GJENNOMFORES,
     beskrivelse: "Gjennomføres",
@@ -534,6 +543,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
   sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Opplæring Fag og Yrke",
   stedForGjennomforing: "Oslo",
+  oppmoteSted: null,
   tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
   oppstart: GjennomforingOppstartstype.LOPENDE,
   kontaktinfo: {

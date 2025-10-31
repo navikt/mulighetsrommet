@@ -3,9 +3,9 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingKontaktperson,
+  GjennomforingRequest
 } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
-import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { useState } from "react";
 import { GjennomforingList } from "./GjennomforingList";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
@@ -26,7 +26,7 @@ export function GjennomforingInformasjonForVeiledereForm({
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [search, setSearch] = useState("");
 
-  const { setValue, watch } = useFormContext<InferredGjennomforingSchema>();
+  const { setValue, watch } = useFormContext<GjennomforingRequest>();
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
     setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);

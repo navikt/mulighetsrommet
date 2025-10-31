@@ -6,11 +6,7 @@ import { GjennomforingDetaljerMini } from "@/components/gjennomforing/Gjennomfor
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import {
-  UtbetalingDto,
-  UtbetalingHandling,
-  UtbetalingStatusDtoType,
-} from "@tiltaksadministrasjon/api-client";
+import { UtbetalingDto, UtbetalingHandling, UtbetalingStatusDtoType } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { BankNoteFillIcon } from "@navikt/aksel-icons";
 import { Accordion, CopyButton, Heading, HGrid, HStack, VStack } from "@navikt/ds-react";
@@ -25,7 +21,7 @@ import {
   useUtbetaling,
   useUtbetalingBeregning,
   useUtbetalingEndringshistorikk,
-  useUtbetalingsLinjer,
+  useUtbetalingsLinjer
 } from "./utbetalingPageLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbetalingLinjeView";
@@ -186,9 +182,7 @@ export function UtbetalingPage() {
                 <Accordion.Item>
                   <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
                   <Accordion.Content>
-                    {utbetaling.id && (
-                      <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
-                    )}
+                    <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
                   </Accordion.Content>
                 </Accordion.Item>
               </Accordion>

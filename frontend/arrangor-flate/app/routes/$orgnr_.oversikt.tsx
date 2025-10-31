@@ -57,6 +57,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     aktive: utbetalinger.aktive,
     historiske: utbetalinger.historiske,
+    kanOppretteManueltKrav: utbetalinger.kanOppretteManueltKrav,
     tilsagn,
     opprettUtbetalingsKravAnnenAvtaltPrisToggle,
   };
@@ -64,40 +65,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const { aktive, historiske, tilsagn, opprettUtbetalingsKravAnnenAvtaltPrisToggle } =
-    useLoaderData<typeof loader>();
+  const {
+    aktive,
+    historiske,
+    tilsagn,
+    kanOppretteManueltKrav,
+    opprettUtbetalingsKravAnnenAvtaltPrisToggle,
+  } = useLoaderData<typeof loader>();
   const orgnr = useOrgnrFromUrl();
 
   return (
     <Box className={css.side}>
       <div className="flex justify-between sm:flex-row sm:p-1">
         <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
-        <ActionMenu>
-          <ActionMenu.Trigger>
-            <Button variant="secondary" icon={<ChevronDownIcon aria-hidden />} iconPosition="right">
-              {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
-            </Button>
-          </ActionMenu.Trigger>
-          <ActionMenu.Content>
-            <ActionMenu.Group label="Utbetalingskrav">
-              {opprettUtbetalingsKravAnnenAvtaltPrisToggle && (
-                <ActionMenu.Item
-                  as={ReactRouterLink}
-                  to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.innsendingsinformasjon}
-                >
-                  {tekster.bokmal.utbetaling.opprettUtbetaling.driftstilskudd}
-                </ActionMenu.Item>
-              )}
-
-              <ActionMenu.Item
-                as={ReactRouterLink}
-                to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
-              >
-                {tekster.bokmal.utbetaling.opprettUtbetaling.investering}
-              </ActionMenu.Item>
-            </ActionMenu.Group>
-          </ActionMenu.Content>
-        </ActionMenu>
+        <OpprettManueltUtbetalingskrav
+          orgnr={orgnr}
+          kanOppretteManueltKrav={kanOppretteManueltKrav}
+          opprettUtbetalingsKravAnnenAvtaltPrisToggle={opprettUtbetalingsKravAnnenAvtaltPrisToggle}
+        />
       </div>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
@@ -119,5 +104,57 @@ export default function UtbetalingOversikt() {
         </Tabs.Panel>
       </Tabs>
     </Box>
+  );
+}
+
+interface OpprettManueltUtbetalingskravProps {
+  orgnr: string;
+  kanOppretteManueltKrav: boolean;
+  opprettUtbetalingsKravAnnenAvtaltPrisToggle: boolean;
+}
+
+function OpprettManueltUtbetalingskrav({
+  orgnr,
+  kanOppretteManueltKrav,
+  opprettUtbetalingsKravAnnenAvtaltPrisToggle,
+}: OpprettManueltUtbetalingskravProps) {
+  if (kanOppretteManueltKrav) {
+    return (
+      <Button
+        variant="secondary"
+        as={ReactRouterLink}
+        to={pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt}
+      >
+        {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
+      </Button>
+    );
+  }
+  return (
+    <ActionMenu>
+      <ActionMenu.Trigger>
+        <Button variant="secondary" icon={<ChevronDownIcon aria-hidden />} iconPosition="right">
+          {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
+        </Button>
+      </ActionMenu.Trigger>
+      <ActionMenu.Content>
+        <ActionMenu.Group label="Utbetalingskrav">
+          {opprettUtbetalingsKravAnnenAvtaltPrisToggle && (
+            <ActionMenu.Item
+              as={ReactRouterLink}
+              to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.innsendingsinformasjon}
+            >
+              {tekster.bokmal.utbetaling.opprettUtbetaling.driftstilskudd}
+            </ActionMenu.Item>
+          )}
+
+          <ActionMenu.Item
+            as={ReactRouterLink}
+            to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
+          >
+            {tekster.bokmal.utbetaling.opprettUtbetaling.investering}
+          </ActionMenu.Item>
+        </ActionMenu.Group>
+      </ActionMenu.Content>
+    </ActionMenu>
   );
 }

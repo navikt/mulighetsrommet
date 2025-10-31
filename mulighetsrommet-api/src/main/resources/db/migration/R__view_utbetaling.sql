@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists utbetaling_dto_view;
+drop view if exists view_utbetaling;
 
-create view utbetaling_dto_view as
+create view view_utbetaling as
 select utbetaling.id,
        utbetaling.beregning_type,
        utbetaling.godkjent_av_arrangor_tidspunkt,

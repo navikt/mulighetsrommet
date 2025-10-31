@@ -59,6 +59,10 @@ object UbetalingToPdfDocumentContentMapper {
             is ArrangorflateBeregning.PrisPerUkesverk -> {
                 addDeltakerperioderSection(utbetaling.beregning.deltakelser)
             }
+
+            is ArrangorflateBeregning.PrisPerTimeOppfolging -> {
+                addDeltakerperioderSection(utbetaling.beregning.deltakelser)
+            }
         }
 
         when (utbetaling.beregning) {
@@ -81,6 +85,8 @@ object UbetalingToPdfDocumentContentMapper {
                 deltakelseFaktorColumnName = "Ukesverk",
                 deltakelser = utbetaling.beregning.deltakelser,
             )
+
+            is ArrangorflateBeregning.PrisPerTimeOppfolging -> Unit
         }
     }
 }
@@ -115,46 +121,11 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Arrangorf
 private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrangorflateUtbetalingDto) {
     section("Utbetaling") {
         descriptionList {
-            val start = utbetaling.periode.start.formaterDatoTilEuropeiskDatoformat()
-            val slutt = utbetaling.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-            entry("Utbetalingsperiode", "$start - $slutt")
+            entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
 
-            when (utbetaling.beregning) {
-                is ArrangorflateBeregning.Fri -> Unit
-
-                is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> {
-                    entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-                    entry(
-                        "Sats",
-                        utbetaling.beregning.sats,
-                        Format.NOK,
-                    )
-                }
-
-                is ArrangorflateBeregning.PrisPerManedsverk -> {
-                    entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-                    entry(
-                        "Pris",
-                        utbetaling.beregning.sats,
-                        Format.NOK,
-                    )
-                }
-
-                is ArrangorflateBeregning.PrisPerUkesverk -> {
-                    entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
-                    entry(
-                        "Pris",
-                        utbetaling.beregning.sats,
-                        Format.NOK,
-                    )
-                }
+            utbetaling.beregning.detaljer.entries.forEach { entry ->
+                entry(entry.key, entry.value, entry.format?.toPdfDocumentContentFormat())
             }
-
-            entry(
-                "Beløp",
-                utbetaling.beregning.belop.toString(),
-                Format.NOK,
-            )
         }
     }
 }
@@ -207,6 +178,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
         is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> beregning.stengt
         is ArrangorflateBeregning.PrisPerManedsverk -> beregning.stengt
         is ArrangorflateBeregning.PrisPerUkesverk -> beregning.stengt
+        is ArrangorflateBeregning.PrisPerTimeOppfolging -> beregning.stengt
     }
     if (stengt.isNotEmpty()) {
         section("Stengt hos arrangør") {
@@ -228,19 +200,20 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
     section("Deltakerperioder") {
         table {
             column("Navn")
-            column("Fnr", TableBlock.Table.Column.Align.RIGHT)
+            column("Fødselsnr.", TableBlock.Table.Column.Align.RIGHT)
             column("Startdato i perioden", TableBlock.Table.Column.Align.RIGHT)
             column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
             column("Deltakelsesprosent", TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
                 deltakelse.perioderMedDeltakelsesmengde.forEach { (periode, prosent) ->
+                    val erSkjermet = deltakelse.personalia?.erSkjermet == true
                     row(
                         TableBlock.Table.Cell(
-                            deltakelse.personalia?.navn,
+                            if (erSkjermet) "Skjermet" else deltakelse.personalia?.navn,
                         ),
                         TableBlock.Table.Cell(
-                            deltakelse.personalia?.norskIdent?.value,
+                            if (erSkjermet) null else deltakelse.personalia?.norskIdent?.value,
                         ),
                         TableBlock.Table.Cell(
                             periode.start.formaterDatoTilEuropeiskDatoformat(),
@@ -265,17 +238,18 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
     section("Deltakerperioder") {
         table {
             column("Navn")
-            column("Fnr", TableBlock.Table.Column.Align.RIGHT)
+            column("Fødselsnr.", TableBlock.Table.Column.Align.RIGHT)
             column("Startdato i perioden", TableBlock.Table.Column.Align.RIGHT)
             column("Sluttdato i perioden", TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
+                val erSkjermet = deltakelse.personalia?.erSkjermet == true
                 row(
                     TableBlock.Table.Cell(
-                        deltakelse.personalia?.navn,
+                        if (erSkjermet) "Skjermet" else deltakelse.personalia?.navn,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.personalia?.norskIdent?.value,
+                        if (erSkjermet) null else deltakelse.personalia?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
                         deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
@@ -297,22 +271,39 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     section(sectionHeader) {
         table {
             column("Navn")
-            column("Fnr", TableBlock.Table.Column.Align.RIGHT)
+            column("Fødselsnr.", TableBlock.Table.Column.Align.RIGHT)
             column(deltakelseFaktorColumnName, TableBlock.Table.Column.Align.RIGHT)
 
             deltakelser.forEach { deltakelse ->
+                val erSkjermet = deltakelse.personalia?.erSkjermet == true
                 row(
                     TableBlock.Table.Cell(
-                        deltakelse.personalia?.navn,
+                        if (erSkjermet) "Skjermet" else deltakelse.personalia?.navn,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.personalia?.norskIdent?.value,
+                        if (erSkjermet) null else deltakelse.personalia?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.faktor.toString(),
+                        when (deltakelse) {
+                            is ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed ->
+                                deltakelse.faktor.toString()
+
+                            is ArrangorflateBeregningDeltakelse.PrisPerUkesverk ->
+                                deltakelse.faktor.toString()
+
+                            is ArrangorflateBeregningDeltakelse.PrisPerManedsverk ->
+                                deltakelse.faktor.toString()
+
+                            else -> null
+                        },
                     ),
                 )
             }
         }
     }
+}
+
+private fun DetailsFormat.toPdfDocumentContentFormat(): Format? = when (this) {
+    DetailsFormat.NOK -> Format.NOK
+    DetailsFormat.NUMBER -> null
 }

@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.NonEmptyList
-import io.ktor.server.plugins.*
+import io.ktor.server.plugins.NotFoundException
+import java.util.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
-import java.util.*
 
 class VeilederflateService(
     private val db: ApiDatabase,
@@ -139,6 +139,7 @@ class VeilederflateService(
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
         sanityPerspective: SanityPerspective,
+        cacheUsage: CacheUsage,
     ): VeilederflateTiltak = db.session {
         return queries.veilderTiltak.get(id)
             ?.let { gjennomforing ->
@@ -148,7 +149,7 @@ class VeilederflateService(
                 gjennomforing.copy(tiltakstype = sanityTiltakstype)
             }
             ?: run {
-                val gjennomforing = sanityService.getTiltak(id, sanityPerspective)
+                val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
                 toVeilederTiltaksgjennomforing(gjennomforing)
             }
     }
@@ -226,6 +227,7 @@ class VeilederflateService(
                     stedForGjennomforing = stedForGjennomforing,
                     fylker = fylker,
                     enheter = enheter,
+                    oppmoteSted = null,
                 )
             }
 
@@ -242,6 +244,7 @@ class VeilederflateService(
                 fylker = fylker,
                 enheter = enheter,
                 arrangor = arrangor,
+                oppmoteSted = null,
             )
 
             else -> VeilederflateTiltakEnkeltplass(
@@ -255,6 +258,7 @@ class VeilederflateService(
                 stedForGjennomforing = stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
+                oppmoteSted = null,
             )
         }
     }

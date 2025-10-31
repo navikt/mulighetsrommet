@@ -5,6 +5,10 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.time.Instant
+import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -17,10 +21,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.time.Instant
-import java.util.*
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
 
@@ -138,7 +138,7 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
                 utbetaling.beregning.output.belop,
                 utbetaling.beregning.output.belop - (otherUtbetaling?.beregning?.output?.belop ?: 0),
                 deltakelse.deltakelseId,
-                deltakelse.faktor,
+                deltakelse.perioder.sumOf { it.faktor },
             )
         }
     }

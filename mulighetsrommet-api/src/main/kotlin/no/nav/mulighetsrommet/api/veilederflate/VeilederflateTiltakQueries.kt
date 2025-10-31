@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate
 
+import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -11,7 +12,6 @@ import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
-import java.util.*
 
 class VeilederflateTiltakQueries(private val session: Session) {
 
@@ -19,7 +19,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from veilederflate_tiltak_view
+            from view_veilederflate_tiltak
             where id = ?::uuid
         """.trimIndent()
 
@@ -46,7 +46,7 @@ class VeilederflateTiltakQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from veilederflate_tiltak_view
+            from view_veilederflate_tiltak
             where publisert
               and (
                 (:innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper))
@@ -123,6 +123,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         },
         personvernBekreftet = boolean("personvern_bekreftet"),
         personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
+        oppmoteSted = stringOrNull("oppmote_sted"),
         status = VeilederflateTiltakGruppeStatus(
             type = status,
             beskrivelse = status.beskrivelse,

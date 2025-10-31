@@ -36,15 +36,6 @@ spec:
     - team: amt
       application: amt-tiltaksarrangor-bff
       access: read
-    - team: amt
-      application: amt-deltaker-bff
-      access: read
-    - team: amt
-      application: amt-aktivitetskort-publisher
-      access: read
-    - team: amt
-      application: amt-deltaker
-      access: read
 
     # DVH
     - team: teamoppfolging
@@ -52,4 +43,9 @@ spec:
       access: read
     - team: teamoppfolging
       application: teamoppfolging-kafka-manager
+      access: read
+
+    # Tiltakspenger
+    - team: tpts
+      application: tiltakspenger-tiltak
       access: read

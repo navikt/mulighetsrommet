@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -13,8 +15,6 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
-import java.time.LocalDateTime
-import java.util.*
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
@@ -78,6 +78,7 @@ class UtbetalingQueries(private val session: Session) {
                 is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
                 is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
                 is UtbetalingBeregningPrisPerHeleUkesverk -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
+                is UtbetalingBeregningPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
             }.name,
             "belop_beregnet" to dbo.beregning.output.belop,
             "innsender" to dbo.innsender?.textRepr(),
@@ -95,15 +96,15 @@ class UtbetalingQueries(private val session: Session) {
             is UtbetalingBeregningFri -> Unit
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.sats)
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
+                upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(dbo.id, dbo.beregning.input.deltakelser)
                 upsertUtbetalingBeregningOutputDeltakelseFaktor(dbo.id, dbo.beregning.output.deltakelser)
             }
 
             is UtbetalingBeregningPrisPerManedsverk -> upsertBeregning(
                 dbo.id,
-                dbo.beregning.input.sats,
+                dbo.beregning.input.satser,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
@@ -111,7 +112,7 @@ class UtbetalingQueries(private val session: Session) {
 
             is UtbetalingBeregningPrisPerUkesverk -> upsertBeregning(
                 dbo.id,
-                dbo.beregning.input.sats,
+                dbo.beregning.input.satser,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
@@ -119,49 +120,55 @@ class UtbetalingQueries(private val session: Session) {
 
             is UtbetalingBeregningPrisPerHeleUkesverk -> upsertBeregning(
                 dbo.id,
-                dbo.beregning.input.sats,
+                dbo.beregning.input.satser,
                 dbo.beregning.input.stengt,
                 dbo.beregning.input.deltakelser,
                 dbo.beregning.output.deltakelser,
             )
+
+            is UtbetalingBeregningPrisPerTimeOppfolging -> {
+                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
+                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
+                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
+            }
         }
     }
 
     private fun TransactionalSession.upsertBeregning(
         utbetalingId: UUID,
-        sats: Int,
+        satser: Set<SatsPeriode>,
         stengtPerioder: Set<StengtPeriode>,
         deltakelserPeriode: Set<DeltakelsePeriode>,
         deltakelserFaktor: Set<UtbetalingBeregningOutputDeltakelse>,
     ) {
-        upsertUtbetalingBeregningInputSats(utbetalingId, sats)
+        upsertUtbetalingBeregningInputSats(utbetalingId, satser)
         upsertUtbetalingBeregningInputStengt(utbetalingId, stengtPerioder)
-        // TODO: lagre perioder uten deltakelsesprosent?
-        val perioder = deltakelserPeriode
-            .map {
-                DeltakelseDeltakelsesprosentPerioder(
-                    it.deltakelseId,
-                    listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
-                )
-            }
-            .toSet()
-        upsertUtbetalingBeregningInputDeltakelsePerioder(utbetalingId, perioder)
+        upsertUtbetalingBeregningInputDeltakelsePerioder(utbetalingId, deltakelserPeriode)
         upsertUtbetalingBeregningOutputDeltakelseFaktor(utbetalingId, deltakelserFaktor)
     }
 
-    private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, sats: Int) {
+    private fun Session.upsertUtbetalingBeregningInputSats(id: UUID, satser: Set<SatsPeriode>) {
         @Language("PostgreSQL")
-        val query = """
-            insert into utbetaling_beregning_sats (utbetaling_id, sats)
-            values (:utbetaling_id::uuid, :sats)
-            on conflict (utbetaling_id) do update set
-                sats = excluded.sats
+        val deleteSatsPerioder = """
+            delete
+            from utbetaling_sats_periode
+            where utbetaling_id = ?::uuid
         """.trimIndent()
-        val params = mapOf(
-            "utbetaling_id" to id,
-            "sats" to sats,
-        )
-        execute(queryOf(query, params))
+        execute(queryOf(deleteSatsPerioder, id))
+
+        @Language("PostgreSQL")
+        val insertSatsPeriode = """
+            insert into utbetaling_sats_periode (utbetaling_id, sats, periode)
+            values (:utbetaling_id::uuid, :sats, :periode::daterange)
+        """.trimIndent()
+        val perioder = satser.map {
+            mapOf(
+                "utbetaling_id" to id,
+                "sats" to it.sats,
+                "periode" to it.periode.toDaterange(),
+            )
+        }
+        batchPreparedNamedStatement(insertSatsPeriode, perioder)
     }
 
     private fun Session.upsertUtbetalingBeregningInputStengt(id: UUID, stengt: Set<StengtPeriode>) {
@@ -188,7 +195,23 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertStengtHosArrangorQuery, perioder)
     }
 
-    private fun Session.upsertUtbetalingBeregningInputDeltakelsePerioder(
+    private fun TransactionalSession.upsertUtbetalingBeregningInputDeltakelsePerioder(
+        utbetalingId: UUID,
+        deltakelser: Set<DeltakelsePeriode>,
+    ) {
+        // TODO: lagre disse periodene uten deltakelsesprosent i stedet?
+        val perioder = deltakelser
+            .map {
+                DeltakelseDeltakelsesprosentPerioder(
+                    it.deltakelseId,
+                    listOf(DeltakelsesprosentPeriode(it.periode, 100.0)),
+                )
+            }
+            .toSet()
+        upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(utbetalingId, perioder)
+    }
+
+    private fun Session.upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(
         id: UUID,
         perioder: Set<DeltakelseDeltakelsesprosentPerioder>,
     ) {
@@ -232,16 +255,20 @@ class UtbetalingQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val insertDeltakelseFaktor = """
-            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor)
-            values (:utbetaling_id, :deltakelse_id, :faktor)
+            insert into utbetaling_deltakelse_faktor (utbetaling_id, deltakelse_id, faktor, periode, sats)
+            values (:utbetaling_id, :deltakelse_id, :faktor, :periode::daterange, :sats)
         """.trimIndent()
 
-        val deltakelseFaktorParams = deltakelser.map {
-            mapOf(
-                "utbetaling_id" to id,
-                "deltakelse_id" to it.deltakelseId,
-                "faktor" to it.faktor,
-            )
+        val deltakelseFaktorParams = deltakelser.flatMap { deltakelse ->
+            deltakelse.perioder.map { periode ->
+                mapOf(
+                    "utbetaling_id" to id,
+                    "deltakelse_id" to deltakelse.deltakelseId,
+                    "faktor" to periode.faktor,
+                    "periode" to periode.periode.toDaterange(),
+                    "sats" to periode.sats,
+                )
+            }
         }
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
@@ -334,7 +361,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where id = ?::uuid
         """.trimIndent()
 
@@ -347,7 +374,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where arrangor_organisasjonsnummer = ?
             order by periode desc
         """.trimIndent()
@@ -359,7 +386,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where gjennomforing_id = :id::uuid
         """.trimIndent()
 
@@ -372,7 +399,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where periode = :periode::daterange
         """.trimIndent()
 
@@ -385,7 +412,7 @@ class UtbetalingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from utbetaling_dto_view
+            from view_utbetaling
             where gjennomforing_id = ?::uuid
             order by godkjent_av_arrangor_tidspunkt desc
             limit 1
@@ -453,14 +480,15 @@ class UtbetalingQueries(private val session: Session) {
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
             UtbetalingBeregningType.PRIS_PER_UKESVERK -> getBeregningPrisPerUkesverk(id)
             UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK -> getBeregningPrisPerHeleUkesverk(id)
+            UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING -> getBeregningPrisPerTimeOppfolging(id)
         }
     }
 
-    private fun getBeregningFri(id: UUID): UtbetalingBeregning {
+    private fun getBeregningFri(id: UUID): UtbetalingBeregningFri {
         @Language("PostgreSQL")
         val query = """
-            select *
-            from view_utbetaling_beregning_fri
+            select belop_beregnet
+            from utbetaling
             where id = ?::uuid
         """.trimIndent()
 
@@ -479,94 +507,126 @@ class UtbetalingQueries(private val session: Session) {
     private fun getBeregningFastSatsPerTiltaksplassPerManed(id: UUID): UtbetalingBeregning {
         @Language("PostgreSQL")
         val query = """
-            select *
-            from view_utbetaling_beregning_manedsverk_fast_sats_admin
+            select utbetaling.belop_beregnet,
+                   satser.perioder_json as sats_perioder_json,
+                   coalesce(stengt.perioder_json, '[]'::jsonb) as stengt_perioder_json,
+                   coalesce(deltakelser_input.perioder_json, '[]'::jsonb) as deltakelser_input_json,
+                   coalesce(deltakelser_output.perioder_json, '[]'::jsonb) as deltakelser_output_json
+            from utbetaling
+                     join view_utbetaling_input_satser_json satser on utbetaling.id = satser.utbetaling_id
+                     left join view_utbetaling_input_stengt_json stengt on utbetaling.id = stengt.utbetaling_id
+                     left join view_utbetaling_input_deltakelsesprosent_perioder_json deltakelser_input on utbetaling.id = deltakelser_input.utbetaling_id
+                     left join view_utbetaling_output_deltakelse_perioder_json deltakelser_output on utbetaling.id = deltakelser_output.utbetaling_id
             where id = ?::uuid
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
             UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
-                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
                 output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     belop = row.int("belop_beregnet"),
-                    deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
                 ),
             )
         }
     }
 
     private fun getBeregningPrisPerManedsverk(id: UUID): UtbetalingBeregning {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_utbetaling_beregning_manedsverk
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { row ->
+        return getBeregningDeltakelsesfaktor(id) { row ->
             UtbetalingBeregningPrisPerManedsverk(
                 input = UtbetalingBeregningPrisPerManedsverk.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
-                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
                 output = UtbetalingBeregningPrisPerManedsverk.Output(
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     belop = row.int("belop_beregnet"),
-                    deltakelser = Json.decodeFromString(row.string("manedsverk_json")),
                 ),
             )
         }
     }
 
     private fun getBeregningPrisPerUkesverk(id: UUID): UtbetalingBeregningPrisPerUkesverk {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_utbetaling_beregning_ukesverk
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { row ->
+        return getBeregningDeltakelsesfaktor(id) { row ->
             UtbetalingBeregningPrisPerUkesverk(
                 input = UtbetalingBeregningPrisPerUkesverk.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
-                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
                 output = UtbetalingBeregningPrisPerUkesverk.Output(
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     belop = row.int("belop_beregnet"),
-                    deltakelser = Json.decodeFromString(row.string("ukesverk_json")),
                 ),
             )
         }
     }
 
     private fun getBeregningPrisPerHeleUkesverk(id: UUID): UtbetalingBeregningPrisPerHeleUkesverk {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_utbetaling_beregning_ukesverk
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { row ->
+        return getBeregningDeltakelsesfaktor(id) { row ->
             UtbetalingBeregningPrisPerHeleUkesverk(
                 input = UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    periode = row.periode("periode"),
-                    sats = row.int("sats"),
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
-                    deltakelser = Json.decodeFromString(row.string("deltakelser_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
                 output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     belop = row.int("belop_beregnet"),
-                    deltakelser = Json.decodeFromString(row.string("ukesverk_json")),
+                ),
+            )
+        }
+    }
+
+    private inline fun <T> getBeregningDeltakelsesfaktor(
+        id: UUID,
+        crossinline mapper: (Row) -> T,
+    ): T {
+        @Language("PostgreSQL")
+        val query = """
+            select utbetaling.belop_beregnet,
+                   satser.perioder_json as sats_perioder_json,
+                   coalesce(stengt.perioder_json, '[]'::jsonb) as stengt_perioder_json,
+                   coalesce(deltakelser_input.perioder_json, '[]'::jsonb) as deltakelser_input_json,
+                   coalesce(deltakelser_output.perioder_json, '[]'::jsonb) as deltakelser_output_json
+            from utbetaling
+                     join view_utbetaling_input_satser_json satser on utbetaling.id = satser.utbetaling_id
+                     left join view_utbetaling_input_stengt_json stengt on utbetaling.id = stengt.utbetaling_id
+                     left join view_utbetaling_input_deltakelse_perioder_json deltakelser_input on utbetaling.id = deltakelser_input.utbetaling_id
+                     left join view_utbetaling_output_deltakelse_perioder_json deltakelser_output on utbetaling.id = deltakelser_output.utbetaling_id
+            where id = ?::uuid
+        """.trimIndent()
+        return session.requireSingle(queryOf(query, id)) { row -> mapper.invoke(row) }
+    }
+
+    private fun getBeregningPrisPerTimeOppfolging(id: UUID): UtbetalingBeregningPrisPerTimeOppfolging {
+        @Language("PostgreSQL")
+        val query = """
+            select utbetaling.belop_beregnet,
+                   satser.perioder_json as sats_perioder_json,
+                   coalesce(stengt.perioder_json, '[]'::jsonb) as stengt_perioder_json,
+                   coalesce(deltakelser_input.perioder_json, '[]'::jsonb) as deltakelser_input_json
+            from utbetaling
+                     join view_utbetaling_input_satser_json satser on utbetaling.id = satser.utbetaling_id
+                     left join view_utbetaling_input_stengt_json stengt on utbetaling.id = stengt.utbetaling_id
+                     left join view_utbetaling_input_deltakelse_perioder_json deltakelser_input on utbetaling.id = deltakelser_input.utbetaling_id
+            where id = ?::uuid
+        """.trimIndent()
+        return session.requireSingle(queryOf(query, id)) { row ->
+            UtbetalingBeregningPrisPerTimeOppfolging(
+                input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                    satser = Json.decodeFromString(row.string("sats_perioder_json")),
+                    stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
+                    deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
+                    belop = row.int("belop_beregnet"),
+                ),
+                output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
+                    belop = row.int("belop_beregnet"),
                 ),
             )
         }

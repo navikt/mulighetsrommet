@@ -1,17 +1,16 @@
 package no.nav.tiltak.historikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
+import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -21,46 +20,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(db)
 
-        val tiltak = TiltaksgjennomforingV1Dto(
-            id = UUID.randomUUID(),
-            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-                id = UUID.randomUUID(),
-                navn = "Gruppe AMO",
-                arenaKode = "GRUPPEAMO",
-                tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            ),
-            navn = "Gruppe AMO",
-            virksomhetsnummer = "123123123",
-            startDato = LocalDate.now(),
-            sluttDato = null,
-            status = GjennomforingStatusType.GJENNOMFORES,
-            oppstart = GjennomforingOppstartstype.FELLES,
-            tilgjengeligForArrangorFraOgMedDato = null,
-            apentForPamelding = true,
-            antallPlasser = 10,
-            opprettetTidspunkt = LocalDateTime.now(),
-            oppdatertTidspunkt = LocalDateTime.now(),
-        )
-
-        val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
-
-        val amtDeltaker1 = AmtDeltakerV1Dto(
-            id = UUID.randomUUID(),
-            gjennomforingId = tiltak.id,
-            personIdent = "10101010100",
-            startDato = null,
-            sluttDato = null,
-            status = DeltakerStatus(
-                type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                aarsak = null,
-                opprettetDato = deltakelsesdato,
-            ),
-            registrertDato = deltakelsesdato,
-            endretDato = deltakelsesdato,
-            dagerPerUke = 2.5f,
-            prosentStilling = null,
-            deltakelsesmengder = listOf(),
-        )
+        val tiltak = TestFixtures.tiltak
+        val amtDeltaker1 = TestFixtures.amtDeltaker
 
         beforeEach {
             db.session {

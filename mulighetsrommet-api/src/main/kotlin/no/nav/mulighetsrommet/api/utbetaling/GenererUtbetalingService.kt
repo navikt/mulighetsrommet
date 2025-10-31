@@ -2,18 +2,22 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.TemporalAdjusters
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -24,12 +28,6 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.temporal.TemporalAdjusters
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
     private val config: OkonomiConfig,
@@ -78,11 +76,11 @@ class GenererUtbetalingService(
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.get(id)
+        val gjennomforing = queries.gjennomforing.getOrError(id)
         val prismodell = queries.gjennomforing.getPrismodell(id)
 
-        if (gjennomforing == null || prismodell == null) {
-            log.warn("Klarte ikke utlede gjennomføring og/eller prismodell for id=$id")
+        if (prismodell == null) {
+            log.info("Prismodell er ikke satt for gjennomføring med id=$id")
             return listOf()
         }
 
@@ -177,12 +175,11 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
-        val sats = resolveAvtaltSats(gjennomforing, periode)
+        val satser = resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
         return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-            periode = periode,
-            sats = sats,
+            satser = satser,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -192,12 +189,11 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk.Input {
-        val sats = resolveAvtaltSats(gjennomforing, periode)
+        val satser = resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerManedsverk.Input(
-            periode = periode,
-            sats = sats,
+            satser = satser,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -207,12 +203,11 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk.Input {
-        val sats = resolveAvtaltSats(gjennomforing, periode)
+        val satser = resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerUkesverk.Input(
-            periode = periode,
-            sats = sats,
+            satser = satser,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -222,14 +217,12 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
-        val sats = resolveAvtaltSats(gjennomforing, periode)
-
         val heleUkerPeriode = heleUkerPeriode(periode)
+        val satser = resolveAvtalteSatser(gjennomforing, heleUkerPeriode)
         val stengtHosArrangor = resolveStengtHosArrangor(heleUkerPeriode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, heleUkerPeriode)
         return UtbetalingBeregningPrisPerHeleUkesverk.Input(
-            periode = periode,
-            sats = sats,
+            satser = satser,
             stengt = stengtHosArrangor,
             deltakelser = deltakelser,
         )
@@ -258,9 +251,9 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
-        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
-        return resolveAvtaltSats(gjennomforing, avtale, periode)
+    private fun QueryContext.resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
+        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
+        return UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, avtale, periode)
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
@@ -303,6 +296,7 @@ class GenererUtbetalingService(
                     from utbetaling
                     where utbetaling.gjennomforing_id = gjennomforing.id
                       and utbetaling.periode && :periode::daterange
+                      and utbetaling.tilskuddstype <> 'TILTAK_INVESTERINGER'
                 )
         """.trimIndent()
 
@@ -488,15 +482,4 @@ private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
 
 private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
     return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
-}
-
-fun resolveAvtaltSats(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Int {
-    val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
-        maxOf(gjennomforing.startDato, periode.start)
-    } else {
-        periode.start
-    }
-    val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
-    return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
-        ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
 }

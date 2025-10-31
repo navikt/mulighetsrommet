@@ -20,7 +20,9 @@ import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
 import { OpprettUtbetalingPage } from "./pages/gjennomforing/utbetaling/OpprettUtbetalingPage";
-import { UtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
+import {
+  UtbetalingerForGjennomforingContainer
+} from "./pages/gjennomforing/utbetaling/UtbetalingerForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
@@ -40,6 +42,7 @@ import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/Gjennomforin
 import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -61,18 +64,28 @@ export function App() {
 
 function AppLayout() {
   return (
-    <Page background="bg-subtle">
-      <Page.Block as="header" className="max-w-[1920px]">
-        <AdministratorHeader />
-      </Page.Block>
-      <Page.Block as="main" className="max-w-[1920px]">
-        <Suspense fallback={<Laster tekst="Laster..." />}>
-          <InlineErrorBoundary>
-            <Outlet />
-          </InlineErrorBoundary>
-        </Suspense>
-      </Page.Block>
-    </Page>
+    <HelmetProvider>
+      <Helmet>
+        <script
+          defer
+          src="https://cdn.nav.no/team-researchops/sporing/sporing.js"
+          data-host-url="https://umami.nav.no"
+          data-website-id="7b4a1f84-e34c-46d9-ae4a-de244d3c9ea9"
+        ></script>
+      </Helmet>
+      <Page background="bg-subtle">
+        <Page.Block as="header" className="max-w-[1920px]">
+          <AdministratorHeader />
+        </Page.Block>
+        <Page.Block as="main" className="max-w-[1920px]">
+          <Suspense fallback={<Laster tekst="Laster..." />}>
+            <InlineErrorBoundary>
+              <Outlet />
+            </InlineErrorBoundary>
+          </Suspense>
+        </Page.Block>
+      </Page>
+    </HelmetProvider>
   );
 }
 

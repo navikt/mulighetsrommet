@@ -1677,6 +1677,10 @@ components:
           type:
           - "null"
           - string
+        oppmoteSted:
+          type:
+          - "null"
+          - string
         fylker:
           type: array
           items:
@@ -1698,6 +1702,7 @@ components:
       - fylker
       - kontaktinfo
       - navn
+      - oppmoteSted
       - oppstart
       - sanityId
       - stedForGjennomforing
@@ -1779,6 +1784,10 @@ components:
           type:
           - "null"
           - string
+        oppmoteSted:
+          type:
+          - "null"
+          - string
         fylker:
           type: array
           items:
@@ -1796,6 +1805,7 @@ components:
       - fylker
       - kontaktinfo
       - navn
+      - oppmoteSted
       - oppstart
       - sanityId
       - stedForGjennomforing
@@ -1823,6 +1833,10 @@ components:
           type:
           - "null"
           - string
+        oppmoteSted:
+          type:
+          - "null"
+          - string
         fylker:
           type: array
           items:
@@ -1847,6 +1861,7 @@ components:
       - fylker
       - kontaktinfo
       - navn
+      - oppmoteSted
       - oppstart
       - sanityId
       - stedForGjennomforing
@@ -1918,6 +1933,10 @@ components:
           type:
           - "null"
           - string
+        oppmoteSted:
+          type:
+          - "null"
+          - string
         fylker:
           type: array
           items:
@@ -1968,6 +1987,7 @@ components:
       - id
       - kontaktinfo
       - navn
+      - oppmoteSted
       - oppstart
       - oppstartsdato
       - personopplysningerSomKanBehandles

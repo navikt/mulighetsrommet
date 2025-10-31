@@ -1,6 +1,10 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
 import PersonvernDbo
+import java.sql.Array
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -22,10 +26,6 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
-import java.sql.Array
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class AvtaleQueries(private val session: Session) {
 
@@ -461,11 +461,13 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
     }
 
+    fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
+
     fun get(id: UUID): Avtale? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from avtale_admin_dto_view
+            from view_avtale
             where id = ?::uuid
         """.trimIndent()
 
@@ -513,7 +515,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
-            from avtale_admin_dto_view
+            from view_avtale
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_hovedenhet_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (

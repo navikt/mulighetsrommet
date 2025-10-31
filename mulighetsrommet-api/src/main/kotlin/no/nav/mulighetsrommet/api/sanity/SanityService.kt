@@ -2,9 +2,12 @@ package no.nav.mulighetsrommet.api.sanity
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.plugins.*
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.NotFoundException
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
@@ -14,8 +17,6 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 class SanityService(
     private val sanityClient: SanityClient,
@@ -29,6 +30,13 @@ class SanityService(
         .build()
 
     private val sanityTiltaksgjennomforingerCache: Cache<String, List<SanityTiltaksgjennomforing>> =
+        Caffeine.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10_000)
+            .recordStats()
+            .build()
+
+    private val sanityTiltaksgjennomforingCache: Cache<UUID, SanityTiltaksgjennomforing> =
         Caffeine.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .maximumSize(10_000)
@@ -108,7 +116,14 @@ class SanityService(
     suspend fun getTiltak(
         id: UUID,
         perspective: SanityPerspective,
+        cacheUsage: CacheUsage,
     ): SanityTiltaksgjennomforing {
+        sanityTiltaksgjennomforingCache.getIfPresent(id)?.let {
+            if (cacheUsage == CacheUsage.UseCache) {
+                return@getTiltak it
+            }
+        }
+
         val query = $$"""
             *[_type == "tiltaksgjennomforing" && _id == $id]
             $$sanityTiltaksgjennomforingQuery
@@ -122,7 +137,10 @@ class SanityService(
                 if (result.result == null) {
                     throw NotFoundException("Fant ikke tiltak med id=$id")
                 } else {
-                    return result.decode()
+                    return result.decode<SanityTiltaksgjennomforing>()
+                        .also {
+                            sanityTiltaksgjennomforingCache.put(id, it)
+                        }
                 }
             }
 

@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import java.time.LocalDate
+import java.util.*
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -7,13 +9,8 @@ import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.*
-import java.time.LocalDate
-import java.util.*
 
 object AvtaleFixtures {
     val detaljerDbo = DetaljerDbo(
@@ -35,6 +32,7 @@ object AvtaleFixtures {
         utdanningslop = null,
     )
 
+    val oppfolgingStartDato = LocalDate.of(2023, 1, 1)
     val oppfolging = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
@@ -45,7 +43,7 @@ object AvtaleFixtures {
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
         ),
-        startDato = LocalDate.of(2023, 1, 1),
+        startDato = oppfolgingStartDato,
         sluttDato = LocalDate.now().plusMonths(3),
         status = AvtaleStatusType.AKTIV,
         avtaletype = Avtaletype.RAMMEAVTALE,
@@ -59,8 +57,8 @@ object AvtaleFixtures {
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
-        satser = listOf(),
+        prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+        satser = listOf(AvtaltSats(gjelderFra = oppfolgingStartDato, sats = 1234)),
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(

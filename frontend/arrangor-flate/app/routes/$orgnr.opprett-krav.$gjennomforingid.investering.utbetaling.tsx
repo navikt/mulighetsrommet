@@ -9,17 +9,19 @@ import {
   redirect,
   useActionData,
   useLoaderData,
-  useRevalidator,
+  useRevalidator
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { commitSession, getSession } from "~/sessions.server";
-import { pathByOrgnr, useGjennomforingIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { useEffect, useRef } from "react";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 
 type LoaderData = {
+  orgnr: string;
+  gjennomforingId: string;
   kontonummer?: string;
   sessionBelop?: string;
   sessionKid?: string;
@@ -36,11 +38,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr } = params;
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  const { gjennomforingid } = params;
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
 
   const session = await getSession(request.headers.get("Cookie"));
   let sessionBelop: string | undefined;
@@ -48,7 +46,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (
     session.get("orgnr") === orgnr &&
     session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
-    session.get("gjennomforingId") === gjennomforingid
+    session.get("gjennomforingId") === gjennomforingId
   ) {
     sessionBelop = session.get("belop");
     sessionKid = session.get("kid");
@@ -66,6 +64,8 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
 
   return {
+    orgnr,
+    gjennomforingId,
     kontonummer: data.kontonummer,
     sessionBelop,
     sessionKid,
@@ -120,9 +120,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function OpprettKravUtbetaling() {
   const data = useActionData<ActionData>();
-  const { kontonummer, sessionBelop, sessionKid } = useLoaderData<LoaderData>();
-  const orgnr = useOrgnrFromUrl();
-  const gjennomforingId = useGjennomforingIdFromUrl();
+  const { kontonummer, sessionBelop, sessionKid, orgnr, gjennomforingId } =
+    useLoaderData<LoaderData>();
   const revalidator = useRevalidator();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 

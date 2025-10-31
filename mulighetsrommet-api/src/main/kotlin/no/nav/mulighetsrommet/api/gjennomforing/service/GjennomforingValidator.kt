@@ -4,10 +4,13 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
+import java.time.LocalDate
+import java.util.*
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetTilgjengligForArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
@@ -15,27 +18,20 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import java.time.LocalDate
-import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
 
 @OptIn(ExperimentalContracts::class)
 object GjennomforingValidator {
     private const val MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING = 100
+    private const val MAKS_ANTALL_TEGN_OPPMOTE_STED = 500
 
     data class Ctx(
         val previous: Gjennomforing?,
         val avtale: Avtale,
-        val arrangor: ArrangorDto,
+        val arrangor: ArrangorDto?,
         val administratorer: List<NavAnsatt>,
         val kontaktpersoner: List<NavAnsatt>,
         val antallDeltakere: Int,
@@ -74,10 +70,13 @@ object GjennomforingValidator {
                 GjennomforingDbo::sluttDato,
             )
         }
-        validate(next.sluttDato == null || !next.startDato.isAfter(next.sluttDato)) {
+        validate(next.startDato != null) {
+            FieldError.of("Du må sette en startdato", GjennomforingDbo::startDato)
+        }
+        validate(next.sluttDato == null || (next.startDato != null && !next.startDato.isAfter(next.sluttDato))) {
             FieldError.of("Startdato må være før sluttdato", GjennomforingDbo::startDato)
         }
-        validate(next.antallPlasser > 0) {
+        validate(next.antallPlasser != null && next.antallPlasser > 0) {
             FieldError.of(
                 "Du må legge inn antall plasser større enn 0",
                 GjennomforingDbo::antallPlasser,
@@ -104,11 +103,18 @@ object GjennomforingValidator {
         if (ctx.avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
             validateGruppeFagOgYrke(next.utdanningslop, ctx.avtale)
         }
-        validateNavEnheter(next.veilederinformasjon.navEnheter.toSet(), ctx.avtale)
+        validateNavEnheter(next.veilederinformasjon, ctx.avtale)
         validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingDbo::kontaktpersoner)
         validateSlettetNavAnsatte(ctx.administratorer, GjennomforingDbo::administratorer)
+        validateNotNull(ctx.arrangor) {
+            FieldError.of(
+                "Du må velge en arrangør",
+                GjennomforingDbo::arrangorId,
+            )
+        }
+        requireValid(next.startDato != null && ctx.arrangor != null)
 
-        next = validateOrResetTilgjengeligForArrangorDato(next)
+        next = validateOrResetTilgjengeligForArrangorDato(next, next.startDato)
 
         if (ctx.previous == null) {
             validateCreateGjennomforing(ctx.arrangor, next, ctx.status, ctx.avtale)
@@ -116,7 +122,14 @@ object GjennomforingValidator {
             validateUpdateGjennomforing(next, ctx.previous, ctx.avtale, ctx.antallDeltakere)
         }
 
-        GjennomforingDboMapper.fromGjennomforingRequest(next, ctx.status)
+        requireValid(next.antallPlasser != null && next.startDato != null)
+        GjennomforingDboMapper.fromGjennomforingRequest(
+            next,
+            startDato = next.startDato,
+            antallPlasser = next.antallPlasser,
+            arrangorId = ctx.arrangor.id,
+            ctx.status,
+        )
     }
 
     private fun ValidationDsl.validateGruppeAMO(
@@ -169,27 +182,42 @@ object GjennomforingValidator {
     }
 
     private fun ValidationDsl.validateNavEnheter(
-        navEnheter: Set<NavEnhetNummer>,
+        veilederinfoRequest: GjennomforingVeilederinfoRequest,
         avtale: Avtale,
     ) {
         val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
-        validate(avtaleRegioner.intersect(navEnheter).isNotEmpty()) {
+        validate(avtaleRegioner.intersect(veilederinfoRequest.navRegioner.toSet()).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
-                GjennomforingDbo::navEnheter,
+                GjennomforingRequest::veilederinformasjon,
+                GjennomforingVeilederinfoRequest::navRegioner,
             )
         }
 
         val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
-        validate(avtaleNavKontorer.intersect(navEnheter).isNotEmpty()) {
+        validate(avtaleNavKontorer.intersect(veilederinfoRequest.navKontorer.toSet()).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
-                GjennomforingDbo::navEnheter,
+                GjennomforingRequest::veilederinformasjon,
+                GjennomforingVeilederinfoRequest::navKontorer,
             )
         }
-        navEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
+        veilederinfoRequest.navKontorer.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
             validate(false) {
-                FieldError.of("Nav-enhet $enhetsnummer mangler i avtalen", GjennomforingDbo::navEnheter)
+                FieldError.of(
+                    "Nav-enhet $enhetsnummer mangler i avtalen",
+                    GjennomforingRequest::veilederinformasjon,
+                    GjennomforingVeilederinfoRequest::navKontorer,
+                )
+            }
+        }
+        veilederinfoRequest.navAndreEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
+            validate(false) {
+                FieldError.of(
+                    "Nav-enhet $enhetsnummer mangler i avtalen",
+                    GjennomforingRequest::veilederinformasjon,
+                    GjennomforingVeilederinfoRequest::navAndreEnheter,
+                )
             }
         }
     }
@@ -211,9 +239,10 @@ object GjennomforingValidator {
 
     private fun validateOrResetTilgjengeligForArrangorDato(
         next: GjennomforingRequest,
+        startDato: LocalDate,
     ): GjennomforingRequest {
         val nextTilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato?.let { date ->
-            validateTilgjengeligForArrangorDato(date, next.startDato).fold({ null }, { it })
+            validateTilgjengeligForArrangorDato(date, startDato).fold({ null }, { it })
         }
         return next.copy(tilgjengeligForArrangorDato = nextTilgjengeligForArrangorDato)
     }
@@ -265,11 +294,11 @@ object GjennomforingValidator {
     ) {
         validate(arrangor.slettetDato == null) {
             FieldError.of(
-                "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
+                "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter",
                 GjennomforingDbo::arrangorId,
             )
         }
-        validate(!gjennomforing.startDato.isBefore(avtale.startDato)) {
+        validate(gjennomforing.startDato != null && !gjennomforing.startDato.isBefore(avtale.startDato)) {
             FieldError.of(
                 "Du må legge inn en startdato som er etter avtalens startdato",
                 GjennomforingDbo::startDato,
@@ -279,6 +308,12 @@ object GjennomforingValidator {
             FieldError.of(
                 "Du kan bare skrive $MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING tegn i \"Sted for gjennomføring\"",
                 GjennomforingDbo::stedForGjennomforing,
+            )
+        }
+        validate(gjennomforing.oppmoteSted == null || gjennomforing.oppmoteSted.length <= MAKS_ANTALL_TEGN_OPPMOTE_STED) {
+            FieldError.of(
+                "Du kan bare skrive $MAKS_ANTALL_TEGN_OPPMOTE_STED tegn i \"Oppmøtested\"",
+                GjennomforingDbo::oppmoteSted,
             )
         }
         validate(avtale.status == AvtaleStatus.Aktiv) {
@@ -320,7 +355,7 @@ object GjennomforingValidator {
                     GjennomforingDbo::avtaleId,
                 )
             }
-            validate(!gjennomforing.startDato.isBefore(avtale.startDato)) {
+            validate(gjennomforing.startDato != null && !gjennomforing.startDato.isBefore(avtale.startDato)) {
                 FieldError.of(
                     "Du må legge inn en startdato som er etter avtalens startdato",
                     GjennomforingDbo::startDato,

@@ -9,7 +9,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
-  useRevalidator,
+  useRevalidator
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
@@ -63,7 +63,11 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     throw problemDetailResponse(kontonummerError);
   }
 
-  return { kontonummer: data.kontonummer, sessionBelop, sessionKid };
+  return {
+    kontonummer: data.kontonummer,
+    sessionBelop,
+    sessionKid,
+  };
 };
 
 interface ActionData {

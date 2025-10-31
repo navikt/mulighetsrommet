@@ -16,7 +16,8 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OppgaverService(val db: ApiDatabase) {
     fun oppgaver(
@@ -24,7 +25,7 @@ class OppgaverService(val db: ApiDatabase) {
         tiltakskoder: Set<Tiltakskode>,
         regioner: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
-    ): List<Oppgave> {
+    ): List<Oppgave> = db.transaction {
         val navEnheterForRegioner = getNavEnheterForRegioner(regioner)
 
         val oppgaver = buildList {
@@ -79,12 +80,12 @@ class OppgaverService(val db: ApiDatabase) {
             .filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
     }
 
-    private fun tilsagnOppgaver(
+    private fun QueryContext.tilsagnOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
-    ): List<Oppgave> = db.session {
-        queries.oppgave
+    ): List<Oppgave> {
+        return queries.oppgave
             .getTilsagnOppgaveData()
             .asSequence()
             .filter { oppgave ->
@@ -95,12 +96,12 @@ class OppgaverService(val db: ApiDatabase) {
             .toList()
     }
 
-    private fun delutbetalingOppgaver(
+    private fun QueryContext.delutbetalingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
-    ): List<Oppgave> = db.session {
-        queries.oppgave
+    ): List<Oppgave> {
+        return queries.oppgave
             .getDelutbetalingOppgaveData(
                 kostnadssteder = kostnadssteder.ifEmpty { null },
                 tiltakskoder = tiltakskoder.ifEmpty { null },
@@ -110,12 +111,12 @@ class OppgaverService(val db: ApiDatabase) {
             .toList()
     }
 
-    private fun utbetalingOppgaver(
+    private fun QueryContext.utbetalingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
-    ): List<Oppgave> = db.session {
-        queries.oppgave
+    ): List<Oppgave> {
+        return queries.oppgave
             .getUtbetalingOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
             .asSequence()
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
@@ -123,26 +124,12 @@ class OppgaverService(val db: ApiDatabase) {
             .toList()
     }
 
-    fun tilgangTilOppgave(oppgave: Oppgave, ansatt: NavAnsatt): Boolean {
-        when (oppgave.type) {
-            OppgaveType.TILSAGN_TIL_GODKJENNING -> TODO()
-            OppgaveType.TILSAGN_TIL_ANNULLERING -> TODO()
-            OppgaveType.TILSAGN_TIL_OPPGJOR -> TODO()
-            OppgaveType.TILSAGN_RETURNERT -> TODO()
-            OppgaveType.UTBETALING_TIL_BEHANDLING -> TODO()
-            OppgaveType.UTBETALING_TIL_ATTESTERING -> TODO()
-            OppgaveType.UTBETALING_RETURNERT -> TODO()
-            OppgaveType.AVTALE_MANGLER_ADMINISTRATOR -> TODO()
-            OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR -> TODO()
-        }
-    }
-
-    private fun avtaleOppgaver(
+    private fun QueryContext.avtaleOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         regioner: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
-    ): List<Oppgave> = db.session {
-        queries.oppgave
+    ): List<Oppgave> {
+        return queries.oppgave
             .getAvtaleOppgaveData(
                 tiltakskoder = tiltakskoder,
                 navRegioner = regioner.toList(),
@@ -150,12 +137,12 @@ class OppgaverService(val db: ApiDatabase) {
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
-    private fun gjennomforingOppgaver(
+    private fun QueryContext.gjennomforingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
         ansatt: NavAnsatt,
-    ): List<Oppgave> = db.session {
-        queries.oppgave
+    ): List<Oppgave> {
+        return queries.oppgave
             .getGjennomforingOppgaveData(tiltakskoder = tiltakskoder)
             .filter { navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter } }
             .mapNotNull { it.toOppgave(ansatt) }
@@ -173,8 +160,8 @@ class OppgaverService(val db: ApiDatabase) {
         }
     }
 
-    private fun getNavEnheterForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> = db.session {
-        regioner.flatMapTo(mutableSetOf()) { region ->
+    private fun QueryContext.getNavEnheterForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> {
+        return regioner.flatMapTo(mutableSetOf()) { region ->
             queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
         }
     }
@@ -299,14 +286,11 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
     }
 }
 
-private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
+private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
     val link = OppgaveLink(
         linkText = "Se utbetaling",
         link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.utbetalingId}",
     )
-    val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.OPPRETT)
-
-    val tilsagn = queries.tilsagn.getOrError(data.tilsagnId)
 
     return when (data.status) {
         DelutbetalingStatus.TIL_ATTESTERING -> {
@@ -314,21 +298,21 @@ private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAn
                 id = data.id,
                 type = OppgaveType.UTBETALING_TIL_ATTESTERING,
                 navn = OppgaveType.UTBETALING_TIL_ATTESTERING.navn,
-                enhet = tilsagn.kostnadssted.let {
+                enhet = data.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
                 title = data.gjennomforingNavn,
                 description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til attestering",
                 tiltakstype = data.tiltakstype,
                 link = link,
-                createdAt = opprettelse.behandletTidspunkt,
+                createdAt = data.opprettelse.behandletTidspunkt,
                 iconType = OppgaveIconType.UTBETALING,
             ).takeIf {
                 UtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.ATTESTER,
                     ansatt = ansatt,
-                    kostnadssted = tilsagn.kostnadssted.enhetsnummer,
-                    opprettelse = opprettelse,
+                    kostnadssted = data.kostnadssted.enhetsnummer,
+                    behandletAv = data.opprettelse.behandletAv,
                 )
             }
         }
@@ -337,21 +321,21 @@ private fun QueryContext.toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAn
                 id = data.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
                 navn = OppgaveType.UTBETALING_RETURNERT.navn,
-                enhet = tilsagn.kostnadssted.let {
+                enhet = data.kostnadssted.let {
                     OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
                 },
                 title = data.gjennomforingNavn,
                 description = "Utbetaling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
                 tiltakstype = data.tiltakstype,
                 link = link,
-                createdAt = requireNotNull(opprettelse.besluttetTidspunkt),
+                createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
                 iconType = OppgaveIconType.UTBETALING,
             ).takeIf {
                 UtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
                     ansatt = ansatt,
-                    kostnadssted = tilsagn.kostnadssted.enhetsnummer,
-                    opprettelse = opprettelse,
+                    kostnadssted = data.kostnadssted.enhetsnummer,
+                    behandletAv = data.opprettelse.behandletAv,
                 )
             }
         }

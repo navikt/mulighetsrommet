@@ -2,9 +2,13 @@ package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
 import arrow.core.getOrElse
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -18,9 +22,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
@@ -34,6 +35,7 @@ class ArrangorflateService(
     private val db: ApiDatabase,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
+    private val okonomiConfig: OkonomiConfig,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
@@ -63,8 +65,14 @@ class ArrangorflateService(
                     -> false
                 }
             }
-        return ArrangorflateUtbetalinger(aktive = aktive, historiske = historiske)
+        return ArrangorflateUtbetalinger(
+            aktive = aktive,
+            historiske = historiske,
+            kanOppretteManueltKrav = kanOpretteManueltKrav(),
+        )
     }
+
+    fun kanOpretteManueltKrav(relativeDate: LocalDate = LocalDate.now()): Boolean = okonomiConfig.opprettKravPeriode.any { it.value.contains(relativeDate) }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
@@ -141,12 +149,13 @@ class ArrangorflateService(
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
         } else {
+            val deltakelser = utbetaling.beregning.input.deltakelser().map { it.deltakelseId }
             queries.deltaker
                 .getAll(gjennomforingId = utbetaling.gjennomforing.id)
-                .filter { it.id in utbetaling.beregning.output.deltakelser().map { it.deltakelseId } }
+                .filter { it.id in deltakelser }
         }
 
-        val personalia = getPersonalia(deltakere.map { it.id })
+        val personalia = getPersonalia(deltakere.map { it.id }.toSet())
         val advarsler = getAdvarsler(utbetaling)
         val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
 
@@ -212,7 +221,7 @@ class ArrangorflateService(
         }
     }
 
-    private suspend fun getPersonalia(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonalia> {
+    suspend fun getPersonalia(deltakerIds: Set<UUID>): Map<UUID, DeltakerPersonalia> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
@@ -303,7 +312,7 @@ fun harOverlappendePeriode(
     return sammePerson.any { (_, _, periodeB) -> periodeB.intersects(deltakerOgPeriode.periode) }
 }
 
-private fun toArrangorflateTilsagn(
+fun toArrangorflateTilsagn(
     tilsagn: Tilsagn,
 ): ArrangorflateTilsagnDto {
     return ArrangorflateTilsagnDto(

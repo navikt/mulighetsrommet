@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.model
 
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 
 /**
  * Representerer en periode inklusiv [start] og eksklusiv [slutt].
@@ -43,6 +43,17 @@ data class Periode(
         fun forMonthOf(date: LocalDate): Periode {
             val periodeStart = date.with(TemporalAdjusters.firstDayOfMonth())
             return Periode(periodeStart, periodeStart.plusMonths(1))
+        }
+
+        /**
+         * Oppretter en [Periode] for gitt år.
+         *
+         * @param year Året som perioden gjelder for.
+         */
+        fun forYear(year: Int): Periode {
+            val start = LocalDate.of(year, 1, 1)
+            val slutt = start.plusYears(1)
+            return Periode(start, slutt)
         }
 
         /**

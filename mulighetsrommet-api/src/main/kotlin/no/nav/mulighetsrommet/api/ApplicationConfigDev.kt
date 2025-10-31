@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api
 
+import java.time.LocalDate
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -24,7 +26,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
-import java.time.LocalDate
 
 private val teamMulighetsrommetAdGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID()
 private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
@@ -395,7 +396,23 @@ val ApplicationConfigDev = AppConfig(
         enable = true,
     ),
     okonomi = OkonomiConfig(
-        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith { Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)) },
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
+        },
+        opprettKravPeriode = mapOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(
+                LocalDate.of(2025, 10, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                LocalDate.of(2025, 10, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+        ),
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

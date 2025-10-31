@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
@@ -306,7 +307,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.amtDeltakerConfig.engine ?: appConfig.engine,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
         )
     }
@@ -398,7 +399,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single { PersonaliaService(get(), get(), get(), get()) }
@@ -417,7 +417,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
-    single { ArrangorflateService(get(), get(), get()) }
+    single { ArrangorflateService(get(), get(), get(), appConfig.okonomi) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,

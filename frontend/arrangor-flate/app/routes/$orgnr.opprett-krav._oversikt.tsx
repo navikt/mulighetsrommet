@@ -1,5 +1,5 @@
-import { Heading, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, GjennomforingerTableResponse } from "api-client";
+import { Alert, BodyShort, Heading, HStack, Tabs } from "@navikt/ds-react";
+import { ArrangorflateService, DataDrivenTableDto, GjennomforingerTableResponse } from "api-client";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -75,20 +75,44 @@ export default function OpprettKravTiltaksOversikt() {
   return (
     <InnsendingLayout contentGap="6">
       <Heading level="2" size="large">
-        Opprett krav om utbetaling
+        {tekster.bokmal.gjennomforing.headingTitle}
       </Heading>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
-          <Tabs.Tab value="aktive" label={tekster.bokmal.utbetaling.oversiktFaner.aktive} />
-          <Tabs.Tab value="historiske" label={tekster.bokmal.utbetaling.oversiktFaner.historiske} />
+          <Tabs.Tab value="aktive" label={tekster.bokmal.gjennomforing.oversiktFaner.aktive} />
+          <Tabs.Tab
+            value="historiske"
+            label={tekster.bokmal.gjennomforing.oversiktFaner.historiske}
+          />
         </Tabs.List>
         <Tabs.Panel value="aktive" className="w-full">
-          <DataDrivenTable data={gjennomforingerTabeller.aktive} zebraStripes />
+          <TabellVisning tabell={gjennomforingerTabeller.aktive} />
         </Tabs.Panel>
         <Tabs.Panel value="historiske" className="w-full">
-          <DataDrivenTable data={gjennomforingerTabeller.historiske} zebraStripes />
+          <TabellVisning tabell={gjennomforingerTabeller.historiske} />
         </Tabs.Panel>
       </Tabs>
     </InnsendingLayout>
   );
+}
+
+interface TabellVisningProps {
+  tabell: DataDrivenTableDto;
+}
+
+function TabellVisning({ tabell }: TabellVisningProps) {
+  if (tabell.rows.length == 0) {
+    return (
+      <HStack align="center" justify="center" padding="32">
+        <Alert variant="info">
+          <BodyShort>
+            Det finnes ingen registrerte tiltaksgjennomføringer du kan sende inn utbetalingskrav
+            for.
+          </BodyShort>
+          <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
+        </Alert>
+      </HStack>
+    );
+  }
+  return <DataDrivenTable data={tabell} />;
 }

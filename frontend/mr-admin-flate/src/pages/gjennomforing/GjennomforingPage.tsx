@@ -14,13 +14,8 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import {
-  FeatureToggle,
-  GjennomforingOppstartstype,
-  GjennomforingStatusType,
-} from "@tiltaksadministrasjon/api-client";
+import { FeatureToggle, GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
-import { isProduction } from "@/environment";
 
 function getCurrentTab(pathname: string) {
   if (pathname.includes("tilsagn")) {
@@ -129,15 +124,13 @@ export function GjennomforingPage() {
               }
             />
           ) : null}
-          {(!isProduction || gjennomforing.oppstart === GjennomforingOppstartstype.FELLES) && (
-            <Tabs.Tab
-              value="deltakerliste"
-              label="Deltakerliste"
-              onClick={() =>
-                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
-              }
-            />
-          )}
+          <Tabs.Tab
+            value="deltakerliste"
+            label="Deltakerliste"
+            onClick={() =>
+              navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/deltakerliste`)
+            }
+          />
         </Tabs.List>
         <React.Suspense fallback={<Laster tekst="Laster innhold..." />}>
           <ContentBox>

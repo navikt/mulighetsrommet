@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import java.time.ZoneId
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import java.time.ZoneId
 
 object TiltaksgjennomforingV2Mapper {
     fun fromGruppe(gruppe: Gjennomforing) = TiltaksgjennomforingV2Dto.Gruppe(
@@ -25,6 +25,7 @@ object TiltaksgjennomforingV2Mapper {
         tilgjengeligForArrangorFraOgMedDato = gruppe.tilgjengeligForArrangorDato,
         apentForPamelding = gruppe.apentForPamelding,
         antallPlasser = gruppe.antallPlasser,
+        deltidsprosent = gruppe.deltidsprosent,
     )
 
     fun fromEnkeltplass(enkeltplass: Enkeltplass) = TiltaksgjennomforingV2Dto.Enkeltplass(

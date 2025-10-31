@@ -14,21 +14,11 @@ import {
   TilsagnHandling,
   TilsagnStatus,
   TilsagnStatusAarsak,
-  ValidationError,
+  ValidationError
 } from "@tiltaksadministrasjon/api-client";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
-import {
-  ActionMenu,
-  BodyShort,
-  Box,
-  Button,
-  Heading,
-  HGrid,
-  HStack,
-  Spacer,
-  VStack,
-} from "@navikt/ds-react";
+import { ActionMenu, BodyShort, Box, Button, Heading, HGrid, HStack, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
@@ -38,11 +28,7 @@ import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import {
-  MetadataFritekstfelt,
-  MetadataHorisontal,
-  Separator,
-} from "@/components/detaljside/Metadata";
+import { MetadataFritekstfelt, MetadataHorisontal, Separator } from "@/components/detaljside/Metadata";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -505,7 +491,7 @@ export function TilsagnDetaljer() {
           headingIconType="warning"
           headingText="Slette tilsagnet?"
           open={slettTilsagnModalOpen}
-          handleClose={() => setTilOppgjorModalOpen(false)}
+          handleClose={() => setSlettTilsagnModalOpen(false)}
           body={
             <p>
               Er du sikker på at du vil slette tilsagnet?
@@ -518,7 +504,7 @@ export function TilsagnDetaljer() {
             </Button>
           }
           secondaryButton
-          secondaryButtonHandleAction={() => setTilOppgjorModalOpen(false)}
+          secondaryButtonHandleAction={() => setSlettTilsagnModalOpen(false)}
         />
       </VStack>
     </>

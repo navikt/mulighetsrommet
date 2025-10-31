@@ -11,8 +11,13 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.amt.model.Melding
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.DeltakerOgPeriode
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning
@@ -20,6 +25,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -33,9 +39,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class ArrangorflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -51,10 +54,9 @@ class ArrangorflateServiceTest : FunSpec({
         tilsagn = tilsagn,
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
-
     lateinit var arrangorflateService: ArrangorflateService
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
-    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns emptyList<DeltakerPersonalia>().right()
+    coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
     fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
         return requireNotNull(queries.utbetaling.get(id))
@@ -63,17 +65,16 @@ class ArrangorflateServiceTest : FunSpec({
     fun verifyForhandsgodkjentBeregning(
         beregning: ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed,
         expectedBelop: Int,
-        expectedManedsverk: Double,
         expectedDeltakelserCount: Int,
     ) {
-        beregning.antallManedsverk shouldBe expectedManedsverk
         beregning.belop shouldBe expectedBelop
         beregning.deltakelser shouldHaveSize expectedDeltakelserCount
     }
+    val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
 
     beforeEach {
         domain.initialize(database.db)
-        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon)
+        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon, okonomiConfig)
     }
 
     afterEach {
@@ -163,7 +164,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.status shouldBe ArrangorflateUtbetalingStatus.KREVER_ENDRING
 
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
-            verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
+            verifyForhandsgodkjentBeregning(it, 10000, 1)
         }
     }
 
@@ -303,6 +304,21 @@ class ArrangorflateServiceTest : FunSpec({
             val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
+        }
+
+        test("kanOppretteManueltKrav false hvis det ikke finnes konfigurert prismodell") {
+            every { okonomiConfig.opprettKravPeriode } returns emptyMap()
+            arrangorflateService.kanOpretteManueltKrav() shouldBe false
+        }
+
+        test("kanOppretteManueltKrav false hvis relativ dato utenfor konfigurert periode") {
+            every { okonomiConfig.opprettKravPeriode } returns mapOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(2025))
+            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2026, 1, 1)) shouldBe false
+        }
+
+        test("kanOppretteManueltKrav true hvis relativ dato utenfor konfigurert periode") {
+            every { okonomiConfig.opprettKravPeriode } returns mapOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(2025))
+            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2025, 10, 1)) shouldBe true
         }
     }
 })

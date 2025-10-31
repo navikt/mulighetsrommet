@@ -19,7 +19,13 @@ export const tekster = {
         }
       },
     },
-
+    gjennomforing: {
+      headingTitle: "Tilgjengelige tiltaksgjennomføringer",
+      oversiktFaner: {
+        aktive: "Aktive tiltak",
+        historiske: "Historiske tiltak",
+      },
+    },
     utbetaling: {
       headingTitle: "Oversikt over innsendinger",
       oversiktFaner: {

@@ -13,17 +13,9 @@ import {
   Radio,
   RadioGroup,
   useDatepicker,
-  VStack,
+  VStack
 } from "@navikt/ds-react";
-import {
-  ArrangorflateGjennomforing,
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  FieldError,
-  TilsagnStatus,
-  TilsagnType,
-  Tilskuddstype,
-} from "api-client";
+import { ArrangorflateService, FieldError, OpprettKravInnsendingsInformasjon, Tilskuddstype } from "api-client";
 import { useEffect, useRef, useState } from "react";
 import {
   ActionFunctionArgs,
@@ -33,24 +25,20 @@ import {
   MetaFunction,
   redirect,
   useActionData,
-  useLoaderData,
+  useLoaderData
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { errorAt, problemDetailResponse } from "~/utils/validering";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { commitSession, destroySession, getSession } from "~/sessions.server";
-import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { subtractDays } from "~/utils/date";
-import { pathByOrgnr } from "~/utils/navigation";
+import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 
 type LoaderData = {
-  gjennomforing: ArrangorflateGjennomforing;
-  tilsagn: ArrangorflateTilsagnDto[];
   orgnr: string;
-  arrangor: string;
-  sessionGjennomforingId?: string;
+  innsendingsinformasjon: OpprettKravInnsendingsInformasjon;
   sessionTilsagnId?: string;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
@@ -67,93 +55,49 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr, gjennomforingid } = params;
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  if (!gjennomforingid) {
-    throw new Error("Mangler gjennomføring id");
-  }
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
 
   const session = await getSession(request.headers.get("Cookie"));
 
-  let sessionGjennomforingId: string | undefined;
   let sessionTilsagnId: string | undefined;
   let sessionPeriodeStart: string | undefined;
   let sessionPeriodeSlutt: string | undefined;
   if (
     session.get("orgnr") === orgnr &&
     session.get("tilskuddstype") === Tilskuddstype.TILTAK_INVESTERINGER &&
-    session.get("gjennomforingId") === gjennomforingid
+    session.get("gjennomforingId") === gjennomforingId
   ) {
     sessionTilsagnId = session.get("tilsagnId");
     sessionPeriodeStart = session.get("periodeStart");
     sessionPeriodeSlutt = session.get("periodeSlutt");
   }
 
-  const [
-    { data: gjennomforing, error: gjennomforingerError },
-    { data: tilsagn, error: tilsagnError },
-    { data: arrangortilganger, error: arrangorError },
-  ] = await Promise.all([
-    ArrangorflateService.getArrangorflateGjennomforing({
-      path: { orgnr, gjennomforingId: gjennomforingid },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getAllArrangorflateTilsagn({
-      path: { orgnr },
-      query: {
-        typer: [TilsagnType.INVESTERING],
-        statuser: [TilsagnStatus.GODKJENT],
-        gjennomforingId: gjennomforingid,
-      },
-      headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
+  const [{ data: innsendingsinformasjon, error: innsendingsinformasjonError }] = await Promise.all([
+    ArrangorflateService.getOpprettKravInnsendingsinformasjon({
+      path: { orgnr, gjennomforingId },
       headers: await apiHeaders(request),
     }),
   ]);
-
-  if (gjennomforingerError) {
-    throw problemDetailResponse(gjennomforingerError);
+  if (innsendingsinformasjonError) {
+    throw problemDetailResponse(innsendingsinformasjonError);
   }
-  if (tilsagnError) {
-    throw problemDetailResponse(tilsagnError);
-  }
-  if (!arrangortilganger) {
-    throw problemDetailResponse(arrangorError);
-  }
-
-  const arrangor = arrangortilganger.find((a) => a.organisasjonsnummer === orgnr)?.navn;
-  if (!arrangor) throw new Error("Finner ikke arrangør");
 
   return {
     orgnr,
-    arrangor,
-    gjennomforing,
-    tilsagn,
-    sessionGjennomforingId,
+    innsendingsinformasjon,
     sessionTilsagnId,
     sessionPeriodeStart,
     sessionPeriodeSlutt,
   };
 };
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { orgnr, gjennomforingId } = getOrgnrGjennomforingIdFrom(params);
   const session = await getSession(request.headers.get("Cookie"));
   const errors: FieldError[] = [];
 
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const orgnr = formData.get("orgnr")?.toString();
-  const gjennomforingId = formData.get("gjennomforingId")?.toString();
-
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  if (!gjennomforingId) {
-    throw new Error("Mangler gjennomforing id");
-  }
 
   if (intent === "cancel") {
     return redirect(pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt, {
@@ -209,9 +153,7 @@ interface ActionData {
 export default function OpprettKravInnsendingsinformasjon() {
   const {
     orgnr,
-    arrangor,
-    gjennomforing,
-    tilsagn,
+    innsendingsinformasjon,
     sessionTilsagnId,
     sessionPeriodeStart,
     sessionPeriodeSlutt,
@@ -259,16 +201,8 @@ export default function OpprettKravInnsendingsinformasjon() {
           </BodyLong>
         </GuidePanel>
         <VStack gap="6" className="max-w-2xl">
-          <input type="hidden" name="orgnr" value={orgnr} />
-          <input type="hidden" name="gjennomforingId" value={gjennomforing.id} />
-          <Definisjonsliste
-            definitions={[
-              { key: "Arrangør", value: `${arrangor} - ${orgnr}` },
-              { key: "Tiltaksnavn", value: gjennomforing.navn },
-              { key: "Tiltakstype", value: gjennomforing.tiltakstype.navn },
-            ]}
-          />
-          {tilsagn.length < 1 ? (
+          <Definisjonsliste definitions={innsendingsinformasjon.definisjonsListe} />
+          {innsendingsinformasjon.tilsagn.length < 1 ? (
             <Alert variant="warning">
               Fant ingen aktive tilsagn for gjennomføringen. Vennligst ta kontakt med Nav.
             </Alert>
@@ -278,19 +212,28 @@ export default function OpprettKravInnsendingsinformasjon() {
               legend="Velg tilsagn"
               description="Hvilket tilsagn skal benyttes?"
               name="tilsagnId"
-              defaultValue={tilsagn.find((t) => t.id === sessionTilsagnId)?.id}
+              defaultValue={
+                innsendingsinformasjon.tilsagn.find((t) => t.id === sessionTilsagnId)?.id
+              }
               error={errorAt("/tilsagnId", data?.errors)}
               onChange={(val: string) => {
                 setTilsagnId(val);
                 setSelectedFraDato(
-                  new Date(tilsagn.find((t) => t.id === val)?.periode.start ?? ""),
+                  new Date(
+                    innsendingsinformasjon.tilsagn.find((t) => t.id === val)?.periode.start ?? "",
+                  ),
                 );
                 setSelectedTilDato(
-                  subtractDays(new Date(tilsagn.find((t) => t.id === val)?.periode.slutt ?? ""), 1),
+                  subDuration(
+                    new Date(
+                      innsendingsinformasjon.tilsagn.find((t) => t.id === val)?.periode.slutt ?? "",
+                    ),
+                    { days: 1 },
+                  ),
                 );
               }}
             >
-              {tilsagn.map((etTilsagn) => (
+              {innsendingsinformasjon.tilsagn.map((etTilsagn) => (
                 <Radio key={etTilsagn.id} size="small" value={etTilsagn.id}>
                   <TilsagnDetaljer key={etTilsagn.id} tilsagn={etTilsagn} minimal />
                 </Radio>

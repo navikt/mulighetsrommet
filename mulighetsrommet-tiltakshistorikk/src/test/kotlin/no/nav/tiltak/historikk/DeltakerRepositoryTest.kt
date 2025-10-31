@@ -4,56 +4,21 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.historikk.db.DeltakerQueries
 import no.nav.tiltak.historikk.db.GruppetiltakQueries
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class DeltakerRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val gruppeAmo = TiltaksgjennomforingV1Dto(
-        id = UUID.randomUUID(),
-        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-            id = UUID.randomUUID(),
-            navn = "Gruppe AMO",
-            arenaKode = "GRUPPEAMO",
-            tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        ),
-        navn = "Gruppe AMO",
-        virksomhetsnummer = "123123123",
-        startDato = LocalDate.now(),
-        sluttDato = null,
-        status = GjennomforingStatusType.GJENNOMFORES,
-        oppstart = GjennomforingOppstartstype.FELLES,
-        tilgjengeligForArrangorFraOgMedDato = null,
-        apentForPamelding = true,
-        antallPlasser = 10,
-        opprettetTidspunkt = LocalDateTime.now(),
-        oppdatertTidspunkt = LocalDateTime.now(),
-    )
-    val amtDeltaker = AmtDeltakerV1Dto(
-        id = UUID.randomUUID(),
-        gjennomforingId = gruppeAmo.id,
-        personIdent = "10101010100",
-        startDato = null,
-        sluttDato = null,
-        status = DeltakerStatus(
-            type = DeltakerStatusType.VENTER_PA_OPPSTART,
-            aarsak = null,
-            opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-        ),
-        registrertDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-        endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-        dagerPerUke = 2.5f,
-        prosentStilling = null,
-        deltakelsesmengder = listOf(),
-    )
+    val gruppeAmo = TestFixtures.tiltak
+    val amtDeltaker = TestFixtures.amtDeltaker
     val arbeidstreningArenaDeltakelse = ArenaDeltakerDbo(
         id = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),

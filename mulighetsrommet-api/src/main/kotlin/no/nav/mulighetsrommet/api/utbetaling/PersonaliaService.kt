@@ -2,11 +2,14 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
+import java.util.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
@@ -15,7 +18,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import java.util.*
 
 class PersonaliaService(
     private val hentPersonOgGeografiskTilknytningQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
@@ -23,7 +25,7 @@ class PersonaliaService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: List<UUID>): Map<UUID, DeltakerPersonaliaMedGeografiskEnhet> {
+    suspend fun getPersonaliaMedGeografiskEnhet(deltakerIds: Set<UUID>): Set<DeltakerPersonaliaMedGeografiskEnhet> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .map { amtList ->
                 val pdlData = getPersonerMedGeografiskEnhet(amtList.map { it.norskIdent })
@@ -69,7 +71,7 @@ class PersonaliaService(
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
-            .associateBy { it.deltakerId }
+            .toSet()
     }
 
     private suspend fun getPersonerMedGeografiskEnhet(identer: List<NorskIdent>): Map<NorskIdent, Pair<PdlPerson, GeografiskTilknytning?>> {
@@ -78,7 +80,8 @@ class PersonaliaService(
             .toNonEmptySetOrNull()
             ?: return emptyMap()
 
-        val pdlPersonData = hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(pdlIdenter, AccessType.M2M)
+        val pdlPersonData = hentPersonOgGeografiskTilknytningQuery
+            .hentPersonOgGeografiskTilknytningBolk(pdlIdenter, AccessType.M2M)
             .getOrElse {
                 throw StatusException(
                     status = HttpStatusCode.InternalServerError,

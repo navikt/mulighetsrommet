@@ -3,12 +3,19 @@ package no.nav.mulighetsrommet.api.clients.amtDeltaker
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import io.ktor.client.call.*
-import io.ktor.client.engine.*
-import io.ktor.client.plugins.cache.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import java.time.LocalDate
+import java.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
@@ -22,8 +29,6 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
-import java.time.LocalDate
-import java.util.*
 
 class AmtDeltakerClient(
     private val baseUrl: String,
@@ -58,31 +63,33 @@ class AmtDeltakerClient(
     }
 
     suspend fun hentPersonalia(
-        deltakerIds: List<UUID>,
-    ): Either<AmtDeltakerError, List<DeltakerPersonalia>> {
+        deltakerIds: Set<UUID>,
+    ): Either<AmtDeltakerError, Set<DeltakerPersonalia>> {
         val response = client.post("$baseUrl/external/deltakere/personalia") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(deltakerIds)
-            setBody(Json.encodeToJsonElement(ListSerializer(UUIDSerializer), deltakerIds))
+            setBody(Json.encodeToJsonElement(ListSerializer(UUIDSerializer), deltakerIds.toList()))
         }
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body<List<DeltakerPersonaliaResponse>>()
-                .map {
-                    val fornavnOgMellomnavn = listOfNotNull(it.fornavn, it.mellomnavn).joinToString(" ")
-                    val navn = listOf(it.etternavn, fornavnOgMellomnavn).joinToString(", ")
+                .map { personalia ->
+                    val fornavnOgMellomnavn = listOfNotNull(personalia.fornavn, personalia.mellomnavn).joinToString(" ")
+                    val navn = listOf(personalia.etternavn, fornavnOgMellomnavn).joinToString(", ")
 
                     DeltakerPersonalia(
-                        deltakerId = it.deltakerId,
-                        norskIdent = NorskIdent(it.personident),
+                        deltakerId = personalia.deltakerId,
+                        norskIdent = NorskIdent(personalia.personident),
                         navn = navn,
-                        oppfolgingEnhet = it.navEnhetsnummer?.let { NavEnhetNummer(it) },
-                        erSkjermet = it.erSkjermet,
-                        adressebeskyttelse = it.adressebeskyttelse ?: PdlGradering.UGRADERT,
+                        oppfolgingEnhet = personalia.navEnhetsnummer?.let { NavEnhetNummer(it) },
+                        erSkjermet = personalia.erSkjermet,
+                        adressebeskyttelse = personalia.adressebeskyttelse ?: PdlGradering.UGRADERT,
                     )
                 }
+                .toSet()
                 .right()
+
             HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
             else -> {

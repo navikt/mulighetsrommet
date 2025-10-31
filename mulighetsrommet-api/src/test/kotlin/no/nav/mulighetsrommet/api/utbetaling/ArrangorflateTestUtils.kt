@@ -1,8 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import io.ktor.client.engine.mock.*
-import io.ktor.client.request.*
-import io.ktor.http.content.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.http.content.TextContent
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnClient.AuthorizedParty
@@ -27,17 +29,10 @@ import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.model.DeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 object ArrangorflateTestUtils {
     val identMedTilgang = NorskIdent("01010199988")
@@ -87,45 +82,44 @@ object ArrangorflateTestUtils {
         kommentar = null,
     )
 
-    fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo = UtbetalingDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-                periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-                sats = 20205,
-                stengt = setOf(),
-                deltakelser = setOf(
-                    DeltakelseDeltakelsesprosentPerioder(
-                        deltakelseId = deltakerId,
-                        perioder = listOf(
-                            DeltakelsesprosentPeriode(
-                                periode = Periode(LocalDate.of(2024, 8, 1), LocalDate.of(2024, 8, 31)),
-                                deltakelsesprosent = 100.0,
+    fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo {
+        val periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
+        return UtbetalingDbo(
+            id = UUID.randomUUID(),
+            gjennomforingId = GjennomforingFixtures.AFT1.id,
+            beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                    satser = setOf(SatsPeriode(periode, 20205)),
+                    stengt = setOf(),
+                    deltakelser = setOf(
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = deltakerId,
+                            perioder = listOf(
+                                DeltakelsesprosentPeriode(periode, 100.0),
                             ),
                         ),
                     ),
                 ),
-            ),
-            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                belop = 10000,
-                deltakelser = setOf(
-                    DeltakelseManedsverk(
-                        deltakelseId = deltakerId,
-                        manedsverk = 1.0,
+                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    belop = 10000,
+                    deltakelser = setOf(
+                        UtbetalingBeregningOutputDeltakelse(
+                            deltakerId,
+                            setOf(UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(periode, 1.0, 20205)),
+                        ),
                     ),
                 ),
             ),
-        ),
-        kontonummer = Kontonummer("12312312312"),
-        kid = null,
-        periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),
-        innsender = null,
-        beskrivelse = null,
-        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-        godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
-    )
+            kontonummer = Kontonummer("12312312312"),
+            kid = null,
+            periode = periode,
+            innsender = null,
+            beskrivelse = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            godkjentAvArrangorTidspunkt = null,
+            status = UtbetalingStatusType.GENERERT,
+        )
+    }
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
@@ -244,38 +238,4 @@ object ArrangorflateTestUtils {
         auth = createAuthConfig(oauth, roles = setOf()),
         engine = engine,
     )
-
-    fun createPdlMockEngine() = createMockEngine {
-        post("/graphql") {
-            respondJson(
-                """
-                {
-                    "data": {
-                        "hentPersonBolk": [
-                            {
-                                "ident": "${identMedTilgang.value}",
-                                "person": {
-                                    "navn": [
-                                        {
-                                            "fornavn": "Test",
-                                            "mellomnavn": null,
-                                            "etternavn": "Testersen"
-                                        }
-                                    ],
-                                    "foedselsdato": [
-                                        {
-                                            "foedselsdato": "1990-01-01",
-                                            "foedselsaar": 1990
-                                        }
-                                    ],
-                                    "adressebeskyttelse": []
-                                }
-                            }
-                        ]
-                    }
-                }
-                """.trimIndent(),
-            )
-        }
-    }
 }

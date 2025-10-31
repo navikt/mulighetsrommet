@@ -5,11 +5,15 @@ import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
+import java.time.LocalDate
+import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
@@ -20,6 +24,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -32,10 +37,13 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -43,12 +51,11 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
-import java.util.*
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: UtbetalingService by inject()
+    val personaliaService: PersonaliaService by inject()
 
     get("/utbetaling", {
         description = "Hent alle utbetalinger for gitt gjennomføring"
@@ -166,9 +173,30 @@ fun Route.utbetalingRoutes() {
                 val id: UUID by call.parameters
                 val filter = getBeregningFilter()
 
-                val utbetaling = db.session { queries.utbetaling.getOrError(id) }
+                val beregning = db.session {
+                    val utbetaling = queries.utbetaling.getOrError(id)
+                    val deltakelser = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
 
-                call.respond(utbetalingService.getUtbetalingBeregning(utbetaling, filter = filter))
+                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
+
+                    val regioner = NavEnhetHelpers.buildNavRegioner(
+                        personalia
+                            .map { personalia ->
+                                listOfNotNull(personalia.geografiskEnhet, personalia.region)
+                            }
+                            .flatten(),
+                    )
+
+                    val deltakelsePersoner = personalia
+                        .map { personalia ->
+                            UtbetalingBeregningDeltaker(personalia, deltakelser.getValue(personalia.deltakerId))
+                        }
+                        .filter { filter.navEnheter.isEmpty() || it.personalia.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+
+                    UtbetalingBeregningDto.from(utbetaling.beregning, deltakelsePersoner, regioner)
+                }
+
+                call.respond(beregning)
             }
         }
 
@@ -250,20 +278,21 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val utbetalingsLinjer = db.session {
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent) ?: throw MrExceptions.navAnsattNotFound(navIdent)
-                    val delutbetalinger = queries.delutbetaling.getByUtbetalingId(id)
-                    val utbetalingLinjer = delutbetalinger.map { delutbetalingToUtbetalingLinje(delutbetaling = it, navAnsatt = ansatt) }
-
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val tilsagn = queries.tilsagn.getAll(
-                        statuser = listOf(TilsagnStatus.GODKJENT),
-                        gjennomforingId = utbetaling.gjennomforing.id,
-                        periodeIntersectsWith = utbetaling.periode,
-                        typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                    )
+                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
+                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-                    tilsagn
-                        .filter { utbetalingLinjer.none { linje -> linje.tilsagn.id == it.id } }
+                    val linjer = queries.delutbetaling.getByUtbetalingId(id)
+                        .map { delutbetalingToUtbetalingLinje(it, ansatt) }
+
+                    val nyeLinjer = queries.tilsagn
+                        .getAll(
+                            statuser = listOf(TilsagnStatus.GODKJENT),
+                            gjennomforingId = utbetaling.gjennomforing.id,
+                            periodeIntersectsWith = utbetaling.periode,
+                            typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                        )
+                        .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map {
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
@@ -275,8 +304,9 @@ fun Route.utbetalingRoutes() {
                                 handlinger = emptySet(),
                             )
                         }
-                        .plus(utbetalingLinjer)
-                }.sortedBy { it.tilsagn.bestillingsnummer }
+
+                    (linjer + nyeLinjer).sortedBy { it.tilsagn.bestillingsnummer }
+                }
 
                 call.respond(utbetalingsLinjer)
             }
@@ -305,7 +335,7 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = UtbetalingValidator.validateOpprettUtbetalingRequest(id, request)
-                    .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
+                    .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
 
@@ -396,7 +426,12 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
         status = DelutbetalingStatusDto.fromDelutbetalingStatus(delutbetaling.status),
         tilsagn = TilsagnDto.fromTilsagn(tilsagn),
         opprettelse = opprettelse.toDto(),
-        handlinger = UtbetalingService.linjeHandlinger(delutbetaling, opprettelse, tilsagn.kostnadssted.enhetsnummer, navAnsatt),
+        handlinger = UtbetalingService.linjeHandlinger(
+            delutbetaling,
+            opprettelse,
+            tilsagn.kostnadssted.enhetsnummer,
+            navAnsatt,
+        ),
     )
 }
 
@@ -445,4 +480,9 @@ data class BeregningFilter(
 
 fun RoutingContext.getBeregningFilter() = BeregningFilter(
     navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList(),
+)
+
+data class UtbetalingBeregningDeltaker(
+    val personalia: DeltakerPersonaliaMedGeografiskEnhet,
+    val deltakelse: UtbetalingBeregningOutputDeltakelse,
 )

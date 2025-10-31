@@ -1,5 +1,5 @@
 import { reactRouter } from "@react-router/dev/vite";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -8,4 +8,8 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [reactRouter(), tsconfigPaths(), tailwindcss()],
+  test: {
+    environment: "jsdom",
+    include: ["./app/**/*.test.?(c|m)[jt]s?(x)"],
+  },
 });

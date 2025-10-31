@@ -1,14 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  ErrorSummary,
-  FileObject,
-  FileUpload,
-  Heading,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { Button, Checkbox, CheckboxGroup, ErrorSummary, FileObject, Heading, HStack, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -17,31 +7,23 @@ import {
   MetaFunction,
   redirect,
   useActionData,
-  useLoaderData,
+  useLoaderData
 } from "react-router";
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  FieldError,
-  Tilskuddstype,
-} from "api-client";
+import { ArrangorflateService, ArrangorflateTilsagnDto, FieldError, Tilskuddstype } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { formaterNOK, jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useEffect, useRef, useState } from "react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import {
-  FileUpload as FileUploadParser,
-  FileUploadHandler,
-  parseFormData,
-} from "@mjackson/form-data-parser";
+import { FileUpload as FileUploadParser, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { pathByOrgnr } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { useFileStorage } from "~/hooks/useFileStorage";
+import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 
 export const meta: MetaFunction = () => {
   return [
@@ -257,28 +239,7 @@ export default function OpprettKravOppsummering() {
         <Separator />
         <Form method="post" encType="multipart/form-data">
           <VStack gap="6">
-            <VStack gap="4">
-              <Heading level="3" size="medium">
-                Vedlegg
-              </Heading>
-              <VStack gap="2">
-                <Heading level="4" size="xsmall">
-                  {`Vedlegg (${files.length})`}
-                </Heading>
-                <VStack as="ul" gap="3">
-                  {files.map((file, index) => (
-                    <FileUpload.Item as="li" key={index} file={file.file} />
-                  ))}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    name="vedlegg"
-                    multiple
-                    style={{ display: "none" }}
-                  />
-                </VStack>
-              </VStack>
-            </VStack>
+            <VedleggUtlisting files={files} fileInputRef={fileInputRef} />
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", data?.errors)} legend={"Bekreftelse"}>
               <Checkbox

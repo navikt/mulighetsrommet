@@ -14,6 +14,12 @@ class PeriodeTest : FunSpec({
         period shouldBe Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 2, 1))
     }
 
+    test("should create period for year") {
+        val period = Periode.forYear(2021)
+
+        period shouldBe Periode(LocalDate.of(2021, 1, 1), LocalDate.of(2022, 1, 1))
+    }
+
     test("should create period from inclusive dates") {
         val period = Periode.fromInclusiveDates(LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31))
 

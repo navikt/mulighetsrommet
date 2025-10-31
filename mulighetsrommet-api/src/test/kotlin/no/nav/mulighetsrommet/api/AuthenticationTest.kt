@@ -4,10 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import java.util.*
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -19,7 +23,6 @@ import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.intellij.lang.annotations.Language
-import java.util.*
 
 class AuthenticationTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -245,11 +248,14 @@ class AuthenticationTest : FunSpec({
         val requestWithoutPid = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken().serialize())
         }
-        val requestWithPidWithoutRettighet = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("pid", "21830348931"))).serialize())
+        val requestWithoutAmr = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
         }
-        val requestWithPidWithRettighet = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("pid", personMedRettighet))).serialize())
+        val requestWithPidAmrWithoutRettighet = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
+        }
+        val requestWithPidAmrWithRettighet = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to personMedRettighet)).serialize())
         }
 
         val config = createTestApplicationConfig().copy(
@@ -267,8 +273,9 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutPid, HttpStatusCode.Unauthorized),
-                row(requestWithPidWithoutRettighet, HttpStatusCode.Unauthorized),
-                row(requestWithPidWithRettighet, HttpStatusCode.OK),
+                row(requestWithoutAmr, HttpStatusCode.Unauthorized),
+                row(requestWithPidAmrWithoutRettighet, HttpStatusCode.Unauthorized),
+                row(requestWithPidAmrWithRettighet, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
                 val response = client.get("/TOKEN_X_ARRANGOR_FLATE") { buildRequest(this) }
 

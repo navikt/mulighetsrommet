@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import java.time.LocalDate
+import java.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
@@ -13,8 +15,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
-import java.util.*
 
 class UbetalingToPdfDocumentContentMapperTest : FunSpec({
 
@@ -56,8 +56,27 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         ),
                     ),
                     personalia = ArrangorflatePersonalia(
+                        navn = "Ola Skjermet",
+                        norskIdent = NorskIdent("01010199999"),
+                        erSkjermet = true,
+                    ),
+                    status = null,
+                ),
+                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
+                    id = UUID.randomUUID(),
+                    deltakerStartDato = LocalDate.of(2025, 1, 1),
+                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                    faktor = 1.0,
+                    perioderMedDeltakelsesmengde = listOf(
+                        DeltakelsesprosentPeriode(
+                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                            deltakelsesprosent = 100.0,
+                        ),
+                    ),
+                    personalia = ArrangorflatePersonalia(
                         navn = "Ola Nordmann",
                         norskIdent = NorskIdent("01010199999"),
+                        erSkjermet = false,
                     ),
                     status = null,
                 ),
@@ -79,6 +98,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     personalia = ArrangorflatePersonalia(
                         navn = "Kari Nordmann",
                         norskIdent = NorskIdent("01010199998"),
+                        erSkjermet = false,
                     ),
                     status = null,
                 ),
@@ -89,8 +109,13 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     beskrivelse = "Stengt for ferie",
                 ),
             ),
-            antallManedsverk = 1.0,
-            sats = 34,
+            detaljer = Details(
+                entries = listOf(
+                    DetailsEntry.nok("Sats", 34),
+                    DetailsEntry.number("Antall månedsverk", 1.0),
+                    DetailsEntry.nok("Beløp", 100),
+                ),
+            ),
         ),
         betalingsinformasjon = ArrangorflateBetalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
@@ -193,13 +218,13 @@ private val expectedUtbetalingsdetaljerContent = """
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Antall månedsverk",
-              "value": "1.0"
-            },
-            {
               "label": "Sats",
               "value": "34",
               "format": "NOK"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "1.0"
             },
             {
               "label": "Beløp",
@@ -371,13 +396,13 @@ private val expectedJournalpostContent = """
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Antall månedsverk",
-              "value": "1.0"
-            },
-            {
               "label": "Sats",
               "value": "34",
               "format": "NOK"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "1.0"
             },
             {
               "label": "Beløp",
@@ -438,7 +463,7 @@ private val expectedJournalpostContent = """
                 "title": "Navn"
               },
               {
-                "title": "Fnr",
+                "title": "Fødselsnr.",
                 "align": "RIGHT"
               },
               {
@@ -455,6 +480,26 @@ private val expectedJournalpostContent = """
               }
             ],
             "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Skjermet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
               {
                 "cells": [
                   {
@@ -534,7 +579,7 @@ private val expectedJournalpostContent = """
                 "title": "Navn"
               },
               {
-                "title": "Fnr",
+                "title": "Fødselsnr.",
                 "align": "RIGHT"
               },
               {
@@ -543,6 +588,19 @@ private val expectedJournalpostContent = """
               }
             ],
             "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Skjermet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "1.0"
+                  }
+                ]
+              },
               {
                 "cells": [
                   {

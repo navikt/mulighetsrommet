@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
 import arrow.core.getOrElse
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -27,8 +29,6 @@ import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.*
 import org.slf4j.LoggerFactory
-import java.time.LocalDateTime
-import java.util.*
 
 class ArenaAdapterService(
     private val config: Config,
@@ -40,7 +40,7 @@ class ArenaAdapterService(
 
     data class Config(
         val gjennomforingV1Topic: String,
-        val gjennomforingV2Topic: String? = null,
+        val gjennomforingV2Topic: String,
     )
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
@@ -147,7 +147,7 @@ class ArenaAdapterService(
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,
-                    tiltakstypeId = arenaGjennomforing.tiltakstypeId,
+                    tiltakstypeId = tiltakstype.id,
                     arrangorId = arrangor.id,
                 ),
             )
@@ -247,14 +247,10 @@ class ArenaAdapterService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(dto: TiltaksgjennomforingV2Dto) {
-        if (config.gjennomforingV2Topic == null) {
-            return
-        }
-
         val record = StoredProducerRecord(
             config.gjennomforingV2Topic,
             dto.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
+            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(), dto).toByteArray(),
             null,
         )
         queries.kafkaProducerRecord.storeRecord(record)

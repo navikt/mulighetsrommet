@@ -28,7 +28,13 @@ spec:
       application: amt-deltaker-bff
       access: read
     - team: amt
+      application: amt-tiltaksarrangor-bff
+      access: read
+    - team: amt
       application: amt-kafka-manager
+      access: read
+    - team: amt
+      application: amt-aktivitetskort-publisher
       access: read
 
     # DVH
@@ -39,4 +45,9 @@ spec:
     # OBO
     - team: pto
       application: veilarbportefolje
+      access: read
+
+    # Tiltakspenger
+    - team: tpts
+      application: tiltakspenger-tiltak
       access: read

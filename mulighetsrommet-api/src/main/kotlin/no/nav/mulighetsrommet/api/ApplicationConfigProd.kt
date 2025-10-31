@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api
 
+import java.time.LocalDate
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
@@ -23,7 +24,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
-import java.time.LocalDate
 
 private val teamMulighetsrommetAdGruppeId = "debefa6e-1865-446d-b22b-9579fc735de3".toUUID()
 private val tiltaksadministrasjonAdGruppeId = "2cf8d881-c2da-47b5-b409-fa088440a629".toUUID()
@@ -41,9 +41,6 @@ val ApplicationConfigProd = AppConfig(
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),
         clients = KafkaClients(::aivenDefaultConsumerProperties),
-        topics = KafkaTopics().copy(
-            sisteTiltaksgjennomforingerV2Topic = null,
-        ),
     ),
     auth = AuthConfig(
         azure = AuthProvider(
@@ -389,7 +386,10 @@ val ApplicationConfigProd = AppConfig(
             Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
             Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
             Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
+            // DOFA Digitalt oppfølgingstiltak
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
         ),
+        opprettKravPeriode = emptyMap(),
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

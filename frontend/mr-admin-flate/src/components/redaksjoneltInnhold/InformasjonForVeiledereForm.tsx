@@ -9,12 +9,13 @@ import {
   Tabs,
   Textarea,
   TextField,
-  VStack,
+  VStack
 } from "@navikt/ds-react";
 import { PortableText } from "../portableText/PortableText";
 import {
   GjennomforingKontaktperson,
-  VeilederflateTiltakstype,
+  GjennomforingRequest,
+  VeilederflateTiltakstype
 } from "@tiltaksadministrasjon/api-client";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
@@ -33,7 +34,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "../kontaktperson/KontaktpersonButton";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { InferredGjennomforingSchema } from "./GjennomforingSchema";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 import { VeilederinformasjonValues } from "@/schemas/avtale";
@@ -436,13 +436,13 @@ function SokEtterKontaktperson({
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
-  const { register, watch } = useFormContext<InferredGjennomforingSchema>();
+  const { register, watch } = useFormContext<GjennomforingRequest>();
 
   const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("kontaktpersoner")?.map((k) => k.navIdent);
+    const excludedKontaktpersoner = watch("kontaktpersoner").map((k) => k.navIdent);
 
     const alleredeValgt = watch("kontaktpersoner")
-      ?.filter((_, i) => i === selectedIndex)
+      .filter((_, i) => i === selectedIndex)
       .map((kontaktperson) => {
         const personFraSok = kontaktpersoner?.find((k) => k.navIdent === kontaktperson.navIdent);
         const personFraDb = lagredeKontaktpersoner.find(
@@ -460,13 +460,13 @@ function SokEtterKontaktperson({
 
     const options =
       kontaktpersoner
-        ?.filter((kontaktperson) => !excludedKontaktpersoner?.includes(kontaktperson.navIdent))
+        ?.filter((kontaktperson) => !excludedKontaktpersoner.includes(kontaktperson.navIdent))
         .map((kontaktperson) => ({
           label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
           value: kontaktperson.navIdent,
         })) ?? [];
 
-    return alleredeValgt ? [...alleredeValgt, ...options] : options;
+    return [...alleredeValgt, ...options];
   };
 
   return (

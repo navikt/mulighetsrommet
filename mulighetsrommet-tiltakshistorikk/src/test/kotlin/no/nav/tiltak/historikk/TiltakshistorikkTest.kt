@@ -4,12 +4,21 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.*
-import io.ktor.client.engine.mock.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.*
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -21,11 +30,6 @@ import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
 import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.*
 
 private val TEAM_TILTAK_ARBEIDSTRENING_ID: UUID = UUID.fromString("9dea48c1-d494-4664-9427-bdb20a6f265f")
 private val ARENA_ARBEIDSTRENING_ID: UUID = UUID.fromString("05fae1e4-4dcb-4b29-a8e6-7f6b6b52d617")
@@ -193,7 +197,7 @@ class TiltakshistorikkTest : FunSpec({
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
                         gjennomforing = Tiltakshistorikk.Gjennomforing(
-                            id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
+                            id = TestFixtures.tiltak.id,
                             navn = "Gruppe AMO",
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         ),
@@ -312,26 +316,7 @@ private fun mockTiltakDatadeling(
 }
 
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
-    val tiltak = TiltaksgjennomforingV1Dto(
-        id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
-        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-            id = UUID.fromString("af6f4034-08da-4bd4-8735-ffd883e8aab7"),
-            navn = "Gruppe AMO",
-            arenaKode = "GRUPPEAMO",
-            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        ),
-        navn = "Gruppe AMO",
-        virksomhetsnummer = "123123123",
-        startDato = LocalDate.now(),
-        sluttDato = null,
-        status = GjennomforingStatusType.GJENNOMFORES,
-        oppstart = GjennomforingOppstartstype.FELLES,
-        tilgjengeligForArrangorFraOgMedDato = null,
-        apentForPamelding = true,
-        antallPlasser = 10,
-        opprettetTidspunkt = LocalDateTime.now(),
-        oppdatertTidspunkt = LocalDateTime.now(),
-    )
+    val tiltak = TestFixtures.tiltak
     queries.gruppetiltak.upsert(tiltak)
 
     val arbeidstrening = ArenaDeltakerDbo(
@@ -373,7 +358,6 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.deltaker.upsertArenaDeltaker(enkeltAMO)
 
-    val deltakelsesdato = LocalDateTime.of(2002, 3, 1, 0, 0, 0)
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
         gjennomforingId = tiltak.id,
@@ -383,10 +367,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         status = DeltakerStatus(
             type = DeltakerStatusType.VENTER_PA_OPPSTART,
             aarsak = null,
-            opprettetDato = deltakelsesdato,
+            opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
         ),
-        registrertDato = deltakelsesdato,
-        endretDato = deltakelsesdato,
+        registrertDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
+        endretDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
         dagerPerUke = 2.5f,
         prosentStilling = null,
         deltakelsesmengder = listOf(),

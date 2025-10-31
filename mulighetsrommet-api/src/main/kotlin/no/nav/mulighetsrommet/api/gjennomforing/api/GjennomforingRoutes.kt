@@ -11,17 +11,27 @@ import arrow.core.raise.zipOrAccumulate
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.put
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.ContentDisposition
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.header
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
+import io.ktor.server.util.getValue
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -44,9 +54,6 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
@@ -63,6 +70,7 @@ fun Route.gjennomforingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Gjennomføring ble upsertet"
+                        body<GjennomforingDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -615,27 +623,37 @@ data class GjennomforingRequest(
     val avtaleId: UUID,
     val navn: String,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
+    val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val antallPlasser: Int,
+    val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID,
+    val arrangorId: UUID?,
     val arrangorKontaktpersoner: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val veilederinformasjon: VeilederinfoRequest,
+    val veilederinformasjon: GjennomforingVeilederinfoRequest,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val administratorer: List<NavIdent>,
     val oppstart: GjennomforingOppstartstype,
     val stedForGjennomforing: String?,
+    val oppmoteSted: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
+)
+
+@Serializable
+data class GjennomforingVeilederinfoRequest(
+    val navRegioner: List<NavEnhetNummer>,
+    val navKontorer: List<NavEnhetNummer>,
+    val navAndreEnheter: List<NavEnhetNummer>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
 )
 
 @Serializable

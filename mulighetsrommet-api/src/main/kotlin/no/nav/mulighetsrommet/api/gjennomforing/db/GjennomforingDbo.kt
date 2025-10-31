@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.*
+import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 
 data class GjennomforingDbo(
     val id: UUID,
@@ -21,6 +21,7 @@ data class GjennomforingDbo(
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String?,
+    val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     val deltidsprosent: Double,

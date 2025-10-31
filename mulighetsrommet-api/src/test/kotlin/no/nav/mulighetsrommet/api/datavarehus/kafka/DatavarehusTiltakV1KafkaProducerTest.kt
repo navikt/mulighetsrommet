@@ -3,6 +3,9 @@ package no.nav.mulighetsrommet.api.datavarehus.kafka
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verify
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -17,9 +20,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -83,6 +83,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 tilgjengeligForArrangorFraOgMedDato = null,
                 apentForPamelding = true,
                 antallPlasser = 10,
+                deltidsprosent = 100.0,
                 opprettetTidspunkt = LocalDateTime.now(),
                 oppdatertTidspunkt = LocalDateTime.now(),
             ),

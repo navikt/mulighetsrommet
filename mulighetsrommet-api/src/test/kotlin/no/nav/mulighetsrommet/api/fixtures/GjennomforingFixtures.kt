@@ -1,12 +1,15 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.util.*
+import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 
 object GjennomforingFixtures {
     val Oppfolging1 = GjennomforingDbo(
@@ -24,6 +27,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Munch museet",
         avtaleId = AvtaleFixtures.oppfolging.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -44,8 +48,10 @@ object GjennomforingFixtures {
         sluttDato = Oppfolging1.sluttDato,
         antallPlasser = Oppfolging1.antallPlasser,
         administratorer = listOf(NavIdent("DD1")),
-        veilederinformasjon = VeilederinfoRequest(
-            navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
+        veilederinformasjon = GjennomforingVeilederinfoRequest(
+            navRegioner = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+            navKontorer = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+            navAndreEnheter = emptyList(),
             faneinnhold = Oppfolging1.faneinnhold,
             beskrivelse = Oppfolging1.beskrivelse,
         ),
@@ -62,6 +68,7 @@ object GjennomforingFixtures {
         ),
         amoKategorisering = null,
         utdanningslop = null,
+        oppmoteSted = null,
     )
 
     val Oppfolging2 = GjennomforingDbo(
@@ -79,6 +86,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.oppfolging.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -105,6 +113,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.VTA.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -131,6 +140,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.AFT.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -157,6 +167,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.jobbklubb.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -183,6 +194,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.gruppeAmo.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -209,6 +221,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.gruppeFagYrke.id,
         faneinnhold = null,
         beskrivelse = null,
@@ -235,6 +248,7 @@ object GjennomforingFixtures {
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
+        oppmoteSted = "Oslo",
         avtaleId = AvtaleFixtures.ARR.id,
         faneinnhold = null,
         beskrivelse = null,

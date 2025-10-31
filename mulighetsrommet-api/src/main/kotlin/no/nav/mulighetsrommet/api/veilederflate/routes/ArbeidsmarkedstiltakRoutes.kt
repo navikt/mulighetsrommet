@@ -3,17 +3,19 @@ package no.nav.mulighetsrommet.api.veilederflate.routes
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.post
-import io.github.smiley4.ktoropenapi.put
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
-import io.swagger.v3.oas.models.media.Schema
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
+import io.ktor.server.util.getValue
+import java.util.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
+import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
@@ -26,7 +28,6 @@ import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
-import java.util.*
 
 internal data class ArbeidsmarkedstiltakFilter(
     val enheter: NonEmptyList<NavEnhetNummer>,
@@ -158,16 +159,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         tags = setOf("VeilederTiltak")
         operationId = "getVeilederTiltak"
         request {
-            // TODO: fant ikke noen god måte å spesifere uuid, men det er kanskje bare like greit å dokumentere det en string
-            pathParameter(
-                "id",
-                Schema<Any>().also {
-                    it.types = setOf("string")
-                    it.format = "uuid"
-                },
-            ) {
-                required = true
-            }
+            pathParameterUuid("id")
         }
         response {
             code(HttpStatusCode.OK) {
@@ -187,6 +179,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         val result = veilederflateService.hentTiltaksgjennomforing(
             id = id,
             sanityPerspective = SanityPerspective.PUBLISHED,
+            cacheUsage = CacheUsage.UseCache,
         )
 
         call.respond(result)
@@ -290,6 +283,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             val result = veilederflateService.hentTiltaksgjennomforing(
                 id = id,
                 sanityPerspective = SanityPerspective.PUBLISHED,
+                cacheUsage = CacheUsage.UseCache,
             )
 
             call.respond(result)
@@ -364,6 +358,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 val result = veilederflateService.hentTiltaksgjennomforing(
                     id = id,
                     sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
+                    cacheUsage = CacheUsage.NoCache,
                 )
 
                 call.respond(result)

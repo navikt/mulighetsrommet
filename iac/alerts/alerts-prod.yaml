@@ -73,6 +73,7 @@ spec:
           #  - /api/v1/tiltaksgjennomforinger/{id}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
           #  - /api/v1/tiltaksgjennomforinger/id/{arenaId}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
           #  - /api/v1/tiltaksgjennomforinger/arenadata/{id}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
+          #  - /api/v2/tiltaksgjennomforinger/{id}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
           expr: |
             sum by (app, route) (
               rate(
@@ -80,7 +81,7 @@ spec:
                   status=~"^404",
                   namespace="team-mulighetsrommet",
                   app="mulighetsrommet-api",
-                  route!~'.*(/api/v1/gjennomforinger/{id}|/api/v1/gjennomforinger/id/{arenaId}|/api/v1/gjennomforinger/arenadata/{id})'
+                  route!~'.*(/api/v1/tiltaksgjennomforinger/{id}|/api/v1/tiltaksgjennomforinger/id/{arenaId}|/api/v1/tiltaksgjennomforinger/arenadata/{id}|/api/v2/tiltaksgjennomforinger/{id})'
                 }[3m]
               )
             ) > 0

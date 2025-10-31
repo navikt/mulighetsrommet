@@ -2,13 +2,16 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.*
 import arrow.core.raise.either
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
@@ -38,10 +41,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class GjennomforingService(
     private val config: Config,
@@ -50,7 +49,7 @@ class GjennomforingService(
 ) {
     data class Config(
         val gjennomforingV1Topic: String,
-        val gjennomforingV2Topic: String?,
+        val gjennomforingV2Topic: String,
     )
 
     suspend fun upsert(
@@ -65,8 +64,9 @@ class GjennomforingService(
             .validate(
                 request.copy(
                     veilederinformasjon = request.veilederinformasjon.copy(
-                        navEnheter = sanitizeNavEnheter(
-                            request.veilederinformasjon.navEnheter,
+                        navKontorer = sanitizeNavEnheter(
+                            request.veilederinformasjon.navRegioner,
+                            request.veilederinformasjon.navKontorer,
                         ),
                     ),
                 ),
@@ -116,7 +116,7 @@ class GjennomforingService(
         val administratorer = db.session {
             request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
         }
-        val arrangor = db.session { queries.arrangor.getById(request.arrangorId) }
+        val arrangor = request.arrangorId?.let { db.session { queries.arrangor.getById(it) } }
         val antallDeltakere = db.session {
             queries.deltaker.getAll(pagination = Pagination.of(1, 1), gjennomforingId = request.id).size
         }
@@ -421,26 +421,25 @@ class GjennomforingService(
         )
         queries.kafkaProducerRecord.storeRecord(recordV1)
 
-        if (config.gjennomforingV2Topic == null) {
-            return
-        }
-
         val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
-            gjennomforingV1.id.toString().toByteArray(),
-            Json.encodeToString(gjennomforingV2).toByteArray(),
+            gjennomforingV2.id.toString().toByteArray(),
+            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(), gjennomforingV2).toByteArray(),
             null,
         )
         queries.kafkaProducerRecord.storeRecord(recordV2)
     }
 
-    fun sanitizeNavEnheter(navEnheter: List<NavEnhetNummer>): List<NavEnhetNummer> = db.session {
-        // Filtrer vekk underenheter uten fylke
+    // Filtrer vekk underenheter uten fylke
+    fun sanitizeNavEnheter(
+        navRegioner: List<NavEnhetNummer>,
+        navKontorer: List<NavEnhetNummer>,
+    ): List<NavEnhetNummer> = db.session {
         return NavEnhetHelpers.buildNavRegioner(
-            navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() },
+            (navRegioner + navKontorer).mapNotNull { queries.enhet.get(it)?.toDto() },
         )
-            .flatMap { it.enheter.map { it.enhetsnummer } + it.enhetsnummer }
+            .flatMap { it.enheter.map { it.enhetsnummer } }
     }
 
     fun handlinger(gjennomforing: Gjennomforing, ansatt: NavAnsatt): Set<GjennomforingHandling> {

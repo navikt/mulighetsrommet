@@ -2,11 +2,17 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import java.time.LocalDate
+import java.util.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -23,8 +29,6 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import java.time.LocalDate
-import java.util.*
 
 class UtbetalingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -165,7 +169,7 @@ class UtbetalingRoutesTest : FunSpec({
                     }
                 }
 
-                val id = UtbetalingFixtures.utbetaling1.id
+                val id = UtbetalingFixtures.delutbetaling1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
@@ -175,27 +179,6 @@ class UtbetalingRoutesTest : FunSpec({
                 }
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
-            }
-        }
-
-        // TODO: fiks test - tittel matcher ikke forventet status
-        xtest("Skal returnere 200 OK med attestant-tilgang") {
-            withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
-                val id = UtbetalingFixtures.utbetaling1.id
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
-
-                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
-                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))
-                }
-                response.status shouldBe HttpStatusCode.Unauthorized
             }
         }
     }

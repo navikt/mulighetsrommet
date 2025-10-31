@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists tilsagn_admin_dto_view;
+drop view if exists view_tilsagn;
 
-create view tilsagn_admin_dto_view as
+create view view_tilsagn as
 select tilsagn.id,
        tilsagn.gjennomforing_id,
        tilsagn.belop_brukt,

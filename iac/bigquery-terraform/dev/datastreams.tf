@@ -156,5 +156,12 @@ module "mr_api_datastream" {
         table_id   = "delutbetaling_view"
       }
     },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "avtale_view"
+      }
+    },
   ]
 }

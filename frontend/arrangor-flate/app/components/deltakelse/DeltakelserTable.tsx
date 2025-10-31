@@ -1,8 +1,4 @@
-import {
-  formaterDato,
-  formaterPeriodeSlutt,
-  formaterPeriodeStart,
-} from "@mr/frontend-common/utils/date";
+import { formaterDato, formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
 import {
@@ -10,9 +6,10 @@ import {
   ArrangorflateBeregningDeltakelse,
   ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed,
   ArrangorflateBeregningDeltakelsePrisPerManedsverk,
+  ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging,
   ArrangorflateBeregningDeltakelsePrisPerUkesverk,
   DeltakerAdvarsel,
-  Periode,
+  Periode
 } from "api-client";
 import { useSortState } from "~/hooks/useSortState";
 import { tekster } from "~/tekster";
@@ -84,6 +81,7 @@ type DeltakerTypeMap = {
   ArrangorflateBeregningPrisPerManedsverk: ArrangorflateBeregningDeltakelsePrisPerManedsverk;
   ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed;
   ArrangorflateBeregningPrisPerUkesverk: ArrangorflateBeregningDeltakelsePrisPerUkesverk;
+  ArrangorflateBeregningPrisPerTimeOppfolging: ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging;
 };
 
 const columns: {
@@ -109,6 +107,7 @@ const columns: {
     { label: "Ukesverk", align: "right", render: (d) => d.faktor },
     { label: "", render: () => null },
   ],
+  ArrangorflateBeregningPrisPerTimeOppfolging: [...baseColumns],
 };
 
 export function DeltakelserTable({

@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,9 +17,6 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 @Serializable
 data class ArrangorflateUtbetalingDto(
@@ -59,19 +59,11 @@ sealed class ArrangorflateBeregning {
     data class FastSatsPerTiltaksplassPerManed(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
-        val antallManedsverk: Double,
-        val sats: Int,
     ) : ArrangorflateBeregning() {
-        override val displayName: String = "Sats per tiltaksplass per måned"
-        override val detaljer: Details = Details(
-            entries = listOf(
-                DetailsEntry.number("Antall månedsverk", antallManedsverk),
-                DetailsEntry.nok("Sats", sats),
-                DetailsEntry.nok("Beløp", belop),
-            ),
-        )
+        override val displayName: String = "Fast sats per tiltaksplass per måned"
     }
 
     @Serializable
@@ -79,19 +71,11 @@ sealed class ArrangorflateBeregning {
     data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
-        val antallManedsverk: Double,
-        val sats: Int,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Avtalt månedspris per tiltaksplass"
-        override val detaljer: Details = Details(
-            entries = listOf(
-                DetailsEntry.number("Antall månedsverk", antallManedsverk),
-                DetailsEntry.nok("Pris", sats),
-                DetailsEntry.nok("Beløp", belop),
-            ),
-        )
     }
 
     @Serializable
@@ -99,19 +83,23 @@ sealed class ArrangorflateBeregning {
     data class PrisPerUkesverk(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
         val stengt: List<StengtPeriode>,
-        val antallUkesverk: Double,
-        val sats: Int,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Avtalt ukespris per tiltaksplass"
-        override val detaljer: Details = Details(
-            entries = listOf(
-                DetailsEntry.number("Antall ukesverk", antallUkesverk),
-                DetailsEntry.nok("Pris", sats),
-                DetailsEntry.nok("Beløp", belop),
-            ),
-        )
+    }
+
+    @Serializable
+    @SerialName("ArrangorflateBeregningPrisPerTimeOppfolging")
+    data class PrisPerTimeOppfolging(
+        override val belop: Int,
+        override val digest: String,
+        override val detaljer: Details,
+        val deltakelser: List<ArrangorflateBeregningDeltakelse>,
+        val stengt: List<StengtPeriode>,
+    ) : ArrangorflateBeregning() {
+        override val displayName: String = "Avtalt pris per time oppfølging per deltaker"
     }
 
     @Serializable
@@ -119,11 +107,9 @@ sealed class ArrangorflateBeregning {
     data class Fri(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Annen avtalt pris"
-        override val detaljer: Details = Details(
-            entries = listOf(DetailsEntry.nok("Beløp", belop)),
-        )
     }
 }
 
@@ -135,7 +121,6 @@ sealed class ArrangorflateBeregningDeltakelse {
     abstract val deltakerStartDato: LocalDate?
     abstract val periode: Periode
     abstract val personalia: ArrangorflatePersonalia?
-    abstract val faktor: Double
     abstract val status: DeltakerStatusType?
 
     @Serializable
@@ -145,7 +130,7 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)
         override val deltakerStartDato: LocalDate?,
-        override val faktor: Double,
+        val faktor: Double,
         val perioderMedDeltakelsesmengde: List<DeltakelsesprosentPeriode>,
         override val periode: Periode,
         override val personalia: ArrangorflatePersonalia?,
@@ -159,7 +144,7 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)
         override val deltakerStartDato: LocalDate?,
-        override val faktor: Double,
+        val faktor: Double,
         override val periode: Periode,
         override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,
@@ -172,7 +157,19 @@ sealed class ArrangorflateBeregningDeltakelse {
         override val id: UUID,
         @Serializable(with = LocalDateSerializer::class)
         override val deltakerStartDato: LocalDate?,
-        override val faktor: Double,
+        val faktor: Double,
+        override val periode: Periode,
+        override val personalia: ArrangorflatePersonalia?,
+        override val status: DeltakerStatusType?,
+    ) : ArrangorflateBeregningDeltakelse()
+
+    @Serializable
+    @SerialName("ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging")
+    data class PrisPerTimeOppfolging(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        @Serializable(with = LocalDateSerializer::class)
+        override val deltakerStartDato: LocalDate?,
         override val periode: Periode,
         override val personalia: ArrangorflatePersonalia?,
         override val status: DeltakerStatusType?,
@@ -183,6 +180,7 @@ sealed class ArrangorflateBeregningDeltakelse {
 data class ArrangorflatePersonalia(
     val navn: String,
     val norskIdent: NorskIdent?,
+    val erSkjermet: Boolean,
 ) {
     companion object {
         fun fromPersonalia(personalia: DeltakerPersonalia) = when (personalia.adressebeskyttelse) {
@@ -190,13 +188,15 @@ data class ArrangorflatePersonalia(
                 ArrangorflatePersonalia(
                     navn = personalia.navn,
                     norskIdent = personalia.norskIdent,
+                    erSkjermet = personalia.erSkjermet,
                 )
             }
-            else ->
-                ArrangorflatePersonalia(
-                    navn = "Adressebeskyttet",
-                    norskIdent = null,
-                )
+
+            else -> ArrangorflatePersonalia(
+                navn = "Adressebeskyttet",
+                norskIdent = null,
+                erSkjermet = personalia.erSkjermet,
+            )
         }
     }
 }
