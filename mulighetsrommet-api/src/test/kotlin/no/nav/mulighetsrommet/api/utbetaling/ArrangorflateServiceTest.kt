@@ -72,7 +72,7 @@ class ArrangorflateServiceTest : FunSpec({
         beregning.belop shouldBe expectedBelop
         beregning.deltakelser shouldHaveSize expectedDeltakelserCount
     }
-    val okonomiConfig = mockk<OkonomiConfig>()
+    val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
 
     beforeEach {
         domain.initialize(database.db)
