@@ -1331,10 +1331,13 @@ components:
     DatoVelgerRange:
       type: object
       properties:
-        todo:
-          type: string
+        maksSluttdato:
+          type:
+          - "null"
+          - string
+          format: date
       required:
-      - todo
+      - maksSluttdato
     DatoVelgerSelect:
       type: object
       properties:

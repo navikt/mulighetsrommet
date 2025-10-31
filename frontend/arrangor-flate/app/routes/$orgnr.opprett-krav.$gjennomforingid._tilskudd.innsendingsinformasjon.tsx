@@ -125,10 +125,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  const periodeStart = formData.get("periodeStart")?.toString();
-  const periodeSlutt = formData.get("periodeSlutt")?.toString();
+  const periodeStart = parseDate(formData.get("periodeStart")?.toString());
+  const periodeSlutt = parseDate(formData.get("periodeSlutt")?.toString());
   const periodeInklusiv = formData.get("periodeInklusiv")?.toString();
   const tilsagnId = formData.get("tilsagnId")?.toString();
+  const maksSluttdato = parseDate(formData.get("maksSluttdato")?.toString());
 
   if (!periodeStart) {
     errors.push({
@@ -145,6 +146,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     errors.push({
       pointer: "/periodeSlutt",
       detail: "Periodeslutt må være etter periodestart",
+    });
+  } else if (maksSluttdato && isLaterOrSameDay(periodeSlutt, maksSluttdato)) {
+    errors.push({
+      pointer: "/periodeSlutt",
+      detail: "Du kan ikke sende inn valgt periode før månedens slutt",
     });
   } else if (!tilsagnId) {
     errors.push({
@@ -319,6 +325,7 @@ function PeriodeVelgerVarianter({
     case "DatoVelgerRange":
       return (
         <PeriodeVelger
+          maksSluttdato={type.maksSluttdato}
           onPeriodeSelected={onPeriodeSelected}
           sessionPeriodeStart={sessionPeriodeStart}
           sessionPeriodeSlutt={sessionPeriodeSlutt}
@@ -390,6 +397,7 @@ function PeriodeSelect({
 }
 
 interface PeriodeVelgerProps {
+  maksSluttdato: string | null;
   onPeriodeSelected: (periode?: Periode) => void;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
@@ -400,6 +408,7 @@ interface PeriodeVelgerProps {
  * Fritt valg av periode, sluttdato inklusiv
  */
 function PeriodeVelger({
+  maksSluttdato,
   onPeriodeSelected,
   sessionPeriodeStart,
   sessionPeriodeSlutt,
@@ -410,14 +419,16 @@ function PeriodeVelger({
     inputProps: periodeStartInputProps,
     selectedDay: selectedStartDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeStart ? parseDate(sessionPeriodeStart) : undefined,
+    defaultSelected: parseDate(sessionPeriodeStart),
+    toDate: parseDate(maksSluttdato),
   });
   const {
     datepickerProps: periodeSluttPickerProps,
     inputProps: periodeSluttInputProps,
     selectedDay: selectedSluttDato,
   } = useDatepicker({
-    defaultSelected: sessionPeriodeSlutt ? parseDate(sessionPeriodeSlutt) : undefined,
+    defaultSelected: parseDate(sessionPeriodeSlutt),
+    toDate: parseDate(maksSluttdato),
   });
 
   useEffect(() => {
@@ -434,6 +445,7 @@ function PeriodeVelger({
   return (
     <HStack wrap gap="4">
       <input name="periodeInklusiv" defaultValue="true" readOnly hidden />
+      {maksSluttdato && <input name="maksSluttdato" defaultValue={maksSluttdato} readOnly hidden />}
       <DatePicker
         {...periodeStartPickerProps}
         showWeekNumber

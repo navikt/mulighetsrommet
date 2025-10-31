@@ -221,6 +221,8 @@ object UtbetalingValidator {
             1
     }
 
+    fun maxUtbetalingsPeriodeDato(relativeDate: LocalDate = LocalDate.now()): LocalDate = relativeDate.withDayOfMonth(1)
+
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
         prismodellType: PrismodellType?,
@@ -256,6 +258,14 @@ object UtbetalingValidator {
                 OpprettKravUtbetalingRequest::periodeStart,
             )
         }
+
+        validate(slutt.compareTo(maxUtbetalingsPeriodeDato()) < 1) {
+            FieldError.of(
+                "Du kan ikke sende inn valgt periode før månedens slutt",
+                OpprettKravUtbetalingRequest::periodeSlutt,
+            )
+        }
+
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
