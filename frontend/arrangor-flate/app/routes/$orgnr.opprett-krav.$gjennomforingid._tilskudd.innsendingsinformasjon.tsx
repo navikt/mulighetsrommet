@@ -43,7 +43,6 @@ import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
   addDuration,
   formaterPeriode,
-  isLater,
   isLaterOrSameDay,
   parseDate,
   yyyyMMddFormatting,
