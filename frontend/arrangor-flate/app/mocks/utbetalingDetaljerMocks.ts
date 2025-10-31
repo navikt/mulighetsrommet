@@ -36,7 +36,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 10149,
-      satser: [],
       digest: "b3602d2a",
       deltakelser: [
         {
@@ -53,7 +52,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         },
       ],
       stengt: [],
-      antallManedsverk: 0.48,
     },
     advarsler: [],
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
@@ -114,7 +112,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 242904,
-      satser: [],
       digest: "db0c7c6e",
       deltakelser: [
         {
@@ -215,7 +212,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         },
       ],
       stengt: [],
-      antallManedsverk: 11.58,
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: null },
     periode: { start: "2025-01-01", slutt: "2025-02-01" },
@@ -325,7 +321,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         ],
       },
       belop: 16848,
-      satser: [],
       digest: "38c07a43",
       deltakelser: [
         {
@@ -343,7 +338,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         },
       ],
       stengt: [],
-      antallManedsverk: 1.0,
     },
     betalingsinformasjon: { kontonummer: "10002427740", kid: "123123123" },
     periode: { start: "2025-06-01", slutt: "2025-07-01" },

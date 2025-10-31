@@ -110,9 +110,12 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     beskrivelse = "Stengt for ferie",
                 ),
             ),
-            antallManedsverk = 1.0,
-            satser = listOf(
-                SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34),
+            detaljer = Details(
+                entries = listOf(
+                    DetailsEntry.nok("Sats", 34),
+                    DetailsEntry.number("Antall månedsverk", 1.0),
+                    DetailsEntry.nok("Beløp", 100),
+                ),
             ),
         ),
         betalingsinformasjon = ArrangorflateBetalingsinformasjon(

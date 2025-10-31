@@ -60,17 +60,11 @@ sealed class ArrangorflateBeregning {
     data class FastSatsPerTiltaksplassPerManed(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
-        val satser: List<SatsPeriode>,
         val stengt: List<StengtPeriode>,
-        val antallManedsverk: Double,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Sats per tiltaksplass per måned"
-        override val detaljer: Details = Details(
-            entries = getSatserDetails("Sats", satser) +
-                listOf(DetailsEntry.number("Antall månedsverk", antallManedsverk)) +
-                getBelopDetails(belop),
-        )
     }
 
     @Serializable
@@ -78,17 +72,11 @@ sealed class ArrangorflateBeregning {
     data class PrisPerManedsverk(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
-        val satser: List<SatsPeriode>,
         val stengt: List<StengtPeriode>,
-        val antallManedsverk: Double,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Avtalt månedspris per tiltaksplass"
-        override val detaljer: Details = Details(
-            entries = getSatserDetails("Avtalt månedspris per tiltaksplass", satser) +
-                listOf(DetailsEntry.number("Antall månedsverk", antallManedsverk)) +
-                getBelopDetails(belop),
-        )
     }
 
     @Serializable
@@ -96,17 +84,11 @@ sealed class ArrangorflateBeregning {
     data class PrisPerUkesverk(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
-        val satser: List<SatsPeriode>,
         val stengt: List<StengtPeriode>,
-        val antallUkesverk: Double,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Avtalt ukespris per tiltaksplass"
-        override val detaljer: Details = Details(
-            entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
-                listOf(DetailsEntry.number("Antall ukesverk", antallUkesverk)) +
-                getBelopDetails(belop),
-        )
     }
 
     @Serializable
@@ -114,15 +96,11 @@ sealed class ArrangorflateBeregning {
     data class PrisPerTimeOppfolging(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
         val deltakelser: List<ArrangorflateBeregningDeltakelse>,
-        val satser: List<SatsPeriode>,
         val stengt: List<StengtPeriode>,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Avtalt pris per time oppfølging per tiltaksplass"
-        override val detaljer: Details = Details(
-            entries = getSatserDetails("Avtalt pris per time oppfølging", satser) +
-                getBelopDetails(belop),
-        )
     }
 
     @Serializable
@@ -130,11 +108,9 @@ sealed class ArrangorflateBeregning {
     data class Fri(
         override val belop: Int,
         override val digest: String,
+        override val detaljer: Details,
     ) : ArrangorflateBeregning() {
         override val displayName: String = "Annen avtalt pris"
-        override val detaljer: Details = Details(
-            entries = getBelopDetails(belop),
-        )
     }
 }
 
@@ -236,13 +212,3 @@ data class ArrangforflateUtbetalingLinje(
     val statusSistOppdatert: LocalDateTime?,
     val belop: Int,
 )
-
-private fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<DetailsEntry> {
-    return satser.singleOrNull()?.let {
-        listOf(DetailsEntry.nok(label, it.sats))
-    } ?: satser.map {
-        DetailsEntry.nok("$label (${it.periode.formatPeriode()})", it.sats)
-    }
-}
-
-private fun getBelopDetails(belop: Int): List<DetailsEntry> = listOf(DetailsEntry.nok("Beløp", belop))

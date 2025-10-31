@@ -121,43 +121,10 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
         descriptionList {
             entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
 
-            when (utbetaling.beregning) {
-                is ArrangorflateBeregning.Fri -> Unit
-
-                is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> {
-                    addSatserEntries("Sats", utbetaling.beregning.satser)
-                    entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-                }
-
-                is ArrangorflateBeregning.PrisPerManedsverk -> {
-                    addSatserEntries("Avtalt pris per tiltaksplass", utbetaling.beregning.satser)
-                    entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-                }
-
-                is ArrangorflateBeregning.PrisPerUkesverk -> {
-                    addSatserEntries("Avtalt ukespris per tiltaksplass", utbetaling.beregning.satser)
-                    entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
-                }
-
-                is ArrangorflateBeregning.PrisPerTimeOppfolging -> {
-                    addSatserEntries("Avtalt pris per time oppfølging", utbetaling.beregning.satser)
-                }
+            utbetaling.beregning.detaljer.entries.forEach { entry ->
+                entry(entry.key, entry.value, entry.format?.toPdfDocumentContentFormat())
             }
-
-            entry(
-                "Beløp",
-                utbetaling.beregning.belop.toString(),
-                Format.NOK,
-            )
         }
-    }
-}
-
-private fun DescriptionListBlockBuilder.addSatserEntries(label: String, satser: List<SatsPeriode>) {
-    satser.singleOrNull()?.let { sats ->
-        entry(label, sats.sats, Format.NOK)
-    } ?: satser.forEach { sats ->
-        entry("$label (${sats.periode.formatPeriode()})", sats.sats, Format.NOK)
     }
 }
 
@@ -332,4 +299,9 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
             }
         }
     }
+}
+
+private fun DetailsFormat.toPdfDocumentContentFormat(): Format? = when (this) {
+    DetailsFormat.NOK -> Format.NOK
+    DetailsFormat.NUMBER -> null
 }

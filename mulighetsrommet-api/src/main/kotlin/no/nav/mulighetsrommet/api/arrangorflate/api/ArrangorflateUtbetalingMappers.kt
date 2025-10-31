@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregningDeltakelse.PrisPerUkesverk
+import no.nav.mulighetsrommet.api.arrangorflate.api.Details
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -30,6 +31,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             ArrangorflateBeregning.Fri(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
+                detaljer = Details(
+                    entries = getBelopDetails(beregning.output.belop),
+                ),
             )
         }
 
@@ -52,13 +56,17 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                     )
                 }
                 .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
             ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                satser = beregning.input.satser.sortedBy { it.periode.start },
                 stengt = beregning.input.stengt.sortedBy { it.periode.start },
-                antallManedsverk = totalFaktor,
+                detaljer = Details(
+                    entries = getSatserDetails("Sats", satser) +
+                        DetailsEntry.number("Antall månedsverk", totalFaktor) +
+                        getBelopDetails(beregning.output.belop),
+                ),
             )
         }
 
@@ -80,13 +88,17 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                     )
                 }
                 .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
             ArrangorflateBeregning.PrisPerManedsverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                satser = beregning.input.satser.sortedBy { it.periode.start },
                 stengt = beregning.input.stengt.sortedBy { it.periode.start },
-                antallManedsverk = totalFaktor,
+                detaljer = Details(
+                    entries = getSatserDetails("Avtalt månedspris per tiltaksplass", satser) +
+                        DetailsEntry.number("Antall månedsverk", totalFaktor) +
+                        getBelopDetails(beregning.output.belop),
+                ),
             )
         }
 
@@ -108,13 +120,17 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                     )
                 }
                 .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
             ArrangorflateBeregning.PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                satser = beregning.input.satser.sortedBy { it.periode.start },
                 stengt = beregning.input.stengt.sortedBy { it.periode.start },
-                antallUkesverk = totalFaktor,
+                detaljer = Details(
+                    entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
+                        DetailsEntry.number("Antall ukesverk", totalFaktor) +
+                        getBelopDetails(beregning.output.belop),
+                ),
             )
         }
 
@@ -136,13 +152,17 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                     )
                 }
                 .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
             ArrangorflateBeregning.PrisPerUkesverk(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                satser = beregning.input.satser.sortedBy { it.periode.start },
                 stengt = beregning.input.stengt.sortedBy { it.periode.start },
-                antallUkesverk = totalFaktor,
+                detaljer = Details(
+                    entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
+                        DetailsEntry.number("Antall ukesverk", totalFaktor) +
+                        getBelopDetails(beregning.output.belop),
+                ),
             )
         }
 
@@ -161,12 +181,16 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                     )
                 }
                 .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
             ArrangorflateBeregning.PrisPerTimeOppfolging(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakerlser,
-                satser = beregning.input.satser.sortedBy { it.periode.start },
                 stengt = beregning.input.stengt.sortedBy { it.periode.start },
+                detaljer = Details(
+                    entries = getSatserDetails("Avtalt pris per time oppfølging", satser) +
+                        getBelopDetails(beregning.output.belop),
+                ),
             )
         }
     }
@@ -201,3 +225,13 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         advarsler = advarsler,
     )
 }
+
+private fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<DetailsEntry> {
+    return satser.singleOrNull()?.let {
+        listOf(DetailsEntry.nok(label, it.sats))
+    } ?: satser.map {
+        DetailsEntry.nok("$label (${it.periode.formatPeriode()})", it.sats)
+    }
+}
+
+private fun getBelopDetails(belop: Int): List<DetailsEntry> = listOf(DetailsEntry.nok("Beløp", belop))
