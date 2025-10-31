@@ -111,22 +111,6 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select t.*
-            from view_tiltakstype_dto t
-            join gjennomforing g on g.tiltakstype_id = t.id
-            where g.id = ?::uuid
-        """.trimIndent()
-
-        val tiltakstype = single(queryOf(query, gjennomforingId)) { it.toTiltakstypeDto() }
-
-        return requireNotNull(tiltakstype) {
-            "Det finnes ingen tiltakstype for gjennomforing med id=$gjennomforingId"
-        }
-    }
-
     fun getAll(
         tiltakskoder: Set<Tiltakskode> = setOf(),
         statuser: List<TiltakstypeStatus> = emptyList(),

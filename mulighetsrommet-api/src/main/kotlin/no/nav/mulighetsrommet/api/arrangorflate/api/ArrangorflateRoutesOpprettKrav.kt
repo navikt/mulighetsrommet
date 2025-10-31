@@ -8,12 +8,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
-import io.ktor.server.http.content.default
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
@@ -33,7 +31,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
@@ -61,7 +58,6 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import org.apache.xmlbeans.impl.soap.Detail
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus

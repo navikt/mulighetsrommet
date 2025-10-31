@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.DataElement
 
@@ -11,8 +10,8 @@ data class UtbetalingStatusDto(
     val status: DataElement.Status,
 ) {
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingStatusDto {
-            val type = when (utbetaling.status) {
+        fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType): UtbetalingStatusDto {
+            val type = when (utbetalingStatus) {
                 UtbetalingStatusType.GENERERT -> Type.VENTER_PA_ARRANGOR
                 UtbetalingStatusType.INNSENDT -> Type.KLAR_TIL_BEHANDLING
                 UtbetalingStatusType.TIL_ATTESTERING -> Type.TIL_ATTESTERING

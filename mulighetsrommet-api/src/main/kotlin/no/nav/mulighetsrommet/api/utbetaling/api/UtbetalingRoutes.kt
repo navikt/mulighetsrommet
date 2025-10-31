@@ -97,7 +97,7 @@ fun Route.utbetalingRoutes() {
 
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                     belopUtbetalt = belopUtbetalt,
@@ -107,6 +107,39 @@ fun Route.utbetalingRoutes() {
         }
 
         call.respond(utbetalinger)
+    }
+
+    get("/innsendinger", {
+        description = "Hent filtrerte innsendinger"
+        tags = setOf("Utbetaling")
+        operationId = "getInnsendinger"
+        request {
+            queryParameter<List<String>>("tiltakstyper") {
+                explode = true
+            }
+            queryParameter<List<NavEnhetNummer>>("navEnheter") {
+                explode = true
+            }
+            queryParameter<String>("sort")
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle innsendinger for gitte filtre"
+                body<List<InnsendingKompaktDto>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val filter = getAdminInnsendingerFilter()
+
+        val innsendinger = db.session {
+            queries.utbetaling.getAll(filter)
+        }
+
+        call.respond(innsendinger)
     }
 
     route("/utbetaling/{id}") {
@@ -430,6 +463,24 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
             tilsagn.kostnadssted.enhetsnummer,
             navAnsatt,
         ),
+    )
+}
+
+data class AdminInnsendingerFilter(
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
+    val tiltakstyper: List<UUID> = emptyList(),
+    val sortering: String? = null,
+)
+
+fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
+    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
+    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
+    val sortering = call.request.queryParameters["sort"]
+
+    return AdminInnsendingerFilter(
+        navEnheter = navEnheter,
+        tiltakstyper = tiltakstypeIder,
+        sortering = sortering,
     )
 }
 
