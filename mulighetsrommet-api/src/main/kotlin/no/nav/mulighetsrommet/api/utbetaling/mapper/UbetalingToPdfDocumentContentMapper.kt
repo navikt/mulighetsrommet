@@ -1,10 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
-import no.nav.mulighetsrommet.api.pdfgen.Format
-import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
-import no.nav.mulighetsrommet.api.pdfgen.TableBlock
+import no.nav.mulighetsrommet.api.pdfgen.*
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 
 object UbetalingToPdfDocumentContentMapper {
@@ -121,42 +119,28 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Arrangorf
 private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: ArrangorflateUtbetalingDto) {
     section("Utbetaling") {
         descriptionList {
-            val start = utbetaling.periode.start.formaterDatoTilEuropeiskDatoformat()
-            val slutt = utbetaling.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-            entry("Utbetalingsperiode", "$start - $slutt")
+            entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
 
             when (utbetaling.beregning) {
                 is ArrangorflateBeregning.Fri -> Unit
 
                 is ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed -> {
+                    addSatserEntries("Sats", utbetaling.beregning.satser)
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-                    entry(
-                        "Sats",
-                        utbetaling.beregning.sats,
-                        Format.NOK,
-                    )
                 }
 
                 is ArrangorflateBeregning.PrisPerManedsverk -> {
+                    addSatserEntries("Avtalt pris per tiltaksplass", utbetaling.beregning.satser)
                     entry("Antall månedsverk", utbetaling.beregning.antallManedsverk.toString())
-                    entry(
-                        "Pris",
-                        utbetaling.beregning.sats,
-                        Format.NOK,
-                    )
                 }
 
                 is ArrangorflateBeregning.PrisPerUkesverk -> {
+                    addSatserEntries("Avtalt ukespris per tiltaksplass", utbetaling.beregning.satser)
                     entry("Antall ukesverk", utbetaling.beregning.antallUkesverk.toString())
-                    entry(
-                        "Pris",
-                        utbetaling.beregning.sats,
-                        Format.NOK,
-                    )
                 }
 
                 is ArrangorflateBeregning.PrisPerTimeOppfolging -> {
-                    entry("Pris", utbetaling.beregning.sats, Format.NOK)
+                    addSatserEntries("Avtalt pris per time oppfølging", utbetaling.beregning.satser)
                 }
             }
 
@@ -166,6 +150,14 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Arrangorf
                 Format.NOK,
             )
         }
+    }
+}
+
+private fun DescriptionListBlockBuilder.addSatserEntries(label: String, satser: List<SatsPeriode>) {
+    satser.singleOrNull()?.let { sats ->
+        entry(label, sats.sats, Format.NOK)
+    } ?: satser.forEach { sats ->
+        entry("$label (${sats.periode.formatPeriode()})", sats.sats, Format.NOK)
     }
 }
 

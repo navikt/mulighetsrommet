@@ -1762,6 +1762,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
@@ -1769,9 +1773,6 @@ components:
         antallManedsverk:
           type: number
           format: double
-        sats:
-          type: integer
-          format: int32
         displayName:
           type: string
         detaljer:
@@ -1783,7 +1784,7 @@ components:
       - detaljer
       - digest
       - displayName
-      - sats
+      - satser
       - stengt
     ArrangorflateBeregningDeltakelse:
       anyOf:
@@ -1966,6 +1967,17 @@ components:
       - periode
       - personalia
       - status
+    SatsPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        sats:
+          type: integer
+          format: int32
+      required:
+      - periode
+      - sats
     ArrangorflateBeregningFri:
       type: object
       properties:
@@ -1995,6 +2007,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
@@ -2002,9 +2018,6 @@ components:
         antallManedsverk:
           type: number
           format: double
-        sats:
-          type: integer
-          format: int32
         displayName:
           type: string
         detaljer:
@@ -2016,7 +2029,7 @@ components:
       - detaljer
       - digest
       - displayName
-      - sats
+      - satser
       - stengt
     ArrangorflateBeregningPrisPerTimeOppfolging:
       type: object
@@ -2030,13 +2043,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
-        sats:
-          type: integer
-          format: int32
         displayName:
           type: string
         detaljer:
@@ -2047,7 +2061,7 @@ components:
       - detaljer
       - digest
       - displayName
-      - sats
+      - satser
       - stengt
     ArrangorflateBeregningPrisPerUkesverk:
       type: object
@@ -2061,6 +2075,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
@@ -2068,9 +2086,6 @@ components:
         antallUkesverk:
           type: number
           format: double
-        sats:
-          type: integer
-          format: int32
         displayName:
           type: string
         detaljer:
@@ -2082,7 +2097,7 @@ components:
       - detaljer
       - digest
       - displayName
-      - sats
+      - satser
       - stengt
     ArrangforflateUtbetalingLinje:
       type: object
