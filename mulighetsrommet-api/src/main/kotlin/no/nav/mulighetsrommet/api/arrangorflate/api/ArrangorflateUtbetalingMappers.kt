@@ -56,10 +56,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                satser = beregning.input.satser.sortedBy { it.periode.start },
+                stengt = beregning.input.stengt.sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
-                // TODO: støtte flere satser
-                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -85,10 +84,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                satser = beregning.input.satser.sortedBy { it.periode.start },
+                stengt = beregning.input.stengt.sortedBy { it.periode.start },
                 antallManedsverk = totalFaktor,
-                // TODO: støtte flere satser
-                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -114,10 +112,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                satser = beregning.input.satser.sortedBy { it.periode.start },
+                stengt = beregning.input.stengt.sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
-                // TODO: støtte flere satser
-                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -143,10 +140,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakelser,
-                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
+                satser = beregning.input.satser.sortedBy { it.periode.start },
+                stengt = beregning.input.stengt.sortedBy { it.periode.start },
                 antallUkesverk = totalFaktor,
-                // TODO: støtte flere satser
-                sats = beregning.input.satser.first().sats,
             )
         }
 
@@ -169,9 +165,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
                 belop = beregning.output.belop,
                 digest = beregning.getDigest(),
                 deltakelser = deltakerlser,
-                stengt = beregning.input.stengt.toList().sortedBy { it.periode.start },
-                // TODO: støtte flere satser
-                sats = beregning.input.satser.first().sats,
+                satser = beregning.input.satser.sortedBy { it.periode.start },
+                stengt = beregning.input.stengt.sortedBy { it.periode.start },
             )
         }
     }

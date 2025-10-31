@@ -414,7 +414,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from avtale_admin_dto_view
+            from view_avtale
             where id = ?::uuid
         """.trimIndent()
 
@@ -462,7 +462,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
-            from avtale_admin_dto_view
+            from view_avtale
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_hovedenhet_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
@@ -549,15 +549,6 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         return list(queryOf(query, navIdent.value)) { it.uuid("avtale_id") }
-    }
-
-    fun getUpdatedAt(id: UUID): LocalDateTime {
-        @Language("PostgreSQL")
-        val query = """
-            select updated_at from avtale where id = ?
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
     }
 
     fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {

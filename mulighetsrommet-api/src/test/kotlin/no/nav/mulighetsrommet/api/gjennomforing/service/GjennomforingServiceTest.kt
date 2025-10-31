@@ -107,8 +107,8 @@ class GjennomforingServiceTest : FunSpec({
             createService().upsert(
                 gjennomforing.copy(
                     veilederinformasjon = gjennomforing.veilederinformasjon.copy(
-                        navEnheter = listOf(
-                            Innlandet.enhetsnummer,
+                        navRegioner = listOf(Innlandet.enhetsnummer),
+                        navKontorer = listOf(
                             Gjovik.enhetsnummer,
                             Sagene.enhetsnummer,
                         ),

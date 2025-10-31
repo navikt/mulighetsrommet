@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -221,6 +220,8 @@ object UtbetalingValidator {
             1
     }
 
+    fun maxUtbetalingsPeriodeDato(relativeDate: LocalDate = LocalDate.now()): LocalDate = relativeDate.withDayOfMonth(1)
+
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
         prismodellType: PrismodellType?,
@@ -256,6 +257,14 @@ object UtbetalingValidator {
                 OpprettKravUtbetalingRequest::periodeStart,
             )
         }
+
+        validate(slutt.compareTo(maxUtbetalingsPeriodeDato()) < 1) {
+            FieldError.of(
+                "Du kan ikke sende inn for valgt periode før perioden er passert",
+                OpprettKravUtbetalingRequest::periodeSlutt,
+            )
+        }
+
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }

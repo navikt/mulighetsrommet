@@ -1,0 +1,5 @@
+drop view if exists view_utbetaling_beregning_fri;
+drop view if exists view_utbetaling_beregning_manedsverk;
+drop view if exists view_utbetaling_beregning_manedsverk_fast_sats;
+drop view if exists view_utbetaling_beregning_pris_per_time_oppfolging;
+drop view if exists view_utbetaling_beregning_ukesverk;

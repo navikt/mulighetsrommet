@@ -70,7 +70,7 @@ class EnkeltplassQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing_enkeltplass_admin
+            from view_gjennomforing_enkeltplass
             where id = ?::uuid
         """.trimIndent()
 

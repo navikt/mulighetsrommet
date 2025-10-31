@@ -167,12 +167,12 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
   return (
     <HStack gap="2">
       <Button variant="secondary" size="small" onClick={() => modalRef.current?.showModal()}>
-        Åpne beregning
+        Se deltakelser
       </Button>
       <Modal
         ref={modalRef}
         size="medium"
-        header={{ heading: `Beregning - ${utbetaling.beregning.displayName}` }}
+        header={{ heading: utbetaling.beregning.displayName }}
         onClose={() => modalRef.current?.close()}
         width="80rem"
         closeOnBackdropClick

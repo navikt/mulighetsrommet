@@ -109,16 +109,24 @@ class OppgaveQueries(private val session: Session) {
                 delutbetaling.faktura_status,
                 delutbetaling.faktura_status_sist_oppdatert,
                 tilsagn.gjennomforing_id,
+                nav_enhet.navn as kostnadssted_navn,
+                nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
                 gjennomforing.navn,
                 tiltakstype.tiltakskode,
-                tiltakstype.navn as tiltakstype_navn
+                tiltakstype.navn as tiltakstype_navn,
+                totrinnskontroll.besluttet_tidspunkt,
+                totrinnskontroll.behandlet_tidspunkt,
+                totrinnskontroll.behandlet_av
             from delutbetaling
                 inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
+                inner join nav_enhet on tilsagn.kostnadssted = nav_enhet.enhetsnummer
                 inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+                inner join totrinnskontroll on totrinnskontroll.entity_id = delutbetaling.id
             where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[])) and
-                (:kostnadssteder::text[] is null or tilsagn.kostnadssted = any(:kostnadssteder))
+                totrinnskontroll.type = 'OPPRETT'
+                and (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
+                and (:kostnadssteder::text[] is null or tilsagn.kostnadssted = any(:kostnadssteder))
         """.trimIndent()
 
         val params = mapOf(
@@ -138,6 +146,15 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype = OppgaveTiltakstype(
                     tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
                     navn = it.string("tiltakstype_navn"),
+                ),
+                kostnadssted = DelutbetalingOppgaveData.Kostnadssted(
+                    navn = it.string("kostnadssted_navn"),
+                    enhetsnummer = NavEnhetNummer(it.string("kostnadssted_enhetsnummer")),
+                ),
+                opprettelse = DelutbetalingOppgaveData.Opprettelse(
+                    behandletAv = it.string("behandlet_av").toAgent(),
+                    behandletTidspunkt = it.localDateTime("behandlet_tidspunkt"),
+                    besluttetTidspunkt = it.localDateTimeOrNull("besluttet_tidspunkt"),
                 ),
             )
         }
@@ -199,7 +216,7 @@ class OppgaveQueries(private val session: Session) {
     fun getUtbetalingOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<UtbetalingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
-            select * from utbetaling_dto_view
+            select * from view_utbetaling
             where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
         """.trimIndent()
 
@@ -330,7 +347,19 @@ data class DelutbetalingOppgaveData(
     val tilsagnId: UUID,
     val gjennomforingNavn: String,
     val tiltakstype: OppgaveTiltakstype,
-)
+    val kostnadssted: Kostnadssted,
+    val opprettelse: Opprettelse,
+) {
+    data class Kostnadssted(
+        val navn: String,
+        val enhetsnummer: NavEnhetNummer,
+    )
+    data class Opprettelse(
+        val behandletTidspunkt: LocalDateTime,
+        val besluttetTidspunkt: LocalDateTime?,
+        val behandletAv: Agent,
+    )
+}
 
 data class TilsagnOppgaveData(
     val id: UUID,

@@ -661,7 +661,7 @@ class UtbetalingService(
                         handling = it,
                         ansatt = ansatt,
                         kostnadssted = kostnadssted,
-                        opprettelse = opprettelse,
+                        behandletAv = opprettelse.behandletAv,
                     )
                 }
                 .toSet()
@@ -677,7 +677,7 @@ class UtbetalingService(
             handling: UtbetalingLinjeHandling,
             ansatt: NavAnsatt,
             kostnadssted: NavEnhetNummer,
-            opprettelse: Totrinnskontroll,
+            behandletAv: Agent,
         ): Boolean {
             val erBeslutter = ansatt.hasKontorspesifikkRolle(
                 Rolle.ATTESTANT_UTBETALING,
@@ -687,7 +687,7 @@ class UtbetalingService(
 
             return when (handling) {
                 UtbetalingLinjeHandling.ATTESTER ->
-                    erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+                    erBeslutter && behandletAv != ansatt.navIdent
 
                 UtbetalingLinjeHandling.RETURNER -> erBeslutter
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler

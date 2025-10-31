@@ -224,8 +224,7 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
             tilhørerende fakturering er i henhold til avtalen.
           </BodyShort>
           <BodyShort>
-            Fakturavedleggsskjema kan lastes ned her{" "}
-            <b>Oppfølging - fakturagrunnlag 2021 (excel)</b>
+            Fakturavedleggsskjema eller tilsvarende dokumentasjon skal lastes opp under.
           </BodyShort>
         </GuidePanel>
       );

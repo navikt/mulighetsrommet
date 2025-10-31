@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.blocking.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
@@ -77,7 +75,8 @@ class GjennomforingValidatorTest : FunSpec({
         startDato = avtale.startDato,
         sluttDato = avtale.sluttDato,
         veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-            navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+            navRegioner = listOf(NavEnhetNummer("0400")),
+            navKontorer = listOf(NavEnhetNummer("0502")),
         ),
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
@@ -148,7 +147,7 @@ class GjennomforingValidatorTest : FunSpec({
             }
 
         GjennomforingValidator.validate(
-            req.copy(tilgjengeligForArrangorDato = req.startDato.plusDays(1)),
+            req.copy(tilgjengeligForArrangorDato = req.startDato!!.plusDays(1)),
             ctx,
         )
             .shouldBeRight().should {
@@ -255,50 +254,56 @@ class GjennomforingValidatorTest : FunSpec({
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
                 "/arrangorId",
-                "Arrangøren Underenhet 1 AS er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
+                "Arrangøren Underenhet 1 AS er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter",
             ),
         )
     }
 
     test("validerer at datafelter i gjennomføring i henhold til data i avtalen") {
-        forAll(
-            row(
-                request.copy(
-                    startDato = avtale.startDato.minusDays(1),
-                    sluttDato = avtale.startDato,
+        GjennomforingValidator.validate(
+            request.copy(
+                startDato = avtale.startDato.minusDays(1),
+                sluttDato = avtale.startDato,
+            ),
+            ctx,
+        ).shouldBeLeft(
+            listOf(FieldError("/startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
+        )
+        GjennomforingValidator.validate(
+            request.copy(
+                startDato = avtale.sluttDato!!,
+                sluttDato = avtale.startDato,
+            ),
+            ctx,
+        ).shouldBeLeft(
+            listOf(FieldError("/startDato", "Startdato må være før sluttdato")),
+        )
+        GjennomforingValidator.validate(
+            request.copy(antallPlasser = 0),
+            ctx,
+        ).shouldBeLeft(
+            listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
+        )
+        GjennomforingValidator.validate(
+            request.copy(
+                veilederinformasjon = request.veilederinformasjon.copy(
+                    navRegioner = listOf(),
+                    navKontorer = listOf(),
                 ),
-                listOf(
-                    FieldError(
-                        "/startDato",
-                        "Du må legge inn en startdato som er etter avtalens startdato",
-                    ),
-                ),
             ),
-            row(
-                request.copy(
-                    startDato = avtale.sluttDato!!,
-                    sluttDato = avtale.startDato,
-                ),
-                listOf(FieldError("/startDato", "Startdato må være før sluttdato")),
+            ctx,
+        ).shouldBeLeft(
+            listOf(
+                FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region fra avtalen"),
+                FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet fra avtalen"),
             ),
-            row(
-                request.copy(antallPlasser = 0),
-                listOf(FieldError("/antallPlasser", "Du må legge inn antall plasser større enn 0")),
-            ),
-            row(
-                request.copy(veilederinformasjon = request.veilederinformasjon.copy(navEnheter = listOf())),
-                listOf(
-                    FieldError("/navEnheter", "Du må velge minst én Nav-region fra avtalen"),
-                    FieldError("/navEnheter", "Du må velge minst én Nav-enhet fra avtalen"),
-                ),
-            ),
-            row(
-                request.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                listOf(FieldError("/arrangorId", "Du må velge en arrangør fra avtalen")),
-            ),
-        ) { input, error ->
-            GjennomforingValidator.validate(input, ctx).shouldBeLeft(error)
-        }
+        )
+        GjennomforingValidator.validate(
+            request.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+            ctx,
+        ).shouldBeLeft(
+            listOf(FieldError("/arrangorId", "Du må velge en arrangør fra avtalen")),
+        )
     }
 
     context("når gjennonmføring allerede eksisterer") {

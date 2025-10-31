@@ -1,9 +1,7 @@
-import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { isKursTiltak } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
   AmoKategorisering,
-  ArenaMigreringOpphav,
   AvtaleDto,
   GjennomforingArrangorKontaktperson,
   GjennomforingDto,
@@ -12,6 +10,7 @@ import {
   Faneinnhold,
   UtdanningslopDbo,
   UtdanningslopDto,
+  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../portableText/helper";
 import { DeepPartial } from "react-hook-form";
@@ -71,7 +70,7 @@ export function defaultGjennomforingData(
   ansatt: NavAnsattDto,
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto>,
-): DeepPartial<InferredGjennomforingSchema> {
+): DeepPartial<GjennomforingRequest> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
   // TODO: Fjern casting når avtaler er migrert til @tiltaksadministrasjon/api-client
@@ -86,18 +85,16 @@ export function defaultGjennomforingData(
       ansatt.navIdent,
     ],
     antallPlasser: gjennomforing?.antallPlasser,
-    startOgSluttDato: {
-      startDato: gjennomforing?.startDato
-        ? gjennomforing.startDato
-        : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
-          ? avtale.startDato
-          : "",
-      sluttDato: gjennomforing
-        ? gjennomforing.sluttDato
-        : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
-          ? avtale.sluttDato
-          : undefined,
-    },
+    startDato: gjennomforing?.startDato
+      ? gjennomforing.startDato
+      : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
+        ? avtale.startDato
+        : null,
+    sluttDato: gjennomforing
+      ? gjennomforing.sluttDato
+      : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
+        ? avtale.sluttDato
+        : null,
     arrangorId: defaultArrangor(avtale, gjennomforing),
     oppstart: gjennomforing?.oppstart || defaultOppstartType(avtale),
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
@@ -106,7 +103,6 @@ export function defaultGjennomforingData(
       gjennomforing?.arrangor?.kontaktpersoner.map(
         (p: GjennomforingArrangorKontaktperson) => p.id,
       ) ?? [],
-    opphav: gjennomforing?.opphav ?? ArenaMigreringOpphav.TILTAKSADMINISTRASJON,
     veilederinformasjon: {
       navRegioner: defaultNavRegion(avtale, gjennomforing),
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
@@ -115,7 +111,6 @@ export function defaultGjennomforingData(
       faneinnhold: faneInnhold,
     },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
-    visEstimertVentetid: !!gjennomforing?.estimertVentetid?.enhet,
     estimertVentetid: gjennomforing?.estimertVentetid || null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
     amoKategorisering:

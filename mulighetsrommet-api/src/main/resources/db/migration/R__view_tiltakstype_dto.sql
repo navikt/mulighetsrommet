@@ -1,8 +1,8 @@
 -- ${flyway:timestamp}
 
-drop view if exists tiltakstype_admin_dto_view;
+drop view if exists view_tiltakstype_dto;
 
-create view tiltakstype_admin_dto_view as
+create view view_tiltakstype_dto as
 select
     tiltakstype.id,
     tiltakstype.navn,
