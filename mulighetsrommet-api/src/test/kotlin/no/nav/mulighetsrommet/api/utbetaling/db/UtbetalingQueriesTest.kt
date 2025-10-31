@@ -7,17 +7,15 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto.Type
@@ -25,9 +23,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 
 class UtbetalingQueriesTest : FunSpec(
     {
@@ -405,49 +400,49 @@ class UtbetalingQueriesTest : FunSpec(
 
                     queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(utbetaling.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
+                    queries.get(utbetaling.id).shouldNotBeNull().should {
+                        it.beregning shouldBe beregning
+                    }
                 }
             }
         }
-    }
 
-    context("utbetaling med beregning for pris per time oppfølging") {
-        test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+        context("utbetaling med beregning for pris per time oppfølging") {
+            test("upsert and get beregning") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
 
-                val queries = UtbetalingQueries(session)
+                    val queries = UtbetalingQueries(session)
 
-                val deltakelse1Id = UUID.randomUUID()
-                val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerTimeOppfolging(
-                    input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                        belop = 1999,
-                        satser = setOf(SatsPeriode(periode, 100), SatsPeriode(periode, 200)),
-                        stengt = setOf(
-                            StengtPeriode(
-                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
-                                "Ferie",
+                    val deltakelse1Id = UUID.randomUUID()
+                    val deltakelse2Id = UUID.randomUUID()
+                    val beregning = UtbetalingBeregningPrisPerTimeOppfolging(
+                        input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                            belop = 1999,
+                            satser = setOf(SatsPeriode(periode, 100), SatsPeriode(periode, 200)),
+                            stengt = setOf(
+                                StengtPeriode(
+                                    Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 20)),
+                                    "Ferie",
+                                ),
+                            ),
+                            deltakelser = setOf(
+                                DeltakelsePeriode(
+                                    deltakelseId = deltakelse1Id,
+                                    periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 10)),
+                                ),
+                                DeltakelsePeriode(
+                                    deltakelseId = deltakelse2Id,
+                                    periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
+                                ),
                             ),
                         ),
-                        deltakelser = setOf(
-                            DeltakelsePeriode(
-                                deltakelseId = deltakelse1Id,
-                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 10)),
-                            ),
-                            DeltakelsePeriode(
-                                deltakelseId = deltakelse2Id,
-                                periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1)),
-                            ),
+                        output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
+                            belop = 1999,
                         ),
-                    ),
-                    output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
-                        belop = 1999,
-                    ),
-                )
+                    )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                    queries.upsert(utbetaling.copy(beregning = beregning))
 
                     queries.get(utbetaling.id).shouldNotBeNull().should {
                         it.beregning shouldBe beregning
