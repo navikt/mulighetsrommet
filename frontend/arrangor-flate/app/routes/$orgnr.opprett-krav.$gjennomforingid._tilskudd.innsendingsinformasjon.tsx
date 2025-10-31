@@ -150,7 +150,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   } else if (maksSluttdato && isLaterOrSameDay(periodeSlutt, maksSluttdato)) {
     errors.push({
       pointer: "/periodeSlutt",
-      detail: "Du kan ikke sende inn valgt periode før månedens slutt",
+      detail: "Du kan ikke sende inn for valgt periode før perioden er passert",
     });
   } else if (!tilsagnId) {
     errors.push({
@@ -501,13 +501,13 @@ function GuidePanelInformation({ orgnr, type }: GuidePanelInformationProps) {
       return (
         <GuidePanel>
           I dette skjemaet kan du sende inn fakturakrav for tiltaksgjennomføringer med avtalt
-          timespris.
+          timespris
         </GuidePanel>
       );
     case OpprettKravInnsendingsInformasjonGuidePanelType.AVTALT_PRIS:
       return (
         <GuidePanel>
-          I dette skjemaet kan du sende inn fakturakrav i henhold til avtalt pris med Nav.
+          I dette skjemaet kan du sende inn fakturakrav i henhold til avtalt pris med Nav
         </GuidePanel>
       );
 

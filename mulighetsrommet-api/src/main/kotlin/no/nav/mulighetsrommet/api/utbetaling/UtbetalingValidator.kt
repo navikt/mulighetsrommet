@@ -261,7 +261,7 @@ object UtbetalingValidator {
 
         validate(slutt.compareTo(maxUtbetalingsPeriodeDato()) < 1) {
             FieldError.of(
-                "Du kan ikke sende inn valgt periode før månedens slutt",
+                "Du kan ikke sende inn for valgt periode før perioden er passert",
                 OpprettKravUtbetalingRequest::periodeSlutt,
             )
         }
