@@ -4227,6 +4227,35 @@ components:
             $ref: "#/components/schemas/EndringshistorikkDto.Entry"
       required:
       - entries
+    GjennomforingVeilederinfoRequest:
+      type: object
+      properties:
+        navRegioner:
+          type: array
+          items:
+            type: string
+        navKontorer:
+          type: array
+          items:
+            type: string
+        navAndreEnheter:
+          type: array
+          items:
+            type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+      required:
+      - beskrivelse
+      - faneinnhold
+      - navAndreEnheter
+      - navKontorer
+      - navRegioner
     GjennomforingKontaktpersonDto:
       type: object
       properties:
@@ -4270,7 +4299,9 @@ components:
         navn:
           type: string
         startDato:
-          type: string
+          type:
+          - "null"
+          - string
           format: date
         sluttDato:
           type:
@@ -4278,10 +4309,14 @@ components:
           - string
           format: date
         antallPlasser:
-          type: integer
+          type:
+          - "null"
+          - integer
           format: int32
         arrangorId:
-          type: string
+          type:
+          - "null"
+          - string
           format: uuid
         arrangorKontaktpersoner:
           type: array
@@ -4289,7 +4324,7 @@ components:
             type: string
             format: uuid
         veilederinformasjon:
-          $ref: "#/components/schemas/VeilederinfoRequest"
+          $ref: "#/components/schemas/GjennomforingVeilederinfoRequest"
         kontaktpersoner:
           type: array
           items:

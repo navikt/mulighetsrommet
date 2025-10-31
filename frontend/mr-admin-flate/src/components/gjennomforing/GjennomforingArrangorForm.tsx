@@ -4,12 +4,12 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   AvtaleArrangorHovedenhet,
+  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { InferredGjennomforingSchema } from "@/components/redaksjoneltInnhold/GjennomforingSchema";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
@@ -25,7 +25,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
     formState: { errors },
     setValue,
     control,
-  } = useFormContext<InferredGjennomforingSchema>();
+  } = useFormContext<GjennomforingRequest>();
 
   const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(arrangor.id);
 
@@ -50,7 +50,6 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
               label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               placeholder="Velg underenhet for tiltaksarrangør"
               selectedOptions={arrangorOptions.filter((option) =>
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 field.value?.includes(option.value),
               )}
               name={field.name}

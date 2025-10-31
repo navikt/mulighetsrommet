@@ -2,11 +2,6 @@ import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertGjennomforing } from "@/api/gjennomforing/useUpsertGjennomforing";
 import { Laster } from "@/components/laster/Laster";
 import {
-  GjennomforingSchema,
-  InferredGjennomforingSchema,
-} from "@/components/redaksjoneltInnhold/GjennomforingSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
   GjennomforingDto,
@@ -26,7 +21,6 @@ import { Separator } from "@/components/detaljside/Metadata";
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
-import { z } from "zod";
 import { GjennomforingInformasjonForVeiledereForm } from "./GjennomforingInformasjonForVeiledereForm";
 
 interface Props {
@@ -35,7 +29,7 @@ interface Props {
   avtale: AvtaleDto;
   gjennomforing: GjennomforingDto | null;
   deltakere: GjennomforingDeltakerSummary | null;
-  defaultValues: DeepPartial<InferredGjennomforingSchema>;
+  defaultValues: DeepPartial<GjennomforingRequest>;
   enheter: NavEnhetDto[];
 }
 
@@ -45,9 +39,8 @@ export function GjennomforingFormContainer(props: Props) {
   const mutation = useUpsertGjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
-  type FormValues = z.infer<typeof GjennomforingSchema>;
-  const form = useForm<z.input<typeof GjennomforingSchema>, any, FormValues>({
-    resolver: zodResolver(GjennomforingSchema),
+  const form = useForm<GjennomforingRequest>({
+    resolver: async (values) => ({ values, errors: {} }),
     defaultValues,
   });
 
@@ -60,36 +53,16 @@ export function GjennomforingFormContainer(props: Props) {
     (dto: { data: GjennomforingDto }) => onSuccess(dto.data.id),
     [onSuccess],
   );
-  const handleValidationError = useCallback(
-    (validation: ValidationError) => {
-      validation.errors.forEach((error) => {
-        const name = mapFieldToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
-        form.setError(name, { type: "custom", message: error.detail });
-      });
 
-      function mapFieldToSchemaPropertyName(name: string) {
-        const mapping: { [name: string]: string } = {
-          startDato: "startOgSluttDato.startDato",
-          sluttDato: "startOgSluttDato.sluttDato",
-          navEnheter: "veilederinformasjon.navKontorer",
-          arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-          utdanningslop: "utdanningslop.utdanninger",
-        };
-        return (mapping[name] ?? name) as keyof InferredGjennomforingSchema;
-      }
-    },
-    [form],
-  );
-
-  const postData: SubmitHandler<InferredGjennomforingSchema> = async (data): Promise<void> => {
+  const postData: SubmitHandler<GjennomforingRequest> = async (data): Promise<void> => {
     const body: GjennomforingRequest = {
       id: gjennomforing?.id || uuidv4(),
       antallPlasser: data.antallPlasser,
       tiltakstypeId: avtale.tiltakstype.id,
       veilederinformasjon: {
-        navEnheter: data.veilederinformasjon.navRegioner
-          .concat(data.veilederinformasjon.navKontorer)
-          .concat(data.veilederinformasjon.navAndreEnheter),
+        navRegioner: data.veilederinformasjon.navRegioner,
+        navKontorer: data.veilederinformasjon.navKontorer,
+        navAndreEnheter: data.veilederinformasjon.navAndreEnheter,
         beskrivelse: data.veilederinformasjon.beskrivelse,
         faneinnhold: data.veilederinformasjon.faneinnhold
           ? {
@@ -110,19 +83,18 @@ export function GjennomforingFormContainer(props: Props) {
           : null,
       },
       navn: data.navn,
-      startDato: data.startOgSluttDato.startDato,
-      sluttDato: data.startOgSluttDato.sluttDato || null,
+      startDato: data.startDato,
+      sluttDato: data.sluttDato || null,
       avtaleId: avtale.id,
       administratorer: data.administratorer,
       arrangorId: data.arrangorId,
       oppstart: data.oppstart,
-      kontaktpersoner:
-        data.kontaktpersoner
-          ?.filter((kontakt) => kontakt.navIdent !== "")
-          .map((kontakt) => ({
-            navIdent: kontakt.navIdent,
-            beskrivelse: kontakt.beskrivelse ?? null,
-          })) || [],
+      kontaktpersoner: data.kontaktpersoner
+        .filter((kontakt) => kontakt.navIdent !== "")
+        .map((kontakt) => ({
+          navIdent: kontakt.navIdent,
+          beskrivelse: kontakt.beskrivelse ?? null,
+        })),
       stedForGjennomforing: data.stedForGjennomforing,
       oppmoteSted: data.oppmoteSted,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
@@ -138,7 +110,12 @@ export function GjennomforingFormContainer(props: Props) {
 
     mutation.mutate(body, {
       onSuccess: handleSuccess,
-      onValidationError: handleValidationError,
+      onValidationError: (error: ValidationError) => {
+        error.errors.forEach((error) => {
+          const name = jsonPointerToFieldPath(error.pointer) as keyof GjennomforingRequest;
+          form.setError(name, { type: "custom", message: error.detail });
+        });
+      },
     });
   };
 

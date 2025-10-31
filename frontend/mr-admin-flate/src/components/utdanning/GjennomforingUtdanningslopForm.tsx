@@ -1,16 +1,15 @@
 import { Alert, Select } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
-import { InferredGjennomforingSchema } from "../redaksjoneltInnhold/GjennomforingSchema";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
-import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, GjennomforingRequest } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   avtale: AvtaleDto;
 }
 
 export function GjennomforingUtdanningslopForm({ avtale }: Props) {
-  const { register } = useFormContext<InferredGjennomforingSchema>();
+  const { register } = useFormContext<GjennomforingRequest>();
 
   if (!avtale.utdanningslop) {
     return (
