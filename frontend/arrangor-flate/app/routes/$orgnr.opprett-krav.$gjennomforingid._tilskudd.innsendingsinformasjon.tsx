@@ -15,6 +15,7 @@ import {
 } from "@navikt/ds-react";
 import {
   ArrangorflateService,
+  ArrangorflateTilsagnDto,
   FieldError,
   OpprettKravInnsendingsInformasjon,
   OpprettKravInnsendingsInformasjonDatoVelger,
@@ -42,7 +43,6 @@ import { commitSession, destroySession, getSession } from "~/sessions.server";
 import {
   addDuration,
   formaterPeriode,
-  isLater,
   isLaterOrSameDay,
   parseDate,
   yyyyMMddFormatting,
@@ -51,6 +51,7 @@ import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/na
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
+import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
 
 type LoaderData = {
   orgnr: string;
@@ -199,15 +200,10 @@ export default function OpprettKravInnsendingsinformasjon() {
     if (!valgtPeriode) {
       return [];
     }
-    return innsendingsinformasjon.tilsagn.filter((tilsagn) => {
-      const innenforStart =
-        isLaterOrSameDay(valgtPeriode.start, tilsagn.periode.start) &&
-        isLater(tilsagn.periode.slutt, valgtPeriode.start);
-      const innenforSlutt =
-        isLater(valgtPeriode.slutt, tilsagn.periode.start) &&
-        isLater(tilsagn.periode.slutt, valgtPeriode.slutt);
-      return innenforStart || innenforSlutt;
-    });
+    return filtrerOverlappendePerioder<ArrangorflateTilsagnDto>(
+      valgtPeriode,
+      innsendingsinformasjon.tilsagn,
+    );
   }, [innsendingsinformasjon.tilsagn, valgtPeriode]);
 
   useEffect(() => {
