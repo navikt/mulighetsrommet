@@ -136,7 +136,6 @@ class UtbetalingQueries(private val session: Session) {
                 upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
                 upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
                 upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
-
             }
         }
     }

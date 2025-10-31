@@ -99,7 +99,6 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
                   <Table.DataCell aria-label={`Beløp: ${innsending.belop}`}>
                     <Link
                       to={`/gjennomforinger/${innsending.gjennomforingId}/utbetalinger/${innsending.id}`}
-                      replace
                     >
                       Detaljer
                     </Link>
