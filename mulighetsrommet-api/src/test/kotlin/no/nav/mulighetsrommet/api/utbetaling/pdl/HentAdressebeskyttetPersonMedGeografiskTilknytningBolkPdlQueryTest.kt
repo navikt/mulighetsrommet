@@ -45,12 +45,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                                                  {
                                                      "gradering": "STRENGT_FORTROLIG"
                                                  }
-                                             ],
-                                             "foedselsdato": [
-                                                 {
-                                                     "foedselsaar": 1980,
-                                                     "foedselsdato": null
-                                                 }
                                              ]
                                         },
                                         "code": "ok"
@@ -102,7 +96,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                 PdlPerson(
                     navn = "Normann, Ola",
                     gradering = PdlGradering.STRENGT_FORTROLIG,
-                    foedselsdato = null,
                 ),
                 GeografiskTilknytning.GtBydel(
                     value = "030102",
@@ -132,12 +125,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                                              "adressebeskyttelse": [
                                                  {
                                                      "gradering": null
-                                                 }
-                                             ],
-                                             "foedselsdato": [
-                                                 {
-                                                     "foedselsaar": 1980,
-                                                     "foedselsdato": null
                                                  }
                                              ]
                                         },
@@ -173,7 +160,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                 PdlPerson(
                     navn = "Normann, Ola",
                     gradering = PdlGradering.UGRADERT,
-                    foedselsdato = null,
                 ),
                 GeografiskTilknytning.GtBydel(
                     value = "030102",
@@ -204,12 +190,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                                                  {
                                                      "gradering": null
                                                  }
-                                             ],
-                                             "foedselsdato": [
-                                                 {
-                                                     "foedselsaar": 1980,
-                                                     "foedselsdato": null
-                                                 }
                                              ]
                                         },
                                         "code": "ok"
@@ -239,7 +219,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQueryTest : FunSp
                 PdlPerson(
                     navn = "Normann, Ola",
                     gradering = PdlGradering.UGRADERT,
-                    foedselsdato = null,
                 ),
                 GeografiskTilknytning.GtUdefinert,
             ),

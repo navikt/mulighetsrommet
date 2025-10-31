@@ -48,6 +48,7 @@ class GjennomforingQueries(private val session: Session) {
                 oppstart,
                 opphav,
                 sted_for_gjennomforing,
+                oppmote_sted,
                 faneinnhold,
                 beskrivelse,
                 deltidsprosent,
@@ -68,6 +69,7 @@ class GjennomforingQueries(private val session: Session) {
                 :oppstart::gjennomforing_oppstartstype,
                 :opphav::opphav,
                 :sted_for_gjennomforing,
+                :oppmote_sted,
                 :faneinnhold::jsonb,
                 :beskrivelse,
                 :deltidsprosent,
@@ -87,6 +89,7 @@ class GjennomforingQueries(private val session: Session) {
                 oppstart                           = excluded.oppstart,
                 opphav                             = coalesce(gjennomforing.opphav, excluded.opphav),
                 sted_for_gjennomforing             = excluded.sted_for_gjennomforing,
+                oppmote_sted                       = excluded.oppmote_sted,
                 faneinnhold                        = excluded.faneinnhold,
                 beskrivelse                        = excluded.beskrivelse,
                 deltidsprosent                     = excluded.deltidsprosent,
@@ -279,7 +282,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from gjennomforing_admin_dto_view
+            from view_gjennomforing
             where id = ?::uuid
         """.trimIndent()
 
@@ -353,7 +356,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over () as total_count
-            from gjennomforing_admin_dto_view
+            from view_gjennomforing
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
@@ -537,6 +540,7 @@ class GjennomforingQueries(private val session: Session) {
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "sted_for_gjennomforing" to stedForGjennomforing,
+        "oppmote_sted" to oppmoteSted,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
         "deltidsprosent" to deltidsprosent,
@@ -639,6 +643,7 @@ class GjennomforingQueries(private val session: Session) {
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
             utdanningslop = utdanningslop,
             stengt = stengt,
+            oppmoteSted = stringOrNull("oppmote_sted"),
         )
     }
 }

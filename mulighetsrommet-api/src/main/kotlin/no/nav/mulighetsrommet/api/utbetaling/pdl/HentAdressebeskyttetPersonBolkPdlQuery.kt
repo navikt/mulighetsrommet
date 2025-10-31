@@ -30,10 +30,6 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
                             adressebeskyttelse {
                                 gradering
                             }
-                            foedselsdato {
-                                foedselsdato
-                                foedselsaar
-                            }
                         }
                         code
                     }
@@ -53,7 +49,6 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
                                 }
                                 PdlIdent(it.ident) to PdlPerson(
                                     navn = person.navn.tilNavn(),
-                                    foedselsdato = person.foedselsdato.tilFoedselsdato(),
                                     gradering = person.adressebeskyttelse.tilGradering(),
                                 )
                             }
@@ -73,7 +68,6 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
 data class PdlPerson(
     val navn: String?,
     val gradering: PdlGradering,
-    val foedselsdato: LocalDate?,
 )
 
 @Serializable
@@ -84,7 +78,6 @@ data class HentPersonBolkResponse(
     data class Person(
         val navn: List<PdlNavn>,
         val adressebeskyttelse: List<Adressebeskyttelse>,
-        val foedselsdato: List<Foedselsdato>,
     )
 
     @Serializable
