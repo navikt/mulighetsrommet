@@ -646,7 +646,7 @@ data class OpprettKravInnsendingsInformasjon(
                     }
 
                     PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                        return DatoRange(firstOfThisMonth.minusDays(1))
+                        return DatoRange(LocalDate.now().minusDays(1))
                     }
 
                     else ->
