@@ -261,3 +261,81 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
   ON (totrinnskontroll.entity_id = delutbetaling.id and totrinnskontroll.besluttelse = 'GODKJENT')
 EOF
 }
+
+module "grafana_avtale_view" {
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  view_id             = "avtale_view"
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode([
+    { name = "id",                               type = "STRING",    mode = "NULLABLE" },
+    { name = "navn",                             type = "STRING",    mode = "NULLABLE" },
+    { name = "tiltakstype_id",                   type = "STRING",    mode = "NULLABLE" },
+    { name = "avtalenummer",                     type = "STRING",    mode = "NULLABLE" },
+    { name = "start_dato",                       type = "DATE",      mode = "NULLABLE" },
+    { name = "slutt_dato",                       type = "DATE",      mode = "NULLABLE" },
+    { name = "arena_ansvarlig_enhet",            type = "STRING",    mode = "NULLABLE" },
+    { name = "avtaletype",                       type = "STRING",    mode = "NULLABLE" },
+    { name = "prisbetingelser",                  type = "STRING",    mode = "NULLABLE" },
+    { name = "opphav",                           type = "STRING",    mode = "NULLABLE" },
+    { name = "antall_plasser",                   type = "INTEGER",   mode = "NULLABLE" },
+    { name = "created_at",                       type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "updated_at",                       type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "beskrivelse",                      type = "STRING",    mode = "NULLABLE" },
+    { name = "faneinnhold",                      type = "JSON",      mode = "NULLABLE" },
+    { name = "arrangor_hovedenhet_id",           type = "STRING",    mode = "NULLABLE" },
+    { name = "avbrutt_tidspunkt",                type = "TIMESTAMP", mode = "NULLABLE" },
+    { name = "lopenummer",                       type = "STRING",    mode = "NULLABLE" },
+    { name = "personvern_bekreftet",             type = "BOOLEAN",   mode = "NULLABLE" },
+    { name = "websaknummer",                     type = "STRING",    mode = "NULLABLE" },
+    { name = "avbrutt_aarsak",                   type = "STRING",    mode = "NULLABLE" },
+    { name = "opsjonsmodell",                    type = "STRING",    mode = "NULLABLE" },
+    { name = "opsjon_custom_opsjonsmodell_navn", type = "STRING",    mode = "NULLABLE" },
+    { name = "fts",                              type = "STRING",    mode = "NULLABLE" },
+    { name = "prismodell",                       type = "STRING",    mode = "NULLABLE" },
+    { name = "sakarkiv_nummer",                  type = "STRING",    mode = "NULLABLE" },
+    { name = "status",                           type = "STRING",    mode = "NULLABLE" },
+    { name = "opsjon_maks_varighet",             type = "DATE",      mode = "NULLABLE" },
+    { name = "avbrutt_forklaring",               type = "STRING",    mode = "NULLABLE" },
+    { name = "avbrutt_aarsaker",                 type = "JSON",      mode = "NULLABLE" },
+    { name = "tiltakstypeNavn",                  type = "STRING",    mode = "NULLABLE" }
+  ])
+  view_query = <<EOF
+SELECT
+  avtale.id,
+  avtale.navn,
+  avtale.tiltakstype_id,
+  avtale.avtalenummer,
+  avtale.start_dato,
+  avtale.slutt_dato,
+  avtale.arena_ansvarlig_enhet,
+  avtale.avtaletype,
+  avtale.prisbetingelser,
+  avtale.opphav,
+  avtale.antall_plasser,
+  avtale.created_at,
+  avtale.updated_at,
+  avtale.beskrivelse,
+  avtale.faneinnhold,
+  avtale.arrangor_hovedenhet_id,
+  avtale.avbrutt_tidspunkt,
+  avtale.lopenummer,
+  avtale.personvern_bekreftet,
+  avtale.websaknummer,
+  avtale.avbrutt_aarsak,
+  avtale.opsjonsmodell,
+  avtale.opsjon_custom_opsjonsmodell_navn,
+  avtale.fts,
+  avtale.prismodell,
+  avtale.sakarkiv_nummer,
+  avtale.status,
+  avtale.opsjon_maks_varighet,
+  avtale.avbrutt_forklaring,
+  avtale.avbrutt_aarsaker,
+  tiltakstype.navn as tiltakstypeNavn
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_avtale` avtale
+  INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tiltakstype` tiltakstype
+    ON tiltakstype.id = avtale.tiltakstype_id
+EOF
+}
