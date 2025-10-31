@@ -283,6 +283,9 @@ importers:
       vite-tsconfig-paths:
         specifier: 5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1))
+      vitest:
+        specifier: 4.0.3
+        version: 4.0.3(@types/debug@4.1.12)(@types/node@24.9.1)(jiti@2.6.1)(jsdom@27.0.1)(lightningcss@1.30.2)(msw@2.11.6(@types/node@24.9.1)(typescript@5.9.3))(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.40.0)(yaml@2.8.1)
 
   frontend/eslint-config-react-app:
     devDependencies:
