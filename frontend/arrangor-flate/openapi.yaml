@@ -1758,33 +1758,24 @@ components:
           format: int32
         digest:
           type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
         deltakelser:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
-        antallManedsverk:
-          type: number
-          format: double
         displayName:
           type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
       required:
-      - antallManedsverk
       - belop
       - deltakelser
       - detaljer
       - digest
       - displayName
-      - satser
       - stengt
     ArrangorflateBeregningDeltakelse:
       anyOf:
@@ -1967,17 +1958,6 @@ components:
       - periode
       - personalia
       - status
-    SatsPeriode:
-      type: object
-      properties:
-        periode:
-          $ref: "#/components/schemas/Periode"
-        sats:
-          type: integer
-          format: int32
-      required:
-      - periode
-      - sats
     ArrangorflateBeregningFri:
       type: object
       properties:
@@ -1986,10 +1966,10 @@ components:
           format: int32
         digest:
           type: string
-        displayName:
-          type: string
         detaljer:
           $ref: "#/components/schemas/Details"
+        displayName:
+          type: string
       required:
       - belop
       - detaljer
@@ -2003,33 +1983,24 @@ components:
           format: int32
         digest:
           type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
         deltakelser:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
-        antallManedsverk:
-          type: number
-          format: double
         displayName:
           type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
       required:
-      - antallManedsverk
       - belop
       - deltakelser
       - detaljer
       - digest
       - displayName
-      - satser
       - stengt
     ArrangorflateBeregningPrisPerTimeOppfolging:
       type: object
@@ -2039,29 +2010,24 @@ components:
           format: int32
         digest:
           type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
         deltakelser:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
         displayName:
           type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
       required:
       - belop
       - deltakelser
       - detaljer
       - digest
       - displayName
-      - satser
       - stengt
     ArrangorflateBeregningPrisPerUkesverk:
       type: object
@@ -2071,33 +2037,24 @@ components:
           format: int32
         digest:
           type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
         deltakelser:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/SatsPeriode"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
-        antallUkesverk:
-          type: number
-          format: double
         displayName:
           type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
       required:
-      - antallUkesverk
       - belop
       - deltakelser
       - detaljer
       - digest
       - displayName
-      - satser
       - stengt
     ArrangforflateUtbetalingLinje:
       type: object

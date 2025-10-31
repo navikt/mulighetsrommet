@@ -63,10 +63,8 @@ class ArrangorflateServiceTest : FunSpec({
     fun verifyForhandsgodkjentBeregning(
         beregning: ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed,
         expectedBelop: Int,
-        expectedManedsverk: Double,
         expectedDeltakelserCount: Int,
     ) {
-        beregning.antallManedsverk shouldBe expectedManedsverk
         beregning.belop shouldBe expectedBelop
         beregning.deltakelser shouldHaveSize expectedDeltakelserCount
     }
@@ -163,7 +161,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.status shouldBe ArrangorflateUtbetalingStatus.KREVER_ENDRING
 
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
-            verifyForhandsgodkjentBeregning(it, 10000, 1.0, 1)
+            verifyForhandsgodkjentBeregning(it, 10000, 1)
         }
     }
 
