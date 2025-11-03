@@ -855,6 +855,10 @@ data class OpprettKravOppsummering(
                         key = "KID-nummer",
                         value = requestData.kidNummer ?: "",
                     ),
+                    DetailsEntry.nok(
+                        key = "Beløp",
+                        value = requestData.belop,
+                    ),
                 ),
                 innsendingsData = InnsendingsData(
                     periode = periode,
