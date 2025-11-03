@@ -2,11 +2,14 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
+import java.util.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
@@ -15,7 +18,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import java.util.*
 
 class PersonaliaService(
     private val hentPersonOgGeografiskTilknytningQuery: HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery,
@@ -34,6 +36,11 @@ class PersonaliaService(
                     val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
                         navEnhetService.hentEnhet(it)
                     }
+
+                    val oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
+                        navEnhetService.hentEnhet(it)
+                    }
+
                     if (amtPersonalia.erSkjermet || amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT) {
                         val skjermetNavn = when {
                             amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
@@ -52,11 +59,9 @@ class PersonaliaService(
                             deltakerId = amtPersonalia.deltakerId,
                             norskIdent = norskIdent,
                             navn = amtPersonalia.navn,
-                            oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
-                                navEnhetService.hentEnhet(it)
-                            },
+                            oppfolgingEnhet = oppfolgingEnhet,
                             geografiskEnhet = geografiskEnhetDto,
-                            region = geografiskEnhetDto?.overordnetEnhet?.let {
+                            region = oppfolgingEnhet?.overordnetEnhet?.let {
                                 navEnhetService.hentEnhet(it)
                             },
                         )

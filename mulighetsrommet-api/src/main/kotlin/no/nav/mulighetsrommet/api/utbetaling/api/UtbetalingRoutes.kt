@@ -5,11 +5,15 @@ import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
+import java.time.LocalDate
+import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
@@ -47,8 +51,6 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import java.time.LocalDate
-import java.util.*
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
@@ -213,7 +215,7 @@ fun Route.utbetalingRoutes() {
                     val regioner = NavEnhetHelpers.buildNavRegioner(
                         personalia
                             .map { personalia ->
-                                listOfNotNull(personalia.geografiskEnhet, personalia.region)
+                                listOfNotNull(personalia.oppfolgingEnhet, personalia.region)
                             }
                             .flatten(),
                     )
@@ -222,7 +224,7 @@ fun Route.utbetalingRoutes() {
                         .map { personalia ->
                             UtbetalingBeregningDeltaker(personalia, deltakelser.getValue(personalia.deltakerId))
                         }
-                        .filter { filter.navEnheter.isEmpty() || it.personalia.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+                        .filter { filter.navEnheter.isEmpty() || it.personalia.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
 
                     UtbetalingBeregningDto.from(utbetaling.beregning, deltakelsePersoner, regioner)
                 }
