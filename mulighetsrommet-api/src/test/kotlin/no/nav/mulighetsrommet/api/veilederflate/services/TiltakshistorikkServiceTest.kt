@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.GruppeTiltakstype
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
@@ -18,14 +17,7 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtaleStatus
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArena
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArenaStatus
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltakStatus
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
@@ -86,7 +78,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tittel = "Oppfølging hos Fretex AS",
         tiltakstype = DeltakelserResponse.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
-            tiltakskode = GruppeTiltakstype.INDOPPFAG,
+            tiltakskode = "INDOPPFAG",
         ),
         status = DeltakelseFraKomet.Status(
             type = DeltakerStatusType.VENTELISTE,
