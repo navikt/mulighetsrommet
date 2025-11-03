@@ -55,6 +55,7 @@ sealed class TiltaksgjennomforingV2Dto {
         val apentForPamelding: Boolean,
         val antallPlasser: Int,
         val deltidsprosent: Double,
+        val oppmoteSted: String?,
     ) : TiltaksgjennomforingV2Dto()
 
     @Serializable

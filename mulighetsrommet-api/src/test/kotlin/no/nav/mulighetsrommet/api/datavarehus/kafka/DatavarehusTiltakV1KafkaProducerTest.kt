@@ -87,6 +87,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 deltidsprosent = 100.0,
                 opprettetTidspunkt = LocalDateTime.now(),
                 oppdatertTidspunkt = LocalDateTime.now(),
+                oppmoteSted = null,
             ),
         )
 
