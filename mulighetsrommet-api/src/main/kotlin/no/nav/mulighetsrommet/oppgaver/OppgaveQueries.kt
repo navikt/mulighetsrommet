@@ -235,6 +235,7 @@ class OppgaveQueries(private val session: Session) {
                 ),
                 periode = it.periode("periode"),
                 createdAt = it.localDateTime("created_at"),
+                godkjentAvArrangorTidspunkt = it.localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
                 status = UtbetalingStatusType.valueOf(it.string("status")),
             )
         }
@@ -381,6 +382,7 @@ data class UtbetalingOppgaveData(
     val periode: Periode,
     val tiltakstype: OppgaveTiltakstype,
     val createdAt: LocalDateTime,
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
 )
 
 data class AvtaleOppgaveData(
