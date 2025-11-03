@@ -25,7 +25,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-error-boundary": "6.0.0",
-    "react-hook-form": "7.65.0",
+    "react-hook-form": "7.66.0",
     "react-router": "7.9.5",
     "react-select": "5.10.2",
     "use-resize-observer": "9.1.0",
@@ -36,9 +36,9 @@
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "5.1.0",
-    "eslint": "9.38.0",
+    "eslint": "9.39.0",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "4.0.3"
+    "vitest": "4.0.6"
   },
   "repository": {
     "type": "git",
