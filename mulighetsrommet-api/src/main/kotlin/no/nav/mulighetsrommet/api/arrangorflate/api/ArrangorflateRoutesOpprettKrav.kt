@@ -471,8 +471,8 @@ private fun toGjennomforingDataTable(
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
-            DataDrivenTableDto.Column("navn", "Tiltaksnavn"),
-            DataDrivenTableDto.Column("tiltaksType", "Tiltakstype"),
+            DataDrivenTableDto.Column("navn", "Navn"),
+            DataDrivenTableDto.Column("tiltaksType", "Type"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
             DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
