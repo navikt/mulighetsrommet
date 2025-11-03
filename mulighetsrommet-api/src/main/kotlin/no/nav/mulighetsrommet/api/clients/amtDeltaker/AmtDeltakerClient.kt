@@ -115,7 +115,8 @@ data class DeltakelserResponse(
     @Serializable
     data class Tiltakstype(
         val navn: String,
-        val tiltakskode: GruppeTiltakstype,
+        // Arena tiltakskode
+        val tiltakskode: String,
     )
 }
 
@@ -149,19 +150,6 @@ data class DeltakelseFraKomet(
         @Serializable(with = LocalDateSerializer::class)
         val sluttdato: LocalDate?,
     )
-}
-
-@Serializable
-enum class GruppeTiltakstype {
-    INDOPPFAG,
-    ARBFORB,
-    AVKLARAG,
-    VASV,
-    ARBRRHDAG,
-    DIGIOPPARB,
-    JOBBK,
-    GRUPPEAMO,
-    GRUFAGYRKE,
 }
 
 @Serializable
