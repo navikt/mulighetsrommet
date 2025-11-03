@@ -24,20 +24,4 @@ data class UtbetalingBeregningPrisPerUkesverk(
     ) : UtbetalingBeregningOutput() {
         override fun deltakelser() = deltakelser
     }
-
-    companion object {
-        fun beregn(input: Input): UtbetalingBeregningPrisPerUkesverk {
-            val stengtHosArrangor = input.stengt.map { it.periode }
-
-            val ukesverk = input.deltakelser
-                .map { deltakelse ->
-                    UtbetalingBeregningHelpers.calculateDeltakelseUkesverk(deltakelse, input.satser, stengtHosArrangor)
-                }
-                .toSet()
-
-            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(ukesverk)
-
-            return UtbetalingBeregningPrisPerUkesverk(input, Output(belop, ukesverk))
-        }
-    }
 }

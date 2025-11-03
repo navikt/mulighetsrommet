@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -9,6 +11,9 @@ import java.time.LocalDate
 import java.util.UUID
 
 class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
+    // beregn() doesn't use the database, so we can use a mock
+    val beregning = PrisPerManedBeregning(mockk<ApiDatabase>())
+
     context("enkel beregning full og halv") {
         test("én deltaker full periode") {
             val periode = Periode(LocalDate.of(2023, 6, 1), LocalDate.of(2023, 7, 1))
@@ -20,9 +25,9 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 deltakelser = setOf(DeltakelsePeriode(deltakerId1, periode)),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            val result = beregning.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 100,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -50,8 +55,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 350_000,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -91,8 +96,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 202,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -135,8 +140,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -168,8 +173,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -207,9 +212,9 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     DeltakelsePeriode(deltakerId1, periode),
                 ),
             )
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            val result = beregning.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -236,7 +241,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
         (2..31).forEach {
             val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
 
-            val utbetaling = UtbetalingBeregningPrisPerManedsverk.beregn(
+            val utbetaling = beregning.beregn(
                 UtbetalingBeregningPrisPerManedsverk.Input(
                     satser = setOf(SatsPeriode(Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 4, 1)), 20205)),
                     stengt = emptySet(),
@@ -275,8 +280,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -327,10 +332,10 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            val result = beregning.beregn(input)
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
-            beregning.output.deltakelser shouldBe setOf(
+            result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
@@ -369,8 +374,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
                 belop = 40,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -421,10 +426,10 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            val result = beregning.beregn(input)
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
-            beregning.output.deltakelser shouldBe setOf(
+            result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(

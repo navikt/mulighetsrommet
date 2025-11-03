@@ -31,6 +31,10 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -40,6 +44,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.model.heleUkerPeriode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -72,6 +77,12 @@ class GenererUtbetalingServiceTest : FunSpec({
     ) = GenererUtbetalingService(
         config = GenererUtbetalingService.Config(gyldigTilsagnPeriode, tidligstTidspunktForUtbetaling),
         db = database.db,
+        prismodeller = setOf(
+            FastSatsPerTiltaksplassPerManedBeregning(database.db),
+            PrisPerManedBeregning(database.db),
+            PrisPerUkeBeregning(database.db),
+            PrisPerHeleUkeBeregning(database.db),
+        ),
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
 

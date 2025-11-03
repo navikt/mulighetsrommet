@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -11,6 +13,8 @@ import java.time.LocalDate
 import java.util.UUID
 
 class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
+    // beregn() doesn't use the database, so we can use a mock
+    val beregning = FastSatsPerTiltaksplassPerManedBeregning(mockk<ApiDatabase>())
     val sats = 100
 
     context("beregning for fast sats per tiltaksplass per måned") {
@@ -221,9 +225,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), sats))
                 val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, setOf(), deltakelser)
 
-                val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+                val result = beregning.beregn(input)
 
-                beregning.output shouldBe expectedBeregning
+                result.output shouldBe expectedBeregning
             }
         }
 
@@ -345,9 +349,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 val satser = setOf(SatsPeriode(Periode(periodeStart, periodeSlutt), sats))
                 val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
-                val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+                val result = beregning.beregn(input)
 
-                beregning.output shouldBe expectedBeregning
+                result.output shouldBe expectedBeregning
             }
         }
 
@@ -382,9 +386,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+            val result = beregning.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+            result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -435,9 +439,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val satser = setOf(SatsPeriode(Periode(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 1)), sats))
             val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
 
-            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+            val result = beregning.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+            result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 50,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -487,9 +491,9 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+            val result = beregning.beregn(input)
 
-            beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+            result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 // Rundet ned fra 9663.26086...
                 belop = 9663,
                 deltakelser = setOf(
@@ -521,7 +525,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             (2..31).forEach {
                 val periode = Periode(LocalDate.of(2023, 3, 1), LocalDate.of(2023, 3, it))
 
-                val utbetaling = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(
+                val utbetaling = beregning.beregn(
                     UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                         satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2023, 3, 1)), 20205)),
                         stengt = emptySet(),
@@ -570,8 +574,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
-            beregning.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+            val result = beregning.beregn(input)
+            result.output shouldBe UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
                 belop = 40,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -621,20 +625,29 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakerId3 = UUID.randomUUID()
 
             val periode = Periode.forMonthOf(LocalDate.of(2025, 7, 1))
-            val input = UtbetalingBeregningPrisPerManedsverk.Input(
+            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(),
                 deltakelser = setOf(
-                    DeltakelsePeriode(deltakerId1, heleUke37),
-                    DeltakelsePeriode(deltakerId2, hverdagerUke37),
-                    DeltakelsePeriode(deltakerId3, helgFraUke36OgHeleUke37),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId1,
+                        perioder = listOf(DeltakelsesprosentPeriode(heleUke37, 100.0)),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId2,
+                        perioder = listOf(DeltakelsesprosentPeriode(hverdagerUke37, 100.0)),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId3,
+                        perioder = listOf(DeltakelsesprosentPeriode(helgFraUke36OgHeleUke37, 100.0)),
+                    ),
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            val result = beregning.beregn(input)
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
-            beregning.output.deltakelser shouldBe setOf(
+            result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
@@ -691,20 +704,29 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakerId3 = UUID.randomUUID()
 
             val periode = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
-            val input = UtbetalingBeregningPrisPerManedsverk.Input(
+            val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, sats)),
                 stengt = setOf(),
                 deltakelser = setOf(
-                    DeltakelsePeriode(deltakerId1, heleUke37),
-                    DeltakelsePeriode(deltakerId2, hverdagerUke37),
-                    DeltakelsePeriode(deltakerId3, helgFraUke36OgHeleUke37),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId1,
+                        perioder = listOf(DeltakelsesprosentPeriode(heleUke37, 100.0)),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId2,
+                        perioder = listOf(DeltakelsesprosentPeriode(hverdagerUke37, 100.0)),
+                    ),
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltakerId3,
+                        perioder = listOf(DeltakelsesprosentPeriode(helgFraUke36OgHeleUke37, 100.0)),
+                    ),
                 ),
             )
 
-            val beregning = UtbetalingBeregningPrisPerManedsverk.beregn(input)
+            val result = beregning.beregn(input)
 
             // Hvert beregnet månedsverk tilsvarer 5/22 (5 ukedager av totalt 22 ukedager i september)
-            beregning.output.deltakelser shouldBe setOf(
+            result.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(
                     deltakerId1,
                     setOf(
@@ -770,7 +792,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 ),
             )
 
-            val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
+            val beregning = beregning.beregn(input)
 
             beregning.output.deltakelser shouldBe setOf(
                 UtbetalingBeregningOutputDeltakelse(

@@ -14,16 +14,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.Agent
@@ -37,15 +30,14 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.time.DayOfWeek
 import java.time.LocalDateTime
-import java.time.temporal.TemporalAdjusters
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
+    private val prismodeller: Set<SystemgenerertPrismodell<*, *>>,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -74,7 +66,6 @@ class GenererUtbetalingService(
                 generateUtbetalingForPrismodell(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
-                    prismodell = context.prismodell,
                     periode = context.periode,
                 )
             }
@@ -93,7 +84,6 @@ class GenererUtbetalingService(
                 val utbetaling = generateUtbetalingForPrismodell(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
-                    prismodell = context.prismodell,
                     periode = context.periode,
                 )
                 utbetaling?.let { UtbetalingMapper.toUtbetaling(it, gjennomforing) }
@@ -102,9 +92,8 @@ class GenererUtbetalingService(
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(id)
-        val prismodell = queries.gjennomforing.getPrismodell(id)
 
-        if (prismodell == null) {
+        if (gjennomforing.prismodell == null) {
             log.info("Prismodell er ikke satt for gjennomføring med id=$id")
             return listOf()
         }
@@ -127,10 +116,9 @@ class GenererUtbetalingService(
             }
             .mapNotNull { utbetaling ->
                 val oppdatertUtbetaling = generateUtbetalingForPrismodell(
-                    utbetaling.id,
-                    prismodell.type,
-                    gjennomforing,
-                    utbetaling.periode,
+                    utbetalingId = utbetaling.id,
+                    gjennomforing = gjennomforing,
+                    periode = utbetaling.periode,
                 )
 
                 if (oppdatertUtbetaling == null) {
@@ -151,8 +139,6 @@ class GenererUtbetalingService(
 
     suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling = db.transaction {
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetaling.gjennomforing.id)
-        val prismodell = queries.gjennomforing.getPrismodell(gjennomforing.id)
-            ?: throw IllegalArgumentException("Prismodell er ikke satt for gjennomføring med id=${utbetaling.id}")
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(gjennomforing.id)
             .filter { it.periode == utbetaling.periode }
@@ -166,10 +152,9 @@ class GenererUtbetalingService(
         }
 
         val nyUtbetaling = generateUtbetalingForPrismodell(
-            UUID.randomUUID(),
-            prismodell.type,
-            gjennomforing,
-            utbetaling.periode,
+            utbetalingId = UUID.randomUUID(),
+            gjennomforing = gjennomforing,
+            periode = utbetaling.periode,
         )
 
         if (nyUtbetaling == null) {
@@ -184,7 +169,6 @@ class GenererUtbetalingService(
 
     private suspend fun QueryContext.generateUtbetalingForPrismodell(
         utbetalingId: UUID,
-        prismodell: PrismodellType,
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingDbo? {
@@ -193,33 +177,15 @@ class GenererUtbetalingService(
             return null
         }
 
-        val beregning = when (prismodell) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                val input = resolveFastSatsPerTiltaksplassPerManedInput(gjennomforing, periode)
-                UtbetalingBeregningFastSatsPerTiltaksplassPerManed.beregn(input)
-            }
+        val type = gjennomforing.prismodell?.type
+            ?: throw IllegalStateException("Gjennomføring med id=${gjennomforing.id} mangler prismodell")
 
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> {
-                val input = resolvePrisPerManedsverkInput(gjennomforing, periode)
-                UtbetalingBeregningPrisPerManedsverk.beregn(input)
-            }
-
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> {
-                val input = resolvePrisPerUkesverkInput(gjennomforing, periode)
-                UtbetalingBeregningPrisPerUkesverk.beregn(input)
-            }
-
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> {
-                val input = resolvePrisPerHeleUkesverkInput(gjennomforing, periode)
-                UtbetalingBeregningPrisPerHeleUkesverk.beregn(input)
-            }
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            PrismodellType.ANNEN_AVTALT_PRIS,
-            -> return null
+        val prismodell = prismodeller.singleOrNull { it.genereringContext(periode).prismodellType == type } ?: run {
+            log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
+            return null
         }
 
-        return beregning.takeIf { it.output.belop > 0 }?.let {
+        return prismodell.calculate(gjennomforing, periode).takeIf { it.output.belop > 0 }?.let {
             createUtbetaling(
                 utbetalingId = utbetalingId,
                 gjennomforing = gjennomforing,
@@ -227,62 +193,6 @@ class GenererUtbetalingService(
                 beregning = it,
             )
         }
-    }
-
-    private fun QueryContext.resolveFastSatsPerTiltaksplassPerManedInput(
-        gjennomforing: GjennomforingGruppetiltak,
-        periode: Periode,
-    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
-        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
-        return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    private fun QueryContext.resolvePrisPerManedsverkInput(
-        gjennomforing: GjennomforingGruppetiltak,
-        periode: Periode,
-    ): UtbetalingBeregningPrisPerManedsverk.Input {
-        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
-        return UtbetalingBeregningPrisPerManedsverk.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    private fun QueryContext.resolvePrisPerUkesverkInput(
-        gjennomforing: GjennomforingGruppetiltak,
-        periode: Periode,
-    ): UtbetalingBeregningPrisPerUkesverk.Input {
-        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
-        return UtbetalingBeregningPrisPerUkesverk.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
-    }
-
-    private fun QueryContext.resolvePrisPerHeleUkesverkInput(
-        gjennomforing: GjennomforingGruppetiltak,
-        periode: Periode,
-    ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
-        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
-        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
-        return UtbetalingBeregningPrisPerHeleUkesverk.Input(
-            satser = satser,
-            stengt = stengtHosArrangor,
-            deltakelser = deltakelser,
-        )
     }
 
     private suspend fun QueryContext.createUtbetaling(
@@ -341,19 +251,16 @@ class GenererUtbetalingService(
         periode: Periode,
         includeNotExists: Boolean,
     ): List<UtbetalingContext> {
-        val systemgenerertePrismodeller = listOf(
-            Triple(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, Tilskuddstype.TILTAK_DRIFTSTILSKUDD, periode),
-            Triple(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK, Tilskuddstype.TILTAK_DRIFTSTILSKUDD, periode),
-            Triple(PrismodellType.AVTALT_PRIS_PER_UKESVERK, Tilskuddstype.TILTAK_DRIFTSTILSKUDD, periode),
-            Triple(
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-                Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                heleUkerPeriode(periode),
-            ),
-        )
-        return systemgenerertePrismodeller.flatMap { (prismodell, tilskuddstype, justertPeriode) ->
-            getContextForPrismodellCommon(prismodell, tilskuddstype, justertPeriode, includeNotExists)
-        }
+        return prismodeller
+            .map { it.genereringContext(periode) }
+            .flatMap { context ->
+                getContextForPrismodellCommon(
+                    context.prismodellType,
+                    context.tilskuddstype,
+                    context.periode,
+                    includeNotExists,
+                )
+            }
     }
 
     private fun QueryContext.getContextForPrismodellCommon(
@@ -398,59 +305,6 @@ class GenererUtbetalingService(
         return config.gyldigTilsagnPeriode[tiltakskode]?.contains(periode) ?: false
     }
 
-    private fun resolveStengtHosArrangor(
-        periode: Periode,
-        stengtPerioder: List<GjennomforingGruppetiltak.StengtPeriode>,
-    ): Set<StengtPeriode> {
-        return stengtPerioder
-            .mapNotNull { stengt ->
-                Periode.fromInclusiveDates(stengt.start, stengt.slutt).intersect(periode)?.let {
-                    StengtPeriode(Periode(it.start, it.slutt), stengt.beskrivelse)
-                }
-            }
-            .toSet()
-    }
-
-    private fun QueryContext.resolveDeltakelserPerioderMedDeltakelsesmengder(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): Set<DeltakelseDeltakelsesprosentPerioder> {
-        return queries.deltaker.getByGjennomforingId(gjennomforingId)
-            .asSequence()
-            .mapNotNull { deltaker ->
-                UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
-            }
-            .map { (deltakelseId, deltakelsePeriode) ->
-                val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltakelseId)
-
-                val perioder = deltakelsesmengder.mapIndexedNotNull { index, mengde ->
-                    val gyldigTil = deltakelsesmengder.getOrNull(index + 1)?.gyldigFra ?: deltakelsePeriode.slutt
-
-                    Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
-                        DeltakelsesprosentPeriode(
-                            periode = overlappingPeriode,
-                            deltakelsesprosent = mengde.deltakelsesprosent,
-                        )
-                    }
-                }
-
-                check(perioder.isNotEmpty()) {
-                    "Deltaker id=$deltakelseId er relevant for utbetaling, men mangler deltakelsesmengder innenfor perioden=$periode"
-                }
-
-                DeltakelseDeltakelsesprosentPerioder(deltakelseId, perioder)
-            }
-            .toSet()
-    }
-
-    private fun QueryContext.resolveDeltakelsePerioder(
-        gjennomforingId: UUID,
-        periode: Periode,
-    ): Set<DeltakelsePeriode> {
-        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforingId)
-        return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
-    }
-
     private fun QueryContext.logEndring(
         operation: String,
         dto: Utbetaling,
@@ -470,18 +324,4 @@ class GenererUtbetalingService(
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
     }
-}
-
-fun heleUkerPeriode(periode: Periode): Periode {
-    val newStart = if (periode.start.dayOfWeek <= DayOfWeek.WEDNESDAY) {
-        periode.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    } else {
-        periode.start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY))
-    }
-    val newSlutt = if (periode.slutt.dayOfWeek >= DayOfWeek.THURSDAY) {
-        periode.slutt.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY))
-    } else {
-        periode.slutt.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-    }
-    return Periode(newStart, newSlutt)
 }
