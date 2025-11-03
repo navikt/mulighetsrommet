@@ -30,6 +30,7 @@ data class TiltaksgjennomforingV1Dto(
     val opprettetTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val oppdatertTidspunkt: LocalDateTime,
+    val oppmoteSted: String?,
 ) {
     @Serializable
     data class Tiltakstype(

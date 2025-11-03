@@ -24,5 +24,6 @@ object TiltaksgjennomforingV1Mapper {
         deltidsprosent = gjennomforing.deltidsprosent,
         opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
         oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
+        oppmoteSted = gjennomforing.oppmoteSted,
     )
 }

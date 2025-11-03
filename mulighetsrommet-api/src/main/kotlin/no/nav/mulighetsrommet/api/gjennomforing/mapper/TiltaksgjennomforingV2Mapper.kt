@@ -26,6 +26,7 @@ object TiltaksgjennomforingV2Mapper {
         apentForPamelding = gruppe.apentForPamelding,
         antallPlasser = gruppe.antallPlasser,
         deltidsprosent = gruppe.deltidsprosent,
+        oppmoteSted = gruppe.oppmoteSted,
     )
 
     fun fromEnkeltplass(enkeltplass: Enkeltplass) = TiltaksgjennomforingV2Dto.Enkeltplass(
