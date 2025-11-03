@@ -1,6 +1,6 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Tabs } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Box, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
@@ -65,6 +65,19 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   </Tabs.Panel>
                 ) : null}
               </Tabs>
+              {tiltak.oppmoteSted && (
+                <Box
+                  padding="4"
+                  borderColor="border-action"
+                  borderWidth="1"
+                  background="surface-action-subtle"
+                >
+                  <BodyShort size="small" className="font-bold text-left">
+                    Oppmøtested
+                  </BodyShort>
+                  <BodyLong size="small">{tiltak.oppmoteSted}</BodyLong>
+                </Box>
+              )}
               <div className="flex flex-col gap-[1rem] mt-[1rem]">{brukerActions}</div>
             </div>
             <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />

@@ -268,7 +268,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                 value={watch("oppmoteSted") || ""}
                 maxLength={OPPMOTE_STED_MAX_LENGTH}
                 label="Oppmøtested"
-                description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digital jobbklubb), kan du la feltet stå tomt."
+                description="Skriv inn adressen der bruker skal møte opp til tiltaket og eventuelt klokkeslett. For tiltak uten spesifikk adresse (for eksempel digitalt jobbsøkerkurs), kan du la feltet stå tomt."
                 {...register("oppmoteSted")}
                 error={errors.oppmoteSted ? (errors.oppmoteSted.message as string) : null}
               />

@@ -15,7 +15,7 @@ interface Props {
 }
 
 const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
-  const { tiltakstype, stedForGjennomforing } = tiltak;
+  const { tiltakstype } = tiltak;
 
   const minimumInnsatsgruppe = innsatsgrupper
     .filter((innsatsgruppe) => (tiltakstype.innsatsgrupper ?? []).includes(innsatsgruppe.nokkel))
@@ -38,15 +38,6 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
               dataTestId="knapp_kopier"
             />
           </div>
-        </div>
-      )}
-
-      {stedForGjennomforing && (
-        <div className="flex justify-between min-h-[40px] mb-2 text-right last:mb-0 xl:mb-0 xl:p-0 xl:not-last:mb-4">
-          <BodyShort size="small" className="font-bold text-left">
-            Sted for gjennomføring
-          </BodyShort>
-          <BodyShort size="small">{stedForGjennomforing}</BodyShort>
         </div>
       )}
 
