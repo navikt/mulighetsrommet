@@ -79,6 +79,8 @@ data class UtbetalingBeregningDto(
                         deltakerRegioner = regioner,
                         deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakere),
                         regnestykke = listOf(
+                            DataElement.text("Innsendt beløp"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.number(beregning.output.belop),
                         ),
                     )
