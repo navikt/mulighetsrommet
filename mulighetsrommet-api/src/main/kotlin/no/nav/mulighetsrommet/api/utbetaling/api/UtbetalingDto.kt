@@ -32,7 +32,7 @@ data class UtbetalingDto(
         fun fromUtbetaling(utbetaling: Utbetaling): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
-                status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status),
                 periode = utbetaling.periode,
                 godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
                 betalingsinformasjon = utbetaling.betalingsinformasjon,

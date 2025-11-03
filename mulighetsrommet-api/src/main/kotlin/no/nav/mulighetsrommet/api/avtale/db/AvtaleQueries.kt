@@ -551,15 +551,6 @@ class AvtaleQueries(private val session: Session) {
         return list(queryOf(query, navIdent.value)) { it.uuid("avtale_id") }
     }
 
-    fun getUpdatedAt(id: UUID): LocalDateTime {
-        @Language("PostgreSQL")
-        val query = """
-            select updated_at from avtale where id = ?
-        """.trimIndent()
-
-        return session.requireSingle(queryOf(query, id)) { it.localDateTime("updated_at") }
-    }
-
     fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
         @Language("PostgreSQL")
         val query = """
