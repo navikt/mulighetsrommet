@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
@@ -40,7 +41,10 @@ class ArrangorflateService(
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
             .map { utbetaling ->
-                val advarsler = getAdvarsler(utbetaling)
+                val advarsler = when (utbetaling.status) {
+                    UtbetalingStatusType.GENERERT -> getAdvarsler(utbetaling)
+                    else -> emptyList()
+                }
                 val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
                 val godkjentBelop = if (status in listOf(
                         ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
