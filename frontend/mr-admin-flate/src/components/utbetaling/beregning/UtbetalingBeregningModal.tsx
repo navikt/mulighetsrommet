@@ -23,7 +23,9 @@ export function UtbetalingBeregningModal({ utbetalingId, modalOpen, onClose }: P
       className="h-[60rem]"
     >
       <Modal.Header closeButton>
-        <Heading size="medium">Beregning</Heading>
+        <Heading size="medium" level="2">
+          Beregning
+        </Heading>
       </Modal.Header>
       <Modal.Body>
         <Suspense fallback={<Laster tekst="Laster..." />}>
@@ -50,6 +52,9 @@ function ModalBody({ utbetalingId }: BodyProps) {
     <VStack>
       <HGrid columns="20% 1fr" gap="2" align="start">
         <VStack>
+          <Heading size="xsmall" level="3" spacing>
+            Oppfølgingsenhet
+          </Heading>
           <NavEnhetFilter
             value={navEnheter}
             onChange={(navEnheter) => {

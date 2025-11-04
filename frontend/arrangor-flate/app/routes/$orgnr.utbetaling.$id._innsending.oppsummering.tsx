@@ -34,7 +34,6 @@ import { Separator } from "~/components/common/Separator";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -212,7 +211,6 @@ export default function BekreftUtbetaling() {
             ...utbetaling.beregning.detaljer.entries,
           ]}
         />
-        <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         <Separator />
         <Form method="post">
           <VStack gap="6">

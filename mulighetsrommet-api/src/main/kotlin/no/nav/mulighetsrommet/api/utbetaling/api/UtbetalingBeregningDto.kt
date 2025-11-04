@@ -140,8 +140,8 @@ private fun deltakelsePersonaliaColumns() = listOf(
     DataDrivenTableDto.Column("navn", "Navn"),
     DataDrivenTableDto.Column("fnr", "Fødselsnr."),
     DataDrivenTableDto.Column("region", "Region"),
-    DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
     DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
+    DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
 )
 
 private fun deltakelsePersonaliaCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(
