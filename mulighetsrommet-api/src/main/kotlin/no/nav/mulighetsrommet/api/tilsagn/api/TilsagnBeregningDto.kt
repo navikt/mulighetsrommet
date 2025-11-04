@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.*
@@ -19,7 +20,7 @@ data class TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text("Annen avtalt pris").label("Prismodell"),
+                            DataElement.text(PrismodellType.ANNEN_AVTALT_PRIS.navn).label("Prismodell"),
                             DataElement.text(beregning.input.prisbetingelser)
                                 .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
@@ -68,7 +69,7 @@ data class TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text("Fast sats per tiltaksplass per måned").label("Prismodell"),
+                            DataElement.text(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.nok(beregning.input.sats).label("Sats"),
                         ),
@@ -86,7 +87,7 @@ data class TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text("Avtalt månedspris per tiltaksplass").label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.nok(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
@@ -106,7 +107,7 @@ data class TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text("Avtalt ukespris per tiltaksplass").label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.nok(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
@@ -136,7 +137,7 @@ data class TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text("Avtalt ukespris per tiltaksplass (hele uker)").label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.nok(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
@@ -166,7 +167,7 @@ data class TilsagnBeregningDto(
                     belop = beregning.output.belop,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text("Avtalt pris per time oppfølging per deltaker").label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn).label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.nok(beregning.input.sats).label("Avtalt pris per oppfølgingstime"),
                             DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker)
