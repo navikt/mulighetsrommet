@@ -9,7 +9,16 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, Button, Heading, HStack, Spacer, VStack } from "@navikt/ds-react";
+import {
+  ActionMenu,
+  Alert,
+  Button,
+  Heading,
+  HStack,
+  Spacer,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
@@ -20,7 +29,6 @@ import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 import { RedigerUtbetalingLinjeFormValues, toDelutbetaling } from "./helpers";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
-import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -132,7 +140,18 @@ export function RedigerUtbetalingLinjeView({
                 key={`${linje.id}-${linje.status?.type}`}
                 gjennomforingId={gjennomforingId}
                 linje={linje}
-                textInput={<UtbetalingBelopInput type="form" index={index} />}
+                belopInput={
+                  <TextField
+                    size="small"
+                    style={{ maxWidth: "6rem" }}
+                    hideLabel
+                    type="number"
+                    label={utbetalingTekster.delutbetaling.belop.label}
+                    {...form.register(`formLinjer.${index}.belop`, {
+                      setValueAs: (v) => (v === "" ? null : Number(v)),
+                    })}
+                  />
+                }
                 checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
                 knappeColumn={<FjernUtbetalingLinje index={index} />}
                 grayBackground

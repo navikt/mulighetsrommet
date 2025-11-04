@@ -18,7 +18,7 @@ import { isBesluttet } from "@/utils/totrinnskontroll";
 interface Props {
   gjennomforingId: string;
   linje: UtbetalingLinje;
-  textInput?: React.ReactNode | null;
+  belopInput?: React.ReactNode | null;
   checkboxInput?: React.ReactNode | null;
   knappeColumn?: React.ReactNode;
   onChange?: (linje: UtbetalingLinje) => void;
@@ -32,7 +32,7 @@ export function UtbetalingLinjeRow({
   linje,
   errors = [],
   knappeColumn,
-  textInput = null,
+  belopInput = null,
   checkboxInput = null,
   grayBackground = false,
   rowOpen = false,
@@ -114,7 +114,7 @@ export function UtbetalingLinjeRow({
         {formaterNOK(linje.tilsagn.belopGjenstaende)}
       </Table.DataCell>
       <Table.DataCell>{checkboxInput}</Table.DataCell>
-      <Table.DataCell>{textInput}</Table.DataCell>
+      <Table.DataCell>{belopInput}</Table.DataCell>
       <Table.DataCell>
         {linje.status && <DelutbetalingStatusTag status={linje.status} />}
       </Table.DataCell>
