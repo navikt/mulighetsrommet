@@ -283,13 +283,47 @@ class TiltakshistorikkTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
                 }
-
                 response.status shouldBe HttpStatusCode.OK
 
                 val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
-
                 historikk shouldContainExactlyInAnyOrder listOf(
                     ARENA_ENKEL_AMO_ID,
+                    ARENA_MENTOR_ID,
+                    ARENA_ARBEIDSTRENING_ID,
+                )
+            }
+        }
+
+        test("kan slette arena-deltakelser") {
+            val mockEngine = mockTiltakDatadeling(
+                response = GraphqlResponse(
+                    data = GetAvtalerForPersonResponse(
+                        avtalerForPerson = listOf(),
+                    ),
+                ),
+            )
+
+            withTestApplication(oauth, mockEngine) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val deleteResponse = client.delete("/api/v1/intern/arena/deltaker/$ARENA_ENKEL_AMO_ID") {
+                    bearerAuth(oauth.issueToken().serialize())
+                }
+                deleteResponse.status shouldBe HttpStatusCode.OK
+
+                val response = client.post("/api/v1/historikk") {
+                    bearerAuth(oauth.issueToken().serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
+                }
+                response.status shouldBe HttpStatusCode.OK
+
+                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
+                historikk shouldContainExactlyInAnyOrder listOf(
                     ARENA_MENTOR_ID,
                     ARENA_ARBEIDSTRENING_ID,
                 )

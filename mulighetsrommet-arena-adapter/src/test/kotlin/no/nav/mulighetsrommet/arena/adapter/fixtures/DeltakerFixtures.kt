@@ -13,6 +13,7 @@ object DeltakerFixtures {
         DATO_FRA = null,
         DATO_TIL = null,
         REG_DATO = "2023-01-01 00:00:00",
+        EKSTERN_ID = null,
     )
 
     val ArenaHistTiltakdeltaker = ArenaHistTiltakdeltaker(
