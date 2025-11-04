@@ -151,7 +151,7 @@ export default function OpprettKravUtbetaling() {
             description="Oppgi samlet beløp som skal faktureres Nav for denne utbetalingsperioden"
             defaultValue={sessionBelop}
             error={errorAt("/belop", data?.errors)}
-            inputMode="numeric"
+            type="number"
             htmlSize={15}
             size="small"
             name="belop"

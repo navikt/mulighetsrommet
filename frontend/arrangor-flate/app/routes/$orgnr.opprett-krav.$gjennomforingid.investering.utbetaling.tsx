@@ -144,7 +144,7 @@ export default function OpprettKravUtbetaling() {
             label="Beløp til utbetaling"
             defaultValue={sessionBelop}
             error={errorAt("/belop", data?.errors)}
-            inputMode="numeric"
+            type="number"
             htmlSize={15}
             size="small"
             name="belop"

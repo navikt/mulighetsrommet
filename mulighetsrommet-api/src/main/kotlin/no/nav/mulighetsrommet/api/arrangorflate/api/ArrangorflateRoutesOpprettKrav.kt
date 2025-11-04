@@ -85,30 +85,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         requireTilgangHosArrangor(orgnr)
         val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-        val gjennomforing = requireNotNull(
-            db.session {
-                queries.gjennomforing
-                    .get(
-                        id = gjennomforingId,
-                    )
-            },
-        )
+        val gjennomforing = requireNotNull(db.session { queries.gjennomforing.get(id = gjennomforingId) })
         requireGjennomforingTilArrangor(gjennomforing, orgnr)
         return gjennomforing
     }
 
     fun RoutingContext.getPeriodeFromQuery(): Periode {
         val periodeStart = call.queryParameters["periodeStart"]?.let { start ->
-            LocalDate.parse(
-                start,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-            )
+            LocalDate.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         }
         val periodeSlutt = call.queryParameters["periodeSlutt"]?.let { start ->
-            LocalDate.parse(
-                start,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-            )
+            LocalDate.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         }
         return periodeStart?.let { start -> periodeSlutt?.let { slutt -> Periode.of(start, slutt) } }
             ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
@@ -493,7 +480,9 @@ private fun toGjennomforingDataTable(
     )
 }
 
-private fun hrefOpprettKravInnsendingsInformasjon(orgnr: Organisasjonsnummer, gjennomforingId: UUID) = "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+private fun hrefOpprettKravInnsendingsInformasjon(orgnr: Organisasjonsnummer, gjennomforingId: UUID): String {
+    return "/${orgnr.value}/opprett-krav/$gjennomforingId/innsendingsinformasjon"
+}
 
 @Serializable
 data class OpprettKravVeiviserMeta(val steg: List<OpprettKravVeiviserStegDto>)
