@@ -159,7 +159,7 @@ class DeltakerQueries(private val session: Session) {
                     gruppetiltak.arrangor_organisasjonsnummer
                 from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
                 where deltaker.person_ident = any(:identer)
-                and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato::timestamp, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
+                and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
         """.trimIndent()
 
