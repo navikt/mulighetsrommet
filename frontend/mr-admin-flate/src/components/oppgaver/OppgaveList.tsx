@@ -5,9 +5,8 @@ import { Oppgave } from "./Oppgave";
 import { EmptyState } from "../notifikasjoner/EmptyState";
 import { useState } from "react";
 import { useOppgaver } from "@/api/oppgaver/useOppgaver";
-import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
-import { oppgaverFilterStateAtom } from "@/pages/oppgaveoversikt/oppgaver/filter";
-import { GetOppgaverResponse, LagretFilterType } from "@tiltaksadministrasjon/api-client";
+import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { GetOppgaverResponse } from "@tiltaksadministrasjon/api-client";
 
 type OppgaverSorting = "nyeste" | "eldste";
 
@@ -23,16 +22,15 @@ function sort(oppgaver: GetOppgaverResponse, sorting: OppgaverSorting) {
 }
 
 interface Props {
+  filter: OppgaverFilterType;
   tagsHeight: number;
   filterOpen: boolean;
 }
 
-export default function OppgaverList({ tagsHeight, filterOpen }: Props) {
+export default function OppgaverList({ filter, tagsHeight, filterOpen }: Props) {
   const [sorting, setSorting] = useState<OppgaverSorting>("nyeste");
 
-  const { filter } = useSavedFiltersState(oppgaverFilterStateAtom, LagretFilterType.OPPGAVE);
-
-  const oppgaver = useOppgaver(filter.values);
+  const oppgaver = useOppgaver(filter);
   const sortedOppgaver = sort(oppgaver.data, sorting);
 
   return (

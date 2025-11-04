@@ -366,7 +366,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                     linkText = "Se utbetaling",
                     link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.id}",
                 ),
-                createdAt = data.createdAt,
+                createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
                 iconType = OppgaveIconType.UTBETALING,
             ).takeIf { UtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
     }
