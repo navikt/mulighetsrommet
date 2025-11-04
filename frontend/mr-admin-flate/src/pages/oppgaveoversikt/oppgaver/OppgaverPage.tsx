@@ -69,7 +69,7 @@ export function OppgaverPage() {
         buttons={null}
         table={
           <Suspense fallback={<ListSkeleton />}>
-            <OppgaverList tagsHeight={tagsHeight} filterOpen={filterOpen} />
+            <OppgaverList filter={filter.values} tagsHeight={tagsHeight} filterOpen={filterOpen} />
           </Suspense>
         }
         filterOpen={filterOpen}
