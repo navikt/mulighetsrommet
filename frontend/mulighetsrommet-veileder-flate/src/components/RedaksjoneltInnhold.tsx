@@ -41,7 +41,11 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
     number: ({ children }) => <List.Item>{children}</List.Item>,
   },
   block: {
-    normal: ({ children }) => <BodyLong size="small">{children}</BodyLong>,
+    normal: ({ children }) => (
+      <BodyLong size="small" className="mb-1 min-h-[0.75rem]">
+        {children}
+      </BodyLong>
+    ),
   },
   types: {
     image: ({ value }: ImageProp) => {
