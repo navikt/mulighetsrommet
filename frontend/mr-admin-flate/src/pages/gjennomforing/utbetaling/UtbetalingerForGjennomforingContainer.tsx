@@ -36,7 +36,6 @@ export function UtbetalingerForGjennomforingContainer() {
               ) : (
                 handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
                   <Dropdown.Menu.GroupedList.Item
-                    disabled
                     onClick={() => {
                       navigate(`skjema`);
                     }}
