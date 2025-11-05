@@ -96,20 +96,16 @@ class OkonomiService(
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
-        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
-
         if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.ANNULLERING_SENDT)) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return publishBestilling(bestillingsnummer).right()
+        } else if (bestilling.status != BestillingStatusType.AKTIV) {
+            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status ${bestilling.status}").left()
         }
+
+        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (fakturaer.isNotEmpty()) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
-        }
-        if (venterPaaKvittering(bestilling, fakturaer)) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi vi venter på kvittering").left()
-        }
-        if (bestilling.status != BestillingStatusType.AKTIV) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status: ${bestilling.status}").left()
         }
 
         val melding = OebsMeldingMapper.toOebsAnnulleringMelding(bestilling, annullerBestilling)
@@ -147,17 +143,16 @@ class OkonomiService(
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling $bestillingsnummer finnes ikke").left()
-        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
-
-        if (venterPaaKvittering(bestilling, fakturaer)) {
-            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
-        }
         if (bestilling.status != BestillingStatusType.AKTIV) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
-        val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
+        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
+        if (venterPaaKvittering(fakturaer)) {
+            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
+        }
 
+        val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
         val melding = OebsMeldingMapper.toOebsFakturaMelding(
             bestilling,
             faktura,
@@ -189,22 +184,20 @@ class OkonomiService(
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return GjorOppBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
+        if (bestilling.status != BestillingStatusType.AKTIV) {
+            return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
+        }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         fakturaer.find { it.fakturanummer == gjorOppFakturanummer(bestillingsnummer) }?.let {
             log.info("Bestilling $bestillingsnummer er allerede oppgjort")
             return it.right()
         }
-
-        if (venterPaaKvittering(bestilling, fakturaer)) {
+        if (venterPaaKvittering(fakturaer)) {
             return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering").left()
-        }
-        if (bestilling.status != BestillingStatusType.AKTIV) {
-            return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
         }
 
         val faktura = Faktura.fromGjorOppBestilling(gjorOppBestilling, bestilling)
-
         val melding = OebsMeldingMapper.toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
         return oebs.sendFaktura(melding)
             .mapLeft {
@@ -383,18 +376,6 @@ private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adress
     }
 }
 
-private fun venterPaaKvittering(bestilling: Bestilling, fakturaer: List<Faktura>): Boolean {
-    when (bestilling.status) {
-        BestillingStatusType.SENDT,
-        BestillingStatusType.ANNULLERING_SENDT,
-        -> return true
-
-        BestillingStatusType.AKTIV,
-        BestillingStatusType.ANNULLERT,
-        BestillingStatusType.OPPGJORT,
-        BestillingStatusType.FEILET,
-        -> Unit
-    }
-
+private fun venterPaaKvittering(fakturaer: List<Faktura>): Boolean {
     return fakturaer.any { it.status == FakturaStatusType.SENDT }
 }
