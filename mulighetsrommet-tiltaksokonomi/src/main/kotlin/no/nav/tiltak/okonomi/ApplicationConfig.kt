@@ -9,6 +9,9 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.Faktura
+import java.time.LocalDateTime
 import java.util.*
 
 data class AppConfig(
@@ -21,6 +24,11 @@ data class AppConfig(
     val clients: ClientConfig,
     val avstemming: AvstemmingConfig,
     val slack: SlackConfig,
+    val faktura: FakturaConfig,
+)
+
+data class FakturaConfig(
+    val tidligstTidspunktForUtbetaling: (Bestilling, Faktura) -> LocalDateTime?,
 )
 
 data class KafkaConfig(

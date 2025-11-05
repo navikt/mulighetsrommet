@@ -94,7 +94,10 @@ fun Application.configure(config: AppConfig) {
     val okonomiDb = OkonomiDatabase(db)
 
     val okonomi = OkonomiService(
-        topics = config.kafka.topics,
+        config = OkonomiService.Config(
+            topics = config.kafka.topics,
+            faktura = config.faktura,
+        ),
         db = okonomiDb,
         oebs = oebs,
         brreg = brreg,
