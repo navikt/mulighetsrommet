@@ -72,4 +72,8 @@ object Tiltakskoder {
     fun isEnkeltplassTiltak(arenakode: String): Boolean {
         return arenakode in TiltakskoderEnkeltplasser.map { it.arenakode }
     }
+
+    fun isEnkeltplassTiltak(tiltakskode: Tiltakskode): Boolean {
+        return tiltakskode in TiltakskoderEnkeltplasser
+    }
 }

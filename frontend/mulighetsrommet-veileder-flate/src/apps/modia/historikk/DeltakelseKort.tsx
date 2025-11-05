@@ -78,12 +78,12 @@ function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
 }
 
 function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
-  const { tiltakstypeNavn, status, periode, tittel, innsoktDato } = deltakelse;
+  const { tiltakstype, status, periode, tittel, innsoktDato } = deltakelse;
   const aarsak = "aarsak" in status ? status.aarsak : null;
   return (
     <VStack gap="2">
       <HStack gap="10">
-        <small>{tiltakstypeNavn.toUpperCase()}</small>
+        <small>{tiltakstype.navn.toUpperCase()}</small>
         {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
       </HStack>
       {tittel ? (

@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
@@ -29,13 +31,16 @@ class TiltakshistorikkService(
     private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkClient: TiltakshistorikkClient,
+    private val features: FeatureToggleService,
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser = coroutineScope {
-        val historikk = async { getTiltakshistorikk(norskIdent, obo) }
-        val deltakelser = async { getGruppetiltakDeltakelser(norskIdent, obo) }
-        deltakelser.await().mergeWith(historikk.await())
+        val tiltakshistorikk = async { getTiltakshistorikk(norskIdent, obo) }
+        val deltakelserFraKomet = async { getDeltakelserKomet(norskIdent, obo) }
+        deltakelserFraKomet.await()
+            .mergeWith(tiltakshistorikk.await())
+            .filter(::isEnabled)
     }
 
     private suspend fun getTiltakshistorikk(
@@ -65,7 +70,7 @@ class TiltakshistorikkService(
         )
     }
 
-    suspend fun getGruppetiltakDeltakelser(
+    suspend fun getDeltakelserKomet(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
     ): Deltakelser {
@@ -79,8 +84,8 @@ class TiltakshistorikkService(
         }, { response ->
             Deltakelser(
                 meldinger = setOf(),
-                aktive = response.aktive.map { it.toDeltakelse() },
-                historiske = response.historikk.map { it.toDeltakelse() },
+                aktive = response.aktive.map { toDeltakelse(it) },
+                historiske = response.historikk.map { toDeltakelse(it) },
             )
         })
     }
@@ -92,7 +97,11 @@ class TiltakshistorikkService(
     }
 
     private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArenaDeltakelse): DeltakelseArena = coroutineScope {
-        val tiltakstype = async { tiltakstypeService.getByArenaTiltakskode(deltakelse.arenaTiltakskode) }
+        val tiltakstype = async {
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.arenaTiltakskode).let {
+                DeltakelseTiltakstype(it.navn, it.tiltakskode)
+            }
+        }
         val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
 
         DeltakelseArena(
@@ -106,7 +115,7 @@ class TiltakshistorikkService(
                 aarsak = null,
             ),
             tittel = tiltakstype.await().navn.hosTitleCaseArrangor(arrangorNavn.await()),
-            tiltakstypeNavn = tiltakstype.await().navn,
+            tiltakstype = tiltakstype.await(),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.ARENA,
@@ -115,7 +124,12 @@ class TiltakshistorikkService(
     }
 
     private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.GruppetiltakDeltakelse): DeltakelseGruppetiltak = coroutineScope {
-        val tiltakstype = async { tiltakstypeService.getByTiltakskode(deltakelse.gjennomforing.tiltakskode) }
+        val tiltakstype = async {
+            tiltakstypeService.getByTiltakskode(deltakelse.gjennomforing.tiltakskode).let {
+                DeltakelseTiltakstype(it.navn, it.tiltakskode)
+            }
+        }
+
         val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
 
         DeltakelseGruppetiltak(
@@ -129,7 +143,7 @@ class TiltakshistorikkService(
                 aarsak = deltakelse.status.aarsak?.description,
             ),
             tittel = tiltakstype.await().navn.hosTitleCaseArrangor(arrangorNavn.await()),
-            tiltakstypeNavn = tiltakstype.await().navn,
+            tiltakstype = tiltakstype.await(),
             innsoktDato = null,
             sistEndretDato = null,
             /**
@@ -154,7 +168,10 @@ class TiltakshistorikkService(
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
         }
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode)
+        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode).let {
+            DeltakelseTiltakstype(it.navn, it.tiltakskode)
+        }
+
         val arrangorNavn = Organisasjonsnummer.parse(deltakelse.arbeidsgiver.organisasjonsnummer)?.let {
             getArrangorNavn(it)
         } ?: run {
@@ -172,12 +189,59 @@ class TiltakshistorikkService(
                 aarsak = null,
             ),
             tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
-            tiltakstypeNavn = tiltakstype.navn,
+            tiltakstype = tiltakstype,
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_TILTAK,
             tilstand = getTilstand(deltakelse.status),
         )
+    }
+
+    private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
+        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
+            DeltakelseTiltakstype(it.navn, it.tiltakskode)
+        }
+        return DeltakelseGruppetiltak(
+            id = deltakelse.deltakerId,
+            periode = DeltakelsePeriode(
+                startDato = deltakelse.periode?.startdato,
+                sluttDato = deltakelse.periode?.sluttdato,
+            ),
+            eierskap = DeltakelseEierskap.TEAM_KOMET,
+            tilstand = getTilstand(deltakelse.status.type),
+            tittel = deltakelse.tittel,
+            tiltakstype = tiltakstype,
+            status = DeltakelseStatus(
+                type = deltakelse.status.type.toDataElement(),
+                aarsak = deltakelse.status.aarsak,
+            ),
+            innsoktDato = deltakelse.innsoktDato,
+            sistEndretDato = deltakelse.sistEndretDato,
+            gjennomforingId = deltakelse.deltakerlisteId,
+            pamelding = DeltakelseGruppetiltak.Pamelding(deltakelse.status.type),
+        )
+    }
+
+    private fun isEnabled(deltakelse: Deltakelse): Boolean {
+        val tiltakskode = deltakelse.tiltakstype.tiltakskode ?: return true
+
+        if (!Tiltakskoder.isEnkeltplassTiltak(tiltakskode)) {
+            return true
+        }
+
+        return when (deltakelse.eierskap) {
+            DeltakelseEierskap.TEAM_TILTAK -> true
+
+            DeltakelseEierskap.ARENA -> !features.isEnabledForTiltakstype(
+                FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER,
+                tiltakskode,
+            )
+
+            DeltakelseEierskap.TEAM_KOMET -> features.isEnabledForTiltakstype(
+                FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER,
+                tiltakskode,
+            )
+        }
     }
 
     private fun erAktiv(kort: Deltakelse): Boolean = when (kort.tilstand) {
@@ -245,28 +309,6 @@ class TiltakshistorikkService(
     }
 }
 
-private fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
-    return DeltakelseGruppetiltak(
-        id = deltakerId,
-        periode = DeltakelsePeriode(
-            startDato = periode?.startdato,
-            sluttDato = periode?.sluttdato,
-        ),
-        eierskap = DeltakelseEierskap.TEAM_KOMET,
-        tilstand = getTilstand(status.type),
-        tittel = tittel,
-        tiltakstypeNavn = tiltakstype.navn,
-        status = DeltakelseStatus(
-            type = status.type.toDataElement(),
-            aarsak = status.aarsak,
-        ),
-        innsoktDato = innsoktDato,
-        sistEndretDato = sistEndretDato,
-        gjennomforingId = deltakerlisteId,
-        pamelding = DeltakelseGruppetiltak.Pamelding(status.type),
-    )
-}
-
 private fun getTilstand(type: ArenaDeltakerStatus): DeltakelseTilstand = when (type) {
     ArenaDeltakerStatus.AKTUELL,
     ArenaDeltakerStatus.VENTELISTE,
@@ -332,7 +374,6 @@ private fun getTilstand(status: ArbeidsgiverAvtaleStatus): DeltakelseTilstand = 
 enum class DeltakelserMelding {
     MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET,
     MANGLER_DELTAKELSER_FRA_TEAM_TILTAK,
-    HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK,
 }
 
 data class Deltakelser(
@@ -348,6 +389,14 @@ data class Deltakelser(
         aktive = (aktive + other.aktive).distinctBy { it.id }.sortedWith(deltakelseComparator),
         historiske = (historiske + other.historiske).distinctBy { it.id }.sortedWith(deltakelseComparator),
     )
+
+    fun filter(predicate: (deltakelse: Deltakelse) -> Boolean): Deltakelser {
+        return Deltakelser(
+            meldinger = meldinger,
+            aktive = aktive.filter(predicate),
+            historiske = historiske.filter(predicate),
+        )
+    }
 }
 
 /**

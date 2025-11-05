@@ -4,6 +4,7 @@ import {
   DeltakelseEierskap,
   DeltakelseTilstand,
   DeltakerStatusType,
+  Tiltakskode,
 } from "@api-client";
 import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
 
@@ -17,7 +18,10 @@ export const deltakelserAktive: Deltakelse[] = [
       type: { value: "Kladden", variant: DataElementStatusVariant.WARNING, description: null },
       aarsak: null,
     },
-    tiltakstypeNavn: "Arbeidsforberedende trening",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    },
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.KLADD,
@@ -38,7 +42,10 @@ export const deltakelserAktive: Deltakelse[] = [
       },
       aarsak: null,
     },
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     tittel: "Avklaring hos Fretex AS",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.UTKAST,
@@ -58,7 +65,10 @@ export const deltakelserAktive: Deltakelse[] = [
       },
       aarsak: null,
     },
-    tiltakstypeNavn: "Jobbklubb",
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Tiltakskode.JOBBKLUBB,
+    },
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
@@ -78,7 +88,10 @@ export const deltakelserAktive: Deltakelse[] = [
       type: { value: "Deltar", variant: DataElementStatusVariant.BLANK, description: null },
       aarsak: null,
     },
-    tiltakstypeNavn: "Jobbklubb",
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Tiltakskode.JOBBKLUBB,
+    },
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
@@ -98,7 +111,10 @@ export const deltakelserAktive: Deltakelse[] = [
       type: { value: "Gjennomføres", variant: DataElementStatusVariant.BLANK, description: null },
       aarsak: null,
     },
-    tiltakstypeNavn: "Arbeidstrening",
+    tiltakstype: {
+      navn: "Arbeidstrening",
+      tiltakskode: null,
+    },
     periode: {
       startDato: "2023-08-10",
       sluttDato: null,

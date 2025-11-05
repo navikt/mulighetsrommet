@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -17,7 +18,7 @@ sealed class Deltakelse {
     abstract val id: UUID
     abstract val eierskap: DeltakelseEierskap
     abstract val tittel: String
-    abstract val tiltakstypeNavn: String
+    abstract val tiltakstype: DeltakelseTiltakstype
     abstract val innsoktDato: LocalDate?
     abstract val sistEndretDato: LocalDate?
     abstract val periode: DeltakelsePeriode
@@ -31,6 +32,12 @@ enum class DeltakelseEierskap {
     TEAM_KOMET,
     TEAM_TILTAK,
 }
+
+@Serializable
+data class DeltakelseTiltakstype(
+    val navn: String,
+    val tiltakskode: Tiltakskode?,
+)
 
 @Serializable
 enum class DeltakelseTilstand {
@@ -61,7 +68,7 @@ data class DeltakelseArena(
     override val eierskap: DeltakelseEierskap,
     override val tilstand: DeltakelseTilstand,
     override val tittel: String,
-    override val tiltakstypeNavn: String,
+    override val tiltakstype: DeltakelseTiltakstype,
     @Serializable(with = LocalDateSerializer::class)
     override val innsoktDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
@@ -76,7 +83,7 @@ data class DeltakelseGruppetiltak(
     override val id: UUID,
     override val eierskap: DeltakelseEierskap,
     override val tittel: String,
-    override val tiltakstypeNavn: String,
+    override val tiltakstype: DeltakelseTiltakstype,
     @Serializable(with = LocalDateSerializer::class)
     override val innsoktDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
@@ -100,7 +107,7 @@ data class DeltakelseArbeidsgiverAvtale(
     override val id: UUID,
     override val eierskap: DeltakelseEierskap,
     override val tittel: String,
-    override val tiltakstypeNavn: String,
+    override val tiltakstype: DeltakelseTiltakstype,
     @Serializable(with = LocalDateSerializer::class)
     override val innsoktDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)

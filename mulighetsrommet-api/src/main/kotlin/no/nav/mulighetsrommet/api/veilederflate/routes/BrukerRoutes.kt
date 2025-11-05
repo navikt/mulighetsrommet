@@ -144,7 +144,7 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
-            val deltakelser = historikkService.getGruppetiltakDeltakelser(norskIdent, obo)
+            val deltakelser = historikkService.getDeltakelserKomet(norskIdent, obo)
 
             val response = deltakelser.aktive
                 .firstOrNull {

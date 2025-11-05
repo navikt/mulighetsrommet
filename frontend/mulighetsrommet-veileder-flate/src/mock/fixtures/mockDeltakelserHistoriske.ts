@@ -4,6 +4,7 @@ import {
   DeltakelseEierskap,
   DeltakelseTilstand,
   DeltakerStatusType,
+  Tiltakskode,
 } from "@api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
@@ -11,7 +12,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstypeNavn: "Oppfølging",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Tiltakskode.OPPFOLGING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: {
@@ -32,7 +36,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
     tittel: "Mentor hos Fretex AS",
-    tiltakstypeNavn: "Mentor",
+    tiltakstype: {
+      navn: "Mentor",
+      tiltakskode: null,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Avsluttet", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -47,7 +54,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstypeNavn: "Oppfølging",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Tiltakskode.OPPFOLGING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Ikke aktuell", variant: DataElementStatusVariant.NEUTRAL, description: null },
@@ -68,7 +78,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
       sluttDato: "2023-12-12",
     },
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstypeNavn: "Oppfølging",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Tiltakskode.OPPFOLGING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Har sluttet", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -88,8 +101,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
       sluttDato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
-
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Fullført", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -109,7 +124,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
       sluttDato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Avbrutt", variant: DataElementStatusVariant.NEUTRAL, description: null },
@@ -125,7 +143,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: {
@@ -146,7 +167,10 @@ export const deltakelserHistoriske: Deltakelse[] = [
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Gammel Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Fullført", variant: DataElementStatusVariant.ALT_1, description: null },
