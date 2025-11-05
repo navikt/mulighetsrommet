@@ -1,12 +1,14 @@
 package no.nav.mulighetsrommet.api.arrangor.db
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
@@ -96,7 +98,7 @@ class ArrangorQueries(private val session: Session) {
         )
 
         return queryOf(query, params + pagination.parameters)
-            .mapPaginated { it.toVirksomhetDto() }
+            .mapPaginated { it.toArrangorDtoUtenUnderenheter() }
             .runWithSession(session)
     }
 
@@ -109,27 +111,58 @@ class ArrangorQueries(private val session: Session) {
                 organisasjonsform,
                 overordnet_enhet,
                 navn,
-                slettet_dato
+                slettet_dato,
+                underenheter_json
             from arrangor
-            where organisasjonsnummer = ?
+                left join lateral (
+                    select json_agg(
+                        json_build_object(
+                            'id', id,
+                            'organisasjonsnummer', organisasjonsnummer,
+                            'overordnetEnhet', overordnet_enhet,
+                            'organisasjonsform', organisasjonsform,
+                            'navn', navn,
+                            'slettetDato', slettet_dato
+                        )
+                    ) as underenheter_json
+                    from arrangor arrangor_underenhet
+                where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
+            where arrangor.organisasjonsnummer = ?
         """.trimIndent()
 
+        return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toArrangorDtoMedUnderenheter() }
+    }
+
+    fun get(orgnr: List<Organisasjonsnummer>): List<ArrangorDto> {
         @Language("PostgreSQL")
-        val selectUnderenheter = """
+        val selectHovedenhet = """
             select
                 id,
                 organisasjonsnummer,
                 organisasjonsform,
                 overordnet_enhet,
                 navn,
-                slettet_dato
+                slettet_dato,
+                underenheter_json
             from arrangor
-            where overordnet_enhet = ?
+                left join lateral (
+                    select json_agg(
+                        json_build_object(
+                            'id', id,
+                            'organisasjonsnummer', organisasjonsnummer,
+                            'overordnetEnhet', overordnet_enhet,
+                            'organisasjonsform', organisasjonsform,
+                            'navn', navn,
+                            'slettetDato', slettet_dato
+                        )
+                    ) as underenheter_json
+                    from arrangor arrangor_underenhet
+                where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
+            where arrangor.organisasjonsnummer = any(?)
         """.trimIndent()
 
-        return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toVirksomhetDto() }?.let { arrangor ->
-            val underenheter = session.list(queryOf(selectUnderenheter, orgnr.value)) { it.toVirksomhetDto() }
-            arrangor.copy(underenheter = underenheter.takeIf { it.isNotEmpty() })
+        return session.list(queryOf(selectHovedenhet, session.createTextArray(orgnr.map { it.value }))) {
+            it.toArrangorDtoMedUnderenheter()
         }
     }
 
@@ -147,7 +180,7 @@ class ArrangorQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        val arrangor = session.single(queryOf(query, id)) { it.toVirksomhetDto() }
+        val arrangor = session.single(queryOf(query, id)) { it.toArrangorDtoUtenUnderenheter() }
 
         return requireNotNull(arrangor) {
             "Arrangør med id=$id finnes ikke"
@@ -172,7 +205,7 @@ class ArrangorQueries(private val session: Session) {
         """.trimIndent()
 
         val underenheter = session.list(queryOf(queryForUnderenheter, arrangor.organisasjonsnummer.value)) {
-            it.toVirksomhetDto()
+            it.toArrangorDtoUtenUnderenheter()
         }
 
         return arrangor.copy(underenheter = underenheter)
@@ -208,7 +241,7 @@ class ArrangorQueries(private val session: Session) {
             "telefon" to kontaktperson.telefon,
             "epost" to kontaktperson.epost,
             "beskrivelse" to kontaktperson.beskrivelse,
-            "ansvarligFor" to kontaktperson.ansvarligFor?.let { session.createArrayOfAnsvarligFor(it) },
+            "ansvarligFor" to kontaktperson.ansvarligFor.let { session.createArrayOfAnsvarligFor(it) },
         )
 
         session.execute(queryOf(query, params))
@@ -267,7 +300,7 @@ class ArrangorQueries(private val session: Session) {
         return session.list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
     }
 
-    private fun Row.toVirksomhetDto() = ArrangorDto(
+    private fun Row.toArrangorDtoUtenUnderenheter() = ArrangorDto(
         id = uuid("id"),
         organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
         organisasjonsform = stringOrNull("organisasjonsform"),
@@ -275,6 +308,21 @@ class ArrangorQueries(private val session: Session) {
         overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
         slettetDato = localDateOrNull("slettet_dato"),
     )
+
+    private fun Row.toArrangorDtoMedUnderenheter(): ArrangorDto {
+        val underenheter = stringOrNull("underenheter_json")?.let {
+            Json.decodeFromString<List<ArrangorDto>>(it)
+        }
+        return ArrangorDto(
+            id = uuid("id"),
+            organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
+            organisasjonsform = stringOrNull("organisasjonsform"),
+            navn = string("navn"),
+            overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
+            slettetDato = localDateOrNull("slettet_dato"),
+            underenheter = underenheter,
+        )
+    }
 
     private fun Row.toArrangorKontaktperson() = ArrangorKontaktperson(
         id = uuid("id"),

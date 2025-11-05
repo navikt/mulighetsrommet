@@ -75,6 +75,23 @@ class ArrangorService(
         queries.arrangor.get(orgnr)
     }
 
+    suspend fun getArrangorerOrSyncFromBrreg(
+        orgnr: List<Organisasjonsnummer>,
+    ): Either<BrregError, List<ArrangorDto>> {
+        val existing = db.session { queries.arrangor.get(orgnr) }
+            .associateBy { it.organisasjonsnummer }
+            .toMutableMap()
+
+        for (org in orgnr - existing.keys) {
+            when (val result = syncArrangorFromBrreg(org)) {
+                is Either.Left -> return result
+                is Either.Right -> existing[org] = result.value
+            }
+        }
+
+        return existing.values.toList().right()
+    }
+
     suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {
         return getArrangor(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
     }

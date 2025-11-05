@@ -110,6 +110,12 @@ class ArrangorQueriesTest : FunSpec({
                         e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
                     }
                 }
+                queries.get(listOf(overordnet.organisasjonsnummer)).firstOrNull().shouldNotBeNull().should {
+                    it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
+                        e.navn shouldBe underenhet1.navn
+                        e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
+                    }
+                }
             }
         }
 
