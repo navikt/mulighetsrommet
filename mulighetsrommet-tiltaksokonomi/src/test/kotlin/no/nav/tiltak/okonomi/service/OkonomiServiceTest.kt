@@ -68,10 +68,13 @@ class OkonomiServiceTest : FunSpec({
     val brreg: BrregClient = mockk()
 
     fun createOkonomiService(oebsTiltakApiClient: OebsPoApClient) = OkonomiService(
+        config = OkonomiService.Config(
+            topics = KafkaTopics("bestilling-status", "faktura-status"),
+            faktura = FakturaConfig(mapOf()),
+        ),
         db = db,
         oebs = oebsTiltakApiClient,
         brreg = brreg,
-        topics = KafkaTopics("bestilling-status", "faktura-status"),
     )
 
     context("opprett bestilling") {

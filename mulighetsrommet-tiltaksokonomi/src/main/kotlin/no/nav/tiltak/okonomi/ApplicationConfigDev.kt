@@ -4,9 +4,11 @@ import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
+import java.time.Duration
 
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
@@ -66,5 +68,8 @@ val ApplicationConfigDev = AppConfig(
                 consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
             ),
         ),
+    ),
+    faktura = FakturaConfig(
+        utsettUtbetaling = Tiltakskode.entries.associateWith { Duration.ofMinutes(1) },
     ),
 )

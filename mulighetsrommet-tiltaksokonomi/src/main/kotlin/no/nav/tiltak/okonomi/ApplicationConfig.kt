@@ -6,9 +6,11 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
+import java.time.Duration
 import java.util.*
 
 data class AppConfig(
@@ -21,6 +23,11 @@ data class AppConfig(
     val clients: ClientConfig,
     val avstemming: AvstemmingConfig,
     val slack: SlackConfig,
+    val faktura: FakturaConfig,
+)
+
+data class FakturaConfig(
+    val utsettUtbetaling: Map<Tiltakskode, Duration>,
 )
 
 data class KafkaConfig(

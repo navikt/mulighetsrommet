@@ -20,6 +20,8 @@ import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.Duration
+import java.time.LocalDateTime
 
 class OpprettBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
@@ -30,12 +32,17 @@ class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception
 class GjorOppBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 class OkonomiService(
+    private val config: Config,
     private val db: OkonomiDatabase,
     private val oebs: OebsPoApClient,
     private val brreg: BrregClient,
-    private val topics: KafkaTopics,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    data class Config(
+        val topics: KafkaTopics,
+        val faktura: FakturaConfig,
+    )
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
@@ -150,6 +157,13 @@ class OkonomiService(
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (venterPaaKvittering(fakturaer)) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
+        }
+
+        val tidspunktForFaktura = config.faktura.utsettUtbetaling
+            .getOrElse(bestilling.tiltakskode) { Duration.ZERO }
+            .let { opprettFaktura.behandletTidspunkt + it }
+        if (tidspunktForFaktura > LocalDateTime.now()) {
+            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes før $tidspunktForFaktura").left()
         }
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
@@ -307,7 +321,7 @@ class OkonomiService(
         log.info("Lagrer status-melding for bestilling $bestillingsnummer")
         queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
-                topics.bestillingStatus,
+                config.topics.bestillingStatus,
                 bestillingsnummer.toByteArray(),
                 Json.encodeToString(
                     BestillingStatus(
@@ -328,7 +342,7 @@ class OkonomiService(
         log.info("Lagrer status-melding for faktura $fakturanummer")
         queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
-                topics.fakturaStatus,
+                config.topics.fakturaStatus,
                 fakturanummer.toByteArray(),
                 Json.encodeToString(
                     FakturaStatus(

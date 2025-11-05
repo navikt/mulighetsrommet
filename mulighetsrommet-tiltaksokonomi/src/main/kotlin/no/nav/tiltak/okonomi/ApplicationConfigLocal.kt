@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.tokenprovider.TokenReponse
 import no.nav.tiltak.okonomi.avstemming.SftpClient
@@ -18,6 +19,7 @@ import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.intellij.lang.annotations.Language
+import java.time.Duration
 
 val mockClientEngine = createMockEngine {
     get("https://data.brreg.no/enhetsregisteret/api/enheter/\\d+".toRegex()) {
@@ -127,5 +129,8 @@ val ApplicationConfigLocal = AppConfig(
                     .build(),
             ),
         ),
+    ),
+    faktura = FakturaConfig(
+        utsettUtbetaling = Tiltakskode.entries.associateWith { Duration.ofMinutes(1) },
     ),
 )
