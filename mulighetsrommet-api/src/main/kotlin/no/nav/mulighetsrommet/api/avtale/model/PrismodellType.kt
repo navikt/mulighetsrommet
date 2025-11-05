@@ -57,7 +57,6 @@ object Prismodeller {
         Tiltakskode.AVKLARING,
         Tiltakskode.OPPFOLGING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-        Tiltakskode.JOBBKLUBB,
         Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         -> listOf(
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
@@ -67,6 +66,7 @@ object Prismodeller {
             PrismodellType.ANNEN_AVTALT_PRIS,
         )
 
+        Tiltakskode.JOBBKLUBB,
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         -> listOf(
