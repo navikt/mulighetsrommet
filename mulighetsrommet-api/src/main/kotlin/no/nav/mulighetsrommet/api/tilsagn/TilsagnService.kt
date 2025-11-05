@@ -148,7 +148,7 @@ class TilsagnService(
     ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
-        setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
+        setTilOppgjort(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring, "Sendt til oppgjør")
     }
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
@@ -229,7 +229,7 @@ class TilsagnService(
                         )
                     }
             }
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             null
         }
     }
@@ -308,7 +308,7 @@ class TilsagnService(
 
             TilsagnStatus.TIL_OPPGJOR -> {
                 when (request.besluttelse) {
-                    Besluttelse.GODKJENT -> gjorOppTilsagn(tilsagn, navIdent).onRight {
+                    Besluttelse.GODKJENT -> gjorOppTilsagn(tilsagn, navIdent, "Tilsagn oppgjort").onRight {
                         publishGjorOppBestilling(it)
                     }
 
@@ -324,10 +324,25 @@ class TilsagnService(
         tilsagn
     }
 
-    fun gjorOppAutomatisk(id: UUID, queryContext: QueryContext): Tilsagn {
+    fun gjorOppTilsagnVedUtbetaling(
+        id: UUID,
+        behandletAv: Agent,
+        besluttetAv: Agent,
+        queryContext: QueryContext,
+    ): Tilsagn {
         var tilsagn = queryContext.queries.tilsagn.getOrError(id)
-        tilsagn = queryContext.setTilOppgjort(tilsagn, Tiltaksadministrasjon, emptyList(), null)
-        return queryContext.gjorOppTilsagn(tilsagn, Tiltaksadministrasjon).getOrElse {
+        tilsagn = queryContext.setTilOppgjort(
+            tilsagn,
+            behandletAv,
+            aarsaker = emptyList(),
+            forklaring = null,
+            operation = "Sendt til oppgjør ved behandling av utbetaling",
+        )
+        return queryContext.gjorOppTilsagn(
+            tilsagn,
+            besluttetAv,
+            operation = "Tilsagn oppgjort ved attestering av utbetaling",
+        ).getOrElse {
             // TODO returner valideringsfeil i stedet for å kaste exception
             throw IllegalStateException(it.first().detail)
         }
@@ -488,6 +503,7 @@ class TilsagnService(
         agent: Agent,
         aarsaker: List<String>,
         forklaring: String?,
+        operation: String,
     ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare gjøre opp godkjente tilsagn"
@@ -511,13 +527,14 @@ class TilsagnService(
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Sendt til oppgjør", dto, agent)
+        logEndring(operation, dto, agent)
         return dto
     }
 
     private fun QueryContext.gjorOppTilsagn(
         tilsagn: Tilsagn,
         besluttetAv: Agent,
+        operation: String,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
@@ -539,7 +556,7 @@ class TilsagnService(
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
         val dto = queries.tilsagn.getOrError(tilsagn.id)
-        logEndring("Tilsagn oppgjort", dto, besluttetAv)
+        logEndring(operation, dto, besluttetAv)
         return dto.right()
     }
 
