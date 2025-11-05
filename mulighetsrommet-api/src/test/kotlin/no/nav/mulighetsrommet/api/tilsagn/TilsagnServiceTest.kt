@@ -879,7 +879,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
-                service.gjorOppAutomatisk(id = requestId, this)
+                service.gjorOppTilsagnVedUtbetaling(id = requestId, Tiltaksadministrasjon, Tiltaksadministrasjon, this)
             }.status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
