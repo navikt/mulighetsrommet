@@ -15,6 +15,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.utils.io.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -71,8 +74,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
 
-    suspend fun resolveArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto {
-        return arrangorService.getArrangorOrSyncFromBrreg(organisasjonsnummer)
+    suspend fun resolveArrangorer(organisasjonsnummer: List<Organisasjonsnummer>): List<ArrangorDto> {
+        return arrangorService.getArrangorerOrSyncFromBrreg(organisasjonsnummer)
             .getOrElse {
                 when (it) {
                     is BrregError.NotFound -> throw StatusException(
@@ -118,9 +121,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }
     }) {
-        val arrangorer = arrangorTilganger()
-            ?.map { resolveArrangor(it) }
+        val tilganger = arrangorTilganger()
             ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
+
+        val arrangorer = resolveArrangorer(tilganger)
 
         call.respond(arrangorer)
     }
