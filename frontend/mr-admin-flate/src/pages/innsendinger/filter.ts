@@ -2,8 +2,8 @@ import { atom } from "jotai";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@/filter/filter-validator";
-import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 import { createSorteringProps } from "@/api/atoms";
+import { NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 
 export const InnsendingFilterSchema = z.object({
   tiltakstyper: z.string().array(),
@@ -31,4 +31,4 @@ export const InnsendingFilterStateAtom = createFilterStateAtom<InnsendingFilterT
   createFilterValidator(InnsendingFilterSchema),
 );
 
-export const InnsendingFilterAccordionAtom = atom<string[]>(["tiltakstype", "navEnheter"]);
+export const InnsendingFilterAccordionAtom = atom<string[]>(["tiltakstype", "navEnhet"]);
