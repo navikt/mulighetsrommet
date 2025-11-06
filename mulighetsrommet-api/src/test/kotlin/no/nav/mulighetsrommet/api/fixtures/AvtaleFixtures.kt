@@ -10,8 +10,10 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.util.*
+import kotlin.collections.List
 
 object AvtaleFixtures {
     val oppfolgingStartDato = LocalDate.of(2023, 1, 1)
@@ -244,7 +246,11 @@ object AvtaleFixtures {
         navn = "Avtalenavn",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-        arrangor = null,
+        arrangor = AvtaleRequest.Arrangor(
+            hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+            underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+            kontaktpersoner = emptyList(),
+        ),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.now().plusMonths(3),
         avtaletype = Avtaletype.RAMMEAVTALE,

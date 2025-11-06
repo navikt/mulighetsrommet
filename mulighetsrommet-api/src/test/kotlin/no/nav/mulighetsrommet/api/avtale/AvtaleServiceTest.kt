@@ -41,6 +41,7 @@ class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain()
+    val brregClient = mockk<BrregClient>(relaxed = true)
 
     beforeEach {
         domain.initialize(database.db)
@@ -54,7 +55,7 @@ class AvtaleServiceTest : FunSpec({
 
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
-        arrangorService: ArrangorService = mockk<ArrangorService>(relaxed = true),
+        arrangorService: ArrangorService = ArrangorService(database.db, brregClient),
     ) = AvtaleService(
         database.db,
         arrangorService,
@@ -68,7 +69,7 @@ class AvtaleServiceTest : FunSpec({
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.avtaleRequest
 
-            avtaleService.upsert(request, bertilNavIdent)
+            avtaleService.upsert(request, bertilNavIdent).shouldBeRight()
 
             verify {
                 gjennomforingPublisher.schedule(

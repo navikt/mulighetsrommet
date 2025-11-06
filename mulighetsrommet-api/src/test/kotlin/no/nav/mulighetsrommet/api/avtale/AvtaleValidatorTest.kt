@@ -63,27 +63,29 @@ class AvtaleValidatorTest : FunSpec({
     )
     val gruppeAmo = AvtaleDboMapper.toAvtaleRequest(
         AvtaleFixtures.gruppeAmo,
-        null,
+        avtaleRequest.arrangor,
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
     )
     val forhaandsgodkjent = AvtaleDboMapper.toAvtaleRequest(
         AvtaleFixtures.AFT,
-        null,
+        avtaleRequest.arrangor,
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     )
     val avtaleTypeAvtale = AvtaleDboMapper.toAvtaleRequest(
         AvtaleFixtures.oppfolgingMedAvtale,
-        null,
+        avtaleRequest.arrangor,
         Tiltakskode.OPPFOLGING,
     )
     val oppfolgingMedRammeAvtale = AvtaleDboMapper.toAvtaleRequest(
         AvtaleFixtures.oppfolging,
-        null,
+        avtaleRequest.arrangor,
         Tiltakskode.OPPFOLGING,
     )
     val ctx = Ctx(
         previous = null,
-        arrangor = null,
+        arrangor = ArrangorFixtures.hovedenhet.copy(
+            underenheter = listOf(ArrangorFixtures.underenhet1),
+        ),
         administratorer = emptyList(),
         tiltakstype = Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
@@ -106,7 +108,6 @@ class AvtaleValidatorTest : FunSpec({
         val request = avtaleRequest.copy(
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
-            veilederinformasjon = VeilederinfoRequest(navEnheter = emptyList(), beskrivelse = null, faneinnhold = null),
             arrangor = AvtaleRequest.Arrangor(
                 hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
                 underenheter = emptyList(),
@@ -114,7 +115,12 @@ class AvtaleValidatorTest : FunSpec({
             ),
         )
 
-        AvtaleValidator.validate(request, ctx.copy(navEnheter = emptyList())).shouldBeLeft().shouldContainAll(
+        AvtaleValidator.validate(
+            request,
+            ctx.copy(
+                navEnheter = emptyList(),
+            ),
+        ).shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError("/startDato", "Startdato må være før sluttdato"),
                 FieldError("/navRegioner", "Du må velge minst én Nav-region"),
@@ -477,7 +483,7 @@ class AvtaleValidatorTest : FunSpec({
                             gjennomforinger = listOf(
                                 Ctx.Gjennomforing(
                                     arrangor = Gjennomforing.ArrangorUnderenhet(
-                                        id = ArrangorFixtures.underenhet1.id,
+                                        id = ArrangorFixtures.underenhet2.id,
                                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                                         navn = ArrangorFixtures.underenhet2.navn,
                                         kontaktpersoner = emptyList(),

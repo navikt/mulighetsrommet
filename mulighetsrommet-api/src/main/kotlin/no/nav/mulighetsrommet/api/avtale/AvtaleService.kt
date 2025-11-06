@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
@@ -205,7 +206,7 @@ class AvtaleService(
         id: UUID,
         request: PrismodellRequest,
         navIdent: NavIdent,
-    ): Either<NonEmptyList<FieldError>, Avtale> = either {
+    ): Either<List<FieldError>, Avtale> = either {
         val previous = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
