@@ -167,7 +167,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
         test("200 når tiltaksnummer finnes på guppetiltak") {
             database.run {
-                queries.gjennomforing.updateArenaData(tiltakGruppeId, "2024#123", null)
+                queries.gjennomforing.setArenaData(tiltakGruppeId, "2024#123", null)
             }
 
             withTestApplication(appConfig()) {

@@ -21,7 +21,7 @@ select utbetaling.id,
        utbetaling.avbrutt_begrunnelse,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.lopenummer          as gjennomforing_lopenummer,
-       gjennomforing.navn                as gjennomforing_navn,
+       gruppe.navn                       as gjennomforing_navn,
        arrangor.id                       as arrangor_id,
        arrangor.organisasjonsnummer      as arrangor_organisasjonsnummer,
        arrangor.navn                     as arrangor_navn,
@@ -33,3 +33,4 @@ from utbetaling
          inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+         left join gjennomforing_gruppetiltak gruppe on gruppe.gjennomforing_id = gjennomforing.id

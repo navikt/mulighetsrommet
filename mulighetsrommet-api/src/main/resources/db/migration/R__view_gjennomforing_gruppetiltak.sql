@@ -1,42 +1,38 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_gjennomforing;
+drop view if exists view_gjennomforing_gruppetiltak;
 
-create view view_gjennomforing as
+create view view_gjennomforing_gruppetiltak as
 select gjennomforing.id,
-       gjennomforing.created_at            as opprettet_tidspunkt,
-       gjennomforing.updated_at            as oppdatert_tidspunkt,
-       gjennomforing.fts,
-       gjennomforing.navn,
-       gjennomforing.start_dato,
-       gjennomforing.slutt_dato,
-       gjennomforing.apent_for_pamelding,
-       gjennomforing.antall_plasser,
-       gjennomforing.avtale_id,
-       gjennomforing.oppstart,
        gjennomforing.opphav,
-       gjennomforing.beskrivelse,
-       gjennomforing.faneinnhold,
-       gjennomforing.deltidsprosent,
-       gjennomforing.estimert_ventetid_verdi,
-       gjennomforing.estimert_ventetid_enhet,
-       gjennomforing.oppmote_sted,
-       gjennomforing.publisert,
        gjennomforing.lopenummer,
-       gjennomforing.avbrutt_aarsaker,
-       gjennomforing.avbrutt_forklaring,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
+       gjennomforing.fts,
        arena_nav_enhet.navn                as arena_nav_enhet_navn,
-       gjennomforing.avsluttet_tidspunkt,
-       gjennomforing.tilgjengelig_for_arrangor_dato,
-       gjennomforing.status,
-       gjennomforing.pamelding_type,
-       nav_kontaktpersoner_json,
-       administratorer_json,
-       koordinator_json,
-       nav_enheter_json,
-       amo_kategorisering_json,
+       gruppe.created_at                   as opprettet_tidspunkt,
+       gruppe.updated_at                   as oppdatert_tidspunkt,
+       gruppe.navn,
+       gruppe.start_dato,
+       gruppe.slutt_dato,
+       gruppe.apent_for_pamelding,
+       gruppe.antall_plasser,
+       gruppe.oppstart,
+       gruppe.pamelding_type,
+       gruppe.beskrivelse,
+       gruppe.faneinnhold,
+       gruppe.deltidsprosent,
+       gruppe.estimert_ventetid_verdi,
+       gruppe.estimert_ventetid_enhet,
+       gruppe.oppmote_sted,
+       gruppe.publisert,
+       gruppe.avbrutt_aarsaker,
+       gruppe.avbrutt_forklaring,
+       gruppe.avsluttet_tidspunkt,
+       gruppe.tilgjengelig_for_arrangor_dato,
+       gruppe.status,
+       avtale.id                           as avtale_id,
+       avtale_prismodell.prismodell_type   as prismodell,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
@@ -45,13 +41,18 @@ select gjennomforing.id,
        arrangor.navn                       as arrangor_navn,
        arrangor.slettet_dato is not null   as arrangor_slettet,
        arrangor_kontaktpersoner_json,
+       nav_kontaktpersoner_json,
+       administratorer_json,
+       koordinator_json,
+       nav_enheter_json,
+       amo_kategorisering_json,
        utdanningslop_json,
-       stengt_perioder_json,
-       avtale_prismodell.prismodell_type   as prismodell
-from gjennomforing
+       stengt_perioder_json
+from gjennomforing_gruppetiltak gruppe
+         join gjennomforing on gruppe.gjennomforing_id = gjennomforing.id
+         join avtale on avtale.id = gruppe.avtale_id
+         left join avtale_prismodell on avtale_prismodell.avtale_id = gruppe.avtale_id
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         left join avtale on avtale.id = gjennomforing.avtale_id
-        left join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(

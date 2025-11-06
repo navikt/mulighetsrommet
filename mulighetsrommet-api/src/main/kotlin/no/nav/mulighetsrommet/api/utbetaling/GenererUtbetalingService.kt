@@ -338,7 +338,7 @@ class GenererUtbetalingService(
             and not exists (
                 select 1
                 from utbetaling
-                where utbetaling.gjennomforing_id = gjennomforing.id
+                where utbetaling.gjennomforing_id = gruppe.gjennomforing_id
                   and utbetaling.periode && :periode::daterange
                   and utbetaling.tilskuddstype = :tilskuddstype::tilskuddstype
             )
@@ -346,13 +346,13 @@ class GenererUtbetalingService(
 
         @Language("PostgreSQL")
         val query = """
-            select gjennomforing.id
-            from gjennomforing
-                join avtale on gjennomforing.avtale_id = avtale.id
-                join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
-            where gjennomforing.status != 'AVLYST'
+            select gruppe.gjennomforing_id
+            from gjennomforing_gruppetiltak gruppe
+                join avtale on gruppe.avtale_id = avtale.id
+                join avtale_prismodell on avtale_prismodell.avtale_id = gruppe.avtale_id
+            where gruppe.status != 'AVLYST'
                 and avtale_prismodell.prismodell_type = :prismodell::prismodell
-                and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
+                and daterange(gruppe.start_dato, coalesce(gruppe.avsluttet_tidspunkt::date, gruppe.slutt_dato), '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()
 
@@ -363,7 +363,7 @@ class GenererUtbetalingService(
         )
 
         return session.list(queryOf(query, params)) {
-            UtbetalingContext(it.uuid("id"), prismodell, periode)
+            UtbetalingContext(it.uuid("gjennomforing_id"), prismodell, periode)
         }
     }
 

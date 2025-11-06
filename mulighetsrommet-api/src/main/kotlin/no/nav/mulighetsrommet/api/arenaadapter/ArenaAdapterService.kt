@@ -95,11 +95,12 @@ class ArenaAdapterService(
             return@transaction
         }
 
-        queries.gjennomforing.updateArenaData(
+        queries.gjennomforing.setArenaData(
             arenaGjennomforing.id,
             arenaGjennomforing.tiltaksnummer,
             arenaGjennomforing.arenaAnsvarligEnhet,
         )
+        queries.gjennomforing.setFreeTextSearch(arenaGjennomforing.id, listOf(arenaGjennomforing.navn))
 
         val next = queries.gjennomforing.getOrError(arenaGjennomforing.id)
         if (previous.arena?.tiltaksnummer == null) {
