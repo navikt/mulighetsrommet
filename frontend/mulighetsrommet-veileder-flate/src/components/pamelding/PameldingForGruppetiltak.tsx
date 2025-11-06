@@ -18,7 +18,7 @@ export function PameldingForGruppetiltak({
   const { data: deltakelse } = useDeltakelse();
   const gjennomforingId = useTiltakIdFraUrl();
 
-  if (deltakelse) {
+  if (deltakelse && deltakelse.pamelding) {
     const vedtakRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
       deltakerId: deltakelse.id,

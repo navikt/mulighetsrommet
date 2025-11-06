@@ -9,10 +9,9 @@ import { DataElementStatusTag } from "@/components/data-element/DataElementStatu
 
 interface Props {
   deltakelse: Deltakelse;
-  aktiv: boolean;
 }
 
-export function DeltakelseKort({ deltakelse, aktiv }: Props) {
+export function DeltakelseKort({ deltakelse }: Props) {
   return (
     <Box
       background="bg-default"
@@ -22,13 +21,13 @@ export function DeltakelseKort({ deltakelse, aktiv }: Props) {
     >
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
-        <Knapper deltakelse={deltakelse} aktiv={aktiv} />
+        <Knapper deltakelse={deltakelse} />
       </HGrid>
     </Box>
   );
 }
 
-function Knapper({ deltakelse, aktiv }: Props) {
+function Knapper({ deltakelse }: Props) {
   switch (deltakelse.eierskap) {
     case DeltakelseEierskap.ARENA:
       return null;
@@ -37,17 +36,14 @@ function Knapper({ deltakelse, aktiv }: Props) {
         route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
         deltakerId: deltakelse.id,
       });
-      const gjennomforingId = "gjennomforingId" in deltakelse ? deltakelse.gjennomforingId : null;
+      const tiltakLink = getTiltakLink(deltakelse);
       return (
         <VStack gap="2">
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          {aktiv && gjennomforingId && (
-            <Link
-              to={`/arbeidsmarkedstiltak/tiltak/${gjennomforingId}`}
-              className="text-center no-underline text-[16px] hover:underline"
-            >
+          {tiltakLink && (
+            <Link to={tiltakLink} className="text-center no-underline text-[16px] hover:underline">
               Gå til tiltak
             </Link>
           )}
@@ -74,6 +70,14 @@ function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
     case DeltakelseTilstand.AKTIV:
     case DeltakelseTilstand.AVSLUTTET:
       return "";
+  }
+}
+
+function getTiltakLink(deltakelse: Deltakelse) {
+  if (deltakelse.tilstand !== DeltakelseTilstand.AVSLUTTET && deltakelse.pamelding) {
+    return `/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`;
+  } else {
+    return null;
   }
 }
 

@@ -96,7 +96,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakelseOppfolging = DeltakelseGruppetiltak(
+    val deltakelseOppfolging = Deltakelse(
         id = tiltakshistorikkOppfolging.id,
         eierskap = DeltakelseEierskap.TEAM_KOMET,
         tilstand = DeltakelseTilstand.AKTIV,
@@ -112,10 +112,12 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
-        gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
-        pamelding = DeltakelseGruppetiltak.Pamelding(DeltakerStatusType.VENTELISTE),
+        pamelding = DeltakelsePamelding(
+            gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
+            status = DeltakerStatusType.VENTELISTE,
+        ),
     )
-    val deltakelseAvklaring = DeltakelseArena(
+    val deltakelseAvklaring = Deltakelse(
         id = tiltakshistorikkAvklaring.id,
         eierskap = DeltakelseEierskap.ARENA,
         tilstand = DeltakelseTilstand.AKTIV,
@@ -131,8 +133,9 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = null,
         innsoktDato = null,
+        pamelding = null,
     )
-    val deltakelseArbeidstrening = DeltakelseArbeidsgiverAvtale(
+    val deltakelseArbeidstrening = Deltakelse(
         id = tiltakshistorikkArbeidstrening.id,
         eierskap = DeltakelseEierskap.TEAM_TILTAK,
         tilstand = DeltakelseTilstand.AKTIV,
@@ -148,6 +151,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = null,
         innsoktDato = null,
+        pamelding = null,
     )
 
     val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery = mockk()
@@ -307,7 +311,10 @@ class TiltakshistorikkServiceTest : FunSpec({
                 type = DataElement.Status("Kladd", DataElement.Status.Variant.WARNING),
                 aarsak = null,
             ),
-            pamelding = DeltakelseGruppetiltak.Pamelding(DeltakerStatusType.KLADD),
+            pamelding = DeltakelsePamelding(
+                gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
+                status = DeltakerStatusType.KLADD,
+            ),
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
@@ -374,7 +381,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             historikk shouldBe Deltakelser(
                 meldinger = setOf(),
                 aktive = listOf(
-                    DeltakelseArena(
+                    Deltakelse(
                         id = tiltakshistorikkEnkelAmo.id,
                         eierskap = DeltakelseEierskap.ARENA,
                         tilstand = DeltakelseTilstand.AKTIV,
@@ -393,6 +400,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         ),
                         sistEndretDato = null,
                         innsoktDato = null,
+                        pamelding = null,
                     ),
                 ),
                 historiske = emptyList(),
@@ -424,9 +432,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             historikk shouldBe Deltakelser(
                 meldinger = setOf(),
                 aktive = listOf(
-                    DeltakelseGruppetiltak(
+                    Deltakelse(
                         id = deltakelseEnkelAmo.deltakerId,
-                        gjennomforingId = deltakelseEnkelAmo.deltakerlisteId,
                         eierskap = DeltakelseEierskap.TEAM_KOMET,
                         tilstand = DeltakelseTilstand.AKTIV,
                         tittel = "Tilfeldig enkeltplass fra Komet",
@@ -444,7 +451,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         ),
                         sistEndretDato = LocalDate.of(2018, 12, 5),
                         innsoktDato = LocalDate.of(2018, 12, 3),
-                        pamelding = DeltakelseGruppetiltak.Pamelding(DeltakerStatusType.VENTELISTE),
+                        pamelding = null,
                     ),
                 ),
                 historiske = emptyList(),
