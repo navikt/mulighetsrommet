@@ -14,9 +14,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
@@ -43,7 +40,11 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utils.toUUID
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
+@Serializable
 data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,

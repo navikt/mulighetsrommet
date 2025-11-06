@@ -16,7 +16,7 @@ import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
-import { toAvtaleRequest, toPersonvernRequest, toVeilederinfoRequest } from "./avtaleFormUtils";
+import { toDetaljerRequest, toPersonvernRequest, toVeilederinfoRequest } from "./avtaleFormUtils";
 import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
 import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
 
@@ -115,7 +115,7 @@ export function AvtaleFormPage() {
         </Tabs.List>
         <RedigerAvtaleContainer
           avtale={avtale}
-          mapToRequest={toAvtaleRequest}
+          mapToRequest={toDetaljerRequest}
           mutation={detaljerMutation}
         >
           <FormTabsPanel value={AvtaleTab.DETALJER}>

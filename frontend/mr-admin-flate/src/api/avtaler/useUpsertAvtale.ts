@@ -1,7 +1,12 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
-import { AvtaleDto, AvtaleRequest, AvtaleService, ProblemDetail } from "@tiltaksadministrasjon/api-client";
+import {
+  AvtaleDto,
+  AvtaleRequest,
+  AvtaleService,
+  ProblemDetail,
+} from "@tiltaksadministrasjon/api-client";
 
 export function useUpsertAvtale() {
   const queryClient = useQueryClient();

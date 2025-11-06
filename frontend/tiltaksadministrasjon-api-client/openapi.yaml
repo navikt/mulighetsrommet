@@ -218,7 +218,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
+              $ref: "#/components/schemas/AvtaleRequest"
         required: false
       responses:
         "200":
@@ -3358,6 +3358,372 @@ components:
       - regelverkLenker
       - sanityId
       - tiltakskode
+    DetaljerRequest:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DetaljerRequest.Arrangor"
+        sakarkivNummer:
+          type:
+          - "null"
+          - string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        administratorer:
+          type: array
+          items:
+            type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
+        amoKategorisering:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKategorisering"
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDbo"
+      required:
+      - administratorer
+      - amoKategorisering
+      - arrangor
+      - avtaletype
+      - navn
+      - opsjonsmodell
+      - sakarkivNummer
+      - sluttDato
+      - startDato
+      - tiltakskode
+      - utdanningslop
+    DetaljerRequest.Arrangor:
+      type: object
+      properties:
+        hovedenhet:
+          type: string
+        underenheter:
+          type: array
+          items:
+            type: string
+        kontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - hovedenhet
+      - kontaktpersoner
+      - underenheter
+    Avtaletype:
+      type: string
+      enum:
+      - AVTALE
+      - RAMMEAVTALE
+      - FORHANDSGODKJENT
+      - OFFENTLIG_OFFENTLIG
+    Opsjonsmodell:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/OpsjonsmodellType"
+        opsjonMaksVarighet:
+          type:
+          - "null"
+          - string
+          format: date
+        customOpsjonsmodellNavn:
+          type:
+          - "null"
+          - string
+      required:
+      - customOpsjonsmodellNavn
+      - opsjonMaksVarighet
+      - type
+    OpsjonsmodellType:
+      type: string
+      enum:
+      - TO_PLUSS_EN
+      - TO_PLUSS_EN_PLUSS_EN
+      - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
+      - INGEN_OPSJONSMULIGHET
+      - VALGFRI_SLUTTDATO
+      - ANNET
+    AmoKategorisering:
+      anyOf:
+      - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
+      - $ref: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
+      - $ref: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
+      - $ref: "#/components/schemas/NORSKOPPLAERING"
+      - $ref: "#/components/schemas/STUDIESPESIALISERING"
+      discriminator:
+        propertyName: kurstype
+        mapping:
+          BRANSJE_OG_YRKESRETTET: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
+          FORBEREDENDE_OPPLAERING_FOR_VOKSNE: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
+          GRUNNLEGGENDE_FERDIGHETER: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
+          NORSKOPPLAERING: "#/components/schemas/NORSKOPPLAERING"
+          STUDIESPESIALISERING: "#/components/schemas/STUDIESPESIALISERING"
+    BRANSJE_OG_YRKESRETTET:
+      type: object
+      properties:
+        bransje:
+          $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+        sertifiseringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+        forerkort:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - bransje
+      - forerkort
+      - innholdElementer
+      - sertifiseringer
+    AmoKategorisering.BransjeOgYrkesrettet.Bransje:
+      type: string
+      enum:
+      - INGENIOR_OG_IKT_FAG
+      - HELSE_PLEIE_OG_OMSORG
+      - BARNE_OG_UNGDOMSARBEID
+      - KONTORARBEID
+      - BUTIKK_OG_SALGSARBEID
+      - BYGG_OG_ANLEGG
+      - INDUSTRIARBEID
+      - REISELIV_SERVERING_OG_TRANSPORT
+      - SERVICEYRKER_OG_ANNET_ARBEID
+      - ANDRE_BRANSJER
+    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: integer
+          format: int64
+        label:
+          type: string
+      required:
+      - konseptId
+      - label
+    AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse:
+      type: string
+      enum:
+      - A
+      - A1
+      - A2
+      - AM
+      - AM_147
+      - B
+      - B_78
+      - BE
+      - C
+      - C1
+      - C1E
+      - CE
+      - D
+      - D1
+      - D1E
+      - DE
+      - S
+      - T
+    AmoKategorisering.InnholdElement:
+      type: string
+      enum:
+      - GRUNNLEGGENDE_FERDIGHETER
+      - TEORETISK_OPPLAERING
+      - JOBBSOKER_KOMPETANSE
+      - PRAKSIS
+      - ARBEIDSMARKEDSKUNNSKAP
+      - NORSKOPPLAERING
+    FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+      type: object
+      properties: {}
+    GRUNNLEGGENDE_FERDIGHETER:
+      type: object
+      properties:
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - innholdElementer
+    NORSKOPPLAERING:
+      type: object
+      properties:
+        norskprove:
+          type: boolean
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - innholdElementer
+      - norskprove
+    STUDIESPESIALISERING:
+      type: object
+      properties: {}
+    UtdanningslopDbo:
+      type: object
+      properties:
+        utdanningsprogram:
+          type: string
+          format: uuid
+        utdanninger:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - utdanninger
+      - utdanningsprogram
+    PrismodellRequest:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/PrismodellType"
+        prisbetingelser:
+          type:
+          - "null"
+          - string
+        satser:
+          type: array
+          items:
+            $ref: "#/components/schemas/AvtaltSatsRequest"
+      required:
+      - prisbetingelser
+      - satser
+      - type
+    PrismodellType:
+      type: string
+      enum:
+      - ANNEN_AVTALT_PRIS
+      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_MANEDSVERK
+      - AVTALT_PRIS_PER_UKESVERK
+      - AVTALT_PRIS_PER_HELE_UKESVERK
+      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    AvtaltSatsRequest:
+      type: object
+      properties:
+        gjelderFra:
+          type:
+          - "null"
+          - string
+          format: date
+        pris:
+          type:
+          - "null"
+          - integer
+          format: int32
+        valuta:
+          type:
+          - "null"
+          - string
+        gjelderTil:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - gjelderFra
+      - gjelderTil
+      - pris
+      - valuta
+    PersonvernRequest:
+      type: object
+      properties:
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
+      required:
+      - personopplysninger
+      - personvernBekreftet
+    Personopplysning:
+      type: string
+      enum:
+      - NAVN
+      - KJONN
+      - ADRESSE
+      - TELEFONNUMMER
+      - FOLKEREGISTER_IDENTIFIKATOR
+      - FODSELSDATO
+      - BEHOV_FOR_BISTAND_FRA_NAV
+      - YTELSER_FRA_NAV
+      - BILDE
+      - EPOST
+      - BRUKERNAVN
+      - ARBEIDSERFARING_OG_VERV
+      - SERTIFIKATER_OG_KURS
+      - UTDANNING_OG_FAGBREV
+      - IP_ADRESSE
+      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
+      - SPRAKKUNNSKAP
+      - ADFERD
+      - SOSIALE_FORHOLD
+      - HELSEOPPLYSNINGER
+      - RELIGION
+      - NASJONALITET
+      - ADRESSESPERRE
+      - VERGEMAL
+    VeilederinfoRequest:
+      type: object
+      properties:
+        navEnheter:
+          type: array
+          items:
+            type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+      required:
+      - beskrivelse
+      - faneinnhold
+      - navEnheter
+    AvtaleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        detaljer:
+          $ref: "#/components/schemas/DetaljerRequest"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellRequest"
+        personvern:
+          $ref: "#/components/schemas/PersonvernRequest"
+        veilederinformasjon:
+          $ref: "#/components/schemas/VeilederinfoRequest"
+      required:
+      - detaljer
+      - id
+      - personvern
+      - prismodell
+      - veilederinformasjon
     Avtale.Tiltakstype:
       type: object
       properties:
@@ -3452,13 +3818,6 @@ components:
       required:
       - enhetsnummer
       - navn
-    Avtaletype:
-      type: string
-      enum:
-      - AVTALE
-      - RAMMEAVTALE
-      - FORHANDSGODKJENT
-      - OFFENTLIG_OFFENTLIG
     AvtaleDto.Status:
       type: object
       properties:
@@ -3579,178 +3938,6 @@ components:
       - TILLIT
       - UTLAND
       - YTA
-    Personopplysning:
-      type: string
-      enum:
-      - NAVN
-      - KJONN
-      - ADRESSE
-      - TELEFONNUMMER
-      - FOLKEREGISTER_IDENTIFIKATOR
-      - FODSELSDATO
-      - BEHOV_FOR_BISTAND_FRA_NAV
-      - YTELSER_FRA_NAV
-      - BILDE
-      - EPOST
-      - BRUKERNAVN
-      - ARBEIDSERFARING_OG_VERV
-      - SERTIFIKATER_OG_KURS
-      - UTDANNING_OG_FAGBREV
-      - IP_ADRESSE
-      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
-      - SPRAKKUNNSKAP
-      - ADFERD
-      - SOSIALE_FORHOLD
-      - HELSEOPPLYSNINGER
-      - RELIGION
-      - NASJONALITET
-      - ADRESSESPERRE
-      - VERGEMAL
-    AmoKategorisering:
-      anyOf:
-      - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
-      - $ref: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
-      - $ref: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
-      - $ref: "#/components/schemas/NORSKOPPLAERING"
-      - $ref: "#/components/schemas/STUDIESPESIALISERING"
-      discriminator:
-        propertyName: kurstype
-        mapping:
-          BRANSJE_OG_YRKESRETTET: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
-          FORBEREDENDE_OPPLAERING_FOR_VOKSNE: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
-          GRUNNLEGGENDE_FERDIGHETER: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
-          NORSKOPPLAERING: "#/components/schemas/NORSKOPPLAERING"
-          STUDIESPESIALISERING: "#/components/schemas/STUDIESPESIALISERING"
-    BRANSJE_OG_YRKESRETTET:
-      type: object
-      properties:
-        bransje:
-          $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
-        sertifiseringer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
-        forerkort:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - bransje
-      - forerkort
-      - innholdElementer
-      - sertifiseringer
-    AmoKategorisering.BransjeOgYrkesrettet.Bransje:
-      type: string
-      enum:
-      - INGENIOR_OG_IKT_FAG
-      - HELSE_PLEIE_OG_OMSORG
-      - BARNE_OG_UNGDOMSARBEID
-      - KONTORARBEID
-      - BUTIKK_OG_SALGSARBEID
-      - BYGG_OG_ANLEGG
-      - INDUSTRIARBEID
-      - REISELIV_SERVERING_OG_TRANSPORT
-      - SERVICEYRKER_OG_ANNET_ARBEID
-      - ANDRE_BRANSJER
-    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering:
-      type: object
-      properties:
-        konseptId:
-          type: integer
-          format: int64
-        label:
-          type: string
-      required:
-      - konseptId
-      - label
-    AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse:
-      type: string
-      enum:
-      - A
-      - A1
-      - A2
-      - AM
-      - AM_147
-      - B
-      - B_78
-      - BE
-      - C
-      - C1
-      - C1E
-      - CE
-      - D
-      - D1
-      - D1E
-      - DE
-      - S
-      - T
-    AmoKategorisering.InnholdElement:
-      type: string
-      enum:
-      - GRUNNLEGGENDE_FERDIGHETER
-      - TEORETISK_OPPLAERING
-      - JOBBSOKER_KOMPETANSE
-      - PRAKSIS
-      - ARBEIDSMARKEDSKUNNSKAP
-      - NORSKOPPLAERING
-    FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      type: object
-      properties: {}
-    GRUNNLEGGENDE_FERDIGHETER:
-      type: object
-      properties:
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
-    NORSKOPPLAERING:
-      type: object
-      properties:
-        norskprove:
-          type: boolean
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
-      - norskprove
-    STUDIESPESIALISERING:
-      type: object
-      properties: {}
-    Opsjonsmodell:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/OpsjonsmodellType"
-        opsjonMaksVarighet:
-          type:
-          - "null"
-          - string
-          format: date
-        customOpsjonsmodellNavn:
-          type:
-          - "null"
-          - string
-      required:
-      - customOpsjonsmodellNavn
-      - opsjonMaksVarighet
-      - type
-    OpsjonsmodellType:
-      type: string
-      enum:
-      - TO_PLUSS_EN
-      - TO_PLUSS_EN_PLUSS_EN
-      - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
-      - INGEN_OPSJONSMULIGHET
-      - VALGFRI_SLUTTDATO
-      - ANNET
     Avtale.OpsjonLoggDto:
       type: object
       properties:
@@ -3842,15 +4029,6 @@ components:
       - prisbetingelser
       - satser
       - type
-    PrismodellType:
-      type: string
-      enum:
-      - ANNEN_AVTALT_PRIS
-      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_UKESVERK
-      - AVTALT_PRIS_PER_HELE_UKESVERK
-      - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     AvtaltSatsDto:
       type: object
       properties:
@@ -4038,120 +4216,6 @@ components:
       required:
       - nySluttDato
       - type
-    DetaljerRequest.Arrangor:
-      type: object
-      properties:
-        hovedenhet:
-          type: string
-        underenheter:
-          type: array
-          items:
-            type: string
-        kontaktpersoner:
-          type: array
-          items:
-            type: string
-            format: uuid
-      required:
-      - hovedenhet
-      - kontaktpersoner
-      - underenheter
-    UtdanningslopDbo:
-      type: object
-      properties:
-        utdanningsprogram:
-          type: string
-          format: uuid
-        utdanninger:
-          type: array
-          items:
-            type: string
-            format: uuid
-      required:
-      - utdanninger
-      - utdanningsprogram
-    DetaljerRequest:
-      type: object
-      properties:
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        arrangor:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DetaljerRequest.Arrangor"
-        sakarkivNummer:
-          type:
-          - "null"
-          - string
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        administratorer:
-          type: array
-          items:
-            type: string
-        avtaletype:
-          $ref: "#/components/schemas/Avtaletype"
-        opsjonsmodell:
-          $ref: "#/components/schemas/Opsjonsmodell"
-        amoKategorisering:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
-      required:
-      - administratorer
-      - amoKategorisering
-      - arrangor
-      - avtaletype
-      - navn
-      - opsjonsmodell
-      - sakarkivNummer
-      - sluttDato
-      - startDato
-      - tiltakskode
-      - utdanningslop
-    PersonvernRequest:
-      type: object
-      properties:
-        personopplysninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Personopplysning"
-        personvernBekreftet:
-          type: boolean
-      required:
-      - personopplysninger
-      - personvernBekreftet
-    VeilederinfoRequest:
-      type: object
-      properties:
-        navEnheter:
-          type: array
-          items:
-            type: string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-      required:
-      - beskrivelse
-      - faneinnhold
-      - navEnheter
     AvbrytAvtaleAarsak:
       type: string
       enum:
@@ -4174,50 +4238,6 @@ components:
       required:
       - aarsaker
       - forklaring
-    AvtaltSatsRequest:
-      type: object
-      properties:
-        gjelderFra:
-          type:
-          - "null"
-          - string
-          format: date
-        pris:
-          type:
-          - "null"
-          - integer
-          format: int32
-        valuta:
-          type:
-          - "null"
-          - string
-        gjelderTil:
-          type:
-          - "null"
-          - string
-          format: date
-      required:
-      - gjelderFra
-      - gjelderTil
-      - pris
-      - valuta
-    PrismodellRequest:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/PrismodellType"
-        prisbetingelser:
-          type:
-          - "null"
-          - string
-        satser:
-          type: array
-          items:
-            $ref: "#/components/schemas/AvtaltSatsRequest"
-      required:
-      - prisbetingelser
-      - satser
-      - type
     PaginationSummary:
       type: object
       properties:
