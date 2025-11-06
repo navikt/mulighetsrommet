@@ -402,7 +402,6 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { PersonaliaService(get(), get(), get(), get()) }
     single { UnleashFeatureToggleService(appConfig.unleash) }
-    single { AvtaleValidator(get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single {
         TilsagnService(

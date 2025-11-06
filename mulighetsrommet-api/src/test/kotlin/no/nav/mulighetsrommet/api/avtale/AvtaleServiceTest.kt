@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.left
-import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -16,22 +15,24 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -39,16 +40,10 @@ import java.util.*
 class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val avtaleValidator = mockk<AvtaleValidator>()
-
     val domain = MulighetsrommetTestDomain()
 
     beforeEach {
         domain.initialize(database.db)
-
-        coEvery { avtaleValidator.validate(any(), any()) } answers {
-            firstArg<AvtaleDbo>().right()
-        }
     }
 
     afterEach {
@@ -59,10 +54,10 @@ class AvtaleServiceTest : FunSpec({
 
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
-        validator: AvtaleValidator = avtaleValidator,
+        arrangorService: ArrangorService = mockk<ArrangorService>(relaxed = true),
     ) = AvtaleService(
         database.db,
-        validator,
+        arrangorService,
         gjennomforingPublisher,
     )
 
@@ -70,31 +65,47 @@ class AvtaleServiceTest : FunSpec({
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(gjennomforingPublisher)
 
-        test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
-            val request = AvtaleFixtures.avtaleRequest
-
-            coEvery { avtaleValidator.validate(any(), any()) } returns listOf(
-                FieldError("navn", "Dårlig navn"),
-            ).left()
-
-            avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
-                listOf(FieldError("navn", "Dårlig navn")),
-            )
-        }
-
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
             val request = AvtaleFixtures.avtaleRequest
 
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging.right()
             avtaleService.upsert(request, bertilNavIdent)
 
             verify {
                 gjennomforingPublisher.schedule(
-                    InitialLoadGjennomforinger.Input(avtaleId = AvtaleFixtures.oppfolging.id),
+                    InitialLoadGjennomforinger.Input(avtaleId = request.id),
                     any(),
                     any(),
                 )
             }
+        }
+
+        test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
+            val brregClient = mockk<BrregClient>()
+            coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("223442332")) } returns BrregError.NotFound.left()
+
+            val arrangorService = ArrangorService(
+                db = database.db,
+                brregClient = brregClient,
+            )
+
+            val avtaleService = createAvtaleService(arrangorService = arrangorService)
+            avtaleService.upsert(
+                AvtaleFixtures.avtaleRequest.copy(
+                    arrangor = AvtaleRequest.Arrangor(
+                        hovedenhet = Organisasjonsnummer("223442332"),
+                        underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                        kontaktpersoner = emptyList(),
+                    ),
+                ),
+                bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/arrangorHovedenhet",
+                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+                    ),
+                ),
+            )
         }
     }
 
@@ -208,9 +219,6 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
-                .copy(administratorer = listOf(identAnsatt1))
-                .right()
             avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
@@ -223,9 +231,7 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val avtale = AvtaleFixtures.avtaleRequest
-            coEvery { avtaleValidator.validate(any(), any()) } returns AvtaleFixtures.oppfolging
                 .copy(administratorer = listOf(identAnsatt2))
-                .right()
             avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
@@ -237,14 +243,7 @@ class AvtaleServiceTest : FunSpec({
     }
 
     context("opsjoner") {
-        val avtaleService = createAvtaleService(
-            validator = AvtaleValidator(
-                db = database.db,
-                tiltakstyper = mockk<TiltakstypeService>(),
-                arrangorService = mockk<ArrangorService>(),
-                navEnheterService = mockk<NavEnhetService>(),
-            ),
-        )
+        val avtaleService = createAvtaleService()
 
         val today = LocalDate.of(2025, 6, 1)
         val yesterday = today.minusDays(1)
