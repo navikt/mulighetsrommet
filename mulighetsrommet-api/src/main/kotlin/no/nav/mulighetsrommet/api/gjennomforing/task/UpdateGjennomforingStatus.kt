@@ -50,8 +50,8 @@ class UpdateGjennomforingStatus(
     ): List<UUID> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select id
-            from gjennomforing
+            select gjennomforing_id
+            from gjennomforing_gruppetiltak
             where status = 'GJENNOMFORES'
               and slutt_dato < :slutt_dato_lt
             order by created_at
@@ -61,6 +61,6 @@ class UpdateGjennomforingStatus(
             "slutt_dato_lt" to sluttDatoLessThan,
         )
 
-        session.list(queryOf(query, params)) { it.uuid("id") }
+        session.list(queryOf(query, params)) { it.uuid("gjennomforing_id") }
     }
 }

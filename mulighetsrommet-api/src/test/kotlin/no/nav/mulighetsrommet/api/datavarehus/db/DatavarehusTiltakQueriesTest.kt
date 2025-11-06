@@ -82,7 +82,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.updateArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
+                queries.gjennomforing.setArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
 
                 val queries = DatavarehusTiltakQueries(session)
 
