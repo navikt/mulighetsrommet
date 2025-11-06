@@ -6,10 +6,10 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { CheckboxList } from "@/components/filter/CheckboxList";
 import { tiltakstypeOptions } from "@/utils/filterUtils";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { Accordion } from "@navikt/ds-react";
+import { Accordion, Checkbox } from "@navikt/ds-react";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { useKostnadsstedFiltre } from "@/api/enhet/useKostnadsstedFiltre";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
-import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 
 type Filters = "tiltakstype" | "navEnhet" | "sortering";
 
@@ -22,8 +22,8 @@ interface Props {
 export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(InnsendingFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
+  const { data: regioner } = useKostnadsstedFiltre();
   const { data: enheter } = useNavEnheter();
-  const { data: regioner } = useNavRegioner();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
@@ -36,6 +36,16 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
       [key]: checked ? values : [],
     });
   }
+
+  const enkleKostnadssteder = regioner
+    .filter((region) => region.enheter.length <= 1)
+    .map((r) => {
+      const enkel = r.enheter.length > 0;
+      const enhet = enkel
+        ? enheter.find((e) => e.enhetsnummer === r.enheter[0].enhetsnummer)
+        : enheter.find((e) => e.enhetsnummer === r.enhetsnummer);
+      return enhet;
+    });
 
   return (
     <>
@@ -59,8 +69,25 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
                   navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                 });
               }}
-              regioner={regioner}
+              regioner={regioner.filter((region) => region.enheter.length > 1)}
             />
+            {enkleKostnadssteder.map((kostnadssted) => (
+              <>
+                {kostnadssted ? (
+                  <Checkbox
+                    value={kostnadssted}
+                    size="small"
+                    onChange={() =>
+                      updateFilter({
+                        navEnheter: addOrRemove(filter.navEnheter, kostnadssted),
+                      })
+                    }
+                  >
+                    {kostnadssted.navn}
+                  </Checkbox>
+                ) : null}
+              </>
+            ))}
           </Accordion.Content>
         </Accordion.Item>
         {!skjulFilter?.tiltakstype && (
