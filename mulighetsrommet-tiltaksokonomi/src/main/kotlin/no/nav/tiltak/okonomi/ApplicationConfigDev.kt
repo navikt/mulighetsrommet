@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
+import java.time.LocalDateTime
 
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
@@ -66,5 +67,8 @@ val ApplicationConfigDev = AppConfig(
                 consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
             ),
         ),
+    ),
+    faktura = FakturaConfig(
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
 )

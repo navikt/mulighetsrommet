@@ -33,6 +33,7 @@ import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class OkonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -67,11 +68,17 @@ class OkonomiServiceTest : FunSpec({
 
     val brreg: BrregClient = mockk()
 
-    fun createOkonomiService(oebsTiltakApiClient: OebsPoApClient) = OkonomiService(
+    fun createOkonomiService(
+        oebsTiltakApiClient: OebsPoApClient,
+        getTidligstTidspunktForUtbetaling: (Bestilling, Faktura) -> LocalDateTime? = { _, _ -> null },
+    ) = OkonomiService(
+        config = OkonomiService.Config(
+            topics = KafkaTopics("bestilling-status", "faktura-status"),
+            faktura = FakturaConfig(getTidligstTidspunktForUtbetaling),
+        ),
         db = db,
         oebs = oebsTiltakApiClient,
         brreg = brreg,
-        topics = KafkaTopics("bestilling-status", "faktura-status"),
     )
 
     context("opprett bestilling") {
@@ -452,15 +459,33 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("feiler når bestilling ikke er aktiv ennå") {
-            val bestilling2 = createBestilling("876")
+            val bestilling = createBestilling("876")
             db.session {
-                queries.bestilling.insertBestilling(bestilling2)
+                queries.bestilling.insertBestilling(bestilling)
             }
+
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura(bestilling2.bestillingsnummer, "876-F1")
+            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "876-F1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
                 it.message shouldBe "Faktura 876-F1 kan ikke opprettes fordi bestilling 876 har status SENDT"
+            }
+        }
+
+        test("feiler når tidligste tidspunkt for faktura enda ikke er passert") {
+            val bestilling = createBestilling("B32", status = BestillingStatusType.AKTIV)
+            db.session {
+                queries.bestilling.insertBestilling(bestilling)
+            }
+
+            val now = LocalDate.of(2025, 2, 1).atStartOfDay()
+            val getTidspunktForUtbetaling = { _: Bestilling, _: Faktura -> LocalDate.of(2025, 2, 2).atStartOfDay() }
+
+            val service = createOkonomiService(oebsClient(oebsRespondError()), getTidspunktForUtbetaling)
+
+            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "B32-F1")
+            service.opprettFaktura(opprettFaktura, now).shouldBeLeft().should {
+                it.message shouldBe "Faktura B32-F1 kan ikke opprettes før 2025-02-02T00:00"
             }
         }
 
