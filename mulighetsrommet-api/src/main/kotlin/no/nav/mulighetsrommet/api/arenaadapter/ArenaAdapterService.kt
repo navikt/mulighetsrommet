@@ -99,25 +99,26 @@ class ArenaAdapterService(
 
     private fun upsertGruppetiltak(
         tiltakstype: TiltakstypeDto,
-        arenaGjennomforing: ArenaGjennomforingDbo,
+        gjennomforing: ArenaGjennomforingDbo,
     ): Unit = db.transaction {
         require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = queries.gjennomforing.getOrError(arenaGjennomforing.id)
-        if (!hasRelevantChanges(arenaGjennomforing, previous)) {
+        val previous = queries.gjennomforing.getOrError(gjennomforing.id)
+        if (!hasRelevantChanges(gjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction
         }
 
-        queries.gjennomforing.updateArenaData(
-            arenaGjennomforing.id,
-            arenaGjennomforing.tiltaksnummer,
-            arenaGjennomforing.arenaAnsvarligEnhet,
+        queries.gjennomforing.setArenaData(
+            gjennomforing.id,
+            gjennomforing.tiltaksnummer,
+            gjennomforing.arenaAnsvarligEnhet,
         )
+        queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
 
-        val next = queries.gjennomforing.getOrError(arenaGjennomforing.id)
+        val next = queries.gjennomforing.getOrError(gjennomforing.id)
         if (previous.arena?.tiltaksnummer == null) {
             logTiltaksnummerHentetFraArena(next)
         } else {
