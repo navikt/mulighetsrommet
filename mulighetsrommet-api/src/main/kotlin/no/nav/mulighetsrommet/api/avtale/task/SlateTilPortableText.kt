@@ -1,28 +1,15 @@
 package no.nav.mulighetsrommet.api.avtale.task
 
-import arrow.core.getOrNone
-import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
+import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
-import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonPrimitive
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.PortableTextTypedObject
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.fromSlateFormat
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.util.*
 
 class SlateTilPortableText(
@@ -30,14 +17,29 @@ class SlateTilPortableText(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    val task: RecurringTask<Void> = Tasks
-        .recurring(javaClass.simpleName, Daily(LocalTime.MIDNIGHT))
-        .execute { _, _ ->
-            execute(LocalDateTime.now())
-        }
+    val task: OneTimeTask<Void> = Tasks
+        .oneTime(javaClass.simpleName)
+        .execute { _, _ -> execute() }
 
-    fun execute(now: LocalDateTime) {
-        val faneinnholdListe = getAvtalerFaneinnhold()
+    fun execute() {
+        val mapped = getAvtalerFaneinnhold().map { avtaleFaneInnhold ->
+            val faneInnhold = avtaleFaneInnhold.faneInnhold
+            val mappedFaneInnhold = faneInnhold.copy(
+                forHvem = faneInnhold.forHvem?.fromSlateFormat(),
+                detaljerOgInnhold = faneInnhold.detaljerOgInnhold?.fromSlateFormat(),
+                pameldingOgVarighet = faneInnhold.pameldingOgVarighet?.fromSlateFormat(),
+                kontaktinfo = faneInnhold.kontaktinfo?.fromSlateFormat(),
+                oppskrift = faneInnhold.oppskrift?.fromSlateFormat(),
+            )
+            return@map AvtaleFaneInnhold(avtaleFaneInnhold.id, mappedFaneInnhold)
+        }
+        logger.info("Konverterer ${mapped.size} avtalers Faneinnhold fra Slate til Portable Text format")
+        db.transaction {
+            mapped.forEach { mapped ->
+                upsertFaneinnhold(mapped.id, mapped.faneInnhold)
+            }
+        }
+        logger.info("${mapped.size} avtaler konvertert fra Slate til Portable Text format")
     }
 
     private fun getAvtalerFaneinnhold(): List<AvtaleFaneInnhold> = db.session {
@@ -57,85 +59,23 @@ class SlateTilPortableText(
             )
         }
     }
+
+    private fun TransactionalQueryContext.upsertFaneinnhold(id: UUID, faneInnhold: Faneinnhold) {
+        @Language("PostgreSQL")
+        val query = """
+                update avtale
+                set
+                    faneinnhold = :faneinnhold::jsonb
+                 where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id.toString(),
+            "faneinnhold" to Json.encodeToString(faneInnhold),
+        )
+
+        session.execute(queryOf(query, params))
+    }
 }
 
 data class AvtaleFaneInnhold(val id: UUID, val faneInnhold: Faneinnhold)
-
-fun List<PortableTextTypedObject>.fromSlateFormat(): List<PortableTextTypedObject> {
-    if (this.isEmpty()) {
-        return emptyList()
-    }
-    return this.map {
-        if (it._key != null) {
-            return@map it
-        }
-        return@map it.toSlateFormat()
-    }
-}
-
-private fun PortableTextTypedObject.toSlateFormat(): PortableTextTypedObject {
-    if (this._type != "block") {
-        return this
-    }
-    val additionalProperties = this.additionalProperties.toMutableMap()
-    additionalProperties["style"] = JsonPrimitive("normal")
-
-    if ("listItem" in additionalProperties) {
-        additionalProperties["level"] = JsonPrimitive(1)
-    }
-    val markDefs = additionalProperties.getOrNone("markDefs").getOrNull()?.let {
-        if (it is JsonArray && it.isNotEmpty()) {
-            return@let it.updateMarkdefs(additionalProperties)
-        }
-        return@let null
-    }
-    if (markDefs != null) {
-        additionalProperties["markDefs"] = markDefs
-    }
-    return this.copy(additionalProperties = additionalProperties)
-}
-
-private fun JsonArray.updateMarkdefs(additionalProperties: MutableMap<String, JsonElement>): JsonArray {
-    val linkMarkDefIndex = this.indexOfFirst { obj ->
-        obj is JsonObject && "_type" in obj && obj["_type"].toString() == "link"
-    }
-    if (linkMarkDefIndex < 0) {
-        return this
-    }
-
-    val linkMarkDef = this[linkMarkDefIndex].let { it as? JsonObject }
-    val linkMarkDefKey = linkMarkDef?.get("_key")?.jsonPrimitive?.content
-    val newKey = getOrGenerateKey()
-
-    val children = additionalProperties["children"]?.let { it as? JsonArray }?.map { child ->
-        if (child !is JsonObject) {
-            return@map child
-        }
-        val mutChild = child.toMutableMap()
-        mutChild["_key"] = JsonPrimitive(getOrGenerateKey(child))
-
-        if ("marks" in mutChild) {
-            val childMarks = mutChild["marks"]?.let { it as? JsonArray }?.map { childMark ->
-                if (childMark is JsonPrimitive && childMark.toString() == linkMarkDefKey) {
-                    return@map JsonPrimitive(newKey)
-                }
-                return@map childMark
-            }
-            if (childMarks != null) {
-                mutChild["marks"] = JsonArray(childMarks)
-            }
-        }
-        return@map JsonObject(mutChild)
-    }
-    if (children != null) {
-        additionalProperties["children"] = JsonArray(children)
-    }
-    return this
-}
-
-private fun getOrGenerateKey(obj: JsonObject? = null): String {
-    if (obj != null && "_key" in obj && obj["_key"] != JsonNull) {
-        return obj["_key"].toString()
-    }
-    return UUID.randomUUID().toString().slice(0..8)
-}

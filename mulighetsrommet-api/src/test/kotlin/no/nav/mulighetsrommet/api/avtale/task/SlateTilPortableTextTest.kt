@@ -1,12 +1,14 @@
 package no.nav.mulighetsrommet.api.avtale.task
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
-import no.nav.mulighetsrommet.api.avtale.AvtaleService
+import io.kotest.matchers.string.shouldNotContain
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -14,10 +16,13 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.FaneinnholdLenke
+import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.test.assertFails
+import kotlin.collections.List
 
 class SlateTilPortableTextTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -26,28 +31,44 @@ class SlateTilPortableTextTest : FunSpec({
         database.db,
     )
 
+    val slateTextList = Json.decodeFromString<List<PortableTextTypedObject>>(
+        """
+        [ { "_key": null, "_type": "block", "children": [ { "text": "Målgruppe:", "_type": "span", "marks": ["strong"] } ], "markDefs": [] }, { "_key": null, "_type": "block", "children": [ { "text": "Arbeidssøkeren skal ikke ha rett på norskopplæring etter introduksjonsloven eller integreringsloven.", "_type": "span" } ], "listItem": "bullet", "markDefs": [] }, { "_key": null, "_type": "block", "children": [ { "text": "Arbeidssøkerne må ha språknivå A1-A2 ved oppstart til kurs.", "_type": "span" } ], "listItem": "bullet", "markDefs": [] }, { "_key": null, "_type": "block", "children": [{ "text": "", "_type": "span" }], "markDefs": [] }, { "_key": null, "_type": "block", "children": [ { "text": "HK-dir sin ", "_type": "span" }, { "text": "nettside", "_type": "span", "marks": ["https://prove.hkdir.no/norskprove-a1-b2"] }, { "text": " inneholder nyttig informasjon om språknivå og norskprøver. Her finner du nærmere beskrivelse av alle språknivåene. I tillegg er det øvelsesoppgaver som kan gjøre det lettere for deltaker og Nav-veileder å finne ut hvilket nivå deltaker ligger på.", "_type": "span" } ], "markDefs": [ { "_key": "https://prove.hkdir.no/norskprove-a1-b2", "href": "https://prove.hkdir.no/norskprove-a1-b2", "_type": "link" } ] } ]
+        """.trimIndent(),
+    )
+
+    val faneinnhold = Faneinnhold(
+        forHvem = slateTextList,
+        detaljerOgInnhold = slateTextList,
+        pameldingOgVarighet = slateTextList,
+        kontaktinfo = slateTextList,
+        oppskrift = slateTextList,
+        forHvemInfoboks = null,
+        detaljerOgInnholdInfoboks = null,
+        pameldingOgVarighetInfoboks = null,
+        kontaktinfoInfoboks = null,
+        lenker = null,
+        delMedBruker = null,
+    )
+
     val avtale1 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = LocalDate.of(2025, 5, 31),
         status = AvtaleStatusType.AKTIV,
+        faneinnhold = faneinnhold,
     )
     val avtale2 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = LocalDate.of(2025, 6, 30),
         status = AvtaleStatusType.AKTIV,
-    )
-    val avtale3 = AvtaleFixtures.oppfolging.copy(
-        id = UUID.randomUUID(),
-        startDato = LocalDate.of(2025, 5, 1),
-        sluttDato = null,
-        status = AvtaleStatusType.AKTIV,
+        faneinnhold = faneinnhold,
     )
 
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-        avtaler = listOf(avtale1, avtale2, avtale3),
+        avtaler = listOf(avtale1, avtale2),
     )
 
     beforeEach {
@@ -58,82 +79,25 @@ class SlateTilPortableTextTest : FunSpec({
         database.truncateAll()
     }
 
-    test("") {
-        assertFails { throw Exception("oi") }
-    }
-
-    test("avslutter ikke avtaler før sluttdato er passert") {
-        val task = createTask()
-
-        task.execute(now = LocalDateTime.of(2025, 5, 1, 0, 0))
-
+    test("skal mappe faneinnhold fra slate til portable text") {
         database.run {
-            queries.avtale.get(avtale1.id).shouldNotBeNull().should {
-                it.status.type shouldBe AvtaleStatusType.AKTIV
+            val assertFaneinnhold = { avtale: Avtale ->
+                avtale.faneinnhold?.forHvem.shouldNotBeNull().first()._key.shouldNotBeNull()
+                val serialized = Json.encodeToString(avtale.faneinnhold)
+                serialized.shouldNotContain("\"_key\": null")
             }
-            queries.avtale.get(avtale2.id).shouldNotBeNull().should {
-                it.status.type shouldBe AvtaleStatusType.AKTIV
-            }
-            queries.avtale.get(avtale3.id).shouldNotBeNull().should {
-                it.status.type shouldBe AvtaleStatusType.AKTIV
-            }
-        }
-    }
 
-    test("avslutter avtaler når sluttdato er passert") {
-        val task = createTask()
+            val task = createTask()
 
-        task.execute(now = LocalDateTime.of(2025, 7, 1, 0, 0))
+            task.execute()
 
-        database.run {
-            queries.avtale.get(avtale1.id).shouldNotBeNull().should {
-                it.status.type shouldBe AvtaleStatusType.AVSLUTTET
-            }
-            queries.avtale.get(avtale2.id).shouldNotBeNull().should {
-                it.status.type shouldBe AvtaleStatusType.AVSLUTTET
-            }
-            queries.avtale.get(avtale3.id).shouldNotBeNull().should {
-                it.status.type shouldBe AvtaleStatusType.AKTIV
-            }
-        }
-    }
-
-    test("endre ikke status på avtaler som allerede er avsluttet eller avbrutt") {
-        database.run {
-            queries.avtale.setStatus(
-                id = avtale1.id,
-                status = AvtaleStatusType.AVBRUTT,
-                tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
-                forklaring = null,
-            )
-
-            queries.avtale.setStatus(
-                id = avtale2.id,
-                status = AvtaleStatusType.AVSLUTTET,
-                tidspunkt = null,
-                aarsaker = null,
-                forklaring = null,
-            )
-        }
-
-        val task = createTask()
-
-        task.execute(now = LocalDateTime.of(2025, 7, 1, 0, 0))
-
-        database.run {
-            queries.avtale.get(avtale1.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatus.Avbrutt(
-                    tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
-                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
-                    forklaring = null,
-                )
-            }
-            queries.avtale.get(avtale2.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatus.Avsluttet
-            }
-            queries.avtale.get(avtale3.id).shouldNotBeNull().should {
-                it.status shouldBe AvtaleStatus.Aktiv
+            database.run {
+                queries.avtale.get(avtale1.id).shouldNotBeNull().should {
+                    assertFaneinnhold(it)
+                }
+                queries.avtale.get(avtale2.id).shouldNotBeNull().should {
+                    assertFaneinnhold(it)
+                }
             }
         }
     }
