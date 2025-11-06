@@ -23,7 +23,7 @@ select tilsagn.id,
        tilsagn.created_at,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.lopenummer          as gjennomforing_lopenummer,
-       gjennomforing.navn                as gjennomforing_navn,
+       gruppe.navn                       as gjennomforing_navn,
        nav_enhet.navn                    as kostnadssted_navn,
        nav_enhet.overordnet_enhet        as kostnadssted_overordnet_enhet,
        nav_enhet.type                    as kostnadssted_type,
@@ -38,4 +38,5 @@ from tilsagn
          inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
          inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
          inner join arrangor on arrangor.id = gjennomforing.arrangor_id
-         inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id;
+         inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
+         left join gjennomforing_gruppetiltak gruppe on gruppe.gjennomforing_id = gjennomforing.id
