@@ -3,7 +3,7 @@ import {
   LagredeFilterOversikt,
   LagreFilterButton,
   ListSkeleton,
-  useOpenFilterWhenThreshold,
+  useOpenFilterWhenThreshold
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Suspense, useState } from "react";
@@ -11,10 +11,7 @@ import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import {
-  OppgaverFilterSchema,
-  oppgaverFilterStateAtom,
-} from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { OppgaverFilterSchema, oppgaverFilterStateAtom } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { useSavedFiltersState } from "@/filter/useSavedFiltersState";
 import OppgaverList from "@/components/oppgaver/OppgaveList";
 
@@ -69,7 +66,7 @@ export function OppgaverPage() {
         buttons={null}
         table={
           <Suspense fallback={<ListSkeleton />}>
-            <OppgaverList tagsHeight={tagsHeight} filterOpen={filterOpen} />
+            <OppgaverList filter={filter.values} tagsHeight={tagsHeight} filterOpen={filterOpen} />
           </Suspense>
         }
         filterOpen={filterOpen}

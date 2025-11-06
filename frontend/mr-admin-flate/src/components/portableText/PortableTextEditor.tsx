@@ -7,7 +7,7 @@ import {
   RenderBlockFunction,
   RenderDecoratorFunction,
   RenderStyleFunction,
-  SchemaDefinition,
+  SchemaDefinition
 } from "@portabletext/editor";
 import { EventListenerPlugin } from "@portabletext/editor/plugins";
 import { BodyLong, Link, Tooltip } from "@navikt/ds-react";
@@ -131,9 +131,12 @@ const renderAnnotation: RenderAnnotationFunction = (props) => {
   return <>{props.children}</>;
 };
 
-// Empty line
 const renderBlock: RenderBlockFunction = (props) => {
-  return <BodyLong size="small">{props.children}</BodyLong>;
+  return (
+    <BodyLong size="small" className="mb-1 min-h-[0.75rem]">
+      {props.children}
+    </BodyLong>
+  );
 };
 
 const renderStyle: RenderStyleFunction = (props) => {

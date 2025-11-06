@@ -96,7 +96,7 @@ class OppgaveQueries(private val session: Session) {
     ): List<DelutbetalingOppgaveData> {
         @Language("PostgreSQL")
         val query = """
-            select
+            SELECT
                 delutbetaling.id,
                 delutbetaling.tilsagn_id,
                 delutbetaling.utbetaling_id,
@@ -109,24 +109,28 @@ class OppgaveQueries(private val session: Session) {
                 delutbetaling.faktura_status,
                 delutbetaling.faktura_status_sist_oppdatert,
                 tilsagn.gjennomforing_id,
-                nav_enhet.navn as kostnadssted_navn,
-                nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
+                nav_enhet.navn AS kostnadssted_navn,
+                nav_enhet.enhetsnummer AS kostnadssted_enhetsnummer,
                 gjennomforing.navn,
                 tiltakstype.tiltakskode,
-                tiltakstype.navn as tiltakstype_navn,
-                totrinnskontroll.besluttet_tidspunkt,
-                totrinnskontroll.behandlet_tidspunkt,
-                totrinnskontroll.behandlet_av
-            from delutbetaling
-                inner join tilsagn on tilsagn.id = delutbetaling.tilsagn_id
-                inner join nav_enhet on tilsagn.kostnadssted = nav_enhet.enhetsnummer
-                inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
-                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-                inner join totrinnskontroll on totrinnskontroll.entity_id = delutbetaling.id
-            where
-                totrinnskontroll.type = 'OPPRETT'
-                and (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
-                and (:kostnadssteder::text[] is null or tilsagn.kostnadssted = any(:kostnadssteder))
+                tiltakstype.navn AS tiltakstype_navn,
+                tk.besluttet_tidspunkt,
+                tk.behandlet_tidspunkt,
+                tk.behandlet_av
+            FROM delutbetaling
+            INNER JOIN tilsagn ON tilsagn.id = delutbetaling.tilsagn_id
+            INNER JOIN nav_enhet ON tilsagn.kostnadssted = nav_enhet.enhetsnummer
+            INNER JOIN gjennomforing ON gjennomforing.id = tilsagn.gjennomforing_id
+            INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
+            INNER JOIN (
+                SELECT DISTINCT ON (entity_id) *
+                FROM totrinnskontroll
+                WHERE type = 'OPPRETT'
+                ORDER BY entity_id, behandlet_tidspunkt DESC
+            ) tk ON tk.entity_id = delutbetaling.id
+            WHERE
+                (:tiltakskoder::tiltakskode[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder::tiltakskode[]))
+                AND (:kostnadssteder::text[] IS NULL OR tilsagn.kostnadssted = ANY(:kostnadssteder))
         """.trimIndent()
 
         val params = mapOf(
@@ -235,6 +239,7 @@ class OppgaveQueries(private val session: Session) {
                 ),
                 periode = it.periode("periode"),
                 createdAt = it.localDateTime("created_at"),
+                godkjentAvArrangorTidspunkt = it.localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
                 status = UtbetalingStatusType.valueOf(it.string("status")),
             )
         }
@@ -381,6 +386,7 @@ data class UtbetalingOppgaveData(
     val periode: Periode,
     val tiltakstype: OppgaveTiltakstype,
     val createdAt: LocalDateTime,
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
 )
 
 data class AvtaleOppgaveData(

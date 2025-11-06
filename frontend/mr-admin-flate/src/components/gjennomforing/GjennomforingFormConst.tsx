@@ -122,6 +122,7 @@ export function defaultGjennomforingData(
       : avtale.utdanningslop
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : undefined,
+    oppmoteSted: gjennomforing?.oppmoteSted,
   };
 }
 

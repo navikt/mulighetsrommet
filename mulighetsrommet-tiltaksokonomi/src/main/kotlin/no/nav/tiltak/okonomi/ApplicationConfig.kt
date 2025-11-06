@@ -1,7 +1,9 @@
 package no.nav.tiltak.okonomi
 
-import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
+import java.time.LocalDateTime
+import java.util.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -9,7 +11,8 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
-import java.util.*
+import no.nav.tiltak.okonomi.model.Bestilling
+import no.nav.tiltak.okonomi.model.Faktura
 
 data class AppConfig(
     val httpClientEngine: HttpClientEngine = CIO.create(),
@@ -21,6 +24,11 @@ data class AppConfig(
     val clients: ClientConfig,
     val avstemming: AvstemmingConfig,
     val slack: SlackConfig,
+    val faktura: FakturaConfig,
+)
+
+data class FakturaConfig(
+    val tidligstTidspunktForUtbetaling: (Bestilling, Faktura) -> LocalDateTime?,
 )
 
 data class KafkaConfig(

@@ -1,7 +1,11 @@
 package no.nav.tiltak.okonomi
 
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondOk
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -127,5 +131,8 @@ val ApplicationConfigLocal = AppConfig(
                     .build(),
             ),
         ),
+    ),
+    faktura = FakturaConfig(
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
 )

@@ -20,10 +20,6 @@ export function UtbetalingerForGjennomforingContainer() {
 
   const navigate = useNavigate();
 
-  if (!enableOkonomi) {
-    return null;
-  }
-
   return (
     <>
       <KnapperadContainer>
@@ -33,14 +29,20 @@ export function UtbetalingerForGjennomforingContainer() {
           </Button>
           <Dropdown.Menu>
             <Dropdown.Menu.GroupedList>
-              {handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    navigate(`skjema`);
-                  }}
-                >
-                  Opprett korreksjon på utbetaling
-                </Dropdown.Menu.GroupedList.Item>
+              {!enableOkonomi ? (
+                <Dropdown.Menu.GroupedList.Heading>
+                  Ingen tilgjengelige handlinger
+                </Dropdown.Menu.GroupedList.Heading>
+              ) : (
+                handlinger.includes(GjennomforingHandling.OPPRETT_KORREKSJON_PA_UTBETALING) && (
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => {
+                      navigate(`skjema`);
+                    }}
+                  >
+                    Opprett korreksjon på utbetaling
+                  </Dropdown.Menu.GroupedList.Item>
+                )
               )}
             </Dropdown.Menu.GroupedList>
           </Dropdown.Menu>

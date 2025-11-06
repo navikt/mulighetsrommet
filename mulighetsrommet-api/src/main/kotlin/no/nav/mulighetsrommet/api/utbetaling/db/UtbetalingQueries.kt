@@ -7,7 +7,13 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
+import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -408,6 +414,39 @@ class UtbetalingQueries(private val session: Session) {
         return session.list(queryOf(query, params)) { it.toUtbetaling() }
     }
 
+    fun getAll(
+        filter: AdminInnsendingerFilter,
+    ): List<InnsendingKompaktDto> = with(session) {
+        val parameters = mapOf(
+            "nav_enheter" to filter.navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "tiltakstyper" to filter.tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
+        )
+
+        val order = when (filter.sortering) {
+            "arrangor-ascending" -> "arrangor_navn asc"
+            "arrangor-descending" -> "arrangor_navn desc"
+            "periode-ascending" -> "periode asc"
+            "periode-descending" -> "periode desc"
+            "tiltakstype-ascending" -> "tiltakstype_navn asc, arrangor_navn asc"
+            "tiltakstype-descending" -> "tiltakstype_navn desc, arrangor_navn desc"
+            else -> "arrangor_navn asc"
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            SELECT *
+        FROM view_utbetaling
+        where (:tiltakstyper::uuid[] is null or tiltakstype_id = any (:tiltakstyper))
+        and (:nav_enheter::text[] is null or (
+                   exists(select true
+                          from jsonb_array_elements(nav_enheter_json) as nav_enhet
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter))))
+            AND (status = 'GENERERT')
+        order by $order
+        """.trimIndent()
+        return session.list(queryOf(query, parameters)) { it.toInnsendingKompaktDto() }
+    }
+
     fun getSisteGodkjenteUtbetaling(gjennomforingId: UUID): Utbetaling? {
         @Language("PostgreSQL")
         val query = """
@@ -469,6 +508,21 @@ class UtbetalingQueries(private val session: Session) {
             status = UtbetalingStatusType.valueOf(string("status")),
         )
     }
+
+    private fun Row.toInnsendingKompaktDto(): InnsendingKompaktDto = InnsendingKompaktDto(
+        id = uuid("id"),
+        gjennomforingId = uuid("gjennomforing_id"),
+        periode = periode("periode"),
+        kostnadssteder = stringOrNull("nav_enheter_json")
+            ?.let { Json.decodeFromString<List<KostnadsstedDto>>(it) } ?: emptyList(),
+        arrangor = string("arrangor_navn"),
+        belop = intOrNull("belop_beregnet"),
+        tiltakstype = Utbetaling.Tiltakstype(
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+        ),
+        status = UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.valueOf(string("status"))),
+    )
 
     private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {
         return when (beregning) {

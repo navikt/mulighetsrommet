@@ -36,6 +36,11 @@ class PersonaliaService(
                     val geografiskEnhetDto = geografiskEnhet?.navEnhetNummer()?.let {
                         navEnhetService.hentEnhet(it)
                     }
+
+                    val oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
+                        navEnhetService.hentEnhet(it)
+                    }
+
                     if (amtPersonalia.erSkjermet || amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT) {
                         val skjermetNavn = when {
                             amtPersonalia.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
@@ -54,11 +59,9 @@ class PersonaliaService(
                             deltakerId = amtPersonalia.deltakerId,
                             norskIdent = norskIdent,
                             navn = amtPersonalia.navn,
-                            oppfolgingEnhet = amtPersonalia.oppfolgingEnhet?.let {
-                                navEnhetService.hentEnhet(it)
-                            },
+                            oppfolgingEnhet = oppfolgingEnhet,
                             geografiskEnhet = geografiskEnhetDto,
-                            region = geografiskEnhetDto?.overordnetEnhet?.let {
+                            region = oppfolgingEnhet?.overordnetEnhet?.let {
                                 navEnhetService.hentEnhet(it)
                             },
                         )

@@ -1,4 +1,3 @@
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
@@ -14,7 +13,7 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { FeatureToggle, GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 function getCurrentTab(pathname: string) {
@@ -37,16 +36,6 @@ export function GjennomforingPage() {
 
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: gjennomforing } = useGjennomforing(gjennomforingId);
-
-  const { data: enableTilsagn } = useFeatureToggle(
-    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN,
-    [gjennomforing.tiltakstype.tiltakskode],
-  );
-
-  const { data: enableOkonomi } = useFeatureToggle(
-    FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING,
-    [gjennomforing.tiltakstype.tiltakskode],
-  );
 
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
@@ -108,22 +97,18 @@ export function GjennomforingPage() {
               navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/redaksjonelt-innhold`)
             }
           />
-          {enableTilsagn ? (
-            <Tabs.Tab
-              value="tilsagn"
-              label="Tilsagn"
-              onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)}
-            />
-          ) : null}
-          {enableOkonomi ? (
-            <Tabs.Tab
-              value="utbetalinger"
-              label="Utbetalinger"
-              onClick={() =>
-                navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
-              }
-            />
-          ) : null}
+          <Tabs.Tab
+            value="tilsagn"
+            label="Tilsagn"
+            onClick={() => navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/tilsagn`)}
+          />
+          <Tabs.Tab
+            value="utbetalinger"
+            label="Utbetalinger"
+            onClick={() =>
+              navigateAndReplaceUrl(`/gjennomforinger/${gjennomforing.id}/utbetalinger`)
+            }
+          />
           <Tabs.Tab
             value="deltakerliste"
             label="Deltakerliste"

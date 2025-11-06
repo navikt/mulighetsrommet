@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import java.time.LocalDate
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -389,7 +390,20 @@ val ApplicationConfigProd = AppConfig(
             // DOFA Digitalt oppfølgingstiltak
             Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
         ),
-        opprettKravPeriode = emptyMap(),
+        opprettKravPeriode = mapOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
+                LocalDate.of(2025, 11, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(
+                LocalDate.of(2025, 11, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                LocalDate.of(2025, 11, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+        ),
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

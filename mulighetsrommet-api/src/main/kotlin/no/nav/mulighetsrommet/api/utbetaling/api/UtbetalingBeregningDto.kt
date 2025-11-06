@@ -79,6 +79,8 @@ data class UtbetalingBeregningDto(
                         deltakerRegioner = regioner,
                         deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakere),
                         regnestykke = listOf(
+                            DataElement.text("Innsendt beløp"),
+                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
                             DataElement.number(beregning.output.belop),
                         ),
                     )
@@ -138,8 +140,8 @@ private fun deltakelsePersonaliaColumns() = listOf(
     DataDrivenTableDto.Column("navn", "Navn"),
     DataDrivenTableDto.Column("fnr", "Fødselsnr."),
     DataDrivenTableDto.Column("region", "Region"),
-    DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
     DataDrivenTableDto.Column("oppfolgingEnhet", "Oppfølgingsenhet"),
+    DataDrivenTableDto.Column("geografiskEnhet", "Geografisk enhet"),
 )
 
 private fun deltakelsePersonaliaCells(personalia: DeltakerPersonaliaMedGeografiskEnhet?): Map<String, DataElement?> = mapOf(

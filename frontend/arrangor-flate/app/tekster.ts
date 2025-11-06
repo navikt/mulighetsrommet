@@ -20,10 +20,10 @@ export const tekster = {
       },
     },
     gjennomforing: {
-      headingTitle: "Tilgjengelige tiltaksgjennomføringer",
+      headingTitle: "Tilgjengelige tiltak",
       oversiktFaner: {
-        aktive: "Aktive tiltak",
-        historiske: "Historiske tiltak",
+        aktive: "Aktive",
+        historiske: "Historiske",
       },
     },
     utbetaling: {

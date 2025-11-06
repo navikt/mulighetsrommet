@@ -474,9 +474,15 @@ class UtbetalingService(
         delutbetalinger.forEach { delutbetaling ->
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val benyttetBelop = tilsagn.belopBrukt + delutbetaling.belop
+            val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, type = Totrinnskontroll.Type.OPPRETT)
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
             if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.belop) {
-                tilsagnService.gjorOppAutomatisk(delutbetaling.tilsagnId, this)
+                tilsagnService.gjorOppTilsagnVedUtbetaling(
+                    delutbetaling.tilsagnId,
+                    behandletAv = opprettelse.behandletAv,
+                    besluttetAv = requireNotNull(opprettelse.besluttetAv),
+                    this,
+                )
             }
             publishOpprettFaktura(delutbetaling)
         }

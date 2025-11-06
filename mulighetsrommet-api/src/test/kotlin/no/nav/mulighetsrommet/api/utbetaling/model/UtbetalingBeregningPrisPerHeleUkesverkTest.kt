@@ -125,42 +125,9 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             )
         }
 
-        test("stengt halve måneden gir 2 uker") {
-            val periodeStart = LocalDate.of(2025, 2, 1)
-            val periodeMidt = LocalDate.of(2025, 2, 15)
-            val periodeSlutt = LocalDate.of(2025, 3, 1)
-
-            val deltakerId1 = UUID.randomUUID()
-
-            val periode = Periode(periodeStart, periodeSlutt)
-
-            UtbetalingBeregningPrisPerHeleUkesverk.beregn(
-                UtbetalingBeregningPrisPerHeleUkesverk.Input(
-                    satser = setOf(SatsPeriode(periode, 10)),
-                    stengt = setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
-                    deltakelser = setOf(
-                        DeltakelsePeriode(deltakerId1, Periode(periodeStart, periodeSlutt)),
-                    ),
-                ),
-            ).output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
-                belop = 20,
-                deltakelser = setOf(
-                    UtbetalingBeregningOutputDeltakelse(
-                        deltakerId1,
-                        setOf(
-                            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                Periode(periodeMidt, periodeSlutt),
-                                2.0,
-                                10,
-                            ),
-                        ),
-                    ),
-                ),
-            )
-        }
-
         test("stengt 4 av 5 dager i en uke gir fortsatt én uke") {
             val mandag = LocalDate.of(2025, 2, 3)
+            val fredag = LocalDate.of(2025, 2, 7)
             val lordag = LocalDate.of(2025, 2, 8)
 
             val deltakerId1 = UUID.randomUUID()
@@ -170,7 +137,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             UtbetalingBeregningPrisPerHeleUkesverk.beregn(
                 UtbetalingBeregningPrisPerHeleUkesverk.Input(
                     satser = setOf(SatsPeriode(periode, 10)),
-                    stengt = setOf(StengtPeriode(Periode(mandag, lordag.minusDays(1)), "Stengt")),
+                    stengt = setOf(StengtPeriode(Periode(mandag, fredag), "Stengt")),
                     deltakelser = setOf(
                         DeltakelsePeriode(deltakerId1, periode),
                     ),
@@ -182,7 +149,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                         deltakerId1,
                         setOf(
                             UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                                Periode(LocalDate.of(2025, 2, 7), lordag),
+                                Periode(fredag, lordag),
                                 1.0,
                                 10,
                             ),

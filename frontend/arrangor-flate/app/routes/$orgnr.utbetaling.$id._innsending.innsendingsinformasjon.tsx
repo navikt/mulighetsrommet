@@ -1,14 +1,9 @@
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  ArrangorflateUtbetalingDto,
-} from "api-client";
+import { ArrangorflateService, ArrangorflateTilsagnDto, ArrangorflateUtbetalingDto } from "api-client";
 import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
@@ -89,7 +84,6 @@ export default function TilsagnDetaljerPage() {
           Tilgjengelige tilsagn
         </Heading>
         {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
-        <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         {tilsagn.map((tilsagn) => (
           <TilsagnDetaljer
             key={tilsagn.bestillingsnummer}

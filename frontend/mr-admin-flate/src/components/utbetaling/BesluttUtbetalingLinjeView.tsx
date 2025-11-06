@@ -7,9 +7,9 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
-  ValidationError,
+  ValidationError
 } from "@tiltaksadministrasjon/api-client";
-import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
@@ -19,7 +19,6 @@ import { isBesluttet } from "@/utils/totrinnskontroll";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
-import { UtbetalingBelopInput } from "./UtbetalingBelopInput";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 
 export interface Props {
@@ -78,7 +77,17 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
               grayBackground
               rowOpen={openRow(linje)}
               checkboxInput={<GjorOppTilsagnCheckbox linje={linje} />}
-              textInput={<UtbetalingBelopInput type="readOnly" linje={linje} />}
+              belopInput={
+                <TextField
+                  readOnly
+                  value={linje.belop}
+                  size="small"
+                  style={{ maxWidth: "6rem" }}
+                  hideLabel
+                  type="number"
+                  label={utbetalingTekster.delutbetaling.belop.label}
+                />
+              }
               knappeColumn={
                 <HStack gap="4">
                   {linje.handlinger.includes(UtbetalingLinjeHandling.RETURNER) && (

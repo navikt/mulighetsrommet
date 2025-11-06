@@ -106,8 +106,7 @@ function TabellVisning({ tabell }: TabellVisningProps) {
       <HStack align="center" justify="center" padding="32">
         <Alert variant="info">
           <BodyShort>
-            Det finnes ingen registrerte tiltaksgjennomføringer du kan sende inn utbetalingskrav
-            for.
+            Det finnes ingen registrerte tiltak du kan sende inn utbetalingskrav for.
           </BodyShort>
           <BodyShort>Ta eventuelt kontakt med Nav ved behov.</BodyShort>
         </Alert>

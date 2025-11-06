@@ -8,10 +8,14 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.respondOk
+import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -32,7 +36,6 @@ import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
 
 class OkonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -67,11 +70,17 @@ class OkonomiServiceTest : FunSpec({
 
     val brreg: BrregClient = mockk()
 
-    fun createOkonomiService(oebsTiltakApiClient: OebsPoApClient) = OkonomiService(
+    fun createOkonomiService(
+        oebsTiltakApiClient: OebsPoApClient,
+        getTidligstTidspunktForUtbetaling: (Bestilling, Faktura) -> LocalDateTime? = { _, _ -> null },
+    ) = OkonomiService(
+        config = OkonomiService.Config(
+            topics = KafkaTopics("bestilling-status", "faktura-status"),
+            faktura = FakturaConfig(getTidligstTidspunktForUtbetaling),
+        ),
         db = db,
         oebs = oebsTiltakApiClient,
         brreg = brreg,
-        topics = KafkaTopics("bestilling-status", "faktura-status"),
     )
 
     context("opprett bestilling") {
@@ -337,7 +346,7 @@ class OkonomiServiceTest : FunSpec({
 
             val annullerBestilling = createAnnullerBestilling("4")
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling 4 kan ikke annulleres fordi den har status: OPPGJORT"
+                it.message shouldBe "Bestilling 4 kan ikke annulleres fordi den har status OPPGJORT"
             }
         }
 
@@ -384,7 +393,7 @@ class OkonomiServiceTest : FunSpec({
 
             val annullerBestilling = createAnnullerBestilling("87")
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling ${bestilling2.bestillingsnummer} kan ikke annulleres fordi vi venter på kvittering"
+                it.message shouldBe "Bestilling 87 kan ikke annulleres fordi den har status SENDT"
             }
         }
 
@@ -452,15 +461,33 @@ class OkonomiServiceTest : FunSpec({
         }
 
         test("feiler når bestilling ikke er aktiv ennå") {
-            val bestilling2 = createBestilling("876")
+            val bestilling = createBestilling("876")
             db.session {
-                queries.bestilling.insertBestilling(bestilling2)
+                queries.bestilling.insertBestilling(bestilling)
             }
+
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura(bestilling2.bestillingsnummer, "B1-F1")
+            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "876-F1")
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
-                it.message shouldBe "Faktura B1-F1 kan ikke opprettes fordi vi venter på kvittering"
+                it.message shouldBe "Faktura 876-F1 kan ikke opprettes fordi bestilling 876 har status SENDT"
+            }
+        }
+
+        test("feiler når tidligste tidspunkt for faktura enda ikke er passert") {
+            val bestilling = createBestilling("B32", status = BestillingStatusType.AKTIV)
+            db.session {
+                queries.bestilling.insertBestilling(bestilling)
+            }
+
+            val now = LocalDate.of(2025, 2, 1).atStartOfDay()
+            val getTidspunktForUtbetaling = { _: Bestilling, _: Faktura -> LocalDate.of(2025, 2, 2).atStartOfDay() }
+
+            val service = createOkonomiService(oebsClient(oebsRespondError()), getTidspunktForUtbetaling)
+
+            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "B32-F1")
+            service.opprettFaktura(opprettFaktura, now).shouldBeLeft().should {
+                it.message shouldBe "Faktura B32-F1 kan ikke opprettes før 2025-02-02T00:00"
             }
         }
 
@@ -479,6 +506,25 @@ class OkonomiServiceTest : FunSpec({
                 val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
                 fakturaStatus.fakturanummer shouldBe "B1-F2"
+            }
+        }
+
+        test("sender ikke faktura til oebs før det finnes kvitteringer for tidligere fakturaer") {
+            val bestilling2 = createBestilling("678", status = BestillingStatusType.AKTIV)
+            db.session {
+                queries.bestilling.insertBestilling(bestilling2)
+            }
+
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            val opprettFaktura1 = createOpprettFaktura(bestilling2.bestillingsnummer, "678-F1")
+            service.opprettFaktura(opprettFaktura1).shouldBeRight().should {
+                it.status shouldBe FakturaStatusType.SENDT
+            }
+
+            val opprettFaktura2 = createOpprettFaktura(bestilling2.bestillingsnummer, "678-F2")
+            service.opprettFaktura(opprettFaktura2).shouldBeLeft().should {
+                it.message shouldBe "Faktura 678-F2 kan ikke opprettes fordi vi venter på kvittering"
             }
         }
 
@@ -507,15 +553,12 @@ class OkonomiServiceTest : FunSpec({
     }
 
     context("gjør opp bestilling") {
-        val bestilling1 = createBestilling("B2", status = BestillingStatusType.AKTIV)
-        val bestilling2 = createBestilling("B3", status = BestillingStatusType.AKTIV)
+        test("faktura med gjorOppBestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer status på bestilling") {
+            val bestilling = createBestilling("B2", status = BestillingStatusType.AKTIV)
+            db.session {
+                queries.bestilling.insertBestilling(bestilling)
+            }
 
-        db.session {
-            queries.bestilling.insertBestilling(bestilling1)
-            queries.bestilling.insertBestilling(bestilling2)
-        }
-
-        test("gjorOppBestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer status på bestilling") {
             val mockEngine = createMockEngine {
                 post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
@@ -546,7 +589,12 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        test("lager en faktura med erSisteLinje = true og setter bestillingen til OPPGJORT") {
+        test("operasjon for gjorOppBestilling lager en faktura med erSisteLinje = true og setter bestillingen til OPPGJORT") {
+            val bestilling = createBestilling("B3", status = BestillingStatusType.AKTIV)
+            db.session {
+                queries.bestilling.insertBestilling(bestilling)
+            }
+
             val mockEngine = createMockEngine {
                 post(OebsPoApClient.FAKTURA_ENDPOINT) {
                     val melding = it.decodeRequestBody<OebsFakturaMelding>()
@@ -580,18 +628,37 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
-        test("feiler når en faktura venter på kvittering") {
+        test("feiler hvis bestillingen ikke er aktiv") {
+            val bestilling = createBestilling("B4", status = BestillingStatusType.SENDT)
+            db.session {
+                queries.bestilling.insertBestilling(bestilling)
+            }
+
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura(bestilling1.bestillingsnummer, "B1-F55")
+            val gjorOppBestilling = createGjorOppBestilling("B4")
+            service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
+                it.message shouldBe "Bestilling B4 kan ikke gjøres opp fordi den har status SENDT"
+            }
+        }
+
+        test("feiler når en faktura venter på kvittering") {
+            val bestilling = createBestilling("B5", status = BestillingStatusType.AKTIV)
             db.session {
-                val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling1.linjer)
+                queries.bestilling.insertBestilling(bestilling)
+            }
+
+            val service = createOkonomiService(oebsClient(oebsRespondError()))
+
+            val opprettFaktura = createOpprettFaktura("B5", "B5-F55")
+            db.session {
+                val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
                 queries.faktura.insertFaktura(faktura)
             }
 
-            val gjorOppBestilling = createGjorOppBestilling(bestilling1.bestillingsnummer)
+            val gjorOppBestilling = createGjorOppBestilling("B5")
             service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling ${bestilling1.bestillingsnummer} kan ikke gjøres opp fordi vi venter på kvittering"
+                it.message shouldBe "Bestilling B5 kan ikke gjøres opp fordi vi venter på kvittering"
             }
         }
     }

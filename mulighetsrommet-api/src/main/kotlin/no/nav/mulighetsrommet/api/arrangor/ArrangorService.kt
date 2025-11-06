@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
@@ -15,7 +16,6 @@ import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class ArrangorService(
     private val db: ApiDatabase,
@@ -73,6 +73,23 @@ class ArrangorService(
 
     fun getArrangor(orgnr: Organisasjonsnummer): ArrangorDto? = db.session {
         queries.arrangor.get(orgnr)
+    }
+
+    suspend fun getArrangorerOrSyncFromBrreg(
+        orgnr: List<Organisasjonsnummer>,
+    ): Either<BrregError, List<ArrangorDto>> {
+        val existing = db.session { queries.arrangor.get(orgnr) }
+            .associateBy { it.organisasjonsnummer }
+            .toMutableMap()
+
+        for (org in orgnr - existing.keys) {
+            when (val result = syncArrangorFromBrreg(org)) {
+                is Either.Left -> return result
+                is Either.Right -> existing[org] = result.value
+            }
+        }
+
+        return existing.values.toList().right()
     }
 
     suspend fun getArrangorOrSyncFromBrreg(orgnr: Organisasjonsnummer): Either<BrregError, ArrangorDto> {

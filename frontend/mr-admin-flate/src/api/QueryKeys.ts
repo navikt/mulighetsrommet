@@ -4,7 +4,7 @@ import {
   GetGjennomforingerData,
   LagretFilterType,
   NotificationStatus,
-  Rolle,
+  Rolle
 } from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {
@@ -73,5 +73,6 @@ export const QueryKeys = {
     filter,
     filter.navEnheter.join(","),
   ],
+  innsendinger: (filter?: object) => ["innsendinger", { ...filter }] as const,
   kontonummerArrangor: (orgnr: string) => ["kontonummer", orgnr],
 };

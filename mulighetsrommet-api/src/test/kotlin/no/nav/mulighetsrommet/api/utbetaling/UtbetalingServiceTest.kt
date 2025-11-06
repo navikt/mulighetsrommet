@@ -971,7 +971,7 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
 
             verify(exactly = 1) {
-                tilsagnService.gjorOppAutomatisk(Tilsagn1.id, any())
+                tilsagnService.gjorOppTilsagnVedUtbetaling(Tilsagn1.id, any(), any(), any())
             }
         }
 
@@ -1408,7 +1408,7 @@ class UtbetalingServiceTest : FunSpec({
             }
 
             verify(exactly = 1) {
-                tilsagnService.gjorOppAutomatisk(Tilsagn1.id, any())
+                tilsagnService.gjorOppTilsagnVedUtbetaling(Tilsagn1.id, any(), any(), any())
             }
         }
     }

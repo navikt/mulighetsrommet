@@ -1,5 +1,6 @@
 package no.nav.tiltak.historikk.db
 
+import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -9,7 +10,6 @@ import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class DeltakerQueries(private val session: Session) {
 
@@ -159,7 +159,7 @@ class DeltakerQueries(private val session: Session) {
                     gruppetiltak.arrangor_organisasjonsnummer
                 from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
                 where deltaker.person_ident = any(:identer)
-                and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato::timestamp, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
+                and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
         """.trimIndent()
 

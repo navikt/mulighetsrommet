@@ -77,7 +77,7 @@ object GjennomforingDboMapper {
             )
         },
         stedForGjennomforing = request.stedForGjennomforing,
-        oppmoteSted = request.oppmoteSted,
+        oppmoteSted = request.oppmoteSted?.ifBlank { null },
         faneinnhold = request.veilederinformasjon.faneinnhold,
         beskrivelse = request.veilederinformasjon.beskrivelse,
         deltidsprosent = request.deltidsprosent,

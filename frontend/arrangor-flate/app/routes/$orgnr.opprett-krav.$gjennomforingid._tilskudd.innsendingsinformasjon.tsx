@@ -496,8 +496,7 @@ function GuidePanelInformation({ orgnr, type }: GuidePanelInformationProps) {
     case OpprettKravInnsendingsInformasjonGuidePanelType.TIMESPRIS:
       return (
         <GuidePanel>
-          I dette skjemaet kan du sende inn fakturakrav for tiltaksgjennomføringer med avtalt
-          timespris
+          I dette skjemaet kan du sende inn fakturakrav for tiltak med avtalt timespris
         </GuidePanel>
       );
     case OpprettKravInnsendingsInformasjonGuidePanelType.AVTALT_PRIS:

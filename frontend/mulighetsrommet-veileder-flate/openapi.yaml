@@ -819,6 +819,7 @@ components:
       - GJENNOMFORING
       - GJENNOMFORING_MODIA
       - OPPGAVE
+      - INNSENDING
     JsonElement:
       type: object
       properties: {}

@@ -14,6 +14,13 @@
 [data-list-item] {
   display: flex;
   gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+[data-list-item]:first-child {
+  margin-top: 0.25rem;
+}
+[data-list-item]:last-child {
+  margin-bottom: 0;
 }
 [data-list-item]::before {
   text-align: right;

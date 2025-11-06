@@ -13,9 +13,12 @@ import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 
 class PersonaliaServiceTest : FunSpec({
@@ -48,7 +51,12 @@ class PersonaliaServiceTest : FunSpec({
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-
+            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns NavEnhetDto(
+                navn = "Nav Innlandet",
+                enhetsnummer = NavEnhetNummer("0400"),
+                type = NavEnhetType.FYLKE,
+                overordnetEnhet = null,
+            )
             service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
                 DeltakerPersonaliaMedGeografiskEnhet(
                     deltakerId = deltakelseId,
@@ -74,6 +82,12 @@ class PersonaliaServiceTest : FunSpec({
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
+            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns NavEnhetDto(
+                navn = "Nav Innlandet",
+                enhetsnummer = NavEnhetNummer("0400"),
+                type = NavEnhetType.FYLKE,
+                overordnetEnhet = null,
+            )
 
             service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
                 DeltakerPersonaliaMedGeografiskEnhet(
@@ -103,7 +117,12 @@ class PersonaliaServiceTest : FunSpec({
             coEvery {
                 hentPersonOgGeografiskTilknytningQuery.hentPersonOgGeografiskTilknytningBolk(any(), any())
             } returns emptyMap<PdlIdent, Pair<PdlPerson, GeografiskTilknytning?>>().right()
-
+            coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0517")) } returns NavEnhetDto(
+                navn = "Nav Innlandet",
+                enhetsnummer = NavEnhetNummer("0400"),
+                type = NavEnhetType.FYLKE,
+                overordnetEnhet = null,
+            )
             service.getPersonaliaMedGeografiskEnhet(setOf()) shouldBe setOf(
                 DeltakerPersonaliaMedGeografiskEnhet(
                     deltakerId = deltakelseId,

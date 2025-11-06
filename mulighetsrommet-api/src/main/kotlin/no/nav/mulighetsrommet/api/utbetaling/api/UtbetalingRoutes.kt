@@ -12,6 +12,13 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
 import java.time.LocalDate
 import java.util.*
 import kotlinx.serialization.Serializable
@@ -43,7 +50,9 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelseOutputPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -99,7 +108,7 @@ fun Route.utbetalingRoutes() {
 
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetaling(utbetaling),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhetDbo(it) },
                     belopUtbetalt = belopUtbetalt,
@@ -109,6 +118,39 @@ fun Route.utbetalingRoutes() {
         }
 
         call.respond(utbetalinger)
+    }
+
+    get("/innsendinger", {
+        description = "Hent filtrerte innsendinger"
+        tags = setOf("Utbetaling")
+        operationId = "getInnsendinger"
+        request {
+            queryParameter<List<String>>("tiltakstyper") {
+                explode = true
+            }
+            queryParameter<List<NavEnhetNummer>>("navEnheter") {
+                explode = true
+            }
+            queryParameter<String>("sort")
+        }
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle innsendinger for gitte filtre"
+                body<List<InnsendingKompaktDto>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        val filter = getAdminInnsendingerFilter()
+
+        val innsendinger = db.session {
+            queries.utbetaling.getAll(filter)
+        }
+
+        call.respond(innsendinger)
     }
 
     route("/utbetaling/{id}") {
@@ -175,14 +217,19 @@ fun Route.utbetalingRoutes() {
 
                 val beregning = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val deltakelser = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
+                    val deltakelser = when {
+                        utbetaling.beregning is UtbetalingBeregningPrisPerTimeOppfolging ->
+                            getDeltakelseOutputPrisPerTimeOppfolging(utbetaling.beregning)
+
+                        else -> utbetaling.beregning.output.deltakelser()
+                    }.associateBy { it.deltakelseId }
 
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
 
                     val regioner = NavEnhetHelpers.buildNavRegioner(
                         personalia
                             .map { personalia ->
-                                listOfNotNull(personalia.geografiskEnhet, personalia.region)
+                                listOfNotNull(personalia.oppfolgingEnhet, personalia.region)
                             }
                             .flatten(),
                     )
@@ -191,7 +238,7 @@ fun Route.utbetalingRoutes() {
                         .map { personalia ->
                             UtbetalingBeregningDeltaker(personalia, deltakelser.getValue(personalia.deltakerId))
                         }
-                        .filter { filter.navEnheter.isEmpty() || it.personalia.geografiskEnhet?.enhetsnummer in filter.navEnheter }
+                        .filter { filter.navEnheter.isEmpty() || it.personalia.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
 
                     UtbetalingBeregningDto.from(utbetaling.beregning, deltakelsePersoner, regioner)
                 }
@@ -432,6 +479,24 @@ private fun QueryContext.delutbetalingToUtbetalingLinje(
             tilsagn.kostnadssted.enhetsnummer,
             navAnsatt,
         ),
+    )
+}
+
+data class AdminInnsendingerFilter(
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
+    val tiltakstyper: List<UUID> = emptyList(),
+    val sortering: String? = null,
+)
+
+fun RoutingContext.getAdminInnsendingerFilter(): AdminInnsendingerFilter {
+    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
+    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
+    val sortering = call.request.queryParameters["sort"]
+
+    return AdminInnsendingerFilter(
+        navEnheter = navEnheter,
+        tiltakstyper = tiltakstypeIder,
+        sortering = sortering,
     )
 }
 

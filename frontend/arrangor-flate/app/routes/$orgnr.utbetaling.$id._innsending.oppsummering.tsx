@@ -1,20 +1,6 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import {
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  ErrorSummary,
-  Heading,
-  HStack,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
-import {
-  ArrangorflateService,
-  ArrangorflateTilsagnDto,
-  ArrangorflateUtbetalingDto,
-  FieldError,
-} from "api-client";
+import { Button, Checkbox, CheckboxGroup, ErrorSummary, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
+import { ArrangorflateService, ArrangorflateTilsagnDto, ArrangorflateUtbetalingDto, FieldError } from "api-client";
 import { useEffect, useRef } from "react";
 import {
   ActionFunction,
@@ -26,7 +12,7 @@ import {
   useActionData,
   useFetcher,
   useLoaderData,
-  useRevalidator,
+  useRevalidator
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
@@ -34,7 +20,6 @@ import { Separator } from "~/components/common/Separator";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { ManglendeMidlerAlert } from "~/components/utbetaling/ManglendeMidlerAlert";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -212,7 +197,6 @@ export default function BekreftUtbetaling() {
             ...utbetaling.beregning.detaljer.entries,
           ]}
         />
-        <ManglendeMidlerAlert tilsagn={tilsagn} belopTilUtbetaling={utbetaling.beregning.belop} />
         <Separator />
         <Form method="post">
           <VStack gap="6">

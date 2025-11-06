@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.brreg.*
@@ -30,12 +31,17 @@ class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception
 class GjorOppBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 class OkonomiService(
+    private val config: Config,
     private val db: OkonomiDatabase,
     private val oebs: OebsPoApClient,
     private val brreg: BrregClient,
-    private val topics: KafkaTopics,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    data class Config(
+        val topics: KafkaTopics,
+        val faktura: FakturaConfig,
+    )
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
@@ -96,20 +102,16 @@ class OkonomiService(
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
-        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
-
         if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.ANNULLERING_SENDT)) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return publishBestilling(bestillingsnummer).right()
+        } else if (bestilling.status != BestillingStatusType.AKTIV) {
+            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status ${bestilling.status}").left()
         }
+
+        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (fakturaer.isNotEmpty()) {
             return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
-        }
-        if (venterPaaKvittering(bestilling, fakturaer)) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi vi venter på kvittering").left()
-        }
-        if (bestilling.status != BestillingStatusType.AKTIV) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status: ${bestilling.status}").left()
         }
 
         val melding = OebsMeldingMapper.toOebsAnnulleringMelding(bestilling, annullerBestilling)
@@ -135,6 +137,7 @@ class OkonomiService(
 
     suspend fun opprettFaktura(
         opprettFaktura: OpprettFaktura,
+        now: LocalDateTime = LocalDateTime.now(),
     ): Either<OpprettFakturaError, Faktura> = db.transaction {
         val fakturanummer = opprettFaktura.fakturanummer
 
@@ -147,16 +150,21 @@ class OkonomiService(
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return OpprettFakturaError("Bestilling $bestillingsnummer finnes ikke").left()
-        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
-
-        if (venterPaaKvittering(bestilling, fakturaer)) {
-            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
-        }
         if (bestilling.status != BestillingStatusType.AKTIV) {
             return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
+        val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
+        if (venterPaaKvittering(fakturaer)) {
+            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
+        }
+
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
+
+        val tidspunkt = config.faktura.tidligstTidspunktForUtbetaling(bestilling, faktura)
+        if (tidspunkt != null && tidspunkt > now) {
+            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes før $tidspunkt").left()
+        }
 
         val melding = OebsMeldingMapper.toOebsFakturaMelding(
             bestilling,
@@ -189,22 +197,20 @@ class OkonomiService(
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return GjorOppBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
+        if (bestilling.status != BestillingStatusType.AKTIV) {
+            return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
+        }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         fakturaer.find { it.fakturanummer == gjorOppFakturanummer(bestillingsnummer) }?.let {
             log.info("Bestilling $bestillingsnummer er allerede oppgjort")
             return it.right()
         }
-
-        if (venterPaaKvittering(bestilling, fakturaer)) {
+        if (venterPaaKvittering(fakturaer)) {
             return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering").left()
-        }
-        if (bestilling.status != BestillingStatusType.AKTIV) {
-            return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
         }
 
         val faktura = Faktura.fromGjorOppBestilling(gjorOppBestilling, bestilling)
-
         val melding = OebsMeldingMapper.toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
         return oebs.sendFaktura(melding)
             .mapLeft {
@@ -314,7 +320,7 @@ class OkonomiService(
         log.info("Lagrer status-melding for bestilling $bestillingsnummer")
         queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
-                topics.bestillingStatus,
+                config.topics.bestillingStatus,
                 bestillingsnummer.toByteArray(),
                 Json.encodeToString(
                     BestillingStatus(
@@ -335,7 +341,7 @@ class OkonomiService(
         log.info("Lagrer status-melding for faktura $fakturanummer")
         queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
-                topics.fakturaStatus,
+                config.topics.fakturaStatus,
                 fakturanummer.toByteArray(),
                 Json.encodeToString(
                     FakturaStatus(
@@ -383,18 +389,6 @@ private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adress
     }
 }
 
-private fun venterPaaKvittering(bestilling: Bestilling, fakturaer: List<Faktura>): Boolean {
-    when (bestilling.status) {
-        BestillingStatusType.SENDT,
-        BestillingStatusType.ANNULLERING_SENDT,
-        -> return true
-
-        BestillingStatusType.AKTIV,
-        BestillingStatusType.ANNULLERT,
-        BestillingStatusType.OPPGJORT,
-        BestillingStatusType.FEILET,
-        -> Unit
-    }
-
+private fun venterPaaKvittering(fakturaer: List<Faktura>): Boolean {
     return fakturaer.any { it.status == FakturaStatusType.SENDT }
 }

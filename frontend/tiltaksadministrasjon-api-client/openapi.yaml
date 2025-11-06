@@ -1896,6 +1896,56 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/innsendinger:
+    get:
+      tags:
+      - Utbetaling
+      description: Hent filtrerte innsendinger
+      operationId: getInnsendinger
+      parameters:
+      - name: tiltakstyper
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: navEnheter
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      - name: sort
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Alle innsendinger for gitte filtre
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InnsendingKompaktDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}:
     get:
       tags:
@@ -5419,6 +5469,51 @@ components:
       - displayName
       - displayNameLong
       - tagName
+    InnsendingKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssteder:
+          type: array
+          items:
+            $ref: "#/components/schemas/KostnadsstedDto"
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        arrangor:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Utbetaling.Tiltakstype"
+        status:
+          $ref: "#/components/schemas/UtbetalingStatusDto"
+      required:
+      - arrangor
+      - belop
+      - gjennomforingId
+      - id
+      - kostnadssteder
+      - periode
+      - status
+      - tiltakstype
+    Utbetaling.Tiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
     UtbetalingDto:
       type: object
       properties:
@@ -5856,6 +5951,7 @@ components:
       - GJENNOMFORING
       - GJENNOMFORING_MODIA
       - OPPGAVE
+      - INNSENDING
     LagretFilter:
       type: object
       properties:

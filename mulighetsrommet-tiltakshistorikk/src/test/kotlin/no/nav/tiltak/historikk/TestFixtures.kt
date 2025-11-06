@@ -27,6 +27,7 @@ object TestFixtures {
         deltidsprosent = 100.0,
         opprettetTidspunkt = LocalDateTime.now(),
         oppdatertTidspunkt = LocalDateTime.now(),
+        oppmoteSted = null,
     )
 
     val amtDeltaker = AmtDeltakerV1Dto(

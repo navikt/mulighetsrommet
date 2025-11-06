@@ -5,6 +5,7 @@ import java.math.RoundingMode
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import java.time.temporal.WeekFields
 import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
@@ -154,10 +155,48 @@ object UtbetalingBeregningHelpers {
         satser: Set<SatsPeriode>,
         stengtHosArrangor: List<Periode>,
     ): UtbetalingBeregningOutputDeltakelse {
-        val perioder = deltakelse.periode.subtractPeriods(stengtHosArrangor)
-        return calculateDeltakelseOutput(deltakelse.deltakelseId, perioder, satser) { periode ->
-            periode.splitByWeek().count { it.getWeekdayCount() > 0 }.toBigDecimal()
-        }
+        val aktiveUker = deltakelse.periode
+            .subtractPeriods(stengtHosArrangor)
+            .flatMap { it.splitByWeek() }
+            .filter { it.getWeekdayCount() > 0 }
+
+        // Den første perioden per påbegynte uke er den som får en tellende deltakelsesfaktor
+        val beregnedePerioder = aktiveUker
+            .groupBy { it.start.get(WeekFields.ISO.weekOfYear()) }
+            .flatMap { (_, perioderISammeUke) ->
+                perioderISammeUke.mapIndexed { index, periode ->
+                    val satsPeriode = satser.first { sats -> periode.intersects(sats.periode) }
+                    UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                        periode = periode,
+                        faktor = if (index == 0) 1.0 else 0.0,
+                        sats = satsPeriode.sats,
+                    )
+                }
+            }
+
+        // Kombiner sammenhengende perioder med samme sats
+        val kombinertePerioder = beregnedePerioder
+            .groupBy { it.sats }
+            .flatMap { (_, perioderMedSammeSats) ->
+                perioderMedSammeSats.fold(mutableListOf<MutableList<UtbetalingBeregningOutputDeltakelse.BeregnetPeriode>>()) { result, week ->
+                    if (result.isEmpty() || result.last().last().periode.slutt != week.periode.start) {
+                        result.add(mutableListOf(week))
+                    } else {
+                        result.last().add(week)
+                    }
+                    result
+                }
+            }
+            .map { range ->
+                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                    periode = Periode.fromRange(range.map { it.periode }),
+                    faktor = range.sumOf { it.faktor },
+                    sats = range.first().sats,
+                )
+            }
+            .toSet()
+
+        return UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, kombinertePerioder)
     }
 
     fun calculateManedsverkBelop(periode: Periode, sats: Int, antallPlasser: Int): Int = calculateMonthsInPeriode(periode)
@@ -233,6 +272,19 @@ object UtbetalingBeregningHelpers {
             .toSet()
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
+
+    fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.input.deltakelser().map {
+        UtbetalingBeregningOutputDeltakelse(
+            it.deltakelseId,
+            setOf(
+                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                    it.periode(),
+                    faktor = 0.0,
+                    sats = 0,
+                ),
+            ),
+        )
+    }.toSet()
 
     private fun getMonthsFraction(periode: Periode): BigDecimal {
         return if (periode.getLastInclusiveDate().isBefore(DELTAKELSE_MONTHS_FRACTION_VERSION_2_DATE)) {

@@ -42,6 +42,7 @@ import { GjennomforingerForAvtalePage } from "./pages/gjennomforing/Gjennomforin
 import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
+import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const basename = import.meta.env.BASE_URL;
@@ -279,6 +280,11 @@ const routes: RouteObject[] = [
             ],
           },
         ],
+      },
+      {
+        path: "innsendingsoversikt",
+        element: <InnsendingoversiktPage />,
+        errorElement: <ErrorPage />,
       },
     ],
   },
