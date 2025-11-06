@@ -341,7 +341,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VeilederinfoRequest"
+              $ref: "#/components/schemas/DetaljerRequest"
         required: false
       responses:
         "200":
@@ -4038,6 +4038,101 @@ components:
       required:
       - nySluttDato
       - type
+    DetaljerRequest.Arrangor:
+      type: object
+      properties:
+        hovedenhet:
+          type: string
+        underenheter:
+          type: array
+          items:
+            type: string
+        kontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - hovedenhet
+      - kontaktpersoner
+      - underenheter
+    UtdanningslopDbo:
+      type: object
+      properties:
+        utdanningsprogram:
+          type: string
+          format: uuid
+        utdanninger:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - utdanninger
+      - utdanningsprogram
+    DetaljerRequest:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DetaljerRequest.Arrangor"
+        sakarkivNummer:
+          type:
+          - "null"
+          - string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        administratorer:
+          type: array
+          items:
+            type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
+        amoKategorisering:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKategorisering"
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDbo"
+      required:
+      - administratorer
+      - amoKategorisering
+      - arrangor
+      - avtaletype
+      - navn
+      - opsjonsmodell
+      - sakarkivNummer
+      - sluttDato
+      - startDato
+      - tiltakskode
+      - utdanningslop
+    PersonvernRequest:
+      type: object
+      properties:
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
+      required:
+      - personopplysninger
+      - personvernBekreftet
     VeilederinfoRequest:
       type: object
       properties:
@@ -4057,18 +4152,6 @@ components:
       - beskrivelse
       - faneinnhold
       - navEnheter
-    PersonvernRequest:
-      type: object
-      properties:
-        personopplysninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Personopplysning"
-        personvernBekreftet:
-          type: boolean
-      required:
-      - personopplysninger
-      - personvernBekreftet
     AvbrytAvtaleAarsak:
       type: string
       enum:
@@ -4279,20 +4362,6 @@ components:
       required:
       - enhet
       - verdi
-    UtdanningslopDbo:
-      type: object
-      properties:
-        utdanningsprogram:
-          type: string
-          format: uuid
-        utdanninger:
-          type: array
-          items:
-            type: string
-            format: uuid
-      required:
-      - utdanninger
-      - utdanningsprogram
     GjennomforingRequest:
       type: object
       properties:

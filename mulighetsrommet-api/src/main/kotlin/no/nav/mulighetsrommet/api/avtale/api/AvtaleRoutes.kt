@@ -217,7 +217,7 @@ fun Route.avtaleRoutes() {
                 operationId = "upsertDetaljer"
                 request {
                     pathParameterUuid("id")
-                    body<VeilederinfoRequest>()
+                    body<DetaljerRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {

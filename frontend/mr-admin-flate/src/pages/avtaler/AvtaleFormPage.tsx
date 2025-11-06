@@ -15,10 +15,10 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
 import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
 import { toAvtaleRequest, toPersonvernRequest, toVeilederinfoRequest } from "./avtaleFormUtils";
 import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
+import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -88,7 +88,7 @@ export function AvtaleFormPage() {
 
   const personvernMutation = useUpsertPersonvern(avtale.id);
   const veilederinfoMutation = useUpsertVeilederinformasjon(avtale.id);
-  const avtaleMutation = useUpsertAvtale();
+  const detaljerMutation = useUpsertDetaljer(avtaleId);
 
   return (
     <div data-testid="avtale-form-page">
@@ -116,7 +116,7 @@ export function AvtaleFormPage() {
         <RedigerAvtaleContainer
           avtale={avtale}
           mapToRequest={toAvtaleRequest}
-          mutation={avtaleMutation}
+          mutation={detaljerMutation}
         >
           <FormTabsPanel value={AvtaleTab.DETALJER}>
             <AvtaleDetaljerForm opsjonerRegistrert={avtale.opsjonerRegistrert} />
