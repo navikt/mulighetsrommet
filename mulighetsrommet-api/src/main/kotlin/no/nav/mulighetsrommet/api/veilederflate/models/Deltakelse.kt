@@ -3,9 +3,7 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
-import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -23,6 +21,7 @@ sealed class Deltakelse {
     abstract val sistEndretDato: LocalDate?
     abstract val periode: DeltakelsePeriode
     abstract val tilstand: DeltakelseTilstand
+    abstract val status: DeltakelseStatus
 }
 
 @Serializable
@@ -36,8 +35,15 @@ enum class DeltakelseEierskap {
 enum class DeltakelseTilstand {
     UTKAST,
     KLADD,
-    OPPRETTET,
+    AKTIV,
+    AVSLUTTET,
 }
+
+@Serializable
+data class DeltakelseStatus(
+    val type: DataElement.Status,
+    val aarsak: String?,
+)
 
 @Serializable
 data class DeltakelsePeriode(
@@ -60,14 +66,8 @@ data class DeltakelseArena(
     @Serializable(with = LocalDateSerializer::class)
     override val sistEndretDato: LocalDate?,
     override val periode: DeltakelsePeriode,
-    val status: DeltakelseArenaStatus,
+    override val status: DeltakelseStatus,
 ) : Deltakelse()
-
-@Serializable
-data class DeltakelseArenaStatus(
-    val type: ArenaDeltakerStatus,
-    val visningstekst: String,
-)
 
 @Serializable
 data class DeltakelseGruppetiltak(
@@ -82,17 +82,10 @@ data class DeltakelseGruppetiltak(
     override val sistEndretDato: LocalDate?,
     override val periode: DeltakelsePeriode,
     override val tilstand: DeltakelseTilstand,
-    val status: DeltakelseGruppetiltakStatus,
+    override val status: DeltakelseStatus,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
 ) : Deltakelse()
-
-@Serializable
-data class DeltakelseGruppetiltakStatus(
-    val type: DeltakerStatusType,
-    val visningstekst: String,
-    val aarsak: String?,
-)
 
 @Serializable
 data class DeltakelseArbeidsgiverAvtale(
@@ -107,11 +100,5 @@ data class DeltakelseArbeidsgiverAvtale(
     override val sistEndretDato: LocalDate?,
     override val periode: DeltakelsePeriode,
     override val tilstand: DeltakelseTilstand,
-    val status: DeltakelseArbeidsgiverAvtaleStatus,
+    override val status: DeltakelseStatus,
 ) : Deltakelse()
-
-@Serializable
-data class DeltakelseArbeidsgiverAvtaleStatus(
-    val type: ArbeidsgiverAvtaleStatus,
-    val visningstekst: String,
-)

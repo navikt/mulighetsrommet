@@ -101,16 +101,16 @@ class TiltakshistorikkService(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
             ),
-            status = DeltakelseArenaStatus(
-                type = deltakelse.status,
-                visningstekst = deltakelse.status.description,
+            status = DeltakelseStatus(
+                type = deltakelse.status.toDataElement(),
+                aarsak = null,
             ),
             tittel = tiltakstype.await().navn.hosTitleCaseArrangor(arrangorNavn.await()),
             tiltakstypeNavn = tiltakstype.await().navn,
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.ARENA,
-            tilstand = DeltakelseTilstand.OPPRETTET,
+            tilstand = getTilstand(deltakelse.status),
         )
     }
 
@@ -124,9 +124,8 @@ class TiltakshistorikkService(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
             ),
-            status = DeltakelseGruppetiltakStatus(
-                type = deltakelse.status.type,
-                visningstekst = deltakelse.status.type.description,
+            status = DeltakelseStatus(
+                type = deltakelse.status.type.toDataElement(),
                 aarsak = deltakelse.status.aarsak?.description,
             ),
             tittel = tiltakstype.await().navn.hosTitleCaseArrangor(arrangorNavn.await()),
@@ -167,9 +166,9 @@ class TiltakshistorikkService(
                 startDato = deltakelse.startDato,
                 sluttDato = deltakelse.sluttDato,
             ),
-            status = DeltakelseArbeidsgiverAvtaleStatus(
-                type = deltakelse.status,
-                visningstekst = deltakelse.status.description,
+            status = DeltakelseStatus(
+                type = deltakelse.status.toDataElement(),
+                aarsak = null,
             ),
             tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
@@ -180,34 +179,14 @@ class TiltakshistorikkService(
         )
     }
 
-    private fun erAktiv(kort: Deltakelse): Boolean {
-        return when (kort) {
-            is DeltakelseArena -> kort.status.type in listOf(
-                ArenaDeltakerStatus.AKTUELL,
-                ArenaDeltakerStatus.VENTELISTE,
-                ArenaDeltakerStatus.TILBUD,
-                ArenaDeltakerStatus.GJENNOMFORES,
-                ArenaDeltakerStatus.INFORMASJONSMOTE,
-                ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD,
-            )
+    private fun erAktiv(kort: Deltakelse): Boolean = when (kort.tilstand) {
+        DeltakelseTilstand.KLADD,
+        DeltakelseTilstand.UTKAST,
+        DeltakelseTilstand.AKTIV,
+        -> true
 
-            is DeltakelseGruppetiltak -> kort.status.type in listOf(
-                DeltakerStatusType.VENTER_PA_OPPSTART,
-                DeltakerStatusType.DELTAR,
-                DeltakerStatusType.VURDERES,
-                DeltakerStatusType.VENTELISTE,
-                DeltakerStatusType.UTKAST_TIL_PAMELDING,
-                DeltakerStatusType.SOKT_INN,
-                DeltakerStatusType.PABEGYNT_REGISTRERING,
-            )
-
-            is DeltakelseArbeidsgiverAvtale -> kort.status.type in listOf(
-                ArbeidsgiverAvtaleStatus.PAABEGYNT,
-                ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING,
-                ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART,
-                ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-            )
-        }
+        DeltakelseTilstand.AVSLUTTET,
+        -> false
     }
 
     private suspend fun hentHistoriskeNorskIdent(
@@ -277,14 +256,34 @@ private fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
         tilstand = getTilstand(status.type),
         tittel = tittel,
         tiltakstypeNavn = tiltakstype.navn,
-        status = DeltakelseGruppetiltakStatus(
-            type = status.type,
-            visningstekst = status.visningstekst,
+        status = DeltakelseStatus(
+            type = status.type.toDataElement(),
             aarsak = status.aarsak,
         ),
         innsoktDato = innsoktDato,
         sistEndretDato = sistEndretDato,
     )
+}
+
+private fun getTilstand(type: ArenaDeltakerStatus): DeltakelseTilstand = when (type) {
+    ArenaDeltakerStatus.AKTUELL,
+    ArenaDeltakerStatus.VENTELISTE,
+    ArenaDeltakerStatus.TILBUD,
+    ArenaDeltakerStatus.GJENNOMFORES,
+    ArenaDeltakerStatus.INFORMASJONSMOTE,
+    ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD,
+    -> DeltakelseTilstand.AKTIV
+
+    ArenaDeltakerStatus.AVSLAG,
+    ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
+    ArenaDeltakerStatus.FEILREGISTRERT,
+    ArenaDeltakerStatus.FULLFORT,
+    ArenaDeltakerStatus.GJENNOMFORING_AVBRUTT,
+    ArenaDeltakerStatus.GJENNOMFORING_AVLYST,
+    ArenaDeltakerStatus.IKKE_AKTUELL,
+    ArenaDeltakerStatus.IKKE_MOTT,
+    ArenaDeltakerStatus.TAKKET_NEI_TIL_TILBUD,
+    -> DeltakelseTilstand.AVSLUTTET
 }
 
 private fun getTilstand(type: DeltakerStatusType): DeltakelseTilstand = when (type) {
@@ -295,18 +294,20 @@ private fun getTilstand(type: DeltakerStatusType): DeltakelseTilstand = when (ty
     DeltakerStatusType.PABEGYNT_REGISTRERING,
     -> DeltakelseTilstand.UTKAST
 
+    DeltakerStatusType.VENTER_PA_OPPSTART,
+    DeltakerStatusType.DELTAR,
+    DeltakerStatusType.VURDERES,
+    DeltakerStatusType.VENTELISTE,
+    DeltakerStatusType.SOKT_INN,
+    -> DeltakelseTilstand.AKTIV
+
     DeltakerStatusType.AVBRUTT,
     DeltakerStatusType.AVBRUTT_UTKAST,
-    DeltakerStatusType.DELTAR,
     DeltakerStatusType.FEILREGISTRERT,
     DeltakerStatusType.FULLFORT,
     DeltakerStatusType.HAR_SLUTTET,
     DeltakerStatusType.IKKE_AKTUELL,
-    DeltakerStatusType.SOKT_INN,
-    DeltakerStatusType.VENTELISTE,
-    DeltakerStatusType.VENTER_PA_OPPSTART,
-    DeltakerStatusType.VURDERES,
-    -> DeltakelseTilstand.OPPRETTET
+    -> DeltakelseTilstand.AVSLUTTET
 }
 
 private fun getTilstand(status: ArbeidsgiverAvtaleStatus): DeltakelseTilstand = when (status) {
@@ -318,10 +319,12 @@ private fun getTilstand(status: ArbeidsgiverAvtaleStatus): DeltakelseTilstand = 
 
     ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART,
     ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+    -> DeltakelseTilstand.AKTIV
+
     ArbeidsgiverAvtaleStatus.AVSLUTTET,
     ArbeidsgiverAvtaleStatus.AVBRUTT,
     ArbeidsgiverAvtaleStatus.ANNULLERT,
-    -> DeltakelseTilstand.OPPRETTET
+    -> DeltakelseTilstand.AVSLUTTET
 }
 
 enum class DeltakelserMelding {

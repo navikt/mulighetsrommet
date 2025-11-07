@@ -1053,7 +1053,7 @@ components:
         tilstand:
           $ref: "#/components/schemas/DeltakelseTilstand"
         status:
-          $ref: "#/components/schemas/DeltakelseArbeidsgiverAvtaleStatus"
+          $ref: "#/components/schemas/DeltakelseStatus"
       required:
       - eierskap
       - id
@@ -1091,27 +1091,50 @@ components:
       enum:
       - UTKAST
       - KLADD
-      - OPPRETTET
-    DeltakelseArbeidsgiverAvtaleStatus:
+      - AKTIV
+      - AVSLUTTET
+    DeltakelseStatus:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/ArbeidsgiverAvtaleStatus"
-        visningstekst:
-          type: string
+          $ref: "#/components/schemas/DataElement.Status"
+        aarsak:
+          type:
+          - "null"
+          - string
       required:
+      - aarsak
       - type
-      - visningstekst
-    ArbeidsgiverAvtaleStatus:
+    DataElement.Status:
+      type: object
+      properties:
+        value:
+          type: string
+        variant:
+          $ref: "#/components/schemas/DataElement.Status.Variant"
+        description:
+          type:
+          - "null"
+          - string
+      required:
+      - description
+      - value
+      - variant
+    DataElement.Status.Variant:
       type: string
       enum:
-      - PAABEGYNT
-      - MANGLER_GODKJENNING
-      - KLAR_FOR_OPPSTART
-      - GJENNOMFORES
-      - AVSLUTTET
-      - AVBRUTT
-      - ANNULLERT
+      - blank
+      - neutral
+      - alt
+      - alt-1
+      - alt-2
+      - alt-3
+      - info
+      - success
+      - warning
+      - error
+      - error-border
+      - error-border-strikethrough
     DeltakelseArena:
       type: object
       properties:
@@ -1139,7 +1162,7 @@ components:
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"
         status:
-          $ref: "#/components/schemas/DeltakelseArenaStatus"
+          $ref: "#/components/schemas/DeltakelseStatus"
       required:
       - eierskap
       - id
@@ -1150,34 +1173,6 @@ components:
       - tilstand
       - tiltakstypeNavn
       - tittel
-    DeltakelseArenaStatus:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/ArenaDeltakerStatus"
-        visningstekst:
-          type: string
-      required:
-      - type
-      - visningstekst
-    ArenaDeltakerStatus:
-      type: string
-      enum:
-      - AKTUELL
-      - AVSLAG
-      - DELTAKELSE_AVBRUTT
-      - FEILREGISTRERT
-      - FULLFORT
-      - GJENNOMFORES
-      - GJENNOMFORING_AVBRUTT
-      - GJENNOMFORING_AVLYST
-      - IKKE_AKTUELL
-      - IKKE_MOTT
-      - INFORMASJONSMOTE
-      - TAKKET_JA_TIL_TILBUD
-      - TAKKET_NEI_TIL_TILBUD
-      - TILBUD
-      - VENTELISTE
     DeltakelseGruppetiltak:
       type: object
       properties:
@@ -1205,7 +1200,7 @@ components:
         tilstand:
           $ref: "#/components/schemas/DeltakelseTilstand"
         status:
-          $ref: "#/components/schemas/DeltakelseGruppetiltakStatus"
+          $ref: "#/components/schemas/DeltakelseStatus"
         gjennomforingId:
           type: string
           format: uuid
@@ -1220,38 +1215,6 @@ components:
       - tilstand
       - tiltakstypeNavn
       - tittel
-    DeltakelseGruppetiltakStatus:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/DeltakerStatusType"
-        visningstekst:
-          type: string
-        aarsak:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsak
-      - type
-      - visningstekst
-    DeltakerStatusType:
-      type: string
-      enum:
-      - AVBRUTT
-      - AVBRUTT_UTKAST
-      - DELTAR
-      - FEILREGISTRERT
-      - FULLFORT
-      - HAR_SLUTTET
-      - IKKE_AKTUELL
-      - KLADD
-      - PABEGYNT_REGISTRERING
-      - SOKT_INN
-      - UTKAST_TIL_PAMELDING
-      - VENTELISTE
-      - VENTER_PA_OPPSTART
-      - VURDERES
     GetDeltakelserForBrukerResponse:
       type: object
       properties:

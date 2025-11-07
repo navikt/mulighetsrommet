@@ -1,5 +1,6 @@
 import {
   ArbeidsgiverAvtaleStatus,
+  DataElementStatusVariant,
   Deltakelse,
   DeltakelseEierskap,
   DeltakelseTilstand,
@@ -15,14 +16,13 @@ export const deltakelserHistoriske: Deltakelse[] = [
     id: window.crypto.randomUUID(),
     gjennomforingId: tiltakOppfolging.id,
     status: {
-      type: DeltakerStatusType.AVBRUTT_UTKAST,
-      visningstekst: "Avbrutt utkast",
+      type: { value: "Avbrutt utkast", variant: DataElementStatusVariant.NEUTRAL },
       aarsak: null,
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -33,11 +33,12 @@ export const deltakelserHistoriske: Deltakelse[] = [
     status: {
       type: ArbeidsgiverAvtaleStatus.AVSLUTTET,
       visningstekst: "Avsluttet",
+      type: { value: "Avbrutt utkast", variant: DataElementStatusVariant.NEUTRAL },
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_TILTAK,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -54,7 +55,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -75,7 +76,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -96,7 +97,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -116,7 +117,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -132,7 +133,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -149,7 +150,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2017-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
-    tilstand: DeltakelseTilstand.OPPRETTET,
+    tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
   },
 ];

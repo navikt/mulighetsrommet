@@ -97,12 +97,11 @@ class TiltakshistorikkServiceTest : FunSpec({
         id = tiltakshistorikkOppfolging.id,
         gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
         eierskap = DeltakelseEierskap.TEAM_KOMET,
-        tilstand = DeltakelseTilstand.OPPRETTET,
+        tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
-        status = DeltakelseGruppetiltakStatus(
-            type = DeltakerStatusType.VENTELISTE,
-            visningstekst = "Venteliste",
+        status = DeltakelseStatus(
+            type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
             aarsak = null,
         ),
         periode = DeltakelsePeriode(
@@ -115,12 +114,12 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakelseAvklaring = DeltakelseArena(
         id = tiltakshistorikkAvklaring.id,
         eierskap = DeltakelseEierskap.ARENA,
-        tilstand = DeltakelseTilstand.OPPRETTET,
+        tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Avklaring hos Hovedenhet AS",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
-        status = DeltakelseArenaStatus(
-            type = ArenaDeltakerStatus.VENTELISTE,
-            visningstekst = "Venteliste",
+        status = DeltakelseStatus(
+            type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
+            aarsak = null,
         ),
         periode = DeltakelsePeriode(
             startDato = LocalDate.of(2018, 12, 3),
@@ -132,12 +131,12 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakelseArbeidstrening = DeltakelseArbeidsgiverAvtale(
         id = tiltakshistorikkArbeidstrening.id,
         eierskap = DeltakelseEierskap.TEAM_TILTAK,
-        tilstand = DeltakelseTilstand.OPPRETTET,
+        tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",
-        status = DeltakelseArbeidsgiverAvtaleStatus(
-            type = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-            visningstekst = "Gjennomføres",
+        status = DeltakelseStatus(
+            type = DataElement.Status("Gjennomføres", DataElement.Status.Variant.BLANK),
+            aarsak = null,
         ),
         periode = DeltakelsePeriode(
             startDato = LocalDate.of(2020, 1, 1),
@@ -294,7 +293,10 @@ class TiltakshistorikkServiceTest : FunSpec({
         val expectedDeltakelseUtenStartdato = deltakelseOppfolging.copy(
             id = deltakelseOppfolgingUtenStartdato.deltakerId,
             periode = DeltakelsePeriode(null, null),
-            status = DeltakelseGruppetiltakStatus(DeltakerStatusType.KLADD, "Kladd", null),
+            status = DeltakelseStatus(
+                type = DataElement.Status("Kladd", DataElement.Status.Variant.WARNING),
+                aarsak = null,
+            ),
             tilstand = DeltakelseTilstand.KLADD,
         )
         historikk shouldBe Deltakelser(
