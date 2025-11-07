@@ -220,7 +220,7 @@ object UtbetalingValidator {
             1
     }
 
-    fun maxUtbetalingsPeriodeDato(relativeDate: LocalDate = LocalDate.now()): LocalDate = relativeDate.withDayOfMonth(1)
+    fun maxUtbetalingsPeriodeDato(relativeDate: LocalDate = LocalDate.now()): LocalDate = relativeDate.minusDays(1)
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
