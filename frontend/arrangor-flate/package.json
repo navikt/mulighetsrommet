@@ -74,7 +74,7 @@
     "@typescript-eslint/eslint-plugin": "8.46.2",
     "@typescript-eslint/parser": "8.46.2",
     "autoprefixer": "10.4.21",
-    "eslint": "9.39.0",
+    "eslint": "9.39.1",
     "eslint-plugin-prettier": "5.5.4",
     "eslint-plugin-promise": "7.2.1",
     "eslint-plugin-react": "7.37.5",
