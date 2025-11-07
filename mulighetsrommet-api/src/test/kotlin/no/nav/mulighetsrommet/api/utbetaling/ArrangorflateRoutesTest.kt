@@ -339,10 +339,11 @@ class ArrangorflateRoutesTest : FunSpec({
                 install(ContentNegotiation) { json() }
             }
 
+            val gjennomforingId = GjennomforingFixtures.AFT1.id
             val response = client.submitFormWithBinaryData(
-                url = "/api/arrangorflate/arrangor/$orgnr/utbetaling",
+                url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
                 formData = formData {
-                    append("gjennomforingId", GjennomforingFixtures.AFT1.id.toString())
+                    append("gjennomforingId", gjennomforingId.toString())
                     append("tilsagnId", TilsagnFixtures.Tilsagn1.id.toString())
                     append("beskrivelse", "test beskrivelse")
                     append("kidNummer", "006402710013")

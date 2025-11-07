@@ -275,47 +275,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             call.respond(utbetalinger)
         }
 
-        post("/utbetaling", {
-            description = "Opprett krav om utbetaling"
-            tags = setOf("Arrangorflate")
-            operationId = "opprettKravOmUtbetaling"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                body<OpprettKravOmUtbetalingRequest> {
-                    description = "Request for creating a payment claim"
-                    mediaTypes(ContentType.MultiPart.FormData)
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Informasjon om opprettet krav om utbetaling"
-                    body<OpprettKravOmUtbetalingResponse>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-            requireTilgangHosArrangor(orgnr)
-            val request = receiveOpprettKravOmUtbetalingRequest(call)
-
-            // Scan vedlegg for virus
-            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
-            }
-            arrangorFlateService.getKontonummer(orgnr)
-                .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
-                .flatMap { UtbetalingValidator.validateOpprettKravOmUtbetaling(request, it) }
-                .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, Arrangor) }
-                .onLeft { errors ->
-                    call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
-                }
-                .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
-        }
-
         route("/tilsagn") {
             get({
                 description = "Hent alle tilsagn til arrangør"
@@ -650,65 +609,6 @@ private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggReq
     return ScanVedleggRequest(validatedVedlegg)
 }
 
-private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
-    var gjennomforingId: UUID? = null
-    var tilsagnId: UUID? = null
-    var periodeStart: String? = null
-    var periodeSlutt: String? = null
-    var kidNummer: String? = null
-    var belop: Int? = null
-    var tilskuddstype: Tilskuddstype? = null
-    val vedlegg: MutableList<Vedlegg> = mutableListOf()
-    val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
-
-    multipart.forEachPart { part ->
-        when (part) {
-            is PartData.FormItem -> {
-                when (part.name) {
-                    "gjennomforingId" -> gjennomforingId = UUID.fromString(part.value)
-                    "tilsagnId" -> tilsagnId = UUID.fromString(part.value)
-                    "kidNummer" -> kidNummer = part.value
-                    "belop" -> belop = part.value.toInt()
-                    "periodeStart" -> periodeStart = part.value
-                    "periodeSlutt" -> periodeSlutt = part.value
-                    "tilskuddstype" -> tilskuddstype = Tilskuddstype.valueOf(part.value)
-                }
-            }
-
-            is PartData.FileItem -> {
-                if (part.name == "vedlegg") {
-                    vedlegg.add(
-                        Vedlegg(
-                            content = Content(
-                                contentType = part.contentType.toString(),
-                                content = part.provider().toByteArray(),
-                            ),
-                            filename = part.originalFileName ?: "ukjent.pdf",
-                        ),
-                    )
-                }
-            }
-
-            else -> {}
-        }
-
-        part.dispose()
-    }
-
-    val validatedVedlegg = vedlegg.validateVedlegg()
-
-    return OpprettKravOmUtbetalingRequest(
-        gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
-        tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
-        periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
-        periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
-        kidNummer = kidNummer,
-        belop = belop ?: 0,
-        tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
-        vedlegg = validatedVedlegg,
-    )
-}
-
 fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
     return this.map { v ->
         // Optionally validate file type and size here
@@ -754,28 +654,7 @@ sealed class DeltakerAdvarsel {
         @Serializable(with = UUIDSerializer::class)
         override val deltakerId: UUID,
     ) : DeltakerAdvarsel()
-
-    @Serializable
-    @SerialName("DeltakerAdvarselOverlappendePeriode")
-    data class OverlappendePeriode(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-    ) : DeltakerAdvarsel()
 }
-
-@Serializable
-data class OpprettKravOmUtbetalingRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val tilsagnId: UUID,
-    val periodeStart: String,
-    val periodeSlutt: String,
-    val kidNummer: String? = null,
-    val belop: Int,
-    val vedlegg: List<Vedlegg>,
-    val tilskuddstype: Tilskuddstype,
-)
 
 @Serializable
 data class ScanVedleggRequest(
