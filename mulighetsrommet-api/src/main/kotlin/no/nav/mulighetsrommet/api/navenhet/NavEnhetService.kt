@@ -63,6 +63,12 @@ class NavEnhetService(
         queries.enhet.getKostnadssted(regioner).map { it.toDto() }
     }
 
+    fun hentKostnadsstedFiltre(): List<NavRegionDto> = db.session {
+        val regioner = hentAlleEnheter(EnhetFilter(statuser = listOf(NavEnhetStatus.AKTIV), typer = listOf(NavEnhetType.FYLKE)))
+        val kostnadssteder = queries.enhet.getKostnadssted(emptyList()).map { it.toDto() }
+        return NavEnhetHelpers.buildNavRegioner(kostnadssteder + regioner)
+    }
+
     private fun QueryContext.getNavEnhetDto(enhetsnummer: NavEnhetNummer): NavEnhetDto? {
         return queries.enhet.get(enhetsnummer)?.toDto()
     }

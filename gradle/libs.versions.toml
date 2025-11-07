@@ -8,7 +8,7 @@ kotlin = "2.2.21"
 ktor = "3.3.1"
 logback = "1.5.20"
 metrics = "4.2.37"
-arrow = "2.1.2"
+arrow = "2.2.0"
 micrometer = "1.15.5"
 
 [plugins]
@@ -46,14 +46,14 @@ schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.4.0"
 
 assertj-db = "org.assertj:assertj-db:3.0.0"
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.2"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.3"
 
 dbScheduler = "com.github.kagkarlsson:db-scheduler:16.4.1"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.26.1"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.27.0"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.59.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
@@ -104,7 +104,7 @@ ktor-server-testHost = { module = "io.ktor:ktor-server-test-host", version.ref =
 
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:8.1"
+logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:9.0"
 
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
@@ -128,7 +128,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:6.10.0"
 
-slack-client = "com.slack.api:slack-api-client:1.45.4"
+slack-client = "com.slack.api:slack-api-client:1.46.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.17"
 

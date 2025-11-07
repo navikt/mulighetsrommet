@@ -35,7 +35,7 @@
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
     "@vitejs/plugin-react": "5.1.0",
-    "eslint": "9.38.0",
+    "eslint": "9.39.1",
     "typescript": "5.9.3",
     "vite": "7.1.12"
   }
