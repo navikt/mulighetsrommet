@@ -102,7 +102,7 @@ class PortableTextTypedObjectTest : FunSpec({
         val children = portableBlock.additionalProperties["children"]?.let { it as? JsonArray }?.map { it as JsonObject }
         children!!.shouldHaveSize(1)
         val child = children.first()
-        child["marks"]!!.jsonArray.first().jsonPrimitive.content.shouldBe( "strong")
+        child["marks"]!!.jsonArray.first().jsonPrimitive.content.shouldBe("strong")
     }
 
     test("slate block med lenke til portable text block") {
@@ -119,7 +119,7 @@ class PortableTextTypedObjectTest : FunSpec({
         markDefKey!!.jsonPrimitive.content.shouldNotContain("http")
 
         val children = portableBlock.additionalProperties["children"]?.let { it as? JsonArray }?.map { it as JsonObject }
-        val linkMarkedChild =  children?.find { it["marks"] != null }
+        val linkMarkedChild = children?.find { it["marks"] != null }
         assertNotNull(linkMarkedChild)
         linkMarkedChild!!["marks"].let { it as JsonArray }.first().shouldBe(markDefKey)
     }

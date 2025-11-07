@@ -79,7 +79,7 @@ fun PortableTextTypedObject.fromSlateFormat(): PortableTextTypedObject {
     }
     val children = additionalProperties["children"]?.let { it as? JsonArray }?.map { child ->
         if (child !is JsonObject) {
-            return@map child;
+            return@map child
         }
         val mutChild = child.toMutableMap()
         mutChild["_key"] = JsonPrimitive(getOrGenerateKey(child))
@@ -101,7 +101,7 @@ fun PortableTextTypedObject.fromSlateFormat(): PortableTextTypedObject {
     }
     return this.copy(
         _key = this._key ?: getOrGenerateKey(),
-        additionalProperties = additionalProperties
+        additionalProperties = additionalProperties,
     )
 }
 
