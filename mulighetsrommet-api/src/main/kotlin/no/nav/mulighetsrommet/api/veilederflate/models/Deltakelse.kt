@@ -4,6 +4,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -85,7 +86,13 @@ data class DeltakelseGruppetiltak(
     override val status: DeltakelseStatus,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-) : Deltakelse()
+    val pamelding: Pamelding,
+) : Deltakelse() {
+    @Serializable
+    data class Pamelding(
+        val status: DeltakerStatusType,
+    )
+}
 
 @Serializable
 data class DeltakelseArbeidsgiverAvtale(

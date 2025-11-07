@@ -95,7 +95,6 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val deltakelseOppfolging = DeltakelseGruppetiltak(
         id = tiltakshistorikkOppfolging.id,
-        gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
         eierskap = DeltakelseEierskap.TEAM_KOMET,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Oppfølging hos Fretex AS",
@@ -110,6 +109,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
+        gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
+        pamelding = DeltakelseGruppetiltak.Pamelding(DeltakerStatusType.VENTELISTE),
     )
     val deltakelseAvklaring = DeltakelseArena(
         id = tiltakshistorikkAvklaring.id,
@@ -298,6 +299,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 aarsak = null,
             ),
             tilstand = DeltakelseTilstand.KLADD,
+            pamelding = DeltakelseGruppetiltak.Pamelding(DeltakerStatusType.KLADD),
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),

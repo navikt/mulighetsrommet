@@ -71,7 +71,8 @@ function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
       return "border-2 border-dashed border-border-info";
     case DeltakelseTilstand.KLADD:
       return "border-2 border-dashed border-border-warning";
-    case DeltakelseTilstand.OPPRETTET:
+    case DeltakelseTilstand.AKTIV:
+    case DeltakelseTilstand.AVSLUTTET:
       return "";
   }
 }

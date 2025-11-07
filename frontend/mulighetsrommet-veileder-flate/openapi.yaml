@@ -1204,17 +1204,44 @@ components:
         gjennomforingId:
           type: string
           format: uuid
+        pamelding:
+          $ref: "#/components/schemas/DeltakelseGruppetiltak.Pamelding"
       required:
       - eierskap
       - gjennomforingId
       - id
       - innsoktDato
+      - pamelding
       - periode
       - sistEndretDato
       - status
       - tilstand
       - tiltakstypeNavn
       - tittel
+    DeltakelseGruppetiltak.Pamelding:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/DeltakerStatusType"
+      required:
+      - status
+    DeltakerStatusType:
+      type: string
+      enum:
+      - AVBRUTT
+      - AVBRUTT_UTKAST
+      - DELTAR
+      - FEILREGISTRERT
+      - FULLFORT
+      - HAR_SLUTTET
+      - IKKE_AKTUELL
+      - KLADD
+      - PABEGYNT_REGISTRERING
+      - SOKT_INN
+      - UTKAST_TIL_PAMELDING
+      - VENTELISTE
+      - VENTER_PA_OPPSTART
+      - VURDERES
     GetDeltakelserForBrukerResponse:
       type: object
       properties:

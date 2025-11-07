@@ -140,6 +140,7 @@ class TiltakshistorikkService(
             eierskap = DeltakelseEierskap.ARENA,
             tilstand = getTilstand(deltakelse.status.type),
             gjennomforingId = deltakelse.gjennomforing.id,
+            pamelding = DeltakelseGruppetiltak.Pamelding(deltakelse.status.type),
         )
     }
 
@@ -247,7 +248,6 @@ class TiltakshistorikkService(
 private fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
     return DeltakelseGruppetiltak(
         id = deltakerId,
-        gjennomforingId = deltakerlisteId,
         periode = DeltakelsePeriode(
             startDato = periode?.startdato,
             sluttDato = periode?.sluttdato,
@@ -262,6 +262,8 @@ private fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
         ),
         innsoktDato = innsoktDato,
         sistEndretDato = sistEndretDato,
+        gjennomforingId = deltakerlisteId,
+        pamelding = DeltakelseGruppetiltak.Pamelding(status.type),
     )
 }
 
