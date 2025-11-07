@@ -496,7 +496,7 @@ private fun tasks(config: AppConfig) = module {
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
                 beregnUtbetaling.task,
-                slateTilPortableText.task
+                slateTilPortableText.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
