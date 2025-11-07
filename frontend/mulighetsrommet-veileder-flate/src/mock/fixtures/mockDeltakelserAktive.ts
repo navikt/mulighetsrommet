@@ -2,6 +2,7 @@ import {
   ArbeidsgiverAvtaleStatus,
   Deltakelse,
   DeltakelseEierskap,
+  DeltakelseTilstand,
   DeltakerStatusType,
 } from "@api-client";
 import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
@@ -21,6 +22,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstypeNavn: "Arbeidsforberedende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.KLADD,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -37,6 +39,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.UTKAST,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -57,6 +60,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tittel: "Jobbklubb hos Fretex",
     sistEndretDato: null,
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -76,6 +80,7 @@ export const deltakelserAktive: Deltakelse[] = [
     sistEndretDato: null,
     tittel: "Jobbklubb hos Fretex",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
@@ -93,5 +98,6 @@ export const deltakelserAktive: Deltakelse[] = [
     tittel: "Arbeidstrening hos Fretex",
     sistEndretDato: null,
     eierskap: DeltakelseEierskap.TEAM_TILTAK,
+    tilstand: DeltakelseTilstand.OPPRETTET,
   },
 ];

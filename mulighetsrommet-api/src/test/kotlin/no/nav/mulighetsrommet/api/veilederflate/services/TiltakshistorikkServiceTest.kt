@@ -97,6 +97,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         id = tiltakshistorikkOppfolging.id,
         gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
         eierskap = DeltakelseEierskap.TEAM_KOMET,
+        tilstand = DeltakelseTilstand.OPPRETTET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
         status = DeltakelseGruppetiltakStatus(
@@ -114,6 +115,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakelseAvklaring = DeltakelseArena(
         id = tiltakshistorikkAvklaring.id,
         eierskap = DeltakelseEierskap.ARENA,
+        tilstand = DeltakelseTilstand.OPPRETTET,
         tittel = "Avklaring hos Hovedenhet AS",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
         status = DeltakelseArenaStatus(
@@ -130,6 +132,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakelseArbeidstrening = DeltakelseArbeidsgiverAvtale(
         id = tiltakshistorikkArbeidstrening.id,
         eierskap = DeltakelseEierskap.TEAM_TILTAK,
+        tilstand = DeltakelseTilstand.OPPRETTET,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",
         status = DeltakelseArbeidsgiverAvtaleStatus(
@@ -292,6 +295,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             id = deltakelseOppfolgingUtenStartdato.deltakerId,
             periode = DeltakelsePeriode(null, null),
             status = DeltakelseGruppetiltakStatus(DeltakerStatusType.KLADD, "Kladd", null),
+            tilstand = DeltakelseTilstand.KLADD,
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
