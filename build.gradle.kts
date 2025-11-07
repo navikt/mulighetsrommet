@@ -13,6 +13,16 @@ plugins {
     alias(libs.plugins.ktlint) apply false
 }
 
+tasks.register("buildCommon") {
+    val commonProjects = allprojects.filter { it.path.startsWith(":common:") }
+    dependsOn(commonProjects.map { "${it.path}:build" })
+}
+
+tasks.register("testCommon") {
+    val commonProjects = allprojects.filter { it.path.startsWith(":common:") }
+    dependsOn(commonProjects.map { "${it.path}:test" })
+}
+
 allprojects {
     // Apply ktlint for all projects
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
