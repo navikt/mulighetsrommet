@@ -1050,6 +1050,8 @@ components:
           format: date
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"
+        tilstand:
+          $ref: "#/components/schemas/DeltakelseTilstand"
         status:
           $ref: "#/components/schemas/DeltakelseArbeidsgiverAvtaleStatus"
       required:
@@ -1059,6 +1061,7 @@ components:
       - periode
       - sistEndretDato
       - status
+      - tilstand
       - tiltakstypeNavn
       - tittel
     DeltakelseEierskap:
@@ -1083,6 +1086,12 @@ components:
       required:
       - sluttDato
       - startDato
+    DeltakelseTilstand:
+      type: string
+      enum:
+      - UTKAST
+      - KLADD
+      - OPPRETTET
     DeltakelseArbeidsgiverAvtaleStatus:
       type: object
       properties:
@@ -1111,6 +1120,8 @@ components:
           format: uuid
         eierskap:
           $ref: "#/components/schemas/DeltakelseEierskap"
+        tilstand:
+          $ref: "#/components/schemas/DeltakelseTilstand"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -1136,6 +1147,7 @@ components:
       - periode
       - sistEndretDato
       - status
+      - tilstand
       - tiltakstypeNavn
       - tittel
     DeltakelseArenaStatus:
@@ -1190,6 +1202,8 @@ components:
           format: date
         periode:
           $ref: "#/components/schemas/DeltakelsePeriode"
+        tilstand:
+          $ref: "#/components/schemas/DeltakelseTilstand"
         status:
           $ref: "#/components/schemas/DeltakelseGruppetiltakStatus"
         gjennomforingId:
@@ -1203,6 +1217,7 @@ components:
       - periode
       - sistEndretDato
       - status
+      - tilstand
       - tiltakstypeNavn
       - tittel
     DeltakelseGruppetiltakStatus:

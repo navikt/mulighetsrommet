@@ -22,6 +22,7 @@ sealed class Deltakelse {
     abstract val innsoktDato: LocalDate?
     abstract val sistEndretDato: LocalDate?
     abstract val periode: DeltakelsePeriode
+    abstract val tilstand: DeltakelseTilstand
 }
 
 @Serializable
@@ -29,6 +30,13 @@ enum class DeltakelseEierskap {
     ARENA,
     TEAM_KOMET,
     TEAM_TILTAK,
+}
+
+@Serializable
+enum class DeltakelseTilstand {
+    UTKAST,
+    KLADD,
+    OPPRETTET,
 }
 
 @Serializable
@@ -44,6 +52,7 @@ data class DeltakelseArena(
     @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
     override val eierskap: DeltakelseEierskap,
+    override val tilstand: DeltakelseTilstand,
     override val tittel: String,
     override val tiltakstypeNavn: String,
     @Serializable(with = LocalDateSerializer::class)
@@ -72,6 +81,7 @@ data class DeltakelseGruppetiltak(
     @Serializable(with = LocalDateSerializer::class)
     override val sistEndretDato: LocalDate?,
     override val periode: DeltakelsePeriode,
+    override val tilstand: DeltakelseTilstand,
     val status: DeltakelseGruppetiltakStatus,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
@@ -96,6 +106,7 @@ data class DeltakelseArbeidsgiverAvtale(
     @Serializable(with = LocalDateSerializer::class)
     override val sistEndretDato: LocalDate?,
     override val periode: DeltakelsePeriode,
+    override val tilstand: DeltakelseTilstand,
     val status: DeltakelseArbeidsgiverAvtaleStatus,
 ) : Deltakelse()
 

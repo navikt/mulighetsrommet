@@ -2,6 +2,7 @@ import {
   ArbeidsgiverAvtaleStatus,
   Deltakelse,
   DeltakelseEierskap,
+  DeltakelseTilstand,
   DeltakerStatusType,
 } from "@api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
@@ -21,6 +22,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -35,6 +37,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_TILTAK,
+    tilstand: DeltakelseTilstand.OPPRETTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -51,6 +54,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -71,6 +75,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -91,6 +96,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -110,6 +116,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
   },
   {
     type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
@@ -125,6 +132,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
     periode: { startDato: null, sluttDato: null },
   },
   {
@@ -141,6 +149,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     sistEndretDato: null,
     innsoktDato: "2017-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tilstand: DeltakelseTilstand.OPPRETTET,
     periode: { startDato: null, sluttDato: null },
   },
 ];

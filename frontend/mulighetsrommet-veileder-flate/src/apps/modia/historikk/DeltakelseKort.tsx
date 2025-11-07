@@ -3,6 +3,7 @@ import {
   ArenaDeltakerStatus,
   Deltakelse,
   DeltakelseEierskap,
+  DeltakelseTilstand,
   DeltakerStatusType as DeltakerStatusType,
 } from "@api-client";
 import {
@@ -33,13 +34,7 @@ export function DeltakelseKort({ deltakelse, aktiv }: Props) {
       background="bg-default"
       borderRadius="medium"
       padding="5"
-      className={
-        isUtkast(deltakelse.status.type)
-          ? "border-2 border-dashed border-border-info"
-          : isKladd(deltakelse.status.type)
-            ? "border-2 border-dashed border-border-warning"
-            : ""
-      }
+      className={getDeltakelseKortBorder(deltakelse.tilstand)}
     >
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
@@ -86,16 +81,15 @@ function Knapper({ deltakelse, aktiv }: Props) {
   }
 }
 
-function isKladd(type: ArenaDeltakerStatus | DeltakerStatusType | ArbeidsgiverAvtaleStatus) {
-  return type === DeltakerStatusType.KLADD || type === ArbeidsgiverAvtaleStatus.PAABEGYNT;
-}
-
-function isUtkast(type: ArenaDeltakerStatus | DeltakerStatusType | ArbeidsgiverAvtaleStatus) {
-  return (
-    type === DeltakerStatusType.UTKAST_TIL_PAMELDING ||
-    type === DeltakerStatusType.PABEGYNT_REGISTRERING ||
-    type === ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING
-  );
+function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
+  switch (tilstand) {
+    case DeltakelseTilstand.UTKAST:
+      return "border-2 border-dashed border-border-info";
+    case DeltakelseTilstand.KLADD:
+      return "border-2 border-dashed border-border-warning";
+    case DeltakelseTilstand.OPPRETTET:
+      return "";
+  }
 }
 
 function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
