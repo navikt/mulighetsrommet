@@ -211,7 +211,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             val data = response.body<OpprettKravInnsendingsInformasjon>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    fail { "Skal vise en liste av perioder for timespris innsending" }
+                    fail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
                 is DatoVelger.DatoRange ->
                     data.datoVelger.maksSluttdato shouldBe null
             }
@@ -234,9 +234,9 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             val data = response.body<OpprettKravInnsendingsInformasjon>()
             when (data.datoVelger) {
                 is DatoVelger.DatoSelect ->
-                    fail { "Skal vise en liste av perioder for timespris innsending" }
+                    fail { "Investeringer skal ha start- og sluttdato datepicker" }
                 is DatoVelger.DatoRange ->
-                    data.datoVelger.maksSluttdato shouldBe LocalDate.now().minusDays(1) // Gårsdagen
+                    data.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
             }
         }
     }
