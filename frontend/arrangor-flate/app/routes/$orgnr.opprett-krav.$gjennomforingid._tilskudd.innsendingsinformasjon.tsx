@@ -22,7 +22,6 @@ import {
   OpprettKravInnsendingsInformasjonGuidePanelType,
   OpprettKravVeiviserSteg,
   Periode,
-  Tilskuddstype,
 } from "api-client";
 import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -163,7 +162,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    session.set("tilskuddstype", Tilskuddstype.TILTAK_DRIFTSTILSKUDD);
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
