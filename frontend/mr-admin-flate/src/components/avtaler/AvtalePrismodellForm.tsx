@@ -10,7 +10,7 @@ import { FeatureToggle, PrismodellType, Tiltakskode } from "@tiltaksadministrasj
 
 interface Props {
   tiltakskode: Tiltakskode;
-  avtaleStartDato?: Date;
+  avtaleStartDato: Date;
 }
 
 export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: Props) {
@@ -51,7 +51,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               if (satser.length === 0) {
                 setValue("satser", [
                   {
-                    gjelderFra: yyyyMMddFormatting(avtaleStartDato) ?? null,
+                    gjelderFra: yyyyMMddFormatting(avtaleStartDato),
                     gjelderTil: null,
                     pris: 0,
                     valuta: "NOK",
@@ -76,9 +76,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
             ))}
         </Select>
         {beskrivelse && beskrivelse.map((tekst) => <BodyShort>{tekst}</BodyShort>)}
-        {avtaleStartDato && (
-          <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
-        )}
+        <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
       </VStack>
     </Box>
   );

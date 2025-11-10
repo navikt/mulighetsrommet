@@ -22,7 +22,7 @@ export function AvtaleAmoKategoriseringForm() {
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
 
-  const amoKategorisering = watch("amoKategorisering");
+  const amoKategorisering = watch("detaljer.amoKategorisering");
 
   return (
     <HGrid gap="4" columns={1}>
@@ -30,9 +30,9 @@ export function AvtaleAmoKategoriseringForm() {
         size="small"
         label={gjennomforingTekster.kurstypeLabel}
         value={amoKategorisering?.kurstype}
-        error={errors.amoKategorisering?.kurstype?.message}
+        error={errors.detaljer?.amoKategorisering?.kurstype?.message}
         onChange={(type) => {
-          setValue("amoKategorisering.kurstype", type.target.value as Kurstype);
+          setValue("detaljer.amoKategorisering.kurstype", type.target.value as Kurstype);
         }}
       >
         <option value={undefined}>Velg kurstype</option>
@@ -55,12 +55,12 @@ export function AvtaleAmoKategoriseringForm() {
       {amoKategorisering?.kurstype === Kurstype.BRANSJE_OG_YRKESRETTET && <AvtaleBransjeForm />}
       {amoKategorisering?.kurstype === Kurstype.NORSKOPPLAERING && (
         <NorksopplaeringForm<AvtaleFormValues>
-          norskprovePath="amoKategorisering.norskprove"
-          innholdElementerPath="amoKategorisering.innholdElementer"
+          norskprovePath="detaljer.amoKategorisering.norskprove"
+          innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
         />
       )}
       {amoKategorisering?.kurstype === Kurstype.GRUNNLEGGENDE_FERDIGHETER && (
-        <InnholdElementerForm<AvtaleFormValues> path="amoKategorisering.innholdElementer" />
+        <InnholdElementerForm<AvtaleFormValues> path="detaljer.amoKategorisering.innholdElementer" />
       )}
     </HGrid>
   );
