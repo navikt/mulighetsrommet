@@ -36,14 +36,16 @@ function Knapper({ deltakelse }: Props) {
         route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
         deltakerId: deltakelse.id,
       });
-      const tiltakLink = getTiltakLink(deltakelse);
       return (
         <VStack gap="2">
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          {tiltakLink && (
-            <Link to={tiltakLink} className="text-center no-underline text-[16px] hover:underline">
+          {deltakelse.pamelding && (
+            <Link
+              to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`}
+              className="text-center no-underline text-[16px] hover:underline"
+            >
               Gå til tiltak
             </Link>
           )}
@@ -70,14 +72,6 @@ function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
     case DeltakelseTilstand.AKTIV:
     case DeltakelseTilstand.AVSLUTTET:
       return "";
-  }
-}
-
-function getTiltakLink(deltakelse: Deltakelse) {
-  if (deltakelse.tilstand !== DeltakelseTilstand.AVSLUTTET && deltakelse.pamelding) {
-    return `/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`;
-  } else {
-    return null;
   }
 }
 

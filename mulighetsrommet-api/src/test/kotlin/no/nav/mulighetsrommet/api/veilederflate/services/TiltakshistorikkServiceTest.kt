@@ -250,6 +250,51 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
     }
 
+    test("ikke inkluder informasjon om påmelding når deltakelse er avsluttet") {
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(tiltakshistorikkAvklaring),
+            meldinger = setOf(),
+        )
+
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(
+                aktive = listOf(
+                    deltakelseOppfolgingFraKomet.copy(
+                        status = DeltakelseFraKomet.Status(
+                            type = DeltakerStatusType.HAR_SLUTTET,
+                            visningstekst = "Har sluttet",
+                            aarsak = null,
+                        ),
+                    ),
+                ),
+                historikk = emptyList(),
+            ),
+        )
+
+        val historikkService = createTiltakshistorikkService()
+
+        val historikk = historikkService.hentHistorikk(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        )
+
+        historikk shouldBe Deltakelser(
+            meldinger = setOf(),
+            aktive = listOf(
+                deltakelseOppfolging.copy(
+                    tilstand = DeltakelseTilstand.AVSLUTTET,
+                    status = DeltakelseStatus(
+                        type = DataElement.Status("Har sluttet", DataElement.Status.Variant.ALT_1),
+                        aarsak = null,
+                    ),
+                    pamelding = null,
+                ),
+                deltakelseAvklaring,
+            ),
+            historiske = emptyList(),
+        )
+    }
+
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(tiltakshistorikkAvklaring),

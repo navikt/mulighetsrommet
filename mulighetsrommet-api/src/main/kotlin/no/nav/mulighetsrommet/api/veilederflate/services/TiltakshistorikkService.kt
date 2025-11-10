@@ -61,7 +61,7 @@ class TiltakshistorikkService(
         val (aktive, historiske) = historikk.historikk
             .map { async { toDeltakelse(it) } }
             .awaitAll()
-            .partition { erAktiv(it) }
+            .partition { erAktiv(it.tilstand) }
 
         Deltakelser(
             meldinger = meldinger,
@@ -200,7 +200,8 @@ class TiltakshistorikkService(
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
             DeltakelseTiltakstype(it.navn, it.tiltakskode)
         }
-        val pamelding = if (Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
+        val tilstand = getTilstand(deltakelse.status.type)
+        val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
         } else {
             null
@@ -212,7 +213,7 @@ class TiltakshistorikkService(
                 sluttDato = deltakelse.periode?.sluttdato,
             ),
             eierskap = DeltakelseEierskap.TEAM_KOMET,
-            tilstand = getTilstand(deltakelse.status.type),
+            tilstand = tilstand,
             tittel = deltakelse.tittel,
             tiltakstype = tiltakstype,
             status = DeltakelseStatus(
@@ -247,7 +248,7 @@ class TiltakshistorikkService(
         }
     }
 
-    private fun erAktiv(kort: Deltakelse): Boolean = when (kort.tilstand) {
+    private fun erAktiv(tilstand: DeltakelseTilstand): Boolean = when (tilstand) {
         DeltakelseTilstand.KLADD,
         DeltakelseTilstand.UTKAST,
         DeltakelseTilstand.AKTIV,
