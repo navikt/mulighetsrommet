@@ -81,7 +81,6 @@ class AvtaleService(
             queries.avtale.upsert(dbo)
 
             dispatchNotificationToNewAdministrators(dbo, navIdent)
-            val g = "asdf" + navIdent.value
 
             val dto = getOrError(dbo.id)
             val operation = if (previous == null) {
