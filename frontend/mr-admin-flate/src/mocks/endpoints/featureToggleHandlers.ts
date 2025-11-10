@@ -7,6 +7,7 @@ const mockFeatures: Features = {
   [FeatureToggle.MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING]: true,
   [FeatureToggle.MULIGHETSROMMET_PRISMODELL_HELE_UKER]: true,
   [FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS]: true,
+  [FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER]: true,
 };
 
 export const featureToggleHandlers = [

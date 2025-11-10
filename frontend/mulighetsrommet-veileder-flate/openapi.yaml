@@ -172,7 +172,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelseGruppetiltak"
+                $ref: "#/components/schemas/Deltakelse"
         "404":
           description: Fant ikke aktiv deltakelse for tiltak
           headers: {}
@@ -1014,19 +1014,7 @@ components:
       enum:
       - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
       - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
-      - HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK
     Deltakelse:
-      anyOf:
-      - $ref: "#/components/schemas/DeltakelseArbeidsgiverAvtale"
-      - $ref: "#/components/schemas/DeltakelseArena"
-      - $ref: "#/components/schemas/DeltakelseGruppetiltak"
-      discriminator:
-        propertyName: type
-        mapping:
-          no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale: "#/components/schemas/DeltakelseArbeidsgiverAvtale"
-          no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArena: "#/components/schemas/DeltakelseArena"
-          no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak: "#/components/schemas/DeltakelseGruppetiltak"
-    DeltakelseArbeidsgiverAvtale:
       type: object
       properties:
         id:
@@ -1036,8 +1024,8 @@ components:
           $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
-        tiltakstypeNavn:
-          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/DeltakelseTiltakstype"
         innsoktDato:
           type:
           - "null"
@@ -1054,15 +1042,20 @@ components:
           $ref: "#/components/schemas/DeltakelseTilstand"
         status:
           $ref: "#/components/schemas/DeltakelseStatus"
+        pamelding:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakelsePamelding"
       required:
       - eierskap
       - id
       - innsoktDato
+      - pamelding
       - periode
       - sistEndretDato
       - status
       - tilstand
-      - tiltakstypeNavn
+      - tiltakstype
       - tittel
     DeltakelseEierskap:
       type: string
@@ -1070,6 +1063,33 @@ components:
       - ARENA
       - TEAM_KOMET
       - TEAM_TILTAK
+    DeltakelseTiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     DeltakelsePeriode:
       type: object
       properties:
@@ -1135,95 +1155,16 @@ components:
       - error
       - error-border
       - error-border-strikethrough
-    DeltakelseArena:
+    DeltakelsePamelding:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        eierskap:
-          $ref: "#/components/schemas/DeltakelseEierskap"
-        tilstand:
-          $ref: "#/components/schemas/DeltakelseTilstand"
-        tittel:
-          type: string
-        tiltakstypeNavn:
-          type: string
-        innsoktDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sistEndretDato:
-          type:
-          - "null"
-          - string
-          format: date
-        periode:
-          $ref: "#/components/schemas/DeltakelsePeriode"
-        status:
-          $ref: "#/components/schemas/DeltakelseStatus"
-      required:
-      - eierskap
-      - id
-      - innsoktDato
-      - periode
-      - sistEndretDato
-      - status
-      - tilstand
-      - tiltakstypeNavn
-      - tittel
-    DeltakelseGruppetiltak:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        eierskap:
-          $ref: "#/components/schemas/DeltakelseEierskap"
-        tittel:
-          type: string
-        tiltakstypeNavn:
-          type: string
-        innsoktDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sistEndretDato:
-          type:
-          - "null"
-          - string
-          format: date
-        periode:
-          $ref: "#/components/schemas/DeltakelsePeriode"
-        tilstand:
-          $ref: "#/components/schemas/DeltakelseTilstand"
-        status:
-          $ref: "#/components/schemas/DeltakelseStatus"
         gjennomforingId:
           type: string
           format: uuid
-        pamelding:
-          $ref: "#/components/schemas/DeltakelseGruppetiltak.Pamelding"
-      required:
-      - eierskap
-      - gjennomforingId
-      - id
-      - innsoktDato
-      - pamelding
-      - periode
-      - sistEndretDato
-      - status
-      - tilstand
-      - tiltakstypeNavn
-      - tittel
-    DeltakelseGruppetiltak.Pamelding:
-      type: object
-      properties:
         status:
           $ref: "#/components/schemas/DeltakerStatusType"
       required:
+      - gjennomforingId
       - status
     DeltakerStatusType:
       type: string
@@ -1391,21 +1332,6 @@ components:
       - arenakode
       - navn
       - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
     NavVeilederHovedenhet:
       type: object
       properties:

@@ -4,12 +4,12 @@ import {
   DeltakelseEierskap,
   DeltakelseTilstand,
   DeltakerStatusType,
+  Tiltakskode,
 } from "@api-client";
 import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockGjennomforinger";
 
 export const deltakelserAktive: Deltakelse[] = [
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-03-02",
     sistEndretDato: "2024-03-27",
@@ -17,16 +17,20 @@ export const deltakelserAktive: Deltakelse[] = [
       type: { value: "Kladden", variant: DataElementStatusVariant.WARNING, description: null },
       aarsak: null,
     },
-    tiltakstypeNavn: "Arbeidsforberedende trening",
+    tiltakstype: {
+      navn: "Arbeidsforberedende trening",
+      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    },
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.KLADD,
     periode: { startDato: null, sluttDato: null },
-    gjennomforingId: tiltakAft.id,
-    pamelding: { status: DeltakerStatusType.KLADD },
+    pamelding: {
+      gjennomforingId: tiltakAft.id,
+      status: DeltakerStatusType.KLADD,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     sistEndretDato: "2024-03-27",
@@ -38,16 +42,20 @@ export const deltakelserAktive: Deltakelse[] = [
       },
       aarsak: null,
     },
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     tittel: "Avklaring hos Fretex AS",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.UTKAST,
     periode: { startDato: null, sluttDato: null },
-    gjennomforingId: tiltakAvklaring.id,
-    pamelding: { status: DeltakerStatusType.UTKAST_TIL_PAMELDING },
+    pamelding: {
+      gjennomforingId: tiltakAvklaring.id,
+      status: DeltakerStatusType.UTKAST_TIL_PAMELDING,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     status: {
@@ -58,7 +66,10 @@ export const deltakelserAktive: Deltakelse[] = [
       },
       aarsak: null,
     },
-    tiltakstypeNavn: "Jobbklubb",
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Tiltakskode.JOBBKLUBB,
+    },
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
@@ -67,18 +78,22 @@ export const deltakelserAktive: Deltakelse[] = [
     sistEndretDato: null,
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AKTIV,
-    gjennomforingId: tiltakJobbklubb.id,
-    pamelding: { status: DeltakerStatusType.VENTER_PA_OPPSTART },
+    pamelding: {
+      gjennomforingId: tiltakJobbklubb.id,
+      status: DeltakerStatusType.VENTER_PA_OPPSTART,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     status: {
       type: { value: "Deltar", variant: DataElementStatusVariant.BLANK, description: null },
       aarsak: null,
     },
-    tiltakstypeNavn: "Jobbklubb",
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Tiltakskode.JOBBKLUBB,
+    },
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
@@ -87,18 +102,22 @@ export const deltakelserAktive: Deltakelse[] = [
     tittel: "Jobbklubb hos Fretex",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AKTIV,
-    gjennomforingId: tiltakJobbklubb.id,
-    pamelding: { status: DeltakerStatusType.DELTAR },
+    pamelding: {
+      gjennomforingId: tiltakJobbklubb.id,
+      status: DeltakerStatusType.DELTAR,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
     id: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     status: {
       type: { value: "Gjennomføres", variant: DataElementStatusVariant.BLANK, description: null },
       aarsak: null,
     },
-    tiltakstypeNavn: "Arbeidstrening",
+    tiltakstype: {
+      navn: "Arbeidstrening",
+      tiltakskode: null,
+    },
     periode: {
       startDato: "2023-08-10",
       sluttDato: null,
@@ -107,5 +126,6 @@ export const deltakelserAktive: Deltakelse[] = [
     sistEndretDato: null,
     eierskap: DeltakelseEierskap.TEAM_TILTAK,
     tilstand: DeltakelseTilstand.AKTIV,
+    pamelding: null,
   },
 ];

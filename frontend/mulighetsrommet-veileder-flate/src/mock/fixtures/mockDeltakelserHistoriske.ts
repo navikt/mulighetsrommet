@@ -4,14 +4,17 @@ import {
   DeltakelseEierskap,
   DeltakelseTilstand,
   DeltakerStatusType,
+  Tiltakskode,
 } from "@api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
 export const deltakelserHistoriske: Deltakelse[] = [
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstypeNavn: "Oppfølging",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Tiltakskode.OPPFOLGING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: {
@@ -26,13 +29,17 @@ export const deltakelserHistoriske: Deltakelse[] = [
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
-    gjennomforingId: tiltakOppfolging.id,
-    pamelding: { status: DeltakerStatusType.AVBRUTT_UTKAST },
+    pamelding: {
+      gjennomforingId: tiltakOppfolging.id,
+      status: DeltakerStatusType.AVBRUTT_UTKAST,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseArbeidsgiverAvtale",
     tittel: "Mentor hos Fretex AS",
-    tiltakstypeNavn: "Mentor",
+    tiltakstype: {
+      navn: "Mentor",
+      tiltakskode: null,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Avsluttet", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -43,11 +50,14 @@ export const deltakelserHistoriske: Deltakelse[] = [
     eierskap: DeltakelseEierskap.TEAM_TILTAK,
     tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
+    pamelding: null,
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstypeNavn: "Oppfølging",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Tiltakskode.OPPFOLGING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Ikke aktuell", variant: DataElementStatusVariant.NEUTRAL, description: null },
@@ -58,17 +68,18 @@ export const deltakelserHistoriske: Deltakelse[] = [
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
-    gjennomforingId: tiltakOppfolging.id,
-    pamelding: { status: DeltakerStatusType.IKKE_AKTUELL },
+    pamelding: { gjennomforingId: tiltakOppfolging.id, status: DeltakerStatusType.IKKE_AKTUELL },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     periode: {
       startDato: "2023-05-10",
       sluttDato: "2023-12-12",
     },
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstypeNavn: "Oppfølging",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Tiltakskode.OPPFOLGING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Har sluttet", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -78,18 +89,21 @@ export const deltakelserHistoriske: Deltakelse[] = [
     innsoktDato: "2024-03-02",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
-    gjennomforingId: tiltakOppfolging.id,
-    pamelding: { status: DeltakerStatusType.HAR_SLUTTET },
+    pamelding: {
+      gjennomforingId: tiltakOppfolging.id,
+      status: DeltakerStatusType.HAR_SLUTTET,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     periode: {
       startDato: "2023-01.01",
       sluttDato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
-
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Fullført", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -99,17 +113,21 @@ export const deltakelserHistoriske: Deltakelse[] = [
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
-    gjennomforingId: tiltakAvklaring.id,
-    pamelding: { status: DeltakerStatusType.FULLFORT },
+    pamelding: {
+      gjennomforingId: tiltakAvklaring.id,
+      status: DeltakerStatusType.FULLFORT,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     periode: {
       startDato: "2023-01.01",
       sluttDato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Avbrutt", variant: DataElementStatusVariant.NEUTRAL, description: null },
@@ -119,13 +137,17 @@ export const deltakelserHistoriske: Deltakelse[] = [
     innsoktDato: "2024-02-03",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
-    gjennomforingId: tiltakAvklaring.id,
-    pamelding: { status: DeltakerStatusType.AVBRUTT },
+    pamelding: {
+      gjennomforingId: tiltakAvklaring.id,
+      status: DeltakerStatusType.AVBRUTT,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: {
@@ -140,13 +162,17 @@ export const deltakelserHistoriske: Deltakelse[] = [
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
-    gjennomforingId: tiltakAvklaring.id,
-    pamelding: { status: DeltakerStatusType.FEILREGISTRERT },
+    pamelding: {
+      gjennomforingId: tiltakAvklaring.id,
+      status: DeltakerStatusType.FEILREGISTRERT,
+    },
   },
   {
-    type: "no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak",
     tittel: "Gammel Avklaring med Anne",
-    tiltakstypeNavn: "Avklaring",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Tiltakskode.AVKLARING,
+    },
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Fullført", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -157,7 +183,9 @@ export const deltakelserHistoriske: Deltakelse[] = [
     eierskap: DeltakelseEierskap.TEAM_KOMET,
     tilstand: DeltakelseTilstand.AVSLUTTET,
     periode: { startDato: null, sluttDato: null },
-    gjennomforingId: tiltakAvklaring.id,
-    pamelding: { status: DeltakerStatusType.FULLFORT },
+    pamelding: {
+      gjennomforingId: tiltakAvklaring.id,
+      status: DeltakerStatusType.FULLFORT,
+    },
   },
 ];
