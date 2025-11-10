@@ -3829,8 +3829,13 @@ components:
     DataElement.Status.Variant:
       type: string
       enum:
+      - blank
       - neutral
       - alt
+      - alt-1
+      - alt-2
+      - alt-3
+      - info
       - success
       - warning
       - error

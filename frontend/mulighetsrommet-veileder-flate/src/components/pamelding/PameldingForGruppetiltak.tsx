@@ -1,6 +1,6 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
-import { DeltakelseGruppetiltak, DeltakerStatusType, VeilederflateTiltakGruppe } from "@api-client";
+import { DeltakerStatusType, VeilederflateTiltakGruppe } from "@api-client";
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
@@ -24,7 +24,7 @@ export function PameldingForGruppetiltak({
       deltakerId: deltakelse.id,
     });
 
-    const tekster = utledTekster(deltakelse);
+    const tekster = utledTekster(deltakelse.pamelding.status);
     return (
       <Alert variant={tekster.variant}>
         <Heading level={"2"} size="small">
@@ -79,8 +79,8 @@ interface Tekst {
   variant: "info" | "success" | "warning";
 }
 
-function utledTekster(deltakelse: DeltakelseGruppetiltak): Tekst {
-  switch (deltakelse.status.type) {
+function utledTekster(status: DeltakerStatusType): Tekst {
+  switch (status) {
     case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {
         overskrift: "Venter på oppstart",
