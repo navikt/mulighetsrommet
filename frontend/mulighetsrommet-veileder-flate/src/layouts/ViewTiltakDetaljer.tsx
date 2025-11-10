@@ -72,10 +72,12 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                   borderWidth="1"
                   background="surface-action-subtle"
                 >
-                  <BodyShort size="small" className="whitespace-pre-wrap font-bold text-left">
+                  <BodyShort size="small" className="font-bold text-left">
                     Oppmøtested
                   </BodyShort>
-                  <BodyLong size="small">{tiltak.oppmoteSted}</BodyLong>
+                  <BodyLong className="whitespace-pre-wrap" size="small">
+                    {tiltak.oppmoteSted}
+                  </BodyLong>
                 </Box>
               )}
               <div className="flex flex-col gap-[1rem] mt-[1rem]">{brukerActions}</div>
