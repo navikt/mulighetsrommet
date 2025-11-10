@@ -151,8 +151,9 @@ private fun JsonArray.updateMarkDefsLink(additionalProperties: MutableMap<String
 }
 
 private fun getOrGenerateKey(obj: JsonObject? = null): String {
-    if (obj != null && "_key" in obj && obj["_key"] != JsonNull) {
-        return obj["_key"].toString()
+    val key = obj?.get("_key")?.jsonPrimitive?.contentOrNull
+    if (key != null) {
+        return key
     }
     return UUID.randomUUID().toString().slice(0..7)
 }

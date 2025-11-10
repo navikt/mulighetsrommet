@@ -82,9 +82,8 @@ class SlateTilPortableTextTest : FunSpec({
     test("skal mappe faneinnhold fra slate til portable text") {
         database.run {
             val assertFaneinnhold = { avtale: Avtale ->
-                avtale.faneinnhold?.forHvem.shouldNotBeNull().first()._key.shouldNotBeNull()
                 val serialized = Json.encodeToString(avtale.faneinnhold)
-                serialized.shouldNotContain("\"_key\": null")
+                serialized.shouldNotContain("null")
             }
 
             val task = createTask()
