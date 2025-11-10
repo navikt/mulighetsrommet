@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.featuretoggle.api.generateUnleashSessionId
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
-import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 
 fun Route.arrangorFeatureToggleRoutes() {
-    val features: UnleashFeatureToggleService by inject()
+    val features: FeatureToggleService by inject()
 
     fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
         return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -62,7 +62,6 @@ fun Route.arrangorFeatureToggleRoutes() {
             ?: emptyList()
 
         val context = FeatureToggleContext(
-            userId = "",
             sessionId = call.generateUnleashSessionId(),
             remoteAddress = call.request.origin.remoteAddress,
             tiltakskoder = tiltakskoder,
