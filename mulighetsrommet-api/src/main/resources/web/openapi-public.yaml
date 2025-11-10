@@ -124,8 +124,8 @@ components:
         oppdatertTidspunkt:
           type: string
           format: date-time
-        tiltakstype:
-          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Tiltakstype"
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
       required:
@@ -133,16 +133,6 @@ components:
       - id
       - oppdatertTidspunkt
       - opprettetTidspunkt
-      - tiltakstype
-    TiltaksgjennomforingV2Dto.Tiltakstype:
-      type: object
-      properties:
-        arenakode:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-      required:
-      - arenakode
       - tiltakskode
     Tiltakskode:
       type: string
@@ -178,8 +168,8 @@ components:
         oppdatertTidspunkt:
           type: string
           format: date-time
-        tiltakstype:
-          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Tiltakstype"
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         navn:
@@ -228,7 +218,7 @@ components:
       - startDato
       - status
       - tilgjengeligForArrangorFraOgMedDato
-      - tiltakstype
+      - tiltakskode
     GjennomforingStatusType:
       type: string
       enum:

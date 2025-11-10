@@ -443,7 +443,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
                 decoded.id shouldBe arenaGjennomforing.id
-                decoded.tiltakstype.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+                decoded.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                 decoded.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
             }
 
