@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import arrow.core.flatMap
 import arrow.core.getOrElse
-import arrow.core.nel
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
@@ -15,9 +13,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.utils.io.*
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -53,7 +48,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
@@ -125,6 +119,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
         val arrangorer = resolveArrangorer(tilganger)
+            .sortedBy { it.navn }
 
         call.respond(arrangorer)
     }
