@@ -200,8 +200,8 @@ importers:
         specifier: 9.39.0
         version: 9.39.0
       '@hey-api/openapi-ts':
-        specifier: 0.86.11
-        version: 0.86.11(typescript@5.9.3)
+        specifier: 0.87.1
+        version: 0.87.1(typescript@5.9.3)
       '@playwright/test':
         specifier: 1.56.1
         version: 1.56.1
@@ -708,8 +708,8 @@ importers:
         specifier: 4.11.0
         version: 4.11.0(playwright-core@1.56.1)
       '@hey-api/openapi-ts':
-        specifier: 0.86.11
-        version: 0.86.11(typescript@5.9.3)
+        specifier: 0.87.1
+        version: 0.87.1(typescript@5.9.3)
       '@mr/eslint-config-react-app':
         specifier: workspace:*
         version: link:../eslint-config-react-app
@@ -768,8 +768,8 @@ importers:
   frontend/tiltaksadministrasjon-api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.86.11
-        version: 0.86.11(typescript@5.9.3)
+        specifier: 0.87.1
+        version: 0.87.1(typescript@5.9.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1953,8 +1953,8 @@ packages:
   '@grafana/faro-web-tracing@1.19.0':
     resolution: {integrity: sha512-p37kQ/n8vU53ISCMvUn42upbGKqiRZI/QspHGx6kI7nDD5CJIl/2Byzg9vGDuw9BgMEOCIS8Oz6b5+U05kfKdQ==}
 
-  '@hey-api/codegen-core@0.3.2':
-    resolution: {integrity: sha512-DhfftvmoJyfMiiNHhfU7xrDxrjMjPKex1g064RfE6HjNEsFYwK36J2yKfkn8I1mrYWHPmS5ZV3GarMZajsYEEQ==}
+  '@hey-api/codegen-core@0.3.3':
+    resolution: {integrity: sha512-vArVDtrvdzFewu1hnjUm4jX1NBITlSCeO81EdWq676MxQbyxsGcDPAgohaSA+Wvr4HjPSvsg2/1s2zYxUtXebg==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       typescript: '>=5.5.3'
@@ -1963,8 +1963,8 @@ packages:
     resolution: {integrity: sha512-inPeksRLq+j3ArnuGOzQPQE//YrhezQG0+9Y9yizScBN2qatJ78fIByhEgKdNAbtguDCn4RPxmEhcrePwHxs4A==}
     engines: {node: '>= 16'}
 
-  '@hey-api/openapi-ts@0.86.11':
-    resolution: {integrity: sha512-H3W+mlTuX+zNy435bz3ZAxUDo12pv+Mpr2zlLWHyrbthgURBZm5OHwPCA1o261eCOof57DvfKVwSjw6XTUxI1Q==}
+  '@hey-api/openapi-ts@0.87.1':
+    resolution: {integrity: sha512-IFjwE11VPebjbCJqtTnszx22IWeabWWIOAkKKsn6AlV4i2voiUUolB/a/vSnvbwdoolnzB+jOhkYyww2odoJaQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
@@ -2237,9 +2237,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.32.5':
     resolution: {integrity: sha512-Y1Ov0HEGiOIaHRqzmAHwFUpwmGjdvlfX6pAclLLHUJscU95rhLohJJGkbngSzo0O2JZkNh61FF30FXjhsdkS4A==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.32.5/3960da95ecdf32acdbf7be10abeaa6234569a4a4}
@@ -2255,9 +2252,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@4.1.0':
     resolution: {integrity: sha512-CGBm7RfTzBO5SlifvVyQYVCpu4Gt/wqEKM8evG0aL1kbsUPNSRZA2agKqyQfGbs+F6uoJosq8wZbs/1xYrTM/A==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.1.0/ed0d98fe57279240a53fe82bf518776ddce59a0a}
@@ -5257,11 +5251,6 @@ packages:
     resolution: {integrity: sha512-4haO1M4mLO91PW57BMsDFf75UmwoRX0GkdD+Faw+Lr+r/OZrOCS0pIBwOL1xCKQqnQzbNFGgK2V2CpBUPeFNTw==}
     hasBin: true
 
-  handlebars@4.7.8:
-    resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
-    engines: {node: '>=0.4.7'}
-    hasBin: true
-
   hard-rejection@2.1.0:
     resolution: {integrity: sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==}
     engines: {node: '>=6'}
@@ -6409,9 +6398,6 @@ packages:
   negotiator@1.0.0:
     resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
     engines: {node: '>= 0.6'}
-
-  neo-async@2.6.2:
-    resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
@@ -7919,8 +7905,9 @@ packages:
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
 
-  tinyexec@1.0.1:
-    resolution: {integrity: sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==}
+  tinyexec@1.0.2:
+    resolution: {integrity: sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg==}
+    engines: {node: '>=18'}
 
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
@@ -8128,11 +8115,6 @@ packages:
 
   ua-parser-js@1.0.40:
     resolution: {integrity: sha512-z6PJ8Lml+v3ichVojCiB8toQJBuwR42ySM4ezjXIqXK3M0HczmKQ3LF4rhU55PfD99KEEXQG6yb7iOMyvYuHew==}
-    hasBin: true
-
-  uglify-js@3.19.3:
-    resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
-    engines: {node: '>=0.8.0'}
     hasBin: true
 
   unbox-primitive@1.1.0:
@@ -10130,7 +10112,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@hey-api/codegen-core@0.3.2(typescript@5.9.3)':
+  '@hey-api/codegen-core@0.3.3(typescript@5.9.3)':
     dependencies:
       typescript: 5.9.3
 
@@ -10141,15 +10123,14 @@ snapshots:
       js-yaml: 4.1.0
       lodash: 4.17.21
 
-  '@hey-api/openapi-ts@0.86.11(typescript@5.9.3)':
+  '@hey-api/openapi-ts@0.87.1(typescript@5.9.3)':
     dependencies:
-      '@hey-api/codegen-core': 0.3.2(typescript@5.9.3)
+      '@hey-api/codegen-core': 0.3.3(typescript@5.9.3)
       '@hey-api/json-schema-ref-parser': 1.2.1
       ansi-colors: 4.1.3
       c12: 3.3.1
       color-support: 1.1.3
       commander: 14.0.1
-      handlebars: 4.7.8
       open: 10.2.0
       semver: 7.7.2
       typescript: 5.9.3
@@ -10455,12 +10436,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.32.5
       '@navikt/ds-tokens': 7.32.5
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -10474,7 +10454,6 @@ snapshots:
       html-react-parser: 5.2.7(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 27.1.0
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@4.1.0':
@@ -14081,15 +14060,6 @@ snapshots:
       pumpify: 1.5.1
       through2: 2.0.5
 
-  handlebars@4.7.8:
-    dependencies:
-      minimist: 1.2.8
-      neo-async: 2.6.2
-      source-map: 0.6.1
-      wordwrap: 1.0.0
-    optionalDependencies:
-      uglify-js: 3.19.3
-
   hard-rejection@2.1.0: {}
 
   has-bigints@1.1.0: {}
@@ -15352,8 +15322,6 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  neo-async@2.6.2: {}
-
   node-addon-api@7.1.1:
     optional: true
 
@@ -15427,7 +15395,7 @@ snapshots:
       consola: 3.4.2
       pathe: 2.0.3
       pkg-types: 2.3.0
-      tinyexec: 1.0.1
+      tinyexec: 1.0.2
 
   object-assign@4.1.1: {}
 
@@ -17203,7 +17171,7 @@ snapshots:
 
   tinyexec@0.3.2: {}
 
-  tinyexec@1.0.1: {}
+  tinyexec@1.0.2: {}
 
   tinyglobby@0.2.15:
     dependencies:
@@ -17400,9 +17368,6 @@ snapshots:
   typescript@5.9.3: {}
 
   ua-parser-js@1.0.40: {}
-
-  uglify-js@3.19.3:
-    optional: true
 
   unbox-primitive@1.1.0:
     dependencies:
