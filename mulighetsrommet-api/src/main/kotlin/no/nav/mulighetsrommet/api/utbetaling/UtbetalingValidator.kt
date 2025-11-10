@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -29,7 +28,12 @@ object UtbetalingValidator {
         val belop: Int?,
         val gjorOppTilsagn: Boolean,
         val tilsagn: Tilsagn,
-    )
+    ) {
+        data class Tilsagn(
+            val status: TilsagnStatus,
+            val gjenstaendeBelop: Int,
+        )
+    }
 
     fun validateOpprettDelutbetalinger(
         utbetaling: Utbetaling,
@@ -76,7 +80,7 @@ object UtbetalingValidator {
                     "Beløp må være positivt",
                 )
             }
-            validate(req.belop == null || req.belop <= req.tilsagn.gjenstaendeBelop()) {
+            validate(req.belop == null || req.belop <= req.tilsagn.gjenstaendeBelop) {
                 FieldError.ofPointer(
                     "/$index/belop",
                     "Kan ikke utbetale mer enn gjenstående beløp på tilsagn",
