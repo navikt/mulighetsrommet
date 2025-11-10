@@ -163,11 +163,27 @@ object UtbetalingValidator {
             1
     }
 
-    fun maxUtbetalingsPeriodeDato(relativeDate: LocalDate = LocalDate.now()): LocalDate = relativeDate.withDayOfMonth(1)
+    fun maksUtbetalingsPeriodeSluttDato(
+        prismodell: PrismodellType,
+        relativeDate: LocalDate = LocalDate.now(),
+    ): LocalDate? = when (prismodell) {
+        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+            relativeDate
+
+        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+            relativeDate.withDayOfMonth(1)
+
+        PrismodellType.ANNEN_AVTALT_PRIS,
+        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+        ->
+            null
+    }
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
-        prismodellType: PrismodellType?,
+        prismodellType: PrismodellType,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
@@ -201,11 +217,13 @@ object UtbetalingValidator {
             )
         }
 
-        validate(!slutt.isAfter(maxUtbetalingsPeriodeDato())) {
-            FieldError.of(
-                "Du kan ikke sende inn for valgt periode før perioden er passert",
-                OpprettKravUtbetalingRequest::periodeSlutt,
-            )
+        maksUtbetalingsPeriodeSluttDato(prismodellType)?.let {
+            validate(!slutt.isAfter(it)) {
+                FieldError.of(
+                    "Du kan ikke sende inn for valgt periode før perioden er passert",
+                    OpprettKravUtbetalingRequest::periodeSlutt,
+                )
+            }
         }
 
         validate(request.belop > 0) {
