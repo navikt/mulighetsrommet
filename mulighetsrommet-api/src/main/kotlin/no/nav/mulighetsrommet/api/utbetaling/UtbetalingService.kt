@@ -235,17 +235,28 @@ class UtbetalingService(
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val utbetaling = getOrError(request.utbetalingId)
 
-        val opprettDelutbetalinger = request.delutbetalinger.map { req ->
+        val delutbetalingTilsagn = request.delutbetalinger.associate { req ->
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
-            UtbetalingValidator.OpprettDelutbetaling(
-                id = req.id,
-                gjorOppTilsagn = req.gjorOppTilsagn,
-                tilsagn = tilsagn,
-                belop = req.belop,
-            )
+            req.id to tilsagn
         }
+
         UtbetalingValidator
-            .validateOpprettDelutbetalinger(utbetaling, opprettDelutbetalinger, request.begrunnelseMindreBetalt)
+            .validateOpprettDelutbetalinger(
+                utbetaling,
+                request.delutbetalinger.map { req ->
+                    val tilsagn = requireNotNull(delutbetalingTilsagn[req.id])
+                    UtbetalingValidator.OpprettDelutbetaling(
+                        id = req.id,
+                        gjorOppTilsagn = req.gjorOppTilsagn,
+                        tilsagn = UtbetalingValidator.OpprettDelutbetaling.Tilsagn(
+                            status = tilsagn.status,
+                            gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
+                        ),
+                        belop = req.belop,
+                    )
+                },
+                request.begrunnelseMindreBetalt,
+            )
             .map { delutbetalinger ->
                 // Slett de som ikke er med i requesten
                 queries.delutbetaling.getByUtbetalingId(utbetaling.id)
@@ -260,7 +271,7 @@ class UtbetalingService(
                 delutbetalinger.forEach {
                     upsertDelutbetaling(
                         utbetaling,
-                        it.tilsagn,
+                        requireNotNull(delutbetalingTilsagn[it.id]),
                         it.id,
                         requireNotNull(it.belop),
                         it.gjorOppTilsagn,

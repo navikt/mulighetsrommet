@@ -5,4 +5,5 @@ enum class FeatureToggle(val key: String) {
     MULIGHETSROMMET_PRISMODELL_HELE_UKER("mulighetsrommet.okonomi.prismodell.hele-uker"),
     MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING("mulighetsrommet.tiltakstype.migrering.okonomi"),
     ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS("arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris"),
+    TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER("tiltakshistorikk.vis-komet-enkeltplasser"),
 }

@@ -80,11 +80,26 @@ sealed class DataElement {
         val description: String? = null,
     ) : DataElement() {
         enum class Variant {
+            @SerialName("blank")
+            BLANK,
+
             @SerialName("neutral")
             NEUTRAL,
 
             @SerialName("alt")
             ALT,
+
+            @SerialName("alt-1")
+            ALT_1,
+
+            @SerialName("alt-2")
+            ALT_2,
+
+            @SerialName("alt-3")
+            ALT_3,
+
+            @SerialName("info")
+            INFO,
 
             @SerialName("success")
             SUCCESS,

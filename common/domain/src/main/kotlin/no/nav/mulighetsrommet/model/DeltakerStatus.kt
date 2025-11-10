@@ -12,21 +12,24 @@ data class DeltakerStatus(
     val opprettetDato: LocalDateTime,
 )
 
-enum class DeltakerStatusType(val description: String) {
-    AVBRUTT("Avbrutt"),
-    AVBRUTT_UTKAST("Avbrutt utkast"),
-    DELTAR("Deltar"),
-    FEILREGISTRERT("Feilregistrert"),
-    FULLFORT("Fullført"),
-    HAR_SLUTTET("Har sluttet"),
-    IKKE_AKTUELL("Ikke aktuell"),
-    KLADD("Kladd"),
-    PABEGYNT_REGISTRERING("Påbegynt registrering"),
-    SOKT_INN("Søkt inn"),
-    UTKAST_TIL_PAMELDING("Utkast til påmelding"),
-    VENTELISTE("Venteliste"),
-    VENTER_PA_OPPSTART("Venter på oppstart"),
-    VURDERES("Vurderes"),
+enum class DeltakerStatusType(val description: String, val variant: DataElement.Status.Variant) {
+    AVBRUTT("Avbrutt", DataElement.Status.Variant.NEUTRAL),
+    AVBRUTT_UTKAST("Avbrutt utkast", DataElement.Status.Variant.NEUTRAL),
+    DELTAR("Deltar", DataElement.Status.Variant.BLANK),
+    FEILREGISTRERT("Feilregistrert", DataElement.Status.Variant.NEUTRAL),
+    FULLFORT("Fullført", DataElement.Status.Variant.ALT_1),
+    HAR_SLUTTET("Har sluttet", DataElement.Status.Variant.ALT_1),
+    IKKE_AKTUELL("Ikke aktuell", DataElement.Status.Variant.NEUTRAL),
+    KLADD("Kladd", DataElement.Status.Variant.WARNING),
+    PABEGYNT_REGISTRERING("Påbegynt registrering", DataElement.Status.Variant.WARNING),
+    SOKT_INN("Søkt inn", DataElement.Status.Variant.ALT_2),
+    UTKAST_TIL_PAMELDING("Utkast til påmelding", DataElement.Status.Variant.INFO),
+    VENTELISTE("Venteliste", DataElement.Status.Variant.ALT_1),
+    VENTER_PA_OPPSTART("Venter på oppstart", DataElement.Status.Variant.ALT_3),
+    VURDERES("Vurderes", DataElement.Status.Variant.ALT_2),
+    ;
+
+    fun toDataElement() = DataElement.Status(description, variant)
 }
 
 enum class DeltakerStatusAarsak(val description: String) {
