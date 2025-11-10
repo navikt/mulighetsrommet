@@ -28,7 +28,7 @@
     "@navikt/ds-tailwind": "7.32.5",
     "@portabletext/editor": "2.17.1",
     "@portabletext/react": "4.0.3",
-    "@portabletext/toolbar": "2.2.35",
+    "@portabletext/toolbar": "3.0.6",
     "@portabletext/types": "2.0.15",
     "@tailwindcss/vite": "4.1.16",
     "@tanstack/react-query": "5.90.5",

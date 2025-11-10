@@ -429,8 +429,8 @@ importers:
         specifier: 4.0.3
         version: 4.0.3(react@19.0.0)
       '@portabletext/toolbar':
-        specifier: 2.2.35
-        version: 2.2.35(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)
+        specifier: 3.0.6
+        version: 3.0.6(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)
       '@portabletext/types':
         specifier: 2.0.15
         version: 2.0.15
@@ -2237,9 +2237,6 @@ packages:
     peerDependencies:
       '@types/react': '>=17.0.30'
       react: '>=17.0.0 || >19.0.0-rc'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@7.32.5':
     resolution: {integrity: sha512-Y1Ov0HEGiOIaHRqzmAHwFUpwmGjdvlfX6pAclLLHUJscU95rhLohJJGkbngSzo0O2JZkNh61FF30FXjhsdkS4A==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.32.5/3960da95ecdf32acdbf7be10abeaa6234569a4a4}
@@ -2255,9 +2252,6 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@4.1.0':
     resolution: {integrity: sha512-CGBm7RfTzBO5SlifvVyQYVCpu4Gt/wqEKM8evG0aL1kbsUPNSRZA2agKqyQfGbs+F6uoJosq8wZbs/1xYrTM/A==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.1.0/ed0d98fe57279240a53fe82bf518776ddce59a0a}
@@ -2586,6 +2580,10 @@ packages:
   '@portabletext/keyboard-shortcuts@1.1.1':
     resolution: {integrity: sha512-wCoH9+D9wci5sCSAsjJRnzV769e/xYw/ZjbtOmPGncE3EcWa/7+qP8kYFRj/ptsORJw3jRZkhXiUwYkD5jaC2w==}
 
+  '@portabletext/keyboard-shortcuts@2.1.0':
+    resolution: {integrity: sha512-/oI0p0COD/CBFlUADiSsHwKIL5iwSyqIFnbP8bUlXVp0yfYItTjSE6L1RV4b/7JO0KG3jVdusaKjplwsdXZQPw==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+
   '@portabletext/patches@1.1.8':
     resolution: {integrity: sha512-L2eIdfzN4WHGxmvsvUVEKpayJrNTzGktexMG2Xop9f4rWbH1I7KwHivjZ0NgroYHDwFPFhZadciwW1ehFPbZAg==}
 
@@ -2609,11 +2607,12 @@ packages:
     resolution: {integrity: sha512-MlU5Og1HqYnU9riXjtydJQcrG/kWmtgo8q2pGEDmLMbKD0Agel4umYLhVoHhRAwC7AEApu9U4BweO8HkY0SIow==}
     engines: {node: ^14.13.1 || >=16.0.0}
 
-  '@portabletext/toolbar@2.2.35':
-    resolution: {integrity: sha512-jN0sAZ+kPVKM3I2B7QcsXb7lff4IUXbyyHeKeN45qVBFt7KF21awzIQpNByQ86/0oMhiP9TJWbNqhjLdbMOMsQ==}
+  '@portabletext/toolbar@3.0.6':
+    resolution: {integrity: sha512-SJzHab+d54bUuBP3/buNQAWL0FHP9IjJqnhMlWvPgKb1HLhk/ayVHpyaWfnyHSHnM2NJqFwnwHoz1ZvNMrf9aA==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
     peerDependencies:
-      '@portabletext/editor': ^2.17.1
-      react: ^19.2.0
+      '@portabletext/editor': ^2.20.0
+      react: ^18.3 || ^19
 
   '@portabletext/toolkit@3.0.1':
     resolution: {integrity: sha512-z8NGqxKxfP0zuC58hPe8+xFC17qSbQ3nC9DgZmhrr7NUFaENJ6vAHJBsH5QzT7nKUjj++dTn+i4O2Uz9cqiGjA==}
@@ -8605,6 +8604,9 @@ packages:
   xstate@5.23.0:
     resolution: {integrity: sha512-jo126xWXkU6ySQ91n51+H2xcgnMuZcCQpQoD3FQ79d32a6RQvryRh8rrDHnH4WDdN/yg5xNjlIRol9ispMvzeg==}
 
+  xstate@5.24.0:
+    resolution: {integrity: sha512-h/213ThFfZbOefUWrLc9ZvYggEVBr0jrD2dNxErxNMLQfZRN19v+80TaXFho17hs8Q2E1mULtm/6nv12um0C4A==}
+
   xtend@4.0.2:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
@@ -10455,12 +10457,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.32.5
       '@navikt/ds-tokens': 7.32.5
+      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
-    optionalDependencies:
-      '@types/react': 19.0.3
     transitivePeerDependencies:
       - react-dom
 
@@ -10474,7 +10475,6 @@ snapshots:
       html-react-parser: 5.2.7(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 27.1.0
-    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@4.1.0':
@@ -10855,6 +10855,8 @@ snapshots:
 
   '@portabletext/keyboard-shortcuts@1.1.1': {}
 
+  '@portabletext/keyboard-shortcuts@2.1.0': {}
+
   '@portabletext/patches@1.1.8':
     dependencies:
       '@sanity/diff-match-patch': 3.2.0
@@ -10881,14 +10883,14 @@ snapshots:
       '@portabletext/toolkit': 3.0.1
       '@portabletext/types': 2.0.15
 
-  '@portabletext/toolbar@2.2.35(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)':
+  '@portabletext/toolbar@3.0.6(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)':
     dependencies:
       '@portabletext/editor': 2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
-      '@portabletext/keyboard-shortcuts': 1.1.1
-      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.0)(xstate@5.23.0)
+      '@portabletext/keyboard-shortcuts': 2.1.0
+      '@xstate/react': 6.0.0(@types/react@19.0.3)(react@19.0.0)(xstate@5.24.0)
       react: 19.0.0
       react-compiler-runtime: 1.0.0(react@19.0.0)
-      xstate: 5.23.0
+      xstate: 5.24.0
     transitivePeerDependencies:
       - '@types/react'
 
@@ -11230,19 +11232,19 @@ snapshots:
     dependencies:
       rxjs: 7.8.2
       uuid: 11.1.0
-      xstate: 5.23.0
+      xstate: 5.24.0
 
   '@sanity/comlink@3.1.1':
     dependencies:
       rxjs: 7.8.2
       uuid: 11.1.0
-      xstate: 5.23.0
+      xstate: 5.24.0
 
   '@sanity/comlink@4.0.0':
     dependencies:
       rxjs: 7.8.2
       uuid: 11.1.0
-      xstate: 5.23.0
+      xstate: 5.24.0
 
   '@sanity/descriptors@1.1.1':
     dependencies:
@@ -12277,6 +12279,16 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.0.0)
     optionalDependencies:
       xstate: 5.23.0
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@xstate/react@6.0.0(@types/react@19.0.3)(react@19.0.0)(xstate@5.24.0)':
+    dependencies:
+      react: 19.0.0
+      use-isomorphic-layout-effect: 1.2.1(@types/react@19.0.3)(react@19.0.0)
+      use-sync-external-store: 1.6.0(react@19.0.0)
+    optionalDependencies:
+      xstate: 5.24.0
     transitivePeerDependencies:
       - '@types/react'
 
@@ -17943,6 +17955,8 @@ snapshots:
   xregexp@2.0.0: {}
 
   xstate@5.23.0: {}
+
+  xstate@5.24.0: {}
 
   xtend@4.0.2: {}
 
