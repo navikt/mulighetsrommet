@@ -95,10 +95,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
         deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
         antallRelevanteForslag: 3,
       },
-      {
-        type: "DeltakerAdvarselOverlappendePeriode",
-        deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
-      },
     ],
     kanViseBeregning: true,
     beregning: {

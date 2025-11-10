@@ -10,7 +10,7 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
-import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
@@ -21,7 +21,7 @@ import kotlin.String
 import kotlin.getValue
 
 fun Route.featureTogglesRoute() {
-    val features: UnleashFeatureToggleService by inject()
+    val features: FeatureToggleService by inject()
 
     route("/features") {
         get({

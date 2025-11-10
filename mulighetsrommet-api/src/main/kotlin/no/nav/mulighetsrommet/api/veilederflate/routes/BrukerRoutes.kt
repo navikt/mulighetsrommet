@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseGruppetiltak
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
@@ -128,7 +127,7 @@ fun Route.brukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Aktiv deltakelse for bruker"
-                    body<DeltakelseGruppetiltak>()
+                    body<Deltakelse>()
                 }
                 code(HttpStatusCode.NotFound) {
                     description = "Fant ikke aktiv deltakelse for tiltak"
@@ -144,12 +143,10 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
-            val deltakelser = historikkService.getGruppetiltakDeltakelser(norskIdent, obo)
+            val deltakelser = historikkService.getDeltakelserKomet(norskIdent, obo)
 
             val response = deltakelser.aktive
-                .firstOrNull {
-                    it is DeltakelseGruppetiltak && it.gjennomforingId == tiltakId
-                }
+                .firstOrNull { it.pamelding?.gjennomforingId == tiltakId }
                 ?: HttpStatusCode.NoContent
 
             call.respond(response)

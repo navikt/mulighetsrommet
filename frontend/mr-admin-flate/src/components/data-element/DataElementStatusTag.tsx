@@ -31,10 +31,22 @@ function getStatusTagStyles(variant: DataElementStatusVariant): {
   className?: string;
 } {
   switch (variant) {
+    case DataElementStatusVariant.BLANK:
+      return {
+        variant: "neutral",
+        className: "bg-white border-[color:var(--a-border-default)]",
+      };
     case DataElementStatusVariant.NEUTRAL:
       return { variant: "neutral" };
     case DataElementStatusVariant.ALT:
+    case DataElementStatusVariant.ALT_1:
       return { variant: "alt1" };
+    case DataElementStatusVariant.ALT_2:
+      return { variant: "alt2" };
+    case DataElementStatusVariant.ALT_3:
+      return { variant: "alt3" };
+    case DataElementStatusVariant.INFO:
+      return { variant: "info" };
     case DataElementStatusVariant.SUCCESS:
       return { variant: "success" };
     case DataElementStatusVariant.WARNING:

@@ -3,11 +3,9 @@ package no.nav.mulighetsrommet.api.utbetaling
 import arrow.core.*
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravOmUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -30,7 +28,12 @@ object UtbetalingValidator {
         val belop: Int?,
         val gjorOppTilsagn: Boolean,
         val tilsagn: Tilsagn,
-    )
+    ) {
+        data class Tilsagn(
+            val status: TilsagnStatus,
+            val gjenstaendeBelop: Int,
+        )
+    }
 
     fun validateOpprettDelutbetalinger(
         utbetaling: Utbetaling,
@@ -77,7 +80,7 @@ object UtbetalingValidator {
                     "Beløp må være positivt",
                 )
             }
-            validate(req.belop == null || req.belop <= req.tilsagn.gjenstaendeBelop()) {
+            validate(req.belop == null || req.belop <= req.tilsagn.gjenstaendeBelop) {
                 FieldError.ofPointer(
                     "/$index/belop",
                     "Kan ikke utbetale mer enn gjenstående beløp på tilsagn",
@@ -148,66 +151,6 @@ object UtbetalingValidator {
         val vedlegg: List<Vedlegg>,
     )
 
-    fun validateOpprettKravOmUtbetaling(
-        request: OpprettKravOmUtbetalingRequest,
-        kontonummer: Kontonummer,
-    ): Either<List<FieldError>, OpprettAnnenAvtaltPrisUtbetaling> = validation {
-        val start = try {
-            LocalDate.parse(request.periodeStart)
-        } catch (t: DateTimeParseException) {
-            null
-        }
-        validateNotNull(start) {
-            FieldError.of(
-                "Dato må være på formatet 'yyyy-mm-dd'",
-                OpprettKravOmUtbetalingRequest::periodeStart,
-            )
-        }
-        val slutt = try {
-            LocalDate.parse(request.periodeSlutt)
-        } catch (t: DateTimeParseException) {
-            null
-        }
-        validateNotNull(slutt) {
-            FieldError.of(
-                "Dato må være på formatet 'yyyy-mm-dd'",
-                OpprettKravOmUtbetalingRequest::periodeSlutt,
-            )
-        }
-        requireValid(start != null && slutt != null)
-
-        validate(start.isBefore(slutt)) {
-            FieldError.of(
-                "Periodeslutt må være etter periodestart",
-                OpprettKravOmUtbetalingRequest::periodeStart,
-            )
-        }
-        validate(request.belop > 0) {
-            FieldError.of("Beløp må være positivt", OpprettKravOmUtbetalingRequest::belop)
-        }
-        validate(request.vedlegg.isNotEmpty()) {
-            FieldError.of("Du må legge ved vedlegg", OpprettKravOmUtbetalingRequest::vedlegg)
-        }
-        validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
-            FieldError.of(
-                "Ugyldig kid",
-                OpprettKravOmUtbetalingRequest::kidNummer,
-            )
-        }
-        OpprettAnnenAvtaltPrisUtbetaling(
-            id = UUID.randomUUID(),
-            gjennomforingId = request.gjennomforingId,
-            periodeStart = LocalDate.parse(request.periodeStart),
-            periodeSlutt = LocalDate.parse(request.periodeSlutt),
-            belop = request.belop,
-            kontonummer = kontonummer,
-            kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
-            tilskuddstype = request.tilskuddstype,
-            beskrivelse = "",
-            vedlegg = request.vedlegg,
-        )
-    }
-
     fun minAntallVedleggVedOpprettKrav(prismodellType: PrismodellType?): Int = when (prismodellType) {
         PrismodellType.ANNEN_AVTALT_PRIS -> 0
         PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
@@ -229,7 +172,7 @@ object UtbetalingValidator {
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
             LocalDate.parse(request.periodeStart)
-        } catch (t: DateTimeParseException) {
+        } catch (_: DateTimeParseException) {
             null
         }
         validateNotNull(start) {
@@ -240,7 +183,7 @@ object UtbetalingValidator {
         }
         val slutt = try {
             LocalDate.parse(request.periodeSlutt)
-        } catch (t: DateTimeParseException) {
+        } catch (_: DateTimeParseException) {
             null
         }
         validateNotNull(slutt) {
@@ -258,7 +201,7 @@ object UtbetalingValidator {
             )
         }
 
-        validate(slutt.compareTo(maxUtbetalingsPeriodeDato()) < 1) {
+        validate(!slutt.isAfter(maxUtbetalingsPeriodeDato())) {
             FieldError.of(
                 "Du kan ikke sende inn for valgt periode før perioden er passert",
                 OpprettKravUtbetalingRequest::periodeSlutt,

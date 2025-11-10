@@ -18,7 +18,7 @@ spec:
       cpu: 10m
       memory: 256Mi
     limits:
-      memory: 1024Mi
+      memory: 2048Mi
   liveness:
     path: /internal/is_alive
   readiness:

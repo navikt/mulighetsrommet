@@ -190,7 +190,7 @@ function DeltakelserAktive() {
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
       {data.deltakelser.map((deltakelse) => {
-        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv />;
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
       {data.deltakelser.length === 0 && <IngenFunnetBox title="Brukeren har ingen aktive tiltak" />}
     </Container>
@@ -231,7 +231,7 @@ function DeltakelserHistoriske() {
         <ManglerDeltakelserFraTeamTiltakMelding />
       )}
       {yngreEnn5aar.map((deltakelse) => {
-        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
       {yngreEnn5aar.length === 0 && eldreEnn5aar.length === 0 && (
         <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />
@@ -248,7 +248,7 @@ function DeltakelserHistoriske() {
       {visAlle &&
         eldreEnn5aar.length > 0 &&
         eldreEnn5aar.map((deltakelse) => {
-          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} aktiv={false} />;
+          return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
         })}
     </Container>
   );

@@ -159,6 +159,40 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
+        test("minimum dato for tilsagn må være satt for at tilsagn skal opprettes") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1,
+                previous = null,
+                gyldigTilsagnPeriode = null,
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ) shouldBeLeft listOf(
+                FieldError(
+                    pointer = "/periodeStart",
+                    detail = "Tilsagn for tiltakstype AFT er ikke støttet enda",
+                ),
+            )
+        }
+
+        test("tilsagnet kan ikke slutte etter gjennomføringen") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(periodeSlutt = LocalDate.of(2025, 11, 1)),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                avtalteSatser = AvtalteSatser.AFT.satser,
+            ) shouldBeLeft listOf(
+                FieldError(
+                    pointer = "/periodeSlutt",
+                    detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
+                ),
+            )
+        }
+
         context("TilsagnBeregningFri.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningRequest(

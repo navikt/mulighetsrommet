@@ -206,7 +206,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 gjennomforing.arrangor.organisasjonsnummer,
             )
 
-            // TODO: Ikluder filtrering på eksisternde utbetalinger
+            // TODO: Inkluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
             val payload = OpprettKravInnsendingsInformasjon.from(
                 okonomiConfig,

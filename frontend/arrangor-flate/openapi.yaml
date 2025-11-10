@@ -500,42 +500,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-    post:
-      tags:
-      - Arrangorflate
-      description: Opprett krav om utbetaling
-      operationId: opprettKravOmUtbetaling
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      requestBody:
-        description: Request for creating a payment claim
-        content:
-          multipart/form-data:
-            schema:
-              $ref: "#/components/schemas/OpprettKravOmUtbetalingRequest"
-        required: false
-      responses:
-        "200":
-          description: Informasjon om opprettet krav om utbetaling
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravOmUtbetalingResponse"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/tilsagn:
     get:
       tags:
@@ -1098,8 +1062,13 @@ components:
     DataElement.Status.Variant:
       type: string
       enum:
+      - blank
       - neutral
       - alt
+      - alt-1
+      - alt-2
+      - alt-3
+      - info
       - success
       - warning
       - error
@@ -1675,55 +1644,6 @@ components:
       - aktive
       - historiske
       - kanOppretteManueltKrav
-    Tilskuddstype:
-      type: string
-      enum:
-      - TILTAK_DRIFTSTILSKUDD
-      - TILTAK_INVESTERINGER
-    OpprettKravOmUtbetalingRequest:
-      type: object
-      properties:
-        gjennomforingId:
-          type: string
-          format: uuid
-        tilsagnId:
-          type: string
-          format: uuid
-        periodeStart:
-          type: string
-        periodeSlutt:
-          type: string
-        kidNummer:
-          type:
-          - "null"
-          - string
-        belop:
-          type: integer
-          format: int32
-        vedlegg:
-          type: array
-          items:
-            type: string
-            format: binary
-        tilskuddstype:
-          $ref: "#/components/schemas/Tilskuddstype"
-      required:
-      - belop
-      - gjennomforingId
-      - kidNummer
-      - periodeSlutt
-      - periodeStart
-      - tilsagnId
-      - tilskuddstype
-      - vedlegg
-    OpprettKravOmUtbetalingResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-      required:
-      - id
     ArrangorflateBetalingsinformasjon:
       type: object
       properties:
@@ -2105,23 +2025,13 @@ components:
     DeltakerAdvarsel:
       anyOf:
       - $ref: "#/components/schemas/DeltakerAdvarselFeilSluttDato"
-      - $ref: "#/components/schemas/DeltakerAdvarselOverlappendePeriode"
       - $ref: "#/components/schemas/DeltakerAdvarselRelevanteForslag"
       discriminator:
         propertyName: type
         mapping:
           DeltakerAdvarselFeilSluttDato: "#/components/schemas/DeltakerAdvarselFeilSluttDato"
-          DeltakerAdvarselOverlappendePeriode: "#/components/schemas/DeltakerAdvarselOverlappendePeriode"
           DeltakerAdvarselRelevanteForslag: "#/components/schemas/DeltakerAdvarselRelevanteForslag"
     DeltakerAdvarselFeilSluttDato:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
-      required:
-      - deltakerId
-    DeltakerAdvarselOverlappendePeriode:
       type: object
       properties:
         deltakerId:
@@ -2272,5 +2182,6 @@ components:
       - MULIGHETSROMMET_PRISMODELL_HELE_UKER
       - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
       - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
+      - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
   examples: {}
 webhooks: {}
