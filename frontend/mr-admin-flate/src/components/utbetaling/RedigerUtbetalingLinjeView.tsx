@@ -6,10 +6,19 @@ import {
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingLinje,
-  ValidationError
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
-import { ActionMenu, Alert, Button, Heading, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
+import {
+  ActionMenu,
+  Alert,
+  Button,
+  Heading,
+  HStack,
+  Spacer,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";

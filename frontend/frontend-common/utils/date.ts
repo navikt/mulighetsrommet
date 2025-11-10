@@ -20,6 +20,7 @@ const NORSK_TID = tz("Europe/Oslo");
 const norwegianParseContext = { in: NORSK_TID };
 const utcParseContext: ParseISOOptions<UTCDate> = { in: utc };
 
+type DateInput = Date | string;
 type UnparsedDate = string | Date | undefined | null;
 
 /**
@@ -27,11 +28,8 @@ type UnparsedDate = string | Date | undefined | null;
  * @param dato
  * @returns
  */
-export function yyyyMMddFormatting(dato: UnparsedDate): string | undefined {
-  const parsedDate = parseDate(dato);
-  if (parsedDate) {
-    return lightFormat(parsedDate, "yyyy-MM-dd");
-  }
+export function yyyyMMddFormatting(dato: DateInput): string {
+  return lightFormat(safeParseDate(dato), "yyyy-MM-dd");
 }
 
 /**
@@ -103,13 +101,8 @@ export function maxOf(dates: UnparsedDate[]): Date {
  * @param duration
  * @returns
  */
-export function subDuration(dato: Date, duration: Duration): Date;
-export function subDuration(dato: string | undefined | null, duration: Duration): Date | undefined;
-export function subDuration(dato: UnparsedDate, duration: Duration) {
-  const parsedDate = parseDate(dato);
-  if (parsedDate) {
-    return sub(parsedDate, duration);
-  }
+export function subDuration(dato: DateInput, duration: Duration) {
+  return sub(safeParseDate(dato), duration);
 }
 
 /**
@@ -248,4 +241,12 @@ export function parseDate(date: UnparsedDate): Date | undefined {
     return utcDate2;
   }
   return undefined;
+}
+
+export function safeParseDate(input: DateInput): Date {
+  const parsed = parseDate(input);
+  if (!parsed) {
+    throw new Error(`Invalid date: ${input}`);
+  }
+  return parsed;
 }
