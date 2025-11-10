@@ -429,8 +429,8 @@ importers:
         specifier: 2.2.35
         version: 2.2.35(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.2.1(@sanity/schema@4.14.2(@types/react@19.0.3))(@sanity/types@4.14.2(@types/react@19.0.3)))(@sanity/schema@4.14.2(@types/react@19.0.3))(@sanity/types@4.14.2(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)
       '@portabletext/types':
-        specifier: 2.0.15
-        version: 2.0.15
+        specifier: 3.0.0
+        version: 3.0.0
       '@tailwindcss/vite':
         specifier: 4.1.17
         version: 4.1.17(vite@7.2.2(@types/node@24.10.0)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.93.3)(sass@1.93.3)(terser@5.40.0)(yaml@2.8.1))
