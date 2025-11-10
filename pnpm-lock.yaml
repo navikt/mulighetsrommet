@@ -426,8 +426,8 @@ importers:
         specifier: 2.17.1
         version: 2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2)
       '@portabletext/react':
-        specifier: 4.0.3
-        version: 4.0.3(react@19.0.0)
+        specifier: 5.0.0
+        version: 5.0.0(react@19.0.0)
       '@portabletext/toolbar':
         specifier: 2.2.35
         version: 2.2.35(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)
@@ -580,8 +580,8 @@ importers:
         specifier: 7.33.1
         version: 7.33.1
       '@portabletext/react':
-        specifier: 4.0.3
-        version: 4.0.3(react@19.0.0)
+        specifier: 5.0.0
+        version: 5.0.0(react@19.0.0)
       '@sanity/client':
         specifier: 7.12.0
         version: 7.12.0(debug@4.4.3)
@@ -647,8 +647,8 @@ importers:
         specifier: 7.33.1
         version: 7.33.1
       '@portabletext/react':
-        specifier: 4.0.3
-        version: 4.0.3(react@19.0.0)
+        specifier: 5.0.0
+        version: 5.0.0(react@19.0.0)
       '@tailwindcss/postcss':
         specifier: 4.1.16
         version: 4.1.16
@@ -2590,6 +2590,12 @@ packages:
     peerDependencies:
       react: ^18.2 || ^19
 
+  '@portabletext/react@5.0.0':
+    resolution: {integrity: sha512-ZEYhjsiUn2Dvrhyao3qAvi6C/re9ZBt2atp14dtwWtPruMNgp1uMf3p+URf0pEEhu+rMEh9JeK0A8FgNejEWCg==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+    peerDependencies:
+      react: ^18.2 || ^19
+
   '@portabletext/sanity-bridge@1.1.16':
     resolution: {integrity: sha512-ojb9zOBCK8y1J7yXK1Dbx9hF43uudEUAv+YHOr4TAmGx7Pny0JaTNIEyhe9KiyoBydG352/AI71e7hs+ikzQ0w==}
     engines: {node: '>=20.19 <22 || >=22.12'}
@@ -2614,9 +2620,21 @@ packages:
     resolution: {integrity: sha512-z8NGqxKxfP0zuC58hPe8+xFC17qSbQ3nC9DgZmhrr7NUFaENJ6vAHJBsH5QzT7nKUjj++dTn+i4O2Uz9cqiGjA==}
     engines: {node: ^14.13.1 || >=16.0.0}
 
+  '@portabletext/toolkit@3.0.3':
+    resolution: {integrity: sha512-EI59/l4E0E5wCyWUzvW1FPKWfqDsbebCnCf9ZDHjXGH95X4EORlCtnPuA79PpKaHv0LTChORy55trRzW6tYnOQ==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+
+  '@portabletext/toolkit@4.0.0':
+    resolution: {integrity: sha512-Jj/QIy3vzZCNcxiUGM7KjGhUhyVjch+9pOzotWRARPNe07R6nbF/cRsKL70q5Xizf+6PVtFYwks4CSXKInC+wg==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+
   '@portabletext/types@2.0.15':
     resolution: {integrity: sha512-2e6i2gSQsrA/5OL5Gm4/9bxB9MNO73Fa47zj+0mT93xkoQUCGCWX5fZh1YBJ86hszaRYlqvqG08oULxvvPPp/Q==}
     engines: {node: ^14.13.1 || >=16.0.0 || >=18.0.0}
+
+  '@portabletext/types@3.0.0':
+    resolution: {integrity: sha512-7U8+bFcnguNtXr4rwMDj0EvJJDRzLaaof2mQqCjUcqxuuJpAppFaATZgrKmPI1uBgtFMi4unk1nIaOOmLHrX8Q==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
 
   '@protobufjs/aspromise@1.1.2':
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -10841,8 +10859,14 @@ snapshots:
 
   '@portabletext/react@4.0.3(react@19.0.0)':
     dependencies:
-      '@portabletext/toolkit': 3.0.1
+      '@portabletext/toolkit': 3.0.3
       '@portabletext/types': 2.0.15
+      react: 19.0.0
+
+  '@portabletext/react@5.0.0(react@19.0.0)':
+    dependencies:
+      '@portabletext/toolkit': 4.0.0
+      '@portabletext/types': 3.0.0
       react: 19.0.0
 
   '@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))':
@@ -10857,7 +10881,7 @@ snapshots:
 
   '@portabletext/to-html@3.0.0':
     dependencies:
-      '@portabletext/toolkit': 3.0.1
+      '@portabletext/toolkit': 3.0.3
       '@portabletext/types': 2.0.15
 
   '@portabletext/toolbar@2.2.35(@portabletext/editor@2.17.1(@portabletext/sanity-bridge@1.1.16(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3)))(@sanity/schema@4.12.0(@types/react@19.0.3))(@sanity/types@4.12.0(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.0)':
@@ -10875,7 +10899,17 @@ snapshots:
     dependencies:
       '@portabletext/types': 2.0.15
 
+  '@portabletext/toolkit@3.0.3':
+    dependencies:
+      '@portabletext/types': 2.0.15
+
+  '@portabletext/toolkit@4.0.0':
+    dependencies:
+      '@portabletext/types': 3.0.0
+
   '@portabletext/types@2.0.15': {}
+
+  '@portabletext/types@3.0.0': {}
 
   '@protobufjs/aspromise@1.1.2': {}
 
