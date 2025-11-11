@@ -9,6 +9,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -91,6 +93,21 @@ class GjennomforingValidatorTest : FunSpec({
         antallDeltakere = 0,
         status = GjennomforingStatusType.GJENNOMFORES,
     )
+
+    test("validerer estimertVentetid") {
+        GjennomforingValidator.validate(
+            request.copy(
+                estimertVentetid = EstimertVentetid(
+                    verdi = null,
+                    enhet = null,
+                ),
+            ),
+            ctx,
+        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            FieldError.of("Du må velge en enhet", GjennomforingRequest::estimertVentetid, EstimertVentetid::enhet),
+            FieldError.of("Du må velge en verdi større enn 0", GjennomforingRequest::estimertVentetid, EstimertVentetid::verdi),
+        )
+    }
 
     test("skal feile når tiltakstypen ikke overlapper med avtalen") {
         GjennomforingValidator.validate(
