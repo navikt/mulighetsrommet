@@ -7,6 +7,7 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetTilgjengligForArrangorRequest
@@ -84,7 +85,21 @@ object GjennomforingValidator {
         validate(next.antallPlasser != null && next.antallPlasser > 0) {
             FieldError.of(
                 "Du må legge inn antall plasser større enn 0",
-                GjennomforingDbo::antallPlasser,
+                GjennomforingRequest::antallPlasser,
+            )
+        }
+        validate(next.estimertVentetid == null || next.estimertVentetid.enhet != null) {
+            FieldError.of(
+                "Du må velge en enhet",
+                GjennomforingRequest::estimertVentetid,
+                EstimertVentetid::enhet,
+            )
+        }
+        validate(next.estimertVentetid == null || (next.estimertVentetid.verdi != null && next.estimertVentetid.verdi > 0)) {
+            FieldError.of(
+                "Du må velge en verdi større enn 0",
+                GjennomforingRequest::estimertVentetid,
+                EstimertVentetid::verdi,
             )
         }
         if (Tiltakskoder.isKursTiltak(ctx.avtale.tiltakstype.tiltakskode)) {
