@@ -41,7 +41,7 @@ val ApplicationConfigDev = AppConfig(
         ),
         arenaEventService = ArenaEventService.Config(
             channelCapacity = 10000,
-            numChannelConsumers = 100,
+            numChannelConsumers = 40,
             maxRetries = 5,
         ),
         arenaOrdsProxy = ServiceClientConfig(
