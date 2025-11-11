@@ -12,7 +12,7 @@ spec:
     - https://mulighetsrommet-api.intern.dev.nav.no
   replicas:
     min: 1
-    max: 2
+    max: 4
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
