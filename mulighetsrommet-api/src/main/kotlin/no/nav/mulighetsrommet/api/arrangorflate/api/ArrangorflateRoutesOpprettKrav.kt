@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.maksUtbetalingsPeriodeSluttDato
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.minAntallVedleggVedOpprettKrav
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -400,7 +401,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 .flatMap {
                     UtbetalingValidator.validateOpprettKravArrangorflate(
                         request,
-                        gjennomforing.avtalePrismodell,
+                        gjennomforing.avtalePrismodell!!,
                         it,
                     )
                 }
@@ -413,7 +414,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     }
 }
 
-private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig, relativeDate: LocalDate = LocalDate.now()): List<PrismodellType> {
+private fun hentOpprettKravPrismodeller(
+    okonomiConfig: OkonomiConfig,
+    relativeDate: LocalDate = LocalDate.now(),
+): List<PrismodellType> {
     return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
         if (entry.value.start.isBefore(relativeDate) && entry.value.slutt.isAfter(relativeDate)) {
             entry.key
@@ -423,7 +427,11 @@ private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig, relativeDa
     }
 }
 
-private fun hentTiltakstyperMedTilsagn(okonomiConfig: OkonomiConfig, tiltakstyper: List<TiltakstypeDto>, relativeDate: LocalDate = LocalDate.now()): List<UUID> {
+private fun hentTiltakstyperMedTilsagn(
+    okonomiConfig: OkonomiConfig,
+    tiltakstyper: List<TiltakstypeDto>,
+    relativeDate: LocalDate = LocalDate.now(),
+): List<UUID> {
     return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { tiltakstypeMedTilsagnPeriode ->
         if (tiltakstypeMedTilsagnPeriode.value.contains(relativeDate)) {
             tiltakstyper.find { it.tiltakskode == tiltakstypeMedTilsagnPeriode.key }?.id
@@ -610,13 +618,13 @@ data class OpprettKravInnsendingsInformasjon(
                 gjennomforing: Gjennomforing,
                 tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
             ): DatoVelger {
-                val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
                 when (gjennomforing.avtalePrismodell) {
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
                         // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
                         val tilsagnPeriode =
                             okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
 
+                        val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
                         val perioder = Periode(
                             start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
                             slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
@@ -626,12 +634,10 @@ data class OpprettKravInnsendingsInformasjon(
                         return DatoSelect(filtrertePerioder)
                     }
 
-                    PrismodellType.ANNEN_AVTALT_PRIS -> {
-                        return DatoRange(null)
-                    }
-
-                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                        return DatoRange(LocalDate.now().minusDays(1))
+                    PrismodellType.ANNEN_AVTALT_PRIS,
+                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    -> {
+                        return DatoRange(maksUtbetalingsPeriodeSluttDato(gjennomforing.avtalePrismodell))
                     }
 
                     else ->

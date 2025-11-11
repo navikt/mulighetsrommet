@@ -37,7 +37,7 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
   function regionMapToNavEnheter(regionMap: RegionMap): string[] {
-    return Array.from(Object.values(regionMap))
+    return Array.from(regionMap.values())
       .flat(1)
       .map((e) => e.enhetsnummer);
   }
@@ -71,12 +71,8 @@ export function NavEnhetFilter({ value, onChange, regioner }: Props) {
     const count = underenhetCount(region);
 
     const underenheter = count > 0 ? [] : region.enheter.filter((enhet) => enhet.erStandardvalg);
-    onChange(
-      regionMapToNavEnheter({
-        ...regionMap,
-        [region.enhetsnummer]: underenheter,
-      }),
-    );
+    regionMap.set(region.enhetsnummer, underenheter);
+    onChange(regionMapToNavEnheter(regionMap));
   }
 
   function underenhetIsChecked(enhet: NavEnhet, region: NavRegion): boolean {

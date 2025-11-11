@@ -10,10 +10,7 @@ object TiltaksgjennomforingV2Mapper {
         id = gruppe.id,
         opprettetTidspunkt = gruppe.opprettetTidspunkt.atZone(ZoneId.systemDefault()).toInstant(),
         oppdatertTidspunkt = gruppe.oppdatertTidspunkt.atZone(ZoneId.systemDefault()).toInstant(),
-        tiltakstype = TiltaksgjennomforingV2Dto.Tiltakstype(
-            arenakode = gruppe.tiltakstype.tiltakskode.arenakode,
-            tiltakskode = gruppe.tiltakstype.tiltakskode,
-        ),
+        tiltakskode = gruppe.tiltakstype.tiltakskode,
         arrangor = TiltaksgjennomforingV2Dto.Arrangor(
             organisasjonsnummer = gruppe.arrangor.organisasjonsnummer,
         ),
@@ -33,10 +30,7 @@ object TiltaksgjennomforingV2Mapper {
         id = enkeltplass.id,
         opprettetTidspunkt = enkeltplass.opprettetTidspunkt,
         oppdatertTidspunkt = enkeltplass.oppdatertTidspunkt,
-        tiltakstype = TiltaksgjennomforingV2Dto.Tiltakstype(
-            arenakode = enkeltplass.tiltakstype.tiltakskode.arenakode,
-            tiltakskode = enkeltplass.tiltakstype.tiltakskode,
-        ),
+        tiltakskode = enkeltplass.tiltakstype.tiltakskode,
         arrangor = TiltaksgjennomforingV2Dto.Arrangor(
             organisasjonsnummer = enkeltplass.arrangor.organisasjonsnummer,
         ),

@@ -35,7 +35,6 @@ class RateLimitTest : FunSpec({
         }
 
         val elapsed = awaitAllRequests(requests, client)
-        println(elapsed)
 
         elapsed.shouldBeLessThan(windowSize)
     }

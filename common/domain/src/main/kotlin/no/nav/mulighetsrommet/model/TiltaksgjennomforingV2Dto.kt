@@ -18,14 +18,8 @@ sealed class TiltaksgjennomforingV2Dto {
     abstract val id: UUID
     abstract val opprettetTidspunkt: Instant
     abstract val oppdatertTidspunkt: Instant
-    abstract val tiltakstype: Tiltakstype
+    abstract val tiltakskode: Tiltakskode
     abstract val arrangor: Arrangor
-
-    @Serializable
-    data class Tiltakstype(
-        val arenakode: String,
-        val tiltakskode: Tiltakskode,
-    )
 
     @Serializable
     data class Arrangor(
@@ -41,7 +35,7 @@ sealed class TiltaksgjennomforingV2Dto {
         override val opprettetTidspunkt: Instant,
         @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
-        override val tiltakstype: Tiltakstype,
+        override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
         val navn: String,
         @Serializable(with = LocalDateSerializer::class)
@@ -67,7 +61,7 @@ sealed class TiltaksgjennomforingV2Dto {
         override val opprettetTidspunkt: Instant,
         @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
-        override val tiltakstype: Tiltakstype,
+        override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
     ) : TiltaksgjennomforingV2Dto()
 }

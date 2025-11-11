@@ -4,7 +4,11 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -23,6 +27,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kontonummer
 import java.time.LocalDate
 import java.util.UUID
@@ -142,6 +147,116 @@ class UtbetalingValidatorTest : FunSpec({
                     FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert"),
                 ),
             )
+        }
+    }
+
+    context("opprett krav") {
+        test("opprett krav - investering - gyldig investeringsperiode") {
+            val today = LocalDate.now()
+            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+            every { vedlegg.size } returns 1
+
+            val periodeStart = LocalDate.now().minusMonths(1).withDayOfMonth(1)
+            val periodeSlutt = today
+            val kontonummer = Kontonummer("12345678910")
+            val request = OpprettKravUtbetalingRequest(
+                tilsagnId = UUID.randomUUID(),
+                periodeStart = periodeStart.toString(),
+                periodeSlutt = periodeSlutt.toString(),
+                kidNummer = null,
+                belop = 1234,
+                vedlegg = vedlegg,
+            )
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            result.shouldBeRight()
+        }
+        test("opprett krav - investering - ugyldig investeringsperiode") {
+            val today = LocalDate.now()
+            val kontonummer = Kontonummer("12345678910")
+            val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+
+            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            every { vedlegg.size } returns 1
+
+            val periodeStart = LocalDate.now().minusMonths(1).withDayOfMonth(1)
+            val periodeSlutt = today.plusDays(1)
+
+            val request = OpprettKravUtbetalingRequest(
+                tilsagnId = UUID.randomUUID(),
+                periodeStart = periodeStart.toString(),
+                periodeSlutt = periodeSlutt.toString(),
+                kidNummer = null,
+                belop = 1234,
+                vedlegg = vedlegg,
+            )
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            result.shouldBeLeft()
+        }
+
+        test("opprett krav - gyldig annen avtalt pris") {
+            val today = LocalDate.now()
+            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val prismodell = PrismodellType.ANNEN_AVTALT_PRIS
+            every { vedlegg.size } returns 0
+
+            val periodeStart = LocalDate.now().minusDays(5)
+            val periodeSlutt = periodeStart.plusDays(30)
+            val kontonummer = Kontonummer("12345678910")
+            val request = OpprettKravUtbetalingRequest(
+                tilsagnId = UUID.randomUUID(),
+                periodeStart = periodeStart.toString(),
+                periodeSlutt = periodeSlutt.toString(),
+                kidNummer = null,
+                belop = 1234,
+                vedlegg = vedlegg,
+            )
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            result.shouldBeRight()
+        }
+
+        test("opprett krav - gyldig timespris") {
+            val today = LocalDate.now()
+            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+            every { vedlegg.size } returns 1
+
+            val periodeSlutt = today.withDayOfMonth(1)
+            val periodeStart = periodeSlutt.minusMonths(1)
+
+            val kontonummer = Kontonummer("12345678910")
+            val request = OpprettKravUtbetalingRequest(
+                tilsagnId = UUID.randomUUID(),
+                periodeStart = periodeStart.toString(),
+                periodeSlutt = periodeSlutt.toString(),
+                kidNummer = null,
+                belop = 1234,
+                vedlegg = vedlegg,
+            )
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            result.shouldBeRight()
+        }
+
+        test("opprett krav - ugyldig timespris") {
+            val today = LocalDate.now()
+            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+            every { vedlegg.size } returns 1
+
+            val periodeSlutt = today.withDayOfMonth(1)
+            val periodeStart = periodeSlutt.minusMonths(1)
+
+            val kontonummer = Kontonummer("12345678910")
+            val request = OpprettKravUtbetalingRequest(
+                tilsagnId = UUID.randomUUID(),
+                periodeStart = periodeStart.toString(),
+                periodeSlutt = periodeSlutt.plusDays(1).toString(),
+                kidNummer = null,
+                belop = 1234,
+                vedlegg = vedlegg,
+            )
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            result.shouldBeLeft()
         }
     }
 
