@@ -28,8 +28,20 @@ type UnparsedDate = string | Date | undefined | null;
  * @param dato
  * @returns
  */
-export function yyyyMMddFormatting(dato: DateInput): string {
+export function yyyyMMddSafeFormatting(dato: DateInput): string {
   return lightFormat(safeParseDate(dato), "yyyy-MM-dd");
+}
+/**
+ * Format: "yyyy-MM-dd" hhvis gyldig dato
+ * @param dato
+ * @returns
+ */
+export function yyyyMMddFormatting(dato: UnparsedDate): string | undefined {
+  const parsedDato = parseDate(dato);
+  if (!parsedDato) {
+    return;
+  }
+  return lightFormat(parsedDato, "yyyy-MM-dd");
 }
 
 /**
@@ -101,7 +113,13 @@ export function maxOf(dates: UnparsedDate[]): Date {
  * @param duration
  * @returns
  */
-export function subDuration(dato: DateInput, duration: Duration) {
+export function subDuration(dato: UnparsedDate, duration: Duration) {
+  const parsedDate = parseDate(dato);
+  if (parsedDate) {
+    return sub(parsedDate, duration);
+  }
+}
+export function SafeSubDuration(dato: DateInput, duration: Duration) {
   return sub(safeParseDate(dato), duration);
 }
 

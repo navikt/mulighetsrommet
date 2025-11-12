@@ -10,7 +10,7 @@ import {
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { addDuration, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { addDuration, SafeSubDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { Avtaletype, OpsjonsmodellType } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
@@ -173,5 +173,5 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
 }
 
 function kalkulerMaksDato(date: Date, addYears: number): Date {
-  return subDuration(addDuration(date, { years: addYears }), { days: 1 });
+  return SafeSubDuration(addDuration(date, { years: addYears }), { days: 1 });
 }

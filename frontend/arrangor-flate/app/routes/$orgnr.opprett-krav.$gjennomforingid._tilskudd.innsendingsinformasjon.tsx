@@ -11,7 +11,7 @@ import {
   Link,
   Select,
   useDatepicker,
-  VStack
+  VStack,
 } from "@navikt/ds-react";
 import {
   ArrangorflateService,
@@ -32,7 +32,7 @@ import {
   MetaFunction,
   redirect,
   useActionData,
-  useLoaderData
+  useLoaderData,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
@@ -45,7 +45,7 @@ import {
   isLaterOrSameDay,
   parseDate,
   subDuration,
-  yyyyMMddFormatting
+  yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";

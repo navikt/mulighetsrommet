@@ -4,7 +4,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
-import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { FeatureToggle, PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
@@ -51,7 +51,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               if (satser.length === 0) {
                 setValue("satser", [
                   {
-                    gjelderFra: yyyyMMddFormatting(avtaleStartDato),
+                    gjelderFra: yyyyMMddSafeFormatting(avtaleStartDato),
                     gjelderTil: null,
                     pris: 0,
                     valuta: "NOK",

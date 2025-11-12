@@ -1,4 +1,4 @@
-import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { useState } from "react";
 
@@ -35,7 +35,7 @@ export const ControlledDateInput = ({
 
   const { datepickerProps, inputProps } = useDatepicker({
     onDateChange: (val: Date | undefined) => {
-      onChange(val ? yyyyMMddFormatting(val) : "");
+      onChange(val ? yyyyMMddSafeFormatting(val) : "");
     },
     onValidate: (validation: { isValidDate: boolean; isBefore: boolean; isAfter: boolean }) => {
       setUgyldigDatoError("");
