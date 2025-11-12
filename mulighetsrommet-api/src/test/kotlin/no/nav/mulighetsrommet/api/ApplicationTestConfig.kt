@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -20,6 +22,12 @@ fun <R> withTestApplication(
             configure(config)
 
             additionalConfiguration?.invoke(this)
+        }
+
+        client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
         }
 
         test()

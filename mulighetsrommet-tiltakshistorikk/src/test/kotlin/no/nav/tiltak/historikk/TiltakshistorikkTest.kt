@@ -57,12 +57,6 @@ class TiltakshistorikkTest : FunSpec({
             val mockEngine = mockTiltakDatadeling()
 
             withTestApplication(oauth, mockEngine) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.post("/api/v1/historikk") {
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
@@ -76,12 +70,6 @@ class TiltakshistorikkTest : FunSpec({
             val mockEngine = mockTiltakDatadeling()
 
             withTestApplication(oauth, mockEngine) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
@@ -128,12 +116,6 @@ class TiltakshistorikkTest : FunSpec({
                 ),
             )
             withTestApplication(oauth, mockEngine, config) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
@@ -238,12 +220,6 @@ class TiltakshistorikkTest : FunSpec({
                 ),
             )
             withTestApplication(oauth, mockEngine, config) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
@@ -272,12 +248,6 @@ class TiltakshistorikkTest : FunSpec({
             )
 
             withTestApplication(oauth, mockEngine) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
