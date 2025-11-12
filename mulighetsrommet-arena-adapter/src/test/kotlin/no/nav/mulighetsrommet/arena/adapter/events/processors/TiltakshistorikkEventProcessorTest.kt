@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEv
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
@@ -143,7 +142,9 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
             }
 
             test("should upsert tiltakshistorikk for ArenaDeltaker events") {
-                val (deltakerEvent, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
+                val (deltakerEvent, mapping) = prepareEvent(
+                    createArenaTiltakdeltakerEvent(Insert),
+                )
 
                 val engine = createMockEngine {
                     get("/ords/arbeidsgiver") {
@@ -178,7 +179,6 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
             test("should upsert tiltakshistorikk for ArenaHistDeltaker events") {
                 val (histDeltakerEvent, histDeltakerMapping) = prepareEvent(
                     createArenaHistTiltakdeltakerEvent(Insert),
-                    Ignored,
                 )
 
                 val engine = createMockEngine {
@@ -201,6 +201,31 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                         id shouldBe histDeltakerMapping.entityId
                         norskIdent shouldBe NorskIdent("12345678910")
                     }
+                }
+            }
+
+            test("should delete ArenaDeltaker with EKSTERN_ID") {
+                val (deltakerEvent, mapping) = prepareEvent(
+                    createArenaTiltakdeltakerEvent(Insert) {
+                        it.copy(EKSTERN_ID = "1234")
+                    },
+                )
+
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
+                    }
+                    get("/ords/fnr") {
+                        respondJson(ArenaOrdsFnr("12345678910"))
+                    }
+                    delete("/api/v1/intern/arena/deltaker/${mapping.entityId}") { respondOk() }
+                }
+                val processor = createProcessor(engine)
+
+                processor.handleEvent(deltakerEvent).shouldBeRight().should { it.status shouldBe Handled }
+
+                engine.requestHistory.last().apply {
+                    method shouldBe HttpMethod.Delete
                 }
             }
         }

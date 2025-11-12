@@ -5,6 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaHistTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltakelse
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
@@ -65,6 +67,7 @@ class TiltakshistorikkEventProcessor(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
+        // Alle gruppetiltak er håndtert hos Komet
         if (isGruppetiltak(tiltakstype.tiltakskode)) {
             return@either ProcessingResult(Handled)
         }
@@ -78,6 +81,13 @@ class TiltakshistorikkEventProcessor(
 
         if (norskIdent == null) {
             return@either ProcessingResult(Ignored, "Historikk ikke relevant fordi fødselsnummer mangler i Arena")
+        }
+
+        // Hvis deltaker har ekstern id betyr det at den håndteres utenfor Arena
+        if (hasEksternId(data)) {
+            return@either deleteDeltaker(mapping)
+                .map { ProcessingResult(Handled) }
+                .bind()
         }
 
         val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)
@@ -104,6 +114,15 @@ class TiltakshistorikkEventProcessor(
             .bind()
     }
 
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        deleteDeltaker(mapping).bind()
+    }
+
+    private fun hasEksternId(data: ArenaTiltakdeltakelse): Boolean {
+        return data is ArenaTiltakdeltaker && data.EKSTERN_ID != null
+    }
+
     private suspend fun upsertDeltaker(
         operation: ArenaEvent.Operation,
         deltaker: ArenaDeltakerDbo,
@@ -113,11 +132,7 @@ class TiltakshistorikkEventProcessor(
         client.request(HttpMethod.Put, "/api/v1/intern/arena/deltaker", deltaker)
     }
 
-    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
-        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-
-        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${mapping.entityId}")
-            .mapLeft { ProcessingError.fromResponseException(it) }
-            .bind()
-    }
+    private suspend fun deleteDeltaker(mapping: ArenaEntityMapping): Either<ProcessingError, HttpResponse> = client
+        .request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${mapping.entityId}")
+        .mapLeft { ProcessingError.fromResponseException(it) }
 }

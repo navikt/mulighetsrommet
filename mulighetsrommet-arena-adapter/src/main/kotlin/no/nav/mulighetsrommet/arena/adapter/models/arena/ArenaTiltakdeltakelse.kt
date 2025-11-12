@@ -17,6 +17,7 @@ interface ArenaTiltakdeltakelse {
 @Serializable
 data class ArenaTiltakdeltaker(
     val TILTAKDELTAKER_ID: Int,
+    val EKSTERN_ID: String?,
     override val PERSON_ID: Int,
     override val TILTAKGJENNOMFORING_ID: Int,
     override val DELTAKERSTATUSKODE: ArenaTiltakdeltakerStatus,
