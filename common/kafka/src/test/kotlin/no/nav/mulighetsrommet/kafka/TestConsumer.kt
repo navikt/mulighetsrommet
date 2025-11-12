@@ -4,10 +4,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import org.apache.kafka.common.serialization.Serdes
 
 class TestConsumer : KafkaTopicConsumer<String?, String?>(
     stringDeserializer(),
