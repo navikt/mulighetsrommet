@@ -92,11 +92,7 @@ interface OpprettManueltUtbetalingskravProps {
 
 function OpprettManueltUtbetalingskrav({ orgnr }: OpprettManueltUtbetalingskravProps) {
   return (
-    <Button
-      variant="secondary"
-      as={ReactRouterLink}
-      to={pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt}
-    >
+    <Button variant="secondary" as={ReactRouterLink} to={pathByOrgnr(orgnr).opprettKrav.oversikt}>
       {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
     </Button>
   );

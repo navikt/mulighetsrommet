@@ -25,7 +25,7 @@ export function OpprettKravVeiviserButtons({
           as={ReactRouterLink}
           type="button"
           variant="tertiary"
-          to={pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt}
+          to={pathByOrgnr(orgnr).opprettKrav.oversikt}
         >
           Avbryt
         </Button>
