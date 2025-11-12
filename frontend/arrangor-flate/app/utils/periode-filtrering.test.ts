@@ -1,6 +1,10 @@
 import { Periode } from "@api-client";
 import { describe, expect, test } from "vitest";
-import { innenforValgtPeriode, overlapperSluttAvPeriode, overlapperStartAvPeriode } from "./periode-filtrering";
+import {
+  innenforValgtPeriode,
+  overlapperSluttAvPeriode,
+  overlapperStartAvPeriode,
+} from "./periode-filtrering";
 
 describe("periode filtrering", () => {
   describe("overlapperStartAvPeriode", () => {

@@ -4,7 +4,7 @@ import {
   DeltakerStatusType,
   DelutbetalingStatus,
   DetailsFormat,
-  Tiltakskode
+  Tiltakskode,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 

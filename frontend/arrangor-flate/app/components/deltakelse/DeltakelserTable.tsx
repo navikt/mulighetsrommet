@@ -1,4 +1,8 @@
-import { formaterDato, formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
+import {
+  formaterDato,
+  formaterPeriodeSlutt,
+  formaterPeriodeStart,
+} from "@mr/frontend-common/utils/date";
 import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 import { Alert, HStack, List, Table, Tooltip } from "@navikt/ds-react";
 import {
@@ -9,7 +13,7 @@ import {
   ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging,
   ArrangorflateBeregningDeltakelsePrisPerUkesverk,
   DeltakerAdvarsel,
-  Periode
+  Periode,
 } from "api-client";
 import { useSortState } from "~/hooks/useSortState";
 import { tekster } from "~/tekster";
