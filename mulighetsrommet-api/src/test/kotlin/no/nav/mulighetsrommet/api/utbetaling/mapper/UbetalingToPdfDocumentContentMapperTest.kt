@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import java.time.LocalDate
-import java.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
@@ -15,6 +13,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
+import java.util.*
 
 class UbetalingToPdfDocumentContentMapperTest : FunSpec({
 

@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
 import arrow.core.getOrElse
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -29,6 +27,8 @@ import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.*
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
+import java.util.*
 
 class ArenaAdapterService(
     private val config: Config,

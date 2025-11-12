@@ -24,7 +24,7 @@ data class UtbetalingStatusDto(
     }
 
     enum class Type(val beskrivelse: String, val variant: DataElement.Status.Variant) {
-        VENTER_PA_ARRANGOR("Venter på arrangør", DataElement.Status.Variant.ALT),
+        VENTER_PA_ARRANGOR("Venter på arrangør", DataElement.Status.Variant.ALT_1),
         KLAR_TIL_BEHANDLING("Klar til behandling", DataElement.Status.Variant.SUCCESS),
         TIL_ATTESTERING("Til attestering", DataElement.Status.Variant.WARNING),
         RETURNERT("Returnert", DataElement.Status.Variant.ERROR),

@@ -25,7 +25,7 @@ class UpdateAvtaleStatusTest : FunSpec({
         database.db,
         AvtaleService(
             db = database.db,
-            validator = mockk(relaxed = true),
+            arrangorService = mockk(relaxed = true),
             gjennomforingPublisher = mockk(relaxed = true),
         ),
     )

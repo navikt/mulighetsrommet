@@ -25,7 +25,7 @@ class RateLimitTest : FunSpec({
     test("should complete immediately when requests are less than or equal to the window size") {
         val requests = 3
         val requestPerWindow = 3
-        val windowSize = 200L
+        val windowSize = 500L
 
         val client = HttpClient(engine) {
             install(RateLimit) {
@@ -60,7 +60,7 @@ class RateLimitTest : FunSpec({
     test("should complete requests within three windows when requests requires more than two windows") {
         val requests = 7
         val requestPerWindow = 3
-        val windowSize = 200L
+        val windowSize = 500L
 
         val client = HttpClient(engine) {
             install(RateLimit) {

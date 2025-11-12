@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.*
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -30,6 +27,9 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
+import java.time.Instant
+import java.time.LocalDateTime
+import java.util.*
 
 class TilsagnService(
     val config: Config,

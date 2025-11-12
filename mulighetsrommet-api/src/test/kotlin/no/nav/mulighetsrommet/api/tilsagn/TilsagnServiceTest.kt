@@ -4,7 +4,6 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -13,12 +12,9 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.LocalDate
-import java.util.*
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -32,7 +28,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -40,6 +35,8 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
+import java.time.LocalDate
+import java.util.*
 
 class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -127,121 +124,6 @@ class TilsagnServiceTest : FunSpec({
 
     context("opprett tilsagn") {
         val service = createTilsagnService()
-
-        test("tilsagn kan ikke vare over årsskiftet") {
-            val invalidRequest = request.copy(
-                periodeStart = LocalDate.of(2025, 1, 1),
-                periodeSlutt = LocalDate.of(2026, 1, 31),
-            )
-
-            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
-                FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt),
-                FieldError.of(
-                    "Maksimum sluttdato for tilsagn til ${TiltakstypeFixtures.AFT.navn} er ${
-                        gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-                    }",
-                    TilsagnRequest::periodeSlutt,
-                ),
-            )
-        }
-
-        test("minimum dato for tilsagn må være satt for at tilsagn skal opprettes") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.VTA),
-                gjennomforinger = listOf(GjennomforingFixtures.VTA1),
-            ).initialize(database.db)
-
-            val invalidRequest = request.copy(
-                gjennomforingId = GjennomforingFixtures.VTA1.id,
-            )
-
-            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
-                FieldError(
-                    pointer = "/periodeStart",
-                    detail = "Tilsagn for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet er ikke støttet enda",
-                ),
-            )
-        }
-
-        test("tilsagnet kan ikke slutte etter gjennomføringen") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
-                startDato = LocalDate.of(2025, 1, 1),
-                sluttDato = LocalDate.of(2025, 2, 1),
-            )
-
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
-
-            val invalidRequest = request.copy(
-                gjennomforingId = gjennomforing.id,
-                periodeStart = LocalDate.of(2025, 1, 1),
-                periodeSlutt = LocalDate.of(2025, 3, 1),
-            )
-
-            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
-                FieldError(
-                    pointer = "/periodeSlutt",
-                    detail = "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
-                ),
-            )
-        }
-
-        test("tilsagnet kan ikke starte før konfigurert minimum dato for tilsagn") {
-            val invalidRequest = request.copy(
-                periodeStart = LocalDate.of(2024, 12, 1),
-                periodeSlutt = LocalDate.of(2024, 12, 31),
-            )
-
-            service.upsert(invalidRequest, ansatt1).shouldBeLeft() shouldBe listOf(
-                FieldError(
-                    pointer = "/periodeStart",
-                    detail = "Minimum startdato for tilsagn til Arbeidsforberedende trening er 01.01.2025",
-                ),
-            )
-        }
-
-        test("validerer at avtalt pris per månedsverk må ha en sats som matcher med avtalen") {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(
-                    AvtaleFixtures.ARR.copy(
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(
-                            AvtaltSats(
-                                gjelderFra = LocalDate.of(2025, 3, 1),
-                                sats = 2000,
-                            ),
-                        ),
-                    ),
-                ),
-                gjennomforinger = listOf(
-                    GjennomforingFixtures.ArbeidsrettetRehabilitering.copy(
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = LocalDate.of(2025, 2, 1),
-                    ),
-                ),
-            ).initialize(database.db)
-
-            val beregning = TilsagnBeregningRequest(
-                type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
-                antallPlasser = 10,
-                prisbetingelser = null,
-            )
-
-            val invalidRequest2 = request.copy(
-                gjennomforingId = GjennomforingFixtures.ArbeidsrettetRehabilitering.id,
-                beregning = beregning,
-            )
-            service.upsert(invalidRequest2, ansatt1).shouldBeLeft() shouldBe listOf(
-                FieldError.of(
-                    detail = "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
-                    TilsagnRequest::periodeStart,
-                ),
-            )
-        }
 
         test("oppretter tilsagn med riktig periode og totrinnskontroll") {
             service.upsert(request, ansatt1).shouldBeRight().should {

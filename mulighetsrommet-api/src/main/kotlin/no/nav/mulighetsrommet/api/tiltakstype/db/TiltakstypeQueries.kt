@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.tiltakstype.db
 
-import java.sql.Array
-import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -9,6 +7,8 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
+import java.sql.Array
+import java.util.*
 
 class TiltakstypeQueries(private val session: Session) {
 

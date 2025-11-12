@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
-import java.time.LocalDate
-import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -10,6 +8,8 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
+import java.util.*
 
 @Serializable
 data class GjennomforingDto(

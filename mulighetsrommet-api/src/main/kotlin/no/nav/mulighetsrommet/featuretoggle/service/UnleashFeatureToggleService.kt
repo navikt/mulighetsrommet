@@ -9,8 +9,9 @@ import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
 import no.nav.mulighetsrommet.featuretoggle.strategies.ByNavIdentStrategy
 import no.nav.mulighetsrommet.featuretoggle.strategies.ByOrgnrStrategy
 import no.nav.mulighetsrommet.featuretoggle.strategies.ByTiltakskodeStrategy
+import no.nav.mulighetsrommet.model.Tiltakskode
 
-class UnleashFeatureToggleService(config: Config) {
+class UnleashFeatureToggleService(config: Config) : FeatureToggleService {
     data class Config(
         val appName: String,
         val url: String,
@@ -34,15 +35,22 @@ class UnleashFeatureToggleService(config: Config) {
         ByOrgnrStrategy(),
     )
 
-    fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext): Boolean {
+    override fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext): Boolean {
         val ctx = UnleashContext.builder()
-            .userId(context.userId)
-            .sessionId(context.sessionId)
-            .remoteAddress(context.remoteAddress)
+            .apply { context.userId?.let { userId(it) } }
+            .apply { context.sessionId?.let { sessionId(it) } }
+            .apply { context.remoteAddress?.let { remoteAddress(it) } }
             .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, context.tiltakskoder.joinToString(",") { it.name })
             .addProperty(ByOrgnrStrategy.VALGT_ORGNR_PARAM, context.orgnr.joinToString(",") { it.value })
             .build()
 
+        return unleash.isEnabled(feature.key, ctx)
+    }
+
+    override fun isEnabledForTiltakstype(feature: FeatureToggle, vararg tiltakskoder: Tiltakskode): Boolean {
+        val ctx = UnleashContext.builder()
+            .addProperty(ByTiltakskodeStrategy.TILTAKSKODER_PARAM, tiltakskoder.joinToString(",") { it.name })
+            .build()
         return unleash.isEnabled(feature.key, ctx)
     }
 }

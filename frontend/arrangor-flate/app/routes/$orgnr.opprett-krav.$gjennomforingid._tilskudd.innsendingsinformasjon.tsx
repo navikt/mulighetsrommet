@@ -22,7 +22,6 @@ import {
   OpprettKravInnsendingsInformasjonGuidePanelType,
   OpprettKravVeiviserSteg,
   Periode,
-  Tilskuddstype
 } from "api-client";
 import { SyntheticEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -45,6 +44,7 @@ import {
   formaterPeriode,
   isLaterOrSameDay,
   parseDate,
+  subDuration,
   yyyyMMddFormatting
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
@@ -163,7 +163,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (errors.length > 0) {
     return { errors };
   } else {
-    session.set("tilskuddstype", Tilskuddstype.TILTAK_DRIFTSTILSKUDD);
     session.set("orgnr", orgnr);
     session.set("gjennomforingId", gjennomforingId);
     session.set("tilsagnId", tilsagnId);
@@ -424,14 +423,15 @@ function PeriodeVelger({
     selectedDay: selectedSluttDato,
   } = useDatepicker({
     defaultSelected: parseDate(sessionPeriodeSlutt),
-    toDate: parseDate(maksSluttdato),
+    // maks sluttdato er eksklusiv, men skal ikke kunne velge den
+    toDate: subDuration(maksSluttdato, { days: 1 }),
   });
 
   useEffect(() => {
     if (selectedStartDato && selectedSluttDato) {
       return onPeriodeSelected({
         start: yyyyMMddFormatting(selectedStartDato)!,
-        // Normaliser til eksklusiv sluttdato, slik som Perioder ellers er
+        // Normaliser til eksklusiv sluttdato, slik som Perioder ellers er - enklere logikk i tilsagnshåndtering
         slutt: yyyyMMddFormatting(addDuration(selectedSluttDato, { days: 1 }))!,
       });
     }

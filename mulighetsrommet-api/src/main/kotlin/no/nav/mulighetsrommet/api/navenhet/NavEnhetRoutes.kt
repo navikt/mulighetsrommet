@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.navenhet
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.*
+import io.ktor.server.http.content.default
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -87,6 +88,23 @@ fun Route.navEnhetRoutes() {
         }) {
             val regioner = call.parameters.getAll("regioner")?.map { NavEnhetNummer(it) } ?: emptyList()
             call.respond(navEnhetService.hentKostnadssted(regioner))
+        }
+
+        get("kostnadsstedFilter", {
+            tags = setOf("NavEnheter")
+            operationId = "getKostnadsstedFilter"
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Filtre for kostnadssteder"
+                    body<List<NavRegionDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            call.respond(navEnhetService.hentKostnadsstedFiltre())
         }
 
         get("{enhetsnummer}/overordnet", {

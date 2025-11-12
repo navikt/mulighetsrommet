@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
+import java.time.LocalDate
+import java.util.*
 
 data class GjennomforingDbo(
     val id: UUID,

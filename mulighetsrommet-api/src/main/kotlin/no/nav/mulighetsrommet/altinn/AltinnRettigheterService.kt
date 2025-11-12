@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.altinn
 
-import java.time.Duration
-import java.time.Instant
 import no.nav.mulighetsrommet.altinn.db.BedriftRettigheterDbo
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.model.NorskIdent
+import java.time.Duration
+import java.time.Instant
 
 class AltinnRettigheterService(
     private val config: Config = Config(),

@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -21,6 +19,8 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
+import java.time.LocalDateTime
+import java.util.*
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {

@@ -1,8 +1,5 @@
 package no.nav.mulighetsrommet.api.navansatt.db
 
-import java.sql.Array
-import java.time.LocalDate
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -16,6 +13,9 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
+import java.sql.Array
+import java.time.LocalDate
+import java.util.*
 
 class NavAnsattQueries(private val session: Session) {
 

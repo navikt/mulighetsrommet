@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
@@ -10,6 +8,8 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import java.time.LocalDate
+import java.util.*
 
 object GjennomforingFixtures {
     val Oppfolging1 = GjennomforingDbo(

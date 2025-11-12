@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -11,6 +9,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import java.time.LocalDate
+import java.util.*
 
 object GjennomforingDboMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(

@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.NonEmptyList
 import io.ktor.server.plugins.NotFoundException
-import java.util.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
+import java.util.*
 
 class VeilederflateService(
     private val db: ApiDatabase,

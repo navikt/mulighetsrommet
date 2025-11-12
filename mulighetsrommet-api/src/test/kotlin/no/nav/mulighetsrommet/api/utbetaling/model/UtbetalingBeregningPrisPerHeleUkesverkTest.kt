@@ -2,9 +2,9 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
-import no.nav.mulighetsrommet.model.Periode
 
 class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
     context("beregning for pris per hele ukesverk") {

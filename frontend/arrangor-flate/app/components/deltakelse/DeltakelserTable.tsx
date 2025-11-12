@@ -222,8 +222,6 @@ function DeltakerAdvarselInfo({
       return `${deltaker?.personalia?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg`;
     case "DeltakerAdvarselFeilSluttDato":
       return `${deltaker?.personalia?.navn} har status “${deltaker?.status}” og slutt dato frem i tid`;
-    case "DeltakerAdvarselOverlappendePeriode":
-      return `${deltaker?.personalia?.navn} har flere deltakelser med overlappende perioder`;
     case undefined:
       throw new Error('"type" mangler fra advarsel');
   }

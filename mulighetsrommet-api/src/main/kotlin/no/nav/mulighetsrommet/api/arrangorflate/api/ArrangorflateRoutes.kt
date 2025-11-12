@@ -1,27 +1,18 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import arrow.core.flatMap
 import arrow.core.getOrElse
-import arrow.core.nel
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.server.application.log
-import io.ktor.server.auth.principal
-import io.ktor.server.plugins.NotFoundException
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondBytes
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.getOrFail
-import io.ktor.server.util.getValue
-import io.ktor.utils.io.toByteArray
-import java.time.LocalDate
-import java.util.*
+import io.ktor.server.util.*
+import io.ktor.utils.io.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -55,13 +46,11 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
+import java.util.*
 
 fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
     return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
@@ -130,6 +119,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
         val arrangorer = resolveArrangorer(tilganger)
+            .sortedBy { it.navn }
 
         call.respond(arrangorer)
     }
@@ -278,47 +268,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             val utbetalinger = arrangorFlateService.getUtbetalinger(orgnr)
 
             call.respond(utbetalinger)
-        }
-
-        post("/utbetaling", {
-            description = "Opprett krav om utbetaling"
-            tags = setOf("Arrangorflate")
-            operationId = "opprettKravOmUtbetaling"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                body<OpprettKravOmUtbetalingRequest> {
-                    description = "Request for creating a payment claim"
-                    mediaTypes(ContentType.MultiPart.FormData)
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Informasjon om opprettet krav om utbetaling"
-                    body<OpprettKravOmUtbetalingResponse>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-            requireTilgangHosArrangor(orgnr)
-            val request = receiveOpprettKravOmUtbetalingRequest(call)
-
-            // Scan vedlegg for virus
-            if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
-            }
-            arrangorFlateService.getKontonummer(orgnr)
-                .mapLeft { FieldError("/kontonummer", "Klarte ikke hente kontonummer").nel() }
-                .flatMap { UtbetalingValidator.validateOpprettKravOmUtbetaling(request, it) }
-                .flatMap { utbetalingService.opprettAnnenAvtaltPrisUtbetaling(it, Arrangor) }
-                .onLeft { errors ->
-                    call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
-                }
-                .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
         }
 
         route("/tilsagn") {
@@ -655,65 +604,6 @@ private suspend fun receiveScanVedleggRequest(call: RoutingCall): ScanVedleggReq
     return ScanVedleggRequest(validatedVedlegg)
 }
 
-private suspend fun receiveOpprettKravOmUtbetalingRequest(call: RoutingCall): OpprettKravOmUtbetalingRequest {
-    var gjennomforingId: UUID? = null
-    var tilsagnId: UUID? = null
-    var periodeStart: String? = null
-    var periodeSlutt: String? = null
-    var kidNummer: String? = null
-    var belop: Int? = null
-    var tilskuddstype: Tilskuddstype? = null
-    val vedlegg: MutableList<Vedlegg> = mutableListOf()
-    val multipart = call.receiveMultipart(formFieldLimit = 1024 * 1024 * 100)
-
-    multipart.forEachPart { part ->
-        when (part) {
-            is PartData.FormItem -> {
-                when (part.name) {
-                    "gjennomforingId" -> gjennomforingId = UUID.fromString(part.value)
-                    "tilsagnId" -> tilsagnId = UUID.fromString(part.value)
-                    "kidNummer" -> kidNummer = part.value
-                    "belop" -> belop = part.value.toInt()
-                    "periodeStart" -> periodeStart = part.value
-                    "periodeSlutt" -> periodeSlutt = part.value
-                    "tilskuddstype" -> tilskuddstype = Tilskuddstype.valueOf(part.value)
-                }
-            }
-
-            is PartData.FileItem -> {
-                if (part.name == "vedlegg") {
-                    vedlegg.add(
-                        Vedlegg(
-                            content = Content(
-                                contentType = part.contentType.toString(),
-                                content = part.provider().toByteArray(),
-                            ),
-                            filename = part.originalFileName ?: "ukjent.pdf",
-                        ),
-                    )
-                }
-            }
-
-            else -> {}
-        }
-
-        part.dispose()
-    }
-
-    val validatedVedlegg = vedlegg.validateVedlegg()
-
-    return OpprettKravOmUtbetalingRequest(
-        gjennomforingId = requireNotNull(gjennomforingId) { "Mangler gjennomforingId" },
-        tilsagnId = requireNotNull(tilsagnId) { "Mangler tilsagnId" },
-        periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
-        periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
-        kidNummer = kidNummer,
-        belop = belop ?: 0,
-        tilskuddstype = requireNotNull(tilskuddstype) { "Mangler tilskuddstype" },
-        vedlegg = validatedVedlegg,
-    )
-}
-
 fun MutableList<Vedlegg>.validateVedlegg(): List<Vedlegg> {
     return this.map { v ->
         // Optionally validate file type and size here
@@ -759,28 +649,7 @@ sealed class DeltakerAdvarsel {
         @Serializable(with = UUIDSerializer::class)
         override val deltakerId: UUID,
     ) : DeltakerAdvarsel()
-
-    @Serializable
-    @SerialName("DeltakerAdvarselOverlappendePeriode")
-    data class OverlappendePeriode(
-        @Serializable(with = UUIDSerializer::class)
-        override val deltakerId: UUID,
-    ) : DeltakerAdvarsel()
 }
-
-@Serializable
-data class OpprettKravOmUtbetalingRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val tilsagnId: UUID,
-    val periodeStart: String,
-    val periodeSlutt: String,
-    val kidNummer: String? = null,
-    val belop: Int,
-    val vedlegg: List<Vedlegg>,
-    val tilskuddstype: Tilskuddstype,
-)
 
 @Serializable
 data class ScanVedleggRequest(

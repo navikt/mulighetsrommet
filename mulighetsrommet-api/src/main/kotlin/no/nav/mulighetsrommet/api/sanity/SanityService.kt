@@ -6,8 +6,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.NotFoundException
-import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
@@ -17,6 +15,8 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 class SanityService(
     private val sanityClient: SanityClient,

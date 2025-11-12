@@ -2,7 +2,7 @@ import { ArrangorflateService, ArrangorflateTilsagnDto, ArrangorflateUtbetalingD
 import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
-import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
@@ -83,6 +83,11 @@ export default function TilsagnDetaljerPage() {
         <Heading level="3" size="medium">
           Tilgjengelige tilsagn
         </Heading>
+        <BodyShort size="small" textColor="subtle">
+          Under vises informasjon om antatt forbruk.
+          <br />
+          Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
+        </BodyShort>
         {!harTilsagn && <UtbetalingManglendeTilsagnAlert />}
         {tilsagn.map((tilsagn) => (
           <TilsagnDetaljer

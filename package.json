@@ -3,9 +3,9 @@
   "name": "mulighetsrommet",
   "devDependencies": {
     "prettier": "3.6.2",
-    "turbo": "2.5.8"
+    "turbo": "2.6.0"
   },
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.20.0",
   "pnpm": {
     "overrides": {
       "follow-redirects@>=1.15.0 <1.15.9": ">=1.15.9",

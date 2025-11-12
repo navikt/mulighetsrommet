@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
 import PersonvernDbo
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -12,6 +13,7 @@ import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -146,12 +148,18 @@ private fun toAvtalteSatser(satser: List<AvtaltSatsDto>): List<AvtaltSats> = sat
     )
 }
 
-fun DetaljerRequest.toDbo(tiltakstypeId: UUID, arrangor: ArrangorDbo?, status: AvtaleStatusType): DetaljerDbo = DetaljerDbo(
+fun ArrangorDto.toDbo(kontaktpersoner: List<UUID>?): ArrangorDbo = ArrangorDbo(
+    hovedenhet = id,
+    underenheter = underenheter?.map { it.id } ?: emptyList(),
+    kontaktpersoner = kontaktpersoner ?: emptyList(),
+)
+
+fun DetaljerRequest.toDbo(tiltakstypeId: UUID, arrangorDbo: ArrangorDbo?, status: AvtaleStatusType): DetaljerDbo = DetaljerDbo(
     navn = navn,
     status = status,
     sakarkivNummer = sakarkivNummer,
     tiltakstypeId = tiltakstypeId,
-    arrangor = arrangor,
+    arrangor = arrangorDbo,
     startDato = startDato,
     sluttDato = sluttDato,
     avtaletype = avtaletype,

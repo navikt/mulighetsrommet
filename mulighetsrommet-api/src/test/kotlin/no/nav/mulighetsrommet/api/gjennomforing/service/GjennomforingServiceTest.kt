@@ -12,8 +12,6 @@ import io.kotest.matchers.types.beInstanceOf
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.QueryContext
@@ -35,6 +33,8 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 const val TEST_GJENNOMFORING_V1_TOPIC = "gjennomforing-v1"
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"

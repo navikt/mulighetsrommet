@@ -4,9 +4,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -44,6 +41,9 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.Instant
+import java.time.LocalDateTime
+import java.util.*
 
 class UtbetalingService(
     private val config: Config,
@@ -235,17 +235,28 @@ class UtbetalingService(
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val utbetaling = getOrError(request.utbetalingId)
 
-        val opprettDelutbetalinger = request.delutbetalinger.map { req ->
+        val delutbetalingTilsagn = request.delutbetalinger.associate { req ->
             val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
-            UtbetalingValidator.OpprettDelutbetaling(
-                id = req.id,
-                gjorOppTilsagn = req.gjorOppTilsagn,
-                tilsagn = tilsagn,
-                belop = req.belop,
-            )
+            req.id to tilsagn
         }
+
         UtbetalingValidator
-            .validateOpprettDelutbetalinger(utbetaling, opprettDelutbetalinger, request.begrunnelseMindreBetalt)
+            .validateOpprettDelutbetalinger(
+                utbetaling,
+                request.delutbetalinger.map { req ->
+                    val tilsagn = requireNotNull(delutbetalingTilsagn[req.id])
+                    UtbetalingValidator.OpprettDelutbetaling(
+                        id = req.id,
+                        gjorOppTilsagn = req.gjorOppTilsagn,
+                        tilsagn = UtbetalingValidator.OpprettDelutbetaling.Tilsagn(
+                            status = tilsagn.status,
+                            gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
+                        ),
+                        belop = req.belop,
+                    )
+                },
+                request.begrunnelseMindreBetalt,
+            )
             .map { delutbetalinger ->
                 // Slett de som ikke er med i requesten
                 queries.delutbetaling.getByUtbetalingId(utbetaling.id)
@@ -260,7 +271,7 @@ class UtbetalingService(
                 delutbetalinger.forEach {
                     upsertDelutbetaling(
                         utbetaling,
-                        it.tilsagn,
+                        requireNotNull(delutbetalingTilsagn[it.id]),
                         it.id,
                         requireNotNull(it.belop),
                         it.gjorOppTilsagn,

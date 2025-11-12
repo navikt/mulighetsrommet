@@ -1,8 +1,5 @@
 package no.nav.mulighetsrommet.api.datavarehus.model
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -12,6 +9,9 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.model.Utdanning.Sluttkompetanse
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 @Serializable
 sealed class DatavarehusTiltak {

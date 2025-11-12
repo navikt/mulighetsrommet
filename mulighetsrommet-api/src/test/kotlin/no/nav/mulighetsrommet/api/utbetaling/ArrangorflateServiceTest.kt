@@ -13,9 +13,6 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
@@ -39,6 +36,9 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class ArrangorflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

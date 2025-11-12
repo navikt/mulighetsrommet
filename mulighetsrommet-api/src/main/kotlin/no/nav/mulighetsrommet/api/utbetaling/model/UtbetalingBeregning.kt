@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.DayOfWeek
@@ -7,9 +10,6 @@ import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.time.temporal.WeekFields
 import java.util.*
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 
 @Serializable
 sealed class UtbetalingBeregning {

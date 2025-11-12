@@ -2471,6 +2471,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/nav-enheter/kostnadsstedFilter:
+    get:
+      tags:
+      - NavEnheter
+      operationId: getKostnadsstedFilter
+      parameters: []
+      responses:
+        "200":
+          description: Filtre for kostnadssteder
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NavRegionDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/nav-enheter/{enhetsnummer}/overordnet:
     get:
       tags:
@@ -3853,8 +3877,13 @@ components:
     DataElement.Status.Variant:
       type: string
       enum:
+      - blank
       - neutral
       - alt
+      - alt-1
+      - alt-2
+      - alt-3
+      - info
       - success
       - warning
       - error
@@ -6033,6 +6062,7 @@ components:
       - MULIGHETSROMMET_PRISMODELL_HELE_UKER
       - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
       - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
+      - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
     LagretFilterType:
       type: string
       enum:

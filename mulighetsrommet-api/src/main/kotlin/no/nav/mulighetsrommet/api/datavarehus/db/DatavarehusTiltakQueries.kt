@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.datavarehus.db
 
-import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -11,6 +10,7 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
+import java.util.*
 
 class DatavarehusTiltakQueries(private val session: Session) {
     fun getTiltak(id: UUID): DatavarehusTiltak = with(session) {

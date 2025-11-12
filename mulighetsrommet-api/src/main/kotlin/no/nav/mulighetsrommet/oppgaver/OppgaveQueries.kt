@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.oppgaver
 
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
@@ -16,9 +14,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.datatypes.periode
-import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
+import java.time.LocalDateTime
+import java.util.*
 
 class OppgaveQueries(private val session: Session) {
     fun getGjennomforingOppgaveData(
@@ -220,8 +219,19 @@ class OppgaveQueries(private val session: Session) {
     fun getUtbetalingOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<UtbetalingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
-            select * from view_utbetaling
-            where (:tiltakskoder::tiltakskode[] is null or tiltakskode = any(:tiltakskoder::tiltakskode[]))
+            select
+                view_utbetaling.*,
+                ks.kostnadssteder
+            from view_utbetaling
+                left join lateral (
+                    select array_agg(tilsagn.kostnadssted) as kostnadssteder
+                    from tilsagn
+                    where
+                        tilsagn.gjennomforing_id = view_utbetaling.gjennomforing_id
+                        and tilsagn.periode && view_utbetaling.periode
+                ) ks on true
+            where
+                (:tiltakskoder::tiltakskode[] is null or view_utbetaling.tiltakskode = any(:tiltakskoder::tiltakskode[]));
         """.trimIndent()
 
         val params = mapOf(
@@ -241,26 +251,8 @@ class OppgaveQueries(private val session: Session) {
                 createdAt = it.localDateTime("created_at"),
                 godkjentAvArrangorTidspunkt = it.localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
                 status = UtbetalingStatusType.valueOf(it.string("status")),
+                kostnadssteder = it.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
             )
-        }
-    }
-
-    fun getUtbetalingKostnadssteder(gjennomforingId: UUID, periodeIntersectsWith: Periode): List<NavEnhetNummer> {
-        @Language("PostgreSQL")
-        val utbetalingQuery = """
-            select kostnadssted from tilsagn
-            where
-                (gjennomforing_id = :gjennomforing_id::uuid)
-                and (periode && :periode::daterange)
-        """.trimIndent()
-
-        val params = mapOf(
-            "gjennomforing_id" to gjennomforingId,
-            "periode" to periodeIntersectsWith.toDaterange(),
-        )
-
-        return session.list(queryOf(utbetalingQuery, params)) {
-            NavEnhetNummer(it.string("kostnadssted"))
         }
     }
 
@@ -387,6 +379,7 @@ data class UtbetalingOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
     val createdAt: LocalDateTime,
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    val kostnadssteder: List<NavEnhetNummer>,
 )
 
 data class AvtaleOppgaveData(

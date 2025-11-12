@@ -7,9 +7,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -17,6 +14,9 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class GjennomforingValidatorTest : FunSpec({
     val avtale = Avtale(

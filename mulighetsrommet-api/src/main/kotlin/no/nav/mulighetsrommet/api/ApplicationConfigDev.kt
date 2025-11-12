@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api
 
-import java.time.LocalDate
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -26,6 +25,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.mulighetsrommet.utils.toUUID
+import java.time.LocalDate
 
 private val teamMulighetsrommetAdGruppeId = "639e2806-4cc2-484c-a72a-51b4308c52a1".toUUID()
 private val tiltaksadministrasjonAdGruppeId = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()

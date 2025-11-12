@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrics
-import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
@@ -111,37 +110,11 @@ fun Application.configure(config: AppConfig) {
 
     configureApi(kafka, okonomi)
 
-    val sftpClient = SftpClient(properties = config.avstemming.sftpProperties)
-    val avstemmingService = AvstemmingService(db = okonomiDb, sftpClient)
-    val dailyAvstemming = DailyAvstemming(config = config.avstemming.dailyTask, avstemmingService)
-    val slackNotifier = SlackNotifierImpl(config.slack.token, config.slack.channel, config.slack.enable)
-
-    configureDbScheduler(
-        okonomiDb,
-        dailyAvstemming,
-        slackNotifier,
-    )
+    configureDbScheduler(config, okonomiDb)
 
     monitor.subscribe(ApplicationStopped) {
         db.close()
     }
-}
-
-private fun Application.configureDbScheduler(
-    db: OkonomiDatabase,
-    dailyAvstemming: DailyAvstemming,
-    slackNotifier: SlackNotifier,
-) {
-    Scheduler
-        .create(db.getDatasource())
-        .addSchedulerListener(SlackNotifierSchedulerListener(slackNotifier))
-        .addSchedulerListener(OpenTelemetrySchedulerListener())
-        .startTasks(
-            dailyAvstemming.task,
-        )
-        .serializer(DbSchedulerKotlinSerializer())
-        .registerShutdownHook()
-        .build()
 }
 
 private fun Application.configureKafka(
@@ -200,4 +173,25 @@ private fun Application.configureKafka(
     }
 
     return kafkaConsumerOrchestrator
+}
+
+private fun configureDbScheduler(
+    config: AppConfig,
+    db: OkonomiDatabase,
+) {
+    val sftpClient = SftpClient(properties = config.avstemming.sftpProperties)
+    val avstemmingService = AvstemmingService(db = db, sftpClient)
+    val dailyAvstemming = DailyAvstemming(config = config.avstemming.dailyTask, avstemmingService)
+    val slackNotifier = SlackNotifierImpl(config.slack.token, config.slack.channel, config.slack.enable)
+
+    Scheduler
+        .create(db.getDatasource())
+        .addSchedulerListener(SlackNotifierSchedulerListener(slackNotifier))
+        .addSchedulerListener(OpenTelemetrySchedulerListener())
+        .startTasks(
+            dailyAvstemming.task,
+        )
+        .serializer(DbSchedulerKotlinSerializer())
+        .registerShutdownHook()
+        .build()
 }

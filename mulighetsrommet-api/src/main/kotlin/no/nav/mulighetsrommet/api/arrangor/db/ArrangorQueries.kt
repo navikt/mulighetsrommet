@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.arrangor.db
 
-import java.sql.Array
-import java.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -17,6 +15,8 @@ import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
+import java.sql.Array
+import java.util.*
 
 class ArrangorQueries(private val session: Session) {
 

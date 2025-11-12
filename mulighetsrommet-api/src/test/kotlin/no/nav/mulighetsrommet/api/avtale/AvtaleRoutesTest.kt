@@ -12,8 +12,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
@@ -26,6 +24,8 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import java.time.LocalDate
+import java.util.*
 
 class AvtaleRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

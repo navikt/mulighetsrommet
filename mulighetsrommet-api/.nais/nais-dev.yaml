@@ -18,10 +18,10 @@ spec:
         thresholdPercentage: 75
   resources:
     requests:
-      cpu: 100m
+      cpu: 10m
       memory: 512Mi
     limits:
-      memory: 1024Mi
+      memory: 2048Mi
   liveness:
     path: /internal/liveness
     initialDelay: 20

@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.*
-import no.nav.mulighetsrommet.model.Periode
 
 class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
     context("beregning for pris per ukesverk") {

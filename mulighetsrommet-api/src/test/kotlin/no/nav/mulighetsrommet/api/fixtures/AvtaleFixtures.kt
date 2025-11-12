@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -11,6 +9,8 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.*
+import java.time.LocalDate
+import java.util.*
 
 object AvtaleFixtures {
     val detaljerDbo = DetaljerDbo(
@@ -263,7 +263,11 @@ object AvtaleFixtures {
             navn = "Avtalenavn",
             sakarkivNummer = SakarkivNummer("24/1234"),
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-            arrangor = null,
+            arrangor = DetaljerRequest.Arrangor(
+                hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+                underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                kontaktpersoner = emptyList(),
+            ),
             startDato = LocalDate.of(2023, 1, 11),
             sluttDato = LocalDate.now().plusMonths(3),
             avtaletype = Avtaletype.RAMMEAVTALE,

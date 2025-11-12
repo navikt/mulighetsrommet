@@ -1,8 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -30,6 +27,9 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class GjennomforingQueries(private val session: Session) {
     fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {

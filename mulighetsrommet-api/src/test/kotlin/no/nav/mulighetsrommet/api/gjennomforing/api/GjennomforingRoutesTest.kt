@@ -18,9 +18,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -34,6 +31,9 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class GjennomforingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

@@ -16,9 +16,6 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.utils.io.toByteArray
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -37,6 +34,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.maksUtbetalingsPeriodeSluttDato
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.minAntallVedleggVedOpprettKrav
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -54,6 +52,9 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
@@ -196,7 +197,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 gjennomforing.arrangor.organisasjonsnummer,
             )
 
-            // TODO: Ikluder filtrering på eksisternde utbetalinger
+            // TODO: Inkluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
             val payload = OpprettKravInnsendingsInformasjon.from(
                 okonomiConfig,
@@ -390,7 +391,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 .flatMap {
                     UtbetalingValidator.validateOpprettKravArrangorflate(
                         request,
-                        gjennomforing.avtalePrismodell,
+                        gjennomforing.avtalePrismodell!!,
                         it,
                     )
                 }
@@ -403,7 +404,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     }
 }
 
-private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig, relativeDate: LocalDate = LocalDate.now()): List<PrismodellType> {
+private fun hentOpprettKravPrismodeller(
+    okonomiConfig: OkonomiConfig,
+    relativeDate: LocalDate = LocalDate.now(),
+): List<PrismodellType> {
     return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
         if (entry.value.start.isBefore(relativeDate) && entry.value.slutt.isAfter(relativeDate)) {
             entry.key
@@ -413,7 +417,11 @@ private fun hentOpprettKravPrismodeller(okonomiConfig: OkonomiConfig, relativeDa
     }
 }
 
-private fun hentTiltakstyperMedTilsagn(okonomiConfig: OkonomiConfig, tiltakstyper: List<TiltakstypeDto>, relativeDate: LocalDate = LocalDate.now()): List<UUID> {
+private fun hentTiltakstyperMedTilsagn(
+    okonomiConfig: OkonomiConfig,
+    tiltakstyper: List<TiltakstypeDto>,
+    relativeDate: LocalDate = LocalDate.now(),
+): List<UUID> {
     return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { tiltakstypeMedTilsagnPeriode ->
         if (tiltakstypeMedTilsagnPeriode.value.contains(relativeDate)) {
             tiltakstyper.find { it.tiltakskode == tiltakstypeMedTilsagnPeriode.key }?.id
@@ -600,13 +608,13 @@ data class OpprettKravInnsendingsInformasjon(
                 gjennomforing: Gjennomforing,
                 tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
             ): DatoVelger {
-                val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
                 when (gjennomforing.avtalePrismodell) {
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
                         // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
                         val tilsagnPeriode =
                             okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]!!
 
+                        val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
                         val perioder = Periode(
                             start = maxOf(tilsagnPeriode.start, gjennomforing.startDato),
                             slutt = minOf(firstOfThisMonth, gjennomforing.sluttDato ?: firstOfThisMonth),
@@ -616,12 +624,10 @@ data class OpprettKravInnsendingsInformasjon(
                         return DatoSelect(filtrertePerioder)
                     }
 
-                    PrismodellType.ANNEN_AVTALT_PRIS -> {
-                        return DatoRange(null)
-                    }
-
-                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> {
-                        return DatoRange(LocalDate.now().minusDays(1))
+                    PrismodellType.ANNEN_AVTALT_PRIS,
+                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    -> {
+                        return DatoRange(maksUtbetalingsPeriodeSluttDato(gjennomforing.avtalePrismodell))
                     }
 
                     else ->

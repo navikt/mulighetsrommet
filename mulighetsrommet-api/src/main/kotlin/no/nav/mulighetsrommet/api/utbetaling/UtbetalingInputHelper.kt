@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import java.time.LocalDate
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -11,6 +10,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
+import java.time.LocalDate
 
 object UtbetalingInputHelper {
     fun QueryContext.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(

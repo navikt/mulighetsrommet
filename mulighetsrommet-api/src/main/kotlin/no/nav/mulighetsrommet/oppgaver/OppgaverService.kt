@@ -148,15 +148,13 @@ class OppgaverService(val db: ApiDatabase) {
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
-    private fun QueryContext.byKostnadssted(
+    private fun byKostnadssted(
         data: UtbetalingOppgaveData,
         kostnadssteder: Set<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
         else -> {
-            queries.oppgave
-                .getUtbetalingKostnadssteder(data.gjennomforingId, data.periode)
-                .let { it.isEmpty() || it.any { it in kostnadssteder } }
+            data.kostnadssteder.isEmpty() || data.kostnadssteder.any { it in kostnadssteder }
         }
     }
 

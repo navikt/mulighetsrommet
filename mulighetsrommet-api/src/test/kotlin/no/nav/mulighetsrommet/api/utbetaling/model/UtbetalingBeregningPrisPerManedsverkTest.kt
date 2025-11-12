@@ -2,10 +2,10 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.model.Periode
+import java.time.LocalDate
+import java.util.*
 
 class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
     context("enkel beregning full og halv") {

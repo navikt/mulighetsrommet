@@ -4,8 +4,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
-import java.time.LocalDate
-import java.util.*
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
@@ -20,6 +18,8 @@ import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
+import java.time.LocalDate
+import java.util.*
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
 

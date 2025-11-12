@@ -3,9 +3,6 @@ package no.nav.mulighetsrommet.api.arrangorflate
 import arrow.core.Either
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
@@ -23,6 +20,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,

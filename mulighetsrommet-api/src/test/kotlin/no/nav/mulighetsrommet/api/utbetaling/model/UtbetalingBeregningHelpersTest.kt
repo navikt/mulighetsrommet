@@ -2,10 +2,10 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
-import no.nav.mulighetsrommet.model.Periode
 
 class UtbetalingBeregningHelpersTest : FunSpec({
     test("skal utlede deltakelsesperioder over flere satser") {

@@ -20,6 +20,9 @@ import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.model.Tiltakshistorikk.Arrangor
 import no.nav.mulighetsrommet.model.Tiltakshistorikk.Gjennomforing
@@ -93,15 +96,14 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakelseOppfolging = DeltakelseGruppetiltak(
+    val deltakelseOppfolging = Deltakelse(
         id = tiltakshistorikkOppfolging.id,
-        gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
         eierskap = DeltakelseEierskap.TEAM_KOMET,
+        tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Oppfølging hos Fretex AS",
-        tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
-        status = DeltakelseGruppetiltakStatus(
-            type = DeltakerStatusType.VENTELISTE,
-            visningstekst = "Venteliste",
+        tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Oppfolging.navn, Tiltakskode.OPPFOLGING),
+        status = DeltakelseStatus(
+            type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
             aarsak = null,
         ),
         periode = DeltakelsePeriode(
@@ -110,15 +112,20 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
+        pamelding = DeltakelsePamelding(
+            gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
+            status = DeltakerStatusType.VENTELISTE,
+        ),
     )
-    val deltakelseAvklaring = DeltakelseArena(
+    val deltakelseAvklaring = Deltakelse(
         id = tiltakshistorikkAvklaring.id,
         eierskap = DeltakelseEierskap.ARENA,
+        tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Avklaring hos Hovedenhet AS",
-        tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
-        status = DeltakelseArenaStatus(
-            type = ArenaDeltakerStatus.VENTELISTE,
-            visningstekst = "Venteliste",
+        tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Avklaring.navn, Tiltakskode.AVKLARING),
+        status = DeltakelseStatus(
+            type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
+            aarsak = null,
         ),
         periode = DeltakelsePeriode(
             startDato = LocalDate.of(2018, 12, 3),
@@ -126,15 +133,17 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = null,
         innsoktDato = null,
+        pamelding = null,
     )
-    val deltakelseArbeidstrening = DeltakelseArbeidsgiverAvtale(
+    val deltakelseArbeidstrening = Deltakelse(
         id = tiltakshistorikkArbeidstrening.id,
         eierskap = DeltakelseEierskap.TEAM_TILTAK,
+        tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
-        tiltakstypeNavn = "Arbeidstrening",
-        status = DeltakelseArbeidsgiverAvtaleStatus(
-            type = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-            visningstekst = "Gjennomføres",
+        tiltakstype = DeltakelseTiltakstype("Arbeidstrening", null),
+        status = DeltakelseStatus(
+            type = DataElement.Status("Gjennomføres", DataElement.Status.Variant.BLANK),
+            aarsak = null,
         ),
         periode = DeltakelsePeriode(
             startDato = LocalDate.of(2020, 1, 1),
@@ -142,18 +151,23 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = null,
         innsoktDato = null,
+        pamelding = null,
     )
 
     val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery = mockk()
     val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
     val amtDeltakerClient: AmtDeltakerClient = mockk()
 
-    fun createTiltakshistorikkService() = TiltakshistorikkService(
+    fun createTiltakshistorikkService(isEnabled: () -> Boolean = { false }) = TiltakshistorikkService(
         historiskeIdenterQuery = historiskeIdenterQuery,
         tiltakstypeService = TiltakstypeService(database.db),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
         arrangorService = ArrangorService(database.db, mockk()),
+        features = object : FeatureToggleService {
+            override fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext) = isEnabled()
+            override fun isEnabledForTiltakstype(feature: FeatureToggle, vararg tiltakskoder: Tiltakskode) = isEnabled()
+        },
     )
 
     coEvery { historiskeIdenterQuery.hentHistoriskeIdenter(any(), any()) } returns listOf(
@@ -175,6 +189,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 TiltakstypeFixtures.Oppfolging,
                 TiltakstypeFixtures.Avklaring,
                 TiltakstypeFixtures.Arbeidstrening,
+                TiltakstypeFixtures.EnkelAmo,
             ),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(gjennomforing),
@@ -235,6 +250,51 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
     }
 
+    test("ikke inkluder informasjon om påmelding når deltakelse er avsluttet") {
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(tiltakshistorikkAvklaring),
+            meldinger = setOf(),
+        )
+
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(
+                aktive = listOf(
+                    deltakelseOppfolgingFraKomet.copy(
+                        status = DeltakelseFraKomet.Status(
+                            type = DeltakerStatusType.HAR_SLUTTET,
+                            visningstekst = "Har sluttet",
+                            aarsak = null,
+                        ),
+                    ),
+                ),
+                historikk = emptyList(),
+            ),
+        )
+
+        val historikkService = createTiltakshistorikkService()
+
+        val historikk = historikkService.hentHistorikk(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        )
+
+        historikk shouldBe Deltakelser(
+            meldinger = setOf(),
+            aktive = listOf(
+                deltakelseOppfolging.copy(
+                    tilstand = DeltakelseTilstand.AVSLUTTET,
+                    status = DeltakelseStatus(
+                        type = DataElement.Status("Har sluttet", DataElement.Status.Variant.ALT_1),
+                        aarsak = null,
+                    ),
+                    pamelding = null,
+                ),
+                deltakelseAvklaring,
+            ),
+            historiske = emptyList(),
+        )
+    }
+
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(tiltakshistorikkAvklaring),
@@ -291,12 +351,156 @@ class TiltakshistorikkServiceTest : FunSpec({
         val expectedDeltakelseUtenStartdato = deltakelseOppfolging.copy(
             id = deltakelseOppfolgingUtenStartdato.deltakerId,
             periode = DeltakelsePeriode(null, null),
-            status = DeltakelseGruppetiltakStatus(DeltakerStatusType.KLADD, "Kladd", null),
+            tilstand = DeltakelseTilstand.KLADD,
+            status = DeltakelseStatus(
+                type = DataElement.Status("Kladd", DataElement.Status.Variant.WARNING),
+                aarsak = null,
+            ),
+            pamelding = DeltakelsePamelding(
+                gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
+                status = DeltakerStatusType.KLADD,
+            ),
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
             aktive = listOf(expectedDeltakelseUtenStartdato, deltakelseOppfolging, deltakelseAvklaring),
             historiske = emptyList(),
         )
+    }
+
+    context("enkeltplasser fra Komet") {
+        val tiltakshistorikkEnkelAmo = Tiltakshistorikk.ArenaDeltakelse(
+            id = UUID.randomUUID(),
+            norskIdent = NorskIdent("12345678910"),
+            status = ArenaDeltakerStatus.VENTELISTE,
+            startDato = LocalDate.of(2018, 12, 3),
+            sluttDato = LocalDate.of(2019, 12, 3),
+            arenaTiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+            beskrivelse = "Tilfeldig enkeltplass fra Arena",
+            arrangor = Arrangor(Organisasjonsnummer("123456789")),
+        )
+
+        val deltakelseEnkelAmo = DeltakelseFraKomet(
+            deltakerId = UUID.randomUUID(),
+            deltakerlisteId = UUID.randomUUID(),
+            tittel = "Tilfeldig enkeltplass fra Komet",
+            tiltakstype = DeltakelserResponse.Tiltakstype(
+                navn = TiltakstypeFixtures.EnkelAmo.navn,
+                tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+            ),
+            status = DeltakelseFraKomet.Status(
+                type = DeltakerStatusType.VENTELISTE,
+                visningstekst = "Venteliste",
+                aarsak = null,
+            ),
+            periode = DeltakelseFraKomet.Periode(
+                startdato = LocalDate.of(2019, 1, 1),
+                sluttdato = LocalDate.of(2019, 12, 3),
+            ),
+            innsoktDato = LocalDate.of(2018, 12, 3),
+            sistEndretDato = LocalDate.of(2018, 12, 5),
+        )
+
+        test("viser enkeltplasser fra Arena når feature toggle for enkeltplasser er deaktivert") {
+            coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+                historikk = listOf(tiltakshistorikkEnkelAmo),
+                meldinger = setOf(),
+            )
+
+            coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+                DeltakelserResponse(
+                    aktive = listOf(deltakelseEnkelAmo),
+                    historikk = emptyList(),
+                ),
+            )
+
+            val isEnkeltplasserFraKometEnabled = { false }
+
+            val historikkService = createTiltakshistorikkService(isEnkeltplasserFraKometEnabled)
+
+            val historikk = historikkService.hentHistorikk(
+                NorskIdent("12345678910"),
+                AccessType.OBO("token"),
+            )
+
+            historikk shouldBe Deltakelser(
+                meldinger = setOf(),
+                aktive = listOf(
+                    Deltakelse(
+                        id = tiltakshistorikkEnkelAmo.id,
+                        eierskap = DeltakelseEierskap.ARENA,
+                        tilstand = DeltakelseTilstand.AKTIV,
+                        tittel = "Enkel AMO hos Hovedenhet AS",
+                        tiltakstype = DeltakelseTiltakstype(
+                            TiltakstypeFixtures.EnkelAmo.navn,
+                            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+                        ),
+                        status = DeltakelseStatus(
+                            type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
+                            aarsak = null,
+                        ),
+                        periode = DeltakelsePeriode(
+                            startDato = LocalDate.of(2018, 12, 3),
+                            sluttDato = LocalDate.of(2019, 12, 3),
+                        ),
+                        sistEndretDato = null,
+                        innsoktDato = null,
+                        pamelding = null,
+                    ),
+                ),
+                historiske = emptyList(),
+            )
+        }
+
+        test("viser enkeltplasser fra komet når feature toggle for enkeltplasser er aktivert") {
+            coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+                historikk = listOf(tiltakshistorikkEnkelAmo),
+                meldinger = setOf(),
+            )
+
+            coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+                DeltakelserResponse(
+                    aktive = listOf(deltakelseEnkelAmo),
+                    historikk = emptyList(),
+                ),
+            )
+
+            val isEnkeltplasserFraKometEnabled = { true }
+
+            val historikkService = createTiltakshistorikkService(isEnkeltplasserFraKometEnabled)
+
+            val historikk = historikkService.hentHistorikk(
+                NorskIdent("12345678910"),
+                AccessType.OBO("token"),
+            )
+
+            historikk shouldBe Deltakelser(
+                meldinger = setOf(),
+                aktive = listOf(
+                    Deltakelse(
+                        id = deltakelseEnkelAmo.deltakerId,
+                        eierskap = DeltakelseEierskap.TEAM_KOMET,
+                        tilstand = DeltakelseTilstand.AKTIV,
+                        tittel = "Tilfeldig enkeltplass fra Komet",
+                        tiltakstype = DeltakelseTiltakstype(
+                            TiltakstypeFixtures.EnkelAmo.navn,
+                            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+                        ),
+                        status = DeltakelseStatus(
+                            type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
+                            aarsak = null,
+                        ),
+                        periode = DeltakelsePeriode(
+                            startDato = LocalDate.of(2019, 1, 1),
+                            sluttDato = LocalDate.of(2019, 12, 3),
+                        ),
+                        sistEndretDato = LocalDate.of(2018, 12, 5),
+                        innsoktDato = LocalDate.of(2018, 12, 3),
+                        pamelding = null,
+                    ),
+                ),
+                historiske = emptyList(),
+            )
+        }
     }
 })

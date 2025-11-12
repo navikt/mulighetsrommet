@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.tilsagn.db
 
-import java.sql.Array
-import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
@@ -22,6 +20,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
+import java.sql.Array
+import java.util.*
 
 class TilsagnQueries(private val session: Session) {
     fun upsert(dbo: TilsagnDbo): Unit = withTransaction(session) {

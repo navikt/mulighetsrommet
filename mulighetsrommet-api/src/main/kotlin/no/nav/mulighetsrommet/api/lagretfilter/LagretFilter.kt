@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.lagretfilter
 
-import java.util.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.util.*
 
 enum class LagretFilterType {
     AVTALE,

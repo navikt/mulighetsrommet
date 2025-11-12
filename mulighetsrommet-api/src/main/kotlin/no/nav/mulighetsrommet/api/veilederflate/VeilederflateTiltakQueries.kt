@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.veilederflate
 
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -12,6 +11,7 @@ import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
+import java.util.*
 
 class VeilederflateTiltakQueries(private val session: Session) {
 

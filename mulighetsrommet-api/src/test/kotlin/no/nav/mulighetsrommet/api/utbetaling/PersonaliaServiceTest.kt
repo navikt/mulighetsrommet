@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.util.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -20,6 +19,7 @@ import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGe
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import java.util.*
 
 class PersonaliaServiceTest : FunSpec({
     val deltakelseId = UUID.randomUUID()

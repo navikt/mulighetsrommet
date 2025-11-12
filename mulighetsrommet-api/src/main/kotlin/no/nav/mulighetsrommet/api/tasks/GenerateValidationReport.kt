@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tasks
 
+import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
@@ -8,11 +9,13 @@ import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -41,8 +44,8 @@ import kotlin.io.path.outputStream
 class GenerateValidationReport(
     private val config: Config,
     private val db: ApiDatabase,
-    private val avtaleValidator: AvtaleValidator,
     private val gjennomforingService: GjennomforingService,
+    private val avtaleService: AvtaleService,
 ) {
 
     data class Config(
@@ -119,7 +122,13 @@ class GenerateValidationReport(
     private suspend fun validateAvtaler(): Map<Avtale, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
-                avtaleValidator.validateCreateAvtale(dto.toAvtaleRequest()).onLeft { validationErrors ->
+                val request = dto.toAvtaleRequest()
+
+                val ctx = avtaleService.getValidatorCtx(request.id, request.detaljer, request.veilederinformasjon.navEnheter, dto)
+                    .getOrElse {
+                        throw Exception("Klarte ikke hente ctx for validering: $it")
+                    }
+                AvtaleValidator.validateCreateAvtale(request, ctx).onLeft { validationErrors ->
                     put(dto, validationErrors)
                 }
             }

@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import java.math.BigDecimal
-import java.math.RoundingMode
-import java.util.*
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregningDeltakelse.PrisPerUkesverk
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.*
 
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,

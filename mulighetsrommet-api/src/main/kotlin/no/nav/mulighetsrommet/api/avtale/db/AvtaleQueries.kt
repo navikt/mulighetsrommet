@@ -1,10 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
 import PersonvernDbo
-import java.sql.Array
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.*
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -29,6 +25,10 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
+import java.sql.Array
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class AvtaleQueries(private val session: Session) {
 
