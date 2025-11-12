@@ -5,7 +5,6 @@ import arrow.core.getOrElse
 import io.ktor.http.*
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -36,7 +35,6 @@ class ArrangorflateService(
     private val db: ApiDatabase,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
-    private val okonomiConfig: OkonomiConfig,
 ) {
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
@@ -72,11 +70,8 @@ class ArrangorflateService(
         return ArrangorflateUtbetalinger(
             aktive = aktive,
             historiske = historiske,
-            kanOppretteManueltKrav = kanOpretteManueltKrav(),
         )
     }
-
-    fun kanOpretteManueltKrav(relativeDate: LocalDate = LocalDate.now()): Boolean = okonomiConfig.opprettKravPeriode.any { it.value.contains(relativeDate) }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)

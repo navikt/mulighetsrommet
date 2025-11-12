@@ -11,7 +11,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
@@ -39,18 +38,9 @@ class GenererUtbetalingServiceTest : FunSpec({
 
     val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
     fun createUtbetalingService(
-        config: OkonomiConfig = OkonomiConfig(
-            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
-                gyldigTilsagnPeriode
-            },
-            opprettKravPeriode = mapOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to gyldigTilsagnPeriode.copy(
-                    start = gyldigTilsagnPeriode.start.plusMonths(1),
-                ),
-            ),
-        ),
+        config: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith { gyldigTilsagnPeriode },
     ) = GenererUtbetalingService(
-        config = config,
+        config = GenererUtbetalingService.Config(config),
         db = database.db,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
@@ -189,14 +179,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService(
-                config = OkonomiConfig(
-                    gyldigTilsagnPeriode = mapOf(
-                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar,
-                    ),
-                    opprettKravPeriode = mapOf(
-                        PrismodellType.ANNEN_AVTALT_PRIS to mars,
-                    ),
-                ),
+                config = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar),
             )
 
             service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
