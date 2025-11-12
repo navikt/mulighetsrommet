@@ -83,12 +83,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("403 Forbidden når bruker ikke har generell tilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
                 val response = client.get("/api/tiltaksadministrasjon/gjennomforinger") {
@@ -141,12 +135,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("403 Forbidden når bruker mangler generell tilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(gjennomforingSkrivRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
@@ -162,12 +150,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("403 Forbidden når bruker ikke har skrivetilgang til gjennomføringer") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
@@ -181,12 +163,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("400 Bad Request når gjennomføringen er ugyldig") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
@@ -215,12 +191,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("200 OK når bruker har skrivetilgang til gjennomføringer") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
                 val avtale = AvtaleFixtures.oppfolging
 
@@ -282,12 +252,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("bad request når årsak mangler") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
@@ -303,12 +267,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("bad request når beskrivelse mangler for Annen årsak") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
@@ -329,12 +287,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("bad request når gjennomføring allerede er avbrutt") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client
@@ -358,12 +310,6 @@ class GjennomforingRoutesTest : FunSpec({
 
         test("avbryter gjennomføring") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/gjennomforinger/$aktivGjennomforingId/avbryt") {

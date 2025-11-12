@@ -730,8 +730,8 @@ data class SetTilgjengligForArrangorRequest(
 
 @Serializable
 data class EstimertVentetid(
-    val verdi: Int,
-    val enhet: String,
+    val verdi: Int?,
+    val enhet: String?,
 )
 
 @Serializable

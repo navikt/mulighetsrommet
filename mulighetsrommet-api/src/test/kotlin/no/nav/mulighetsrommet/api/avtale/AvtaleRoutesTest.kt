@@ -78,12 +78,6 @@ class AvtaleRoutesTest : FunSpec({
     context("opprett avtale") {
         test("403 Forbidden når bruker mangler generell tilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(avtaleSkrivRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/avtaler") {
@@ -97,12 +91,6 @@ class AvtaleRoutesTest : FunSpec({
 
         test("403 Forbidden når bruker mangler skrivetilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/avtaler") {
@@ -143,12 +131,6 @@ class AvtaleRoutesTest : FunSpec({
 
         test("henter avtalte satser fra avtalens prismodell") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
 
                 val response1 = client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.AFT.id}/satser") {

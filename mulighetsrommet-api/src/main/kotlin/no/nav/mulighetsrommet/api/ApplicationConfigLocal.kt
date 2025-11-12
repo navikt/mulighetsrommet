@@ -359,10 +359,20 @@ val ApplicationConfigLocal = AppConfig(
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
         opprettKravPeriode = mapOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
-            PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
         ),
+        tidligstTidspunktForUtbetaling = { _, _ -> null },
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

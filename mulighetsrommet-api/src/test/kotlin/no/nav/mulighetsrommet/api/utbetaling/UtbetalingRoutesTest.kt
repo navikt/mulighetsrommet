@@ -67,12 +67,6 @@ class UtbetalingRoutesTest : FunSpec({
     context("opprett utbetaling") {
         test("Skal returnere 400 Bad Request når det er valideringsfeil") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
@@ -100,12 +94,6 @@ class UtbetalingRoutesTest : FunSpec({
 
         test("403 Forbidden uten saksbehandler-tilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
 
@@ -131,12 +119,6 @@ class UtbetalingRoutesTest : FunSpec({
 
         test("Skal returnere 201 med saksbehandler-tilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
@@ -163,12 +145,6 @@ class UtbetalingRoutesTest : FunSpec({
     context("beslutt utbetaling") {
         test("403 Forbidden uten attestant-tilgang") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val id = UtbetalingFixtures.delutbetaling1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 

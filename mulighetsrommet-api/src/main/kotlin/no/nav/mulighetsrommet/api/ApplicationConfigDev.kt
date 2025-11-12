@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
@@ -34,7 +35,7 @@ private val kontaktpersonAdGruppeId = "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba".toU
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
-        maximumPoolSize = 20,
+        maximumPoolSize = 30,
         micrometerRegistry = Metrics.micrometerRegistry,
     ),
     flyway = FlywayMigrationManager.MigrationConfig(
@@ -413,6 +414,7 @@ val ApplicationConfigDev = AppConfig(
                 LocalDate.of(2026, 1, 1),
             ),
         ),
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

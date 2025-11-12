@@ -119,7 +119,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
 
   if (intent === "cancel") {
-    return redirect(pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt, {
+    return redirect(pathByOrgnr(orgnr).opprettKrav.oversikt, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },

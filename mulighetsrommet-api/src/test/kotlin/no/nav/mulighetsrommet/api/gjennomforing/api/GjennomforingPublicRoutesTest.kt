@@ -84,12 +84,6 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
         test("200 når gruppetiltak finnes") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.get("/api/v2/tiltaksgjennomforinger/$tiltakGruppeId") {
                     bearerAuth(
                         oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
@@ -108,12 +102,6 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
         test("200 når enkeltplass finnes") {
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.get("/api/v2/tiltaksgjennomforinger/$tiltakEnkeltplassId") {
                     bearerAuth(
                         oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
@@ -177,12 +165,6 @@ class GjennomforingPublicRoutesTest : FunSpec({
             }
 
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.get("/api/v1/tiltaksgjennomforinger/arenadata/$tiltakGruppeId") {
                     bearerAuth(
                         oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
@@ -225,12 +207,6 @@ class GjennomforingPublicRoutesTest : FunSpec({
             }
 
             withTestApplication(appConfig()) {
-                val client = createClient {
-                    install(ContentNegotiation) {
-                        json()
-                    }
-                }
-
                 val response = client.get("/api/v1/tiltaksgjennomforinger/arenadata/$tiltakEnkeltplassId") {
                     bearerAuth(
                         oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),

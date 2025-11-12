@@ -19,6 +19,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
+import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
@@ -45,6 +46,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
@@ -53,6 +55,7 @@ import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 class UtbetalingServiceTest : FunSpec({
@@ -62,12 +65,16 @@ class UtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
+
     fun createUtbetalingService(
         tilsagnService: TilsagnService = mockk(relaxed = true),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
+        tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
     ) = UtbetalingService(
         config = UtbetalingService.Config(
             bestillingTopic = "bestilling-topic",
+            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
         ),
         db = database.db,
         tilsagnService = tilsagnService,
@@ -917,6 +924,49 @@ class UtbetalingServiceTest : FunSpec({
                         it.besluttetAv shouldBe NavAnsattFixture.MikkeMus.navIdent.toOkonomiPart()
                         it.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
                     }
+            }
+        }
+
+        test("utbetaling blir konfigurert til å bli behandlet på et senere tidspunkt når utbetaling blir godkjent") {
+            val tilsagn1 = Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                bestillingsnummer = "A-2025/1-1",
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
+                delutbetalinger = listOf(delutbetaling1),
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+
+            val februarNorskTid = TidligstTidspunktForUtbetalingCalculator { _, _ ->
+                LocalDate.of(2025, 2, 1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
+            }
+
+            val service = createUtbetalingService(tidligstTidspunktForUtbetaling = februarNorskTid)
+
+            service.besluttDelutbetaling(
+                id = delutbetaling1.id,
+                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+
+                val header = KafkaUtils.jsonToHeaders(record.headersJson).shouldHaveSize(1).first()
+
+                header.key() shouldBe KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
+                String(header.value()) shouldBe "2025-01-31T23:00:00Z"
             }
         }
     }

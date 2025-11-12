@@ -87,7 +87,7 @@ export default function OpprettKravLayout() {
   const orgnr = useOrgnrFromUrl();
 
   const topNavigationLink = {
-    path: pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt,
+    path: pathByOrgnr(orgnr).opprettKrav.oversikt,
     text: "Tilbake til tiltaksoversikt",
   };
 

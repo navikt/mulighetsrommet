@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.utbetaling.TidligstTidspunktForUtbetalingCalculator
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -62,6 +63,7 @@ data class AppConfig(
 data class OkonomiConfig(
     val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     val opprettKravPeriode: Map<PrismodellType, Periode>,
+    val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
 )
 
 data class AuthConfig(

@@ -3,19 +3,22 @@ package no.nav.tiltak.okonomi.kafka
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
-import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
+import no.nav.mulighetsrommet.kafka.ScheduledMessageKafkaTopicConsumer
+import no.nav.mulighetsrommet.kafka.serialization.JsonElementSerde
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.service.OkonomiService
+import org.apache.kafka.common.serialization.Serdes
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 class OkonomiBestillingConsumer(
+    kafkaConsumerRepository: KafkaConsumerRepository,
     private val okonomi: OkonomiService,
-) : KafkaTopicConsumer<String, JsonElement>(
-    stringDeserializer(),
-    JsonElementDeserializer(),
+) : ScheduledMessageKafkaTopicConsumer<String, JsonElement>(
+    kafkaConsumerRepository,
+    Serdes.StringSerde(),
+    JsonElementSerde(),
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

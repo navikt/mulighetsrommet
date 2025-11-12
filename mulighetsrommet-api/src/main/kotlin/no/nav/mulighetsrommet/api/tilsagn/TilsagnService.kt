@@ -5,7 +5,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.*
@@ -37,8 +37,8 @@ class TilsagnService(
     private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
-        val okonomiConfig: OkonomiConfig,
         val bestillingTopic: String,
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     )
 
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
@@ -77,7 +77,7 @@ class TilsagnService(
                 previous = previous,
                 tiltakstypeNavn = gjennomforing.tiltakstype.navn,
                 arrangorSlettet = gjennomforing.arrangor.slettet,
-                gyldigTilsagnPeriode = config.okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 avtalteSatser = avtalteSatser,
             )
@@ -825,9 +825,11 @@ class TilsagnService(
                 TilsagnHandling.GODKJENN -> {
                     beslutter && opprettelse.behandletAv != ansatt.navIdent
                 }
+
                 TilsagnHandling.GODKJENN_ANNULLERING -> {
                     beslutter && annullering?.behandletAv != ansatt.navIdent
                 }
+
                 TilsagnHandling.GODKJENN_OPPGJOR -> {
                     beslutter && tilOppgjor?.behandletAv != ansatt.navIdent
                 }

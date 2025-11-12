@@ -115,6 +115,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
 
         modules(
+            applicationConfig(appConfig),
             db(appConfig.database),
             kafka(appConfig),
             services(appConfig),
@@ -122,6 +123,10 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
             slack(appConfig.slack),
         )
     }
+}
+
+fun applicationConfig(config: AppConfig): Module = module {
+    single<AppConfig> { config }
 }
 
 fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
@@ -391,11 +396,18 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { ArrangorService(get(), get()) }
-    single { GenererUtbetalingService(config = appConfig.okonomi, get(), get()) }
+    single {
+        GenererUtbetalingService(
+            config = GenererUtbetalingService.Config(appConfig.okonomi.gyldigTilsagnPeriode),
+            get(),
+            get(),
+        )
+    }
     single {
         UtbetalingService(
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
+                tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
             get(),
             get(),
@@ -408,8 +420,8 @@ private fun services(appConfig: AppConfig) = module {
     single {
         TilsagnService(
             config = TilsagnService.Config(
-                okonomiConfig = appConfig.okonomi,
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
+                gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
             ),
             db = get(),
             navAnsattService = get(),
@@ -417,7 +429,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
-    single { ArrangorflateService(get(), get(), get(), appConfig.okonomi) }
+    single { ArrangorflateService(get(), get(), get()) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,

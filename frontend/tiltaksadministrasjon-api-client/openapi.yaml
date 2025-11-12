@@ -4404,10 +4404,14 @@ components:
       type: object
       properties:
         verdi:
-          type: integer
+          type:
+          - "null"
+          - integer
           format: int32
         enhet:
-          type: string
+          type:
+          - "null"
+          - string
       required:
       - enhet
       - verdi
