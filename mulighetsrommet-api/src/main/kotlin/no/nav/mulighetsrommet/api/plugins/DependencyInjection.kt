@@ -427,14 +427,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get()) }
-    single {
-        ArrangorflateService(
-            config = ArrangorflateService.Config(appConfig.okonomi.opprettKravPeriode),
-            get(),
-            get(),
-            get(),
-        )
-    }
+    single { ArrangorflateService(get(), get(), get()) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,

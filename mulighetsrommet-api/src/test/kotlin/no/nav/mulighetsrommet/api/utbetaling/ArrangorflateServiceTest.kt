@@ -72,8 +72,7 @@ class ArrangorflateServiceTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    fun createService(opprettKravPeriode: Map<PrismodellType, Periode> = mapOf()) = ArrangorflateService(
-        ArrangorflateService.Config(opprettKravPeriode),
+    fun createService() = ArrangorflateService(
         database.db,
         amtDeltakerClient,
         kontoregisterOrganisasjon,
@@ -345,38 +344,6 @@ class ArrangorflateServiceTest : FunSpec({
             val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
-        }
-
-        test("kanOppretteManueltKrav false hvis det ikke finnes konfigurert prismodell") {
-            var opprettKravPeriode = mapOf<PrismodellType, Periode>()
-
-            val arrangorflateService = createService(opprettKravPeriode)
-
-            arrangorflateService.kanOpretteManueltKrav() shouldBe false
-        }
-
-        test("kanOppretteManueltKrav false hvis relativ dato utenfor konfigurert periode") {
-            var opprettKravPeriode = mapOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(
-                    2025,
-                ),
-            )
-
-            val arrangorflateService = createService(opprettKravPeriode)
-
-            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2026, 1, 1)) shouldBe false
-        }
-
-        test("kanOppretteManueltKrav true hvis relativ dato utenfor konfigurert periode") {
-            var opprettKravPeriode = mapOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(
-                    2025,
-                ),
-            )
-
-            val arrangorflateService = createService(opprettKravPeriode)
-
-            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2025, 10, 1)) shouldBe true
         }
     }
 })

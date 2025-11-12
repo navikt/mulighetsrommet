@@ -7,7 +7,6 @@ import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -33,15 +32,10 @@ private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
 )
 
 class ArrangorflateService(
-    private val config: Config,
     private val db: ApiDatabase,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    data class Config(
-        val opprettKravPeriode: Map<PrismodellType, Periode>,
-    )
-
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
             .map { utbetaling ->
@@ -76,12 +70,7 @@ class ArrangorflateService(
         return ArrangorflateUtbetalinger(
             aktive = aktive,
             historiske = historiske,
-            kanOppretteManueltKrav = kanOpretteManueltKrav(),
         )
-    }
-
-    fun kanOpretteManueltKrav(relativeDate: LocalDate = LocalDate.now()): Boolean {
-        return config.opprettKravPeriode.any { it.value.contains(relativeDate) }
     }
 
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
