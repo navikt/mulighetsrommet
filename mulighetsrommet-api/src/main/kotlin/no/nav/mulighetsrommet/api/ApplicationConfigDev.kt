@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
@@ -413,6 +414,7 @@ val ApplicationConfigDev = AppConfig(
                 LocalDate.of(2026, 1, 1),
             ),
         ),
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

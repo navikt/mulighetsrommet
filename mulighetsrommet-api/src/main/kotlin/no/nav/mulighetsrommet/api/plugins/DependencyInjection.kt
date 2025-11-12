@@ -406,6 +406,7 @@ private fun services(appConfig: AppConfig) = module {
         UtbetalingService(
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
+                tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
             get(),
             get(),

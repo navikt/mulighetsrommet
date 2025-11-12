@@ -16,6 +16,8 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
+import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
+import no.nav.mulighetsrommet.kafka.WaitUntilScheduledAtBackoffStrategy
 import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
@@ -69,7 +71,7 @@ fun Application.configure(config: AppConfig) {
     FlywayMigrationManager(config.flyway).migrate(db)
 
     KafkaMetrics(db)
-        .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
+        .withCountStaleConsumerRecords(retriesMoreThan = 5)
         .withCountStaleProducerRecords(minutesSinceCreatedAt = 1)
         .register(Metrics.micrometerRegistry)
 
@@ -147,11 +149,15 @@ private fun Application.configureKafka(
         .withRecordPublisher(QueuedKafkaProducerRecordPublisher(producerClient))
         .build()
 
+    val kafkaConsumerRepository = KafkaConsumerRepositoryImpl(db)
     val consumers = mapOf(
-        config.clients.okonomiBestillingConsumer to OkonomiBestillingConsumer(okonomi),
+        config.clients.okonomiBestillingConsumer to OkonomiBestillingConsumer(kafkaConsumerRepository, okonomi),
     )
 
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(
+        config = KafkaConsumerOrchestrator.Config(
+            consumerRecordProcessorBackoffStrategy = WaitUntilScheduledAtBackoffStrategy,
+        ),
         db = db,
         consumers = consumers,
     )
