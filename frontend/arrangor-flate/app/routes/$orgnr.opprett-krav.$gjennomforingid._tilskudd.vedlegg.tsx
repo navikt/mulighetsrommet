@@ -6,14 +6,14 @@ import {
   MetaFunction,
   redirect,
   useActionData,
-  useLoaderData
+  useLoaderData,
 } from "react-router";
 import {
   ArrangorflateService,
   FieldError,
   OpprettKravVedlegg,
   OpprettKravVedleggGuidePanelType,
-  OpprettKravVeiviserSteg
+  OpprettKravVeiviserSteg,
 } from "api-client";
 import { getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
@@ -24,7 +24,10 @@ import { FileUploader } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { getOrgnrGjennomforingIdFrom, pathBySteg } from "~/utils/navigation";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
-import { nesteStegFieldName, OpprettKravVeiviserButtons } from "~/components/OpprettKravVeiviserButtons";
+import {
+  nesteStegFieldName,
+  OpprettKravVeiviserButtons,
+} from "~/components/OpprettKravVeiviserButtons";
 
 const minAntallVedleggFieldName = "minAntallVedlegg";
 

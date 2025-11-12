@@ -7,7 +7,7 @@ import {
   ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-  UtbetalingTypeDto
+  UtbetalingTypeDto,
 } from "api-client";
 import { useRef } from "react";
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";

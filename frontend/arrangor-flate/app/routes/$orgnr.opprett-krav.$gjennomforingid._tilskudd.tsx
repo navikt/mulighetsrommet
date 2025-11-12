@@ -1,7 +1,11 @@
 import { LoaderFunction, Outlet, useLoaderData } from "react-router";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
-import { ArrangorflateService, OpprettKravVeiviserSteg, OpprettKravVeiviserStegDto } from "api-client";
+import {
+  ArrangorflateService,
+  OpprettKravVeiviserSteg,
+  OpprettKravVeiviserStegDto,
+} from "api-client";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
 

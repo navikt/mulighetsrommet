@@ -1,4 +1,13 @@
-import { Button, Checkbox, CheckboxGroup, ErrorSummary, FileObject, Heading, HStack, VStack } from "@navikt/ds-react";
+import {
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  ErrorSummary,
+  FileObject,
+  Heading,
+  HStack,
+  VStack,
+} from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -7,7 +16,7 @@ import {
   MetaFunction,
   redirect,
   useActionData,
-  useLoaderData
+  useLoaderData,
 } from "react-router";
 import { ArrangorflateService, FieldError, OpprettKravOppsummering } from "api-client";
 import { destroySession, getSession } from "~/sessions.server";

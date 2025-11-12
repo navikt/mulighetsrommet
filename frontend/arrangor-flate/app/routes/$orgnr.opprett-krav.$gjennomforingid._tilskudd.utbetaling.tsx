@@ -3,7 +3,7 @@ import {
   ArrangorflateService,
   FieldError,
   OpprettKravUtbetalingsinformasjon,
-  OpprettKravVeiviserSteg
+  OpprettKravVeiviserSteg,
 } from "api-client";
 import {
   ActionFunctionArgs,
@@ -13,7 +13,7 @@ import {
   redirect,
   useActionData,
   useLoaderData,
-  useRevalidator
+  useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
@@ -23,12 +23,15 @@ import {
   getOrgnrGjennomforingIdFrom,
   pathBySteg,
   useGjennomforingIdFromUrl,
-  useOrgnrFromUrl
+  useOrgnrFromUrl,
 } from "~/utils/navigation";
 import { useEffect, useRef } from "react";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
-import { nesteStegFieldName, OpprettKravVeiviserButtons } from "~/components/OpprettKravVeiviserButtons";
+import {
+  nesteStegFieldName,
+  OpprettKravVeiviserButtons,
+} from "~/components/OpprettKravVeiviserButtons";
 
 type LoaderData = {
   innsendingsinformasjon: OpprettKravUtbetalingsinformasjon;

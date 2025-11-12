@@ -3,7 +3,7 @@ import {
   ArrangorflateService,
   OpprettKravDeltakere,
   OpprettKravDeltakereGuidePanelType,
-  StengtPeriode
+  StengtPeriode,
 } from "api-client";
 import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
@@ -14,7 +14,7 @@ import {
   deltakerOversiktLenke,
   getOrgnrGjennomforingIdFrom,
   useGjennomforingIdFromUrl,
-  useOrgnrFromUrl
+  useOrgnrFromUrl,
 } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { tekster } from "~/tekster";

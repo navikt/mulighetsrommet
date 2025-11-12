@@ -1,6 +1,20 @@
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { Button, Checkbox, CheckboxGroup, ErrorSummary, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
-import { ArrangorflateService, ArrangorflateTilsagnDto, ArrangorflateUtbetalingDto, FieldError } from "api-client";
+import {
+  Button,
+  Checkbox,
+  CheckboxGroup,
+  ErrorSummary,
+  Heading,
+  HStack,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagnDto,
+  ArrangorflateUtbetalingDto,
+  FieldError,
+} from "api-client";
 import { useEffect, useRef } from "react";
 import {
   ActionFunction,
@@ -12,7 +26,7 @@ import {
   useActionData,
   useFetcher,
   useLoaderData,
-  useRevalidator
+  useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";

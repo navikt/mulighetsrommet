@@ -1,4 +1,8 @@
-import { ArrangorflateService, ArrangorflateTilsagnDto, ArrangorflateUtbetalingDto } from "api-client";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagnDto,
+  ArrangorflateUtbetalingDto,
+} from "api-client";
 import { Link as ReactRouterLink, LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
