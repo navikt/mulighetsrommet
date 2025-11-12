@@ -4,7 +4,7 @@ import {
   LagredeFilterOversikt,
   LagreFilterButton,
   ListSkeleton,
-  useOpenFilterWhenThreshold
+  useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";

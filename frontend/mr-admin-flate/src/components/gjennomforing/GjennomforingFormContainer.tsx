@@ -8,7 +8,7 @@ import {
   GjennomforingRequest,
   NavEnhetDto,
   Tiltakskode,
-  ValidationError
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";

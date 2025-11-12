@@ -10,7 +10,7 @@ import {
   GjennomforingRequest,
   NavAnsattDto,
   UtdanningslopDbo,
-  UtdanningslopDto
+  UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../portableText/helper";
 import { DeepPartial } from "react-hook-form";

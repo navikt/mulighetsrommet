@@ -1,5 +1,9 @@
 import { BodyLong, List } from "@navikt/ds-react";
-import { PortableText as PortableTextLib, PortableTextProps, PortableTextReactComponents } from "@portabletext/react";
+import {
+  PortableText as PortableTextLib,
+  PortableTextProps,
+  PortableTextReactComponents,
+} from "@portabletext/react";
 
 export function PortableText({ value }: { value: PortableTextProps["value"] }) {
   return <PortableTextLib value={value} components={components} />;

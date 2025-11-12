@@ -1,5 +1,9 @@
 import { BodyShort, Box } from "@navikt/ds-react";
-import { GjennomforingOppstartstype, VeilederflateInnsatsgruppe, VeilederflateTiltak } from "@api-client";
+import {
+  GjennomforingOppstartstype,
+  VeilederflateInnsatsgruppe,
+  VeilederflateTiltak,
+} from "@api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import RegelverkInfo from "./RegelverkInfo";

@@ -3,7 +3,7 @@ import {
   GjennomforingDto,
   GjennomforingRequest,
   GjennomforingService,
-  ProblemDetail
+  ProblemDetail,
 } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";

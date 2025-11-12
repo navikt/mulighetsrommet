@@ -7,7 +7,7 @@ import {
   UtbetalingDto,
   UtbetalingLinje,
   UtbetalingLinjeHandling,
-  ValidationError
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";

@@ -9,13 +9,13 @@ import {
   Tabs,
   Textarea,
   TextField,
-  VStack
+  VStack,
 } from "@navikt/ds-react";
 import { PortableText } from "../portableText/PortableText";
 import {
   GjennomforingKontaktperson,
   GjennomforingRequest,
-  VeilederflateTiltakstype
+  VeilederflateTiltakstype,
 } from "@tiltaksadministrasjon/api-client";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";

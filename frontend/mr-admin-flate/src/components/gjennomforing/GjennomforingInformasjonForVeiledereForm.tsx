@@ -3,7 +3,7 @@ import {
   AvtaleDto,
   GjennomforingDto,
   GjennomforingKontaktperson,
-  GjennomforingRequest
+  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";

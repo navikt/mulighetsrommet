@@ -4,7 +4,7 @@ import {
   GetGjennomforingerData,
   LagretFilterType,
   NotificationStatus,
-  Rolle
+  Rolle,
 } from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {

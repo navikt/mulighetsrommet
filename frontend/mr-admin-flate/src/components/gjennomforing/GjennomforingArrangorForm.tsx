@@ -4,7 +4,7 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   AvtaleArrangorHovedenhet,
-  GjennomforingRequest
+  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";

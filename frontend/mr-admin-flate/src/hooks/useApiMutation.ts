@@ -1,4 +1,9 @@
-import { MutateOptions, useMutation, UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
+import {
+  MutateOptions,
+  useMutation,
+  UseMutationOptions,
+  UseMutationResult,
+} from "@tanstack/react-query";
 import { ProblemDetail, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { isValidationError } from "@/utils/Utils";

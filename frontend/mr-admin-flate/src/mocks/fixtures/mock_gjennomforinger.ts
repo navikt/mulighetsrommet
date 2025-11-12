@@ -12,7 +12,7 @@ import {
   GjennomforingStatusType,
   GjennomforingTiltakstype,
   PaginatedResponseGjennomforingDto,
-  TiltakstypeDto
+  TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";

@@ -7,7 +7,7 @@ import {
   RenderBlockFunction,
   RenderDecoratorFunction,
   RenderStyleFunction,
-  SchemaDefinition
+  SchemaDefinition,
 } from "@portabletext/editor";
 import { EventListenerPlugin } from "@portabletext/editor/plugins";
 import { BodyLong, Link, Tooltip } from "@navikt/ds-react";

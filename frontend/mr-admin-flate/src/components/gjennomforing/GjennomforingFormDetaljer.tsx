@@ -10,7 +10,7 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingRequest,
-  Tiltakskode
+  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
@@ -22,7 +22,7 @@ import {
   Textarea,
   TextField,
   UNSAFE_Combobox,
-  VStack
+  VStack,
 } from "@navikt/ds-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";

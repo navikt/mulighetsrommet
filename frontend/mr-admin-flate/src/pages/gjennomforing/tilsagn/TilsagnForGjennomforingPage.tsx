@@ -1,6 +1,10 @@
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { FeatureToggle, GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import {
+  FeatureToggle,
+  GjennomforingHandling,
+  TilsagnType,
+} from "@tiltaksadministrasjon/api-client";
 import { Button, Dropdown } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";

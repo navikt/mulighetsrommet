@@ -3,7 +3,7 @@ import {
   GjennomforingStatusType,
   VeilederflateTiltak,
   VeilederflateTiltakEnkeltplass,
-  VeilederflateTiltakGruppe
+  VeilederflateTiltakGruppe,
 } from "@api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
