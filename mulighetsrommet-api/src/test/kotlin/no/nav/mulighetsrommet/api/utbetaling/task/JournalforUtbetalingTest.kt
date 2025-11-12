@@ -94,10 +94,10 @@ class JournalforUtbetalingTest : FunSpec({
 
     val arrangorFlateSerivce = { db: ApiDatabase ->
         ArrangorflateService(
+            config = ArrangorflateService.Config(mapOf()),
             db = db,
             amtDeltakerClient = amtDeltakerClient,
             kontoregisterOrganisasjonClient = mockk(relaxed = true),
-            okonomiConfig = mockk(relaxed = true),
         )
     }
 
