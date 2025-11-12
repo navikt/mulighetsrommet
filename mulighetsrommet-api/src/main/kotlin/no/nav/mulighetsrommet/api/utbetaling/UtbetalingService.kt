@@ -7,6 +7,7 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -34,11 +35,13 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
+import org.apache.kafka.common.header.internals.RecordHeaders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -53,6 +56,7 @@ class UtbetalingService(
 ) {
     data class Config(
         val bestillingTopic: String,
+        val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
 
     private val log: Logger = LoggerFactory.getLogger(javaClass)
@@ -485,7 +489,7 @@ class UtbetalingService(
         delutbetalinger.forEach { delutbetaling ->
             val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
             val benyttetBelop = tilsagn.belopBrukt + delutbetaling.belop
-            val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, type = Totrinnskontroll.Type.OPPRETT)
+            val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
             if (delutbetaling.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.belop) {
                 tilsagnService.gjorOppTilsagnVedUtbetaling(
@@ -620,21 +624,33 @@ class UtbetalingService(
             delutbetaling.tilsagnId,
             LocalDateTime.now(),
         )
+
+        val tidspunktForUtbetaling = config.tidligstTidspunktForUtbetaling.calculate(
+            tilsagn.tiltakstype.tiltakskode,
+            faktura.periode,
+        )
         val message = OkonomiBestillingMelding.Faktura(faktura)
-        storeOkonomiMelding(faktura.bestillingsnummer, message)
+        storeOkonomiMelding(faktura.bestillingsnummer, message, tidspunktForUtbetaling)
     }
 
     private fun TransactionalQueryContext.storeOkonomiMelding(
         bestillingsnummer: String,
         message: OkonomiBestillingMelding,
+        tidspunktForUtbetaling: Instant?,
     ) {
-        log.info("Lagrer faktura for delutbeatling med bestillingsnummer=$bestillingsnummer for publisering på kafka")
+        log.info("Lagrer faktura for delutbetaling med bestillingsnummer=$bestillingsnummer og tidspunkt for ubetaling=$tidspunktForUtbetaling for publisering på kafka")
 
+        val headers = tidspunktForUtbetaling?.let {
+            RecordHeaders().add(
+                KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT,
+                it.toString().toByteArray(),
+            )
+        }
         val record = StoredProducerRecord(
             config.bestillingTopic,
             bestillingsnummer.toByteArray(),
             Json.encodeToString(message).toByteArray(),
-            null,
+            KafkaUtils.headersToJson(headers),
         )
         queries.kafkaProducerRecord.storeRecord(record)
     }

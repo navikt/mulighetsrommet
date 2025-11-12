@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.utils.toUUID
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
-import java.util.UUID
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
@@ -355,10 +354,20 @@ val ApplicationConfigLocal = AppConfig(
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
         opprettKravPeriode = mapOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
-            PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(LocalDate.of(2025, 9, 1), LocalDate.of(2026, 1, 1)),
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.ANNEN_AVTALT_PRIS to Periode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
         ),
+        tidligstTidspunktForUtbetaling = { _, _ -> null },
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090",

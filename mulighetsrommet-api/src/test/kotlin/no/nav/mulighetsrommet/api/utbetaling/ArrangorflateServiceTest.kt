@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
