@@ -120,7 +120,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
 
         val arrangorer = resolveArrangorer(tilganger)
-            .sortedBy { it.navn }
 
         call.respond(arrangorer)
     }
