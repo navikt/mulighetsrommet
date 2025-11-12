@@ -112,12 +112,6 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             opprettKravPeriode = emptyMap(),
         )
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth).copy(okonomi = okonomiConfig)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/opprett-krav") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
             }
@@ -174,11 +168,6 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("Timespris får liste av tilgjengelige perioder") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
             val response =
                 client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
@@ -197,11 +186,6 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("Annen avtalt pris skal kunne velge fritt i datovelger") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
             val response =
                 client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
@@ -220,11 +204,6 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("Investeringskrav skal bare kunne velge fra forrige utbetalingsperiode") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
             val response =
                 client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${aftGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())

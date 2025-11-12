@@ -78,12 +78,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 OK og tom liste med pid uten tilgang") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.get("/api/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
@@ -95,12 +89,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 og arrangor returneres på tilgang endepunkt") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.get("/api/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -127,12 +115,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 hent tilsagn med tilgang til bedrift") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.get("/api/arrangorflate/arrangor/$orgnr/tilsagn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -158,12 +140,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("200 hent utbetaling") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.get("/api/arrangorflate/utbetaling/${utbetaling.id}") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -179,12 +155,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("400 ved feil sjekksum ved godkjenning av utbetaling") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -215,11 +185,6 @@ class ArrangorflateRoutesTest : FunSpec({
     // TODO: flytt resten av godkjenning-testene til egen testklasse for ArrangorflateService
     test("riktig sjekksum ved godkjenning av utbetaling gir 200, og spawner journalforing task") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -238,11 +203,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("kan ikke godkjenne allerede godkjent") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
             var response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -271,11 +231,6 @@ class ArrangorflateRoutesTest : FunSpec({
         val errorConfig = ArrangorflateTestUtils.appConfig(oauth, engine = clientEngine)
 
         withTestApplication(errorConfig) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -301,12 +256,6 @@ class ArrangorflateRoutesTest : FunSpec({
         }
 
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) {
-                    json()
-                }
-            }
-
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
@@ -335,10 +284,6 @@ class ArrangorflateRoutesTest : FunSpec({
 
     test("opprett krav om utbetaling (med vedlegg)") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val client = createClient {
-                install(ContentNegotiation) { json() }
-            }
-
             val gjennomforingId = GjennomforingFixtures.AFT1.id
             val response = client.submitFormWithBinaryData(
                 url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
