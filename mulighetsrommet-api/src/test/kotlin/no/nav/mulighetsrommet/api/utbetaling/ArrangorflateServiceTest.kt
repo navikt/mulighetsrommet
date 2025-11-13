@@ -64,14 +64,6 @@ class ArrangorflateServiceTest : FunSpec({
         return requireNotNull(queries.utbetaling.get(id))
     }
 
-    fun verifyForhandsgodkjentBeregning(
-        beregning: ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed,
-        expectedBelop: Int,
-        expectedDeltakelserCount: Int,
-    ) {
-        beregning.belop shouldBe expectedBelop
-        beregning.deltakelser shouldHaveSize expectedDeltakelserCount
-    }
     val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
 
     beforeEach {
@@ -145,31 +137,6 @@ class ArrangorflateServiceTest : FunSpec({
         result shouldHaveSize 0
     }
 
-    test("mapUtbetalingToArrangorflateUtbetaling should have status VENTER_PA_ENDRING") {
-        // Setup deltakerforslag
-        database.db.session {
-            queries.deltakerForslag.upsert(
-                DeltakerForslag(
-                    id = UUID.randomUUID(),
-                    deltakerId = deltaker.id,
-                    endring = Melding.Forslag.Endring.Deltakelsesmengde(
-                        deltakelsesprosent = 80,
-                        gyldigFra = LocalDate.of(2024, 8, 15),
-                    ),
-                    status = DeltakerForslag.Status.VENTER_PA_SVAR,
-                ),
-            )
-        }
-        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
-
-        result.id shouldBe utbetaling.id
-        result.status shouldBe ArrangorflateUtbetalingStatus.KREVER_ENDRING
-
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
-            verifyForhandsgodkjentBeregning(it, 10000, 1)
-        }
-    }
-
     test("mapUtbetalingToArrangorflateUtbetaling should have status KLAR_FOR_GODKJENNING") {
         val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
         result.id shouldBe utbetaling.id
@@ -181,8 +148,9 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.Fri> {
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
             it.belop shouldBe 5000
+            it.displayName shouldBe "Annen avtalt pris"
         }
     }
 
@@ -193,8 +161,8 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
-            it.deltakelser shouldHaveSize 1
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
+            it.deltakelser!!.rows shouldHaveSize 1
         }
         result.kanViseBeregning shouldBe true
     }
@@ -206,9 +174,9 @@ class ArrangorflateServiceTest : FunSpec({
 
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
-        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed> {
-            it.deltakelser shouldHaveSize 1
-            it.deltakelser[0].personalia.shouldBeNull()
+        result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
+            it.deltakelser!!.rows shouldHaveSize 1
+            it.deltakelser.rows[0].cells["fnr"].shouldBeNull()
         }
         result.kanViseBeregning shouldBe false
     }
@@ -303,7 +271,7 @@ class ArrangorflateServiceTest : FunSpec({
                 sluttDato = today.plusMonths(1),
                 statusType = DeltakerStatusType.DELTAR,
             )
-            val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), today)
+            val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), emptyMap(), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
         }

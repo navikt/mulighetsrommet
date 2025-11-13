@@ -1,7 +1,8 @@
-import { useSortableData } from "@mr/frontend-common";
 import { Table, TableProps } from "@navikt/ds-react";
-import { DataDrivenTableDto, DataElement } from "@api-client";
+import { DataDrivenTableDto, DataDrivenTableDtoRow, DataElement } from "@api-client";
 import { compareDataElements, getDataElement } from "../data-element/DataElement";
+import { DataDrivenTimeline } from "./DataDrivenTimeline";
+import { useSortableData } from "@mr/frontend-common";
 
 interface Props extends TableProps {
   data: DataDrivenTableDto;
@@ -10,9 +11,10 @@ interface Props extends TableProps {
 }
 
 export function DataDrivenTable({ data, className, size, ...rest }: Props) {
-  const { sort, toggleSort, sortedData } = useSortableData(
+  const { sortedData, sort, toggleSort } = useSortableData(
     data.rows,
     undefined,
+    (row, key) => row.cells[key],
     compareDataElements,
   );
 
@@ -33,17 +35,23 @@ export function DataDrivenTable({ data, className, size, ...rest }: Props) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map((row: Record<string, DataElement | null>, index) => (
-          <Table.Row key={index}>
+        {sortedData.map((row: DataDrivenTableDtoRow, index: number) => (
+          <Table.ExpandableRow
+            expansionDisabled={!row.content}
+            togglePlacement="right"
+            key={index}
+            content={row.content && <DataDrivenTimeline data={row.content} />}
+          >
             {data.columns.map((col) => {
-              const cell = row[col.key];
+              const cells: Record<string, DataElement | null> = row.cells;
+              const cell = cells[col.key];
               return (
                 <Table.DataCell key={col.key} align={col.align}>
                   {cell ? getDataElement(cell) : null}
                 </Table.DataCell>
               );
             })}
-          </Table.Row>
+          </Table.ExpandableRow>
         ))}
       </Table.Body>
     </Table>

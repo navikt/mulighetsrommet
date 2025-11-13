@@ -4926,6 +4926,20 @@ components:
       - left
       - center
       - right
+    DataDrivenTableDto.Row:
+      type: object
+      properties:
+        cells:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/DataElement"
+        content:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TimelineDto"
+      required:
+      - cells
+      - content
     DataElement:
       anyOf:
       - $ref: "#/components/schemas/DataElement.Link"
@@ -5026,6 +5040,67 @@ components:
       - date
       - nok
       - number
+    TimelineDto:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row"
+      required:
+      - endDate
+      - rows
+      - startDate
+    TimelineDto.Row:
+      type: object
+      properties:
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row.Period"
+        label:
+          type: string
+      required:
+      - label
+      - periods
+    TimelineDto.Row.Period:
+      type: object
+      properties:
+        key:
+          type: string
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
+        content:
+          type: string
+      required:
+      - content
+      - end
+      - key
+      - start
+      - status
+    TimelineDto.Row.Period.Variant:
+      type: string
+      enum:
+      - alt
+      - alt-1
+      - alt-2
+      - alt-3
+      - info
+      - success
+      - warning
+      - error
     DataDrivenTableDto:
       type: object
       properties:
@@ -5036,9 +5111,7 @@ components:
         rows:
           type: array
           items:
-            type: object
-            additionalProperties:
-              $ref: "#/components/schemas/DataElement"
+            $ref: "#/components/schemas/DataDrivenTableDto.Row"
       required:
       - columns
       - rows

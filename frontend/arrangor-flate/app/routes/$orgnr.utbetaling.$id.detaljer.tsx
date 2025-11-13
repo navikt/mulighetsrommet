@@ -191,7 +191,6 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
             </Alert>
           )}
           <DeltakelserTable
-            periode={utbetaling.periode}
             beregning={utbetaling.beregning}
             advarsler={utbetaling.advarsler}
             deltakerlisteUrl={deltakerlisteUrl}

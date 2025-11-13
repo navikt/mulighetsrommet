@@ -2,12 +2,16 @@ package no.nav.mulighetsrommet.api.utbetaling.task
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflatePersonalia
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
@@ -15,6 +19,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -27,7 +32,7 @@ import java.util.*
 class JournalforUtbetaling(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
-    private val arrangorFlateService: ArrangorflateService,
+    private val amtDeltakerClient: AmtDeltakerClient,
     private val pdf: PdfGenClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -78,8 +83,16 @@ class JournalforUtbetaling(
     }
 
     private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
-        val arrflateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
-        val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(arrflateUtbetaling)
+        val personalia = amtDeltakerClient.hentPersonalia(utbetaling.beregning.output.deltakelser().map { it.deltakelseId }.toSet())
+            .getOrElse {
+                throw Exception("Klarte ikke hente personalia fra amt-deltaker error: $it")
+            }
+            .associateBy { it.deltakerId }
+
+        val content = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
+            utbetaling,
+            personalia,
+        )
         return pdf
             .getPdfDocument(content)
             .mapLeft { error -> "Feil fra pdfgen: $error" }

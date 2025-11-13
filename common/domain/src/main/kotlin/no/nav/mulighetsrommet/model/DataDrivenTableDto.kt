@@ -5,12 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 
 @Serializable
 class DataDrivenTableDto(
     val columns: List<Column>,
-    val rows: List<Map<String, DataElement?>>,
+    val rows: List<Row>,
 ) {
     @Serializable
     data class Column(
@@ -31,6 +32,13 @@ class DataDrivenTableDto(
             RIGHT,
         }
     }
+
+    @Serializable
+    data class Row(
+        val cells: Map<String, DataElement?>,
+        // Kan utvides til å kunne være flere forskjellige ting? F. eks DataDetails
+        val content: TimelineDto? = null,
+    )
 }
 
 @Serializable
@@ -55,7 +63,6 @@ enum class LabeledDataElementType {
 @Serializable
 @JsonClassDiscriminator("type")
 sealed class DataElement {
-
     @Serializable
     data class Text(
         val value: String?,
@@ -182,5 +189,57 @@ sealed class DataElement {
             start = periode.start,
             slutt = periode.getLastInclusiveDate(),
         )
+    }
+}
+
+@Serializable
+data class TimelineDto(
+    @Serializable(with = LocalDateSerializer::class)
+    val startDate: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val endDate: LocalDate,
+    val rows: List<Row>,
+) {
+    @Serializable
+    data class Row(
+        val periods: List<Period>,
+        val label: String,
+    ) {
+        @Serializable
+        data class Period(
+            val key: String,
+            @Serializable(with = LocalDateSerializer::class)
+            val start: LocalDate,
+            @Serializable(with = LocalDateSerializer::class)
+            val end: LocalDate,
+            val status: Variant,
+            val content: String,
+        ) {
+            enum class Variant {
+                @SerialName("alt")
+                ALT,
+
+                @SerialName("alt-1")
+                ALT_1,
+
+                @SerialName("alt-2")
+                ALT_2,
+
+                @SerialName("alt-3")
+                ALT_3,
+
+                @SerialName("info")
+                INFO,
+
+                @SerialName("success")
+                SUCCESS,
+
+                @SerialName("warning")
+                WARNING,
+
+                @SerialName("error")
+                ERROR,
+            }
+        }
     }
 }

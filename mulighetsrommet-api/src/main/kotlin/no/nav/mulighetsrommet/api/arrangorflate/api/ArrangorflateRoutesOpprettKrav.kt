@@ -473,16 +473,18 @@ private fun toGjennomforingDataTable(
             DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
         ),
         rows = gjennomforinger.map { gjennomforing ->
-            mapOf(
-                "navn" to DataElement.text(gjennomforing.navn),
-                "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
-                "startDato" to DataElement.date(gjennomforing.startDato),
-                "sluttDato" to DataElement.date(gjennomforing.sluttDato),
-                "action" to
-                    DataElement.Link(
-                        text = "Start innsending",
-                        href = hrefOpprettKravInnsendingsInformasjon(orgNr, gjennomforing.id),
-                    ),
+            DataDrivenTableDto.Row(
+                cells = mapOf(
+                    "navn" to DataElement.text(gjennomforing.navn),
+                    "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
+                    "startDato" to DataElement.date(gjennomforing.startDato),
+                    "sluttDato" to DataElement.date(gjennomforing.sluttDato),
+                    "action" to
+                        DataElement.Link(
+                            text = "Start innsending",
+                            href = hrefOpprettKravInnsendingsInformasjon(orgNr, gjennomforing.id),
+                        ),
+                ),
             )
         },
     )
@@ -701,12 +703,23 @@ data class OpprettKravDeltakere(
             stengtHosArrangor: Set<StengtPeriode>,
             deltakere: List<Deltaker>,
             deltakelsePerioder: List<DeltakelsePeriode>,
-            personalia: Map<UUID, DeltakerPersonalia>,
+            personalia: Map<UUID, ArrangorflatePersonalia>,
         ): OpprettKravDeltakere {
             return OpprettKravDeltakere(
                 guidePanel = GuidePanelType.from(gjennomforing.avtalePrismodell),
                 stengtHosArrangor = stengtHosArrangor,
-                tabell = createDeltakerTable(deltakere, deltakelsePerioder, personalia),
+                tabell = DataDrivenTableDto(
+                    columns = deltakelseCommonColumns(),
+                    rows = deltakelsePerioder.map { deltakelsePeriode ->
+                        DataDrivenTableDto.Row(
+                            cells = deltakelseCommonCells(
+                                personalia[deltakelsePeriode.deltakelseId],
+                                deltakere.find { it.id == deltakelsePeriode.deltakelseId },
+                                deltakelsePeriode.periode,
+                            ),
+                        )
+                    },
+                ),
                 tabellFooter = tableFooter(gjennomforing.avtalePrismodell, sats, deltakelsePerioder.size),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing),
             )
@@ -739,35 +752,6 @@ data class OpprettKravDeltakere(
             }
         }
     }
-}
-
-fun createDeltakerTable(
-    deltakere: List<Deltaker>,
-    deltakelsePerioder: List<DeltakelsePeriode>,
-    personalia: Map<UUID, DeltakerPersonalia>,
-): DataDrivenTableDto {
-    val periodeMap = deltakelsePerioder.associateBy { it.deltakelseId }
-    val deltakerMap = deltakere.associateBy { it.id }
-    return DataDrivenTableDto(
-        columns = listOf(
-            DataDrivenTableDto.Column("navn", "Navn", sortable = false),
-            DataDrivenTableDto.Column("identitetsnummer", "Fødselsnr.", sortable = false),
-            DataDrivenTableDto.Column("tiltakStart", "Startdato i tiltaket", sortable = false),
-            DataDrivenTableDto.Column("periodeStart", "Startdato i perioden"),
-            DataDrivenTableDto.Column("periodeSlutt", "Sluttdato i perioden"),
-        ),
-        rows = periodeMap.map { (key, value) ->
-            val deltaker = deltakerMap[key]
-            val personalia = personalia[key]
-            mapOf(
-                "navn" to DataElement.text(personalia?.navn),
-                "identitetsnummer" to DataElement.text(personalia?.norskIdent?.value),
-                "tiltakStart" to DataElement.date(deltaker?.startDato),
-                "periodeStart" to DataElement.date(value.periode.start),
-                "periodeSlutt" to DataElement.date(value.periode.slutt),
-            )
-        },
-    )
 }
 
 @Serializable

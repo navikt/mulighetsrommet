@@ -54,11 +54,13 @@ data class TilsagnBeregningDto(
                                 ),
                             ),
                             rows = beregning.input.linjer.map { linje ->
-                                mapOf(
-                                    "beskrivelse" to DataElement.text(linje.beskrivelse.ifEmpty { "<Mangler beskrivelse>" }),
-                                    "belop" to DataElement.nok(linje.belop),
-                                    "antall" to DataElement.number(linje.antall),
-                                    "delsum" to DataElement.nok(linje.belop * linje.antall),
+                                DataDrivenTableDto.Row(
+                                    cells = mapOf(
+                                        "beskrivelse" to DataElement.text(linje.beskrivelse.ifEmpty { "<Mangler beskrivelse>" }),
+                                        "belop" to DataElement.nok(linje.belop),
+                                        "antall" to DataElement.number(linje.antall),
+                                        "delsum" to DataElement.nok(linje.belop * linje.antall),
+                                    ),
                                 )
                             },
                         ),

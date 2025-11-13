@@ -934,9 +934,7 @@ components:
         rows:
           type: array
           items:
-            type: object
-            additionalProperties:
-              $ref: "#/components/schemas/DataElement"
+            $ref: "#/components/schemas/DataDrivenTableDto.Row"
       required:
       - columns
       - rows
@@ -964,6 +962,20 @@ components:
       - left
       - center
       - right
+    DataDrivenTableDto.Row:
+      type: object
+      properties:
+        cells:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/DataElement"
+        content:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TimelineDto"
+      required:
+      - cells
+      - content
     DataElement:
       anyOf:
       - $ref: "#/components/schemas/DataElement.Link"
@@ -1094,6 +1106,67 @@ components:
       - date
       - nok
       - number
+    TimelineDto:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row"
+      required:
+      - endDate
+      - rows
+      - startDate
+    TimelineDto.Row:
+      type: object
+      properties:
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row.Period"
+        label:
+          type: string
+      required:
+      - label
+      - periods
+    TimelineDto.Row.Period:
+      type: object
+      properties:
+        key:
+          type: string
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
+        content:
+          type: string
+      required:
+      - content
+      - end
+      - key
+      - start
+      - status
+    TimelineDto.Row.Period.Variant:
+      type: string
+      enum:
+      - alt
+      - alt-1
+      - alt-2
+      - alt-3
+      - info
+      - success
+      - warning
+      - error
     GjennomforingerTableResponse:
       type: object
       properties:
@@ -1659,319 +1732,25 @@ components:
       - kid
       - kontonummer
     ArrangorflateBeregning:
-      anyOf:
-      - $ref: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
-      - $ref: "#/components/schemas/ArrangorflateBeregningFri"
-      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
-      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerTimeOppfolging"
-      - $ref: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
-      discriminator:
-        propertyName: type
-        mapping:
-          ArrangorflateBeregningFastSatsPerTiltaksplassPerManed: "#/components/schemas/ArrangorflateBeregningFastSatsPerTiltaksplassPerManed"
-          ArrangorflateBeregningFri: "#/components/schemas/ArrangorflateBeregningFri"
-          ArrangorflateBeregningPrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningPrisPerManedsverk"
-          ArrangorflateBeregningPrisPerTimeOppfolging: "#/components/schemas/ArrangorflateBeregningPrisPerTimeOppfolging"
-          ArrangorflateBeregningPrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningPrisPerUkesverk"
-    ArrangorflateBeregningFastSatsPerTiltaksplassPerManed:
       type: object
       properties:
+        displayName:
+          type: string
+        detaljer:
+          $ref: "#/components/schemas/Details"
         belop:
           type: integer
           format: int32
         digest:
           type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
         stengt:
           type: array
           items:
             $ref: "#/components/schemas/StengtPeriode"
-        displayName:
-          type: string
-      required:
-      - belop
-      - deltakelser
-      - detaljer
-      - digest
-      - displayName
-      - stengt
-    ArrangorflateBeregningDeltakelse:
-      anyOf:
-      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed"
-      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
-      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging"
-      - $ref: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
-      discriminator:
-        propertyName: type
-        mapping:
-          ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed: "#/components/schemas/ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed"
-          ArrangorflateBeregningDeltakelsePrisPerManedsverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerManedsverk"
-          ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging"
-          ArrangorflateBeregningDeltakelsePrisPerUkesverk: "#/components/schemas/ArrangorflateBeregningDeltakelsePrisPerUkesverk"
-    ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type:
-          - "null"
-          - string
-          format: date
-        faktor:
-          type: number
-          format: double
-        perioderMedDeltakelsesmengde:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeltakelsesprosentPeriode"
-        periode:
-          $ref: "#/components/schemas/Periode"
-        personalia:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePersonalia"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DeltakerStatusType"
-      required:
-      - deltakerStartDato
-      - faktor
-      - id
-      - periode
-      - perioderMedDeltakelsesmengde
-      - personalia
-      - status
-    DeltakelsesprosentPeriode:
-      type: object
-      properties:
-        periode:
-          $ref: "#/components/schemas/Periode"
-        deltakelsesprosent:
-          type: number
-          format: double
-      required:
-      - deltakelsesprosent
-      - periode
-    ArrangorflatePersonalia:
-      type: object
-      properties:
-        navn:
-          type: string
-        norskIdent:
-          type:
-          - "null"
-          - string
-        erSkjermet:
-          type: boolean
-      required:
-      - erSkjermet
-      - navn
-      - norskIdent
-    DeltakerStatusType:
-      type: string
-      enum:
-      - AVBRUTT
-      - AVBRUTT_UTKAST
-      - DELTAR
-      - FEILREGISTRERT
-      - FULLFORT
-      - HAR_SLUTTET
-      - IKKE_AKTUELL
-      - KLADD
-      - PABEGYNT_REGISTRERING
-      - SOKT_INN
-      - UTKAST_TIL_PAMELDING
-      - VENTELISTE
-      - VENTER_PA_OPPSTART
-      - VURDERES
-    ArrangorflateBeregningDeltakelsePrisPerManedsverk:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type:
-          - "null"
-          - string
-          format: date
-        faktor:
-          type: number
-          format: double
-        periode:
-          $ref: "#/components/schemas/Periode"
-        personalia:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePersonalia"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DeltakerStatusType"
-      required:
-      - deltakerStartDato
-      - faktor
-      - id
-      - periode
-      - personalia
-      - status
-    ArrangorflateBeregningDeltakelsePrisPerTimeOppfolging:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type:
-          - "null"
-          - string
-          format: date
-        periode:
-          $ref: "#/components/schemas/Periode"
-        personalia:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePersonalia"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DeltakerStatusType"
-      required:
-      - deltakerStartDato
-      - id
-      - periode
-      - personalia
-      - status
-    ArrangorflateBeregningDeltakelsePrisPerUkesverk:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        deltakerStartDato:
-          type:
-          - "null"
-          - string
-          format: date
-        faktor:
-          type: number
-          format: double
-        periode:
-          $ref: "#/components/schemas/Periode"
-        personalia:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArrangorflatePersonalia"
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DeltakerStatusType"
-      required:
-      - deltakerStartDato
-      - faktor
-      - id
-      - periode
-      - personalia
-      - status
-    ArrangorflateBeregningFri:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        digest:
-          type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
-        displayName:
-          type: string
-      required:
-      - belop
-      - detaljer
-      - digest
-      - displayName
-    ArrangorflateBeregningPrisPerManedsverk:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        digest:
-          type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
         deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/StengtPeriode"
-        displayName:
-          type: string
-      required:
-      - belop
-      - deltakelser
-      - detaljer
-      - digest
-      - displayName
-      - stengt
-    ArrangorflateBeregningPrisPerTimeOppfolging:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        digest:
-          type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/StengtPeriode"
-        displayName:
-          type: string
-      required:
-      - belop
-      - deltakelser
-      - detaljer
-      - digest
-      - displayName
-      - stengt
-    ArrangorflateBeregningPrisPerUkesverk:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        digest:
-          type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
-        deltakelser:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateBeregningDeltakelse"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/StengtPeriode"
-        displayName:
-          type: string
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
       required:
       - belop
       - deltakelser
@@ -2037,7 +1816,10 @@ components:
         deltakerId:
           type: string
           format: uuid
+        beskrivelse:
+          type: string
       required:
+      - beskrivelse
       - deltakerId
     DeltakerAdvarselRelevanteForslag:
       type: object
@@ -2045,11 +1827,10 @@ components:
         deltakerId:
           type: string
           format: uuid
-        antallRelevanteForslag:
-          type: integer
-          format: int32
+        beskrivelse:
+          type: string
       required:
-      - antallRelevanteForslag
+      - beskrivelse
       - deltakerId
     ArrangorflateUtbetalingDto:
       type: object

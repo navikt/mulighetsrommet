@@ -97,7 +97,9 @@ private fun deltakelsePrisPerManedsverkTable(
         rows = deltakere.map { deltaker ->
             val antallManeder = deltaker.deltakelse.perioder.sumOf { it.faktor }
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(setOf(deltaker.deltakelse))
-            deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallManeder, belop)
+            DataDrivenTableDto.Row(
+                cells = deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallManeder, belop),
+            )
         },
     )
 }
@@ -118,7 +120,9 @@ private fun deltakelsePrisPerUkesverkTable(
         rows = deltakere.map { deltaker ->
             val antallUker = deltaker.deltakelse.perioder.sumOf { it.faktor }
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(setOf(deltaker.deltakelse))
-            deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallUker, belop)
+            DataDrivenTableDto.Row(
+                cells = deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallUker, belop),
+            )
         },
     )
 }
@@ -133,7 +137,11 @@ private fun getRegnestykkeUkesverk(
 
 private fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<UtbetalingBeregningDeltaker>) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns(),
-    rows = deltakere.map { deltakelsePersonaliaCells(it.personalia) },
+    rows = deltakere.map {
+        DataDrivenTableDto.Row(
+            cells = deltakelsePersonaliaCells(it.personalia),
+        )
+    },
 )
 
 private fun deltakelsePersonaliaColumns() = listOf(
