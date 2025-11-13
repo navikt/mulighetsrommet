@@ -214,20 +214,9 @@ data class TimelineDto(
             val end: LocalDate,
             val status: Variant,
             val content: String,
+            val hover: String,
         ) {
             enum class Variant {
-                @SerialName("alt")
-                ALT,
-
-                @SerialName("alt-1")
-                ALT_1,
-
-                @SerialName("alt-2")
-                ALT_2,
-
-                @SerialName("alt-3")
-                ALT_3,
-
                 @SerialName("info")
                 INFO,
 
@@ -237,8 +226,11 @@ data class TimelineDto(
                 @SerialName("warning")
                 WARNING,
 
-                @SerialName("error")
-                ERROR,
+                @SerialName("danger")
+                DANGER,
+
+                @SerialName("neutral")
+                NEUTRAL,
             }
         }
     }

@@ -126,15 +126,13 @@ export type TimelineDtoRowPeriod = {
   end: string;
   status: TimelineDtoRowPeriodVariant;
   content: string;
+  hover: string;
 };
 
 export enum TimelineDtoRowPeriodVariant {
-  ALT = "alt",
-  ALT_1 = "alt-1",
-  ALT_2 = "alt-2",
-  ALT_3 = "alt-3",
   INFO = "info",
   SUCCESS = "success",
   WARNING = "warning",
-  ERROR = "error",
+  DANGER = "danger",
+  NEUTRAL = "neutral",
 }

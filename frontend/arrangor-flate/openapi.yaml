@@ -1150,23 +1150,23 @@ components:
           $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
         content:
           type: string
+        hover:
+          type: string
       required:
       - content
       - end
+      - hover
       - key
       - start
       - status
     TimelineDto.Row.Period.Variant:
       type: string
       enum:
-      - alt
-      - alt-1
-      - alt-2
-      - alt-3
       - info
       - success
       - warning
-      - error
+      - danger
+      - neutral
     GjennomforingerTableResponse:
       type: object
       properties:

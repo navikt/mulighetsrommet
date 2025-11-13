@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -167,6 +168,7 @@ private fun stengtTimelineRow(stengt: List<StengtPeriode>): TimelineDto.Row? {
                 end = it.periode.getLastInclusiveDate(),
                 status = Variant.WARNING,
                 content = "",
+                hover = "Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
             )
         },
         label = "Stengt hos arrangør",
@@ -211,6 +213,7 @@ fun deltakelsePrisPerUkesverkTable(
                                 end = it.periode.getLastInclusiveDate(),
                                 status = Variant.INFO,
                                 content = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}",
+                                hover = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}, Periode: ${periode.start.formaterDatoTilEuropeiskDatoformat()} - ${periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
                             )
                         },
                     ),
@@ -243,6 +246,7 @@ fun deltakelsePrisPerManedsverkTable(
                                 end = it.periode.getLastInclusiveDate(),
                                 status = Variant.INFO,
                                 content = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}",
+                                hover = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}, Periode: ${periode.start.formaterDatoTilEuropeiskDatoformat()} - ${periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
                             )
                         },
                     ),
@@ -277,6 +281,7 @@ fun deltakelseFastSatsPerTiltaksplassPerManedTable(
                                 end = beregnetPeriode.periode.getLastInclusiveDate(),
                                 status = Variant.INFO,
                                 content = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}",
+                                hover = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}, Periode: ${periode.start.formaterDatoTilEuropeiskDatoformat()} - ${periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
                             )
                         },
                     ),
