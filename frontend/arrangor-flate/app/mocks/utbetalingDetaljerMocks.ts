@@ -7,6 +7,63 @@ import {
   Tiltakskode,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
+import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
+
+const arrManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+  id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
+  status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+  godkjentAvArrangorTidspunkt: null,
+  kanViseBeregning: true,
+  createdAt: "2025-11-07T10:02:43.989186",
+  tiltakstype: {
+    navn: "Arbeidsrettet rehabilitering",
+    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  },
+  gjennomforing: {
+    id: "a47092ba-410b-4ca1-9713-36506a039742",
+    navn: "Arbeidsrettet rehabilitering - Månedlig",
+  },
+  arrangor: arrangorMock,
+  betalingsinformasjon: { kontonummer: "78029049393", kid: null },
+  beregning: {
+    type: "ArrangorflateBeregningPrisPerManedsverk",
+    belop: 20000,
+    digest: "ca0a6c20",
+    detaljer: {
+      entries: [
+        { key: "Avtalt månedspris per tiltaksplass", value: "10000", format: DetailsFormat.NOK },
+        { key: "Antall månedsverk", value: "2.0", format: DetailsFormat.NUMBER },
+        { key: "Beløp", value: "20000", format: DetailsFormat.NOK },
+      ],
+    },
+    deltakelser: [
+      {
+        type: "ArrangorflateBeregningDeltakelsePrisPerManedsverk",
+        id: "79d75296-9b62-4758-b713-799d517d3826",
+        deltakerStartDato: "2025-10-01",
+        faktor: 1,
+        periode: { start: "2025-10-01", slutt: "2025-11-01" },
+        personalia: { navn: "Nordmann, Ola", norskIdent: "27017809100", erSkjermet: false },
+        status: DeltakerStatusType.DELTAR,
+      },
+      {
+        type: "ArrangorflateBeregningDeltakelsePrisPerManedsverk",
+        id: "6568d33c-b1fc-4490-9e39-c6b2b90aad8d",
+        deltakerStartDato: "2025-10-01",
+        faktor: 1,
+        periode: { start: "2025-10-01", slutt: "2025-11-01" },
+        personalia: { navn: "Nordmann, Ola", norskIdent: "27017809100", erSkjermet: false },
+        status: DeltakerStatusType.DELTAR,
+      },
+    ],
+    stengt: [],
+    displayName: "Avtalt månedspris per tiltaksplass",
+  },
+  periode: { start: "2025-10-01", slutt: "2025-11-01" },
+  type: { displayName: "Innsending", displayNameLong: null, tagName: null },
+  linjer: [],
+  advarsler: [],
+};
 
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
@@ -418,4 +475,5 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
   avklaringOverfortTilUtbetaling,
   vtaKlarForGodkjenning,
   avklaringManedKlarTilInnsending,
+  arrManedKlarTilGodkjenning,
 ];

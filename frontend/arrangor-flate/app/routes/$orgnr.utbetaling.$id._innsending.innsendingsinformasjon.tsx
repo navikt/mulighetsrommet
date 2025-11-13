@@ -50,7 +50,8 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   if (tilsagnError) {
     throw problemDetailResponse(tilsagnError);
   }
-
+  console.log(JSON.stringify(utbetaling));
+  console.log(JSON.stringify(tilsagn));
   return {
     utbetaling,
     tilsagn,
