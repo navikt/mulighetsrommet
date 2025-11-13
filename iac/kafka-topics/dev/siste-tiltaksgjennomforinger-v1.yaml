@@ -35,9 +35,6 @@ spec:
     - team: amt
       application: amt-arrangor
       access: read
-    - team: amt
-      application: amt-tiltaksarrangor-bff
-      access: read
 
     # DVH
     - team: teamoppfolging

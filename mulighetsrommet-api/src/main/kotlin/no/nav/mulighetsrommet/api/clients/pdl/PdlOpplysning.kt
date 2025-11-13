@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import java.time.LocalDate
 
 @Serializable
 @JvmInline

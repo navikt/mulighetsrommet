@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.util.UUID
+import java.util.*
 
 @Serializable
 data class InnsendingKompaktDto(

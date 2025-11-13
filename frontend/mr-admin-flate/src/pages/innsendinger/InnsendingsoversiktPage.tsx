@@ -1,8 +1,8 @@
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import {
-  LagreFilterButton,
   LagredeFilterOversikt,
+  LagreFilterButton,
   ListSkeleton,
   useOpenFilterWhenThreshold,
 } from "@mr/frontend-common";

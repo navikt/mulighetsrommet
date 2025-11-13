@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.NonEmptyList
-import io.ktor.server.plugins.*
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase

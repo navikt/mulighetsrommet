@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
@@ -56,12 +55,10 @@ class AvtaleService(
         request: AvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val previous = get(request.id)
-        val ctx = getValidatorCtx(request, previous)
-            .bind()
+        val ctx = getValidatorCtx(request.id, request.detaljer, request.veilederinformasjon.navEnheter, null).bind()
 
         val dbo = AvtaleValidator
-            .validate(
+            .validateCreateAvtale(
                 request.copy(
                     veilederinformasjon = request.veilederinformasjon.copy(
                         navEnheter = sanitizeNavEnheter(
@@ -73,22 +70,42 @@ class AvtaleService(
             )
             .bind()
 
-        if (previous != null && AvtaleDboMapper.fromAvtale(previous) == dbo) {
+        db.transaction {
+            queries.avtale.upsert(dbo)
+
+            dispatchNotificationToNewAdministrators(dbo.id, dbo.navn, dbo.administratorer, navIdent)
+
+            val dto = getOrError(dbo.id)
+
+            logEndring("Opprettet avtale", dto, navIdent)
+
+            schedulePublishGjennomforingerForAvtale(dto)
+
+            dto
+        }
+    }
+
+    suspend fun upsertDetaljer(
+        avtaleId: UUID,
+        request: DetaljerRequest,
+        navIdent: NavIdent,
+    ): Either<List<FieldError>, Avtale> = either {
+        val previous = get(avtaleId) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+        val ctx = getValidatorCtx(avtaleId, request, null, previous).bind()
+
+        val dbo = AvtaleValidator
+            .validateUpdateDetaljer(request, ctx)
+            .bind()
+
+        if (AvtaleDboMapper.fromAvtale(previous) == dbo) {
             return@either previous
         }
 
         db.transaction {
-            queries.avtale.upsert(dbo)
-
-            dispatchNotificationToNewAdministrators(dbo, navIdent)
-
-            val dto = getOrError(dbo.id)
-            val operation = if (previous == null) {
-                "Opprettet avtale"
-            } else {
-                "Redigerte avtale"
-            }
-            logEndring(operation, dto, navIdent)
+            queries.avtale.updateDetaljer(avtaleId, dbo)
+            dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
+            val dto = getOrError(avtaleId)
+            logEndring("Redigerte avtale", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 
@@ -97,19 +114,28 @@ class AvtaleService(
     }
 
     suspend fun getValidatorCtx(
-        request: AvtaleRequest,
+        avtaleId: UUID,
+        request: DetaljerRequest,
+        navEnheter: List<NavEnhetNummer>?,
         previous: Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
         db.session {
             val tiltakstype = db.session { queries.tiltakstype.getByTiltakskode(request.tiltakskode) }
-            val administratorer = db.session {
-                request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-            }
-            val navEnheter = db.session {
-                request.veilederinformasjon.navEnheter.mapNotNull {
-                    queries.enhet.get(it)?.toDto()
+            val administratorer =
+                db.session {
+                    request.administratorer.mapNotNull {
+                        queries.ansatt.getByNavIdent(it)
+                    }
                 }
-            }
+            val navEnheter =
+                db.session {
+                    navEnheter?.let {
+                        it.mapNotNull {
+                            queries.enhet.get(it)?.toDto()
+                        }
+                    }
+                } ?: emptyList()
+
             val arrangor = request.arrangor?.let {
                 val (arrangor, underenheter) = syncArrangorerFromBrreg(
                     it.hovedenhet,
@@ -118,9 +144,9 @@ class AvtaleService(
                 arrangor.copy(underenheter = underenheter)
             }
 
-            val gjennomforinger = db.session {
-                queries.gjennomforing.getAll(pagination = Pagination.of(1, 1), avtaleId = request.id)
-            }.items
+            val gjennomforinger =
+                db.session { queries.gjennomforing.getAll(pagination = Pagination.of(1, 1), avtaleId = avtaleId) }
+                    .items
 
             AvtaleValidator.Ctx(
                 previous = previous?.let {
@@ -138,6 +164,7 @@ class AvtaleService(
                                 utdanningslop = it.utdanningslop,
                             )
                         },
+                        prismodell = it.prismodell,
                     )
                 },
                 arrangor = arrangor,
@@ -187,7 +214,7 @@ class AvtaleService(
             }
         }
         AvtaleValidator.validateNavEnheter(navEnheter).bind()
-        val dbo = request.toDbo(navEnheter.map { it.enhetsnummer }.toSet())
+        val dbo = request.toDbo()
 
         db.transaction {
             queries.avtale.updateVeilederinfo(previous.id, dbo)
@@ -404,16 +431,18 @@ class AvtaleService(
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: AvtaleDbo,
+        avtaleId: UUID,
+        avtalenavn: String,
+        administratorer: List<NavIdent>,
         navIdent: NavIdent,
     ) {
-        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+        val currentAdministratorer = get(avtaleId)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
-            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
+            (administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
 
         val notification = ScheduledNotification(
-            title = "Du har blitt satt som administrator på avtalen \"${dbo.navn}\"",
+            title = "Du har blitt satt som administrator på avtalen \"${avtalenavn}\"",
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )

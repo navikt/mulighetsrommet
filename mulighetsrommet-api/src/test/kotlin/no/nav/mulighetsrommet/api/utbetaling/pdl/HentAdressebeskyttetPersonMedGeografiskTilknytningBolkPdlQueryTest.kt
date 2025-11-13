@@ -6,11 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
-import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
-import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.tokenprovider.AccessType

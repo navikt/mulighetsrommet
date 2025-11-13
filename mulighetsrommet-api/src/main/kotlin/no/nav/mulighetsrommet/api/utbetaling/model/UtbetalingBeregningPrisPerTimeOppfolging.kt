@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
 data class UtbetalingBeregningPrisPerTimeOppfolging(

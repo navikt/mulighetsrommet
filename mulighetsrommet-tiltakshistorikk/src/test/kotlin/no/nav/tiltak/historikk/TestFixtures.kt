@@ -1,12 +1,7 @@
 package no.nav.tiltak.historikk
 
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.model.DeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

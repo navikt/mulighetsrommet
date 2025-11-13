@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.pdfgen
 
-import no.nav.mulighetsrommet.api.arrangorflate.api.DetailsFormat
-
 class PdfDocumentContentBuilder(
     private val title: String,
     private val subject: String,

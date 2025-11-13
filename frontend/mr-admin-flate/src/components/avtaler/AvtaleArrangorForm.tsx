@@ -32,7 +32,7 @@ export function AvtaleArrangorForm() {
     control,
     formState: { errors },
   } = useFormContext<DeepPartial<AvtaleFormValues>>();
-  const watchedArrangor = watch("arrangorHovedenhet") ?? "";
+  const watchedArrangor = watch("detaljer.arrangorHovedenhet") ?? "";
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
@@ -49,7 +49,7 @@ export function AvtaleArrangorForm() {
       <FormGroup>
         <Controller
           control={control}
-          name="arrangorHovedenhet"
+          name="detaljer.arrangorHovedenhet"
           render={({ field }) => (
             <UNSAFE_Combobox
               id="arrangorHovedenhet"
@@ -61,7 +61,7 @@ export function AvtaleArrangorForm() {
               size="small"
               onChange={setSokArrangor}
               name={field.name}
-              error={errors.arrangorHovedenhet?.message}
+              error={errors.detaljer?.arrangorHovedenhet?.message}
               filteredOptions={arrangorHovedenhetOptions}
               options={arrangorHovedenhetOptions}
               onToggleSelected={(option, isSelected) => {
@@ -69,7 +69,7 @@ export function AvtaleArrangorForm() {
                   field.onChange(option);
                 } else {
                   field.onChange(undefined);
-                  setValue("arrangorUnderenheter", []);
+                  setValue("detaljer.arrangorUnderenheter", []);
                 }
               }}
             />
@@ -83,7 +83,7 @@ export function AvtaleArrangorForm() {
         )}
         <Controller
           control={control}
-          name="arrangorUnderenheter"
+          name="detaljer.arrangorUnderenheter"
           render={({ field }) => (
             <UNSAFE_Combobox
               size="small"
@@ -102,7 +102,7 @@ export function AvtaleArrangorForm() {
                 field.value?.includes(option.value),
               )}
               name={field.name}
-              error={errors.arrangorUnderenheter?.message}
+              error={errors.detaljer?.arrangorUnderenheter?.message}
               options={arrangorUnderenhetOptions}
               readOnly={underenheterIsEmpty}
               onToggleSelected={(option, isSelected) => {
@@ -119,7 +119,7 @@ export function AvtaleArrangorForm() {
         <VStack>
           <Controller
             control={control}
-            name="arrangorKontaktpersoner"
+            name="detaljer.arrangorKontaktpersoner"
             render={({ field }) => (
               <UNSAFE_Combobox
                 id="arrangorKontaktpersoner"
@@ -131,7 +131,7 @@ export function AvtaleArrangorForm() {
                   field.value?.includes(v.value),
                 )}
                 name={field.name}
-                error={errors.arrangorKontaktpersoner?.message}
+                error={errors.detaljer?.arrangorKontaktpersoner?.message}
                 options={arrangorKontaktpersonOptions}
                 readOnly={!arrangor}
                 onToggleSelected={(option, isSelected) => {
@@ -160,8 +160,8 @@ export function AvtaleArrangorForm() {
               return;
             }
 
-            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
-            setValue("arrangorKontaktpersoner", [
+            const kontaktpersoner = watch("detaljer.arrangorKontaktpersoner") ?? [];
+            setValue("detaljer.arrangorKontaktpersoner", [
               ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
               kontaktperson.id,
             ]);

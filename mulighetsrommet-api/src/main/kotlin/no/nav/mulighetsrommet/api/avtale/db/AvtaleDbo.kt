@@ -13,7 +13,7 @@ data class AvtaleDbo(
     val navn: String,
     val tiltakstypeId: UUID,
     val sakarkivNummer: SakarkivNummer?,
-    val arrangor: Arrangor?,
+    val arrangor: ArrangorDbo?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val status: AvtaleStatusType,
@@ -30,10 +30,4 @@ data class AvtaleDbo(
     val prismodell: PrismodellType,
     val prisbetingelser: String?,
     val satser: List<AvtaltSats>,
-) {
-    data class Arrangor(
-        val hovedenhet: UUID,
-        val underenheter: List<UUID>,
-        val kontaktpersoner: List<UUID>,
-    )
-}
+)

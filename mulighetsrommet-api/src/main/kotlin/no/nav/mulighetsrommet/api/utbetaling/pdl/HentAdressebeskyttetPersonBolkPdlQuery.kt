@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 
 class HentAdressebeskyttetPersonBolkPdlQuery(
     private val pdl: PdlClient,

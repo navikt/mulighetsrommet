@@ -5,6 +5,32 @@ import {
   TilsagnType,
   Tiltakskode,
 } from "api-client";
+import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
+
+const avklaringUkesprisTilsagn: ArrangorflateTilsagnDto = {
+  id: "a7e0df87-f37e-4f6a-92d6-a25a1cded9e7",
+  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
+  gjennomforing: {
+    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
+    navn: "Avklaring - Avtalt ukespris per tiltaksplass",
+  },
+  arrangor: arrangorMock,
+  type: TilsagnType.TILSAGN,
+  periode: { start: "2025-11-01", slutt: "2025-12-01" },
+  status: TilsagnStatus.GODKJENT,
+  bruktBelop: 0,
+  gjenstaendeBelop: 1280000,
+  beregning: {
+    entries: [
+      { key: "Tilsagnsperiode", value: "01.11.2025 - 30.11.2025", format: null },
+      { key: "Antall plasser", value: "40", format: DetailsFormat.NUMBER },
+      { key: "Avtalt ukespris per tiltaksplass", value: "8000", format: DetailsFormat.NOK },
+      { key: "Totalbeløp", value: "1280000", format: DetailsFormat.NOK },
+      { key: "Gjenstående beløp", value: "1280000", format: DetailsFormat.NOK },
+    ],
+  },
+  bestillingsnummer: "A-2025/4123-1",
+};
 
 export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
   {
@@ -48,11 +74,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         },
       ],
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-1",
   },
@@ -87,20 +109,13 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         },
       ],
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-2",
   },
   {
     id: "f8fbc0f7-3280-410b-8387-20ff63896926",
-    gjennomforing: {
-      id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
-      navn: "Avklaring - Team tiltakspenger - Oslo",
-    },
+    gjennomforing: arrangorMock,
     bruktBelop: 0,
     gjenstaendeBelop: 0,
     tiltakstype: {
@@ -126,11 +141,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         },
       ],
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     status: TilsagnStatus.ANNULLERT,
     bestillingsnummer: "A-2025/11147-2",
   },
@@ -175,11 +186,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         },
       ],
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     status: TilsagnStatus.OPPGJORT,
     bestillingsnummer: "A-2025/11073-2",
   },
@@ -219,12 +226,9 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
         },
       ],
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11398-1",
   },
+  avklaringUkesprisTilsagn,
 ];

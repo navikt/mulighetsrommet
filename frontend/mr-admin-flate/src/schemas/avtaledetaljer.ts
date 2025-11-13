@@ -10,60 +10,52 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const avtaleDetaljerSchema = z.object({
-  navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
-  tiltakskode: z.enum(Tiltakskode, { error: "Du må velge en tiltakstype" }),
-  avtaletype: z.enum(Avtaletype, {
-    error: "Du må velge en avtaletype",
-  }),
-  startDato: z.string().nullable(),
-  sluttDato: z.string().optional().nullable(),
-  opsjonsmodell: z.object({
-    type: z.enum(OpsjonsmodellType, {
-      error: "Du må velge avtalt mulighet for forlengelse",
+  detaljer: z.object({
+    navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
+    tiltakskode: z.enum(Tiltakskode, { error: "Du må velge en tiltakstype" }),
+    avtaletype: z.enum(Avtaletype, {
+      error: "Du må velge en avtaletype",
     }),
-    opsjonMaksVarighet: z.string().optional().nullable(),
-    customOpsjonsmodellNavn: z.string().optional().nullable(),
+    startDato: z.string({
+      error: "Du må velge en startdato",
+    }),
+    sluttDato: z.string().optional().nullable(),
+    opsjonsmodell: z.object({
+      type: z.enum(OpsjonsmodellType, {
+        error: "Du må velge avtalt mulighet for forlengelse",
+      }),
+      opsjonMaksVarighet: z.string().optional().nullable(),
+      customOpsjonsmodellNavn: z.string().optional().nullable(),
+    }),
+    administratorer: z.array(z.string()).min(1, "Du må velge minst én administrator"),
+    sakarkivNummer: z
+      .string()
+      .nullable()
+      .refine(
+        (value) => {
+          if (!value) return true;
+          return /^\d{2}\/\d+$/.test(value);
+        },
+        {
+          message: "Saksnummer må være på formatet 'år/løpenummer'",
+        },
+      ),
+    amoKategorisering: AmoKategoriseringSchema.nullish(),
+    utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
+    arrangorHovedenhet: z.string().optional(),
+    arrangorUnderenheter: z.array(z.string()).optional(),
+    arrangorKontaktpersoner: z.uuid().array().optional(),
   }),
-  administratorer: z.array(z.string()).min(1, "Du må velge minst én administrator"),
-  sakarkivNummer: z
-    .string()
-    .nullable()
-    .refine(
-      (value) => {
-        if (!value) return true;
-        return /^\d{2}\/\d+$/.test(value);
-      },
-      {
-        message: "Saksnummer må være på formatet 'år/løpenummer'",
-      },
-    ),
-  amoKategorisering: AmoKategoriseringSchema.nullish(),
-  utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
 });
-
-export const arrangorSchema = z.object({
-  arrangorHovedenhet: z.string().optional(),
-  arrangorUnderenheter: z.array(z.string()).optional(),
-  arrangorKontaktpersoner: z.uuid().array().optional(),
-});
-
-export const validateArrangor = (ctx: z.RefinementCtx, data: z.infer<typeof arrangorSchema>) => {
-  if (!data.arrangorHovedenhet && data.arrangorUnderenheter?.length) {
-    ctx.addIssue({
-      code: "custom",
-      message: "Underenheter kan bare være tom dersom hovedenhet er tom",
-      path: ["arrangorUnderenheter"],
-    });
-  }
-};
 
 export const validateAvtaledetaljer = (
   ctx: z.RefinementCtx,
   data: z.infer<typeof avtaleDetaljerSchema>,
 ) => {
+  const detaljer = data.detaljer;
   if (
-    [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) &&
-    !data.sakarkivNummer
+    [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(detaljer.avtaletype) &&
+    !detaljer.sakarkivNummer
   ) {
     ctx.addIssue({
       code: "custom",
@@ -71,10 +63,10 @@ export const validateAvtaledetaljer = (
       path: ["sakarkivNummer"],
     });
   }
-  if (data.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
+  if (detaljer.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
     if (
-      data.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
-      !data.opsjonsmodell.customOpsjonsmodellNavn
+      detaljer.opsjonsmodell.type === OpsjonsmodellType.ANNET &&
+      !detaljer.opsjonsmodell.customOpsjonsmodellNavn
     ) {
       ctx.addIssue({
         code: "custom",
@@ -83,28 +75,35 @@ export const validateAvtaledetaljer = (
       });
     }
   }
-  if (data.sluttDato && data.startDato && data.startDato >= data.sluttDato) {
+  if (detaljer.sluttDato && detaljer.startDato && detaljer.startDato >= detaljer.sluttDato) {
     ctx.addIssue({
       code: "custom",
       message: "Startdato må være før sluttdato",
       path: ["startDato"],
     });
   }
-  if (data.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && !data.amoKategorisering) {
+  if (
+    detaljer.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+    !detaljer.amoKategorisering
+  ) {
     ctx.addIssue({
       code: "custom",
       message: "Du må velge en kurstype",
       path: ["amoKategorisering.kurstype"],
     });
   }
+  if (!detaljer.arrangorHovedenhet && detaljer.arrangorUnderenheter?.length) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Underenheter kan bare være tom dersom hovedenhet er tom",
+      path: ["arrangorUnderenheter"],
+    });
+  }
 };
 
-export const avtaleDetaljerFormSchema = avtaleDetaljerSchema
-  .extend(arrangorSchema.shape)
-  .superRefine((data, ctx) => {
-    validateArrangor(ctx, data);
-    validateAvtaledetaljer(ctx, data);
-  });
+export const avtaleDetaljerFormSchema = avtaleDetaljerSchema.superRefine((data, ctx) => {
+  validateAvtaledetaljer(ctx, data);
+});
 
 export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
   return {
@@ -117,13 +116,13 @@ export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
  * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
  */
 export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | null {
-  if (data.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+  if (data.detaljer.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
     return null;
   }
 
-  if (!data.utdanningslop?.utdanningsprogram) {
+  if (!data.detaljer.utdanningslop?.utdanningsprogram) {
     return null;
   }
 
-  return data.utdanningslop;
+  return data.detaljer.utdanningslop;
 }

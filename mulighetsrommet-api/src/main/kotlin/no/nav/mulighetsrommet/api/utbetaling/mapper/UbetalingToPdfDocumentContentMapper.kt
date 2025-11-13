@@ -1,8 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
-import no.nav.mulighetsrommet.api.pdfgen.*
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.pdfgen.Format
+import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
+import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
+import no.nav.mulighetsrommet.api.pdfgen.TableBlock
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 
 object UbetalingToPdfDocumentContentMapper {

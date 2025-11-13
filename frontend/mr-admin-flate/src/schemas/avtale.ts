@@ -1,12 +1,6 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 import z from "zod";
-import {
-  arrangorSchema,
-  avtaleDetaljerSchema,
-  toUtdanningslopDbo,
-  validateArrangor,
-  validateAvtaledetaljer,
-} from "./avtaledetaljer";
+import { avtaleDetaljerSchema, toUtdanningslopDbo, validateAvtaledetaljer } from "./avtaledetaljer";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 import {
@@ -56,12 +50,10 @@ export const PersonopplysningerSchema = z.object({
 });
 
 export const avtaleFormSchema = avtaleDetaljerSchema
-  .extend(arrangorSchema.shape)
   .extend(PrismodellSchema.shape)
   .extend(PersonopplysningerSchema.shape)
   .extend(VeilederinformasjonStepSchema.shape)
   .superRefine((data, ctx) => {
-    validateArrangor(ctx, data);
     validateAvtaledetaljer(ctx, data);
   });
 
@@ -78,7 +70,28 @@ export function defaultAvtaleData(
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
   return {
-    tiltakskode: avtale?.tiltakstype?.tiltakskode,
+    detaljer: {
+      administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
+      navn: avtale?.navn ?? "",
+      avtaletype: avtale?.avtaletype,
+      arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
+      arrangorUnderenheter: !avtale?.arrangor?.underenheter
+        ? []
+        : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+      arrangorKontaktpersoner:
+        avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+      startDato: avtale?.startDato,
+      sluttDato: avtale?.sluttDato ?? null,
+      sakarkivNummer: avtale?.sakarkivNummer ?? null,
+      tiltakskode: avtale?.tiltakstype?.tiltakskode,
+      amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
+      opsjonsmodell: {
+        type: avtale?.opsjonsmodell?.type,
+        opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
+        customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
+      },
+      utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
+    },
     veilederinformasjon: {
       navRegioner: navRegioner,
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
@@ -86,30 +99,11 @@ export function defaultAvtaleData(
       beskrivelse: avtale?.beskrivelse ?? null,
       faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold) ?? null,
     },
-    administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
-    navn: avtale?.navn ?? "",
-    avtaletype: avtale?.avtaletype,
-    arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
-    arrangorUnderenheter: !avtale?.arrangor?.underenheter
-      ? []
-      : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-    arrangorKontaktpersoner:
-      avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
-    startDato: avtale?.startDato ?? null,
-    sluttDato: avtale?.sluttDato ?? null,
-    sakarkivNummer: avtale?.sakarkivNummer ?? null,
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger ?? [],
     },
     // TODO: fiks typer
-    amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
-    opsjonsmodell: {
-      type: avtale?.opsjonsmodell?.type,
-      opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
-      customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
-    },
-    utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
     prismodell: avtale?.prismodell?.type as PrismodellType | undefined,
     satser: avtale?.prismodell?.satser ?? [],
     prisbetingelser:
