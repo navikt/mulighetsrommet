@@ -1,7 +1,7 @@
 import { type LabeledDataElement, LabeledDataElementType } from "@tiltaksadministrasjon/api-client";
 import { BodyLong, VStack } from "@navikt/ds-react";
 import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
-import { getDataElement } from "./DataElement";
+import { getDataElement } from "@mr/frontend-common";
 
 export interface DataElementProps {
   entries: LabeledDataElement[];

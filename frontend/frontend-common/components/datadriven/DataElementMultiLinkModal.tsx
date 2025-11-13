@@ -1,12 +1,12 @@
-import {
-  DataElementMultiLinkModalModalContent,
-  type DataElementMultiLinkModal,
-} from "@tiltaksadministrasjon/api-client";
 import { BodyLong, Button, Link, Modal } from "@navikt/ds-react";
 import { RefObject, useRef } from "react";
+import {
+  DataElementMultiLinkModal as MultiLinkModalType,
+  DataElementMultiLinkModalModalContent,
+} from "./types";
 
 interface DataElementMultiLinkModalProps {
-  data: DataElementMultiLinkModal;
+  data: MultiLinkModalType;
 }
 
 export function DataElementMultiLinkModal({ data }: DataElementMultiLinkModalProps) {

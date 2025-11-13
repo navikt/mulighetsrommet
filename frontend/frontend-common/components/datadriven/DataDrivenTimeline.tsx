@@ -1,5 +1,5 @@
 import { Timeline } from "@navikt/ds-react";
-import { TimelineDto } from "@api-client";
+import { TimelineDto } from "./types";
 
 interface Props {
   data: TimelineDto;

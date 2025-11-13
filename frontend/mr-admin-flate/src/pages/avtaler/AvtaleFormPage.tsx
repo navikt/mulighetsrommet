@@ -14,11 +14,11 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation } from "react-router";
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
 import { toAvtaleRequest, toPersonvernRequest, toVeilederinfoRequest } from "./avtaleFormUtils";
 import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [

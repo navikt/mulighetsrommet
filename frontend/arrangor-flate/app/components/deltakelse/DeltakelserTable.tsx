@@ -1,7 +1,7 @@
 import { Alert, List } from "@navikt/ds-react";
 import { ArrangorflateBeregning, DeltakerAdvarsel } from "api-client";
 import { tekster } from "~/tekster";
-import { DataDrivenTable } from "../table/DataDrivenTable";
+import { DataDrivenTable } from "@mr/frontend-common";
 
 export function DeltakelserTable({
   beregning,

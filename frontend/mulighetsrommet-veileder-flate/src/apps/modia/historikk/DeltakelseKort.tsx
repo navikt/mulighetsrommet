@@ -5,7 +5,7 @@ import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
 import { Link } from "react-router";
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 interface Props {
   deltakelse: Deltakelse;

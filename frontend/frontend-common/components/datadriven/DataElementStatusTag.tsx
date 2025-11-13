@@ -1,6 +1,7 @@
-import { DataElementStatusVariant } from "@tiltaksadministrasjon/api-client";
-import { ExpandableStatusTag, StatusTag } from "@mr/frontend-common";
 import { TagProps } from "@navikt/ds-react";
+import { DataElementStatusVariant } from "./types";
+import { ExpandableStatusTag } from "../tags/ExpandableStatusTag";
+import { StatusTag } from "../tags/StatusTag";
 
 interface DataElementStatusTagProps {
   value: string;

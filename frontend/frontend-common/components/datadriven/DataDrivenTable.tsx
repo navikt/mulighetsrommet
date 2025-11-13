@@ -1,13 +1,11 @@
-import {
-  DataDrivenTableDto,
-  DataDrivenTableDtoRow,
-  DataElement,
-} from "@tiltaksadministrasjon/api-client";
-import { useSortableData } from "@mr/frontend-common";
 import { Table, TableProps } from "@navikt/ds-react";
-import { compareDataElements, getDataElement } from "@/components/data-element/DataElement";
+import { DataDrivenTableDto, DataDrivenTableDtoRow, DataElement } from "./types";
+import { DataDrivenTimeline } from "./DataDrivenTimeline";
+import { useSortableData } from "../../hooks/useSortableData";
+import { compareDataElements } from "./util";
+import { getDataElement } from "./DataElement";
 
-interface Props {
+interface Props extends TableProps {
   data: DataDrivenTableDto;
   className?: string;
   size?: TableProps["size"];
@@ -39,7 +37,12 @@ export function DataDrivenTable({ data, className, size, ...rest }: Props) {
       </Table.Header>
       <Table.Body>
         {sortedData.map((row: DataDrivenTableDtoRow, index: number) => (
-          <Table.ExpandableRow expansionDisabled togglePlacement="right" key={index} content={null}>
+          <Table.ExpandableRow
+            expansionDisabled={!row.content}
+            togglePlacement="right"
+            key={index}
+            content={row.content && <DataDrivenTimeline data={row.content} />}
+          >
             {data.columns.map((col) => {
               const cells: Record<string, DataElement | null> = row.cells;
               const cell = cells[col.key];

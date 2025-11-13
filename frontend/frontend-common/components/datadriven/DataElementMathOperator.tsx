@@ -1,5 +1,5 @@
-import { DataElementMathOperatorType } from "@api-client";
 import { ReactNode } from "react";
+import { DataElementMathOperatorType } from "./types";
 
 interface DataElementMathOperatorProps {
   operator: DataElementMathOperatorType;
