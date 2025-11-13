@@ -1,5 +1,5 @@
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { Alert, BodyShort, Box, Table } from "@navikt/ds-react";
+import { Alert, BodyShort, Table, VStack } from "@navikt/ds-react";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useGetInnsendinger } from "@/api/utbetaling/useFiltrerteInnsendinger";
 import { InnsendingFilterStateAtom, InnsendingFilterType } from "./filter";
@@ -36,7 +36,12 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
   };
 
   return (
-    <Box paddingInline="2">
+    <VStack gap="6" paddingInline="2">
+      <Alert variant="info">
+        Under ser du en oversikt over manglende innsendinger for tiltak med fast sats, avtalt
+        månedspris eller avtalt ukespris. Tiltak med avtalt timespris eller annen avtalt pris
+        mangler foreløpig i oversikten
+      </Alert>
       <TabellWrapper>
         {innsendinger.length === 0 ? (
           <Alert variant="info">Fant ingen innsendinger</Alert>
@@ -109,7 +114,7 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
           </Table>
         )}
       </TabellWrapper>
-    </Box>
+    </VStack>
   );
 }
 
