@@ -5,7 +5,12 @@ import {
   OppgaveType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import {
+  BankNoteIcon,
+  GavelSoundBlockIcon,
+  HandshakeIcon,
+  PiggybankIcon,
+} from "@navikt/aksel-icons";
 import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { Link } from "react-router";
@@ -56,6 +61,8 @@ function OppgaveIcon(props: { type: OppgaveIconType; fontSize?: string }) {
       return <PiggybankIcon fontSize={props.fontSize} />;
     case OppgaveIconType.UTBETALING:
       return <BankNoteIcon fontSize={props.fontSize} />;
+    case OppgaveIconType.ATTESTER:
+      return <GavelSoundBlockIcon fontSize={props.fontSize} />;
     case OppgaveIconType.AVTALE:
     case OppgaveIconType.GJENNOMFORING:
       return <HandshakeIcon fontSize={props.fontSize} />;
@@ -74,6 +81,7 @@ function getOppgaveVariant(type: OppgaveType): TagProps["variant"] {
     case OppgaveType.UTBETALING_RETURNERT:
       return "error";
     case OppgaveType.UTBETALING_TIL_ATTESTERING:
+      return "info";
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "success";
     default:
