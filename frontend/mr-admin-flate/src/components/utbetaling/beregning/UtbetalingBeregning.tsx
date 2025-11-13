@@ -1,7 +1,6 @@
+import { DataDrivenTable, getDataElement } from "@mr/frontend-common";
 import { CopyButton, HStack, VStack } from "@navikt/ds-react";
 import { DataElement, UtbetalingBeregningDto } from "@tiltaksadministrasjon/api-client";
-import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
-import { getDataElement } from "@/components/data-element/DataElement";
 
 interface Props {
   beregning: UtbetalingBeregningDto;

@@ -5,157 +5,202 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
-import no.nav.mulighetsrommet.api.utbetaling.api.toDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse.BeregnetPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class UbetalingToPdfDocumentContentMapperTest : FunSpec({
-
     @OptIn(ExperimentalSerializationApi::class)
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
     }
 
-    val utbetaling = ArrangorflateUtbetalingDto(
+    val deltaker1Id = UUID.randomUUID()
+    val deltaker2Id = UUID.randomUUID()
+    val deltaker3Id = UUID.randomUUID()
+
+    val utbetaling = Utbetaling(
         id = UUID.randomUUID(),
-        status = ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+        status = UtbetalingStatusType.FERDIG_BEHANDLET,
         godkjentAvArrangorTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
-        kanViseBeregning = false,
         createdAt = LocalDate.of(2025, 1, 1).atStartOfDay(),
-        tiltakstype = ArrangorflateTiltakstype("Avklaring", Tiltakskode.AVKLARING),
-        gjennomforing = ArrangorflateGjennomforingInfo(
+        tiltakstype = Utbetaling.Tiltakstype("Avklaring", Tiltakskode.AVKLARING),
+        gjennomforing = Utbetaling.Gjennomforing(
             id = UUID.randomUUID(),
             navn = "Avklaring hos Nav",
         ),
-        arrangor = ArrangorflateArrangor(
+        arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             navn = "Nav",
+            slettet = false,
         ),
-        beregning = ArrangorflateBeregning.FastSatsPerTiltaksplassPerManed(
-            belop = 100,
-            digest = "digest",
-            deltakelser = listOf(
-                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
-                    id = UUID.randomUUID(),
-                    deltakerStartDato = LocalDate.of(2025, 1, 1),
-                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
-                    faktor = 1.0,
-                    perioderMedDeltakelsesmengde = listOf(
-                        DeltakelsesprosentPeriode(
-                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            deltakelsesprosent = 100.0,
-                        ),
+        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34)),
+                stengt = setOf(
+                    StengtPeriode(
+                        periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
+                        beskrivelse = "Stengt for ferie",
                     ),
-                    personalia = ArrangorflatePersonalia(
-                        navn = "Ola Skjermet",
-                        norskIdent = NorskIdent("01010199999"),
-                        erSkjermet = true,
-                    ),
-                    status = null,
                 ),
-                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
-                    id = UUID.randomUUID(),
-                    deltakerStartDato = LocalDate.of(2025, 1, 1),
-                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
-                    faktor = 1.0,
-                    perioderMedDeltakelsesmengde = listOf(
-                        DeltakelsesprosentPeriode(
-                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            deltakelsesprosent = 100.0,
+                deltakelser = setOf(
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltaker1Id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
                         ),
                     ),
-                    personalia = ArrangorflatePersonalia(
-                        navn = "Ola Nordmann",
-                        norskIdent = NorskIdent("01010199999"),
-                        erSkjermet = false,
-                    ),
-                    status = null,
-                ),
-                ArrangorflateBeregningDeltakelse.FastSatsPerTiltaksplassPerManed(
-                    id = UUID.randomUUID(),
-                    deltakerStartDato = LocalDate.of(2024, 1, 1),
-                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
-                    faktor = 0.75,
-                    perioderMedDeltakelsesmengde = listOf(
-                        DeltakelsesprosentPeriode(
-                            periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15)),
-                            deltakelsesprosent = 50.0,
-                        ),
-                        DeltakelsesprosentPeriode(
-                            periode = Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1)),
-                            deltakelsesprosent = 100.0,
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltaker2Id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
                         ),
                     ),
-                    personalia = ArrangorflatePersonalia(
-                        navn = "Kari Nordmann",
-                        norskIdent = NorskIdent("01010199998"),
-                        erSkjermet = false,
+                    DeltakelseDeltakelsesprosentPerioder(
+                        deltakelseId = deltaker3Id,
+                        perioder = listOf(
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15)),
+                                deltakelsesprosent = 50.0,
+                            ),
+                            DeltakelsesprosentPeriode(
+                                periode = Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1)),
+                                deltakelsesprosent = 100.0,
+                            ),
+                        ),
                     ),
-                    status = null,
                 ),
             ),
-            stengt = listOf(
-                StengtPeriode(
-                    periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
-                    beskrivelse = "Stengt for ferie",
-                ),
-            ),
-            detaljer = Details(
-                entries = listOf(
-                    DetailsEntry.nok("Sats", 34),
-                    DetailsEntry.number("Antall månedsverk", 1.0),
-                    DetailsEntry.nok("Beløp", 100),
+            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                belop = 100,
+                deltakelser = setOf(
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakelseId = deltaker1Id,
+                        perioder = setOf(
+                            BeregnetPeriode(
+                                faktor = 1.0,
+                                sats = 1000,
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                            ),
+                        ),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakelseId = deltaker2Id,
+                        perioder = setOf(
+                            BeregnetPeriode(
+                                faktor = 1.0,
+                                sats = 1000,
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                            ),
+                        ),
+                    ),
+                    UtbetalingBeregningOutputDeltakelse(
+                        deltakelseId = deltaker3Id,
+                        perioder = setOf(
+                            BeregnetPeriode(
+                                faktor = 0.75,
+                                sats = 1000,
+                                periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31)),
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),
-        betalingsinformasjon = ArrangorflateBetalingsinformasjon(
+        betalingsinformasjon = Utbetaling.Betalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
             kid = null,
         ),
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-        type = UtbetalingType.INNSENDING.toDto(),
-        linjer = listOf(
-            ArrangforflateUtbetalingLinje(
-                id = UUID.randomUUID(),
-                tilsagn = ArrangorflateTilsagnSummary(
-                    id = UUID.randomUUID(),
-                    bestillingsnummer = "A-1-1",
-                ),
-                status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                belop = 99,
-                statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
-            ),
-            ArrangforflateUtbetalingLinje(
-                id = UUID.randomUUID(),
-                tilsagn = ArrangorflateTilsagnSummary(
-                    id = UUID.randomUUID(),
-                    bestillingsnummer = "A-1-2",
-                ),
-                status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
-                belop = 1,
-                statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
-            ),
+        innsender = Arrangor,
+        journalpostId = null,
+        beskrivelse = null,
+        begrunnelseMindreBetalt = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+    )
+
+    val personalia = mapOf(
+        deltaker1Id to DeltakerPersonalia(
+            navn = "Ola Skjermet",
+            norskIdent = NorskIdent("01010199999"),
+            erSkjermet = true,
+            deltakerId = deltaker1Id,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.UGRADERT,
         ),
-        advarsler = emptyList(),
+        deltaker2Id to DeltakerPersonalia(
+            navn = "Ola Nordmann",
+            norskIdent = NorskIdent("01010199999"),
+            erSkjermet = false,
+            deltakerId = deltaker2Id,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.UGRADERT,
+        ),
+        deltaker3Id to DeltakerPersonalia(
+            navn = "Kari Nordmann",
+            norskIdent = NorskIdent("01010199998"),
+            erSkjermet = false,
+            deltakerId = deltaker3Id,
+            oppfolgingEnhet = null,
+            adressebeskyttelse = PdlGradering.UGRADERT,
+        ),
+    )
+
+    val linjer = listOf(
+        ArrangforflateUtbetalingLinje(
+            id = UUID.randomUUID(),
+            tilsagn = ArrangorflateTilsagnSummary(
+                id = UUID.randomUUID(),
+                bestillingsnummer = "A-1-1",
+            ),
+            status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            belop = 99,
+            statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
+        ),
+        ArrangforflateUtbetalingLinje(
+            id = UUID.randomUUID(),
+            tilsagn = ArrangorflateTilsagnSummary(
+                id = UUID.randomUUID(),
+                bestillingsnummer = "A-1-2",
+            ),
+            status = DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+            belop = 1,
+            statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
+        ),
     )
 
     test("pdf-content for utbetalingsdetaljer til arrangør") {
-        val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetaling)
+        val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetaling, linjer)
 
         jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerContent
     }
 
     test("pdf-content for journalpost av innsending fra arrangør") {
-        val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(utbetaling)
+        val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(utbetaling, personalia)
 
         jsonPrettyPrint.encodeToString(pdfContent) shouldBe expectedJournalpostContent
     }
@@ -224,7 +269,7 @@ private val expectedUtbetalingsdetaljerContent = """
             },
             {
               "label": "Antall månedsverk",
-              "value": "1.0"
+              "value": "2.75"
             },
             {
               "label": "Beløp",
@@ -402,7 +447,7 @@ private val expectedJournalpostContent = """
             },
             {
               "label": "Antall månedsverk",
-              "value": "1.0"
+              "value": "2.75"
             },
             {
               "label": "Beløp",

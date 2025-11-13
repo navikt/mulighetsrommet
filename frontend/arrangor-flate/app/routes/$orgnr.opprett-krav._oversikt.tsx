@@ -3,12 +3,12 @@ import { ArrangorflateService, DataDrivenTableDto, GjennomforingerTableResponse 
 import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
-import { DataDrivenTable } from "~/components/table/DataDrivenTable";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { useEffect } from "react";
+import { DataDrivenTable } from "@mr/frontend-common";
 
 type LoaderData = {
   gjennomforingerTabeller: GjennomforingerTableResponse;

@@ -47,8 +47,8 @@ import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnes
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
-import { DataDetails } from "@/components/data-element/DataDetails";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
+import { DataDetails } from "@/components/data-element/DataDetails";
 
 function useTilsagnDetaljer(tilsagnId: string) {
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);

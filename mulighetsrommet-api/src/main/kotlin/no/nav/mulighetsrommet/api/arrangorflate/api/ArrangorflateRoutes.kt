@@ -459,8 +459,8 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
             requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
 
-            val arrflateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
-            val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(arrflateUtbetaling)
+            val linjer = arrangorFlateService.getLinjer(utbetaling.id)
+            val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetaling, linjer)
             pdfClient.getPdfDocument(content)
                 .onRight { pdfContent ->
                     call.response.headers.append(
@@ -634,13 +634,14 @@ data class GodkjennUtbetaling(
 @JsonClassDiscriminator("type")
 sealed class DeltakerAdvarsel {
     abstract val deltakerId: UUID
+    abstract val beskrivelse: String
 
     @Serializable
     @SerialName("DeltakerAdvarselRelevanteForslag")
     data class RelevanteForslag(
         @Serializable(with = UUIDSerializer::class)
         override val deltakerId: UUID,
-        val antallRelevanteForslag: Int,
+        override val beskrivelse: String,
     ) : DeltakerAdvarsel()
 
     @Serializable
@@ -648,6 +649,7 @@ sealed class DeltakerAdvarsel {
     data class FeilSluttDato(
         @Serializable(with = UUIDSerializer::class)
         override val deltakerId: UUID,
+        override val beskrivelse: String,
     ) : DeltakerAdvarsel()
 }
 

@@ -25,6 +25,9 @@ import { FilterContainer } from "./components/filter/FilterContainer";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
 import { useApiQuery, useApiSuspenseQuery } from "./hooks/useApiQuery";
 import { useSortableData } from "./hooks/useSortableData";
+import { DataDrivenTable } from "./components/datadriven/DataDrivenTable";
+import { getDataElement } from "./components/datadriven/DataElement";
+import { DataElementStatusTag } from "./components/datadriven/DataElementStatusTag";
 
 export {
   useDebounce,
@@ -53,4 +56,7 @@ export {
   useApiQuery,
   useApiSuspenseQuery,
   useSortableData,
+  DataDrivenTable,
+  DataElementStatusTag,
+  getDataElement,
 };

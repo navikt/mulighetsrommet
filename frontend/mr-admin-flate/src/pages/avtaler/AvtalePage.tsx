@@ -12,7 +12,7 @@ import { GjennomforingerForAvtalePage } from "../gjennomforing/GjennomforingerFo
 import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");

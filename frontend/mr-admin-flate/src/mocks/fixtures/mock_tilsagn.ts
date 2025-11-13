@@ -171,249 +171,108 @@ export const mockTilsagnTable: DataDrivenTableDto = {
   ],
   rows: [
     {
-      bestillingsnummer: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "A-2025/11133-23",
-        format: null,
+      cells: {
+        bestillingsnummer: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "A-2025/11133-23",
+          format: null,
+        },
+        periodeStart: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-06-01",
+          format: DataElementTextFormat.DATE,
+        },
+        periodeSlutt: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-11-30",
+          format: DataElementTextFormat.DATE,
+        },
+        type: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "Tilsagn",
+          format: null,
+        },
+        kostnadssted: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "Nav tiltak Oslo",
+          format: null,
+        },
+        antallPlasser: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "97",
+          format: DataElementTextFormat.NUMBER,
+        },
+        belop: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "12207450",
+          format: DataElementTextFormat.NOK,
+        },
+        status: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Status",
+          value: "Til godkjenning",
+          variant: DataElementStatusVariant.WARNING,
+          description: null,
+        },
+        action: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Link",
+          digest: window.crypto.randomUUID().slice(0, 8),
+          text: "Behandle",
+          href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/10e393b0-1b7c-4c68-9a42-b541b2f114b8",
+        },
       },
-      periodeStart: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-06-01",
-        format: DataElementTextFormat.DATE,
-      },
-      periodeSlutt: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-11-30",
-        format: DataElementTextFormat.DATE,
-      },
-      type: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Tilsagn",
-        format: null,
-      },
-      kostnadssted: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Nav tiltak Oslo",
-        format: null,
-      },
-      antallPlasser: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "97",
-        format: DataElementTextFormat.NUMBER,
-      },
-      belop: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "12207450",
-        format: DataElementTextFormat.NOK,
-      },
-      status: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Status",
-        value: "Til godkjenning",
-        variant: DataElementStatusVariant.WARNING,
-        description: null,
-      },
-      action: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Link",
-        digest: window.crypto.randomUUID().slice(0, 8),
-        text: "Behandle",
-        href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/10e393b0-1b7c-4c68-9a42-b541b2f114b8",
-      },
+      content: null,
     },
     {
-      bestillingsnummer: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "A-2025/11133-22",
-        format: null,
+      cells: {
+        bestillingsnummer: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "A-2025/11133-22",
+          format: null,
+        },
+        periodeStart: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-08-28",
+          format: DataElementTextFormat.DATE,
+        },
+        periodeSlutt: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-08-29",
+          format: DataElementTextFormat.DATE,
+        },
+        type: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "Ekstratilsagn",
+          format: null,
+        },
+        kostnadssted: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "Nav Alta-Kvænangen-Loppa",
+          format: null,
+        },
+        antallPlasser: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "1",
+          format: DataElementTextFormat.NUMBER,
+        },
+        belop: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "1353",
+          format: DataElementTextFormat.NOK,
+        },
+        status: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Status",
+          value: "Returnert",
+          variant: DataElementStatusVariant.ERROR,
+          description: null,
+        },
+        action: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Link",
+          digest: window.crypto.randomUUID().slice(0, 8),
+          text: "Behandle",
+          href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/fd1825aa-1951-4de2-9b72-12d22f121e92",
+        },
       },
-      periodeStart: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-08-28",
-        format: DataElementTextFormat.DATE,
-      },
-      periodeSlutt: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-08-29",
-        format: DataElementTextFormat.DATE,
-      },
-      type: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Ekstratilsagn",
-        format: null,
-      },
-      kostnadssted: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Nav Alta-Kvænangen-Loppa",
-        format: null,
-      },
-      antallPlasser: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "1",
-        format: DataElementTextFormat.NUMBER,
-      },
-      belop: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "1353",
-        format: DataElementTextFormat.NOK,
-      },
-      status: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Status",
-        value: "Returnert",
-        variant: DataElementStatusVariant.ERROR,
-        description: null,
-      },
-      action: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Link",
-        digest: window.crypto.randomUUID().slice(0, 8),
-        text: "Behandle",
-        href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/fd1825aa-1951-4de2-9b72-12d22f121e92",
-      },
-    },
-    {
-      bestillingsnummer: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "A-2025/11133-21",
-        format: null,
-      },
-      periodeStart: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-05-01",
-        format: DataElementTextFormat.DATE,
-      },
-      periodeSlutt: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-08-31",
-        format: DataElementTextFormat.DATE,
-      },
-      type: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Tilsagn for investering",
-        format: null,
-      },
-      kostnadssted: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Nav tiltak Oslo",
-        format: null,
-      },
-      antallPlasser: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "6",
-        format: DataElementTextFormat.NUMBER,
-      },
-      belop: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "503400",
-        format: DataElementTextFormat.NOK,
-      },
-      status: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Status",
-        value: "Til oppgjør",
-        variant: DataElementStatusVariant.ERROR_BORDER,
-        description: null,
-      },
-      action: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Link",
-        digest: window.crypto.randomUUID().slice(0, 8),
-        text: "Behandle",
-        href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/3ac22799-6af6-47c7-a3f4-bb4eaa7bad07",
-      },
-    },
-    {
-      bestillingsnummer: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "A-2025/11133-19",
-        format: null,
-      },
-      periodeStart: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-05-01",
-        format: DataElementTextFormat.DATE,
-      },
-      periodeSlutt: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-05-31",
-        format: DataElementTextFormat.DATE,
-      },
-      type: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Tilsagn",
-        format: null,
-      },
-      kostnadssted: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Nav tiltak Oslo",
-        format: null,
-      },
-      antallPlasser: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "100",
-        format: DataElementTextFormat.NUMBER,
-      },
-      belop: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2097500",
-        format: DataElementTextFormat.NOK,
-      },
-      status: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Status",
-        value: "Godkjent",
-        variant: DataElementStatusVariant.SUCCESS,
-        description: null,
-      },
-      action: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Link",
-        digest: window.crypto.randomUUID().slice(0, 8),
-        text: "Detaljer",
-        href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/c7cd1ac0-34cd-46f2-b441-6d8c7318ee05",
-      },
-    },
-    {
-      bestillingsnummer: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "A-2025/11133-18",
-        format: null,
-      },
-      periodeStart: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-01-06",
-        format: DataElementTextFormat.DATE,
-      },
-      periodeSlutt: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "2025-06-20",
-        format: DataElementTextFormat.DATE,
-      },
-      type: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Ekstratilsagn",
-        format: null,
-      },
-      kostnadssted: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "Nav tiltak Oslo",
-        format: null,
-      },
-      antallPlasser: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "7",
-        format: DataElementTextFormat.NUMBER,
-      },
-      belop: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "808327",
-        format: DataElementTextFormat.NOK,
-      },
-      status: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Status",
-        value: "Godkjent",
-        variant: DataElementStatusVariant.SUCCESS,
-        description: null,
-      },
-      action: {
-        type: "no.nav.mulighetsrommet.model.DataElement.Link",
-        digest: window.crypto.randomUUID().slice(0, 8),
-        text: "Detaljer",
-        href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/5950e714-95bc-4d4c-b52e-c75fde749056",
-      },
+      content: null,
     },
   ],
 };

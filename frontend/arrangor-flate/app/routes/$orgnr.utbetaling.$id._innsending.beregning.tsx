@@ -80,28 +80,23 @@ export default function UtbetalingBeregning() {
         Deltakere
       </Heading>
       <VStack gap="4">
-        {"stengt" in utbetaling.beregning && (
-          <>
-            {utbetaling.beregning.stengt.length > 0 && (
-              <Alert variant={"info"}>
-                {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-                <ul>
-                  {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                    <li key={periode.start + periode.slutt}>
-                      {formaterPeriode(periode)}: {beskrivelse}
-                    </li>
-                  ))}
-                </ul>
-              </Alert>
-            )}
-            <DeltakelserTable
-              periode={utbetaling.periode}
-              beregning={utbetaling.beregning}
-              advarsler={utbetaling.advarsler}
-              deltakerlisteUrl={deltakerlisteUrl}
-            />
-          </>
+        {utbetaling.beregning.stengt.length > 0 && (
+          <Alert variant={"info"}>
+            {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+            <ul>
+              {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                <li key={periode.start + periode.slutt}>
+                  {formaterPeriode(periode)}: {beskrivelse}
+                </li>
+              ))}
+            </ul>
+          </Alert>
         )}
+        <DeltakelserTable
+          beregning={utbetaling.beregning}
+          advarsler={utbetaling.advarsler}
+          deltakerlisteUrl={deltakerlisteUrl}
+        />
         <Definisjonsliste definitions={utbetaling.beregning.detaljer.entries} className="my-2" />
         <HStack gap="4">
           <Button

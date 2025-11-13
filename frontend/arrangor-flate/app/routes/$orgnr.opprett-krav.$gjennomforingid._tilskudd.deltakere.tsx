@@ -21,8 +21,8 @@ import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import { getSession } from "~/sessions.server";
-import { DataDrivenTable } from "~/components/table/DataDrivenTable";
 import { OpprettKravVeiviserButtons } from "~/components/OpprettKravVeiviserButtons";
+import { DataDrivenTable } from "@mr/frontend-common";
 
 export const meta: MetaFunction = ({ matches }) => {
   return [

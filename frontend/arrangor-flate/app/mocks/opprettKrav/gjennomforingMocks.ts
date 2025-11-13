@@ -78,14 +78,17 @@ export const oversiktAktiveGjennomforinger: DataDrivenTableDto = {
   ],
   rows: [gjennomforingAFT, gjennomforingAvklaring, gjennomforingOppfolging].map(
     (gjennomforing) => ({
-      navn: dataElementText(gjennomforing.navn),
-      tiltaksType: dataElementText(gjennomforing.tiltakstype.navn),
-      startDato: dataElementText(gjennomforing.startDato, DataElementTextFormat.DATE),
-      sluttDato: dataElementText(gjennomforing.sluttDato ?? "", DataElementTextFormat.DATE),
-      action: dataElementLink(
-        "Start innsending",
-        `/123456789/opprett-krav/${gjennomforing.id}/innsendingsinformasjon`,
-      ),
+      cells: {
+        navn: dataElementText(gjennomforing.navn),
+        tiltaksType: dataElementText(gjennomforing.tiltakstype.navn),
+        startDato: dataElementText(gjennomforing.startDato, DataElementTextFormat.DATE),
+        sluttDato: dataElementText(gjennomforing.sluttDato ?? "", DataElementTextFormat.DATE),
+        action: dataElementLink(
+          "Start innsending",
+          `/123456789/opprett-krav/${gjennomforing.id}/innsendingsinformasjon`,
+        ),
+      },
+      content: null,
     }),
   ),
 };

@@ -1,5 +1,5 @@
+import { DataElementStatusTag } from "@mr/frontend-common";
 import { TilsagnStatusDto } from "@tiltaksadministrasjon/api-client";
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 
 interface Props {
   status: TilsagnStatusDto;

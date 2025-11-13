@@ -1,10 +1,13 @@
 import {
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-  DeltakerStatusType,
+  DataDrivenTableDto,
+  DataDrivenTableDtoColumnAlign,
+  DataElementTextFormat,
   DelutbetalingStatus,
   DetailsFormat,
   Tiltakskode,
+  TimelineDtoRowPeriodVariant,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
@@ -65,6 +68,105 @@ const arrManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   advarsler: [],
 };
 
+const deltakelser: DataDrivenTableDto = {
+  columns: [
+    { key: "navn", label: "Navn", sortable: false, align: DataDrivenTableDtoColumnAlign.LEFT },
+    {
+      key: "identitetsnummer",
+      label: "Fødselsnr.",
+      sortable: false,
+      align: DataDrivenTableDtoColumnAlign.LEFT,
+    },
+    {
+      key: "tiltakStart",
+      label: "Startdato i tiltaket",
+      sortable: false,
+      align: DataDrivenTableDtoColumnAlign.LEFT,
+    },
+    {
+      key: "periodeStart",
+      label: "Startdato i perioden",
+      sortable: true,
+      align: DataDrivenTableDtoColumnAlign.LEFT,
+    },
+    {
+      key: "periodeSlutt",
+      label: "Sluttdato i perioden",
+      sortable: true,
+      align: DataDrivenTableDtoColumnAlign.LEFT,
+    },
+    {
+      key: "faktor",
+      label: "Ukesverk",
+      sortable: true,
+      align: DataDrivenTableDtoColumnAlign.RIGHT,
+    },
+  ],
+  rows: [
+    {
+      cells: {
+        navn: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "Nordmann, Ola",
+          format: null,
+        },
+        identitetsnummer: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "27017809100",
+          format: null,
+        },
+        tiltakStart: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-07-29",
+          format: DataElementTextFormat.DATE,
+        },
+        periodeStart: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-09-29",
+          format: DataElementTextFormat.DATE,
+        },
+        periodeSlutt: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "2025-10-27",
+          format: DataElementTextFormat.DATE,
+        },
+        faktor: {
+          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          value: "6.0",
+          format: DataElementTextFormat.NUMBER,
+        },
+      },
+      content: {
+        startDate: "2025-10-01",
+        endDate: "2025-10-31",
+        rows: [
+          {
+            periods: [
+              {
+                key: "0",
+                start: "2025-09-29",
+                end: "2025-10-14",
+                status: TimelineDtoRowPeriodVariant.INFO,
+                content: "Pris per uke: 777, Ukesverk: 3.0",
+                hover: "Pris per uke: 777, Ukesverk: 3.0, Periode: 01.10.2025 - 31.10.2025",
+              },
+              {
+                key: "1",
+                start: "2025-10-15",
+                end: "2025-10-27",
+                status: TimelineDtoRowPeriodVariant.INFO,
+                content: "Pris per uke: 888, Ukesverk: 3.0",
+                hover: "Pris per uke: 888, Ukesverk: 3.0, Periode: 01.10.2025 - 31.10.2025",
+              },
+            ],
+            label: "Beregning",
+          },
+        ],
+      },
+    },
+  ],
+};
+
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
@@ -82,7 +184,6 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
   },
   kanViseBeregning: true,
   beregning: {
-    type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
     displayName: "Sats per tiltaksplass per måned",
     detaljer: {
       entries: [
@@ -93,20 +194,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
     },
     belop: 10149,
     digest: "b3602d2a",
-    deltakelser: [
-      {
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        id: "6248f41f-4029-4bce-baba-dc23cfd5a242",
-        deltakerStartDato: "2025-01-17",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-17", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 0.48387,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-    ],
+    deltakelser,
     stengt: [],
   },
   advarsler: [],
@@ -142,20 +230,9 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
     organisasjonsnummer: "973674471",
     navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
   },
-  advarsler: [
-    {
-      type: "DeltakerAdvarselFeilSluttDato",
-      deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
-    },
-    {
-      type: "DeltakerAdvarselRelevanteForslag",
-      deltakerId: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
-      antallRelevanteForslag: 3,
-    },
-  ],
+  advarsler: [],
   kanViseBeregning: true,
   beregning: {
-    type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
     displayName: "Sats per tiltaksplass per måned",
     detaljer: {
       entries: [
@@ -166,104 +243,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
     },
     belop: 242904,
     digest: "db0c7c6e",
-    deltakelser: [
-      {
-        id: "ff07c9c2-dff3-4e81-bd5a-40bb19108cc1",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        deltakerStartDato: "2024-07-15",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 60.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.HAR_SLUTTET,
-      },
-      {
-        id: "f7284cdb-9b8f-4431-9808-b1bcc9ae7494",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        deltakerStartDato: "2024-07-16",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        id: "32b05c15-e666-46ad-8fae-ee7a5263fa81",
-        deltakerStartDato: "2024-12-19",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        id: "a06a5562-78ac-4564-992c-cae22d9707f2",
-        deltakerStartDato: "2024-12-19",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        id: "44af1d55-33f6-4198-9ebd-3f09e50e9b84",
-        deltakerStartDato: "2024-08-29",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        id: "7efeb453-805b-4fda-a413-e1723ff93a1b",
-        deltakerStartDato: "2024-10-14",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-01-15" }, deltakelsesprosent: 80.0 },
-        ],
-        faktor: 0.45161,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        id: "ec1c4596-cbd9-4fb0-8aa7-0c7b41ced5de",
-        deltakerStartDato: "2024-11-08",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-01", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        id: "b08e99ff-4406-4ceb-9299-b6e9f1afaa30",
-        deltakerStartDato: "2025-01-17",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-01-17", slutt: "2025-02-01" }, deltakelsesprosent: 100.0 },
-        ],
-        faktor: 0.48387,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-    ],
+    deltakelser,
     stengt: [],
   },
   betalingsinformasjon: { kontonummer: "10002427740", kid: null },
@@ -293,7 +273,8 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   },
   kanViseBeregning: true,
   beregning: {
-    type: "ArrangorflateBeregningFri",
+    deltakelser: null,
+    stengt: [],
     displayName: "Annen avtalt pris",
     detaljer: {
       entries: [{ key: "Beløp", value: "242904", format: DetailsFormat.NOK }],
@@ -324,7 +305,8 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   },
   kanViseBeregning: true,
   beregning: {
-    type: "ArrangorflateBeregningFri",
+    stengt: [],
+    deltakelser: null,
     displayName: "Annen avtalt pris",
     detaljer: {
       entries: [{ key: "Beløp", value: "500", format: DetailsFormat.NOK }],
@@ -367,7 +349,6 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   },
   kanViseBeregning: true,
   beregning: {
-    type: "ArrangorflateBeregningFastSatsPerTiltaksplassPerManed",
     displayName: "Sats per tiltaksplass per måned",
     detaljer: {
       entries: [
@@ -378,21 +359,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     },
     belop: 16848,
     digest: "38c07a43",
-    deltakelser: [
-      {
-        id: "2e9d8070-b74f-455b-b8ae-df7b61c871aa",
-        deltakerStartDato: "2025-05-20",
-        type: "ArrangorflateBeregningDeltakelseFastSatsPerTiltaksplassPerManed",
-        periode: { start: "2025-01-01", slutt: "2025-01-31" },
-        perioderMedDeltakelsesmengde: [
-          { periode: { start: "2025-06-01", slutt: "2025-06-12" }, deltakelsesprosent: 100.0 },
-          { periode: { start: "2025-06-12", slutt: "2025-07-01" }, deltakelsesprosent: 50.0 },
-        ],
-        faktor: 1.0,
-        personalia: { navn: "Nordmann, Ola", norskIdent: "01010199999", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-    ],
+    deltakelser,
     stengt: [],
   },
   betalingsinformasjon: { kontonummer: "10002427740", kid: "123123123" },
@@ -420,7 +387,6 @@ const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingDto = {
   },
   betalingsinformasjon: { kontonummer: "10002427740", kid: null },
   beregning: {
-    type: "ArrangorflateBeregningPrisPerUkesverk",
     belop: 197980,
     digest: "28172363",
     detaljer: {
@@ -430,35 +396,7 @@ const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingDto = {
         { key: "Beløp", value: "117988", format: DetailsFormat.NOK },
       ],
     },
-    deltakelser: [
-      {
-        type: "ArrangorflateBeregningDeltakelsePrisPerUkesverk",
-        id: "48596046-3e0c-4746-b959-ecbe07e4beef",
-        deltakerStartDato: "2025-08-04",
-        faktor: 4,
-        periode: { start: "2025-11-01", slutt: "2025-12-01" },
-        personalia: { navn: "Nordmann, Ola", norskIdent: "27017809100", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        type: "ArrangorflateBeregningDeltakelsePrisPerUkesverk",
-        id: "80833e40-7b13-4106-8c35-128f431bd3b0",
-        deltakerStartDato: "2025-08-11",
-        faktor: 4,
-        periode: { start: "2025-11-01", slutt: "2025-12-01" },
-        personalia: { navn: "Nordmann, Ola", norskIdent: "27017809100", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-      {
-        type: "ArrangorflateBeregningDeltakelsePrisPerUkesverk",
-        id: "8af3af05-eb1d-4df8-9bd9-3be96e1c90f5",
-        deltakerStartDato: "2025-08-01",
-        faktor: 3.8,
-        periode: { start: "2025-11-01", slutt: "2025-11-28" },
-        personalia: { navn: "Nordmann, Ola", norskIdent: "27017809100", erSkjermet: false },
-        status: DeltakerStatusType.DELTAR,
-      },
-    ],
+    deltakelser,
     stengt: [],
     displayName: "Avtalt ukespris per tiltaksplass",
   },
