@@ -4,6 +4,26 @@ import {
   Tiltakskode,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
+import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
+
+const arrManedKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
+  id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
+  status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+  godkjentAvArrangorTidspunkt: null,
+  tiltakstype: {
+    navn: "Arbeidsrettet rehabilitering",
+    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  },
+  gjennomforing: {
+    id: "a47092ba-410b-4ca1-9713-36506a039742",
+    navn: "Arbeidsrettet rehabilitering - Månedlig",
+  },
+  arrangor: arrangorMock,
+  periode: { start: "2025-10-01", slutt: "2025-11-01" },
+  type: { displayName: "Innsending", displayNameLong: null, tagName: null },
+  belop: 20000,
+  godkjentBelop: null,
+};
 
 const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingKompaktDto = {
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
@@ -152,4 +172,5 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     type: utbetalingType.INNSENDING,
   },
   avklaringManedKlarTilInnsending,
+  arrManedKlarTilGodkjenning,
 ];

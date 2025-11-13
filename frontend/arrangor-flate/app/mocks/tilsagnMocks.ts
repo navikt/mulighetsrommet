@@ -7,6 +7,34 @@ import {
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
+const arrManedsprisTilsagn: ArrangorflateTilsagnDto = {
+  id: "5b08cd43-102e-4845-889e-99c5de2bc252",
+  tiltakstype: {
+    navn: "Arbeidsrettet rehabilitering",
+    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  },
+  gjennomforing: {
+    id: "a47092ba-410b-4ca1-9713-36506a039742",
+    navn: "Arbeidsrettet rehabilitering - Månedlig",
+  },
+  arrangor: arrangorMock,
+  type: TilsagnType.TILSAGN,
+  periode: { start: "2025-10-01", slutt: "2025-11-07" },
+  status: TilsagnStatus.GODKJENT,
+  bruktBelop: 0,
+  gjenstaendeBelop: 1200000,
+  beregning: {
+    entries: [
+      { key: "Tilsagnsperiode", value: "01.10.2025 - 06.11.2025", format: null },
+      { key: "Antall plasser", value: "100", format: DetailsFormat.NUMBER },
+      { key: "Avtalt månedspris per tiltaksplass", value: "10000", format: DetailsFormat.NOK },
+      { key: "Totalbeløp", value: "1200000", format: DetailsFormat.NOK },
+      { key: "Gjenstående beløp", value: "1200000", format: DetailsFormat.NOK },
+    ],
+  },
+  bestillingsnummer: "A-2025/12611-1",
+};
+
 const avklaringUkesprisTilsagn: ArrangorflateTilsagnDto = {
   id: "a7e0df87-f37e-4f6a-92d6-a25a1cded9e7",
   tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
@@ -231,4 +259,5 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     bestillingsnummer: "A-2025/11398-1",
   },
   avklaringUkesprisTilsagn,
+  arrManedsprisTilsagn,
 ];
