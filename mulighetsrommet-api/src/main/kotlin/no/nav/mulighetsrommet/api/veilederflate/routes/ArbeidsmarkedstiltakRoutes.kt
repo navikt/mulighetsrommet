@@ -3,10 +3,13 @@ package no.nav.mulighetsrommet.api.veilederflate.routes
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
+import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate

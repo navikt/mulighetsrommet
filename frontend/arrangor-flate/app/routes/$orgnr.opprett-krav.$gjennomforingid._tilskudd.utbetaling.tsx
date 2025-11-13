@@ -6,14 +6,14 @@ import {
   OpprettKravVeiviserSteg,
 } from "api-client";
 import {
+  ActionFunctionArgs,
+  Form,
   LoaderFunction,
   MetaFunction,
-  useLoaderData,
-  useRevalidator,
-  Form,
-  ActionFunctionArgs,
   redirect,
   useActionData,
+  useLoaderData,
+  useRevalidator,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";

@@ -4,9 +4,12 @@ import arrow.core.nonEmptySetOf
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.http.content.*
+import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.mockPdlClient
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 

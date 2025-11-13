@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.clients.pdl
 
-import java.time.LocalDate
-
 fun List<PdlNavn>.tilNavn(): String? {
     return this.firstOrNull()?.let { navn ->
         val fornavnOgMellomnavn = listOfNotNull(navn.fornavn, navn.mellomnavn).joinToString(" ")

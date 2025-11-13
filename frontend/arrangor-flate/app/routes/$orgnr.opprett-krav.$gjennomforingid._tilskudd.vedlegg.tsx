@@ -10,8 +10,8 @@ import {
 } from "react-router";
 import {
   ArrangorflateService,
-  OpprettKravVedlegg,
   FieldError,
+  OpprettKravVedlegg,
   OpprettKravVedleggGuidePanelType,
   OpprettKravVeiviserSteg,
 } from "api-client";
@@ -25,8 +25,8 @@ import { errorAt, isValidationError, problemDetailResponse } from "~/utils/valid
 import { getOrgnrGjennomforingIdFrom, pathBySteg } from "~/utils/navigation";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import {
-  OpprettKravVeiviserButtons,
   nesteStegFieldName,
+  OpprettKravVeiviserButtons,
 } from "~/components/OpprettKravVeiviserButtons";
 
 const minAntallVedleggFieldName = "minAntallVedlegg";

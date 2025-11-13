@@ -22,7 +22,7 @@ export function AvtaleInformasjonForVeiledereForm() {
   const { data: enheter } = useNavEnheter();
 
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
-  const tiltakskode = watch("tiltakskode");
+  const tiltakskode = watch("detaljer.tiltakskode");
 
   const tiltakId = tiltakstyper.find((type) => type.tiltakskode === tiltakskode)?.id;
 

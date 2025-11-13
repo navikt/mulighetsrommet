@@ -2,6 +2,7 @@ import { AvtaleFormValues } from "@/schemas/avtale";
 import { getUtdanningslop } from "@/schemas/avtaledetaljer";
 import {
   AvtaleRequest,
+  DetaljerRequest,
   PersonvernRequest,
   VeilederinfoRequest,
 } from "@tiltaksadministrasjon/api-client";
@@ -13,15 +14,29 @@ export interface RequestValues {
 }
 
 export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
-  const { navn, startDato, veilederinformasjon, avtaletype, satser, administratorer } = data;
+  const { veilederinformasjon, satser, detaljer } = data;
   return {
     id: id ?? v4(),
-    navn,
-    administratorer,
-    avtaletype,
-    startDato,
-    sakarkivNummer: data.sakarkivNummer || null,
-    sluttDato: data.sluttDato || null,
+    detaljer: {
+      ...detaljer,
+      sakarkivNummer: detaljer.sakarkivNummer || null,
+      sluttDato: detaljer.sluttDato || null,
+      arrangor:
+        detaljer.arrangorHovedenhet && detaljer.arrangorUnderenheter
+          ? {
+              hovedenhet: detaljer.arrangorHovedenhet,
+              underenheter: detaljer.arrangorUnderenheter,
+              kontaktpersoner: detaljer.arrangorKontaktpersoner || [],
+            }
+          : null,
+      amoKategorisering: detaljer.amoKategorisering || null,
+      opsjonsmodell: {
+        type: detaljer.opsjonsmodell.type,
+        opsjonMaksVarighet: detaljer.opsjonsmodell.opsjonMaksVarighet || null,
+        customOpsjonsmodellNavn: detaljer.opsjonsmodell.customOpsjonsmodellNavn || null,
+      },
+      utdanningslop: getUtdanningslop(data),
+    },
     veilederinformasjon: {
       navEnheter: veilederinformasjon.navRegioner
         .concat(veilederinformasjon.navKontorer)
@@ -45,23 +60,7 @@ export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
         : null,
       beskrivelse: veilederinformasjon.beskrivelse,
     },
-    arrangor:
-      data.arrangorHovedenhet && data.arrangorUnderenheter
-        ? {
-            hovedenhet: data.arrangorHovedenhet,
-            underenheter: data.arrangorUnderenheter,
-            kontaktpersoner: data.arrangorKontaktpersoner || [],
-          }
-        : null,
-    tiltakskode: data.tiltakskode,
     personvern: data.personvern,
-    amoKategorisering: data.amoKategorisering || null,
-    opsjonsmodell: {
-      type: data.opsjonsmodell.type,
-      opsjonMaksVarighet: data.opsjonsmodell.opsjonMaksVarighet || null,
-      customOpsjonsmodellNavn: data.opsjonsmodell.customOpsjonsmodellNavn || null,
-    },
-    utdanningslop: getUtdanningslop(data),
     prismodell: {
       type: data.prismodell,
       prisbetingelser: data.prisbetingelser || null,
@@ -73,6 +72,30 @@ export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
 export function toPersonvernRequest({ data }: RequestValues): PersonvernRequest {
   return {
     ...data.personvern,
+  };
+}
+
+export function toDetaljerRequest({ data }: RequestValues): DetaljerRequest {
+  const detaljer = data.detaljer;
+  return {
+    ...detaljer,
+    sakarkivNummer: detaljer.sakarkivNummer || null,
+    sluttDato: detaljer.sluttDato || null,
+    arrangor:
+      detaljer.arrangorHovedenhet && detaljer.arrangorUnderenheter
+        ? {
+            hovedenhet: detaljer.arrangorHovedenhet,
+            underenheter: detaljer.arrangorUnderenheter,
+            kontaktpersoner: detaljer.arrangorKontaktpersoner || [],
+          }
+        : null,
+    amoKategorisering: detaljer.amoKategorisering || null,
+    opsjonsmodell: {
+      type: detaljer.opsjonsmodell.type,
+      opsjonMaksVarighet: detaljer.opsjonsmodell.opsjonMaksVarighet || null,
+      customOpsjonsmodellNavn: detaljer.opsjonsmodell.customOpsjonsmodellNavn || null,
+    },
+    utdanningslop: getUtdanningslop(data),
   };
 }
 

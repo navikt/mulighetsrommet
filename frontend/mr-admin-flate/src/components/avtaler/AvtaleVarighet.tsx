@@ -10,7 +10,7 @@ import {
   hentOpsjonsmodell,
 } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { AvtaleFormValues } from "@/schemas/avtale";
-import { addDuration, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { addDuration, SafeSubDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { Avtaletype, OpsjonsmodellType } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
@@ -25,9 +25,9 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
     getValues,
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
-  const initialStartDato = useRef(getValues("startDato"));
-  const startDato = watch("startDato");
-  const sluttDato = watch("sluttDato");
+  const initialStartDato = useRef(getValues("detaljer.startDato"));
+  const startDato = watch("detaljer.startDato");
+  const sluttDato = watch("detaljer.sluttDato");
 
   const minStartDato = initialStartDato.current
     ? new Date(initialStartDato.current)
@@ -44,19 +44,19 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
     [startDato],
   );
 
-  const watchedAvtaletype = watch("avtaletype");
-  const watchedOpsjonsmodell = watch("opsjonsmodell");
+  const watchedAvtaletype = watch("detaljer.avtaletype");
+  const watchedOpsjonsmodell = watch("detaljer.opsjonsmodell");
   const forhandsgodkjent = watchedAvtaletype === Avtaletype.FORHANDSGODKJENT;
   const gjeldendeOpsjonsmodeller = hentGjeldendeOpsjonsmodeller(watchedAvtaletype);
 
-  const opsjonsmodellType = watch("opsjonsmodell.type");
+  const opsjonsmodellType = watch("detaljer.opsjonsmodell.type");
   const opsjonsmodell = hentOpsjonsmodell(opsjonsmodellType);
 
   useEffect(() => {
     if (startDato && opsjonsmodell && !opsjonUtlost) {
       if (opsjonsmodell.initialSluttdatoEkstraAar) {
         setValue(
-          "sluttDato",
+          "detaljer.sluttDato",
           yyyyMMddFormatting(
             kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar),
           ) ?? "",
@@ -64,7 +64,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
       }
       if (opsjonsmodell.maksVarighetAar) {
         setValue(
-          "opsjonsmodell.opsjonMaksVarighet",
+          "detaljer.opsjonsmodell.opsjonMaksVarighet",
           yyyyMMddFormatting(kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar)),
         );
       }
@@ -80,15 +80,15 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             label="Avtalt mulighet for forlengelse"
             size="small"
             value={opsjonsmodell?.type}
-            error={(errors.opsjonsmodell?.type as FieldError | undefined)?.message}
+            error={(errors.detaljer?.opsjonsmodell?.type as FieldError | undefined)?.message}
             onChange={(e) => {
               const opsjonsmodell = gjeldendeOpsjonsmodeller.find(
                 (modell) => modell.type === e.target.value,
               );
               if (opsjonsmodell) {
-                setValue("opsjonsmodell.type", opsjonsmodell.type);
-                setValue("opsjonsmodell.customOpsjonsmodellNavn", undefined);
-                setValue("opsjonsmodell.opsjonMaksVarighet", undefined);
+                setValue("detaljer.opsjonsmodell.type", opsjonsmodell.type);
+                setValue("detaljer.opsjonsmodell.customOpsjonsmodellNavn", undefined);
+                setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", undefined);
               }
             }}
           >
@@ -107,10 +107,10 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           label="Opsjonsnavn"
           readOnly={opsjonUtlost}
           hideLabel
-          error={errors.opsjonsmodell?.customOpsjonsmodellNavn?.message}
+          error={errors.detaljer?.opsjonsmodell?.customOpsjonsmodellNavn?.message}
           placeholder="Beskriv opsjonsmodellen"
           size="small"
-          {...register("opsjonsmodell.customOpsjonsmodellNavn")}
+          {...register("detaljer.opsjonsmodell.customOpsjonsmodellNavn")}
         />
       )}
       {opsjonsmodell?.kreverMaksVarighet ? (
@@ -120,9 +120,9 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             readOnly={opsjonUtlost}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("startDato", val)}
+            onChange={(val) => setValue("detaljer.startDato", val)}
             defaultSelected={startDato}
-            error={errors.startDato?.message}
+            error={errors.detaljer?.startDato?.message}
           />
           <ControlledDateInput
             key={sluttDato}
@@ -130,15 +130,15 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("sluttDato", val)}
-            defaultSelected={getValues("sluttDato")}
+            onChange={(val) => setValue("detaljer.sluttDato", val)}
+            defaultSelected={getValues("detaljer.sluttDato")}
             invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
-            error={errors.sluttDato?.message}
+            error={errors.detaljer?.sluttDato?.message}
           />
           <ControlledDateInput
             key={watchedOpsjonsmodell.opsjonMaksVarighet}
-            onChange={(val) => setValue("opsjonsmodell.opsjonMaksVarighet", val)}
-            defaultSelected={getValues("opsjonsmodell.opsjonMaksVarighet")}
+            onChange={(val) => setValue("detaljer.opsjonsmodell.opsjonMaksVarighet", val)}
+            defaultSelected={getValues("detaljer.opsjonsmodell.opsjonMaksVarighet")}
             label={avtaletekster.maksVarighetLabel}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
@@ -152,18 +152,18 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             label={avtaletekster.startdatoLabel}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("startDato", val)}
+            onChange={(val) => setValue("detaljer.startDato", val)}
             defaultSelected={startDato}
-            error={errors.startDato?.message}
+            error={errors.detaljer?.startDato?.message}
           />
           <ControlledDateInput
             label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            onChange={(val) => setValue("sluttDato", val)}
-            defaultSelected={getValues("sluttDato")}
+            onChange={(val) => setValue("detaljer.sluttDato", val)}
+            defaultSelected={getValues("detaljer.sluttDato")}
             invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
-            error={errors.sluttDato?.message}
+            error={errors.detaljer?.sluttDato?.message}
           />
         </HGrid>
       )}
@@ -173,5 +173,5 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
 }
 
 function kalkulerMaksDato(date: Date, addYears: number): Date {
-  return subDuration(addDuration(date, { years: addYears }), { days: 1 });
+  return SafeSubDuration(addDuration(date, { years: addYears }), { days: 1 });
 }

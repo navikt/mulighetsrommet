@@ -1,4 +1,4 @@
-import { PortableText, PortableTextReactComponents, PortableTextBlock } from "@portabletext/react";
+import { PortableText, PortableTextBlock, PortableTextReactComponents } from "@portabletext/react";
 import { Alert, BodyLong, GuidePanel, List } from "@navikt/ds-react";
 import { PortableTextTypedObject } from "@api-client";
 

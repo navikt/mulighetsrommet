@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate
 
 import arrow.core.Either
 import arrow.core.getOrElse
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext

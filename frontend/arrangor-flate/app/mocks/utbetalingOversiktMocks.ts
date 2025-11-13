@@ -5,6 +5,26 @@ import {
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 
+const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingKompaktDto = {
+  id: "ba046f93-cb0c-4acf-a724-99a36481f183",
+  status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+  godkjentAvArrangorTidspunkt: null,
+  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
+  gjennomforing: {
+    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
+    navn: "Avklaring - Avtalt ukespris per tiltaksplass",
+  },
+  arrangor: {
+    id: "cc04c391-d733-4762-8208-b0dd4387a126",
+    organisasjonsnummer: "973674471",
+    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
+  },
+  periode: { start: "2025-11-01", slutt: "2025-12-01" },
+  type: utbetalingType.INNSENDING,
+  belop: 117988,
+  godkjentBelop: null,
+};
+
 export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktDto[] = [
   {
     id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
@@ -131,4 +151,5 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     godkjentBelop: null,
     type: utbetalingType.INNSENDING,
   },
+  avklaringManedKlarTilInnsending,
 ];

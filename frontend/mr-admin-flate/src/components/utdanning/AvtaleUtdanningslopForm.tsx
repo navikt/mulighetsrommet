@@ -27,7 +27,7 @@ function SelectAvtaleUtdanning() {
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
 
-  const utdanningsprogram = watch("utdanningslop.utdanningsprogram");
+  const utdanningsprogram = watch("detaljer.utdanningslop.utdanningsprogram");
   const utdanningsprogrammer = useMemo(
     () => utdanninger.map((utdanning) => utdanning.utdanningsprogram),
     [utdanninger],
@@ -42,19 +42,19 @@ function SelectAvtaleUtdanning() {
       <Select
         size="small"
         label={avtaletekster.utdanning.utdanningsprogram.label}
-        {...register("utdanningslop.utdanningsprogram")}
+        {...register("detaljer.utdanningslop.utdanningsprogram")}
         onChange={(e) => {
           if (e.currentTarget.value !== utdanningsprogram) {
-            setValue("utdanningslop.utdanninger", []);
+            setValue("detaljer.utdanningslop.utdanninger", []);
           }
 
           if (e.currentTarget.value !== "") {
-            setValue("utdanningslop.utdanningsprogram", e.currentTarget.value);
+            setValue("detaljer.utdanningslop.utdanningsprogram", e.currentTarget.value);
           } else {
-            setValue("utdanningslop", null);
+            setValue("detaljer.utdanningslop", null);
           }
         }}
-        error={errors.utdanningslop?.utdanninger?.message}
+        error={errors.detaljer?.utdanningslop?.utdanninger?.message}
       >
         <option value={""}>{avtaletekster.utdanning.utdanningsprogram.velg}</option>
         {utdanningsprogrammer.map((utdanningsprogram) => (
@@ -68,7 +68,7 @@ function SelectAvtaleUtdanning() {
           size="small"
           label={avtaletekster.utdanning.laerefag.label}
           placeholder={avtaletekster.utdanning.laerefag.velg}
-          {...register("utdanningslop.utdanninger")}
+          {...register("detaljer.utdanningslop.utdanninger")}
           options={utdanningerForUtdanningsprogram.map((utdanning) => {
             return {
               value: utdanning.id,

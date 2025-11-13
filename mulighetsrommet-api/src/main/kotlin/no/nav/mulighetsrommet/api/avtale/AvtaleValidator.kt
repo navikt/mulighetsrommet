@@ -1,13 +1,15 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.*
-import arrow.core.raise.either
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
+import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navenhet.*
@@ -42,192 +44,73 @@ object AvtaleValidator {
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
             val gjennomforinger: List<Gjennomforing>,
+            val prismodell: Prismodell,
         )
+
         data class Gjennomforing(
             val arrangor: no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet,
             val startDato: LocalDate,
             val utdanningslop: UtdanningslopDto?,
         )
+
         data class Tiltakstype(
             val navn: String,
             val id: UUID,
         )
     }
 
-    fun validate(
+    fun validateCreateAvtale(
         request: AvtaleRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, AvtaleDbo> = validation {
-        validateNotNull(request.startDato) {
-            FieldError.of("Du må legge inn startdato for avtalen", AvtaleRequest::navn)
-        }
-        validate(request.navn.length >= 5 || ctx.previous?.opphav == ArenaMigrering.Opphav.ARENA) {
-            FieldError.of("Avtalenavn må være minst 5 tegn langt", AvtaleRequest::navn)
-        }
-        validate(request.administratorer.isNotEmpty()) {
-            FieldError.of("Du må velge minst én administrator", AvtaleRequest::administratorer)
-        }
-        validate(request.sluttDato == null || !request.sluttDato.isBefore(request.startDato)) {
-            FieldError.of("Startdato må være før sluttdato", AvtaleRequest::startDato)
-        }
-        validate(request.arrangor == null || request.arrangor.underenheter.isNotEmpty()) {
-            FieldError.ofPointer(
-                "/arrangorUnderenheter",
-                "Du må velge minst én underenhet for tiltaksarrangør",
-            )
-        }
-        validate(!request.avtaletype.kreverSakarkivNummer() || request.sakarkivNummer != null) {
-            FieldError.of("Du må skrive inn saksnummer til avtalesaken", AvtaleRequest::sakarkivNummer)
-        }
-        validate(request.avtaletype in Avtaletyper.getAvtaletyperForTiltak(request.tiltakskode)) {
-            FieldError.of(
-                "${request.avtaletype.beskrivelse} er ikke tillatt for tiltakstype ${ctx.tiltakstype.navn}",
-                AvtaleRequest::avtaletype,
-            )
-        }
-        if (request.avtaletype == Avtaletype.FORHANDSGODKJENT) {
-            validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO) {
-                FieldError.of(
-                    "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
-                    AvtaleRequest::opsjonsmodell,
-                )
-            }
-        } else {
-            validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO || request.sluttDato != null) {
-                FieldError.of("Du må legge inn sluttdato for avtalen", AvtaleRequest::sluttDato)
-            }
-            if (request.opsjonsmodell.type !in opsjonsmodellerUtenValidering) {
-                validate(request.opsjonsmodell.opsjonMaksVarighet != null) {
-                    FieldError.of(
-                        "Du må legge inn maks varighet for opsjonen",
-                        AvtaleRequest::opsjonsmodell,
-                        Opsjonsmodell::opsjonMaksVarighet,
-                    )
-                }
-                if (request.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
-                    validate(!request.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
-                        FieldError.of(
-                            "Du må beskrive opsjonsmodellen",
-                            AvtaleRequest::opsjonsmodell,
-                            Opsjonsmodell::customOpsjonsmodellNavn,
-                        )
-                    }
-                }
-            }
-        }
-        validate(request.tiltakskode != Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING || request.amoKategorisering != null) {
-            FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype")
-        }
-        if (request.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-            val utdanninger = request.utdanningslop
-            validateNotNull(utdanninger) {
-                FieldError.of(
-                    "Du må velge et utdanningsprogram og minst ett lærefag",
-                    AvtaleRequest::utdanningslop,
-                )
-            }
-            validate(utdanninger == null || utdanninger.utdanninger.isNotEmpty()) {
-                FieldError.of("Du må velge minst ett lærefag", AvtaleRequest::utdanningslop)
-            }
-        }
-
         validateNavEnheter(ctx.navEnheter)
-        validateSlettetNavAnsatte(ctx.administratorer, AvtaleRequest::administratorer)
-
-        if (ctx.previous == null) {
-            validateCreateAvtale(ctx.arrangor)
-        } else {
-            validateUpdateAvtale(request, ctx.arrangor, ctx.previous)
-        }
-
-        validatePrismodell(request.prismodell, request.tiltakskode, ctx.tiltakstype.navn)
-            .map {
-                AvtaleDboMapper
-                    .fromAvtaleRequest(
-                        request,
-                        request.startDato!!,
-                        it,
-                        arrangor = ctx.arrangor?.let {
-                            AvtaleDbo.Arrangor(
-                                hovedenhet = it.id,
-                                underenheter = it.underenheter?.map { it.id } ?: emptyList(),
-                                kontaktpersoner = request.arrangor?.kontaktpersoner ?: emptyList(),
-                            )
-                        },
-                        resolveStatus(request, ctx.previous, LocalDate.now()),
-                        ctx.tiltakstype.id,
-                    )
-            }
-            .bind()
+        validateDetaljer(request.detaljer, ctx)
+        val prismodellDbo = validatePrismodell(
+            request.prismodell,
+            tiltakskode = request.detaljer.tiltakskode,
+            tiltakstypeNavn = ctx.tiltakstype.navn,
+        ).bind()
+        val detaljerDbo = request.detaljer.toDbo(
+            ctx.tiltakstype.id,
+            ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),
+            resolveStatus(
+                request.detaljer,
+                ctx.previous,
+                LocalDate.now(),
+            ),
+        )
+        val personvernDbo = request.personvern.toDbo()
+        val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
+        fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodellDbo, personvernDbo, veilederinformasjonDbo)
     }
 
-    fun resolveStatus(
-        request: AvtaleRequest,
-        previous: Ctx.Avtale?,
-        today: LocalDate,
-    ): AvtaleStatusType = if (request.arrangor == null) {
-        AvtaleStatusType.UTKAST
-    } else if (previous?.status == AvtaleStatusType.AVBRUTT) {
-        previous.status
-    } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
-        AvtaleStatusType.AKTIV
-    } else {
-        AvtaleStatusType.AVSLUTTET
-    }
-
-    private fun ValidationDsl.validateCreateAvtale(
-        arrangor: ArrangorDto?,
-    ) {
-        if (arrangor == null) {
-            return
-        }
-        validate(arrangor.slettetDato == null) {
-            FieldError.ofPointer(
-                "/arrangorHovedenhet",
-                "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
-            )
+    fun validateUpdateDetaljer(
+        request: DetaljerRequest,
+        ctx: Ctx,
+    ): Either<List<FieldError>, DetaljerDbo> = validation {
+        val previous = ctx.previous
+        requireNotNull(previous) {
+            "Avtalen finnes ikke"
         }
 
-        arrangor.underenheter?.forEach { underenhet ->
-            validate(underenhet.slettetDato == null) {
-                FieldError.ofPointer(
-                    "/arrangorUnderenheter",
-                    "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
-                )
-            }
-
-            validate(underenhet.overordnetEnhet == arrangor.organisasjonsnummer) {
-                FieldError.ofPointer(
-                    "/arrangorUnderenheter",
-                    "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${arrangor.navn}.",
-                )
-            }
-        }
-    }
-
-    private fun ValidationDsl.validateUpdateAvtale(
-        request: AvtaleRequest,
-        arrangor: ArrangorDto?,
-        previous: Ctx.Avtale,
-    ) {
         if (previous.opsjonerRegistrert.isNotEmpty()) {
             validate(request.avtaletype == previous.avtaletype) {
                 FieldError.of(
                     "Du kan ikke endre avtaletype når opsjoner er registrert",
-                    AvtaleRequest::avtaletype,
+                    DetaljerRequest::avtaletype,
                 )
             }
             validate(request.opsjonsmodell.type == previous.opsjonsmodell.type) {
                 FieldError.of(
                     "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
-                    AvtaleRequest::opsjonsmodell,
+                    DetaljerRequest::opsjonsmodell,
                 )
             }
         }
-        validate(request.prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
+        validate(previous.prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
             FieldError.of(
-                "Tiltakstype kan ikke endres ikke fordi prismodellen “${request.prismodell.type.navn}” er i bruk",
-                AvtaleRequest::tiltakskode,
+                "Tiltakstype kan ikke endres fordi prismodellen “${previous.prismodell.type.navn}” er i bruk",
+                DetaljerRequest::tiltakskode,
             )
         }
 
@@ -242,7 +125,7 @@ object AvtaleValidator {
             validate(request.tiltakskode == previous.tiltakskode) {
                 FieldError.of(
                     "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                    AvtaleRequest::tiltakskode,
+                    DetaljerRequest::tiltakskode,
                 )
             }
 
@@ -250,7 +133,7 @@ object AvtaleValidator {
             validate(!earliestGjennomforingStartDato.isBefore(request.startDato)) {
                 FieldError.of(
                     "Startdato kan ikke være etter startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: ${earliestGjennomforingStartDato.formaterDatoTilEuropeiskDatoformat()}",
-                    AvtaleRequest::startDato,
+                    DetaljerRequest::startDato,
                 )
             }
 
@@ -260,11 +143,11 @@ object AvtaleValidator {
                 validateNotNull(request.arrangor) {
                     FieldError.of(
                         "Arrangør kan ikke fjernes fordi en gjennomføring er koblet til avtalen",
-                        AvtaleRequest::arrangor,
-                        AvtaleRequest.Arrangor::hovedenhet,
+                        DetaljerRequest::arrangor,
+                        DetaljerRequest.Arrangor::hovedenhet,
                     )
                 }
-                validate(arrangor?.underenheter?.map { it.id }?.contains(arrangorId) == true) {
+                validate(ctx.arrangor?.underenheter?.map { it.id }?.contains(arrangorId) == true) {
                     FieldError.ofPointer(
                         "/arrangorUnderenheter",
                         "Arrangøren ${gjennomforing.arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
@@ -275,7 +158,7 @@ object AvtaleValidator {
                     validate(request.utdanningslop?.utdanningsprogram == it.utdanningsprogram.id) {
                         FieldError.of(
                             "Utdanningsprogram kan ikke endres fordi en gjennomføring allerede er opprettet for utdanningsprogrammet ${it.utdanningsprogram.navn}",
-                            AvtaleRequest::utdanningslop,
+                            DetaljerRequest::utdanningslop,
                         )
                     }
 
@@ -284,11 +167,139 @@ object AvtaleValidator {
                         validate(utdanninger.contains(utdanning.id)) {
                             FieldError.of(
                                 "Lærefaget ${utdanning.navn} mangler i avtalen, men er i bruk på en av avtalens gjennomføringer",
-                                AvtaleRequest::utdanningslop,
+                                DetaljerRequest::utdanningslop,
                             )
                         }
                     }
                 }
+            }
+        }
+        validateDetaljer(request, ctx)
+
+        request.toDbo(
+            ctx.tiltakstype.id,
+            ctx.arrangor?.toDbo(request.arrangor?.kontaktpersoner),
+            resolveStatus(request, previous, LocalDate.now()),
+        )
+    }
+
+    fun ValidationDsl.validateDetaljer(
+        request: DetaljerRequest,
+        ctx: Ctx,
+    ) {
+        validateNotNull(request.startDato) {
+            FieldError.of("Du må legge inn startdato for avtalen", DetaljerRequest::navn)
+        }
+        validate(request.navn.length >= 5 || ctx.previous?.opphav == ArenaMigrering.Opphav.ARENA) {
+            FieldError.of("Avtalenavn må være minst 5 tegn langt", DetaljerRequest::navn)
+        }
+        validate(request.administratorer.isNotEmpty()) {
+            FieldError.of("Du må velge minst én administrator", DetaljerRequest::administratorer)
+        }
+        validate(request.sluttDato == null || !request.sluttDato.isBefore(request.startDato)) {
+            FieldError.of("Startdato må være før sluttdato", DetaljerRequest::startDato)
+        }
+        validate(request.arrangor == null || request.arrangor.underenheter.isNotEmpty()) {
+            FieldError.ofPointer(
+                "/arrangorUnderenheter",
+                "Du må velge minst én underenhet for tiltaksarrangør",
+            )
+        }
+        validate(!request.avtaletype.kreverSakarkivNummer() || request.sakarkivNummer != null) {
+            FieldError.of("Du må skrive inn saksnummer til avtalesaken", DetaljerRequest::sakarkivNummer)
+        }
+        validate(request.avtaletype in Avtaletyper.getAvtaletyperForTiltak(request.tiltakskode)) {
+            FieldError.of(
+                "${request.avtaletype.beskrivelse} er ikke tillatt for tiltakstype ${ctx.tiltakstype.navn}",
+                DetaljerRequest::avtaletype,
+            )
+        }
+        if (request.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO) {
+                FieldError.of(
+                    "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
+                    DetaljerRequest::opsjonsmodell,
+                )
+            }
+        } else {
+            validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO || request.sluttDato != null) {
+                FieldError.of("Du må legge inn sluttdato for avtalen", DetaljerRequest::sluttDato)
+            }
+            if (request.opsjonsmodell.type !in opsjonsmodellerUtenValidering) {
+                validate(request.opsjonsmodell.opsjonMaksVarighet != null) {
+                    FieldError.of(
+                        "Du må legge inn maks varighet for opsjonen",
+                        DetaljerRequest::opsjonsmodell,
+                        Opsjonsmodell::opsjonMaksVarighet,
+                    )
+                }
+                if (request.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
+                    validate(!request.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
+                        FieldError.of(
+                            "Du må beskrive opsjonsmodellen",
+                            DetaljerRequest::opsjonsmodell,
+                            Opsjonsmodell::customOpsjonsmodellNavn,
+                        )
+                    }
+                }
+            }
+        }
+        validate(request.tiltakskode != Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING || request.amoKategorisering != null) {
+            FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype")
+        }
+        if (request.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+            val utdanninger = request.utdanningslop
+            validateNotNull(utdanninger) {
+                FieldError.of(
+                    "Du må velge et utdanningsprogram og minst ett lærefag",
+                    DetaljerRequest::utdanningslop,
+                )
+            }
+            validate(utdanninger == null || utdanninger.utdanninger.isNotEmpty()) {
+                FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
+            }
+        }
+        validateSlettetNavAnsatte(ctx.administratorer, DetaljerRequest::administratorer)
+        ctx.arrangor?.let { validateArrangor(it) }
+    }
+
+    fun resolveStatus(
+        request: DetaljerRequest,
+        previous: Ctx.Avtale?,
+        today: LocalDate,
+    ): AvtaleStatusType = if (request.arrangor == null) {
+        AvtaleStatusType.UTKAST
+    } else if (previous?.status == AvtaleStatusType.AVBRUTT) {
+        previous.status
+    } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
+        AvtaleStatusType.AKTIV
+    } else {
+        AvtaleStatusType.AVSLUTTET
+    }
+
+    private fun ValidationDsl.validateArrangor(
+        arrangor: ArrangorDto,
+    ) {
+        validate(arrangor.slettetDato == null) {
+            FieldError.ofPointer(
+                "/arrangor/hovedenhet",
+                "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+            )
+        }
+
+        arrangor.underenheter?.forEach { underenhet ->
+            validate(underenhet.slettetDato == null) {
+                FieldError.ofPointer(
+                    "/arrangor/underenheter",
+                    "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                )
+            }
+
+            validate(underenhet.overordnetEnhet == arrangor.organisasjonsnummer) {
+                FieldError.ofPointer(
+                    "/arrangor/underenheter",
+                    "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${arrangor.navn}.",
+                )
             }
         }
     }
