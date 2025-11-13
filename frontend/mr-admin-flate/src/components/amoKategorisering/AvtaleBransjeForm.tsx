@@ -17,7 +17,7 @@ export function AvtaleBransjeForm() {
         size="small"
         helpText={<BransjeHelpText />}
         label="Bransje"
-        {...register("amoKategorisering.bransje")}
+        {...register("detaljer.amoKategorisering.bransje")}
         placeholder="Velg bransje"
         options={[
           {
@@ -62,9 +62,11 @@ export function AvtaleBransjeForm() {
           },
         ]}
       />
-      <ForerkortForm<AvtaleFormValues> path="amoKategorisering.forerkort" />
-      <SertifiseringerSkjema<AvtaleFormValues> path="amoKategorisering.sertifiseringer" />
-      <InnholdElementerForm<AvtaleFormValues> path={"amoKategorisering.innholdElementer"} />
+      <ForerkortForm<AvtaleFormValues> path="detaljer.amoKategorisering.forerkort" />
+      <SertifiseringerSkjema<AvtaleFormValues> path="detaljer.amoKategorisering.sertifiseringer" />
+      <InnholdElementerForm<AvtaleFormValues>
+        path={"detaljer.amoKategorisering.innholdElementer"}
+      />
     </>
   );
 }

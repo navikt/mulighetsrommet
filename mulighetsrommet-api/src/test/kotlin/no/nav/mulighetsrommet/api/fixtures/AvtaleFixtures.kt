@@ -1,28 +1,44 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
+import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.util.*
-import kotlin.collections.List
 
 object AvtaleFixtures {
+    val detaljerDbo = DetaljerDbo(
+        navn = "Avtalenavn",
+        sakarkivNummer = SakarkivNummer("24/1234"),
+        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        arrangor = ArrangorDbo(
+            hovedenhet = ArrangorFixtures.hovedenhet.id,
+            underenheter = listOf(ArrangorFixtures.underenhet1.id),
+            kontaktpersoner = emptyList(),
+        ),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        status = AvtaleStatusType.AKTIV,
+        avtaletype = Avtaletype.RAMMEAVTALE,
+        administratorer = listOf(NavIdent("DD1")),
+        amoKategorisering = null,
+        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
+        utdanningslop = null,
+    )
+
     val oppfolgingStartDato = LocalDate.of(2023, 1, 1)
     val oppfolging = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -50,7 +66,7 @@ object AvtaleFixtures {
         navn = "Avtalenavn",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -78,7 +94,7 @@ object AvtaleFixtures {
         navn = "Gruppe Amo",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -106,7 +122,7 @@ object AvtaleFixtures {
         navn = "Gruppe Amo",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -134,7 +150,7 @@ object AvtaleFixtures {
         navn = "Avtalenavn for VTA",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -162,7 +178,7 @@ object AvtaleFixtures {
         navn = "Avtalenavn for AFT",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -190,7 +206,7 @@ object AvtaleFixtures {
         navn = "Avtalenavn for EnkelAmo",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -218,7 +234,7 @@ object AvtaleFixtures {
         navn = "Jobbklubb avtale",
         sakarkivNummer = SakarkivNummer("24/3234"),
         tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),
@@ -243,18 +259,27 @@ object AvtaleFixtures {
 
     val avtaleRequest = AvtaleRequest(
         id = UUID.randomUUID(),
-        navn = "Avtalenavn",
-        sakarkivNummer = SakarkivNummer("24/1234"),
-        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-        arrangor = AvtaleRequest.Arrangor(
-            hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-            underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-            kontaktpersoner = emptyList(),
+        detaljer = DetaljerRequest(
+            navn = "Avtalenavn",
+            sakarkivNummer = SakarkivNummer("24/1234"),
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            arrangor = DetaljerRequest.Arrangor(
+                hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+                underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                kontaktpersoner = emptyList(),
+            ),
+            startDato = LocalDate.of(2023, 1, 11),
+            sluttDato = LocalDate.now().plusMonths(3),
+            avtaletype = Avtaletype.RAMMEAVTALE,
+            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+            amoKategorisering = null,
+            opsjonsmodell = Opsjonsmodell(
+                opsjonMaksVarighet = LocalDate.now().plusYears(5),
+                type = OpsjonsmodellType.TO_PLUSS_EN,
+                customOpsjonsmodellNavn = null,
+            ),
+            utdanningslop = null,
         ),
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = LocalDate.now().plusMonths(3),
-        avtaletype = Avtaletype.RAMMEAVTALE,
-        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         veilederinformasjon = VeilederinfoRequest(
             navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
             beskrivelse = null,
@@ -264,13 +289,6 @@ object AvtaleFixtures {
             personopplysninger = emptyList(),
             personvernBekreftet = false,
         ),
-        amoKategorisering = null,
-        opsjonsmodell = Opsjonsmodell(
-            opsjonMaksVarighet = LocalDate.now().plusYears(5),
-            type = OpsjonsmodellType.TO_PLUSS_EN,
-            customOpsjonsmodellNavn = null,
-        ),
-        utdanningslop = null,
         prismodell = PrismodellRequest(
             type = PrismodellType.ANNEN_AVTALT_PRIS,
             prisbetingelser = null,
@@ -286,7 +304,7 @@ object AvtaleFixtures {
         navn = "ARR avtale",
         sakarkivNummer = SakarkivNummer("24/3234"),
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
-        arrangor = AvtaleDbo.Arrangor(
+        arrangor = ArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),

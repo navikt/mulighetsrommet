@@ -1,5 +1,4 @@
 import test, { expect, Page } from "@playwright/test";
-import { locateAndFillInput } from "./utils";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
@@ -9,8 +8,8 @@ test.beforeEach(async ({ page }) => {
 const fyllInnAvtale = async (page: Page) => {
   await page.locator("text=Opprett ny avtale").click();
   await expect(page.getByText("Opprett ny avtale")).toBeVisible();
-  await locateAndFillInput(page, "navn", "Testavtale fra Playwright");
-  await locateAndFillInput(page, "sakarkivNummer", "24/123");
+  await page.locator('[name="detaljer.sakarkivNummer"]').fill("24/123");
+  await page.locator('[name="detaljer.navn"]').fill("Testavtale fra Playwright");
   await page.getByLabel("tiltakstype").selectOption({ value: "ARBEIDSFORBEREDENDE_TRENING" });
   await page.keyboard.press("Enter");
   await page.fill('.navds-form-field:has(label:text("Startdato")) input', "01.02.2025");

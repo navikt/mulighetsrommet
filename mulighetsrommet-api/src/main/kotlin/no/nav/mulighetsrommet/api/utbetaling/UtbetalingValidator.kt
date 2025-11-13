@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
-import arrow.core.*
+import arrow.core.Either
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest

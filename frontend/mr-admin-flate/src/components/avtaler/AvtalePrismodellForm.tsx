@@ -4,13 +4,13 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
-import { yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { FeatureToggle, PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   tiltakskode: Tiltakskode;
-  avtaleStartDato?: Date;
+  avtaleStartDato: Date;
 }
 
 export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: Props) {
@@ -51,7 +51,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
               if (satser.length === 0) {
                 setValue("satser", [
                   {
-                    gjelderFra: yyyyMMddFormatting(avtaleStartDato) ?? null,
+                    gjelderFra: yyyyMMddSafeFormatting(avtaleStartDato),
                     gjelderTil: null,
                     pris: 0,
                     valuta: "NOK",
@@ -76,9 +76,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
             ))}
         </Select>
         {beskrivelse && beskrivelse.map((tekst) => <BodyShort>{tekst}</BodyShort>)}
-        {avtaleStartDato && (
-          <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
-        )}
+        <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
       </VStack>
     </Box>
   );

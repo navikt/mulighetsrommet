@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.model
 
+import java.time.Instant
+import java.time.LocalDate
+import java.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,9 +10,6 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.Instant
-import java.time.LocalDate
-import java.util.*
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

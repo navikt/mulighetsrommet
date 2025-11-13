@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.clamav
 
-import io.ktor.client.call.*
-import io.ktor.client.engine.*
-import io.ktor.client.plugins.cache.*
-import io.ktor.client.request.forms.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog

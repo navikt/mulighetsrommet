@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.model
 
-import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 
 /**
  * Representerer en periode inklusiv [start] og eksklusiv [slutt].

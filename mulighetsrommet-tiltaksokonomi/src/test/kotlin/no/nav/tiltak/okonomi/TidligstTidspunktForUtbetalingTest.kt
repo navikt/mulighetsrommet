@@ -4,10 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import java.time.LocalDate
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.test.Fixtures
-import java.time.LocalDate
 
 class TidligstTidspunktForUtbetalingTest : FunSpec({
 

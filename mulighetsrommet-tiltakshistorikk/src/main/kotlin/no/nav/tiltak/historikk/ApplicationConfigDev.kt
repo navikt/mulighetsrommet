@@ -1,10 +1,10 @@
 package no.nav.tiltak.historikk
 
+import java.time.LocalDate
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.Avtale
-import java.time.LocalDate
 
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(

@@ -2,9 +2,10 @@ package no.nav.mulighetsrommet.api.sanity
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.server.plugins.*
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam

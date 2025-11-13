@@ -1,16 +1,19 @@
 package no.nav.mulighetsrommet.api.avtale.api
 
 import arrow.core.flatMap
-import io.github.smiley4.ktoropenapi.delete
-import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.patch
-import io.github.smiley4.ktoropenapi.post
-import io.github.smiley4.ktoropenapi.put
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.github.smiley4.ktoropenapi.*
+import io.ktor.http.ContentDisposition
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.header
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondFile
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
@@ -45,22 +48,27 @@ import java.util.*
 data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val detaljer: DetaljerRequest,
+    val prismodell: PrismodellRequest,
+    val personvern: PersonvernRequest,
+    val veilederinformasjon: VeilederinfoRequest,
+)
+
+@Serializable
+data class DetaljerRequest(
     val navn: String,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor?,
     val sakarkivNummer: SakarkivNummer?,
     @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate?,
+    val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
-    val personvern: PersonvernRequest,
     val opsjonsmodell: Opsjonsmodell,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
-    val prismodell: PrismodellRequest,
-    val veilederinformasjon: VeilederinfoRequest,
 ) {
     @Serializable
     data class Arrangor(
@@ -205,6 +213,39 @@ fun Route.avtaleRoutes() {
                     call.respondWithStatusResponse(result)
                 }
             }
+            patch("{id}/detaljer", {
+                tags = setOf("Avtale")
+                operationId = "upsertDetaljer"
+                request {
+                    pathParameterUuid("id")
+                    body<DetaljerRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Oppdatert avtaledetaljer"
+                        body<AvtaleDto>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val navIdent = getNavIdent()
+                val id: UUID by call.parameters
+                val request = call.receive<DetaljerRequest>()
+
+                val result = avtaleService.upsertDetaljer(id, request, navIdent)
+                    .mapLeft { ValidationError(errors = it) }
+                    .map { AvtaleDtoMapper.fromAvtale(it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
             patch("{id}/personvern", {
                 tags = setOf("Avtale")
                 operationId = "upsertPersonvern"

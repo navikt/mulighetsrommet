@@ -1,6 +1,7 @@
 package no.nav.tiltak.historikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
+import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -10,7 +11,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import java.time.LocalDateTime
 
 class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

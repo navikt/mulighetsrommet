@@ -1,9 +1,9 @@
 package no.nav.tiltak.okonomi
 
+import java.time.LocalDateTime
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import java.time.LocalDateTime
 
 val tidligstTidspunktForUtbetalingProd: (Bestilling, Faktura) -> LocalDateTime? = { bestilling, faktura ->
     when (bestilling.tiltakskode) {
