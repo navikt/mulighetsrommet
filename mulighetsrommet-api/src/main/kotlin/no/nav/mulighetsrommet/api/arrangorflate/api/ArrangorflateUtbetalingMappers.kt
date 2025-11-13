@@ -213,7 +213,7 @@ fun deltakelsePrisPerUkesverkTable(
                                 end = it.periode.getLastInclusiveDate(),
                                 status = Variant.INFO,
                                 content = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}",
-                                hover = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}, Periode: ${periode.start.formaterDatoTilEuropeiskDatoformat()} - ${periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                                hover = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}, Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
                             )
                         },
                     ),
@@ -246,7 +246,7 @@ fun deltakelsePrisPerManedsverkTable(
                                 end = it.periode.getLastInclusiveDate(),
                                 status = Variant.INFO,
                                 content = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}",
-                                hover = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}, Periode: ${periode.start.formaterDatoTilEuropeiskDatoformat()} - ${periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                                hover = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}, Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
                             )
                         },
                     ),
@@ -281,7 +281,7 @@ fun deltakelseFastSatsPerTiltaksplassPerManedTable(
                                 end = beregnetPeriode.periode.getLastInclusiveDate(),
                                 status = Variant.INFO,
                                 content = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}",
-                                hover = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}, Periode: ${periode.start.formaterDatoTilEuropeiskDatoformat()} - ${periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                                hover = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}, Periode: ${beregnetPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${beregnetPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
                             )
                         },
                     ),
