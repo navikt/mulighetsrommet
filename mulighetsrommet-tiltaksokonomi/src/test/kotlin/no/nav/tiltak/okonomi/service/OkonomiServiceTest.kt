@@ -14,8 +14,6 @@ import io.ktor.client.engine.mock.respondOk
 import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -36,6 +34,8 @@ import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class OkonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

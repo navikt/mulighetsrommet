@@ -1,6 +1,5 @@
 package no.nav.tiltak.historikk.db
 
-import java.util.*
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -10,6 +9,7 @@ import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class DeltakerQueries(private val session: Session) {
 

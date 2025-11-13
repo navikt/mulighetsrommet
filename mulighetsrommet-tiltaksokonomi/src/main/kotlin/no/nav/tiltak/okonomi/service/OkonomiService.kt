@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import java.time.LocalDateTime
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.brreg.*
@@ -21,6 +20,7 @@ import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 class OpprettBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 

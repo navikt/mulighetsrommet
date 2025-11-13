@@ -2,8 +2,6 @@ package no.nav.tiltak.okonomi
 
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
-import java.time.LocalDateTime
-import java.util.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -13,6 +11,8 @@ import no.nav.tiltak.okonomi.avstemming.SftpClient
 import no.nav.tiltak.okonomi.avstemming.task.DailyAvstemming
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import java.time.LocalDateTime
+import java.util.*
 
 data class AppConfig(
     val httpClientEngine: HttpClientEngine = CIO.create(),

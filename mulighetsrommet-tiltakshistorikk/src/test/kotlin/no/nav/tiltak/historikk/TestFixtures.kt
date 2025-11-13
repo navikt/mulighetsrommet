@@ -1,10 +1,10 @@
 package no.nav.tiltak.historikk
 
+import no.nav.amt.model.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.model.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
-import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.model.*
 
 object TestFixtures {
     val tiltak = TiltaksgjennomforingV1Dto(
