@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate

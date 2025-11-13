@@ -323,6 +323,49 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/avtaler/{id}/detaljer:
+    patch:
+      tags:
+      - Avtale
+      operationId: upsertDetaljer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DetaljerRequest"
+        required: false
+      responses:
+        "200":
+          description: Oppdatert avtaledetaljer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AvtaleDto"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/avtaler/{id}/personvern:
     patch:
       tags:
@@ -3339,7 +3382,58 @@ components:
       - regelverkLenker
       - sanityId
       - tiltakskode
-    AvtaleRequest.Arrangor:
+    DetaljerRequest:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DetaljerRequest.Arrangor"
+        sakarkivNummer:
+          type:
+          - "null"
+          - string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        administratorer:
+          type: array
+          items:
+            type: string
+        avtaletype:
+          $ref: "#/components/schemas/Avtaletype"
+        opsjonsmodell:
+          $ref: "#/components/schemas/Opsjonsmodell"
+        amoKategorisering:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKategorisering"
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDbo"
+      required:
+      - administratorer
+      - amoKategorisering
+      - arrangor
+      - avtaletype
+      - navn
+      - opsjonsmodell
+      - sakarkivNummer
+      - sluttDato
+      - startDato
+      - tiltakskode
+      - utdanningslop
+    DetaljerRequest.Arrangor:
       type: object
       properties:
         hovedenhet:
@@ -3364,45 +3458,6 @@ components:
       - RAMMEAVTALE
       - FORHANDSGODKJENT
       - OFFENTLIG_OFFENTLIG
-    PersonvernRequest:
-      type: object
-      properties:
-        personopplysninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/Personopplysning"
-        personvernBekreftet:
-          type: boolean
-      required:
-      - personopplysninger
-      - personvernBekreftet
-    Personopplysning:
-      type: string
-      enum:
-      - NAVN
-      - KJONN
-      - ADRESSE
-      - TELEFONNUMMER
-      - FOLKEREGISTER_IDENTIFIKATOR
-      - FODSELSDATO
-      - BEHOV_FOR_BISTAND_FRA_NAV
-      - YTELSER_FRA_NAV
-      - BILDE
-      - EPOST
-      - BRUKERNAVN
-      - ARBEIDSERFARING_OG_VERV
-      - SERTIFIKATER_OG_KURS
-      - UTDANNING_OG_FAGBREV
-      - IP_ADRESSE
-      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
-      - SPRAKKUNNSKAP
-      - ADFERD
-      - SOSIALE_FORHOLD
-      - HELSEOPPLYSNINGER
-      - RELIGION
-      - NASJONALITET
-      - ADRESSESPERRE
-      - VERGEMAL
     Opsjonsmodell:
       type: object
       properties:
@@ -3615,6 +3670,45 @@ components:
       - gjelderTil
       - pris
       - valuta
+    PersonvernRequest:
+      type: object
+      properties:
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
+      required:
+      - personopplysninger
+      - personvernBekreftet
+    Personopplysning:
+      type: string
+      enum:
+      - NAVN
+      - KJONN
+      - ADRESSE
+      - TELEFONNUMMER
+      - FOLKEREGISTER_IDENTIFIKATOR
+      - FODSELSDATO
+      - BEHOV_FOR_BISTAND_FRA_NAV
+      - YTELSER_FRA_NAV
+      - BILDE
+      - EPOST
+      - BRUKERNAVN
+      - ARBEIDSERFARING_OG_VERV
+      - SERTIFIKATER_OG_KURS
+      - UTDANNING_OG_FAGBREV
+      - IP_ADRESSE
+      - PERSONLIGE_EGENSKAPER_OG_INTERESSER
+      - SPRAKKUNNSKAP
+      - ADFERD
+      - SOSIALE_FORHOLD
+      - HELSEOPPLYSNINGER
+      - RELIGION
+      - NASJONALITET
+      - ADRESSESPERRE
+      - VERGEMAL
     VeilederinfoRequest:
       type: object
       properties:
@@ -3640,65 +3734,19 @@ components:
         id:
           type: string
           format: uuid
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        arrangor:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/AvtaleRequest.Arrangor"
-        sakarkivNummer:
-          type:
-          - "null"
-          - string
-        startDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        administratorer:
-          type: array
-          items:
-            type: string
-        avtaletype:
-          $ref: "#/components/schemas/Avtaletype"
-        personvern:
-          $ref: "#/components/schemas/PersonvernRequest"
-        opsjonsmodell:
-          $ref: "#/components/schemas/Opsjonsmodell"
-        amoKategorisering:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
+        detaljer:
+          $ref: "#/components/schemas/DetaljerRequest"
         prismodell:
           $ref: "#/components/schemas/PrismodellRequest"
+        personvern:
+          $ref: "#/components/schemas/PersonvernRequest"
         veilederinformasjon:
           $ref: "#/components/schemas/VeilederinfoRequest"
       required:
-      - administratorer
-      - amoKategorisering
-      - arrangor
-      - avtaletype
+      - detaljer
       - id
-      - navn
-      - opsjonsmodell
       - personvern
       - prismodell
-      - sakarkivNummer
-      - sluttDato
-      - startDato
-      - tiltakskode
-      - utdanningslop
       - veilederinformasjon
     Avtale.Tiltakstype:
       type: object

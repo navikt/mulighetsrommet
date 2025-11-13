@@ -15,12 +15,13 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtaleRequest
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -91,11 +92,13 @@ class AvtaleServiceTest : FunSpec({
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
             avtaleService.upsert(
-                AvtaleFixtures.avtaleRequest.copy(
-                    arrangor = AvtaleRequest.Arrangor(
-                        hovedenhet = Organisasjonsnummer("223442332"),
-                        underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                        kontaktpersoner = emptyList(),
+                avtaleRequest.copy(
+                    detaljer = avtaleRequest.detaljer.copy(
+                        arrangor = DetaljerRequest.Arrangor(
+                            hovedenhet = Organisasjonsnummer("223442332"),
+                            underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                            kontaktpersoner = emptyList(),
+                        ),
                     ),
                 ),
                 bertilNavIdent,
@@ -219,7 +222,7 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
-            val avtale = AvtaleFixtures.avtaleRequest
+            val avtale = avtaleRequest
             avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
@@ -227,13 +230,20 @@ class AvtaleServiceTest : FunSpec({
             }
         }
 
-        test("Bare nye administratorer får notification når man endrer gjennomføring") {
+        test("Bare nye administratorer får notification når man endrer avtale") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
+            val avtale = AvtaleFixtures.oppfolging
 
-            val avtale = AvtaleFixtures.avtaleRequest
-                .copy(administratorer = listOf(identAnsatt2))
-            avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+            ).initialize(database.db)
+
+            val detaljerReq = avtaleRequest.detaljer
+                .copy(
+                    administratorer = listOf(identAnsatt2),
+                )
+            avtaleService.upsertDetaljer(avtale.id, detaljerReq, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldHaveSize(1).first().should {
@@ -382,9 +392,10 @@ class AvtaleServiceTest : FunSpec({
             val dto = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
             dto.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
 
-            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight().should {
-                it.opsjonerRegistrert.shouldBeEmpty()
-            }
+            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight()
+                .should {
+                    it.opsjonerRegistrert.shouldBeEmpty()
+                }
         }
     }
 })

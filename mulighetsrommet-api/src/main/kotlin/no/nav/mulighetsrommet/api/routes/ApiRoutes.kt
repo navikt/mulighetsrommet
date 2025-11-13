@@ -2,7 +2,8 @@ package no.nav.mulighetsrommet.api.routes
 
 import io.github.smiley4.ktoropenapi.openApi
 import io.github.smiley4.ktorswaggerui.swaggerUI
-import io.ktor.server.routing.*
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes

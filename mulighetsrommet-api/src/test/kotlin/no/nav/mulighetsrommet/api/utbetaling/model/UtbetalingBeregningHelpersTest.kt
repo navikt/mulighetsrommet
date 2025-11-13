@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 class UtbetalingBeregningHelpersTest : FunSpec({
     test("skal utlede deltakelsesperioder over flere satser") {

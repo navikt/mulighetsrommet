@@ -3,14 +3,14 @@ import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpe
 import {
   AmoKategorisering,
   AvtaleDto,
+  Faneinnhold,
   GjennomforingArrangorKontaktperson,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  GjennomforingRequest,
   NavAnsattDto,
-  Faneinnhold,
   UtdanningslopDbo,
   UtdanningslopDto,
-  GjennomforingRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { slateFaneinnholdToPortableText } from "../portableText/helper";
 import { DeepPartial } from "react-hook-form";

@@ -367,7 +367,7 @@ class AvtaleQueriesTest : FunSpec({
 
         test("Underenheter blir riktig med fra spørring") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                arrangor = AvtaleDbo.Arrangor(
+                arrangor = ArrangorDbo(
                     hovedenhet = ArrangorFixtures.hovedenhet.id,
                     underenheter = listOf(ArrangorFixtures.underenhet1.id, ArrangorFixtures.underenhet2.id),
                     kontaktpersoner = emptyList(),
@@ -412,7 +412,7 @@ class AvtaleQueriesTest : FunSpec({
                 val underenhet2 = ArrangorFixtures.underenhet2
 
                 val avtale = AvtaleFixtures.oppfolging.copy(
-                    arrangor = AvtaleDbo.Arrangor(
+                    arrangor = ArrangorDbo(
                         hovedenhet = ArrangorFixtures.hovedenhet.id,
                         underenheter = listOf(underenhet1.id, underenhet2.id),
                         kontaktpersoner = listOf(p1.id, p2.id),
@@ -1089,8 +1089,8 @@ private infix fun Collection<Avtale>.shouldContainExactlyIds(listOf: Collection<
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }
 
-private fun arrangorFromHovedenhet(hovedenhet: UUID): AvtaleDbo.Arrangor {
-    return AvtaleDbo.Arrangor(
+private fun arrangorFromHovedenhet(hovedenhet: UUID): ArrangorDbo {
+    return ArrangorDbo(
         hovedenhet = hovedenhet,
         underenheter = emptyList(),
         kontaktpersoner = emptyList(),

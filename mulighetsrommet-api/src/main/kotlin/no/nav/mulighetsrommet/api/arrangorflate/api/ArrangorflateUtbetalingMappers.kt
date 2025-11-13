@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregningDeltakelse.PrisPerUkesverk
-import no.nav.mulighetsrommet.api.arrangorflate.api.Details
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
