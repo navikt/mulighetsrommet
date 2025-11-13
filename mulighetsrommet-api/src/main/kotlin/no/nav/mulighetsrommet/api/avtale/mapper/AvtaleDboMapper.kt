@@ -13,9 +13,7 @@ import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.AvtaleStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.*
 
@@ -174,10 +172,10 @@ fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personopplysninger = personopplysninger,
 )
 
-fun VeilederinfoRequest.toDbo(navenheter: Set<NavEnhetNummer>): VeilederinformasjonDbo = VeilederinformasjonDbo(
+fun VeilederinfoRequest.toDbo(): VeilederinformasjonDbo = VeilederinformasjonDbo(
     redaksjoneltInnhold = RedaksjoneltInnholdDbo(
         beskrivelse = beskrivelse,
         faneinnhold = faneinnhold,
     ),
-    navEnheter = navenheter,
+    navEnheter = navEnheter.toSet(),
 )

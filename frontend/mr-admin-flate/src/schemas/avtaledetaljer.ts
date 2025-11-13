@@ -16,7 +16,9 @@ export const avtaleDetaljerSchema = z.object({
     avtaletype: z.enum(Avtaletype, {
       error: "Du må velge en avtaletype",
     }),
-    startDato: z.string(),
+    startDato: z.string({
+      error: "Du må velge en startdato",
+    }),
     sluttDato: z.string().optional().nullable(),
     opsjonsmodell: z.object({
       type: z.enum(OpsjonsmodellType, {

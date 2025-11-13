@@ -5,11 +5,9 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
@@ -82,7 +80,7 @@ object AvtaleValidator {
             ),
         )
         val personvernDbo = request.personvern.toDbo()
-        val veilederinformasjonDbo = request.veilederinformasjon.toDbo(ctx.navEnheter.map { it.enhetsnummer }.toSet())
+        val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
         fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodellDbo, personvernDbo, veilederinformasjonDbo)
     }
 

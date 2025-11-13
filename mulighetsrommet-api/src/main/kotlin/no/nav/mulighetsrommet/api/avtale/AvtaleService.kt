@@ -58,7 +58,16 @@ class AvtaleService(
         val ctx = getValidatorCtx(request.id, request.detaljer, request.veilederinformasjon.navEnheter, null).bind()
 
         val dbo = AvtaleValidator
-            .validateCreateAvtale(request, ctx)
+            .validateCreateAvtale(
+                request.copy(
+                    veilederinformasjon = request.veilederinformasjon.copy(
+                        navEnheter = sanitizeNavEnheter(
+                            request.veilederinformasjon.navEnheter,
+                        ),
+                    ),
+                ),
+                ctx,
+            )
             .bind()
 
         db.transaction {
@@ -205,7 +214,7 @@ class AvtaleService(
             }
         }
         AvtaleValidator.validateNavEnheter(navEnheter).bind()
-        val dbo = request.toDbo(navEnheter.map { it.enhetsnummer }.toSet())
+        val dbo = request.toDbo()
 
         db.transaction {
             queries.avtale.updateVeilederinfo(previous.id, dbo)

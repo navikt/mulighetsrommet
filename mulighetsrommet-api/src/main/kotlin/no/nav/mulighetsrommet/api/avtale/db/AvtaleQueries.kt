@@ -144,6 +144,7 @@ class AvtaleQueries(private val session: Session) {
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avtaletype" to avtaletype.name,
+        "status" to status.name,
     ) + opsjonsmodell.params()
 
     private fun Opsjonsmodell.params() = mapOf(
@@ -275,7 +276,8 @@ class AvtaleQueries(private val session: Session) {
                 opsjon_maks_varighet = :opsjon_maks_varighet,
                 opsjonsmodell = coalesce(:opsjonsmodell::opsjonsmodell, opsjonsmodell),
                 opsjon_custom_opsjonsmodell_navn = :opsjon_custom_opsjonsmodell_navn,
-                arrangor_hovedenhet_id = :arrangor_hovedenhet_id
+                arrangor_hovedenhet_id = :arrangor_hovedenhet_id,
+                status = :status::avtale_status
              where id = :id::uuid
         """.trimIndent()
 
