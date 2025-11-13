@@ -277,7 +277,7 @@ export default function OpprettKrav() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId)}
+                to={pathByOrgnr(orgnr).opprettKrav.vedlegg(gjennomforingId)}
               >
                 Tilbake
               </Button>

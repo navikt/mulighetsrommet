@@ -1,4 +1,4 @@
-import { http, HttpResponse, PathParams } from "msw";
+import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import {
   ArrangorflateArrangor,
   ArrangorflateUtbetalingDto,
@@ -8,12 +8,8 @@ import {
 import { mockArrangorflateUtbetalingKompakt } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
-
-const arrangorMock: ArrangorflateArrangor = {
-  id: "cc04c391-d733-4762-8208-b0dd4387a126",
-  navn: "Arrangør",
-  organisasjonsnummer: "123456789",
-};
+import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
+import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
 function isAktiv(utbetaling: ArrangorflateUtbetalingKompaktDto): boolean {
   switch (utbetaling.status) {
@@ -28,12 +24,16 @@ function isAktiv(utbetaling: ArrangorflateUtbetalingKompaktDto): boolean {
 }
 
 export const handlers = [
+  http.post<PathParams, DefaultBodyType>("*/api/arrangorflate/vedlegg/scan", () =>
+    HttpResponse.json(true),
+  ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/arrangor/:orgnr/utbetaling",
     () =>
       HttpResponse.json({
         aktive: mockArrangorflateUtbetalingKompakt.filter((u) => isAktiv(u)),
         historiske: mockArrangorflateUtbetalingKompakt.filter((u) => !isAktiv(u)),
+        kanOppretteManueltKrav: true,
       }),
   ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
@@ -142,4 +142,5 @@ export const handlers = [
   http.get("*/api/arrangorflate/:orgnr/features", () => {
     return HttpResponse.json(true);
   }),
+  ...opprettKravHandlers,
 ];

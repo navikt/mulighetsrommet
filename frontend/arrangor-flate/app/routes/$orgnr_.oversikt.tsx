@@ -1,6 +1,5 @@
-import { ChevronDownIcon } from "@navikt/aksel-icons";
-import { ActionMenu, Box, Button, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, FeatureToggle } from "api-client";
+import { Box, Button, Tabs } from "@navikt/ds-react";
+import { ArrangorflateService } from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -8,7 +7,6 @@ import { PageHeading } from "~/components/common/PageHeading";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { UtbetalingTable } from "~/components/utbetaling/UtbetalingTable";
 import { useTabState } from "~/hooks/useTabState";
-import { toggleIsEnabled } from "~/services/featureToggle/featureToggleService";
 import { tekster } from "~/tekster";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
@@ -28,13 +26,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!orgnr) {
     throw new Error("Mangler orgnr");
   }
-
-  const opprettUtbetalingsKravAnnenAvtaltPrisToggle = await toggleIsEnabled({
-    orgnr,
-    feature: FeatureToggle.ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS,
-    tiltakskoder: [],
-    headers: await apiHeaders(request),
-  });
 
   const [{ data: utbetalinger, error: utbetalingerError }, { data: tilsagn, error: tilsagnError }] =
     await Promise.all([
@@ -57,32 +48,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     aktive: utbetalinger.aktive,
     historiske: utbetalinger.historiske,
-    kanOppretteManueltKrav: utbetalinger.kanOppretteManueltKrav,
     tilsagn,
-    opprettUtbetalingsKravAnnenAvtaltPrisToggle,
   };
 }
 
 export default function UtbetalingOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
-  const {
-    aktive,
-    historiske,
-    tilsagn,
-    kanOppretteManueltKrav,
-    opprettUtbetalingsKravAnnenAvtaltPrisToggle,
-  } = useLoaderData<typeof loader>();
+  const { aktive, historiske, tilsagn } = useLoaderData<typeof loader>();
   const orgnr = useOrgnrFromUrl();
 
   return (
     <Box className={css.side}>
       <div className="flex justify-between sm:flex-row sm:p-1">
         <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
-        <OpprettManueltUtbetalingskrav
-          orgnr={orgnr}
-          kanOppretteManueltKrav={kanOppretteManueltKrav}
-          opprettUtbetalingsKravAnnenAvtaltPrisToggle={opprettUtbetalingsKravAnnenAvtaltPrisToggle}
-        />
+        <OpprettManueltUtbetalingskrav orgnr={orgnr} />
       </div>
       <Tabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <Tabs.List>
@@ -109,52 +88,12 @@ export default function UtbetalingOversikt() {
 
 interface OpprettManueltUtbetalingskravProps {
   orgnr: string;
-  kanOppretteManueltKrav: boolean;
-  opprettUtbetalingsKravAnnenAvtaltPrisToggle: boolean;
 }
 
-function OpprettManueltUtbetalingskrav({
-  orgnr,
-  kanOppretteManueltKrav,
-  opprettUtbetalingsKravAnnenAvtaltPrisToggle,
-}: OpprettManueltUtbetalingskravProps) {
-  if (kanOppretteManueltKrav) {
-    return (
-      <Button
-        variant="secondary"
-        as={ReactRouterLink}
-        to={pathByOrgnr(orgnr).opprettKrav.tiltaksOversikt}
-      >
-        {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
-      </Button>
-    );
-  }
+function OpprettManueltUtbetalingskrav({ orgnr }: OpprettManueltUtbetalingskravProps) {
   return (
-    <ActionMenu>
-      <ActionMenu.Trigger>
-        <Button variant="secondary" icon={<ChevronDownIcon aria-hidden />} iconPosition="right">
-          {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
-        </Button>
-      </ActionMenu.Trigger>
-      <ActionMenu.Content>
-        <ActionMenu.Group label="Utbetalingskrav">
-          {opprettUtbetalingsKravAnnenAvtaltPrisToggle && (
-            <ActionMenu.Item
-              as={ReactRouterLink}
-              to={pathByOrgnr(orgnr).opprettKrav.driftstilskudd.innsendingsinformasjon}
-            >
-              {tekster.bokmal.utbetaling.opprettUtbetaling.driftstilskudd}
-            </ActionMenu.Item>
-          )}
-
-          <ActionMenu.Item
-            as={ReactRouterLink}
-            to={pathByOrgnr(orgnr).opprettKravInnsendingsinformasjon}
-          >
-            {tekster.bokmal.utbetaling.opprettUtbetaling.investering}
-          </ActionMenu.Item>
-        </ActionMenu.Group>
-      </ActionMenu.Content>
-    </ActionMenu>
+    <Button variant="secondary" as={ReactRouterLink} to={pathByOrgnr(orgnr).opprettKrav.oversikt}>
+      {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
+    </Button>
   );
 }

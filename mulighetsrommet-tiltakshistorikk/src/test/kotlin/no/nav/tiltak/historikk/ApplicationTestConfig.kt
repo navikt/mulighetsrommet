@@ -1,6 +1,8 @@
 package no.nav.tiltak.historikk
 
 import io.ktor.client.engine.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
@@ -18,6 +20,12 @@ fun <R> withTestApplication(
     testApplication {
         application {
             configure(config)
+        }
+
+        client = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
         }
 
         test()

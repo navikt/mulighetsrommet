@@ -42,38 +42,16 @@ export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
 export const pathByOrgnr = (orgnr: string) => {
   return {
     utbetalinger: `/${orgnr}/oversikt`,
-    opprettKravInnsendingsinformasjon: `/${orgnr}/opprett-krav/innsendingsinformasjon`,
-    opprettKravVedlegg: `/${orgnr}/opprett-krav/vedlegg`,
-    opprettKravUtbetaling: `/${orgnr}/opprett-krav/utbetaling`,
-    opprettKravOppsummering: `/${orgnr}/opprett-krav/oppsummering`,
     opprettKrav: {
-      tiltaksOversikt: `/${orgnr}/opprett-krav/`,
-      investering: {
-        innsendingsinformasjon: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/innsendingsinformasjon`,
-        utbetaling: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/utbetaling`,
-        vedlegg: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/vedlegg`,
-        oppsummering: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/investering/oppsummering`,
-      },
-      driftstilskuddv2: {
-        innsendingsinformasjon: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
-        deltakere: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
-        utbetaling: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
-        vedlegg: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
-        oppsummering: (gjennomforingId: string) =>
-          `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
-      },
-      driftstilskudd: {
-        innsendingsinformasjon: `/${orgnr}/opprett-krav/driftstilskudd/innsendingsinformasjon`,
-        utbetaling: `/${orgnr}/opprett-krav/driftstilskudd/utbetaling`,
-        oppsummering: `/${orgnr}/opprett-krav/driftstilskudd/oppsummering`,
-      },
+      oversikt: `/${orgnr}/opprett-krav/`,
+      innsendingsinformasjon: (gjennomforingId: string) =>
+        `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
+      deltakere: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
+      utbetaling: (gjennomforingId: string) =>
+        `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
+      vedlegg: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
+      oppsummering: (gjennomforingId: string) =>
+        `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
     },
     innsendingsinformasjon: (id: string) => `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
     beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
@@ -87,17 +65,15 @@ export const pathByOrgnr = (orgnr: string) => {
 export function pathBySteg(steg: OpprettKravVeiviserSteg, orgnr: string, gjennomforingId: string) {
   switch (steg) {
     case OpprettKravVeiviserSteg.INFORMASJON:
-      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.innsendingsinformasjon(
-        gjennomforingId,
-      );
+      return pathByOrgnr(orgnr).opprettKrav.innsendingsinformasjon(gjennomforingId);
     case OpprettKravVeiviserSteg.DELTAKERLISTE:
-      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.deltakere(gjennomforingId);
+      return pathByOrgnr(orgnr).opprettKrav.deltakere(gjennomforingId);
     case OpprettKravVeiviserSteg.UTBETALING:
-      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.utbetaling(gjennomforingId);
+      return pathByOrgnr(orgnr).opprettKrav.utbetaling(gjennomforingId);
     case OpprettKravVeiviserSteg.VEDLEGG:
-      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.vedlegg(gjennomforingId);
+      return pathByOrgnr(orgnr).opprettKrav.vedlegg(gjennomforingId);
     case OpprettKravVeiviserSteg.OPPSUMMERING:
-      return pathByOrgnr(orgnr).opprettKrav.driftstilskuddv2.oppsummering(gjennomforingId);
+      return pathByOrgnr(orgnr).opprettKrav.oppsummering(gjennomforingId);
   }
 }
 

@@ -1,20 +1,19 @@
 package no.nav.mulighetsrommet.kafka
 
-import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.kafka.consumer.KafkaConsumerClient
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
+import no.nav.common.kafka.consumer.feilhandtering.backoff.BackoffStrategy
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder
 import no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder
-import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder.TopicConfig
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.metrics.Metrics
 import org.slf4j.LoggerFactory
+import java.time.Duration
 import java.util.*
-import java.util.function.Consumer
 
 class KafkaConsumerOrchestrator(
     config: Config = Config(),
@@ -42,11 +41,22 @@ class KafkaConsumerOrchestrator(
         /**
          * The number of records to process per batch by the consumer record processor.
          */
-        val consumerProcessorBatchSize: Int = 1000,
+        val consumerRecordProcessorBatchSize: Int = 100,
+
+        /**
+         * How long the consumer record processor should wait before checking for new stored records.
+         */
+        val consumerRecordProcessorPollTimeout: Duration = Duration.ofMinutes(1),
+
+        /**
+         * The backoff strategy decides how long the consumer record processor should wait before
+         * attempting to (re)process stored records.
+         */
+        val consumerRecordProcessorBackoffStrategy: BackoffStrategy = LinearBackoffStrategy,
     )
 
     private data class Consumer(
-        val topicConfig: TopicConfig<*, *>,
+        val topicConfig: KafkaConsumerClientBuilder.TopicConfig<*, *>,
         val client: KafkaConsumerClient,
     )
 
@@ -62,11 +72,12 @@ class KafkaConsumerOrchestrator(
         }
 
         val topicConfigs = consumersById.values.map { it.topicConfig }
-        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
-            .builder()
-            .withRecordBatchSize(config.consumerProcessorBatchSize)
-            .withLockProvider(JdbcLockProvider(db.getDatasource()))
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+            .withPollTimeout(config.consumerRecordProcessorPollTimeout)
+            .withRecordBatchSize(config.consumerRecordProcessorBatchSize)
+            .withBackoffStrategy(config.consumerRecordProcessorBackoffStrategy)
             .withKafkaConsumerRepository(kafkaConsumerRepository)
+            .withLockProvider(JdbcLockProvider(db.getDatasource()))
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
             .build()
 
@@ -112,7 +123,7 @@ class KafkaConsumerOrchestrator(
     private fun createConsumer(
         config: KafkaTopicConsumer.Config,
         consumer: KafkaTopicConsumer<*, *>,
-    ): KafkaConsumerOrchestrator.Consumer {
+    ): Consumer {
         val topicConfig = toTopicConfig(config.topic, consumer, kafkaConsumerRepository)
         val client = toKafkaConsumerClient(config.consumerProperties, topicConfig)
         return Consumer(topicConfig, client)
@@ -162,7 +173,7 @@ private fun validateConsumers(consumers: Map<KafkaTopicConsumer.Config, KafkaTop
 
 private fun toKafkaConsumerClient(
     consumerProperties: Properties,
-    topicConfig: TopicConfig<out Any?, out Any?>,
+    topicConfig: KafkaConsumerClientBuilder.TopicConfig<out Any?, out Any?>,
 ): KafkaConsumerClient {
     return KafkaConsumerClientBuilder.builder()
         .withProperties(consumerProperties)
@@ -174,8 +185,8 @@ private fun <K, V> toTopicConfig(
     topic: String,
     consumer: KafkaTopicConsumer<K, V>,
     consumerRecordRepository: KafkaConsumerRepository,
-): TopicConfig<K, V> {
-    return TopicConfig<K, V>()
+): KafkaConsumerClientBuilder.TopicConfig<K, V> {
+    return KafkaConsumerClientBuilder.TopicConfig<K, V>()
         .withMetrics(Metrics.micrometerRegistry)
         .withLogging()
         .withStoreOnFailure(consumerRecordRepository)
@@ -183,10 +194,6 @@ private fun <K, V> toTopicConfig(
             topic,
             consumer.keyDeserializer,
             consumer.valueDeserializer,
-            Consumer { event ->
-                runBlocking {
-                    consumer.consume(event.key(), event.value())
-                }
-            },
+            consumer,
         )
 }

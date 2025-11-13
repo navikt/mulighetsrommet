@@ -11,10 +11,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkClass
-import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.DeltakerOgPeriode
@@ -23,11 +20,9 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -56,7 +51,6 @@ class ArrangorflateServiceTest : FunSpec({
         tilsagn = tilsagn,
         utbetalinger = listOf(utbetaling, friUtbetaling),
     )
-    lateinit var arrangorflateService: ArrangorflateService
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
     coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
@@ -64,18 +58,23 @@ class ArrangorflateServiceTest : FunSpec({
         return requireNotNull(queries.utbetaling.get(id))
     }
 
-    val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
-
     beforeEach {
         domain.initialize(database.db)
-        arrangorflateService = ArrangorflateService(database.db, amtDeltakerClient, kontoregisterOrganisasjon, okonomiConfig)
     }
+
+    fun createService() = ArrangorflateService(
+        database.db,
+        amtDeltakerClient,
+        kontoregisterOrganisasjon,
+    )
 
     afterEach {
         database.truncateAll()
     }
 
     test("getUtbetalinger should return list of compact utbetalinger for arrangor") {
+        val arrangorflateService = createService()
+
         val result = arrangorflateService.getUtbetalinger(ArrangorflateTestUtils.underenhet.organisasjonsnummer)
 
         (result.aktive.size + result.historiske.size) shouldBe 2
@@ -92,6 +91,8 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getUtbetaling should return utbetaling by ID") {
+        val arrangorflateService = createService()
+
         val result = arrangorflateService.getUtbetaling(utbetaling.id)
 
         result.shouldNotBeNull()
@@ -103,6 +104,8 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getTilsagn should return arrangorflateTilsagn by ID") {
+        val arrangorflateService = createService()
+
         val result = arrangorflateService.getTilsagn(tilsagn.id)
 
         result.shouldNotBeNull()
@@ -111,6 +114,8 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getTilsagnByOrgnr should return list of tilsagn for arrangor") {
+        val arrangorflateService = createService()
+
         val result = arrangorflateService.getTilsagn(
             filter = ArrangorflateTilsagnFilter(),
             ArrangorflateTestUtils.underenhet.organisasjonsnummer,
@@ -122,6 +127,8 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getArrangorflateTilsagnTilUtbetaling should return tilsagn for given gjennomforing and period") {
+        val arrangorflateService = createService()
+
         val u = arrangorflateService.getUtbetaling(utbetaling.id)!!
         val result = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(
             u.copy(periode = Periode(LocalDate.of(2024, 7, 1), LocalDate.of(2024, 8, 1))),
@@ -132,19 +139,24 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("getAdvarsler should return empty list when no advarsler exists") {
+        val arrangorflateService = createService()
+
         val utbetalingDto = getUtbetalingDto(utbetaling.id)
         val result = arrangorflateService.getAdvarsler(utbetalingDto)
         result shouldHaveSize 0
     }
 
     test("mapUtbetalingToArrangorflateUtbetaling should have status KLAR_FOR_GODKJENNING") {
+        val arrangorflateService = createService()
         val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(utbetaling.id)!!)
         result.id shouldBe utbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
     }
 
     test("mapUtbetalingToArrangorflateUtbetaling should convert a fri utbetaling") {
-        val result = arrangorflateService.toArrangorflateUtbetaling(arrangorflateService.getUtbetaling(friUtbetaling.id)!!)
+        val arrangorflateService = createService()
+        var utbetaling = arrangorflateService.getUtbetaling(friUtbetaling.id)!!
+        val result = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
 
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
@@ -155,8 +167,11 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = true for recently approved utbetaling") {
+        val arrangorflateService = createService()
+
         val date = LocalDateTime.now()
-        val godkjentAvArrangorUtbetaling = getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
+        val godkjentAvArrangorUtbetaling =
+            getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
         val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
 
         result.shouldNotBeNull()
@@ -168,8 +183,11 @@ class ArrangorflateServiceTest : FunSpec({
     }
 
     test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = false for 12 weeks old approved utbetaling") {
+        val arrangorflateService = createService()
+
         val now = LocalDateTime.now()
-        val godkjentAvArrangorUtbetaling = getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
+        val godkjentAvArrangorUtbetaling =
+            getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
         val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = now)
 
         result.shouldNotBeNull()
@@ -211,8 +229,16 @@ class ArrangorflateServiceTest : FunSpec({
             harOverlappendePeriode(
                 d,
                 listOf(
-                    DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, Periode(LocalDate.of(2025, 8, 2), LocalDate.of(2025, 9, 10))),
-                    DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, Periode(LocalDate.of(2025, 7, 2), LocalDate.of(2025, 8, 2))),
+                    DeltakerOgPeriode(
+                        UUID.randomUUID(),
+                        d.norskIdent,
+                        Periode(LocalDate.of(2025, 8, 2), LocalDate.of(2025, 9, 10)),
+                    ),
+                    DeltakerOgPeriode(
+                        UUID.randomUUID(),
+                        d.norskIdent,
+                        Periode(LocalDate.of(2025, 7, 2), LocalDate.of(2025, 8, 2)),
+                    ),
                 ),
             ) shouldBe true
 
@@ -223,7 +249,13 @@ class ArrangorflateServiceTest : FunSpec({
                     d.norskIdent,
                     Periode(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 3)),
                 ),
-                listOf(DeltakerOgPeriode(UUID.randomUUID(), d.norskIdent, Periode(LocalDate.of(2025, 8, 3), LocalDate.of(2025, 8, 5)))),
+                listOf(
+                    DeltakerOgPeriode(
+                        UUID.randomUUID(),
+                        d.norskIdent,
+                        Periode(LocalDate.of(2025, 8, 3), LocalDate.of(2025, 8, 5)),
+                    ),
+                ),
             ) shouldBe false
         }
 
@@ -258,6 +290,8 @@ class ArrangorflateServiceTest : FunSpec({
         }
 
         test("getFeilSluttDato") {
+            val arrangorflateService = createService()
+
             val today = LocalDate.of(2025, 1, 1)
             val deltaker1 = DeltakerFixtures.createDeltaker(
                 gjennomforingId = UUID.randomUUID(),
@@ -274,21 +308,6 @@ class ArrangorflateServiceTest : FunSpec({
             val feilSluttDato = arrangorflateService.getFeilSluttDato(listOf(deltaker1, deltaker2), emptyMap(), today)
             feilSluttDato shouldHaveSize 1
             feilSluttDato[0].deltakerId shouldBe deltaker1.id
-        }
-
-        test("kanOppretteManueltKrav false hvis det ikke finnes konfigurert prismodell") {
-            every { okonomiConfig.opprettKravPeriode } returns emptyMap()
-            arrangorflateService.kanOpretteManueltKrav() shouldBe false
-        }
-
-        test("kanOppretteManueltKrav false hvis relativ dato utenfor konfigurert periode") {
-            every { okonomiConfig.opprettKravPeriode } returns mapOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(2025))
-            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2026, 1, 1)) shouldBe false
-        }
-
-        test("kanOppretteManueltKrav true hvis relativ dato utenfor konfigurert periode") {
-            every { okonomiConfig.opprettKravPeriode } returns mapOf(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode.forYear(2025))
-            arrangorflateService.kanOpretteManueltKrav(LocalDate.of(2025, 10, 1)) shouldBe true
         }
     }
 })

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingProd
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
@@ -382,7 +383,10 @@ val ApplicationConfigProd = AppConfig(
         gyldigTilsagnPeriode = mapOf(
             // Forhåndsgodkjente tiltak
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(
+                LocalDate.of(2025, 7, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
             // Anskaffede tiltak
             Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
             Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
@@ -404,6 +408,7 @@ val ApplicationConfigProd = AppConfig(
                 LocalDate.of(2026, 1, 1),
             ),
         ),
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
     ),
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",

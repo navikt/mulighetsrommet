@@ -6,7 +6,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -30,11 +29,15 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
-    private val config: OkonomiConfig,
+    private val config: Config,
     private val db: ApiDatabase,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    class Config(
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+    )
 
     private data class UtbetalingContext(
         val gjennomforingId: UUID,

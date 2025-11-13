@@ -12,9 +12,9 @@ class KafkaMetrics(
 ) {
     private val metricsRegistrations = mutableListOf<(MeterRegistry) -> Unit>()
 
-    fun withCountStaleConsumerRecords(minutesSinceCreatedAt: Int): KafkaMetrics {
+    fun withCountStaleConsumerRecords(retriesMoreThan: Int): KafkaMetrics {
         metricsRegistrations.add { registry ->
-            Gauge.builder("kafka_consumer_records_stale_count") { countConsumerRecords(minutesSinceCreatedAt) }
+            Gauge.builder("kafka_consumer_records_stale_count") { countConsumerRecords(retriesMoreThan) }
                 .description("Number of stale records in the kafka_consumer_record table")
                 .register(registry)
         }
@@ -38,15 +38,15 @@ class KafkaMetrics(
         }
     }
 
-    private fun countConsumerRecords(minutesSinceCreatedAt: Int): Int = database.session {
+    private fun countConsumerRecords(retries: Int): Int = database.session {
         @Language("PostgreSQL")
         val query = """
             select count(*) as count
             from kafka_consumer_record
-            where created_at < now() - make_interval(mins := ?)
+            where retries > ?
         """.trimIndent()
 
-        it.requireSingle(queryOf(query, minutesSinceCreatedAt)) {
+        it.requireSingle(queryOf(query, retries)) {
             it.int("count")
         }
     }

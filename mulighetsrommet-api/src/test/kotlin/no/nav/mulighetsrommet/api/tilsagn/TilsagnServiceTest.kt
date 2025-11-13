@@ -13,9 +13,7 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -100,23 +98,14 @@ class TilsagnServiceTest : FunSpec({
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
-                okonomiConfig = OkonomiConfig(
-                    gyldigTilsagnPeriode = mapOf(
-                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
-                        Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(
-                            GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
-                            LocalDate.of(2026, 1, 1),
-                        ),
-                    ),
-                    opprettKravPeriode = mapOf(
-                        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to gyldigTilsagnPeriode.copy(
-                            start = gyldigTilsagnPeriode.start.plusMonths(
-                                1,
-                            ),
-                        ),
+                bestillingTopic = "topic",
+                gyldigTilsagnPeriode = mapOf(
+                    Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
+                    Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(
+                        GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
+                        LocalDate.of(2026, 1, 1),
                     ),
                 ),
-                bestillingTopic = "topic",
             ),
             navAnsattService = navAnsattService,
         )

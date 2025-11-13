@@ -64,7 +64,7 @@ fun Application.configure(config: AppConfig) {
     FlywayMigrationManager(config.flyway).migrate(db)
 
     KafkaMetrics(db)
-        .withCountStaleConsumerRecords(minutesSinceCreatedAt = 5)
+        .withCountStaleConsumerRecords(retriesMoreThan = 5)
         .withCountStaleProducerRecords(minutesSinceCreatedAt = 1)
         .register(Metrics.micrometerRegistry)
 

@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -24,6 +25,7 @@ import java.time.temporal.TemporalAdjusters.lastDayOfMonth
 import java.util.*
 
 fun Route.tilsagnRoutesBeregning() {
+    val config: AppConfig by inject()
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
     val gjennomforinger: GjennomforingService by inject()
@@ -102,7 +104,7 @@ fun Route.tilsagnRoutesBeregning() {
                     .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                     .firstOrNull()
 
-                resolveTilsagnDefaults(service.config.okonomiConfig, prismodell, gjennomforing, sisteTilsagn)
+                resolveTilsagnDefaults(config.okonomi, prismodell, gjennomforing, sisteTilsagn)
             }
 
             TilsagnType.INVESTERING,
