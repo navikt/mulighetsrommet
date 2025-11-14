@@ -4,21 +4,20 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.historikk.TestFixtures
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakshistorikk
 import no.nav.tiltak.historikk.databaseConfig
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class DeltakerQueriesTest : FunSpec({
+class ArenaDeltakerQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val gruppeAmo = TestFixtures.tiltak
-    val amtDeltaker = TestFixtures.amtDeltaker
     val arbeidstreningArenaDeltakelse = ArenaDeltakerDbo(
         id = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
@@ -45,7 +44,7 @@ class DeltakerQueriesTest : FunSpec({
 
     test("CRUD") {
         database.runAndRollback { session ->
-            val deltaker = DeltakerQueries(session)
+            val deltaker = ArenaDeltakerQueries(session)
 
             deltaker.upsertArenaDeltaker(arbeidstreningArenaDeltakelse)
             deltaker.upsertArenaDeltaker(mentorArenaDeltakelse)
@@ -97,98 +96,9 @@ class DeltakerQueriesTest : FunSpec({
         }
     }
 
-    test("kometHistorikk") {
-        database.runAndRollback { session ->
-            val gruppetiltak = GruppetiltakQueries(session)
-            gruppetiltak.upsert(gruppeAmo)
-
-            val deltaker = DeltakerQueries(session)
-            deltaker.upsertKometDeltaker(amtDeltaker)
-
-            deltaker.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), null) shouldBe listOf(
-                Tiltakshistorikk.GruppetiltakDeltakelse(
-                    id = amtDeltaker.id,
-                    norskIdent = NorskIdent("10101010100"),
-                    startDato = null,
-                    sluttDato = null,
-                    status = DeltakerStatus(
-                        type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                        aarsak = null,
-                        opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-                    ),
-                    gjennomforing = Tiltakshistorikk.Gjennomforing(
-                        id = gruppeAmo.id,
-                        navn = gruppeAmo.navn,
-                        tiltakskode = gruppeAmo.tiltakstype.tiltakskode,
-                    ),
-                    arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
-                ),
-            )
-        }
-    }
-
-    test("maxAgeYears komet") {
-        database.runAndRollback { session ->
-            val gruppetiltak = GruppetiltakQueries(session)
-            gruppetiltak.upsert(gruppeAmo)
-
-            val deltaker = DeltakerQueries(session)
-
-            val amtDeltakerReg2005 = AmtDeltakerV1Dto(
-                id = UUID.randomUUID(),
-                gjennomforingId = gruppeAmo.id,
-                personIdent = "10101010100",
-                startDato = null,
-                sluttDato = null,
-                status = DeltakerStatus(
-                    type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                    aarsak = null,
-                    opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                ),
-                registrertDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                dagerPerUke = 2.5f,
-                prosentStilling = null,
-                deltakelsesmengder = listOf(),
-            )
-            val amtDeltakerReg2005Slutt2024 = AmtDeltakerV1Dto(
-                id = UUID.randomUUID(),
-                gjennomforingId = gruppeAmo.id,
-                personIdent = "10101010100",
-                startDato = null,
-                sluttDato = LocalDate.of(2024, 1, 1),
-                status = DeltakerStatus(
-                    type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                    aarsak = null,
-                    opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                ),
-                registrertDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                dagerPerUke = 2.5f,
-                prosentStilling = null,
-                deltakelsesmengder = listOf(),
-            )
-            deltaker.upsertKometDeltaker(amtDeltaker)
-            deltaker.upsertKometDeltaker(amtDeltakerReg2005)
-            deltaker.upsertKometDeltaker(amtDeltakerReg2005Slutt2024)
-
-            deltaker.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), null)
-                .map { it.id } shouldContainExactlyInAnyOrder listOf(
-                amtDeltaker.id,
-                amtDeltakerReg2005.id,
-                amtDeltakerReg2005Slutt2024.id,
-            )
-            deltaker.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), 5)
-                .map { it.id } shouldContainExactlyInAnyOrder listOf(
-                amtDeltaker.id,
-                amtDeltakerReg2005Slutt2024.id,
-            )
-        }
-    }
-
     test("maxAgeYears arena") {
         database.runAndRollback { session ->
-            val deltaker = DeltakerQueries(session)
+            val deltaker = ArenaDeltakerQueries(session)
 
             val mentorArenaDeltakelseUtenSlutt = ArenaDeltakerDbo(
                 id = UUID.randomUUID(),

@@ -29,7 +29,8 @@ class QueryContext(val session: Session) {
     val queries by lazy { Queries() }
 
     inner class Queries {
-        val deltaker = DeltakerQueries(session)
         val gruppetiltak = GruppetiltakQueries(session)
+        val kometDeltaker = KometDeltakerQueries(session)
+        val arenaDeltaker = ArenaDeltakerQueries(session)
     }
 }

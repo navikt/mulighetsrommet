@@ -29,17 +29,17 @@ class AmtDeltakerV1KafkaConsumer(
         when {
             amtDeltaker == null -> {
                 logger.info("Mottok tombstone for deltaker med id=$key, sletter deltakeren")
-                queries.deltaker.deleteKometDeltaker(key)
+                queries.kometDeltaker.deleteKometDeltaker(key)
             }
 
             amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
-                queries.deltaker.deleteKometDeltaker(key)
+                queries.kometDeltaker.deleteKometDeltaker(key)
             }
 
             else -> {
                 logger.info("Forsøker å lagre deltaker med id=$key")
-                query { queries.deltaker.upsertKometDeltaker(amtDeltaker) }.onLeft {
+                query { queries.kometDeltaker.upsertKometDeltaker(amtDeltaker) }.onLeft {
                     logger.warn("Feil under konsumering av deltaker med id=$key", it.error)
                     throw it.error
                 }

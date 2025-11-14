@@ -4,16 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.body
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.call.*
+import io.ktor.client.engine.mock.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -300,7 +294,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
-    queries.deltaker.upsertArenaDeltaker(arbeidstrening)
+    queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
 
     val mentor = ArenaDeltakerDbo(
         id = ARENA_MENTOR_ID,
@@ -313,7 +307,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
-    queries.deltaker.upsertArenaDeltaker(mentor)
+    queries.arenaDeltaker.upsertArenaDeltaker(mentor)
 
     val enkeltAMO = ArenaDeltakerDbo(
         id = ARENA_ENKEL_AMO_ID,
@@ -326,7 +320,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
-    queries.deltaker.upsertArenaDeltaker(enkeltAMO)
+    queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
 
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
@@ -345,5 +339,5 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         prosentStilling = null,
         deltakelsesmengder = listOf(),
     )
-    queries.deltaker.upsertKometDeltaker(amtDeltaker)
+    queries.kometDeltaker.upsertKometDeltaker(amtDeltaker)
 }
