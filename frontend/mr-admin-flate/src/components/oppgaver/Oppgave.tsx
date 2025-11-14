@@ -1,6 +1,11 @@
 import { type Oppgave, OppgaveEnhet, OppgaveType } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import {
+  BankNoteIcon,
+  GavelSoundBlockIcon,
+  HandshakeIcon,
+  PiggybankIcon,
+} from "@navikt/aksel-icons";
 import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { Link } from "react-router";
@@ -53,12 +58,13 @@ function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string 
     case OppgaveType.TILSAGN_TIL_OPPGJOR:
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:
-    case OppgaveType.TILSAGN_TIL_GODKJENNING:
       return <BankNoteIcon fontSize={fontSize} />;
     case OppgaveType.UTBETALING_RETURNERT:
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
-    case OppgaveType.UTBETALING_TIL_ATTESTERING:
       return <PiggybankIcon fontSize={fontSize} />;
+    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+    case OppgaveType.TILSAGN_TIL_GODKJENNING:
+      return <GavelSoundBlockIcon fontSize={fontSize} />;
   }
 }
 
@@ -67,13 +73,14 @@ function getOppgaveVariant(type: OppgaveType) {
     case OppgaveType.TILSAGN_TIL_OPPGJOR:
     case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
     case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
-    case OppgaveType.TILSAGN_TIL_GODKJENNING:
       return "warning";
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:
     case OppgaveType.UTBETALING_RETURNERT:
       return "error";
+    case OppgaveType.TILSAGN_TIL_GODKJENNING:
     case OppgaveType.UTBETALING_TIL_ATTESTERING:
+      return "info";
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "success";
   }
