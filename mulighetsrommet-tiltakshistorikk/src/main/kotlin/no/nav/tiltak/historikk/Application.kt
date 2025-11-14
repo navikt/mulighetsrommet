@@ -1,6 +1,7 @@
 package no.nav.tiltak.historikk
 
 import io.ktor.server.application.*
+import io.ktor.server.application.log
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
@@ -18,6 +19,7 @@ import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
+import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV2KafkaConsumer
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
@@ -51,25 +53,20 @@ fun Application.configure(config: AppConfig) {
 
     FlywayMigrationManager(config.flyway).migrate(db)
 
-    KafkaMetrics(db)
-        .withCountStaleConsumerRecords(retriesMoreThan = 5)
-        .register(Metrics.micrometerRegistry)
-
     configureAuthentication(config.auth)
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
 
-    val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
-
     val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
     val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
-
     val tiltakDatadelingClient = TiltakDatadelingClient(
         engine = config.httpClientEngine,
         baseUrl = config.clients.tiltakDatadeling.url,
         tokenProvider = azureAdTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
     )
+
+    val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
 
     val tiltakshistorikkService = TiltakshistorikkService(
         tiltakshistorikkDb,
@@ -83,29 +80,45 @@ fun Application.configure(config: AppConfig) {
         tiltakshistorikkRoutes(kafka, tiltakshistorikkDb, tiltakshistorikkService)
     }
 
-    monitor.subscribe(ApplicationStarted) {
-        kafka.enableFailedRecordProcessor()
+    monitor.subscribe(ApplicationStopPreparing) {
+        log.info("ApplicationStopPreparing")
     }
 
-    monitor.subscribe(ApplicationStopPreparing) {
-        kafka.disableFailedRecordProcessor()
-        kafka.stopPollingTopicChanges()
-
+    monitor.subscribe(ApplicationStopped) {
+        log.info("Closing db...")
         db.close()
     }
 }
 
-fun configureKafka(
+fun Application.configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
 ): KafkaConsumerOrchestrator {
+    KafkaMetrics(db.db)
+        .withCountStaleConsumerRecords(retriesMoreThan = 5)
+        .register(Metrics.micrometerRegistry)
+
     val consumers = mapOf(
         config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
         config.consumers.sisteTiltaksgjennomforingerV1 to SisteTiltaksgjennomforingerV1KafkaConsumer(db),
+        config.consumers.sisteTiltaksgjennomforingerV2 to SisteTiltaksgjennomforingerV2KafkaConsumer(db),
     )
 
-    return KafkaConsumerOrchestrator(
+    val kafka = KafkaConsumerOrchestrator(
         db = db.db,
         consumers = consumers,
     )
+
+    monitor.subscribe(ApplicationStarted) {
+        log.info("Starting kafka consumer record processor")
+        kafka.enableFailedRecordProcessor()
+    }
+
+    monitor.subscribe(ApplicationStopping) {
+        log.info("Stopping kafka consumers...")
+        kafka.disableFailedRecordProcessor()
+        kafka.stopPollingTopicChanges()
+    }
+
+    return kafka
 }
