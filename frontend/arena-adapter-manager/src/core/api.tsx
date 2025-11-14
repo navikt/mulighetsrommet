@@ -112,6 +112,7 @@ export type MrApiTask =
   | "generate-validation-report"
   | "initial-load-tiltakstyper"
   | "initial-load-gjennomforinger"
+  | "initial-load-gjennomforinger-v2"
   | "republish-opprett-bestilling"
   | "republish-opprett-faktura"
   | "sync-navansatte"
