@@ -7,8 +7,12 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TimelineDto
 import no.nav.mulighetsrommet.model.TimelineDto.Row.Period
 import no.nav.mulighetsrommet.model.TimelineDto.Row.Period.Variant
+import java.text.NumberFormat
+import java.util.Locale
 
 object UtbetalingTimeline {
+    val formatter: NumberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag("no-NO"))
+
     fun deltakelseTimeline(
         periode: Periode,
         stengt: List<StengtPeriode>,
@@ -27,7 +31,10 @@ object UtbetalingTimeline {
                                 end = it.periode.getLastInclusiveDate(),
                                 status = Variant.WARNING,
                                 content = "",
-                                hover = "Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                                hover = """
+                                    Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} -
+                                             ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
+                                """.trimIndent(),
                             )
                         },
                         label = "Stengt hos arrangør",
@@ -50,8 +57,13 @@ object UtbetalingTimeline {
                 key = index.toString(),
                 end = it.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}",
-                hover = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}, Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                content = "Pris per uke: ${formatter.format(it.sats)}, Ukesverk: ${formatter.format(it.faktor)}",
+                hover = """
+                    Pris per uke: ${formatter.format(it.sats)},
+                    Ukesverk: ${formatter.format(it.faktor)},
+                    Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} -
+                        ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
+                """.trimIndent(),
             )
         },
     )
@@ -66,8 +78,13 @@ object UtbetalingTimeline {
                 key = index.toString(),
                 end = it.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}",
-                hover = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}, Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                content = "Pris per måned: ${formatter.format(it.sats)}, Månedsverk: ${formatter.format(it.faktor)}",
+                hover = """
+                    Pris per måned: ${formatter.format(it.sats)},
+                    Månedsverk: ${formatter.format(it.faktor)},
+                    Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} -
+                        ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
+                """.trimIndent(),
             )
         },
     )
@@ -83,8 +100,13 @@ object UtbetalingTimeline {
                 key = index.toString(),
                 end = beregnetPeriode.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Deltakesesprosent: ${deltakelsesprosenter[index]}, Månedsverk: ${beregnetPeriode.faktor}",
-                hover = "Deltakesesprosent: ${deltakelsesprosenter[index]}, Månedsverk: ${beregnetPeriode.faktor}, Periode: ${beregnetPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${beregnetPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                content = "Deltakesesprosent: ${formatter.format(deltakelsesprosenter[index])}, Månedsverk: ${formatter.format(beregnetPeriode.faktor)}",
+                hover = """
+                    Deltakesesprosent: ${formatter.format(deltakelsesprosenter[index])},
+                    Månedsverk: ${formatter.format(beregnetPeriode.faktor)},
+                    Periode: ${beregnetPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} -
+                        ${beregnetPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
+                """.trimIndent(),
             )
         },
     )
