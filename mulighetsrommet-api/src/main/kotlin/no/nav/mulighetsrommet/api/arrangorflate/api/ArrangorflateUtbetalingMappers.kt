@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -121,9 +122,9 @@ private fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<Det
 private fun getBelopDetails(belop: Int): List<DetailsEntry> = listOf(DetailsEntry.nok("Beløp", belop))
 
 fun deltakelseCommonColumns() = listOf(
-    DataDrivenTableDto.Column("navn", "Navn", sortable = false),
-    DataDrivenTableDto.Column("identitetsnummer", "Fødselsnr.", sortable = false),
-    DataDrivenTableDto.Column("tiltakStart", "Startdato i tiltaket", sortable = false),
+    DataDrivenTableDto.Column("navn", "Navn"),
+    DataDrivenTableDto.Column("identitetsnummer", "Fødselsnr."),
+    DataDrivenTableDto.Column("tiltakStart", "Startdato i tiltaket"),
     DataDrivenTableDto.Column("periodeStart", "Startdato i perioden"),
     DataDrivenTableDto.Column("periodeSlutt", "Sluttdato i perioden"),
 )
@@ -158,39 +159,7 @@ private fun deltakelseFaktorCells(faktor: Double) = mapOf(
     "faktor" to DataElement.number(faktor),
 )
 
-private fun stengtTimelineRow(stengt: List<StengtPeriode>): TimelineDto.Row? {
-    if (stengt.isEmpty()) return null
-    return TimelineDto.Row(
-        periods = stengt.mapIndexed { index, it ->
-            Period(
-                start = it.periode.start,
-                key = index.toString(),
-                end = it.periode.getLastInclusiveDate(),
-                status = Variant.WARNING,
-                content = "",
-                hover = "Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
-            )
-        },
-        label = "Stengt hos arrangør",
-    )
-}
-
-private fun deltakelseTimeline(
-    periode: Periode,
-    stengt: List<StengtPeriode>,
-    beregningRow: TimelineDto.Row,
-): TimelineDto {
-    return TimelineDto(
-        startDate = periode.start,
-        endDate = periode.getLastInclusiveDate(),
-        rows = listOfNotNull(
-            stengtTimelineRow(stengt),
-            beregningRow,
-        ),
-    )
-}
-
-fun deltakelsePrisPerUkesverkTable(
+private fun deltakelsePrisPerUkesverkTable(
     periode: Periode,
     deltakere: List<ArrangorflateBeregningDeltakelse>,
     stengt: List<StengtPeriode>,
@@ -201,29 +170,17 @@ fun deltakelsePrisPerUkesverkTable(
             val faktor = it.beregningOutput.perioder.sumOf { it.faktor }
             DataDrivenTableDto.Row(
                 cells = deltakelseCommonCells(it) + deltakelseFaktorCells(faktor),
-                content = deltakelseTimeline(
+                content = UtbetalingTimeline.deltakelseTimeline(
                     periode,
                     stengt,
-                    TimelineDto.Row(
-                        label = "Beregning",
-                        periods = it.beregningOutput.perioder.mapIndexed { index, it ->
-                            Period(
-                                start = it.periode.start,
-                                key = index.toString(),
-                                end = it.periode.getLastInclusiveDate(),
-                                status = Variant.INFO,
-                                content = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}",
-                                hover = "Pris per uke: ${it.sats}, Ukesverk: ${it.faktor}, Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
-                            )
-                        },
-                    ),
+                    UtbetalingTimeline.ukesverkBeregningRow(it.beregningOutput),
                 ),
             )
         },
     )
 }
 
-fun deltakelsePrisPerManedsverkTable(
+private fun deltakelsePrisPerManedsverkTable(
     periode: Periode,
     deltakere: List<ArrangorflateBeregningDeltakelse>,
     stengt: List<StengtPeriode>,
@@ -234,29 +191,17 @@ fun deltakelsePrisPerManedsverkTable(
             val faktor = it.beregningOutput.perioder.sumOf { it.faktor }
             DataDrivenTableDto.Row(
                 cells = deltakelseCommonCells(it) + deltakelseFaktorCells(faktor),
-                content = deltakelseTimeline(
+                content = UtbetalingTimeline.deltakelseTimeline(
                     periode,
                     stengt,
-                    TimelineDto.Row(
-                        label = "Beregning",
-                        periods = it.beregningOutput.perioder.mapIndexed { index, it ->
-                            Period(
-                                start = it.periode.start,
-                                key = index.toString(),
-                                end = it.periode.getLastInclusiveDate(),
-                                status = Variant.INFO,
-                                content = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}",
-                                hover = "Pris per måned: ${it.sats}, Månedsverk: ${it.faktor}, Periode: ${it.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
-                            )
-                        },
-                    ),
+                    UtbetalingTimeline.manedsverkBeregningRow(it.beregningOutput),
                 ),
             )
         },
     )
 }
 
-fun deltakelseFastSatsPerTiltaksplassPerManedTable(
+private fun deltakelseFastSatsPerTiltaksplassPerManedTable(
     periode: Periode,
     deltakere: List<ArrangorflateBeregningDeltakelse>,
     deltakerInput: Set<DeltakelseDeltakelsesprosentPerioder>,
@@ -269,21 +214,12 @@ fun deltakelseFastSatsPerTiltaksplassPerManedTable(
             val faktor = deltaker.beregningOutput.perioder.sumOf { it.faktor }
             DataDrivenTableDto.Row(
                 cells = deltakelseCommonCells(deltaker) + deltakelseFaktorCells(faktor),
-                content = deltakelseTimeline(
+                content = UtbetalingTimeline.deltakelseTimeline(
                     periode,
                     stengt,
-                    TimelineDto.Row(
-                        label = "Beregning",
-                        periods = deltaker.beregningOutput.perioder.mapIndexed { index, beregnetPeriode ->
-                            Period(
-                                start = beregnetPeriode.periode.start,
-                                key = index.toString(),
-                                end = beregnetPeriode.periode.getLastInclusiveDate(),
-                                status = Variant.INFO,
-                                content = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}",
-                                hover = "Deltakesesprosent: ${input.perioder[index].deltakelsesprosent}, Månedsverk: ${beregnetPeriode.faktor}, Periode: ${beregnetPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${beregnetPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
-                            )
-                        },
+                    UtbetalingTimeline.fastSatsPerTiltaksplassPerManedRow(
+                        deltaker.beregningOutput,
+                        input.perioder.map { it.deltakelsesprosent },
                     ),
                 ),
             )
@@ -291,7 +227,7 @@ fun deltakelseFastSatsPerTiltaksplassPerManedTable(
     )
 }
 
-fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<ArrangorflateBeregningDeltakelse>) = DataDrivenTableDto(
+private fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<ArrangorflateBeregningDeltakelse>) = DataDrivenTableDto(
     columns = deltakelseCommonColumns(),
     rows = deltakere.map {
         DataDrivenTableDto.Row(
