@@ -229,7 +229,12 @@ fun Route.utbetalingRoutes() {
                         }
                         .filter { filter.navEnheter.isEmpty() || it.personalia.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
 
-                    UtbetalingBeregningDto.from(utbetaling.beregning, deltakelsePersoner, regioner)
+                    UtbetalingBeregningDto.from(
+                        utbetaling.beregning,
+                        deltakelsePersoner,
+                        regioner,
+                        utbetalingPeriode = utbetaling.periode,
+                    )
                 }
 
                 call.respond(beregning)

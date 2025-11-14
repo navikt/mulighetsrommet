@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhe
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
 data class UtbetalingBeregningDto(
@@ -20,6 +21,7 @@ data class UtbetalingBeregningDto(
             beregning: UtbetalingBeregning,
             deltakere: List<UtbetalingBeregningDeltaker>,
             regioner: List<NavRegionDto>,
+            utbetalingPeriode: Periode,
         ): UtbetalingBeregningDto {
             return when (beregning) {
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
@@ -38,7 +40,12 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakere),
+                        deltakerTableData = deltakelseFastSatsPerTiltaksplassPerManedTable(
+                            utbetalingPeriode = utbetalingPeriode,
+                            stengt = beregning.input.stengt.sortedBy { it.periode.start },
+                            deltakere,
+                            beregning.input.deltakelser,
+                        ),
                         regnestykke = getRegnestykkeManedsverk(deltakelser),
                     )
                 }
@@ -48,7 +55,11 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerManedsverkTable(deltakere),
+                        deltakerTableData = deltakelsePrisPerManedsverkTable(
+                            utbetalingPeriode = utbetalingPeriode,
+                            stengt = beregning.input.stengt.sortedBy { it.periode.start },
+                            deltakere,
+                        ),
                         regnestykke = getRegnestykkeManedsverk(deltakelser),
                     )
                 }
@@ -58,7 +69,11 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakere),
+                        deltakerTableData = deltakelsePrisPerUkesverkTable(
+                            utbetalingPeriode = utbetalingPeriode,
+                            stengt = beregning.input.stengt.sortedBy { it.periode.start },
+                            deltakere,
+                        ),
                         regnestykke = getRegnestykkeUkesverk(deltakelser),
                     )
                 }
@@ -68,7 +83,11 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerUkesverkTable(deltakere),
+                        deltakerTableData = deltakelsePrisPerUkesverkTable(
+                            utbetalingPeriode = utbetalingPeriode,
+                            stengt = beregning.input.stengt.sortedBy { it.periode.start },
+                            deltakere,
+                        ),
                         regnestykke = getRegnestykkeUkesverk(deltakelser),
                     )
                 }
@@ -89,7 +108,36 @@ data class UtbetalingBeregningDto(
     }
 }
 
+private fun deltakelseFastSatsPerTiltaksplassPerManedTable(
+    utbetalingPeriode: Periode,
+    stengt: List<StengtPeriode>,
+    deltakere: List<UtbetalingBeregningDeltaker>,
+    deltakerInput: Set<DeltakelseDeltakelsesprosentPerioder>,
+): DataDrivenTableDto {
+    return DataDrivenTableDto(
+        columns = deltakelsePersonaliaColumns() + deltakelseFaktorColumns("Månedsverk"),
+        rows = deltakere.map { deltaker ->
+            val antallManeder = deltaker.deltakelse.perioder.sumOf { it.faktor }
+            val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(setOf(deltaker.deltakelse))
+            val input = requireNotNull(deltakerInput.find { it.deltakelseId == deltaker.deltakelse.deltakelseId })
+            DataDrivenTableDto.Row(
+                cells = deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallManeder, belop),
+                content = UtbetalingTimeline.deltakelseTimeline(
+                    utbetalingPeriode,
+                    stengt,
+                    UtbetalingTimeline.fastSatsPerTiltaksplassPerManedRow(
+                        deltaker.deltakelse,
+                        input.perioder.map { it.deltakelsesprosent },
+                    ),
+                ),
+            )
+        },
+    )
+}
+
 private fun deltakelsePrisPerManedsverkTable(
+    utbetalingPeriode: Periode,
+    stengt: List<StengtPeriode>,
     deltakere: List<UtbetalingBeregningDeltaker>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
@@ -99,6 +147,11 @@ private fun deltakelsePrisPerManedsverkTable(
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(setOf(deltaker.deltakelse))
             DataDrivenTableDto.Row(
                 cells = deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallManeder, belop),
+                content = UtbetalingTimeline.deltakelseTimeline(
+                    utbetalingPeriode,
+                    stengt,
+                    UtbetalingTimeline.manedsverkBeregningRow(deltaker.deltakelse),
+                ),
             )
         },
     )
@@ -113,6 +166,8 @@ private fun getRegnestykkeManedsverk(
 )
 
 private fun deltakelsePrisPerUkesverkTable(
+    utbetalingPeriode: Periode,
+    stengt: List<StengtPeriode>,
     deltakere: List<UtbetalingBeregningDeltaker>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
@@ -122,6 +177,11 @@ private fun deltakelsePrisPerUkesverkTable(
             val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(setOf(deltaker.deltakelse))
             DataDrivenTableDto.Row(
                 cells = deltakelsePersonaliaCells(deltaker.personalia) + deltakelseFaktorCells(antallUker, belop),
+                content = UtbetalingTimeline.deltakelseTimeline(
+                    utbetalingPeriode,
+                    stengt,
+                    UtbetalingTimeline.ukesverkBeregningRow(deltaker.deltakelse),
+                ),
             )
         },
     )
