@@ -17,30 +17,28 @@ object UtbetalingInputHelper {
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
-        val sats = resolveAvtaltSats(gjennomforing, periode)
+        val satser = resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforing.id)
         val deltakelsePerioder = resolveDeltakelsePerioder(deltakere, periode)
-        // TODO: støtte satsperioder her også
-        return AvtaltPrisPerTimeOppfolgingPerDeltaker(sats, stengtHosArrangor, deltakere, deltakelsePerioder)
+        return AvtaltPrisPerTimeOppfolgingPerDeltaker(
+            satser,
+            stengtHosArrangor,
+            deltakere,
+            deltakelsePerioder,
+        )
     }
 
-    data class AvtaltPrisPerTimeOppfolgingPerDeltaker(val sats: Int, val stengtHosArrangor: Set<StengtPeriode>, val deltakere: List<Deltaker>, val deltakelsePerioder: Set<DeltakelsePeriode>)
+    data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
+        val satser: Set<SatsPeriode>,
+        val stengtHosArrangor: Set<StengtPeriode>,
+        val deltakere: List<Deltaker>,
+        val deltakelsePerioder: Set<DeltakelsePeriode>,
+    )
 
-    private fun QueryContext.resolveAvtaltSats(gjennomforing: Gjennomforing, periode: Periode): Int {
-        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId!!))
-        return resolveAvtaltSats(gjennomforing, avtale, periode)
-    }
-
-    fun resolveAvtaltSats(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Int {
-        val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
-            maxOf(gjennomforing.startDato, periode.start)
-        } else {
-            periode.start
-        }
-        val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
-        return AvtalteSatser.findSats(avtale, avtaltSatsPeriode)
-            ?: throw IllegalStateException("Klarte ikke utlede sats for gjennomføring=${gjennomforing.id} og periode=$avtaltSatsPeriode")
+    private fun QueryContext.resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
+        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
+        return resolveAvtalteSatser(gjennomforing, avtale, periode)
     }
 
     fun resolveAvtalteSatser(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Set<SatsPeriode> {
@@ -73,7 +71,7 @@ object UtbetalingInputHelper {
             .toSet()
     }
 
-    private fun resolveDeltakelsePerioder(
+    fun resolveDeltakelsePerioder(
         deltakere: List<Deltaker>,
         periode: Periode,
     ): Set<DeltakelsePeriode> {
@@ -85,7 +83,7 @@ object UtbetalingInputHelper {
             .toSet()
     }
 
-    private fun toDeltakelsePeriode(
+    fun toDeltakelsePeriode(
         deltaker: Deltaker,
         periode: Periode,
     ): DeltakelsePeriode? {
@@ -101,7 +99,7 @@ object UtbetalingInputHelper {
         return DeltakelsePeriode(deltaker.id, overlappingPeriode)
     }
 
-    private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
+    fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
         if (deltaker.status.type == DeltakerStatusType.DELTAR) {
             return true
         }
@@ -114,11 +112,11 @@ object UtbetalingInputHelper {
         return deltaker.status.type in avsluttendeStatus && deltaker.sluttDato != null
     }
 
-    private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
+    fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
         return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
     }
 
-    private fun resolveStengtHosArrangor(
+    fun resolveStengtHosArrangor(
         periode: Periode,
         stengtPerioder: List<Gjennomforing.StengtPeriode>,
     ): Set<StengtPeriode> {

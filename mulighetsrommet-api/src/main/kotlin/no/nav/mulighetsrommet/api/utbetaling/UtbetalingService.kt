@@ -153,7 +153,7 @@ class UtbetalingService(
             kid = utbetalingKrav.kidNummer,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
                 input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                    satser = setOf(SatsPeriode(periode, utbetalingInfo.sats)),
+                    satser = utbetalingInfo.satser,
                     belop = utbetalingKrav.belop,
                     stengt = utbetalingInfo.stengtHosArrangor,
                     deltakelser = utbetalingInfo.deltakelsePerioder,

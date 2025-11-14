@@ -111,7 +111,7 @@ data class ArrangorflateBeregningDeltakelse(
     val deltaker: Deltaker?,
 )
 
-private fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<DetailsEntry> {
+fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<DetailsEntry> {
     return satser.singleOrNull()?.let {
         listOf(DetailsEntry.nok(label, it.sats))
     } ?: satser.map {
