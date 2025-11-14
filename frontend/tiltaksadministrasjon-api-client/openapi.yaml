@@ -6072,13 +6072,10 @@ components:
         createdAt:
           type: string
           format: date-time
-        iconType:
-          $ref: "#/components/schemas/OppgaveIconType"
       required:
       - createdAt
       - description
       - enhet
-      - iconType
       - id
       - link
       - navn
@@ -6115,13 +6112,6 @@ components:
       required:
       - link
       - linkText
-    OppgaveIconType:
-      type: string
-      enum:
-      - TILSAGN
-      - UTBETALING
-      - AVTALE
-      - GJENNOMFORING
     OppgaveTypeDto:
       type: object
       properties:

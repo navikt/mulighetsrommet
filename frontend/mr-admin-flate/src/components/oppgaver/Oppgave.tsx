@@ -1,9 +1,4 @@
-import {
-  type Oppgave,
-  OppgaveEnhet,
-  OppgaveIconType,
-  OppgaveType,
-} from "@tiltaksadministrasjon/api-client";
+import { type Oppgave, OppgaveEnhet, OppgaveType } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BankNoteIcon, HandshakeIcon, PiggybankIcon } from "@navikt/aksel-icons";
 import { BodyShort, Box, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
@@ -15,7 +10,7 @@ interface OppgaveProps {
 }
 
 export function Oppgave({ oppgave }: OppgaveProps) {
-  const { title, description, link, createdAt, iconType } = oppgave;
+  const { title, navn, type, description, link, createdAt } = oppgave;
   return (
     <LinkCard>
       <Box
@@ -25,7 +20,7 @@ export function Oppgave({ oppgave }: OppgaveProps) {
         style={{ backgroundColor: "var(--a-grayalpha-100)" }}
       >
         <LinkCard.Icon>
-          <OppgaveIcon type={iconType} fontSize="2rem" />
+          <OppgaveIcon type={type} fontSize="2rem" />
         </LinkCard.Icon>
       </Box>
       <LinkCard.Title>
@@ -36,9 +31,9 @@ export function Oppgave({ oppgave }: OppgaveProps) {
       <LinkCard.Description>{description}</LinkCard.Description>
       <LinkCard.Footer>
         <OppgaveStatus
-          type={oppgave.type}
-          label={oppgave.navn}
-          icon={<OppgaveIcon type={iconType} />}
+          variant={getOppgaveVariant(type)}
+          label={navn}
+          icon={<OppgaveIcon type={type} />}
         />
         {oppgave.enhet && <OppgaveEnhetTag enhet={oppgave.enhet} />}
         <Spacer />
@@ -50,19 +45,24 @@ export function Oppgave({ oppgave }: OppgaveProps) {
   );
 }
 
-function OppgaveIcon(props: { type: OppgaveIconType; fontSize?: string }) {
-  switch (props.type) {
-    case OppgaveIconType.TILSAGN:
-      return <PiggybankIcon fontSize={props.fontSize} />;
-    case OppgaveIconType.UTBETALING:
-      return <BankNoteIcon fontSize={props.fontSize} />;
-    case OppgaveIconType.AVTALE:
-    case OppgaveIconType.GJENNOMFORING:
-      return <HandshakeIcon fontSize={props.fontSize} />;
+function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string }) {
+  switch (type) {
+    case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
+    case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
+      return <HandshakeIcon fontSize={fontSize} />;
+    case OppgaveType.TILSAGN_TIL_OPPGJOR:
+    case OppgaveType.TILSAGN_TIL_ANNULLERING:
+    case OppgaveType.TILSAGN_RETURNERT:
+    case OppgaveType.TILSAGN_TIL_GODKJENNING:
+      return <BankNoteIcon fontSize={fontSize} />;
+    case OppgaveType.UTBETALING_RETURNERT:
+    case OppgaveType.UTBETALING_TIL_BEHANDLING:
+    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+      return <PiggybankIcon fontSize={fontSize} />;
   }
 }
 
-function getOppgaveVariant(type: OppgaveType): TagProps["variant"] {
+function getOppgaveVariant(type: OppgaveType) {
   switch (type) {
     case OppgaveType.TILSAGN_TIL_OPPGJOR:
     case OppgaveType.AVTALE_MANGLER_ADMINISTRATOR:
@@ -76,20 +76,16 @@ function getOppgaveVariant(type: OppgaveType): TagProps["variant"] {
     case OppgaveType.UTBETALING_TIL_ATTESTERING:
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "success";
-    default:
-      return "warning";
   }
 }
 
 interface OppgaveStatusProps {
-  type: OppgaveType;
+  variant: TagProps["variant"];
   label: string;
   icon: ReactNode;
 }
 
-function OppgaveStatus({ type, label, icon }: OppgaveStatusProps) {
-  const variant = getOppgaveVariant(type);
-
+function OppgaveStatus({ variant, label, icon }: OppgaveStatusProps) {
   return (
     <Tag size="small" variant={variant} icon={icon}>
       {label}
@@ -97,11 +93,7 @@ function OppgaveStatus({ type, label, icon }: OppgaveStatusProps) {
   );
 }
 
-interface OppgaveEnhetTagProps {
-  enhet: OppgaveEnhet;
-}
-
-function OppgaveEnhetTag({ enhet }: OppgaveEnhetTagProps) {
+function OppgaveEnhetTag({ enhet }: { enhet: OppgaveEnhet }) {
   return (
     <Tag size="small" variant="neutral-moderate">
       {enhet.navn}

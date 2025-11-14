@@ -192,7 +192,6 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt,
-                iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN,
@@ -211,13 +210,12 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 id = data.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
                 navn = OppgaveType.TILSAGN_RETURNERT.navn,
-                title = data.gjennomforingNavn,
                 enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
+                title = data.gjennomforingNavn,
                 description = "Tilsagnet ${data.bestillingsnummer} er returnert av beslutter",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.besluttetTidspunkt,
-                iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.REDIGER,
@@ -242,7 +240,6 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = annullering.behandletTidspunkt,
-                iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_ANNULLERING,
@@ -267,7 +264,6 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = tilOppgjor.behandletTidspunkt,
-                iconType = OppgaveIconType.TILSAGN,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_OPPGJOR,
@@ -304,7 +300,6 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.behandletTidspunkt,
-                iconType = OppgaveIconType.UTBETALING,
             ).takeIf {
                 UtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.ATTESTER,
@@ -327,7 +322,6 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
-                iconType = OppgaveIconType.UTBETALING,
             ).takeIf {
                 UtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
@@ -366,7 +360,6 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                     link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.id}",
                 ),
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
-                iconType = OppgaveIconType.UTBETALING,
             ).takeIf { UtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
     }
 }
@@ -375,13 +368,13 @@ private fun AvtaleOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = this.id,
     type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
-    title = this.navn,
     enhet = this.kontorstruktur.firstOrNull()?.region?.let {
         OppgaveEnhet(
             nummer = it.enhetsnummer,
             navn = it.navn,
         )
     },
+    title = this.navn,
     description = """Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
     tiltakstype = OppgaveTiltakstype(
         tiltakskode = this.tiltakstype.tiltakskode,
@@ -392,7 +385,6 @@ private fun AvtaleOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
         link = "/avtaler/${this.id}",
     ),
     createdAt = this.createdAt,
-    iconType = OppgaveIconType.AVTALE,
 ).takeIf {
     AvtaleService.tilgangTilHandling(AvtaleHandling.REDIGER, ansatt)
 }
@@ -401,13 +393,13 @@ private fun GjennomforingOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = this.id,
     type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-    title = this.navn,
     enhet = this.kontorstruktur.firstOrNull()?.region?.let {
         OppgaveEnhet(
             nummer = it.enhetsnummer,
             navn = it.navn,
         )
     },
+    title = this.navn,
     description = """Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
     tiltakstype = OppgaveTiltakstype(
         tiltakskode = this.tiltakskode,
@@ -418,7 +410,6 @@ private fun GjennomforingOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
         link = "/gjennomforinger/${this.id}",
     ),
     createdAt = this.updatedAt,
-    iconType = OppgaveIconType.GJENNOMFORING,
 ).takeIf {
     GjennomforingService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
 }
