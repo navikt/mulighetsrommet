@@ -52,14 +52,14 @@ class TiltakshistorikkService(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
     ): List<Tiltakshistorikk.GruppetiltakDeltakelse> = db.session {
-        queries.deltaker.getKometHistorikk(identer, maxAgeYears)
+        queries.kometDeltaker.getKometHistorikk(identer, maxAgeYears)
     }
 
     private fun getArenaDeltakelser(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
     ): List<Tiltakshistorikk.ArenaDeltakelse> = db.session {
-        val deltakelser = queries.deltaker.getArenaHistorikk(identer, maxAgeYears)
+        val deltakelser = queries.arenaDeltaker.getArenaHistorikk(identer, maxAgeYears)
 
         deltakelser.filter { deltakelse ->
             val tiltakskode = arenaKodeToTeamTiltakKode(deltakelse.arenaTiltakskode) ?: return@filter true

@@ -33,7 +33,7 @@ fun Route.tiltakshistorikkRoutes(
             put("/deltaker") {
                 val dbo = call.receive<ArenaDeltakerDbo>()
 
-                db.session { queries.deltaker.upsertArenaDeltaker(dbo) }
+                db.session { queries.arenaDeltaker.upsertArenaDeltaker(dbo) }
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -41,7 +41,7 @@ fun Route.tiltakshistorikkRoutes(
             delete("/deltaker/{id}") {
                 val id: UUID by call.parameters
 
-                db.session { queries.deltaker.deleteArenaDeltaker(id) }
+                db.session { queries.arenaDeltaker.deleteArenaDeltaker(id) }
 
                 call.respond(HttpStatusCode.OK)
             }

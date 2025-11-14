@@ -43,7 +43,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         test("delete deltakere for tombstone messages") {
             db.session {
-                queries.deltaker.upsertKometDeltaker(amtDeltaker1)
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1)
             }
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
@@ -53,7 +53,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         test("delete deltakere that have status FEILREGISTRERT") {
             db.session {
-                queries.deltaker.upsertKometDeltaker(amtDeltaker1)
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1)
             }
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(

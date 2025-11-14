@@ -64,4 +64,9 @@ data class KafkaConsumers(
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v1"),
     ),
+    val sisteTiltaksgjennomforingerV2: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "siste-tiltaksgjennomforinger-v2",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v2"),
+    ),
 )

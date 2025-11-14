@@ -4,16 +4,11 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class GruppetiltakQueries(private val session: Session) {
 
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     fun upsert(tiltak: TiltaksgjennomforingV1Dto) {
-        logger.info("Lagrer tiltak id=${tiltak.id}")
-
         @Language("PostgreSQL")
         val query = """
             insert into gruppetiltak(
@@ -58,18 +53,16 @@ class GruppetiltakQueries(private val session: Session) {
             )
         }
 
-        queryOf(query, params).asExecute.runWithSession(session)
+        session.execute(queryOf(query, params))
     }
 
     fun delete(id: UUID) {
-        logger.info("Sletter tiltak id=$id")
-
         @Language("PostgreSQL")
         val query = """
             delete from gruppetiltak
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id).asExecute.runWithSession(session)
+        session.execute(queryOf(query, id))
     }
 }
