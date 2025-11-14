@@ -421,7 +421,7 @@ class GjennomforingService(
         )
         queries.kafkaProducerRecord.storeRecord(recordV1)
 
-        val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
+        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
         val recordV2 = StoredProducerRecord(
             config.gjennomforingV2Topic,
             gjennomforingV2.id.toString().toByteArray(),
