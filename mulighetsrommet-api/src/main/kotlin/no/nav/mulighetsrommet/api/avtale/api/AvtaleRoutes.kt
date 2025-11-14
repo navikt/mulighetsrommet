@@ -427,7 +427,7 @@ fun Route.avtaleRoutes() {
                 queryParameter<List<Avtaletype>>("avtaletyper") {
                     explode = true
                 }
-                queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                queryParameter<List<NavEnhetNummer>>("navEnheter") {
                     explode = true
                 }
                 queryParameter<List<String>>("arrangorer") {
@@ -460,7 +460,7 @@ fun Route.avtaleRoutes() {
                     search = filter.search,
                     statuser = filter.statuser,
                     avtaletyper = filter.avtaletyper,
-                    navRegioner = filter.navRegioner,
+                    navEnheter = filter.navEnheter,
                     sortering = filter.sortering,
                     arrangorIds = filter.arrangorIds,
                     administratorNavIdent = filter.administratorNavIdent,
@@ -487,7 +487,7 @@ fun Route.avtaleRoutes() {
                 queryParameter<List<Avtaletype>>("avtaletyper") {
                     explode = true
                 }
-                queryParameter<List<NavEnhetNummer>>("navRegioner") {
+                queryParameter<List<NavEnhetNummer>>("navEnheter") {
                     explode = true
                 }
                 queryParameter<List<String>>("arrangorer") {
@@ -522,7 +522,7 @@ fun Route.avtaleRoutes() {
                     search = filter.search,
                     statuser = filter.statuser,
                     avtaletyper = filter.avtaletyper,
-                    navRegioner = filter.navRegioner,
+                    navEnheter = filter.navEnheter,
                     sortering = "tiltakstype_navn-ascending",
                     arrangorIds = filter.arrangorIds,
                     administratorNavIdent = filter.administratorNavIdent,
@@ -665,7 +665,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
     val avtaletyper = call.parameters.getAll("avtaletyper")
         ?.map { type -> Avtaletype.valueOf(type) }
         ?: emptyList()
-    val navRegioner = call.parameters.getAll("navRegioner")?.map { NavEnhetNummer(it) } ?: emptyList()
+    val navEnheter = call.parameters.getAll("navEnheter")?.map { NavEnhetNummer(it) } ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
     val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
@@ -678,7 +678,7 @@ fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
         search = search,
         statuser = statuser,
         avtaletyper = avtaletyper,
-        navRegioner = navRegioner,
+        navEnheter = navEnheter,
         sortering = sortering,
         arrangorIds = arrangorIds,
         administratorNavIdent = administratorNavIdent,
@@ -691,7 +691,7 @@ data class AvtaleFilter(
     val search: String? = null,
     val statuser: List<AvtaleStatusType> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
-    val navRegioner: List<NavEnhetNummer> = emptyList(),
+    val navEnheter: List<NavEnhetNummer> = emptyList(),
     val sortering: String? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,

@@ -5,13 +5,13 @@ import { createFilterValidator } from "@/filter/filter-validator";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atomFamily } from "jotai/utils";
 import { atom, WritableAtom } from "jotai";
-import { AvtaleStatusType, Avtaletype } from "@tiltaksadministrasjon/api-client";
+import { AvtaleStatusType, Avtaletype, NavEnhetDto } from "@tiltaksadministrasjon/api-client";
 
 export const AvtaleFilterSchema = z.object({
   sok: z.string(),
   statuser: z.custom<AvtaleStatusType>().array(),
   avtaletyper: z.custom<Avtaletype>().array(),
-  navRegioner: z.string().array(),
+  navEnheter: z.custom<NavEnhetDto>().array(),
   tiltakstyper: z.string().array(),
   sortering: createSorteringProps(z.string()),
   arrangorer: z.string().array(),
@@ -27,7 +27,7 @@ export const defaultAvtaleFilter: AvtaleFilterType = {
   sok: "",
   statuser: [AvtaleStatusType.AKTIV],
   avtaletyper: [],
-  navRegioner: [],
+  navEnheter: [],
   tiltakstyper: [],
   sortering: {
     sortString: "navn-ascending",
@@ -68,4 +68,4 @@ const avtalerForTiltakstypeFilterAtomFamily = atomFamily<
   (a, b) => a.tiltakstyper[0] === b.tiltakstyper[0],
 );
 
-export const avtaleFilterAccordionAtom = atom<string[]>(["region"]);
+export const avtaleFilterAccordionAtom = atom<string[]>(["navEnhet"]);

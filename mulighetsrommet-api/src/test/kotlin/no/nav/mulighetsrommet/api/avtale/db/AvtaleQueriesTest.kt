@@ -720,13 +720,13 @@ class AvtaleQueriesTest : FunSpec({
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'"))
 
-                queries.getAll(navRegioner = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
+                queries.getAll(navEnheter = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
-                queries.getAll(navRegioner = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
+                queries.getAll(navEnheter = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
                     totalCount shouldBe 2
                 }
-                queries.getAll(navRegioner = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
+                queries.getAll(navEnheter = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
             }
@@ -757,13 +757,13 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
 
                 queries.getAll(
-                    navRegioner = listOf(Innlandet.enhetsnummer),
+                    navEnheter = listOf(Innlandet.enhetsnummer),
                 ).should { (totalCount) ->
                     totalCount shouldBe 3
                 }
 
                 queries.getAll(
-                    navRegioner = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
+                    navEnheter = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
                 ).should { (totalCount, items) ->
                     totalCount shouldBe 2
                     items shouldContainExactlyIds listOf(AvtaleFixtures.oppfolging.id, AvtaleFixtures.AFT.id)

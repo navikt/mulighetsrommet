@@ -8,7 +8,7 @@ export function useDownloadAvtalerAsExcel(filter: AvtaleFilterType) {
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
     avtaletyper: filter.avtaletyper,
-    navRegioner: filter.navRegioner,
+    navEnheter: filter.navEnheter.map((e) => e.enhetsnummer),
     arrangorer: filter.arrangorer,
     personvernBekreftet: filter.personvernBekreftet,
     visMineAvtaler: filter.visMineAvtaler,

@@ -6,15 +6,15 @@ import {
   arrangorOptions,
   AVTALE_STATUS_OPTIONS,
   AVTALE_TYPE_OPTIONS,
-  regionOptions,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
+import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { CheckboxList } from "./CheckboxList";
 import { avtaleFilterAccordionAtom, AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
+import { useNavRegioner } from "@/api/enhet/useNavRegioner";
 
 type Filters = "tiltakstype";
 
@@ -27,6 +27,7 @@ interface Props {
 export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: tiltakstyper } = useTiltakstyper();
+  const { data: regioner } = useNavRegioner();
   const { data: enheter } = useNavEnheter();
   const { data: arrangorData } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
@@ -77,24 +78,27 @@ export function AvtaleFilter({ filter, updateFilter, skjulFilter }: Props) {
         </Switch>
       </div>
       <Accordion>
-        <Accordion.Item open={accordionsOpen.includes("region")}>
+        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
             }}
           >
-            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
+            <FilterAccordionHeader
+              tittel="Nav-enhet"
+              antallValgteFilter={filter.navEnheter.length}
+            />
           </Accordion.Header>
           <Accordion.Content className="ml-[-2rem]">
-            <CheckboxList
-              items={regionOptions(enheter)}
-              isChecked={(region) => filter.navRegioner.includes(region)}
-              onChange={(region) => {
+            <NavEnhetFilter
+              value={filter.navEnheter}
+              onChange={(navEnheter: string[]) => {
                 updateFilter({
-                  navRegioner: addOrRemove(filter.navRegioner, region),
+                  navEnheter: enheter.filter((enhet) => navEnheter.includes(enhet.enhetsnummer)),
                   page: 1,
                 });
               }}
+              regioner={regioner}
             />
           </Accordion.Content>
         </Accordion.Item>
