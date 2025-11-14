@@ -40,8 +40,8 @@ val ApplicationConfigProd = AppConfig(
             scope = "api://prod-gcp.team-mulighetsrommet.tiltakshistorikk/.default",
         ),
         arenaEventService = ArenaEventService.Config(
-            channelCapacity = 10000,
-            numChannelConsumers = 100,
+            channelCapacity = 1000,
+            numChannelConsumers = 10,
             maxRetries = 10,
         ),
         arenaOrdsProxy = ServiceClientConfig(
