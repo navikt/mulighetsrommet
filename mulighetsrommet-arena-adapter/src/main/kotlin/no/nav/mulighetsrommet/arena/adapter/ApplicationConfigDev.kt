@@ -40,8 +40,8 @@ val ApplicationConfigDev = AppConfig(
             scope = "api://dev-gcp.team-mulighetsrommet.tiltakshistorikk/.default",
         ),
         arenaEventService = ArenaEventService.Config(
-            channelCapacity = 10000,
-            numChannelConsumers = 40,
+            channelCapacity = 1000,
+            numChannelConsumers = 10,
             maxRetries = 5,
         ),
         arenaOrdsProxy = ServiceClientConfig(
