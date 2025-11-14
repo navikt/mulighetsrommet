@@ -10,8 +10,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
@@ -92,20 +90,12 @@ class JournalforUtbetalingTest : FunSpec({
     val dokarkClient = mockk<DokarkClient>(relaxed = true)
     val amtDeltakerClient = mockk<AmtDeltakerClient>(relaxed = true)
 
-    val arrangorFlateSerivce = { db: ApiDatabase ->
-        ArrangorflateService(
-            db = db,
-            amtDeltakerClient = amtDeltakerClient,
-            kontoregisterOrganisasjonClient = mockk(relaxed = true),
-        )
-    }
-
     coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
     fun createTask() = JournalforUtbetaling(
         db = database.db,
         dokarkClient = dokarkClient,
-        arrangorFlateService = arrangorFlateSerivce(database.db),
+        amtDeltakerClient = amtDeltakerClient,
         pdf = pdfGenClient,
     )
 

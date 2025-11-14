@@ -1,7 +1,7 @@
 import { DataDrivenTableDto } from "@tiltaksadministrasjon/api-client";
 import { Alert, Heading } from "@navikt/ds-react";
-import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
 import { useAktiveTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
+import { DataDrivenTable } from "@mr/frontend-common";
 
 interface TilsagnTableProps {
   emptyStateMessage: string;

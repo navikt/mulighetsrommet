@@ -69,23 +69,25 @@ private fun toTilsagnDataTable(tilsagn: List<Tilsagn>): DataDrivenTableDto {
             DataDrivenTableDto.Column("action", null, sortable = false),
         ),
         rows = tilsagn.map { tilsagn ->
-            mapOf(
-                "bestillingsnummer" to DataElement.text(tilsagn.bestilling.bestillingsnummer),
-                "periodeStart" to DataElement.date(tilsagn.periode.start),
-                "periodeSlutt" to DataElement.date(tilsagn.periode.getLastInclusiveDate()),
-                "type" to DataElement.text(tilsagn.type.displayName()),
-                "kostnadssted" to DataElement.text(tilsagn.kostnadssted.navn),
-                "antallPlasser" to when (tilsagn.beregning) {
-                    is TilsagnBeregningFri -> null
-                    is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                    is TilsagnBeregningPrisPerManedsverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                    is TilsagnBeregningPrisPerUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                    is TilsagnBeregningPrisPerHeleUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                    is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                },
-                "belop" to DataElement.nok(tilsagn.beregning.output.belop),
-                "status" to toTilsagnStatusTag(tilsagn.status),
-                "action" to toTilsagnAction(tilsagn),
+            DataDrivenTableDto.Row(
+                cells = mapOf(
+                    "bestillingsnummer" to DataElement.text(tilsagn.bestilling.bestillingsnummer),
+                    "periodeStart" to DataElement.date(tilsagn.periode.start),
+                    "periodeSlutt" to DataElement.date(tilsagn.periode.getLastInclusiveDate()),
+                    "type" to DataElement.text(tilsagn.type.displayName()),
+                    "kostnadssted" to DataElement.text(tilsagn.kostnadssted.navn),
+                    "antallPlasser" to when (tilsagn.beregning) {
+                        is TilsagnBeregningFri -> null
+                        is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningPrisPerManedsverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningPrisPerUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningPrisPerHeleUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                    },
+                    "belop" to DataElement.nok(tilsagn.beregning.output.belop),
+                    "status" to toTilsagnStatusTag(tilsagn.status),
+                    "action" to toTilsagnAction(tilsagn),
+                ),
             )
         },
     )

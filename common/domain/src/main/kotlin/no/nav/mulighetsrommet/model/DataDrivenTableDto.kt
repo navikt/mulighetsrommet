@@ -10,7 +10,7 @@ import java.time.LocalDate
 @Serializable
 class DataDrivenTableDto(
     val columns: List<Column>,
-    val rows: List<Map<String, DataElement?>>,
+    val rows: List<Row>,
 ) {
     @Serializable
     data class Column(
@@ -31,6 +31,13 @@ class DataDrivenTableDto(
             RIGHT,
         }
     }
+
+    @Serializable
+    data class Row(
+        val cells: Map<String, DataElement?>,
+        // Kan utvides til å kunne være flere forskjellige ting? F. eks DataDetails
+        val content: TimelineDto? = null,
+    )
 }
 
 @Serializable
@@ -55,7 +62,6 @@ enum class LabeledDataElementType {
 @Serializable
 @JsonClassDiscriminator("type")
 sealed class DataElement {
-
     @Serializable
     data class Text(
         val value: String?,

@@ -1,36 +1,29 @@
 import { useMemo, useState } from "react";
 import { compare } from "../utils/utils";
-import { SortState } from "@navikt/ds-react";
 
-interface ScopedSortState<T> extends SortState {
-  orderBy: Extract<keyof T, string>; // Ensures string keys only
-  direction: "ascending" | "descending";
-}
-
-export function useSortableData<T extends Record<string, unknown>>(
+export function useSortableData<T, V, K extends string = string>(
   data: T[],
-  defaultSort?: ScopedSortState<T>,
-  comparator: (
-    a: T[Extract<keyof T, unknown>],
-    b: T[Extract<keyof T, unknown>],
-  ) => number = compare,
+  defaultSort?: { orderBy: K; direction: "ascending" | "descending" },
+  getValue: (item: T, key: K) => V = (item, key) => (item as any)[key],
+  comparator: (a: V, b: V) => number = compare,
 ) {
-  const [sort, setSort] = useState<ScopedSortState<T> | undefined>(defaultSort);
+  const [sort, setSort] = useState(defaultSort);
 
   const sortedData = useMemo(() => {
     if (!sort) return data;
 
     const { orderBy, direction } = sort;
+
     return [...data].sort((a, b) => {
-      const aVal = a[orderBy];
-      const bVal = b[orderBy];
+      const aVal = getValue(a, orderBy);
+      const bVal = getValue(b, orderBy);
 
-      return direction === "ascending" ? comparator(bVal, aVal) : comparator(aVal, bVal);
+      return direction === "ascending" ? comparator(aVal, bVal) : comparator(bVal, aVal);
     });
-  }, [data, sort, comparator]);
+  }, [data, sort, comparator, getValue]);
 
-  const toggleSort = (key: Extract<keyof T, string>) => {
-    setSort((prev): ScopedSortState<T> | undefined => {
+  const toggleSort = (key: K) => {
+    setSort((prev) => {
       if (!prev || prev.orderBy !== key) {
         return { orderBy: key, direction: "ascending" };
       }

@@ -41,6 +41,8 @@ data class UtbetalingBeregningOutputDeltakelse(
     val deltakelseId: UUID,
     val perioder: Set<BeregnetPeriode>,
 ) {
+    fun periode(): Periode = Periode.fromRange(perioder.map { it.periode })
+
     @Serializable
     data class BeregnetPeriode(
         val periode: Periode,

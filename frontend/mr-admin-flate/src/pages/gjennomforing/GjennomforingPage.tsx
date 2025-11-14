@@ -14,7 +14,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 function getCurrentTab(pathname: string) {
   if (pathname.includes("tilsagn")) {

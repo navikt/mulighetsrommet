@@ -1,9 +1,4 @@
-import {
-  Oppgave,
-  OppgaveIconType,
-  OppgaveType,
-  Tiltakskode,
-} from "@tiltaksadministrasjon/api-client";
+import { Oppgave, OppgaveType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 export const mockOppgaver: Oppgave[] = [
   {
@@ -22,7 +17,6 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toString(),
-    iconType: OppgaveIconType.TILSAGN,
   },
   {
     id: "2",
@@ -40,7 +34,6 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toString(),
-    iconType: OppgaveIconType.TILSAGN,
   },
   {
     id: "3",
@@ -58,7 +51,6 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
-    iconType: OppgaveIconType.TILSAGN,
   },
   {
     id: "4",
@@ -76,6 +68,5 @@ export const mockOppgaver: Oppgave[] = [
       link: "https://nav.no/",
     },
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toString(),
-    iconType: OppgaveIconType.UTBETALING,
   },
 ];

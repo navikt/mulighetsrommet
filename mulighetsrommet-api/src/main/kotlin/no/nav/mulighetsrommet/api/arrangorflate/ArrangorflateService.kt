@@ -36,7 +36,7 @@ class ArrangorflateService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
+    suspend fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
             .map { utbetaling ->
                 val advarsler = when (utbetaling.status) {
@@ -105,30 +105,40 @@ class ArrangorflateService(
             .map { toArrangorflateTilsagn(it) }
     }
 
-    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+    suspend fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+        val personalia = getPersonalia(utbetaling.beregning.output.deltakelser().map { it.deltakelseId }.toSet())
         val deltakere = queries.deltaker
             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
-        return getRelevanteForslag(utbetaling) + getFeilSluttDato(deltakere, LocalDate.now())
+        return getRelevanteForslag(utbetaling, personalia) + getFeilSluttDato(deltakere, personalia, LocalDate.now())
     }
 
-    fun getFeilSluttDato(deltakere: List<Deltaker>, today: LocalDate): List<DeltakerAdvarsel.FeilSluttDato> {
+    fun getFeilSluttDato(
+        deltakere: List<Deltaker>,
+        personalia: Map<UUID, ArrangorflatePersonalia>,
+        today: LocalDate,
+    ): List<DeltakerAdvarsel.FeilSluttDato> {
         return deltakere
             .mapNotNull {
-                DeltakerAdvarsel.FeilSluttDato(it.id)
+                val navn = personalia[it.id]?.navn
+                DeltakerAdvarsel.FeilSluttDato(
+                    deltakerId = it.id,
+                    beskrivelse = "$navn har status “${it.status}” og slutt dato frem i tid",
+                )
                     .takeIf { _ -> harFeilSluttDato(it.status.type, it.sluttDato, today = today) }
             }
     }
 
-    private fun QueryContext.getRelevanteForslag(utbetaling: Utbetaling): List<DeltakerAdvarsel.RelevanteForslag> {
+    private fun QueryContext.getRelevanteForslag(utbetaling: Utbetaling, personalia: Map<UUID, ArrangorflatePersonalia>): List<DeltakerAdvarsel.RelevanteForslag> {
         return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
             .mapNotNull { (deltakerId, forslag) ->
-                when (val count = forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
+                when (forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
                     0 -> null
                     else -> DeltakerAdvarsel.RelevanteForslag(
                         deltakerId = deltakerId,
-                        antallRelevanteForslag = count,
+                        beskrivelse = "${personalia[deltakerId]?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg",
+
                     )
                 }
             }
@@ -169,8 +179,8 @@ class ArrangorflateService(
         )
     }
 
-    private fun QueryContext.getLinjer(utbetalingId: UUID): List<ArrangforflateUtbetalingLinje> {
-        return queries.delutbetaling.getByUtbetalingId(utbetalingId)
+    fun getLinjer(utbetalingId: UUID): List<ArrangforflateUtbetalingLinje> = db.session {
+        queries.delutbetaling.getByUtbetalingId(utbetalingId)
             .map { delutbetaling ->
                 val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
                     TilsagnDto.fromTilsagn(it)
@@ -220,7 +230,7 @@ class ArrangorflateService(
         }
     }
 
-    suspend fun getPersonalia(deltakerIds: Set<UUID>): Map<UUID, DeltakerPersonalia> {
+    suspend fun getPersonalia(deltakerIds: Set<UUID>): Map<UUID, ArrangorflatePersonalia> {
         return amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
@@ -229,6 +239,9 @@ class ArrangorflateService(
                 )
             }
             .associateBy { it.deltakerId }
+            .mapValues {
+                ArrangorflatePersonalia.fromPersonalia(it.value)
+            }
     }
 }
 

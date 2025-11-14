@@ -89,25 +89,8 @@ export const handlers = [
   ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/utbetaling/:id/relevante-forslag",
-    ({ params }) => {
-      if (params.id !== "a5499e34-9fb4-49d1-a37d-11810f6df19b") {
-        return HttpResponse.json([]);
-      }
-
-      const utbetaling = arrFlateUtbetaling.find((it) => it.id === params.id);
-      if (!utbetaling) {
-        return HttpResponse.text(null, { status: 404 });
-      }
-
-      const deltakelser =
-        "deltakelser" in utbetaling.beregning ? utbetaling.beregning.deltakelser : [];
-      const deltaker = deltakelser[Math.floor(Math.random() * deltakelser.length)];
-      return HttpResponse.json([
-        {
-          deltakerId: deltaker.id,
-          antallRelevanteForslag: 1,
-        },
-      ]);
+    () => {
+      return HttpResponse.json([]);
     },
   ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(

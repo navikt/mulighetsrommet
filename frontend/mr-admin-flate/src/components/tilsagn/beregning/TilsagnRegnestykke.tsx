@@ -1,7 +1,6 @@
 import { CalculationDto } from "@tiltaksadministrasjon/api-client";
 import { HStack } from "@navikt/ds-react";
-import { DataDrivenTable } from "@/components/tabell/DataDrivenTable";
-import { getDataElement } from "@/components/data-element/DataElement";
+import { DataDrivenTable, getDataElement } from "@mr/frontend-common";
 
 interface Props {
   regnestykke: CalculationDto;

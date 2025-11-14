@@ -1,4 +1,4 @@
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
+import { DataElementStatusTag } from "@mr/frontend-common";
 import { GjennomforingDtoStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {

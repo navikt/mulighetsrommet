@@ -15,8 +15,8 @@ import { Alert, Box, Heading } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "react-router";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { DataElementStatusTag } from "@/components/data-element/DataElementStatusTag";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 function useGjennomforingFormData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
