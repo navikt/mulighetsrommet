@@ -21,7 +21,6 @@ data class Oppgave(
     val link: OppgaveLink,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    val iconType: OppgaveIconType,
 )
 
 @Serializable
@@ -35,13 +34,6 @@ data class OppgaveTiltakstype(
     val tiltakskode: Tiltakskode,
     val navn: String,
 )
-
-enum class OppgaveIconType {
-    TILSAGN,
-    UTBETALING,
-    AVTALE,
-    GJENNOMFORING,
-}
 
 @Serializable
 data class OppgaveLink(
