@@ -39,7 +39,7 @@ export function MrApi() {
                 type: "object",
                 title: "Initial load basert på tiltakstyper",
                 description:
-                  "Starter en initial load av gjennomføringer filtrert basert på input fra skjemaet.",
+                  "Starter en initial load av gjennomføringer, både gruppetiltak og enkeltplasser, filtrert basert på input fra skjemaet.",
                 properties: {
                   tiltakstyper: {
                     title: "Tiltakstyper",
@@ -48,14 +48,17 @@ export function MrApi() {
                     items: {
                       type: "string",
                       enum: [
-                        "AVKLARING",
-                        "OPPFOLGING",
-                        "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
-                        "JOBBKLUBB",
-                        "DIGITALT_OPPFOLGINGSTILTAK",
                         "ARBEIDSFORBEREDENDE_TRENING",
-                        "GRUPPE_FAG_OG_YRKESOPPLAERING",
                         "ARBEIDSRETTET_REHABILITERING",
+                        "AVKLARING",
+                        "DIGITALT_OPPFOLGINGSTILTAK",
+                        "ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING",
+                        "ENKELTPLASS_FAG_OG_YRKESOPPLAERING",
+                        "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
+                        "GRUPPE_FAG_OG_YRKESOPPLAERING",
+                        "HOYERE_UTDANNING",
+                        "JOBBKLUBB",
+                        "OPPFOLGING",
                         "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
                       ],
                     },
@@ -69,21 +72,15 @@ export function MrApi() {
                 type: "object",
                 title: "Send ny melding basert på id",
                 description:
-                  "Hvis det ikke finnes gjennomdøring for gitt id blir det sendt en tombstone-melding i stedet.",
+                  "Hvis det ikke finnes noen gjennomføring for gitt id blir det en noop.",
                 properties: {
                   id: {
                     title: "ID til gjennomføring",
                     description: "Flere id'er kan separeres med et komma (,)",
                     type: "string",
                   },
-                  bekreftelse: {
-                    title:
-                      "Jeg forstår at tombstone-melding vil bli sendt om det ikke finnes noen gjennomføring for gitt id",
-                    type: "boolean",
-                    enum: [true],
-                  },
                 },
-                required: ["id", "bekreftelse"],
+                required: ["id"],
               },
             },
           }}
