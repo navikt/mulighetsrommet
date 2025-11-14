@@ -77,13 +77,15 @@ export function AvtaleFilterTags({
           }}
         />
       )}
-      {filter.navRegioner.map((enhetsnummer) => (
+      {filter.navEnheter.map((enhet) => (
         <FilterTag
-          key={enhetsnummer}
-          label={enheter.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
+          key={enhet.enhetsnummer}
+          label={
+            enheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)?.navn || enhet.enhetsnummer
+          }
           onClose={() => {
             updateFilter({
-              navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
+              navEnheter: addOrRemove(filter.navEnheter, enhet),
               page: 1,
             });
           }}

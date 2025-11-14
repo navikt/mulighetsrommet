@@ -138,7 +138,7 @@ paths:
           type: array
           items:
             $ref: "#/components/schemas/Avtaletype"
-      - name: navRegioner
+      - name: navEnheter
         in: query
         required: false
         deprecated: false
@@ -608,7 +608,7 @@ paths:
           type: array
           items:
             $ref: "#/components/schemas/Avtaletype"
-      - name: navRegioner
+      - name: navEnheter
         in: query
         required: false
         deprecated: false
