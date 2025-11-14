@@ -1,10 +1,10 @@
 package no.nav.tiltak.historikk
 
 import io.ktor.server.application.*
-import io.ktor.server.application.log
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
+import io.ktor.util.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -39,14 +39,18 @@ fun main() {
                 port = config.server.port
                 host = config.server.host
             }
-            shutdownGracePeriod = 5.seconds.inWholeMilliseconds
+            shutdownGracePeriod = 10.seconds.inWholeMilliseconds
             shutdownTimeout = 10.seconds.inWholeMilliseconds
         },
         module = { configure(config) },
     ).start(wait = true)
 }
 
+val IsReadyState = AttributeKey<Boolean>("app-is-ready")
+
 fun Application.configure(config: AppConfig) {
+    attributes.put(IsReadyState, true)
+
     configureMetrics()
 
     val db = Database(config.database)
@@ -55,7 +59,7 @@ fun Application.configure(config: AppConfig) {
 
     configureAuthentication(config.auth)
     configureSerialization()
-    configureMonitoring({ db.isHealthy() })
+    configureMonitoring({ attributes[IsReadyState] }, { db.isHealthy() })
     configureHTTP()
 
     val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
@@ -82,6 +86,7 @@ fun Application.configure(config: AppConfig) {
 
     monitor.subscribe(ApplicationStopPreparing) {
         log.info("ApplicationStopPreparing")
+        attributes.put(IsReadyState, false)
     }
 
     monitor.subscribe(ApplicationStopped) {
