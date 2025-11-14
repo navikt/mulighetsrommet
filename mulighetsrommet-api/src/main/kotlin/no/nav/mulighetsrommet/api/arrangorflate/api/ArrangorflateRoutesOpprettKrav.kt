@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.maksUtbetalings
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.minAntallVedleggVedOpprettKrav
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.clamav.ClamAvClient
@@ -237,20 +238,18 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
             }
 
-            val deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere
-            val deltakelsePerioder =
-                avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.sortedBy { it.periode.start }
-            val sats = avtaltPrisPerTimeOppfolgingPerDeltaker.sats
-            val stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor
-
-            val personalia = arrangorFlateService.getPersonalia(deltakelsePerioder.map { it.deltakelseId }.toSet())
+            val personalia = arrangorFlateService.getPersonalia(
+                avtaltPrisPerTimeOppfolgingPerDeltaker
+                    .deltakelsePerioder.map { it.deltakelseId }.toSet(),
+            )
             call.respond(
                 OpprettKravDeltakere.from(
                     gjennomforing,
-                    sats,
-                    stengtHosArrangor,
-                    deltakere,
-                    deltakelsePerioder,
+                    satser = avtaltPrisPerTimeOppfolgingPerDeltaker.satser,
+                    stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor,
+                    deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere,
+                    deltakelsePerioder = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder
+                        .sortedBy { it.periode.start },
                     personalia,
                 ),
             )
@@ -689,12 +688,13 @@ data class OpprettKravDeltakere(
     companion object {
         fun from(
             gjennomforing: Gjennomforing,
-            sats: Int,
+            satser: Set<SatsPeriode>,
             stengtHosArrangor: Set<StengtPeriode>,
             deltakere: List<Deltaker>,
             deltakelsePerioder: List<DeltakelsePeriode>,
             personalia: Map<UUID, ArrangorflatePersonalia>,
         ): OpprettKravDeltakere {
+            requireNotNull(gjennomforing.avtalePrismodell)
             return OpprettKravDeltakere(
                 guidePanel = GuidePanelType.from(gjennomforing.avtalePrismodell),
                 stengtHosArrangor = stengtHosArrangor,
@@ -710,16 +710,14 @@ data class OpprettKravDeltakere(
                         )
                     },
                 ),
-                tabellFooter = tableFooter(gjennomforing.avtalePrismodell, sats, deltakelsePerioder.size),
+                tabellFooter = tableFooter(gjennomforing.avtalePrismodell, satser, deltakelsePerioder.size),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing),
             )
         }
 
-        fun tableFooter(prismodellType: PrismodellType?, sats: Int, antallDeltakere: Int): List<DetailsEntry> {
-            return listOf(
-                DetailsEntry.number("Antall deltakere", antallDeltakere),
-                DetailsEntry.nok(prismodellType?.navn ?: "Pris", sats),
-            )
+        fun tableFooter(prismodellType: PrismodellType, satser: Set<SatsPeriode>, antallDeltakere: Int): List<DetailsEntry> {
+            return listOf(DetailsEntry.number("Antall deltakere", antallDeltakere)) +
+                getSatserDetails(prismodellType.navn, satser.toList())
         }
     }
 

@@ -374,7 +374,7 @@ class GenererUtbetalingService(
         queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
             .mapNotNull { deltaker ->
-                toDeltakelsePeriode(deltaker, periode)
+                UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)
             }
             .map { (deltakelseId, deltakelsePeriode) ->
                 val deltakelsesmengder = queries.deltaker.getDeltakelsesmengder(deltakelseId)
@@ -404,7 +404,7 @@ class GenererUtbetalingService(
         periode: Periode,
     ): Set<DeltakelsePeriode> {
         val deltakere = queries.deltaker.getAll(gjennomforingId = gjennomforingId)
-        return resolveDeltakelsePerioder(deltakere, periode)
+        return UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
     }
 
     private fun QueryContext.logEndring(
@@ -428,34 +428,6 @@ class GenererUtbetalingService(
     }
 }
 
-private fun resolveDeltakelsePerioder(
-    deltakere: List<Deltaker>,
-    periode: Periode,
-): Set<DeltakelsePeriode> {
-    return deltakere
-        .asSequence()
-        .mapNotNull { deltaker ->
-            toDeltakelsePeriode(deltaker, periode)
-        }
-        .toSet()
-}
-
-private fun toDeltakelsePeriode(
-    deltaker: Deltaker,
-    periode: Periode,
-): DeltakelsePeriode? {
-    if (!harDeltakerDeltatt(deltaker)) {
-        return null
-    }
-
-    val startDato = requireNotNull(deltaker.startDato) {
-        "Deltaker må ha en startdato når status er ${deltaker.status.type} og den er relevant for utbetaling"
-    }
-    val sluttDatoInPeriode = getSluttDatoInPeriode(deltaker, periode)
-    val overlappingPeriode = Periode.of(startDato, sluttDatoInPeriode)?.intersect(periode) ?: return null
-    return DeltakelsePeriode(deltaker.id, overlappingPeriode)
-}
-
 fun heleUkerPeriode(periode: Periode): Periode {
     val newStart = if (periode.start.dayOfWeek <= DayOfWeek.WEDNESDAY) {
         periode.start.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
@@ -468,21 +440,4 @@ fun heleUkerPeriode(periode: Periode): Periode {
         periode.slutt.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     }
     return Periode(newStart, newSlutt)
-}
-
-private fun harDeltakerDeltatt(deltaker: Deltaker): Boolean {
-    if (deltaker.status.type == DeltakerStatusType.DELTAR) {
-        return true
-    }
-
-    val avsluttendeStatus = listOf(
-        DeltakerStatusType.AVBRUTT,
-        DeltakerStatusType.FULLFORT,
-        DeltakerStatusType.HAR_SLUTTET,
-    )
-    return deltaker.status.type in avsluttendeStatus && deltaker.sluttDato != null
-}
-
-private fun getSluttDatoInPeriode(deltaker: Deltaker, periode: Periode): LocalDate {
-    return deltaker.sluttDato?.plusDays(1)?.coerceAtMost(periode.slutt) ?: periode.slutt
 }
