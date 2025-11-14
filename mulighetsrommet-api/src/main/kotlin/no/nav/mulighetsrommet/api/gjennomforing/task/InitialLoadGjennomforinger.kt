@@ -56,7 +56,7 @@ class InitialLoadGjennomforinger(
             logger.info("Relaster gjennomføringer på topic input=$input")
 
             if (input.ids != null) {
-                initialLoadTiltaksgjennomforingerByIds(input.ids)
+                initialLoadGjennomforingerById(input.ids)
             }
 
             input.tiltakskoder?.filter { Tiltakskoder.isGruppetiltak(it) }?.toNonEmptyListOrNull()?.let {
@@ -125,16 +125,21 @@ class InitialLoadGjennomforinger(
         logger.info("Antall enkeltplasser relastet på topic: $total")
     }
 
-    private fun initialLoadTiltaksgjennomforingerByIds(ids: List<UUID>) = db.session {
+    private fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
         ids.forEach { id ->
-            val gjennomforing = queries.gjennomforing.get(id)
-            if (gjennomforing == null) {
-                logger.info("Sender tombstone for id $id")
-                retract(id)
-            } else {
-                logger.info("Publiserer melding for $id")
-                publish(gjennomforing)
+            val gruppetiltak = queries.gjennomforing.get(id)
+            if (gruppetiltak != null) {
+                publish(gruppetiltak)
+                return@forEach
             }
+
+            val enkeltplass = queries.enkeltplass.get(id)
+            if (enkeltplass != null) {
+                publish(enkeltplass)
+                return@forEach
+            }
+
+            logger.warn("Fant ingen gjennomføring med id=$id")
         }
     }
 
@@ -170,14 +175,5 @@ class InitialLoadGjennomforinger(
             Json.encodeToString(gjennomforingV2).toByteArray(),
         )
         kafkaProducerClient.sendSync(recordV2)
-    }
-
-    fun retract(id: UUID) {
-        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
-            config.topic,
-            id.toString().toByteArray(),
-            null,
-        )
-        kafkaProducerClient.sendSync(record)
     }
 }
