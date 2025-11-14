@@ -443,7 +443,10 @@ private fun tasks(config: AppConfig) = module {
     single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
     single {
         InitialLoadGjennomforinger(
-            InitialLoadGjennomforinger.Config(config.kafka.topics.sisteTiltaksgjennomforingerV1Topic),
+            InitialLoadGjennomforinger.Config(
+                gjennomforinvV1Topic = config.kafka.topics.sisteTiltaksgjennomforingerV1Topic,
+                gjennomforinvV2Topic = config.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
+            ),
             get(),
             get(),
         )

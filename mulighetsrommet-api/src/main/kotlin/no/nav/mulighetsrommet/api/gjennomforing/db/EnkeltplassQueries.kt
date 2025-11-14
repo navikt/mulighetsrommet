@@ -4,6 +4,10 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
+import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -75,6 +79,29 @@ class EnkeltplassQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { it.toEnkeltplass() }
+    }
+
+    fun getAll(
+        pagination: Pagination = Pagination.all(),
+        tiltakstyper: List<UUID> = emptyList(),
+    ): PaginatedResult<Enkeltplass> {
+        @Language("PostgreSQL")
+        val query = """
+            select *, count(*) over () as total_count
+            from view_gjennomforing_enkeltplass
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
+            order by id
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { session.createUuidArray(it) },
+        )
+
+        return queryOf(query, parameters + pagination.parameters)
+            .mapPaginated { it.toEnkeltplass() }
+            .runWithSession(session)
     }
 
     fun delete(id: UUID): Int {

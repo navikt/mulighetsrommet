@@ -57,6 +57,10 @@ object Tiltakskoder {
         Tiltakskode.HOYERE_UTDANNING,
     )
 
+    fun isGruppetiltak(tiltakskode: Tiltakskode): Boolean {
+        return tiltakskode in TiltakskoderGruppe
+    }
+
     fun isGruppetiltak(arenaKode: String): Boolean {
         return arenaKode in TiltakskoderGruppe.map { it.arenakode }
     }
