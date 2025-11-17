@@ -107,7 +107,7 @@ class KafkaClients(
     )
     var datavarehusGjennomforingerConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "dvh-gjennomforing-consumer",
-        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.datavarehus-gjennomforing.v1"),
     )
     var oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(

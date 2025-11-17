@@ -14,7 +14,7 @@ import org.intellij.lang.annotations.Language
 import java.util.*
 
 class DatavarehusTiltakQueries(private val session: Session) {
-    fun getTiltak(id: UUID): DatavarehusTiltakV1 {
+    fun getGruppetiltak(id: UUID): DatavarehusTiltakV1 {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,

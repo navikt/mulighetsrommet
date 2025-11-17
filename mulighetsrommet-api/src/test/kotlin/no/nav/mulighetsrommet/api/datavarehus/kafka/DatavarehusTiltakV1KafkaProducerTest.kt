@@ -16,9 +16,11 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import org.junit.jupiter.api.assertThrows
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
@@ -28,7 +30,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         producerTopic = "producer-topic",
     )
 
-    test("produserer tombstone-meldinger når tombstones blir konsumert") {
+    test("støtter ikke tombstones") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
         val producer = DatavarehusTiltakV1KafkaProducer(
@@ -38,14 +40,9 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         )
 
         val key = UUID.randomUUID().toString()
-        producer.consume(key, JsonNull)
 
-        verify {
-            producerClient.sendSync(
-                match {
-                    it.topic() == config.producerTopic && it.key().decodeToString() == key && it.value() == null
-                },
-            )
+        assertThrows<UnsupportedOperationException> {
+            producer.consume(key, JsonNull)
         }
     }
 
@@ -65,32 +62,27 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
             database.db,
         )
 
-        val message = Json.encodeToJsonElement(
-            TiltaksgjennomforingV1Dto(
-                id = AFT1.id,
-                navn = AFT1.navn,
-                tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-                    id = TiltakstypeFixtures.AFT.id,
-                    navn = TiltakstypeFixtures.AFT.navn,
-                    arenaKode = TiltakstypeFixtures.AFT.arenaKode,
-                    tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
-                ),
-                virksomhetsnummer = "123123123",
-                startDato = LocalDate.now(),
-                sluttDato = null,
-                status = GjennomforingStatusType.GJENNOMFORES,
-                oppstart = GjennomforingOppstartstype.FELLES,
-                tilgjengeligForArrangorFraOgMedDato = null,
-                apentForPamelding = true,
-                antallPlasser = 10,
-                deltidsprosent = 100.0,
-                opprettetTidspunkt = LocalDateTime.now(),
-                oppdatertTidspunkt = LocalDateTime.now(),
-                oppmoteSted = null,
+        var gjennomforing: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Dto.Gruppe(
+            id = AFT1.id,
+            navn = AFT1.navn,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
+            arrangor = TiltaksgjennomforingV2Dto.Arrangor(
+                organisasjonsnummer = Organisasjonsnummer("123123123"),
             ),
+            startDato = LocalDate.now(),
+            sluttDato = null,
+            status = GjennomforingStatusType.GJENNOMFORES,
+            oppstart = GjennomforingOppstartstype.FELLES,
+            tilgjengeligForArrangorFraOgMedDato = null,
+            apentForPamelding = true,
+            antallPlasser = 10,
+            deltidsprosent = 100.0,
+            opprettetTidspunkt = Instant.now(),
+            oppdatertTidspunkt = Instant.now(),
+            oppmoteSted = null,
         )
 
-        producer.consume(AFT1.id.toString(), message)
+        producer.consume(AFT1.id.toString(), Json.encodeToJsonElement(gjennomforing))
 
         verify {
             producerClient.sendSync(

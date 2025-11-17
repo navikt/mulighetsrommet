@@ -49,7 +49,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                queries.getTiltak(AFT1.id)
+                queries.getGruppetiltak(AFT1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
@@ -87,7 +87,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                queries.getTiltak(AFT1.id)
+                queries.getGruppetiltak(AFT1.id)
             }
 
             tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
@@ -143,7 +143,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 val queries = DatavarehusTiltakQueries(session)
 
                 table.forAll { id, expectedAmoKategorisering ->
-                    val tiltak = queries.getTiltak(id)
+                    val tiltak = queries.getGruppetiltak(id)
 
                     tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
                         expectedAmoKategorisering,
@@ -211,7 +211,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
                     it.utdanningsprogram.id shouldBe idForUtdanningsprogram
@@ -264,7 +264,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                val gjennomforing = queries.getTiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldBeNull()
             }
