@@ -72,14 +72,16 @@ export function defaultAvtaleData(
   return {
     detaljer: {
       administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
-      navn: avtale?.navn ?? "",
+      navn: avtale?.navn,
       avtaletype: avtale?.avtaletype,
-      arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
-      arrangorUnderenheter: !avtale?.arrangor?.underenheter
-        ? []
-        : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-      arrangorKontaktpersoner:
-        avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+      arrangor: {
+        hovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
+        underenheter: !avtale?.arrangor?.underenheter
+          ? []
+          : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+        kontaktpersoner:
+          avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+      },
       startDato: avtale?.startDato,
       sluttDato: avtale?.sluttDato ?? null,
       sakarkivNummer: avtale?.sakarkivNummer ?? null,
