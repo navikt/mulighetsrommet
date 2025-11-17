@@ -121,11 +121,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
   },
   gjennomforing: { id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1", navn: "AFT Foobar" },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
+  arrangor: arrangorMock,
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -159,19 +155,16 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
   ],
 };
 
-const arrManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
   kanViseBeregning: true,
   createdAt: "2025-11-07T10:02:43.989186",
-  tiltakstype: {
-    navn: "Arbeidsrettet rehabilitering",
-    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-  },
+  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
   gjennomforing: {
-    id: "a47092ba-410b-4ca1-9713-36506a039742",
-    navn: "Arbeidsrettet rehabilitering - Månedlig",
+    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
+    navn: "Avklaring - avtalt månedspris",
   },
   arrangor: arrangorMock,
   betalingsinformasjon: { kontonummer: "78029049393", kid: null },
@@ -205,11 +198,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
   },
   gjennomforing: { id: "b3e1cfbb-bfb5-4b4b-b8a4-af837631ed51", navn: "Solrikt AFT" },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
+  arrangor: arrangorMock,
   advarsler: [],
   kanViseBeregning: true,
   beregning: {
@@ -246,11 +235,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     id: "d29cb67c-8e68-4ece-90dc-ff21c498aa3f",
     navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
   },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
+  arrangor: arrangorMock,
   kanViseBeregning: true,
   beregning: {
     deltakelser: null,
@@ -278,11 +263,7 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     tiltakskode: Tiltakskode.AVKLARING,
   },
   gjennomforing: { id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1", navn: "AFT Foobar" },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
+  arrangor: arrangorMock,
   kanViseBeregning: true,
   beregning: {
     stengt: [],
@@ -322,11 +303,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     tiltakskode: Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
   },
   gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
+  arrangor: arrangorMock,
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -349,22 +326,21 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   advarsler: [],
 };
 
-const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingDto = {
+const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
   kanViseBeregning: true,
   createdAt: "2025-10-31T14:41:03.835624",
-  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
+  tiltakstype: {
+    navn: "Arbeidsrettet rehabilitering",
+    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  },
   gjennomforing: {
-    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
-    navn: "Avklaring - Avtalt ukespris per tiltaksplass",
+    id: "a47092ba-410b-4ca1-9713-36506a039742",
+    navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
   },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
+  arrangor: arrangorMock,
   betalingsinformasjon: { kontonummer: "10002427740", kid: null },
   beregning: {
     belop: 197980,
@@ -392,6 +368,6 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
   aftBehandlesAvNav,
   avklaringOverfortTilUtbetaling,
   vtaKlarForGodkjenning,
-  avklaringManedKlarTilInnsending,
-  arrManedKlarTilGodkjenning,
+  arrUkesprisKlarTilGodkjenning,
+  avklaringManedKlarTilGodkjenning,
 ];

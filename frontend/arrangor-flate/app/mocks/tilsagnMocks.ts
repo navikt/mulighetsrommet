@@ -7,15 +7,15 @@ import {
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
-const arrManedsprisTilsagn: ArrangorflateTilsagnDto = {
+const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   id: "5b08cd43-102e-4845-889e-99c5de2bc252",
   tiltakstype: {
-    navn: "Arbeidsrettet rehabilitering",
-    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+    navn: "Avklaring",
+    tiltakskode: Tiltakskode.AVKLARING,
   },
   gjennomforing: {
-    id: "a47092ba-410b-4ca1-9713-36506a039742",
-    navn: "Arbeidsrettet rehabilitering - Månedlig",
+    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
+    navn: "Avklaring - avtalt månedspris",
   },
   arrangor: arrangorMock,
   type: TilsagnType.TILSAGN,
@@ -35,12 +35,15 @@ const arrManedsprisTilsagn: ArrangorflateTilsagnDto = {
   bestillingsnummer: "A-2025/12611-1",
 };
 
-const avklaringUkesprisTilsagn: ArrangorflateTilsagnDto = {
+const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   id: "a7e0df87-f37e-4f6a-92d6-a25a1cded9e7",
-  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
+  tiltakstype: {
+    navn: "Arbeidsrettet rehabilitering",
+    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  },
   gjennomforing: {
-    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
-    navn: "Avklaring - Avtalt ukespris per tiltaksplass",
+    id: "a47092ba-410b-4ca1-9713-36506a039742",
+    navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
   },
   arrangor: arrangorMock,
   type: TilsagnType.TILSAGN,
@@ -218,7 +221,6 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     status: TilsagnStatus.OPPGJORT,
     bestillingsnummer: "A-2025/11073-2",
   },
-
   {
     id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
     gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
@@ -258,6 +260,6 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11398-1",
   },
-  avklaringUkesprisTilsagn,
-  arrManedsprisTilsagn,
+  avklaringManedsprisTilsagn,
+  arrUkesprisTilsagn,
 ];
