@@ -87,6 +87,8 @@ class TiltakshistorikkEventProcessor(
 
         val deltaker = TiltakshistorikkArenaDeltaker(
             id = mapping.entityId,
+            arenaRegDato = ArenaUtils.parseTimestamp(data.REG_DATO),
+            arenaModDato = ArenaUtils.parseTimestamp(data.MOD_DATO),
             norskIdent = NorskIdent(norskIdent),
             arenaTiltakskode = tiltakstype.tiltakskode,
             status = ArenaDeltakerStatus.valueOf(data.DELTAKERSTATUSKODE.name),
@@ -94,7 +96,8 @@ class TiltakshistorikkEventProcessor(
             sluttDato = ArenaUtils.parseNullableTimestamp(data.DATO_TIL),
             beskrivelse = tiltaksgjennomforing.navn,
             arrangorOrganisasjonsnummer = organisasjonsnummer,
-            registrertIArenaDato = ArenaUtils.parseTimestamp(data.REG_DATO),
+            dagerPerUke = data.ANTALL_DAGER_PR_UKE,
+            deltidsprosent = data.PROSENT_DELTID,
         )
 
         upsertDeltaker(event.operation, deltaker)

@@ -25,7 +25,10 @@ class ArenaDeltakerQueries(private val session: Session) {
                                         slutt_dato,
                                         beskrivelse,
                                         arrangor_organisasjonsnummer,
-                                        registrert_i_arena_dato)
+                                        arena_reg_dato,
+                                        arena_mod_dato,
+                                        dager_per_uke,
+                                        deltidsprosent)
             values (:id::uuid,
                     :norsk_ident,
                     :arena_tiltakskode,
@@ -34,7 +37,10 @@ class ArenaDeltakerQueries(private val session: Session) {
                     :slutt_dato,
                     :beskrivelse,
                     :arrangor_organisasjonsnummer,
-                    :registrert_i_arena_dato)
+                    :arena_reg_dato,
+                    :arena_mod_dato,
+                    :dager_per_uke,
+                    :deltidsprosent)
             on conflict (id) do update set norsk_ident                  = excluded.norsk_ident,
                                            arena_tiltakskode            = excluded.arena_tiltakskode,
                                            status                       = excluded.status,
@@ -42,7 +48,10 @@ class ArenaDeltakerQueries(private val session: Session) {
                                            slutt_dato                   = excluded.slutt_dato,
                                            beskrivelse                  = excluded.beskrivelse,
                                            arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
-                                           registrert_i_arena_dato      = excluded.registrert_i_arena_dato
+                                           arena_reg_dato               = excluded.arena_reg_dato,
+                                           arena_mod_dato               = excluded.arena_mod_dato,
+                                           dager_per_uke                = excluded.dager_per_uke,
+                                           deltidsprosent               = excluded.deltidsprosent
 
         """.trimIndent()
 
@@ -53,9 +62,12 @@ class ArenaDeltakerQueries(private val session: Session) {
             "status" to deltaker.status.name,
             "start_dato" to deltaker.startDato,
             "slutt_dato" to deltaker.sluttDato,
-            "registrert_i_arena_dato" to deltaker.registrertIArenaDato,
+            "arena_reg_dato" to deltaker.arenaRegDato,
+            "arena_mod_dato" to deltaker.arenaModDato,
             "beskrivelse" to deltaker.beskrivelse,
             "arrangor_organisasjonsnummer" to deltaker.arrangorOrganisasjonsnummer.value,
+            "dager_per_uke" to deltaker.dagerPerUke,
+            "deltidsprosent" to deltaker.deltidsprosent,
         )
 
         session.execute(queryOf(query, params))
@@ -78,7 +90,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                     arrangor_organisasjonsnummer
                 from arena_deltaker
                 where norsk_ident = any(:identer)
-                and (:max_age_years::integer is null or age(coalesce(slutt_dato, registrert_i_arena_dato)) < make_interval(years => :max_age_years::integer))
+                and (:max_age_years::integer is null or age(coalesce(slutt_dato, arena_reg_dato)) < make_interval(years => :max_age_years::integer))
                 order by start_dato desc nulls last;
         """.trimIndent()
 
