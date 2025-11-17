@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.tiltakshistorikk
+package no.nav.tiltak.historikk
 
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
@@ -8,8 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.TiltakshistorikkRequest
-import no.nav.mulighetsrommet.model.TiltakshistorikkResponse
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 
@@ -22,9 +20,9 @@ class TiltakshistorikkClient(
         install(HttpCache)
     }
 
-    suspend fun historikk(identer: List<NorskIdent>): TiltakshistorikkResponse {
+    suspend fun historikk(identer: List<NorskIdent>, years: Int? = null): TiltakshistorikkV1Response {
         val response = client.post("$baseUrl/api/v1/historikk") {
-            setBody(TiltakshistorikkRequest(identer, maxAgeYears = null))
+            setBody(TiltakshistorikkV1Request(identer, maxAgeYears = years))
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
         }
 

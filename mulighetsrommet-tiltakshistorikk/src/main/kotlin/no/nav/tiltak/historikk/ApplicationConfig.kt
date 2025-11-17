@@ -54,11 +54,6 @@ data class KafkaConfig(
 )
 
 data class KafkaConsumers(
-    val amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "amt-deltaker",
-        topic = "amt.deltaker-v1",
-        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker.v1"),
-    ),
     val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "siste-tiltaksgjennomforinger",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
@@ -68,5 +63,15 @@ data class KafkaConsumers(
         id = "siste-tiltaksgjennomforinger-v2",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v2"),
+    ),
+    val amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-deltaker",
+        topic = "amt.deltaker-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker.v1"),
+    ),
+    val amtVirksomhetV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "amt-virksomheter",
+        topic = "amt.virksomheter-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.amt-virksomheter.v1"),
     ),
 )

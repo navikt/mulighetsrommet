@@ -9,8 +9,10 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakshistorikk
+import no.nav.tiltak.historikk.TestFixtures
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.databaseConfig
+import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -42,6 +44,12 @@ class ArenaDeltakerQueriesTest : FunSpec({
         registrertIArenaDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
     )
 
+    beforeAny {
+        TiltakshistorikkDatabase(database.db).session {
+            queries.virksomhet.upsert(TestFixtures.virksomhet)
+        }
+    }
+
     test("CRUD") {
         database.runAndRollback { session ->
             val deltaker = ArenaDeltakerQueries(session)
@@ -53,7 +61,7 @@ class ArenaDeltakerQueriesTest : FunSpec({
                 identer = listOf(NorskIdent("12345678910")),
                 null,
             ) shouldContainExactlyInAnyOrder listOf(
-                Tiltakshistorikk.ArenaDeltakelse(
+                TiltakshistorikkV1Dto.ArenaDeltakelse(
                     id = mentorArenaDeltakelse.id,
                     norskIdent = NorskIdent("12345678910"),
                     arenaTiltakskode = "MENTOR",
@@ -61,9 +69,9 @@ class ArenaDeltakerQueriesTest : FunSpec({
                     sluttDato = LocalDate.of(2002, 2, 1),
                     status = ArenaDeltakerStatus.GJENNOMFORES,
                     beskrivelse = "Mentortiltak hos Joblearn",
-                    arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                 ),
-                Tiltakshistorikk.ArenaDeltakelse(
+                TiltakshistorikkV1Dto.ArenaDeltakelse(
                     id = arbeidstreningArenaDeltakelse.id,
                     norskIdent = NorskIdent("12345678910"),
                     arenaTiltakskode = "ARBTREN",
@@ -71,14 +79,14 @@ class ArenaDeltakerQueriesTest : FunSpec({
                     startDato = LocalDate.of(2024, 1, 1),
                     sluttDato = LocalDate.of(2024, 1, 31),
                     beskrivelse = "Arbeidstrening hos Fretex",
-                    arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                 ),
             )
 
             deltaker.deleteArenaDeltaker(mentorArenaDeltakelse.id)
 
             deltaker.getArenaHistorikk(identer = listOf(NorskIdent("12345678910")), null) shouldBe listOf(
-                Tiltakshistorikk.ArenaDeltakelse(
+                TiltakshistorikkV1Dto.ArenaDeltakelse(
                     id = arbeidstreningArenaDeltakelse.id,
                     norskIdent = NorskIdent("12345678910"),
                     arenaTiltakskode = "ARBTREN",
@@ -86,7 +94,7 @@ class ArenaDeltakerQueriesTest : FunSpec({
                     startDato = LocalDate.of(2024, 1, 1),
                     sluttDato = LocalDate.of(2024, 1, 31),
                     beskrivelse = "Arbeidstrening hos Fretex",
-                    arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                 ),
             )
 

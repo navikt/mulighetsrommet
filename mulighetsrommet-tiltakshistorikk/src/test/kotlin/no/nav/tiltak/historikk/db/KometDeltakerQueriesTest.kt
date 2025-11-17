@@ -5,9 +5,15 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.TestFixtures
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.databaseConfig
+import no.nav.tiltak.historikk.db.queries.GruppetiltakQueries
+import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -27,7 +33,7 @@ class KometDeltakerQueriesTest : FunSpec({
             deltaker.upsertKometDeltaker(amtDeltaker)
 
             deltaker.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), null) shouldBe listOf(
-                Tiltakshistorikk.GruppetiltakDeltakelse(
+                TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
                     id = amtDeltaker.id,
                     norskIdent = NorskIdent("10101010100"),
                     startDato = null,
@@ -37,12 +43,12 @@ class KometDeltakerQueriesTest : FunSpec({
                         aarsak = null,
                         opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
                     ),
-                    gjennomforing = Tiltakshistorikk.Gjennomforing(
+                    gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                         id = gruppeAmo.id,
                         navn = gruppeAmo.navn,
                         tiltakskode = gruppeAmo.tiltakstype.tiltakskode,
                     ),
-                    arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                    arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                 ),
             )
         }

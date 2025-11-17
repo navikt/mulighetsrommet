@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
     implementation(projects.common.domain)
+    implementation(projects.common.tokenProvider)
+    implementation(projects.common.ktorClients)
 
     // Kotlin
     implementation(libs.arrow.core)

@@ -2,8 +2,11 @@ package no.nav.tiltak.historikk.db
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
+import no.nav.tiltak.historikk.db.queries.GjennomforingQueries
+import no.nav.tiltak.historikk.db.queries.GruppetiltakQueries
+import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
+import no.nav.tiltak.historikk.db.queries.VirksomhetQueries
 
 class TiltakshistorikkDatabase(
     @PublishedApi
@@ -35,5 +38,6 @@ class QueryContext(val session: Session) {
         val gjennomforing = GjennomforingQueries(session)
         val kometDeltaker = KometDeltakerQueries(session)
         val arenaDeltaker = ArenaDeltakerQueries(session)
+        val virksomhet = VirksomhetQueries(session)
     }
 }

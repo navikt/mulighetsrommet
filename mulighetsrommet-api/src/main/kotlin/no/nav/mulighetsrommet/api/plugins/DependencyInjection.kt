@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
+import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
@@ -36,7 +35,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
@@ -105,6 +103,7 @@ import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated

@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.*
@@ -22,6 +21,9 @@ import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.tiltak.historikk.TiltakshistorikkClient
+import no.nav.tiltak.historikk.TiltakshistorikkMelding
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -90,13 +92,13 @@ class TiltakshistorikkService(
         })
     }
 
-    private suspend fun toDeltakelse(it: Tiltakshistorikk): Deltakelse = when (it) {
-        is Tiltakshistorikk.ArenaDeltakelse -> toDeltakelse(it)
-        is Tiltakshistorikk.GruppetiltakDeltakelse -> toDeltakelse(it)
-        is Tiltakshistorikk.ArbeidsgiverAvtale -> toDeltakelse(it)
+    private suspend fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
+        is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.GruppetiltakDeltakelse -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.ArbeidsgiverAvtale -> toDeltakelse(it)
     }
 
-    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArenaDeltakelse): Deltakelse = coroutineScope {
+    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse = coroutineScope {
         val tiltakstype = async {
             tiltakstypeService.getByArenaTiltakskode(deltakelse.arenaTiltakskode).let {
                 DeltakelseTiltakstype(it.navn, it.tiltakskode)
@@ -124,7 +126,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.GruppetiltakDeltakelse): Deltakelse = coroutineScope {
+    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse = coroutineScope {
         val tiltakstype = async {
             tiltakstypeService.getByTiltakskode(deltakelse.gjennomforing.tiltakskode).let {
                 DeltakelseTiltakstype(it.navn, it.tiltakskode)
@@ -156,15 +158,15 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun toDeltakelse(deltakelse: Tiltakshistorikk.ArbeidsgiverAvtale): Deltakelse {
+    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
         val arenaKode = when (deltakelse.tiltakstype) {
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MENTOR -> "MENTOR"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD -> "INKLUTILS"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MENTOR -> "MENTOR"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD -> "INKLUTILS"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
         }
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode).let {
             DeltakelseTiltakstype(it.navn, it.tiltakskode)

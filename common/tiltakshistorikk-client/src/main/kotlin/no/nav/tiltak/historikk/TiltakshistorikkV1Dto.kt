@@ -1,14 +1,15 @@
-package no.nav.mulighetsrommet.model
+package no.nav.tiltak.historikk
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
 @Serializable
-sealed class Tiltakshistorikk {
+sealed class TiltakshistorikkV1Dto {
     abstract val id: UUID
     abstract val norskIdent: NorskIdent
     abstract val opphav: Opphav
@@ -53,7 +54,7 @@ sealed class Tiltakshistorikk {
         val status: ArenaDeltakerStatus,
         val beskrivelse: String,
         val arrangor: Arrangor,
-    ) : Tiltakshistorikk() {
+    ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.ARENA
     }
 
@@ -70,7 +71,7 @@ sealed class Tiltakshistorikk {
         val status: DeltakerStatus,
         val gjennomforing: Gjennomforing,
         val arrangor: Arrangor,
-    ) : Tiltakshistorikk() {
+    ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.TEAM_KOMET
     }
 
@@ -87,7 +88,7 @@ sealed class Tiltakshistorikk {
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
         val arbeidsgiver: Arbeidsgiver,
-    ) : Tiltakshistorikk() {
+    ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.TEAM_TILTAK
 
         enum class Tiltakstype {
@@ -103,14 +104,14 @@ sealed class Tiltakshistorikk {
 }
 
 @Serializable
-data class TiltakshistorikkRequest(
+data class TiltakshistorikkV1Request(
     val identer: List<NorskIdent>,
     val maxAgeYears: Int?,
 )
 
 @Serializable
-data class TiltakshistorikkResponse(
-    val historikk: List<Tiltakshistorikk>,
+data class TiltakshistorikkV1Response(
+    val historikk: List<TiltakshistorikkV1Dto>,
     val meldinger: Set<TiltakshistorikkMelding>,
 )
 
