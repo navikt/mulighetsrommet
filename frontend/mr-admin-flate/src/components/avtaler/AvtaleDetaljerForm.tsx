@@ -52,7 +52,7 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
         </option>
       ))
     : [];
-  console.log(errors);
+
   function avtaletypeOnChange(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
       setValue("detaljer.opsjonsmodell", {
