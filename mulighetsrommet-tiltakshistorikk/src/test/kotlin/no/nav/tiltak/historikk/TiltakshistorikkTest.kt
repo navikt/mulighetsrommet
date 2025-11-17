@@ -132,6 +132,10 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
                         beskrivelse = "Arbeidstrening hos Fretex",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "ARBTREN",
+                            navn = null,
+                        ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
@@ -142,6 +146,10 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
                         beskrivelse = "Mentortiltak hos Joblearn",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "MENTOR",
+                            navn = null,
+                        ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
@@ -152,6 +160,10 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
                         beskrivelse = "Enkelt-AMO hos Joblearn",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "AMO",
+                            navn = null,
+                        ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                     TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
@@ -159,6 +171,7 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
+                        tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("123456789"),

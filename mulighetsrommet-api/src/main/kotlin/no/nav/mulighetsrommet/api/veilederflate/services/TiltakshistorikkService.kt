@@ -100,7 +100,7 @@ class TiltakshistorikkService(
 
     private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse = coroutineScope {
         val tiltakstype = async {
-            tiltakstypeService.getByArenaTiltakskode(deltakelse.arenaTiltakskode).let {
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
                 DeltakelseTiltakstype(it.navn, it.tiltakskode)
             }
         }
@@ -159,7 +159,7 @@ class TiltakshistorikkService(
     }
 
     private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
-        val arenaKode = when (deltakelse.tiltakstype) {
+        val arenaKode = when (deltakelse.tiltakskode) {
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"

@@ -24,6 +24,7 @@ import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV2Kafk
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
+import no.nav.tiltak.historikk.service.TiltakshistorikkService
 import no.nav.tiltak.historikk.service.VirksomhetService
 import kotlin.time.Duration.Companion.seconds
 

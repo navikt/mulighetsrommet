@@ -1,10 +1,15 @@
-package no.nav.tiltak.historikk
+package no.nav.tiltak.historikk.service
 
 import arrow.core.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.tiltak.historikk.TiltakshistorikkMelding
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
+import no.nav.tiltak.historikk.TiltakshistorikkV1Request
+import no.nav.tiltak.historikk.TiltakshistorikkV1Response
 import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GraphqlRequest
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
@@ -127,6 +132,15 @@ private fun toTiltakshistorikk(avtale: Avtale) = TiltakshistorikkV1Dto.Arbeidsgi
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
     id = avtale.avtaleId,
+    tiltakskode = when (avtale.tiltakstype) {
+        Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING
+        Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
+        Avtale.Tiltakstype.VARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD
+        Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MENTOR
+        Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD
+        Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB
+        Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR
+    },
     tiltakstype = when (avtale.tiltakstype) {
         Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING
         Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD

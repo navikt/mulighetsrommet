@@ -109,6 +109,10 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
     beskrivelse = string("beskrivelse"),
+    tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+        tiltakskode = string("arena_tiltakskode"),
+        navn = null,
+    ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
     ),
