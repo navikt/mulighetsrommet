@@ -72,7 +72,7 @@ export function defaultAvtaleData(
   return {
     detaljer: {
       administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
-      navn: avtale?.navn ?? "",
+      navn: avtale?.navn,
       avtaletype: avtale?.avtaletype,
       arrangor: {
         hovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",

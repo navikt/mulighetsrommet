@@ -96,7 +96,7 @@ export const validateAvtaledetaljer = (
       path: ["amoKategorisering.kurstype"],
     });
   }
-  if (detaljer.arrangor?.hovedenhet && detaljer.arrangor.underenheter.length > 0) {
+  if (detaljer.arrangor?.hovedenhet && detaljer.arrangor.underenheter.length < 0) {
     ctx.addIssue({
       code: "custom",
       message: "Underenheter kan bare være tom dersom hovedenhet er tom",

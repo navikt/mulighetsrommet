@@ -39,7 +39,7 @@ export function toDetaljerRequest({ data }: RequestValues): DetaljerRequest {
     ...detaljer,
     sakarkivNummer: detaljer.sakarkivNummer || null,
     sluttDato: detaljer.sluttDato || null,
-    arrangor: detaljer.arrangor ? { ...detaljer.arrangor } : null,
+    arrangor: detaljer.arrangor?.hovedenhet ? { ...detaljer.arrangor } : null,
     amoKategorisering: detaljer.amoKategorisering || null,
     opsjonsmodell: {
       type: detaljer.opsjonsmodell.type,
