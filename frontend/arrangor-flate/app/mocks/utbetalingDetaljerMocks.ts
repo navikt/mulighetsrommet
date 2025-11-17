@@ -1,115 +1,18 @@
 import {
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-  DataDrivenTableDto,
-  DataDrivenTableDtoColumnAlign,
-  DataElementTextFormat,
   DelutbetalingStatus,
   DetailsFormat,
   Tiltakskode,
-  TimelineDtoRowPeriodVariant,
 } from "api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
-
-const deltakelser: DataDrivenTableDto = {
-  columns: [
-    { key: "navn", label: "Navn", sortable: false, align: DataDrivenTableDtoColumnAlign.LEFT },
-    {
-      key: "identitetsnummer",
-      label: "Fødselsnr.",
-      sortable: false,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    {
-      key: "tiltakStart",
-      label: "Startdato i tiltaket",
-      sortable: false,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    {
-      key: "periodeStart",
-      label: "Startdato i perioden",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    {
-      key: "periodeSlutt",
-      label: "Sluttdato i perioden",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.LEFT,
-    },
-    {
-      key: "faktor",
-      label: "Ukesverk",
-      sortable: true,
-      align: DataDrivenTableDtoColumnAlign.RIGHT,
-    },
-  ],
-  rows: [
-    {
-      cells: {
-        navn: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
-          value: "Nordmann, Ola",
-          format: null,
-        },
-        identitetsnummer: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
-          value: "27017809100",
-          format: null,
-        },
-        tiltakStart: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
-          value: "2025-07-29",
-          format: DataElementTextFormat.DATE,
-        },
-        periodeStart: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
-          value: "2025-09-29",
-          format: DataElementTextFormat.DATE,
-        },
-        periodeSlutt: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
-          value: "2025-10-27",
-          format: DataElementTextFormat.DATE,
-        },
-        faktor: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
-          value: "6.0",
-          format: DataElementTextFormat.NUMBER,
-        },
-      },
-      content: {
-        startDate: "2025-10-01",
-        endDate: "2025-10-31",
-        rows: [
-          {
-            periods: [
-              {
-                key: "0",
-                start: "2025-09-29",
-                end: "2025-10-14",
-                status: TimelineDtoRowPeriodVariant.INFO,
-                content: "Pris per uke: 777, Ukesverk: 3.0",
-                hover: "Pris per uke: 777, Ukesverk: 3.0, Periode: 01.10.2025 - 31.10.2025",
-              },
-              {
-                key: "1",
-                start: "2025-10-15",
-                end: "2025-10-27",
-                status: TimelineDtoRowPeriodVariant.INFO,
-                content: "Pris per uke: 888, Ukesverk: 3.0",
-                hover: "Pris per uke: 888, Ukesverk: 3.0, Periode: 01.10.2025 - 31.10.2025",
-              },
-            ],
-            label: "Beregning",
-          },
-        ],
-      },
-    },
-  ],
-};
+import {
+  arrUkesverkDeltakelse,
+  avklaringManedDeltakelse,
+  toSatserUkesverkDeltakelse,
+  vtaManedDeltakelse,
+} from "./deltakelserMocks";
 
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
@@ -134,7 +37,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
     },
     belop: 10149,
     digest: "b3602d2a",
-    deltakelser,
+    deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
   advarsler: [],
@@ -178,7 +81,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
         { key: "Beløp", value: "20000", format: DetailsFormat.NOK },
       ],
     },
-    deltakelser,
+    deltakelser: avklaringManedDeltakelse,
     stengt: [],
     displayName: "Avtalt månedspris per tiltaksplass",
   },
@@ -212,7 +115,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
     },
     belop: 242904,
     digest: "db0c7c6e",
-    deltakelser,
+    deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
   betalingsinformasjon: { kontonummer: "10002427740", kid: null },
@@ -316,7 +219,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     },
     belop: 16848,
     digest: "38c07a43",
-    deltakelser,
+    deltakelser: vtaManedDeltakelse,
     stengt: [],
   },
   betalingsinformasjon: { kontonummer: "10002427740", kid: "123123123" },
@@ -352,7 +255,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
         { key: "Beløp", value: "117988", format: DetailsFormat.NOK },
       ],
     },
-    deltakelser,
+    deltakelser: arrUkesverkDeltakelse,
     stengt: [],
     displayName: "Avtalt ukespris per tiltaksplass",
   },
@@ -371,3 +274,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
   arrUkesprisKlarTilGodkjenning,
   avklaringManedKlarTilGodkjenning,
 ];
+
+export const klarForGodkjenningIds: string[] = arrFlateUtbetaling
+  .filter((utb) => utb.status == ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING)
+  .map((utb) => utb.id);

@@ -65,7 +65,7 @@ export const oppsummering: Record<
         periode: periode,
         belop: request.belop,
         kidNummer: request.kidNummer,
-        minAntallVedlegg: 1,
+        minAntallVedlegg: 0,
       },
       navigering: navigering,
     };

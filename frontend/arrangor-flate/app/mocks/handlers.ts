@@ -6,7 +6,7 @@ import {
   ArrangorflateUtbetalingStatus,
 } from "api-client";
 import { mockArrangorflateUtbetalingKompakt } from "./utbetalingOversiktMocks";
-import { arrFlateUtbetaling } from "./utbetalingDetaljerMocks";
+import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
@@ -49,10 +49,11 @@ export const handlers = [
     ({ params }) => {
       const { id } = params;
       const utbetaling = arrFlateUtbetaling.find((k) => k.id === id);
-      if (utbetaling?.id === "fdbb7433-b42e-4cd6-b995-74a8e487329f") {
+      if (utbetaling?.id && klarForGodkjenningIds.includes(utbetaling.id)) {
         return HttpResponse.json({
           ...utbetaling,
-          godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
+          status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+          godkjentAvArrangorTidspunkt: new Date().toISOString(),
         });
       }
       return HttpResponse.json(utbetaling);
