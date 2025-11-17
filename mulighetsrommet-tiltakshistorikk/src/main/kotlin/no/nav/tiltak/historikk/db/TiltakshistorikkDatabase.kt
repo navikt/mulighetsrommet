@@ -35,5 +35,6 @@ class QueryContext(val session: Session) {
         val gjennomforing = GjennomforingQueries(session)
         val kometDeltaker = KometDeltakerQueries(session)
         val arenaDeltaker = ArenaDeltakerQueries(session)
+        val virksomhet = VirksomhetQueries(session)
     }
 }
