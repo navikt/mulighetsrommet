@@ -117,6 +117,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         sluttDato = LocalDate.of(2002, 2, 1),
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         beskrivelse = "Mentortiltak hos Joblearn",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "MENTOR",
+                            navn = null,
+                        ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
@@ -127,6 +131,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
                         beskrivelse = "Arbeidstrening hos Fretex",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "ARBTREN",
+                            navn = null,
+                        ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                 )
@@ -145,6 +153,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
                         beskrivelse = "Arbeidstrening hos Fretex",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "ARBTREN",
+                            navn = null,
+                        ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                 )

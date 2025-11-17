@@ -132,6 +132,15 @@ private fun toTiltakshistorikk(avtale: Avtale) = TiltakshistorikkV1Dto.Arbeidsgi
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
     id = avtale.avtaleId,
+    tiltakskode = when (avtale.tiltakstype) {
+        Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING
+        Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
+        Avtale.Tiltakstype.VARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD
+        Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MENTOR
+        Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD
+        Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB
+        Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR
+    },
     tiltakstype = when (avtale.tiltakstype) {
         Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING
         Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD

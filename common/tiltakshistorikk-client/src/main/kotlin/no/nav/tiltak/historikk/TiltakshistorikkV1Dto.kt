@@ -50,12 +50,19 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        val tiltakstype: Tiltakstype,
         val arenaTiltakskode: String,
         val status: ArenaDeltakerStatus,
         val beskrivelse: String,
         val arrangor: Arrangor,
     ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.ARENA
+
+        @Serializable
+        data class Tiltakstype(
+            val tiltakskode: String,
+            val navn: String?,
+        )
     }
 
     @Serializable
@@ -92,6 +99,7 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        val tiltakskode: Tiltakstype,
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
         val arbeidsgiver: Arbeidsgiver,
