@@ -67,7 +67,7 @@ class TiltakshistorikkService(
         val deltakelser = queries.arenaDeltaker.getArenaHistorikk(identer, maxAgeYears)
 
         deltakelser.filter { deltakelse ->
-            val tiltakskode = arenaKodeToTeamTiltakKode(deltakelse.arenaTiltakskode) ?: return@filter true
+            val tiltakskode = arenaKodeToTeamTiltakKode(deltakelse.tiltakstype.tiltakskode) ?: return@filter true
             !belongsToTeamTiltak(tiltakskode, cutOffDatoMapping, deltakelse.sluttDato)
         }
     }
@@ -132,15 +132,6 @@ private fun toTiltakshistorikk(avtale: Avtale) = TiltakshistorikkV1Dto.Arbeidsgi
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
     id = avtale.avtaleId,
-    tiltakskode = when (avtale.tiltakstype) {
-        Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING
-        Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD
-        Avtale.Tiltakstype.VARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_LONNSTILSKUDD
-        Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MENTOR
-        Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.INKLUDERINGSTILSKUDD
-        Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.SOMMERJOBB
-        Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAR
-    },
     tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
         tiltakskode = when (avtale.tiltakstype) {
             Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING

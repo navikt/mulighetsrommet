@@ -136,7 +136,6 @@ private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakD
     gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
         id = uuid("gjennomforing_id"),
         navn = stringOrNull("gjennomforing_navn"),
-        tiltakskode = Tiltakskode.valueOf(string("gjennomforing_tiltakskode")),
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),

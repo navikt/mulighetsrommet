@@ -112,7 +112,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = mentorArenaDeltakelse.id,
                         norskIdent = NorskIdent("12345678910"),
-                        arenaTiltakskode = "MENTOR",
                         startDato = LocalDate.of(2002, 2, 1),
                         sluttDato = LocalDate.of(2002, 2, 1),
                         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -126,7 +125,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
                         norskIdent = NorskIdent("12345678910"),
-                        arenaTiltakskode = "ARBTREN",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
@@ -148,7 +146,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
                         norskIdent = NorskIdent("12345678910"),
-                        arenaTiltakskode = "ARBTREN",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
@@ -243,7 +240,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,
                             navn = gruppeAmo.navn,
-                            tiltakskode = gruppeAmo.tiltakskode,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
