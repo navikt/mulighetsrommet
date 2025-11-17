@@ -21,7 +21,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
   arrangor: arrangorMock,
   periode: { start: "2025-10-01", slutt: "2025-11-01" },
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
-  belop: 197980,
+  belop: 53100,
   godkjentBelop: null,
 };
 
