@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
@@ -42,6 +43,12 @@ class ArenaDeltakerQueriesTest : FunSpec({
         arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
         registrertIArenaDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
     )
+
+    beforeAny {
+        TiltakshistorikkDatabase(database.db).session {
+            queries.virksomhet.upsert(TestFixtures.virksomhet)
+        }
+    }
 
     test("CRUD") {
         database.runAndRollback { session ->

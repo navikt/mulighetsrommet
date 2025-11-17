@@ -2,12 +2,21 @@ package no.nav.tiltak.historikk
 
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 object TestFixtures {
+    val virksomhet = VirksomhetDbo(
+        organisasjonsnummer = Organisasjonsnummer("123123123"),
+        overordnetEnhetOrganisasjonsnummer = null,
+        navn = "Arrangør",
+        organisasjonsform = "BEDR",
+        slettetDato = null,
+    )
+
     val gjennomforingGruppe: TiltaksgjennomforingV2Dto.Gruppe = TiltaksgjennomforingV2Dto.Gruppe(
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,

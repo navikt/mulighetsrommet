@@ -39,6 +39,27 @@ class VirksomhetQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun get(organisasjonsnummer: Organisasjonsnummer): VirksomhetDbo? {
+        @Language("PostgreSQL")
+        val query = """
+            select organisasjonsnummer, overordnet_enhet_organisasjonsnummer, navn, organisasjonsform, slettet_dato
+            from virksomhet
+            where organisasjonsnummer = ?
+        """.trimIndent()
+
+        return session.single(queryOf(query, organisasjonsnummer.value)) { row ->
+            VirksomhetDbo(
+                organisasjonsnummer = Organisasjonsnummer(row.string("organisasjonsnummer")),
+                overordnetEnhetOrganisasjonsnummer = row.stringOrNull("overordnet_enhet_organisasjonsnummer")?.let {
+                    Organisasjonsnummer(it)
+                },
+                navn = row.stringOrNull("navn"),
+                organisasjonsform = row.stringOrNull("organisasjonsform"),
+                slettetDato = row.localDateOrNull("slettet_dato"),
+            )
+        }
+    }
+
     fun delete(organisasjonsnummer: Organisasjonsnummer) {
         @Language("PostgreSQL")
         val query = """

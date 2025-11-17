@@ -5,6 +5,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
+import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -23,6 +24,7 @@ import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV2Kafk
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
+import no.nav.tiltak.historikk.service.VirksomhetService
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
@@ -53,13 +55,11 @@ fun Application.configure(config: AppConfig) {
 
     configureMetrics()
 
-    val db = Database(config.database)
-
-    FlywayMigrationManager(config.flyway).migrate(db)
+    val database = configureDatabase(config)
 
     configureAuthentication(config.auth)
     configureSerialization()
-    configureMonitoring({ attributes[IsReadyState] }, { db.isHealthy() })
+    configureMonitoring({ attributes[IsReadyState] }, { database.isHealthy() })
     configureHTTP()
 
     val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
@@ -70,34 +70,48 @@ fun Application.configure(config: AppConfig) {
         tokenProvider = azureAdTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
     )
 
-    val tiltakshistorikkDb = TiltakshistorikkDatabase(db)
+    val db = TiltakshistorikkDatabase(database)
 
-    val tiltakshistorikkService = TiltakshistorikkService(
-        tiltakshistorikkDb,
+    val virksomheter = VirksomhetService(
+        db,
+        BrregClient(config.httpClientEngine),
+    )
+
+    val kafka = configureKafka(config.kafka, db, virksomheter)
+
+    val tiltakshistorikk = TiltakshistorikkService(
+        db,
         tiltakDatadelingClient,
         config.arbeidsgiverTiltakCutOffDatoMapping,
     )
 
-    val kafka = configureKafka(config.kafka, tiltakshistorikkDb)
-
     routing {
-        tiltakshistorikkRoutes(kafka, tiltakshistorikkDb, tiltakshistorikkService)
+        tiltakshistorikkRoutes(kafka, db, tiltakshistorikk)
     }
 
     monitor.subscribe(ApplicationStopPreparing) {
         log.info("ApplicationStopPreparing")
         attributes.put(IsReadyState, false)
     }
+}
+
+fun Application.configureDatabase(config: AppConfig): Database {
+    val database = Database(config.database)
+
+    FlywayMigrationManager(config.flyway).migrate(database)
 
     monitor.subscribe(ApplicationStopped) {
         log.info("Closing db...")
-        db.close()
+        database.close()
     }
+
+    return database
 }
 
 fun Application.configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
+    virksomheter: VirksomhetService,
 ): KafkaConsumerOrchestrator {
     KafkaMetrics(db.db)
         .withCountStaleConsumerRecords(retriesMoreThan = 5)
@@ -106,7 +120,7 @@ fun Application.configureKafka(
     val consumers = mapOf(
         config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
         config.consumers.sisteTiltaksgjennomforingerV1 to SisteTiltaksgjennomforingerV1KafkaConsumer(db),
-        config.consumers.sisteTiltaksgjennomforingerV2 to SisteTiltaksgjennomforingerV2KafkaConsumer(db),
+        config.consumers.sisteTiltaksgjennomforingerV2 to SisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter),
     )
 
     val kafka = KafkaConsumerOrchestrator(

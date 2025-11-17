@@ -55,11 +55,6 @@ val ApplicationConfigLocal = AppConfig(
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(
-            amtDeltakerV1 = KafkaTopicConsumer.Config(
-                id = "amt-deltaker",
-                topic = "amt-deltaker-v1",
-                consumerProperties = consumerProperties,
-            ),
             sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
                 id = "siste-tiltaksgjennomforinger",
                 topic = "siste-tiltaksgjennomforinger-v1",
@@ -68,6 +63,16 @@ val ApplicationConfigLocal = AppConfig(
             sisteTiltaksgjennomforingerV2 = KafkaTopicConsumer.Config(
                 id = "siste-tiltaksgjennomforinger-v2",
                 topic = "siste-tiltaksgjennomforinger-v2",
+                consumerProperties = consumerProperties,
+            ),
+            amtDeltakerV1 = KafkaTopicConsumer.Config(
+                id = "amt-deltaker",
+                topic = "amt-deltaker-v1",
+                consumerProperties = consumerProperties,
+            ),
+            amtVirksomhetV1 = KafkaTopicConsumer.Config(
+                id = "amt-virksomheter",
+                topic = "amt.virksomheter-v1",
                 consumerProperties = consumerProperties,
             ),
         ),

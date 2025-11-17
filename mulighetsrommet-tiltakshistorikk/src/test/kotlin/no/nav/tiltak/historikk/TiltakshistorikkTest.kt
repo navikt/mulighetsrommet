@@ -280,6 +280,9 @@ private fun mockTiltakDatadeling(
 }
 
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
+    val virksomhet = TestFixtures.virksomhet
+    queries.virksomhet.upsert(virksomhet)
+
     val tiltak = TestFixtures.tiltak
     queries.gruppetiltak.upsert(tiltak)
 
@@ -291,7 +294,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         startDato = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
         sluttDato = LocalDateTime.of(2023, 1, 31, 0, 0, 0),
         beskrivelse = "Arbeidstrening hos Fretex",
-        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+        arrangorOrganisasjonsnummer = virksomhet.organisasjonsnummer,
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
     queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
@@ -304,7 +307,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
         sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
         beskrivelse = "Mentortiltak hos Joblearn",
-        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+        arrangorOrganisasjonsnummer = virksomhet.organisasjonsnummer,
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
     queries.arenaDeltaker.upsertArenaDeltaker(mentor)
@@ -317,7 +320,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
         sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
         beskrivelse = "Enkelt-AMO hos Joblearn",
-        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+        arrangorOrganisasjonsnummer = virksomhet.organisasjonsnummer,
         registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
     )
     queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
