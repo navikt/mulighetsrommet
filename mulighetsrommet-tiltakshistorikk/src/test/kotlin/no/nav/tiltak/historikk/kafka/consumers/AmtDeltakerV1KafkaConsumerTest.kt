@@ -20,12 +20,12 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(db)
 
-        val tiltak = TestFixtures.tiltak
         val amtDeltaker1 = TestFixtures.amtDeltaker
 
         beforeEach {
             db.session {
-                queries.gruppetiltak.upsert(tiltak)
+                queries.virksomhet.upsert(TestFixtures.virksomhet)
+                queries.gjennomforing.upsert(toGjennomforingDbo(TestFixtures.gjennomforingGruppe))
             }
         }
 

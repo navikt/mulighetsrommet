@@ -4,7 +4,6 @@ import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
 import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
 import no.nav.tiltak.historikk.db.queries.GjennomforingQueries
-import no.nav.tiltak.historikk.db.queries.GruppetiltakQueries
 import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
 import no.nav.tiltak.historikk.db.queries.VirksomhetQueries
 
@@ -34,7 +33,6 @@ class QueryContext(val session: Session) {
     val queries by lazy { Queries() }
 
     inner class Queries {
-        val gruppetiltak = GruppetiltakQueries(session)
         val gjennomforing = GjennomforingQueries(session)
         val kometDeltaker = KometDeltakerQueries(session)
         val arenaDeltaker = ArenaDeltakerQueries(session)

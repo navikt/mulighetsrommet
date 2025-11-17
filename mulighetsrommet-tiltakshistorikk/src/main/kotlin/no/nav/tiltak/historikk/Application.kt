@@ -20,7 +20,6 @@ import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.AmtVirksomheterV1KafkaConsumer
-import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV2KafkaConsumer
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
@@ -119,7 +118,6 @@ fun Application.configureKafka(
         .register(Metrics.micrometerRegistry)
 
     val consumers = mapOf(
-        config.consumers.sisteTiltaksgjennomforingerV1 to SisteTiltaksgjennomforingerV1KafkaConsumer(db),
         config.consumers.sisteTiltaksgjennomforingerV2 to SisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter),
         config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
         config.consumers.amtVirksomhetV1 to AmtVirksomheterV1KafkaConsumer(virksomheter),

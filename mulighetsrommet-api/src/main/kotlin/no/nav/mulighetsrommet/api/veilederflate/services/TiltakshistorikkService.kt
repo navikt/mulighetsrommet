@@ -128,7 +128,7 @@ class TiltakshistorikkService(
 
     private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse = coroutineScope {
         val tiltakstype = async {
-            tiltakstypeService.getByTiltakskode(deltakelse.gjennomforing.tiltakskode).let {
+            tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
                 DeltakelseTiltakstype(it.navn, it.tiltakskode)
             }
         }
