@@ -87,7 +87,7 @@ fun Application.configure(config: AppConfig) {
     )
 
     routing {
-        tiltakshistorikkRoutes(kafka, db, tiltakshistorikk)
+        tiltakshistorikkRoutes(kafka, db, tiltakshistorikk, virksomheter)
     }
 
     monitor.subscribe(ApplicationStopPreparing) {
