@@ -76,3 +76,5 @@ spec:
       rules:
         - application: tiltak-datadeling
           namespace: team-tiltak
+      external:
+        - host: data.brreg.no
