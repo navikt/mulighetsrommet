@@ -87,7 +87,7 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
     { key: "Antall deltakere", value: "4", format: DetailsFormat.NUMBER },
     {
       key: "Avtalt pris per time oppfølging per deltaker",
-      value: "644",
+      value: "768",
       format: DetailsFormat.NOK,
     },
   ],
