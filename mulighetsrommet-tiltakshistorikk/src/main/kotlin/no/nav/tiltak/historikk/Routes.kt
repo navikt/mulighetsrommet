@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.service.TiltakshistorikkService
 import java.util.*
 
 fun Route.tiltakshistorikkRoutes(

@@ -1,10 +1,15 @@
-package no.nav.tiltak.historikk
+package no.nav.tiltak.historikk.service
 
 import arrow.core.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.tiltak.historikk.TiltakshistorikkMelding
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
+import no.nav.tiltak.historikk.TiltakshistorikkV1Request
+import no.nav.tiltak.historikk.TiltakshistorikkV1Response
 import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GraphqlRequest
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
