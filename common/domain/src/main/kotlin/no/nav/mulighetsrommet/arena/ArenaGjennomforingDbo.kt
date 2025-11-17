@@ -1,12 +1,9 @@
 package no.nav.mulighetsrommet.arena
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -18,11 +15,6 @@ data class ArenaGjennomforingDbo(
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    val arenaTiltakskode: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val arenaRegDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val arenaModDato: LocalDateTime,
     val tiltaksnummer: String,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = LocalDateSerializer::class)
@@ -36,18 +28,4 @@ data class ArenaGjennomforingDbo(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val deltidsprosent: Double,
-)
-
-@Serializable
-data class ArenaTiltakshistorikkGjennomforingDbo(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val arenaTiltakskode: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val arenaRegDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val arenaModDato: LocalDateTime,
-    val navn: String,
-    val arrangorOrganisasjonsnummer: Organisasjonsnummer,
-    val deltidsprosent: Double?,
 )

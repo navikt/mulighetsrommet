@@ -4,8 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -136,3 +138,34 @@ data class TiltakshistorikkV1Response(
 enum class TiltakshistorikkMelding {
     MANGLER_HISTORIKK_FRA_TEAM_TILTAK,
 }
+
+@Serializable
+data class TiltakshistorikkArenaGjennomforing(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val arenaTiltakskode: String,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val arenaRegDato: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val arenaModDato: LocalDateTime,
+    val navn: String,
+    val arrangorOrganisasjonsnummer: Organisasjonsnummer,
+    val deltidsprosent: Double,
+)
+
+@Serializable
+data class TiltakshistorikkArenaDeltaker(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val norskIdent: NorskIdent,
+    val arenaTiltakskode: String,
+    val status: ArenaDeltakerStatus,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val startDato: LocalDateTime?,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val sluttDato: LocalDateTime?,
+    val beskrivelse: String,
+    val arrangorOrganisasjonsnummer: Organisasjonsnummer,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val registrertIArenaDato: LocalDateTime,
+)

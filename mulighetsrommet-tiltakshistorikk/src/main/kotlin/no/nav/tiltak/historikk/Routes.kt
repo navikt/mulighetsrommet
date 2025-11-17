@@ -6,8 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.arena.ArenaTiltakshistorikkGjennomforingDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -34,7 +32,7 @@ fun Route.tiltakshistorikkRoutes(
 
         route("/api/v1/intern/arena") {
             put("/gjennomforing") {
-                val dbo = call.receive<ArenaTiltakshistorikkGjennomforingDbo>()
+                val dbo = call.receive<TiltakshistorikkArenaGjennomforing>()
 
                 virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
                 db.session { queries.arenaGjennomforing.upsert(dbo) }
@@ -51,7 +49,7 @@ fun Route.tiltakshistorikkRoutes(
             }
 
             put("/deltaker") {
-                val dbo = call.receive<ArenaDeltakerDbo>()
+                val dbo = call.receive<TiltakshistorikkArenaDeltaker>()
 
                 virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
                 db.session { queries.arenaDeltaker.upsertArenaDeltaker(dbo) }

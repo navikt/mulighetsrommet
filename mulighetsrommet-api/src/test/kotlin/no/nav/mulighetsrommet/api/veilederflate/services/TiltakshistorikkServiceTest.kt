@@ -211,7 +211,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkOppfolging, tiltakshistorikkAvklaring, tiltakshistorikkArbeidstrening),
             meldinger = setOf(),
-        )
+        ).right()
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
             DeltakelserResponse(
@@ -238,7 +238,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
-        )
+        ).right()
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
             DeltakelserResponse(
@@ -265,7 +265,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
-        )
+        ).right()
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
             DeltakelserResponse(
@@ -310,7 +310,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
-        )
+        ).right()
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
             DeltakelserResponse(
@@ -337,7 +337,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring, tiltakshistorikkOppfolging),
             meldinger = setOf(),
-        )
+        ).right()
 
         val deltakelseOppfolgingUtenStartdato = deltakelseOppfolgingFraKomet.copy(
             deltakerId = UUID.randomUUID(),
@@ -419,7 +419,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
                 historikk = listOf(tiltakshistorikkEnkelAmo),
                 meldinger = setOf(),
-            )
+            ).right()
 
             coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
                 DeltakelserResponse(
@@ -470,7 +470,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
                 historikk = listOf(tiltakshistorikkEnkelAmo),
                 meldinger = setOf(),
-            )
+            ).right()
 
             coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
                 DeltakelserResponse(

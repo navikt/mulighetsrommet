@@ -50,7 +50,10 @@ class TiltakshistorikkService(
         obo: AccessType.OBO,
     ): Deltakelser = coroutineScope {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
-        val historikk = tiltakshistorikkClient.getHistorikk(identer)
+        val historikk = tiltakshistorikkClient.getHistorikk(identer).getOrElse {
+            // TODO: return egen melding i stedet for å feile
+            throw it
+        }
 
         val meldinger = historikk.meldinger
             .map {

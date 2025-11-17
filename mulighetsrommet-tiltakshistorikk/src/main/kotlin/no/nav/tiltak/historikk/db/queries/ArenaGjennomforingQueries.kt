@@ -2,13 +2,13 @@ package no.nav.tiltak.historikk.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.arena.ArenaTiltakshistorikkGjennomforingDbo
+import no.nav.tiltak.historikk.TiltakshistorikkArenaGjennomforing
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class ArenaGjennomforingQueries(private val session: Session) {
 
-    fun upsert(gjennomforing: ArenaTiltakshistorikkGjennomforingDbo) {
+    fun upsert(gjennomforing: TiltakshistorikkArenaGjennomforing) {
         @Language("PostgreSQL")
         val query = """
             insert into arena_gjennomforing (id,

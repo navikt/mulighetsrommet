@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.arena.JaNeiStatus
 import no.nav.mulighetsrommet.arena.UpsertTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -26,6 +25,9 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.tiltak.historikk.TiltakshistorikkArenaGjennomforing
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 import java.time.LocalDateTime
 import java.util.*
 
@@ -89,17 +91,17 @@ class TiltakgjennomforingEventProcessor(
                 .map { it.virksomhetsnummer }.bind()
         }
 
-        val dbo = tiltaksgjennomforing.toDbo(
-            tiltakstypeId = tiltakstypeMapping.entityId,
-            sak = sak,
-            virksomhetsnummer = virksomhetsnummer,
-            avtaleId = avtaleMapping?.entityId,
-        )
-
         if (skalTiltakAdministreresFraTiltaksadministrasjon(data)) {
+            val dbo = tiltaksgjennomforing.toDbo(
+                tiltakstypeId = tiltakstypeMapping.entityId,
+                sak = sak,
+                virksomhetsnummer = virksomhetsnummer,
+                avtaleId = avtaleMapping?.entityId,
+            )
             upsertTiltaksgjennomforingToApi(event.operation, dbo).bind()
         } else {
-            upsertTiltaksgjennomforingToTiltakshistorikk(event.operation, dbo).bind()
+            val gjennomforing = data.toTiltakshistorikk(tiltaksgjennomforing.id, virksomhetsnummer)
+            upsertTiltaksgjennomforingToTiltakshistorikk(event.operation, gjennomforing).bind()
         }
     }
 
@@ -164,16 +166,15 @@ class TiltakgjennomforingEventProcessor(
 
     private suspend fun upsertTiltaksgjennomforingToTiltakshistorikk(
         operation: ArenaEvent.Operation,
-        dbo: ArenaGjennomforingDbo,
-    ): Either<ProcessingError, ProcessingResult> = either {
-        if (operation == ArenaEvent.Operation.Delete) {
-            tiltakshistorikkClient.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/gjennomforing/${dbo.id}")
+        dbo: TiltakshistorikkArenaGjennomforing,
+    ): Either<ProcessingError, ProcessingResult> {
+        return if (operation == ArenaEvent.Operation.Delete) {
+            tiltakshistorikkClient.deleteArenaGjennomforing(dbo.id)
         } else {
-            tiltakshistorikkClient.request(HttpMethod.Put, "/api/v1/intern/arena/gjennomforing", dbo)
+            tiltakshistorikkClient.upsertArenaGjennomforing(dbo)
         }
             .mapLeft { ProcessingError.fromResponseException(it) }
             .map { ProcessingResult(Handled) }
-            .bind()
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?, sanityId: UUID?) = Either
@@ -215,6 +216,16 @@ class TiltakgjennomforingEventProcessor(
         antallPlasser = antallPlasser,
         avtaleId = avtaleId,
         deltidsprosent = deltidsprosent,
+    )
+
+    private fun ArenaTiltaksgjennomforing.toTiltakshistorikk(id: UUID, virksomhetsnummer: String) = TiltakshistorikkArenaGjennomforing(
+        id = id,
+        navn = requireNotNull(LOKALTNAVN),
+        arenaTiltakskode = TILTAKSKODE,
+        arenaRegDato = ArenaUtils.parseTimestamp(REG_DATO),
+        arenaModDato = ArenaUtils.parseTimestamp(MOD_DATO),
+        arrangorOrganisasjonsnummer = Organisasjonsnummer(virksomhetsnummer),
+        deltidsprosent = PROSENT_DELTID,
     )
 
     private fun resolveAvslutningsstatus(status: String, tilDato: LocalDateTime?): Avslutningsstatus {

@@ -9,7 +9,6 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -302,7 +301,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val tiltak = TestFixtures.gjennomforingGruppe
     queries.gjennomforing.upsert(toGjennomforingDbo(tiltak))
 
-    val arbeidstrening = ArenaDeltakerDbo(
+    val arbeidstrening = TiltakshistorikkArenaDeltaker(
         id = ARENA_ARBEIDSTRENING_ID,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "ARBTREN",
@@ -315,7 +314,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
 
-    val mentor = ArenaDeltakerDbo(
+    val mentor = TiltakshistorikkArenaDeltaker(
         id = ARENA_MENTOR_ID,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "MENTOR",
@@ -328,7 +327,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.arenaDeltaker.upsertArenaDeltaker(mentor)
 
-    val enkeltAMO = ArenaDeltakerDbo(
+    val enkeltAMO = TiltakshistorikkArenaDeltaker(
         id = ARENA_ENKEL_AMO_ID,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "AMO",
