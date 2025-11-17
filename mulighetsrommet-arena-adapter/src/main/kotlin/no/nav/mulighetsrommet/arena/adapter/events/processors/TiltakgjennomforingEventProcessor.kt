@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.arena.JaNeiStatus
 import no.nav.mulighetsrommet.arena.UpsertTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
+import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -31,8 +32,9 @@ import java.util.*
 class TiltakgjennomforingEventProcessor(
     private val config: Config,
     private val entities: ArenaEntityService,
-    private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
+    private val mulighetsrommetApiClient: MulighetsrommetApiClient,
+    private val tiltakshistorikkClient: TiltakshistorikkClient,
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
@@ -75,16 +77,38 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
+        val tiltakstypeMapping = entities.getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode).bind()
+        val avtaleMapping = tiltaksgjennomforing.avtaleId?.let {
+            entities.getMapping(ArenaTable.AvtaleInfo, it.toString()).bind()
+        }
+        val sak = entities.getSak(tiltaksgjennomforing.sakId).bind()
+        val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
+            ords.getArbeidsgiver(id)
+                .mapLeft { ProcessingError.fromResponseException(it) }
+                .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
+                .map { it.virksomhetsnummer }.bind()
+        }
+
+        val dbo = tiltaksgjennomforing.toDbo(
+            tiltakstypeId = tiltakstypeMapping.entityId,
+            sak = sak,
+            virksomhetsnummer = virksomhetsnummer,
+            avtaleId = avtaleMapping?.entityId,
+        )
+
         if (skalTiltakAdministreresFraTiltaksadministrasjon(data)) {
-            upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
+            upsertTiltaksgjennomforingToApi(event.operation, dbo).bind()
         } else {
-            ProcessingResult(Handled)
+            upsertTiltaksgjennomforingToTiltakshistorikk(event.operation, dbo).bind()
         }
     }
 
     override suspend fun deleteEntity(event: ArenaEvent) = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}")
+        mulighetsrommetApiClient.request<Any>(
+            HttpMethod.Delete,
+            "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}",
+        )
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
             .bind()
@@ -105,41 +129,18 @@ class TiltakgjennomforingEventProcessor(
         return data.TILTAKSKODE in config.tiltakskoder
     }
 
-    private suspend fun upsertTiltaksgjennomforing(
+    private suspend fun upsertTiltaksgjennomforingToApi(
         operation: ArenaEvent.Operation,
-        tiltaksgjennomforing: Tiltaksgjennomforing,
+        dbo: ArenaGjennomforingDbo,
     ): Either<ProcessingError, ProcessingResult> = either {
-        val tiltakstypeMapping = entities
-            .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
-            .bind()
-
-        val avtaleMapping = tiltaksgjennomforing.avtaleId?.let {
-            entities
-                .getMapping(ArenaTable.AvtaleInfo, it.toString())
-                .bind()
-        }
-
-        val sak = entities
-            .getSak(tiltaksgjennomforing.sakId)
-            .bind()
-        val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
-            ords.getArbeidsgiver(id)
-                .mapLeft { ProcessingError.fromResponseException(it) }
-                .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
-                .map { it.virksomhetsnummer }.bind()
-        }
-        val dbo = tiltaksgjennomforing.toDbo(
-            tiltakstypeId = tiltakstypeMapping.entityId,
-            sak = sak,
-            virksomhetsnummer = virksomhetsnummer,
-            avtaleId = avtaleMapping?.entityId,
-        )
-
         if (operation == ArenaEvent.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${dbo.id}")
+            mulighetsrommetApiClient.request<Any>(
+                HttpMethod.Delete,
+                "/api/v1/intern/arena/tiltaksgjennomforing/${dbo.id}",
+            )
                 .flatMap {
                     if (dbo.sanityId != null) {
-                        client.request<Any>(
+                        mulighetsrommetApiClient.request<Any>(
                             HttpMethod.Delete,
                             "/api/v1/intern/arena/sanity/tiltaksgjennomforing/${dbo.sanityId}",
                         )
@@ -148,13 +149,27 @@ class TiltakgjennomforingEventProcessor(
                     }
                 }
         } else {
-            client.request(HttpMethod.Put, "/api/v1/intern/arena/tiltaksgjennomforing", dbo)
+            mulighetsrommetApiClient.request(HttpMethod.Put, "/api/v1/intern/arena/tiltaksgjennomforing", dbo)
                 .onRight {
                     val sanityId = it.body<UpsertTiltaksgjennomforingResponse>().sanityId
-                    if (sanityId != null && tiltaksgjennomforing.sanityId == null) {
-                        entities.upsertSanityId(tiltaksgjennomforing.id, sanityId)
+                    if (sanityId != null && dbo.sanityId == null) {
+                        entities.upsertSanityId(dbo.id, sanityId)
                     }
                 }
+        }
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .map { ProcessingResult(Handled) }
+            .bind()
+    }
+
+    private suspend fun upsertTiltaksgjennomforingToTiltakshistorikk(
+        operation: ArenaEvent.Operation,
+        dbo: ArenaGjennomforingDbo,
+    ): Either<ProcessingError, ProcessingResult> = either {
+        if (operation == ArenaEvent.Operation.Delete) {
+            tiltakshistorikkClient.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/gjennomforing/${dbo.id}")
+        } else {
+            tiltakshistorikkClient.request(HttpMethod.Put, "/api/v1/intern/arena/gjennomforing", dbo)
         }
             .mapLeft { ProcessingError.fromResponseException(it) }
             .map { ProcessingResult(Handled) }

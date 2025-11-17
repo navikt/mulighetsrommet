@@ -7,6 +7,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
+import no.nav.mulighetsrommet.arena.ArenaTiltakshistorikkGjennomforingDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.historikk.TestFixtures
@@ -64,6 +65,43 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 val hentet = queries.virksomhet.get(virksomhet.organisasjonsnummer)
                 hentet shouldBe updated
             }
+        }
+    }
+
+    context("Arena gjennomføring") {
+        val db = TiltakshistorikkDatabase(database.db)
+
+        test("oppretter og sletter gjennomføring") {
+            val gjennomforing = ArenaTiltakshistorikkGjennomforingDbo(
+                id = UUID.randomUUID(),
+                arenaTiltakskode = "ARBTREN",
+                arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
+                arrangorOrganisasjonsnummer = Organisasjonsnummer("123456789"),
+                navn = "Arbeidstrening",
+                deltidsprosent = 80.0,
+            )
+
+            db.session {
+                queries.arenaGjennomforing.upsert(gjennomforing)
+            }
+
+            database.assertRequest("select * from arena_gjennomforing")
+                .hasNumberOfRows(1)
+                .row()
+                .value("id").isEqualTo(gjennomforing.id)
+                .value("arena_tiltakskode").isEqualTo("ARBTREN")
+                .value("arena_reg_dato").isEqualTo(gjennomforing.arenaRegDato)
+                .value("arena_mod_dato").isEqualTo(gjennomforing.arenaModDato)
+                .value("arrangor_organisasjonsnummer").isEqualTo(gjennomforing.arrangorOrganisasjonsnummer.value)
+                .value("navn").isEqualTo(gjennomforing.navn)
+                .value("deltidsprosent").isEqualTo(gjennomforing.deltidsprosent)
+
+            db.session {
+                queries.arenaGjennomforing.delete(gjennomforing.id)
+            }
+
+            database.assertRequest("select * from arena_gjennomforing").isEmpty
         }
     }
 

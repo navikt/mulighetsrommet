@@ -81,7 +81,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             return TiltakgjennomforingEventProcessor(
                 config = TiltakgjennomforingEventProcessor.Config(tiltakskoder = tiltakskoder),
                 entities = entities,
-                client = client,
+                mulighetsrommetApiClient = client,
                 ords = ords,
             )
         }
