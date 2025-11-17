@@ -44,7 +44,7 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       {
         cells: {
           navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          identitetsnummer: dataElementText("27017809102"),
           tiltakStart: dataElementText("2024-11-15", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -53,8 +53,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       },
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Hansen, Helga"),
+          identitetsnummer: dataElementText("27017809103"),
           tiltakStart: dataElementText("2024-11-15", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -63,8 +63,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       },
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Pettersen, Asbjørn"),
+          identitetsnummer: dataElementText("27017809104"),
           tiltakStart: dataElementText("2024-11-14", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -73,8 +73,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       },
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Dahl, Solveig"),
+          identitetsnummer: dataElementText("27017809105"),
           tiltakStart: dataElementText("2025-01-13", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
