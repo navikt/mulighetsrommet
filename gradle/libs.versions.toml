@@ -14,7 +14,7 @@ micrometer = "1.16.0"
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-ktlint = "org.jlleitschuh.gradle.ktlint:13.1.0"
+ktlint = "org.jlleitschuh.gradle.ktlint:14.0.1"
 
 [bundles]
 logging = [
