@@ -47,32 +47,9 @@ object TestFixtures {
         oppdatertTidspunkt = Instant.now(),
     )
 
-    val tiltak = TiltaksgjennomforingV1Dto(
-        id = UUID.randomUUID(),
-        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-            id = UUID.randomUUID(),
-            navn = "Gruppe AMO",
-            arenaKode = "GRUPPEAMO",
-            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        ),
-        navn = "Gruppe AMO",
-        virksomhetsnummer = "123123123",
-        startDato = LocalDate.now(),
-        sluttDato = null,
-        status = GjennomforingStatusType.GJENNOMFORES,
-        oppstart = GjennomforingOppstartstype.FELLES,
-        tilgjengeligForArrangorFraOgMedDato = null,
-        apentForPamelding = true,
-        antallPlasser = 10,
-        deltidsprosent = 100.0,
-        opprettetTidspunkt = LocalDateTime.now(),
-        oppdatertTidspunkt = LocalDateTime.now(),
-        oppmoteSted = null,
-    )
-
     val amtDeltaker = AmtDeltakerV1Dto(
         id = UUID.randomUUID(),
-        gjennomforingId = tiltak.id,
+        gjennomforingId = gjennomforingGruppe.id,
         personIdent = "10101010100",
         startDato = null,
         sluttDato = null,

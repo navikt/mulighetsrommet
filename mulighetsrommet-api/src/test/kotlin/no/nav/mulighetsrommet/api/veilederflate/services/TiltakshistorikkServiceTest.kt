@@ -40,10 +40,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
         id = UUID.randomUUID(),
+        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            navn = null,
+        ),
         gjennomforing = Gjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         ),
         norskIdent = NorskIdent("12345678910"),
         status = DeltakerStatus(

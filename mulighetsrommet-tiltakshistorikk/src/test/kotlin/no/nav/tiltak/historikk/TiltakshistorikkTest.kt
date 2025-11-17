@@ -19,6 +19,7 @@ import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
 import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -172,8 +173,12 @@ class TiltakshistorikkTest : FunSpec({
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
+                        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+                            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                            navn = null,
+                        ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
-                            id = TestFixtures.tiltak.id,
+                            id = TestFixtures.gjennomforingGruppe.id,
                             navn = "Gruppe AMO",
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         ),
@@ -272,7 +277,7 @@ private fun mockTiltakDatadeling(
     ),
 ): MockEngine {
     return createMockEngine {
-        post("/tiltak-datadeling/graphql") {
+        post("/tiltak-datadeling/graphql") { _: HttpRequestData ->
             val serializer = GraphqlResponse.serializer(GetAvtalerForPersonResponse.serializer())
             respondJson(response, serializer)
         }
@@ -283,8 +288,8 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val virksomhet = TestFixtures.virksomhet
     queries.virksomhet.upsert(virksomhet)
 
-    val tiltak = TestFixtures.tiltak
-    queries.gruppetiltak.upsert(tiltak)
+    val tiltak = TestFixtures.gjennomforingGruppe
+    queries.gjennomforing.upsert(toGjennomforingDbo(tiltak))
 
     val arbeidstrening = ArenaDeltakerDbo(
         id = ARENA_ARBEIDSTRENING_ID,

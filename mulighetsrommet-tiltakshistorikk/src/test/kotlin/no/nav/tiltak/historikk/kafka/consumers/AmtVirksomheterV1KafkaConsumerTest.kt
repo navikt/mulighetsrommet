@@ -21,6 +21,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val orgnr = Organisasjonsnummer("123456789")
+
     val virksomhetDto = AmtVirksomhetV1Dto(
         organisasjonsnummer = orgnr,
         navn = "Gammelt navn",
@@ -35,10 +36,6 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         slettetDato = null,
     )
 
-    afterEach {
-        database.truncateAll()
-    }
-
     context("replikering fra kafka") {
         val db = TiltakshistorikkDatabase(database.db)
 
@@ -52,17 +49,19 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
         val virksomheter = VirksomhetService(db, brreg)
 
-        test("skal ignorere melding hvis virksomheten ikke finnes i databasen") {
-            val consumer = AmtVirksomheterV1KafkaConsumer(virksomheter)
+        val consumer = AmtVirksomheterV1KafkaConsumer(virksomheter)
 
+        afterEach {
+            database.truncateAll()
+        }
+
+        test("skal ignorere melding hvis virksomheten ikke finnes i databasen") {
             consumer.consume(orgnr.value, Json.encodeToJsonElement(virksomhetDto))
 
             virksomheter.getVirksomhet(orgnr) shouldBe null
         }
 
         test("skal oppdatere virksomhet når melding mottas og virksomheten finnes") {
-            val consumer = AmtVirksomheterV1KafkaConsumer(virksomheter)
-
             db.session {
                 queries.virksomhet.upsert(dbo)
             }
@@ -73,8 +72,6 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         }
 
         test("skal slette virksomhet ved tombstone-melding") {
-            val consumer = AmtVirksomheterV1KafkaConsumer(virksomheter)
-
             db.session {
                 queries.virksomhet.upsert(dbo)
             }

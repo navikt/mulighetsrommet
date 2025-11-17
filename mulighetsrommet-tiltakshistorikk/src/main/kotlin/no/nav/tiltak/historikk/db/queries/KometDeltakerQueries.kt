@@ -74,7 +74,10 @@ class KometDeltakerQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?): List<TiltakshistorikkV1Dto.GruppetiltakDeltakelse> {
+    fun getKometHistorikk(
+        identer: List<NorskIdent>,
+        maxAgeYears: Int?,
+    ): List<TiltakshistorikkV1Dto.GruppetiltakDeltakelse> {
         @Language("PostgreSQL")
         val query = """
                 select
@@ -85,11 +88,11 @@ class KometDeltakerQueries(private val session: Session) {
                     deltaker.status_type,
                     deltaker.status_aarsak,
                     deltaker.status_opprettet_dato,
-                    gruppetiltak.id as gruppetiltak_id,
-                    gruppetiltak.navn as gruppetiltak_navn,
-                    gruppetiltak.tiltakskode as gruppetiltak_tiltakskode,
-                    gruppetiltak.arrangor_organisasjonsnummer
-                from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
+                    gjennomforing.id as gjennomforing_id,
+                    gjennomforing.navn as gjennomforing_navn,
+                    gjennomforing.tiltakskode as gjennomforing_tiltakskode,
+                    gjennomforing.arrangor_organisasjonsnummer
+                from komet_deltaker deltaker join gjennomforing on deltaker.gjennomforing_id = gjennomforing.id
                 where deltaker.person_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
@@ -126,10 +129,14 @@ private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakD
         },
         opprettetDato = localDateTime("status_opprettet_dato"),
     ),
+    tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+        tiltakskode = Tiltakskode.valueOf(string("gjennomforing_tiltakskode")),
+        navn = null,
+    ),
     gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
-        id = uuid("gruppetiltak_id"),
-        navn = string("gruppetiltak_navn"),
-        tiltakskode = Tiltakskode.valueOf(string("gruppetiltak_tiltakskode")),
+        id = uuid("gjennomforing_id"),
+        navn = stringOrNull("gjennomforing_navn"),
+        tiltakskode = Tiltakskode.valueOf(string("gjennomforing_tiltakskode")),
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),

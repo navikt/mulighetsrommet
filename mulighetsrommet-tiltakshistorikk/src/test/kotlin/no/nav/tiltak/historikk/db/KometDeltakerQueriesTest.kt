@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.databaseConfig
-import no.nav.tiltak.historikk.db.queries.GruppetiltakQueries
 import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
+import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -21,14 +21,18 @@ import java.util.*
 class KometDeltakerQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val gruppeAmo = TestFixtures.tiltak
+    val gruppeAmo = TestFixtures.gjennomforingGruppe
     val amtDeltaker = TestFixtures.amtDeltaker
+
+    beforeAny {
+        TiltakshistorikkDatabase(database.db).session {
+            queries.virksomhet.upsert(TestFixtures.virksomhet)
+            queries.gjennomforing.upsert(toGjennomforingDbo(gruppeAmo))
+        }
+    }
 
     test("kometHistorikk") {
         database.runAndRollback { session ->
-            val gruppetiltak = GruppetiltakQueries(session)
-            gruppetiltak.upsert(gruppeAmo)
-
             val deltaker = KometDeltakerQueries(session)
             deltaker.upsertKometDeltaker(amtDeltaker)
 
@@ -43,10 +47,14 @@ class KometDeltakerQueriesTest : FunSpec({
                         aarsak = null,
                         opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
                     ),
+                    tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+                        tiltakskode = gruppeAmo.tiltakskode,
+                        navn = null,
+                    ),
                     gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                         id = gruppeAmo.id,
                         navn = gruppeAmo.navn,
-                        tiltakskode = gruppeAmo.tiltakstype.tiltakskode,
+                        tiltakskode = gruppeAmo.tiltakskode,
                     ),
                     arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                 ),
@@ -56,9 +64,6 @@ class KometDeltakerQueriesTest : FunSpec({
 
     test("maxAgeYears komet") {
         database.runAndRollback { session ->
-            val gruppetiltak = GruppetiltakQueries(session)
-            gruppetiltak.upsert(gruppeAmo)
-
             val deltaker = KometDeltakerQueries(session)
 
             val amtDeltakerReg2005 = AmtDeltakerV1Dto(
