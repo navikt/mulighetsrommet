@@ -160,13 +160,13 @@ class TiltakshistorikkService(
 
     private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
         val arenaKode = when (deltakelse.tiltakskode) {
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.MENTOR -> "MENTOR"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD -> "INKLUTILS"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING -> "ARBTREN"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_LONNSTILSKUDD -> "VARLONTIL"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MENTOR -> "MENTOR"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.INKLUDERINGSTILSKUDD -> "INKLUTILS"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.SOMMERJOBB -> "TILSJOBB"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
         }
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode).let {
             DeltakelseTiltakstype(it.navn, it.tiltakskode)

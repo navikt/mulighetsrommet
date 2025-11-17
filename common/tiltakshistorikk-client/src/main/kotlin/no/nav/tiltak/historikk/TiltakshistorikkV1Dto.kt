@@ -99,14 +99,20 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        val tiltakskode: Tiltakstype,
+        val tiltakskode: Tiltakskode,
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
         val arbeidsgiver: Arbeidsgiver,
     ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.TEAM_TILTAK
 
-        enum class Tiltakstype {
+        @Serializable
+        data class Tiltakstype(
+            val tiltakskode: Tiltakskode,
+            val navn: String?,
+        )
+
+        enum class Tiltakskode {
             ARBEIDSTRENING,
             MIDLERTIDIG_LONNSTILSKUDD,
             VARIG_LONNSTILSKUDD,
