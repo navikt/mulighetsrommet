@@ -774,7 +774,7 @@ class TilsagnService(
         return setOfNotNull(
             TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT },
             TilsagnHandling.SLETT.takeIf { status == TilsagnStatus.RETURNERT },
-            TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT },
+            TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt == 0 },
             TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt > 0 },
             TilsagnHandling.GODKJENN.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
             TilsagnHandling.RETURNER.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
