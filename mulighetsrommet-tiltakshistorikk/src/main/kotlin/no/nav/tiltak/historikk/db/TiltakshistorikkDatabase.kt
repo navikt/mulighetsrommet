@@ -3,6 +3,7 @@ package no.nav.tiltak.historikk.db
 import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
 import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
+import no.nav.tiltak.historikk.db.queries.ArenaGjennomforingQueries
 import no.nav.tiltak.historikk.db.queries.GjennomforingQueries
 import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
 import no.nav.tiltak.historikk.db.queries.VirksomhetQueries
@@ -35,6 +36,7 @@ class QueryContext(val session: Session) {
     inner class Queries {
         val gjennomforing = GjennomforingQueries(session)
         val kometDeltaker = KometDeltakerQueries(session)
+        val arenaGjennomforing = ArenaGjennomforingQueries(session)
         val arenaDeltaker = ArenaDeltakerQueries(session)
         val virksomhet = VirksomhetQueries(session)
     }

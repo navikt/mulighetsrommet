@@ -3,18 +3,18 @@ package no.nav.tiltak.historikk.db.queries
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class ArenaDeltakerQueries(private val session: Session) {
 
-    fun upsertArenaDeltaker(deltaker: ArenaDeltakerDbo) {
+    fun upsertArenaDeltaker(deltaker: TiltakshistorikkArenaDeltaker) {
         @Language("PostgreSQL")
         val query = """
             insert into arena_deltaker (id,

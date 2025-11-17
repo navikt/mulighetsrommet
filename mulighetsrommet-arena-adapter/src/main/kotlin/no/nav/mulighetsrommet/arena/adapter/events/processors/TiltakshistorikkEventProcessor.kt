@@ -5,10 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
-import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
-import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaHistTiltakdeltaker
@@ -24,6 +21,8 @@ import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
+import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 
 class TiltakshistorikkEventProcessor(
     private val entities: ArenaEntityService,
@@ -86,7 +85,7 @@ class TiltakshistorikkEventProcessor(
             .map { Organisasjonsnummer(it.virksomhetsnummer) }
             .bind()
 
-        val deltaker = ArenaDeltakerDbo(
+        val deltaker = TiltakshistorikkArenaDeltaker(
             id = mapping.entityId,
             norskIdent = NorskIdent(norskIdent),
             arenaTiltakskode = tiltakstype.tiltakskode,
@@ -106,17 +105,17 @@ class TiltakshistorikkEventProcessor(
 
     private suspend fun upsertDeltaker(
         operation: ArenaEvent.Operation,
-        deltaker: ArenaDeltakerDbo,
+        deltaker: TiltakshistorikkArenaDeltaker,
     ) = if (operation == ArenaEvent.Operation.Delete) {
-        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${deltaker.id}")
+        client.deleteArenaDeltaker(deltaker.id)
     } else {
-        client.request(HttpMethod.Put, "/api/v1/intern/arena/deltaker", deltaker)
+        client.upsertArenaDeltaker(deltaker)
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
-        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${mapping.entityId}")
+        client.deleteArenaDeltaker(mapping.entityId)
             .mapLeft { ProcessingError.fromResponseException(it) }
             .bind()
     }

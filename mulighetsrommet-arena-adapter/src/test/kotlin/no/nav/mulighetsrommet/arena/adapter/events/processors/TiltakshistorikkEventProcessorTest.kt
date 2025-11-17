@@ -9,9 +9,7 @@ import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
-import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaHistTiltakdeltakerEvent
@@ -36,6 +34,8 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 import java.time.LocalDateTime
 import java.util.*
 
@@ -56,7 +56,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
         )
 
         fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakshistorikkEventProcessor {
-            val client = TiltakshistorikkClient(engine, baseUri = "") {
+            val client = TiltakshistorikkClient(engine, baseUrl = "") {
                 "Bearer token"
             }
 
@@ -162,7 +162,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<ArenaDeltakerDbo>().apply {
+                    decodeRequestBody<TiltakshistorikkArenaDeltaker>().apply {
                         id shouldBe mapping.entityId
                         norskIdent shouldBe NorskIdent("12345678910")
                     }
@@ -197,7 +197,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<ArenaDeltakerDbo>().apply {
+                    decodeRequestBody<TiltakshistorikkArenaDeltaker>().apply {
                         id shouldBe histDeltakerMapping.entityId
                         norskIdent shouldBe NorskIdent("12345678910")
                     }

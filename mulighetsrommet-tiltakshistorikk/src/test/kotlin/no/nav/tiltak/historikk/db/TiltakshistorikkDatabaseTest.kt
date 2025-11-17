@@ -6,12 +6,9 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.historikk.TestFixtures
-import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
-import no.nav.tiltak.historikk.databaseConfig
+import no.nav.tiltak.historikk.*
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
 import java.time.LocalDate
@@ -67,8 +64,45 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         }
     }
 
+    context("Arena gjennomføring") {
+        val db = TiltakshistorikkDatabase(database.db)
+
+        test("oppretter og sletter gjennomføring") {
+            val gjennomforing = TiltakshistorikkArenaGjennomforing(
+                id = UUID.randomUUID(),
+                arenaTiltakskode = "ARBTREN",
+                arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
+                arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
+                arrangorOrganisasjonsnummer = Organisasjonsnummer("123456789"),
+                navn = "Arbeidstrening",
+                deltidsprosent = 80.0,
+            )
+
+            db.session {
+                queries.arenaGjennomforing.upsert(gjennomforing)
+            }
+
+            database.assertRequest("select * from arena_gjennomforing")
+                .hasNumberOfRows(1)
+                .row()
+                .value("id").isEqualTo(gjennomforing.id)
+                .value("arena_tiltakskode").isEqualTo("ARBTREN")
+                .value("arena_reg_dato").isEqualTo(gjennomforing.arenaRegDato)
+                .value("arena_mod_dato").isEqualTo(gjennomforing.arenaModDato)
+                .value("arrangor_organisasjonsnummer").isEqualTo(gjennomforing.arrangorOrganisasjonsnummer.value)
+                .value("navn").isEqualTo(gjennomforing.navn)
+                .value("deltidsprosent").isEqualTo(gjennomforing.deltidsprosent)
+
+            db.session {
+                queries.arenaGjennomforing.delete(gjennomforing.id)
+            }
+
+            database.assertRequest("select * from arena_gjennomforing").isEmpty
+        }
+    }
+
     context("Arena deltaker") {
-        val arbeidstreningArenaDeltakelse = ArenaDeltakerDbo(
+        val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "ARBTREN",
@@ -80,7 +114,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         )
 
-        val mentorArenaDeltakelse = ArenaDeltakerDbo(
+        val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "MENTOR",
@@ -168,7 +202,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         }
 
         test("filtrerer Arena-deltakere basert på maxAgeYears") {
-            val mentorArenaDeltakelseUtenSlutt = ArenaDeltakerDbo(
+            val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
                 id = UUID.randomUUID(),
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "MENTOR",
@@ -355,7 +389,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         test("henter Arena-historikk for flere identiteter") {
             db.transaction {
-                val deltaker1 = ArenaDeltakerDbo(
+                val deltaker1 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
                     norskIdent = NorskIdent("11111111111"),
                     arenaTiltakskode = "ARBTREN",
@@ -367,7 +401,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     registrertIArenaDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
                 )
 
-                val deltaker2 = ArenaDeltakerDbo(
+                val deltaker2 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
                     norskIdent = NorskIdent("22222222222"),
                     arenaTiltakskode = "MENTOR",

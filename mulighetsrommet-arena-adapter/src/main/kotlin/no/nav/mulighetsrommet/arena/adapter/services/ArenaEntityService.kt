@@ -81,8 +81,8 @@ class ArenaEntityService(
             .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
-    fun upsertSanityId(entityId: UUID, sanityId: UUID): Either<ProcessingError, Boolean> {
-        return tiltaksgjennomforinger.upsertSanityId(entityId, sanityId)
+    fun upsertSanityId(tiltaksgjennomforingId: UUID, sanityId: UUID): Either<ProcessingError, Boolean> {
+        return tiltaksgjennomforinger.upsertSanityId(tiltaksgjennomforingId, sanityId)
             .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
