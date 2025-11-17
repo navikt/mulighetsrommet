@@ -111,7 +111,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             sluttDato = LocalDateTime.of(2024, 1, 31, 0, 0, 0),
             beskrivelse = "Arbeidstrening hos Fretex",
             arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-            registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+            arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+            arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+            dagerPerUke = 2.5,
+            deltidsprosent = 50.0,
         )
 
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
@@ -123,7 +126,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             sluttDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
             beskrivelse = "Mentortiltak hos Joblearn",
             arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-            registrertIArenaDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
+            arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
+            arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+            dagerPerUke = 5.0,
+            deltidsprosent = 100.0,
         )
 
         var db = TiltakshistorikkDatabase(database.db)
@@ -211,7 +217,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 sluttDato = null,
                 beskrivelse = "Mentortiltak hos Joblearn",
                 arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-                registrertIArenaDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
+                arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
+                arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+                dagerPerUke = 5.0,
+                deltidsprosent = 100.0,
             )
 
             db.transaction {
@@ -398,7 +407,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     sluttDato = LocalDateTime.of(2020, 6, 1, 0, 0, 0),
                     beskrivelse = "Første deltakelse",
                     arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-                    registrertIArenaDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
+                    arenaRegDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
+                    arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+                    dagerPerUke = null,
+                    deltidsprosent = null,
                 )
 
                 val deltaker2 = TiltakshistorikkArenaDeltaker(
@@ -410,7 +422,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     sluttDato = LocalDateTime.of(2021, 3, 1, 0, 0, 0),
                     beskrivelse = "Andre deltakelse",
                     arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-                    registrertIArenaDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
+                    arenaRegDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
+                    arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+                    dagerPerUke = null,
+                    deltidsprosent = null,
                 )
 
                 queries.arenaDeltaker.upsertArenaDeltaker(deltaker1)

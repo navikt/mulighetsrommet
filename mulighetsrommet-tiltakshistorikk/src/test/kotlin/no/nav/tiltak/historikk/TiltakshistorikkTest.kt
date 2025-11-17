@@ -310,7 +310,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         sluttDato = LocalDateTime.of(2023, 1, 31, 0, 0, 0),
         beskrivelse = "Arbeidstrening hos Fretex",
         arrangorOrganisasjonsnummer = virksomhet.organisasjonsnummer,
-        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        dagerPerUke = 5.0,
+        deltidsprosent = 100.0,
     )
     queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
 
@@ -323,7 +326,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
         beskrivelse = "Mentortiltak hos Joblearn",
         arrangorOrganisasjonsnummer = virksomhet.organisasjonsnummer,
-        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        dagerPerUke = 5.0,
+        deltidsprosent = 100.0,
     )
     queries.arenaDeltaker.upsertArenaDeltaker(mentor)
 
@@ -336,7 +342,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
         beskrivelse = "Enkelt-AMO hos Joblearn",
         arrangorOrganisasjonsnummer = virksomhet.organisasjonsnummer,
-        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        dagerPerUke = 5.0,
+        deltidsprosent = 100.0,
     )
     queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
 

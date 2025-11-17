@@ -157,6 +157,10 @@ data class TiltakshistorikkArenaGjennomforing(
 data class TiltakshistorikkArenaDeltaker(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val arenaRegDato: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val arenaModDato: LocalDateTime,
     val norskIdent: NorskIdent,
     val arenaTiltakskode: String,
     val status: ArenaDeltakerStatus,
@@ -166,6 +170,6 @@ data class TiltakshistorikkArenaDeltaker(
     val sluttDato: LocalDateTime?,
     val beskrivelse: String,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val registrertIArenaDato: LocalDateTime,
+    val dagerPerUke: Double?,
+    val deltidsprosent: Double?,
 )

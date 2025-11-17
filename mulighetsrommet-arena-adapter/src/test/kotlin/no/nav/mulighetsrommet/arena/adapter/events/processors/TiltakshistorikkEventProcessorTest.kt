@@ -199,6 +199,8 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
 
                     decodeRequestBody<TiltakshistorikkArenaDeltaker>().apply {
                         id shouldBe histDeltakerMapping.entityId
+                        arenaRegDato shouldBe LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+                        arenaModDato shouldBe LocalDateTime.of(2023, 1, 2, 0, 0, 0)
                         norskIdent shouldBe NorskIdent("12345678910")
                     }
                 }
