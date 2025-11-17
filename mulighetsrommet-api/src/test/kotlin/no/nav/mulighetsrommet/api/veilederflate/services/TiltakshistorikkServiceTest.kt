@@ -47,7 +47,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         gjennomforing = Gjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         ),
         norskIdent = NorskIdent("12345678910"),
         status = DeltakerStatus(
@@ -70,7 +69,6 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = TiltakstypeFixtures.Avklaring.arenaKode,
             navn = null,
         ),
-        arenaTiltakskode = TiltakstypeFixtures.Avklaring.arenaKode,
         beskrivelse = "Avklaring",
         arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
@@ -80,7 +78,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         startDato = LocalDate.of(2020, 1, 1),
         sluttDato = LocalDate.of(2021, 12, 31),
         id = UUID.randomUUID(),
-        tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
         tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
             tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
             navn = null,
@@ -389,7 +386,6 @@ class TiltakshistorikkServiceTest : FunSpec({
             status = ArenaDeltakerStatus.VENTELISTE,
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
-            arenaTiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                 tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
                 navn = null,

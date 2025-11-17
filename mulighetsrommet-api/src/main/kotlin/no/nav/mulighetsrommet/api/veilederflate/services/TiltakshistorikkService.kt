@@ -159,7 +159,7 @@ class TiltakshistorikkService(
     }
 
     private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
-        val arenaKode = when (deltakelse.tiltakskode) {
+        val arenaKode = when (deltakelse.tiltakstype.tiltakskode) {
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING -> "ARBTREN"
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_LONNSTILSKUDD -> "VARLONTIL"

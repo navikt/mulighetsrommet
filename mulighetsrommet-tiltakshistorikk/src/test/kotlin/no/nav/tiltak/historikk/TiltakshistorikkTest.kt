@@ -127,7 +127,6 @@ class TiltakshistorikkTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ARBEIDSTRENING_ID,
-                        arenaTiltakskode = "ARBTREN",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
@@ -141,7 +140,6 @@ class TiltakshistorikkTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
-                        arenaTiltakskode = "MENTOR",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
@@ -155,7 +153,6 @@ class TiltakshistorikkTest : FunSpec({
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ENKEL_AMO_ID,
-                        arenaTiltakskode = "AMO",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
@@ -171,7 +168,6 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                        tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
                         tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
                             tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
                             navn = null,
@@ -196,7 +192,6 @@ class TiltakshistorikkTest : FunSpec({
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.gjennomforingGruppe.id,
                             navn = "Gruppe AMO",
-                            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),

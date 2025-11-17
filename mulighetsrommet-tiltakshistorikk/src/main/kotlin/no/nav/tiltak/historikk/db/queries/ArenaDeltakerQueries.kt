@@ -104,7 +104,6 @@ class ArenaDeltakerQueries(private val session: Session) {
 private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     norskIdent = NorskIdent(string("norsk_ident")),
     id = uuid("id"),
-    arenaTiltakskode = string("arena_tiltakskode"),
     status = ArenaDeltakerStatus.valueOf(string("status")),
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
