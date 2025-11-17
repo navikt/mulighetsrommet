@@ -52,6 +52,7 @@ export const handlers = [
       if (utbetaling?.id && klarForGodkjenningIds.includes(utbetaling.id)) {
         return HttpResponse.json({
           ...utbetaling,
+          status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
           godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
         });
       }

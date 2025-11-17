@@ -15,7 +15,6 @@ import { veiviserMeta } from "./opprettKravStegMocks";
 import { utbetalingsInformasjon } from "./utbetalingsInformasjonMocks";
 import { vedlegg } from "./vedleggMocks";
 import { oppsummering, utbetalingMap } from "./oppsummeringMocks";
-import { pathByOrgnr } from "~/utils/navigation";
 import { deltakere } from "./deltakelserMocks";
 
 export const handlers = [
@@ -80,11 +79,8 @@ export const handlers = [
   http.post<PathParams, OpprettKravOppsummering>(
     "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
     ({ params }) => {
-      const { orgnr, gjennomforingId } = params;
-
-      return HttpResponse.redirect(
-        pathByOrgnr(orgnr as string).kvittering(utbetalingMap[gjennomforingId as string]),
-      );
+      const { gjennomforingId } = params;
+      return HttpResponse.json({ id: utbetalingMap[gjennomforingId as string] });
     },
   ),
 ];
