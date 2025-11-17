@@ -171,8 +171,11 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                        tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
-                        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
+                        tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
+                        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
+                            tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
+                            navn = null,
+                        ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("123456789"),
                     ),
