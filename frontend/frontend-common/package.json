@@ -34,10 +34,10 @@
     "@mr/eslint-config-react-app": "workspace:*",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
-    "@vitejs/plugin-react": "5.1.0",
+    "@vitejs/plugin-react": "5.1.1",
     "eslint": "9.39.1",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "4.0.8"
+    "vitest": "4.0.9"
   },
   "repository": {
     "type": "git",
