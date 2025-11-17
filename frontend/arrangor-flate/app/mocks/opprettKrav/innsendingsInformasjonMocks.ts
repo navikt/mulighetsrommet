@@ -84,8 +84,8 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       type: TilsagnType.TILSAGN,
       periode: tilsagnsPeriode(),
       status: TilsagnStatus.GODKJENT,
-      bruktBelop: 1300000,
-      gjenstaendeBelop: 35105891,
+      bruktBelop: 13000,
+      gjenstaendeBelop: 351058,
       beregning: {
         entries: [
           {
@@ -93,14 +93,8 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
             value: formaterPeriode(tilsagnsPeriode()),
             format: null,
           },
-          { key: "Antall plasser", value: "333", format: DetailsFormat.NUMBER },
-          {
-            key: "Avtalt ukespris per tiltaksplass",
-            value: "5015",
-            format: DetailsFormat.NOK,
-          },
-          { key: "Totalbeløp", value: "36405891", format: DetailsFormat.NOK },
-          { key: "Gjenstående beløp", value: "35105891", format: DetailsFormat.NOK },
+          { key: "Totalbeløp", value: "364058", format: DetailsFormat.NOK },
+          { key: "Gjenstående beløp", value: "351058", format: DetailsFormat.NOK },
         ],
       },
       bestillingsnummer: "A-2025/82143-1",
