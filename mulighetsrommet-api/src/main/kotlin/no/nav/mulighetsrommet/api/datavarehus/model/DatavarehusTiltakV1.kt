@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-sealed class DatavarehusTiltak {
+sealed class DatavarehusTiltakV1 {
     abstract val tiltakskode: Tiltakskode
     abstract val avtale: Avtale?
     abstract val gjennomforing: Gjennomforing
@@ -34,19 +34,19 @@ sealed class DatavarehusTiltak {
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val navn: String,
-        val arrangor: Arrangor,
-        @Serializable(with = LocalDateSerializer::class)
-        val startDato: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val sluttDato: LocalDate?,
         @Serializable(with = LocalDateTimeSerializer::class)
         val opprettetTidspunkt: LocalDateTime,
         @Serializable(with = LocalDateTimeSerializer::class)
         val oppdatertTidspunkt: LocalDateTime,
-        val status: GjennomforingStatusType,
+        val arrangor: Arrangor,
+        val navn: String?,
+        @Serializable(with = LocalDateSerializer::class)
+        val startDato: LocalDate?,
+        @Serializable(with = LocalDateSerializer::class)
+        val sluttDato: LocalDate?,
+        val status: GjennomforingStatusType?,
         val arena: ArenaData?,
-        val deltidsprosent: Double,
+        val deltidsprosent: Double?,
     )
 
     @Serializable
@@ -62,27 +62,27 @@ sealed class DatavarehusTiltak {
 }
 
 @Serializable
-data class DatavarehusTiltakDto(
+data class DatavarehusTiltakV1Dto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
-) : DatavarehusTiltak()
+) : DatavarehusTiltakV1()
 
 @Serializable
-data class DatavarehusTiltakAmoDto(
+data class DatavarehusTiltakV1AmoDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     val amoKategorisering: AmoKategorisering?,
-) : DatavarehusTiltak()
+) : DatavarehusTiltakV1()
 
 @Serializable
-data class DatavarehusTiltakYrkesfagDto(
+data class DatavarehusTiltakV1YrkesfagDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
     val utdanningslop: Utdanningslop?,
-) : DatavarehusTiltak() {
+) : DatavarehusTiltakV1() {
     @Serializable
     data class Utdanningslop(
         val utdanningsprogram: Utdanningsprogram,

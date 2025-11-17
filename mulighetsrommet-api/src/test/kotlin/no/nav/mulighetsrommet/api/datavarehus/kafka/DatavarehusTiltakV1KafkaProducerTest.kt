@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -97,7 +97,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
                 match { record ->
                     record.topic() == config.producerTopic &&
                         record.key().decodeToString() == AFT1.id.toString() &&
-                        record.value()?.let { Json.decodeFromString<DatavarehusTiltak>(it.decodeToString()) } != null
+                        record.value()?.let { Json.decodeFromString<DatavarehusTiltakV1>(it.decodeToString()) } != null
                 },
             )
         }
