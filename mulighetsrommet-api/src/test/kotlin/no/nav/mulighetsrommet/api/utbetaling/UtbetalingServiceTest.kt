@@ -1329,6 +1329,36 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
     }
+
+    context("sletting og avbryting") {
+        test("kan ikke slette ferdig behandlet") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
+                FieldError.root("Kan ikke slette utbetaling fordi den har status: FERDIG_BEHANDLET"),
+            )
+        }
+
+        test("kan ikke slette ikke korreksjon") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
+                FieldError.root("Kan kun slette korreksjoner"),
+            )
+        }
+    }
 })
 
 private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRolle>) {

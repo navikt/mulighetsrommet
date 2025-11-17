@@ -8,7 +8,7 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,
   Alert,
@@ -32,6 +32,7 @@ import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { useSlettKorreksjon } from "@/api/utbetaling/useSlettKorreksjon";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -53,6 +54,7 @@ export function RedigerUtbetalingLinjeView({
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+  const slettKorreksjonMutation = useSlettKorreksjon();
 
   function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
     setErrors([]);
@@ -63,6 +65,15 @@ export function RedigerUtbetalingLinjeView({
         setErrors(error.errors);
       },
     });
+  }
+
+  function slettKorreksjon() {
+    slettKorreksjonMutation.mutate(
+      { id: utbetaling.id },
+      {
+        onSuccess: () => navigate(-1),
+      },
+    );
   }
 
   const form = useForm<RedigerUtbetalingLinjeFormValues>({
@@ -128,6 +139,11 @@ export function RedigerUtbetalingLinjeView({
                 <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
                   {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
                 </ActionMenu.Item>
+                {handlinger.includes(UtbetalingHandling.SLETT) && (
+                  <ActionMenu.Item icon={<TrashFillIcon />} onSelect={slettKorreksjon}>
+                    Slett utbetaling
+                  </ActionMenu.Item>
+                )}
               </ActionMenu.Content>
             </ActionMenu>
           </HStack>
