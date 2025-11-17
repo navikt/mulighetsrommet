@@ -11,19 +11,21 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.service.TiltakshistorikkService
+import no.nav.tiltak.historikk.service.VirksomhetService
 import java.util.*
 
 fun Route.tiltakshistorikkRoutes(
     kafka: KafkaConsumerOrchestrator,
     db: TiltakshistorikkDatabase,
-    service: TiltakshistorikkService,
+    tiltakshistorikk: TiltakshistorikkService,
+    virksomheter: VirksomhetService,
 ) {
     authenticate {
         route("/api/v1/historikk") {
             post {
                 val request = call.receive<TiltakshistorikkV1Request>()
 
-                val response: TiltakshistorikkV1Response = service.getTiltakshistorikk(request)
+                val response: TiltakshistorikkV1Response = tiltakshistorikk.getTiltakshistorikk(request)
 
                 call.respond(response)
             }
@@ -33,6 +35,7 @@ fun Route.tiltakshistorikkRoutes(
             put("/deltaker") {
                 val dbo = call.receive<ArenaDeltakerDbo>()
 
+                virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
                 db.session { queries.arenaDeltaker.upsertArenaDeltaker(dbo) }
 
                 call.respond(HttpStatusCode.OK)

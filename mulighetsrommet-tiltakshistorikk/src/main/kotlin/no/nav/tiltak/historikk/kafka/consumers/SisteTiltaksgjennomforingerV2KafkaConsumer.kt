@@ -33,9 +33,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumer(
     }
 
     private suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) {
-        if (virksomheter.getVirksomhet(organisasjonsnummer) == null) {
-            virksomheter.syncVirksomhet(organisasjonsnummer)
-        }
+        virksomheter.syncVirksomhetIfNotExists(organisasjonsnummer)
     }
 
     private fun upsertGjennomforing(gjennomforing: TiltaksgjennomforingV2Dto): Unit = db.session {

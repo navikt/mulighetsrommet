@@ -20,6 +20,12 @@ class VirksomhetService(
         queries.virksomhet.delete(organisasjonsnummer)
     }
 
+    suspend fun syncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer) {
+        if (getVirksomhet(organisasjonsnummer) == null) {
+            syncVirksomhet(organisasjonsnummer)
+        }
+    }
+
     suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) {
         brreg.getBrregEnhet(organisasjonsnummer)
             .onRight { enhet ->
