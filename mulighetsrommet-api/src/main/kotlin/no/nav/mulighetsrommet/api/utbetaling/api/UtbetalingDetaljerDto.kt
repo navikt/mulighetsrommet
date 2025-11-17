@@ -17,6 +17,7 @@ data class UtbetalingDetaljerDto(
 @Serializable
 enum class UtbetalingHandling {
     SEND_TIL_ATTESTERING,
+    SLETT,
 }
 
 @Serializable

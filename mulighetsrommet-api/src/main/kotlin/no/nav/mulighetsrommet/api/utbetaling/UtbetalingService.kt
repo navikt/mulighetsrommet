@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -30,12 +31,15 @@ import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -321,6 +325,34 @@ class UtbetalingService(
         }
 
         queries.delutbetaling.getOrError(id).right()
+    }
+
+    fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
+        val utbetaling = getOrError(id)
+        when (utbetaling.status) {
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.INNSENDT,
+            -> Unit
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            ->
+                return FieldError.root(
+                    "Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}",
+                ).nel().left()
+        }
+        if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
+            return FieldError.root("Kan kun slette korreksjoner").nel().left()
+        }
+        queries.delutbetaling.getByUtbetalingId(id)
+            .forEach { delutbetaling ->
+                if (delutbetaling.status != DelutbetalingStatus.RETURNERT) {
+                    return FieldError.root("Delutbetaling var i feil status").nel().left()
+                }
+                queries.delutbetaling.delete(delutbetaling.id)
+            }
+
+        queries.utbetaling.delete(id).right()
     }
 
     fun republishFaktura(fakturanummer: String): Delutbetaling = db.transaction {
@@ -673,6 +705,18 @@ class UtbetalingService(
                     -> false
                 }
             },
+            UtbetalingHandling.SLETT.takeIf {
+                when (utbetaling.status) {
+                    UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.INNSENDT,
+                    -> UtbetalingType.from(utbetaling) == UtbetalingType.KORRIGERING
+
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    -> false
+                }
+            },
         )
             .filter {
                 tilgangTilHandling(handling = it, ansatt = ansatt)
@@ -703,6 +747,7 @@ class UtbetalingService(
         fun tilgangTilHandling(handling: UtbetalingHandling, ansatt: NavAnsatt): Boolean {
             return when (handling) {
                 UtbetalingHandling.SEND_TIL_ATTESTERING -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+                UtbetalingHandling.SLETT -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
             }
         }
 

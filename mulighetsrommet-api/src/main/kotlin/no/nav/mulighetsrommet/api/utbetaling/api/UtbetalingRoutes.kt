@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import arrow.core.flatMap
 import arrow.core.right
+import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
@@ -10,6 +11,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
@@ -41,6 +43,8 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelseOutputPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -177,6 +181,30 @@ fun Route.utbetalingRoutes() {
                     )
                 }
                 call.respond(utbetaling)
+            }
+        }
+
+        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+            delete({
+                description = "Slett korreksjon"
+                tags = setOf("Utbetaling")
+                operationId = "slettKorreksjon"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {}
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+
+                utbetalingService.slettKorreksjon(id)
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
             }
         }
 

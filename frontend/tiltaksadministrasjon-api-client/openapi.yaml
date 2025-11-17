@@ -1977,6 +1977,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+    delete:
+      tags:
+      - Utbetaling
+      description: Slett korreksjon
+      operationId: slettKorreksjon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/beregning:
     get:
       tags:
@@ -5789,6 +5814,7 @@ components:
       type: string
       enum:
       - SEND_TIL_ATTESTERING
+      - SLETT
     UtbetalingDetaljerDto:
       type: object
       properties:
