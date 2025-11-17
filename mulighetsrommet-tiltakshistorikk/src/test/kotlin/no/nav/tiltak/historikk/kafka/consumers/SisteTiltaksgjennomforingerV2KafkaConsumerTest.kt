@@ -20,7 +20,7 @@ import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.GjennomforingType
 import no.nav.tiltak.historikk.service.VirksomhetService
 
-class SisteTiltaksgjennomforingV2KafkaConsumerTest : FunSpec({
+class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("konsumer gjennomføringer") {
