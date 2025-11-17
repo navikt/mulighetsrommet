@@ -43,8 +43,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
     rows: [
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Barberskum, Muskuløs"),
+          identitetsnummer: dataElementText("21896896757"),
           tiltakStart: dataElementText("2024-11-15", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -53,8 +53,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       },
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Bjørk, Subtil"),
+          identitetsnummer: dataElementText("06438749665"),
           tiltakStart: dataElementText("2024-11-15", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -63,8 +63,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       },
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Krem, Kry"),
+          identitetsnummer: dataElementText("16428500745"),
           tiltakStart: dataElementText("2024-11-14", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -73,8 +73,8 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
       },
       {
         cells: {
-          navn: dataElementText("Nordmann, Ola"),
-          identitetsnummer: dataElementText("27017809100"),
+          navn: dataElementText("Mandarin, Akademisk"),
+          identitetsnummer: dataElementText("22487805126"),
           tiltakStart: dataElementText("2025-01-13", DataElementTextFormat.DATE),
           periodeStart: dataElementText("2025-10-01", DataElementTextFormat.DATE),
           periodeSlutt: dataElementText("2025-11-01", DataElementTextFormat.DATE),
@@ -87,7 +87,7 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
     { key: "Antall deltakere", value: "4", format: DetailsFormat.NUMBER },
     {
       key: "Avtalt pris per time oppfølging per deltaker",
-      value: "644",
+      value: "768",
       format: DetailsFormat.NOK,
     },
   ],

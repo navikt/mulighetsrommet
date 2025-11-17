@@ -6,8 +6,8 @@ import {
 import { utbetalingType } from "./utbetalingTypeMocks";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
-const arrManedKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
-  id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
+const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
+  id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
   tiltakstype: {
@@ -16,32 +16,28 @@ const arrManedKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
   },
   gjennomforing: {
     id: "a47092ba-410b-4ca1-9713-36506a039742",
-    navn: "Arbeidsrettet rehabilitering - Månedlig",
+    navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
   },
   arrangor: arrangorMock,
   periode: { start: "2025-10-01", slutt: "2025-11-01" },
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
-  belop: 20000,
+  belop: 197980,
   godkjentBelop: null,
 };
 
 const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingKompaktDto = {
-  id: "ba046f93-cb0c-4acf-a724-99a36481f183",
+  id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
   tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
   gjennomforing: {
     id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
-    navn: "Avklaring - Avtalt ukespris per tiltaksplass",
+    navn: "Avklaring - avtalt månedspris",
   },
-  arrangor: {
-    id: "cc04c391-d733-4762-8208-b0dd4387a126",
-    organisasjonsnummer: "973674471",
-    navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-  },
-  periode: { start: "2025-11-01", slutt: "2025-12-01" },
+  arrangor: arrangorMock,
+  periode: { start: "2025-10-01", slutt: "2025-11-06" },
   type: utbetalingType.INNSENDING,
-  belop: 117988,
+  belop: 20000,
   godkjentBelop: null,
 };
 
@@ -59,11 +55,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
       navn: "AFT Foobar",
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     periode: {
       start: "2025-01-01",
       slutt: "2025-02-01",
@@ -83,11 +75,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       id: "b3e1cfbb-bfb5-4b4b-b8a4-af837631ed51",
       navn: "Solrikt AFT",
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     periode: {
       start: "2025-01-01",
       slutt: "2025-02-01",
@@ -108,11 +96,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       id: "d29cb67c-8e68-4ece-90dc-ff21c498aa3f",
       navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     periode: {
       start: "2025-05-01",
       slutt: "2025-08-02",
@@ -134,11 +118,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       id: "6d71a9c5-c920-4d56-bc3b-2da07e4b6100",
       navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     periode: {
       start: "2025-01-01",
       slutt: "2025-02-01",
@@ -158,11 +138,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
       id: "6a760ab8-fb12-4c6e-b143-b711331f63f6",
       navn: "May rain - VTA ",
     },
-    arrangor: {
-      id: "cc04c391-d733-4762-8208-b0dd4387a126",
-      organisasjonsnummer: "973674471",
-      navn: "BARNEVERNS- OG HELSENEMNDA I BUSKERUD OG OMEGN",
-    },
+    arrangor: arrangorMock,
     periode: {
       start: "2025-06-01",
       slutt: "2025-07-01",
@@ -172,5 +148,5 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     type: utbetalingType.INNSENDING,
   },
   avklaringManedKlarTilInnsending,
-  arrManedKlarTilGodkjenning,
+  arrUkesprisKlarTilGodkjenning,
 ];

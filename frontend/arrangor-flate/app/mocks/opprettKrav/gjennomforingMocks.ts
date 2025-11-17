@@ -16,13 +16,13 @@ const today: Date = new Date();
 
 export const arrangorMock: ArrangorflateArrangor = {
   id: "cc04c391-d733-4762-8208-b0dd4387a126",
-  navn: "Arrangøren navn",
+  navn: "Arrangørens navn",
   organisasjonsnummer: "123456789",
 };
 
 export const gjennomforingAFT: ArrangorflateGjennomforing = {
   id: gjennomforingIdAFT,
-  navn: "Et AFT tiltak",
+  navn: "Et AFT-tiltak Investering",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -33,7 +33,7 @@ export const gjennomforingAFT: ArrangorflateGjennomforing = {
 
 export const gjennomforingAvklaring: ArrangorflateGjennomforing = {
   id: gjennomforingIdAvklaring,
-  navn: "En avklaring",
+  navn: "Et avklaringstiltak med annen avtalt pris",
   tiltakstype: {
     navn: "Avklaring",
     tiltakskode: Tiltakskode.AVKLARING,
@@ -44,7 +44,7 @@ export const gjennomforingAvklaring: ArrangorflateGjennomforing = {
 
 export const gjennomforingOppfolging: ArrangorflateGjennomforing = {
   id: gjennomforingIdOppfolging,
-  navn: "En oppfølging",
+  navn: "Et oppfølgingstiltak med avtalt timespris",
   tiltakstype: {
     navn: "Oppfølging",
     tiltakskode: Tiltakskode.OPPFOLGING,
