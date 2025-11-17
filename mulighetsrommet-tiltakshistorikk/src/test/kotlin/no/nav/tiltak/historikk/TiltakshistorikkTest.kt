@@ -57,7 +57,7 @@ class TiltakshistorikkTest : FunSpec({
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -71,12 +71,12 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                response.body<TiltakshistorikkResponse>().historikk.shouldBeEmpty()
+                response.body<TiltakshistorikkV1Response>().historikk.shouldBeEmpty()
             }
         }
 
@@ -117,13 +117,13 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                response.body<TiltakshistorikkResponse>().historikk shouldContainExactlyInAnyOrder listOf(
-                    Tiltakshistorikk.ArenaDeltakelse(
+                response.body<TiltakshistorikkV1Response>().historikk shouldContainExactlyInAnyOrder listOf(
+                    TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ARBEIDSTRENING_ID,
                         arenaTiltakskode = "ARBTREN",
@@ -131,9 +131,9 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
                         beskrivelse = "Arbeidstrening hos Fretex",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
-                    Tiltakshistorikk.ArenaDeltakelse(
+                    TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
                         arenaTiltakskode = "MENTOR",
@@ -141,9 +141,9 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
                         beskrivelse = "Mentortiltak hos Joblearn",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
-                    Tiltakshistorikk.ArenaDeltakelse(
+                    TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ENKEL_AMO_ID,
                         arenaTiltakskode = "AMO",
@@ -151,18 +151,18 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
                         beskrivelse = "Enkelt-AMO hos Joblearn",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
-                    Tiltakshistorikk.ArbeidsgiverAvtale(
+                    TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                        tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
+                        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver("123456789"),
+                        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("123456789"),
                     ),
-                    Tiltakshistorikk.GruppetiltakDeltakelse(
+                    TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = TEAM_KOMET_GRUPPE_AMO_ID,
                         startDato = null,
@@ -172,12 +172,12 @@ class TiltakshistorikkTest : FunSpec({
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
-                        gjennomforing = Tiltakshistorikk.Gjennomforing(
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.tiltak.id,
                             navn = "Gruppe AMO",
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         ),
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                 )
             }
@@ -221,12 +221,12 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
+                val historikk = response.body<TiltakshistorikkV1Response>().historikk.map { it.id }
 
                 historikk shouldContainExactlyInAnyOrder listOf(
                     TEAM_TILTAK_ARBEIDSTRENING_ID,
@@ -249,12 +249,12 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
+                val historikk = response.body<TiltakshistorikkV1Response>().historikk.map { it.id }
 
                 historikk shouldContainExactlyInAnyOrder listOf(
                     ARENA_ENKEL_AMO_ID,

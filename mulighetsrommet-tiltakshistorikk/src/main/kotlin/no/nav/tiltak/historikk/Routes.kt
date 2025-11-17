@@ -9,7 +9,6 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
-import no.nav.mulighetsrommet.model.TiltakshistorikkRequest
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.util.*
 
@@ -21,9 +20,9 @@ fun Route.tiltakshistorikkRoutes(
     authenticate {
         route("/api/v1/historikk") {
             post {
-                val request = call.receive<TiltakshistorikkRequest>()
+                val request = call.receive<TiltakshistorikkV1Request>()
 
-                val response = service.getTiltakshistorikk(request)
+                val response: TiltakshistorikkV1Response = service.getTiltakshistorikk(request)
 
                 call.respond(response)
             }

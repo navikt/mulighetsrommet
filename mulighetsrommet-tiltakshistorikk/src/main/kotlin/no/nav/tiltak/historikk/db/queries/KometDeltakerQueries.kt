@@ -6,6 +6,7 @@ import kotliquery.queryOf
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -73,7 +74,7 @@ class KometDeltakerQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?): List<Tiltakshistorikk.GruppetiltakDeltakelse> {
+    fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?): List<TiltakshistorikkV1Dto.GruppetiltakDeltakelse> {
         @Language("PostgreSQL")
         val query = """
                 select
@@ -113,7 +114,7 @@ class KometDeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltakelse(
+private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
     norskIdent = NorskIdent(string("norsk_ident")),
     id = uuid("id"),
     startDato = localDateOrNull("start_dato"),
@@ -125,12 +126,12 @@ private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltak
         },
         opprettetDato = localDateTime("status_opprettet_dato"),
     ),
-    gjennomforing = Tiltakshistorikk.Gjennomforing(
+    gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
         id = uuid("gruppetiltak_id"),
         navn = string("gruppetiltak_navn"),
         tiltakskode = Tiltakskode.valueOf(string("gruppetiltak_tiltakskode")),
     ),
-    arrangor = Tiltakshistorikk.Arrangor(
+    arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
     ),
 )

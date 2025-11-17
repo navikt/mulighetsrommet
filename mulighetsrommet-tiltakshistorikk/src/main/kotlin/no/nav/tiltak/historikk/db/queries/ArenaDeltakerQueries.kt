@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakshistorikk
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -64,7 +64,7 @@ class ArenaDeltakerQueries(private val session: Session) {
     fun getArenaHistorikk(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): List<Tiltakshistorikk.ArenaDeltakelse> {
+    ): List<TiltakshistorikkV1Dto.ArenaDeltakelse> {
         @Language("PostgreSQL")
         val query = """
                 select
@@ -101,7 +101,7 @@ class ArenaDeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toArenaDeltakelse() = Tiltakshistorikk.ArenaDeltakelse(
+private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     norskIdent = NorskIdent(string("norsk_ident")),
     id = uuid("id"),
     arenaTiltakskode = string("arena_tiltakskode"),
@@ -109,7 +109,7 @@ private fun Row.toArenaDeltakelse() = Tiltakshistorikk.ArenaDeltakelse(
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
     beskrivelse = string("beskrivelse"),
-    arrangor = Tiltakshistorikk.Arrangor(
+    arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
     ),
 )
