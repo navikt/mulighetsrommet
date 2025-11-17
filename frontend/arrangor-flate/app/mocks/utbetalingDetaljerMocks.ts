@@ -371,3 +371,7 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
   arrUkesprisKlarTilGodkjenning,
   avklaringManedKlarTilGodkjenning,
 ];
+
+export const klarForGodkjenningIds: string[] = arrFlateUtbetaling
+  .filter((utb) => utb.status == ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING)
+  .map((utb) => utb.id);
