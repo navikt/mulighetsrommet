@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
+import no.nav.tiltak.historikk.db.queries.GruppetiltakQueries
+import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

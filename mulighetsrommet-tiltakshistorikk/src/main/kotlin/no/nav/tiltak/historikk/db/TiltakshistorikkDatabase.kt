@@ -2,8 +2,11 @@ package no.nav.tiltak.historikk.db
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
+import no.nav.tiltak.historikk.db.queries.GjennomforingQueries
+import no.nav.tiltak.historikk.db.queries.GruppetiltakQueries
+import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
+import no.nav.tiltak.historikk.db.queries.VirksomhetQueries
 
 class TiltakshistorikkDatabase(
     @PublishedApi

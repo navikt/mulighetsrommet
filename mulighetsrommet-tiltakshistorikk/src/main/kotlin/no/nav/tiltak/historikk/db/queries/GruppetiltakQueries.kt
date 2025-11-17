@@ -1,4 +1,4 @@
-package no.nav.tiltak.historikk.db
+package no.nav.tiltak.historikk.db.queries
 
 import kotliquery.Session
 import kotliquery.queryOf

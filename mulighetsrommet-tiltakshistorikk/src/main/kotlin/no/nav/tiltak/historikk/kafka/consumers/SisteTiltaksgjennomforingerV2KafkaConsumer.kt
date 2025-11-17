@@ -7,9 +7,9 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonRelaxExplicitNulls
-import no.nav.tiltak.historikk.db.GjennomforingDbo
-import no.nav.tiltak.historikk.db.GjennomforingType
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.db.queries.GjennomforingDbo
+import no.nav.tiltak.historikk.db.queries.GjennomforingType
 import java.util.*
 
 class SisteTiltaksgjennomforingerV2KafkaConsumer(

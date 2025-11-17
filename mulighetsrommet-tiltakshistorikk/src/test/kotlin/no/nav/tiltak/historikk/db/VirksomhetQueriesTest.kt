@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.databaseConfig
+import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.db.queries.VirksomhetQueries
 
 class VirksomhetQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

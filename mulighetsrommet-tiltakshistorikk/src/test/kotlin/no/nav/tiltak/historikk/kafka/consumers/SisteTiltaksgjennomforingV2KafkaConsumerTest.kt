@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
-import no.nav.tiltak.historikk.db.GjennomforingType
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.db.queries.GjennomforingType
 
 class SisteTiltaksgjennomforingV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakshistorikk
 import no.nav.tiltak.historikk.databaseConfig
+import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
