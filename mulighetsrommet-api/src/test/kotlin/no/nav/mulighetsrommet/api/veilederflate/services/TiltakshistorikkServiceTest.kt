@@ -208,7 +208,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+        coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkOppfolging, tiltakshistorikkAvklaring, tiltakshistorikkArbeidstrening),
             meldinger = setOf(),
         )
@@ -235,7 +235,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("inkluderer deltakelser fra komet når de ikke finnes i tiltakshistorikken") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+        coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
@@ -262,7 +262,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("ikke inkluder informasjon om påmelding når deltakelse er avsluttet") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+        coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
@@ -307,7 +307,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+        coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
@@ -334,7 +334,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("sorterer deltakelser basert nyeste startdato") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+        coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
             historikk = listOf(tiltakshistorikkAvklaring, tiltakshistorikkOppfolging),
             meldinger = setOf(),
         )
@@ -416,7 +416,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
 
         test("viser enkeltplasser fra Arena når feature toggle for enkeltplasser er deaktivert") {
-            coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+            coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
                 historikk = listOf(tiltakshistorikkEnkelAmo),
                 meldinger = setOf(),
             )
@@ -467,7 +467,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         }
 
         test("viser enkeltplasser fra komet når feature toggle for enkeltplasser er aktivert") {
-            coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkV1Response(
+            coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
                 historikk = listOf(tiltakshistorikkEnkelAmo),
                 meldinger = setOf(),
             )

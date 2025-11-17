@@ -20,7 +20,7 @@ class TiltakshistorikkClient(
         install(HttpCache)
     }
 
-    suspend fun historikk(identer: List<NorskIdent>, years: Int? = null): TiltakshistorikkV1Response {
+    suspend fun getHistorikk(identer: List<NorskIdent>, years: Int? = null): TiltakshistorikkV1Response {
         val response = client.post("$baseUrl/api/v1/historikk") {
             setBody(TiltakshistorikkV1Request(identer, maxAgeYears = years))
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
