@@ -3,17 +3,17 @@ package no.nav.mulighetsrommet.api.datavarehus.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltak
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakAmoDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakYrkesfagDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class DatavarehusTiltakQueries(private val session: Session) {
-    fun getTiltak(id: UUID): DatavarehusTiltak = with(session) {
+    fun getGruppetiltak(id: UUID): DatavarehusTiltakV1 {
         @Language("PostgreSQL")
         val query = """
             select gjennomforing.id,
@@ -38,13 +38,12 @@ class DatavarehusTiltakQueries(private val session: Session) {
             where gjennomforing.id = ?
         """.trimIndent()
 
-        val dto = single(queryOf(query, id)) { it.toDatavarehusTiltakDto() }
-            .let { requireNotNull(it) { "Gjennomføring med id=$id finnes ikke" } }
+        val dto = session.requireSingle(queryOf(query, id)) { it.toDatavarehusTiltakDto() }
 
         return when (dto.tiltakskode) {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> {
                 val utdanningslop = getUtdanningslop(id)
-                DatavarehusTiltakYrkesfagDto(
+                DatavarehusTiltakV1YrkesfagDto(
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
@@ -54,7 +53,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 val amoKategorisering = getAmoKategorisering(id)
-                DatavarehusTiltakAmoDto(
+                DatavarehusTiltakV1AmoDto(
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
@@ -66,63 +65,46 @@ class DatavarehusTiltakQueries(private val session: Session) {
         }
     }
 
-    private fun getUtdanningslop(id: UUID): DatavarehusTiltakYrkesfagDto.Utdanningslop? = with(session) {
+    fun getEnkeltplass(id: UUID): DatavarehusTiltakV1 {
         @Language("PostgreSQL")
-        val utdanningsprogramQuery = """
-            select program.id,
-                   program.navn,
-                   program.created_at as opprettet_tidspunkt,
-                   program.updated_at as oppdatert_tidspunkt,
-                   program.nus_koder
+        val query = """
+            select enkeltplass.id,
+                   enkeltplass.arena_tiltaksnummer,
+                   enkeltplass.created_at     as opprettet_tidspunkt,
+                   enkeltplass.updated_at     as oppdatert_tidspunkt,
+                   tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
+                   arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
+            from enkeltplass
+                     join tiltakstype on enkeltplass.tiltakstype_id = tiltakstype.id
+                     join arrangor on enkeltplass.arrangor_id = arrangor.id
+            where enkeltplass.id = ?
+        """.trimIndent()
+
+        // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
+        return session.requireSingle(queryOf(query, id)) { it.toDatavarehusEnkeltplassDto() }
+    }
+
+    private fun getUtdanningslop(id: UUID): DatavarehusTiltakV1YrkesfagDto.Utdanningslop? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                program.id as utdanningsprogram_id,
+                array_agg(utdanning.id) as utdanning_ids
             from gjennomforing_utdanningsprogram
-                    join utdanningsprogram program on utdanningsprogram_id = program.id
-            where gjennomforing_id = ?
+                join utdanningsprogram program on gjennomforing_utdanningsprogram.utdanningsprogram_id = program.id
+                join utdanning on gjennomforing_utdanningsprogram.utdanning_id = utdanning.id
+            where gjennomforing_utdanningsprogram.gjennomforing_id = ?
             group by program.id
         """.trimIndent()
 
-        val utdanningsprogram = single(queryOf(utdanningsprogramQuery, id)) {
-            DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanningsprogram(
-                id = it.uuid("id"),
-                navn = it.string("navn"),
-                opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
-                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                nusKoder = it.array<String>("nus_koder").toList(),
-            )
+        return session.single(queryOf(query, id)) { row ->
+            val utdanningsprogramId = row.uuid("utdanningsprogram_id")
+            val utdanningIds = row.array<UUID>("utdanning_ids").toSet()
+            DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogramId, utdanningIds)
         }
-
-        if (utdanningsprogram == null) {
-            return null
-        }
-
-        @Language("PostgreSQL")
-        val utdanningerQuery = """
-            select utdanning.id,
-                   utdanning.navn,
-                   utdanning.sluttkompetanse,
-                   utdanning.created_at as opprettet_tidspunkt,
-                   utdanning.updated_at as oppdatert_tidspunkt,
-                   utdanning.nus_koder
-            from gjennomforing_utdanningsprogram
-                    join utdanning on gjennomforing_utdanningsprogram.utdanning_id = utdanning.id
-            where gjennomforing_id = ?
-            group by utdanning.id;
-        """.trimIndent()
-
-        val utdanninger = list(queryOf(utdanningerQuery, id)) { row ->
-            DatavarehusTiltakYrkesfagDto.Utdanningslop.Utdanning(
-                id = row.uuid("id"),
-                navn = row.string("navn"),
-                sluttkompetanse = row.stringOrNull("sluttkompetanse")?.let { Utdanning.Sluttkompetanse.valueOf(it) },
-                opprettetTidspunkt = row.localDateTime("opprettet_tidspunkt"),
-                oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
-                nusKoder = row.array<String>("nus_koder").toList(),
-            )
-        }
-
-        return DatavarehusTiltakYrkesfagDto.Utdanningslop(utdanningsprogram, utdanninger.toSet())
     }
 
-    private fun getAmoKategorisering(id: UUID): AmoKategorisering? = with(session) {
+    private fun getAmoKategorisering(id: UUID): AmoKategorisering? {
         @Language("PostgreSQL")
         val sertifiseringQuery = """
             select s.label,
@@ -132,7 +114,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
             where k.gjennomforing_id = ?
         """.trimIndent()
 
-        val sertifiseringer = list(queryOf(sertifiseringQuery, id)) {
+        val sertifiseringer = session.list(queryOf(sertifiseringQuery, id)) {
             AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
                 konseptId = it.long("konsept_id"),
                 label = it.string("label"),
@@ -150,7 +132,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
             where gjennomforing_id = ?
         """.trimIndent()
 
-        return single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
+        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
     }
 }
 
@@ -189,34 +171,59 @@ private fun Row.toAmoKategorisering(
     }
 }
 
-private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakDto(
+private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakV1Dto(
     tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
     avtale = uuidOrNull("avtale_id")?.let {
-        DatavarehusTiltak.Avtale(
+        DatavarehusTiltakV1.Avtale(
             id = it,
             navn = string("avtale_navn"),
             opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
             oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
         )
     },
-    gjennomforing = DatavarehusTiltak.Gjennomforing(
+    gjennomforing = DatavarehusTiltakV1.Gjennomforing(
         id = uuid("id"),
-        navn = string("navn"),
-        startDato = localDate("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
         opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
         oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-        status = GjennomforingStatusType.valueOf(string("status")),
-        deltidsprosent = double("deltidsprosent"),
-        arrangor = DatavarehusTiltak.Arrangor(
+        arrangor = DatavarehusTiltakV1.Arrangor(
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
         ),
         arena = stringOrNull("tiltaksnummer")?.let {
             val tiltaksnummmer = Tiltaksnummer(it)
-            DatavarehusTiltak.ArenaData(
+            DatavarehusTiltakV1.ArenaData(
                 aar = tiltaksnummmer.aar,
                 lopenummer = tiltaksnummmer.lopenummer,
             )
         },
+        navn = string("navn"),
+        startDato = localDate("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        status = GjennomforingStatusType.valueOf(string("status")),
+        deltidsprosent = double("deltidsprosent"),
+    ),
+)
+
+private fun Row.toDatavarehusEnkeltplassDto() = DatavarehusTiltakV1Dto(
+    tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+    avtale = null,
+    gjennomforing = DatavarehusTiltakV1.Gjennomforing(
+        id = uuid("id"),
+        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        arrangor = DatavarehusTiltakV1.Arrangor(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        ),
+        arena = stringOrNull("arena_tiltaksnummer")?.let {
+            val tiltaksnummmer = Tiltaksnummer(it)
+            DatavarehusTiltakV1.ArenaData(
+                aar = tiltaksnummmer.aar,
+                lopenummer = tiltaksnummmer.lopenummer,
+            )
+        },
+        navn = null,
+        startDato = null,
+        sluttDato = null,
+        status = null,
+        deltidsprosent = null,
     ),
 )
