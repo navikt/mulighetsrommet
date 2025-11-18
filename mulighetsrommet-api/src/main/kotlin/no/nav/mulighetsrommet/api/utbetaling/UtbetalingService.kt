@@ -336,6 +336,8 @@ class UtbetalingService(
             UtbetalingStatusType.GENERERT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
             ->
                 return FieldError.root(
                     "Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}",
@@ -702,6 +704,8 @@ class UtbetalingService(
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
                     -> false
                 }
             },
@@ -714,6 +718,8 @@ class UtbetalingService(
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
                     -> false
                 }
             },

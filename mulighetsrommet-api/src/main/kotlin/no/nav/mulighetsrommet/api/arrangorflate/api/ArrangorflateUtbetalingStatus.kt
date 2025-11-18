@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import no.nav.mulighetsrommet.api.utbetaling.model.Delutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
 enum class ArrangorflateUtbetalingStatus {
@@ -10,12 +8,12 @@ enum class ArrangorflateUtbetalingStatus {
     UTBETALT,
     KREVER_ENDRING,
     OVERFORT_TIL_UTBETALING,
+    DELVIS_UTBETALT,
     ;
 
     companion object {
         fun fromUtbetaling(
             status: UtbetalingStatusType,
-            delutbetalinger: List<Delutbetaling>,
             harAdvarsler: Boolean,
         ): ArrangorflateUtbetalingStatus = when (status) {
             UtbetalingStatusType.GENERERT -> {
@@ -29,13 +27,9 @@ enum class ArrangorflateUtbetalingStatus {
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             -> BEHANDLES_AV_NAV
-            UtbetalingStatusType.FERDIG_BEHANDLET -> {
-                if (delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT }) {
-                    UTBETALT
-                } else {
-                    OVERFORT_TIL_UTBETALING
-                }
-            }
+            UtbetalingStatusType.FERDIG_BEHANDLET -> OVERFORT_TIL_UTBETALING
+            UtbetalingStatusType.DELVIS_UTBETALT -> DELVIS_UTBETALT
+            UtbetalingStatusType.UTBETALT -> UTBETALT
         }
 
         fun toReadableName(status: ArrangorflateUtbetalingStatus): String {
@@ -45,6 +39,7 @@ enum class ArrangorflateUtbetalingStatus {
                 UTBETALT -> "Utbetalt"
                 KREVER_ENDRING -> "Krever endring"
                 OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
+                DELVIS_UTBETALT -> "Delvis utbetalt"
             }
         }
     }
