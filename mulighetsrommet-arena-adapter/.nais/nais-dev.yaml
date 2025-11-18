@@ -79,3 +79,6 @@ spec:
         - host: slack.com
   envFrom:
     - secret: mulighetsrommet-arena-adapter
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: "-XX:MaxRAMPercentage=60.0"
