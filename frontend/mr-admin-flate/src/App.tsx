@@ -41,9 +41,12 @@ import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/Red
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { createHead, UnheadProvider } from "@unhead/react/client";
+import { Head } from "@unhead/react";
 
 const basename = import.meta.env.BASE_URL;
+
+const head = createHead();
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -63,15 +66,23 @@ export function App() {
 
 function AppLayout() {
   return (
-    <HelmetProvider>
-      <Helmet>
+    <UnheadProvider head={head}>
+      <Head>
         <script
           defer
           src="https://cdn.nav.no/team-researchops/sporing/sporing.js"
           data-host-url="https://umami.nav.no"
+          data-domains="tiltaksadministrasjon.intern.dev.nav.no"
           data-website-id="7b4a1f84-e34c-46d9-ae4a-de244d3c9ea9"
-        ></script>
-      </Helmet>
+        />
+        <script
+          defer
+          src="https://cdn.nav.no/team-researchops/sporing/sporing.js"
+          data-host-url="https://umami.nav.no"
+          data-domains="tiltaksadministrasjon.intern.nav.no, tiltaksadministrasjon.ansatt.nav.no"
+          data-website-id="182ed73a-eaa9-4ea0-9e30-7a0a74c5c396"
+        />
+      </Head>
       <Page background="bg-subtle">
         <Page.Block as="header" className="max-w-[1920px]">
           <AdministratorHeader />
@@ -84,7 +95,7 @@ function AppLayout() {
           </Suspense>
         </Page.Block>
       </Page>
-    </HelmetProvider>
+    </UnheadProvider>
   );
 }
 
