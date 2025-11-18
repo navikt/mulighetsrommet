@@ -26,6 +26,7 @@ class DatabaseUtilsTest : FunSpec({
             "!2015/1213".toFTSPrefixQuery() shouldBe "2015/1213:*"
             "'2015/1213".toFTSPrefixQuery() shouldBe "2015/1213:*"
             "\"2015/1213".toFTSPrefixQuery() shouldBe "2015/1213:*"
+            "2015<1213".toFTSPrefixQuery() shouldBe "20151213:*"
         }
     }
 })
