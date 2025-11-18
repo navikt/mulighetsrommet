@@ -43,6 +43,11 @@ class TidligstTidspunktForUtbetalingTest : FunSpec({
                 Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2025, 11, 15)),
                 LocalDate.of(2026, 1, 6).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant(),
             ),
+            row(
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+                Periode.forMonthOf(LocalDate.of(2025, 11, 1)),
+                LocalDate.of(2026, 1, 6).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant(),
+            ),
         ) { tiltakskode, periode, expectedTidspunktForUtbetaling ->
             tidligstTidspunktForUtbetalingProd.calculate(tiltakskode, periode) shouldBe expectedTidspunktForUtbetaling
         }
@@ -52,7 +57,6 @@ class TidligstTidspunktForUtbetalingTest : FunSpec({
         val periode = Periode.forMonthOf(LocalDate.of(2025, 10, 1))
         forAll(
             row(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-            row(Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK),
             row(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING),
             row(Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING),
             row(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING),
