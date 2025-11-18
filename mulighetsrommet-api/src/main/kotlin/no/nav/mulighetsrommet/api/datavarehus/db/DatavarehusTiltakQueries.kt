@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -85,63 +84,27 @@ class DatavarehusTiltakQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { it.toDatavarehusEnkeltplassDto() }
     }
 
-    private fun getUtdanningslop(id: UUID): DatavarehusTiltakV1YrkesfagDto.Utdanningslop? = with(session) {
+    private fun getUtdanningslop(id: UUID): DatavarehusTiltakV1YrkesfagDto.Utdanningslop? {
         @Language("PostgreSQL")
-        val utdanningsprogramQuery = """
-            select program.id,
-                   program.navn,
-                   program.created_at as opprettet_tidspunkt,
-                   program.updated_at as oppdatert_tidspunkt,
-                   program.nus_koder
+        val query = """
+            select
+                program.id as utdanningsprogram_id,
+                array_agg(utdanning.id) as utdanning_ids
             from gjennomforing_utdanningsprogram
-                    join utdanningsprogram program on utdanningsprogram_id = program.id
-            where gjennomforing_id = ?
+                join utdanningsprogram program on gjennomforing_utdanningsprogram.utdanningsprogram_id = program.id
+                join utdanning on gjennomforing_utdanningsprogram.utdanning_id = utdanning.id
+            where gjennomforing_utdanningsprogram.gjennomforing_id = ?
             group by program.id
         """.trimIndent()
 
-        val utdanningsprogram = single(queryOf(utdanningsprogramQuery, id)) {
-            DatavarehusTiltakV1YrkesfagDto.Utdanningslop.Utdanningsprogram(
-                id = it.uuid("id"),
-                navn = it.string("navn"),
-                opprettetTidspunkt = it.localDateTime("opprettet_tidspunkt"),
-                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
-                nusKoder = it.array<String>("nus_koder").toList(),
-            )
+        return session.single(queryOf(query, id)) { row ->
+            val utdanningsprogramId = row.uuid("utdanningsprogram_id")
+            val utdanningIds = row.array<UUID>("utdanning_ids").toSet()
+            DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogramId, utdanningIds)
         }
-
-        if (utdanningsprogram == null) {
-            return null
-        }
-
-        @Language("PostgreSQL")
-        val utdanningerQuery = """
-            select utdanning.id,
-                   utdanning.navn,
-                   utdanning.sluttkompetanse,
-                   utdanning.created_at as opprettet_tidspunkt,
-                   utdanning.updated_at as oppdatert_tidspunkt,
-                   utdanning.nus_koder
-            from gjennomforing_utdanningsprogram
-                    join utdanning on gjennomforing_utdanningsprogram.utdanning_id = utdanning.id
-            where gjennomforing_id = ?
-            group by utdanning.id;
-        """.trimIndent()
-
-        val utdanninger = list(queryOf(utdanningerQuery, id)) { row ->
-            DatavarehusTiltakV1YrkesfagDto.Utdanningslop.Utdanning(
-                id = row.uuid("id"),
-                navn = row.string("navn"),
-                sluttkompetanse = row.stringOrNull("sluttkompetanse")?.let { Utdanning.Sluttkompetanse.valueOf(it) },
-                opprettetTidspunkt = row.localDateTime("opprettet_tidspunkt"),
-                oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
-                nusKoder = row.array<String>("nus_koder").toList(),
-            )
-        }
-
-        return DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogram, utdanninger.toSet())
     }
 
-    private fun getAmoKategorisering(id: UUID): AmoKategorisering? = with(session) {
+    private fun getAmoKategorisering(id: UUID): AmoKategorisering? {
         @Language("PostgreSQL")
         val sertifiseringQuery = """
             select s.label,
@@ -151,7 +114,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
             where k.gjennomforing_id = ?
         """.trimIndent()
 
-        val sertifiseringer = list(queryOf(sertifiseringQuery, id)) {
+        val sertifiseringer = session.list(queryOf(sertifiseringQuery, id)) {
             AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
                 konseptId = it.long("konsept_id"),
                 label = it.string("label"),
@@ -169,7 +132,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
             where gjennomforing_id = ?
         """.trimIndent()
 
-        return single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
+        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
     }
 }
 

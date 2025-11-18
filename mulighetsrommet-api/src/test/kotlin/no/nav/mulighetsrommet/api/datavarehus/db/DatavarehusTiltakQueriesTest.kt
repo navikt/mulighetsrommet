@@ -214,40 +214,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
-                    it.utdanningsprogram.id shouldBe idForUtdanningsprogram
-                    it.utdanningsprogram.navn shouldBe "Sveiseprogram"
-                    it.utdanningsprogram.nusKoder shouldBe listOf("1234", "2345")
-                    it.utdanningsprogram.opprettetTidspunkt.shouldNotBeNull()
-                    it.utdanningsprogram.oppdatertTidspunkt.shouldNotBeNull()
-
-                    it.utdanninger.shouldHaveSingleElement { utdanning ->
-                        utdanning.equalsIgnoring(
-                            DatavarehusTiltakV1YrkesfagDto.Utdanningslop.Utdanning(
-                                id = idForSveisefag,
-                                navn = "Sveisefag",
-                                sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
-                                nusKoder = listOf("12345"),
-                                opprettetTidspunkt = LocalDateTime.now(),
-                                oppdatertTidspunkt = LocalDateTime.now(),
-                            ),
-                            "opprettetTidspunkt",
-                            "oppdatertTidspunkt",
-                        )
-                    }
-                    it.utdanninger.shouldHaveSingleElement { utdanning ->
-                        utdanning.equalsIgnoring(
-                            DatavarehusTiltakV1YrkesfagDto.Utdanningslop.Utdanning(
-                                id = idForSveisefagUnderVann,
-                                navn = "Sveisefag under vann",
-                                sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
-                                nusKoder = listOf("23456"),
-                                opprettetTidspunkt = LocalDateTime.now(),
-                                oppdatertTidspunkt = LocalDateTime.now(),
-                            ),
-                            "opprettetTidspunkt",
-                            "oppdatertTidspunkt",
-                        )
-                    }
+                    it.utdanningsprogram shouldBe idForUtdanningsprogram
+                    it.utdanninger shouldBe setOf(idForSveisefag, idForSveisefagUnderVann)
                 }
             }
         }

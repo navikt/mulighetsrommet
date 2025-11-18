@@ -85,32 +85,11 @@ data class DatavarehusTiltakV1YrkesfagDto(
 ) : DatavarehusTiltakV1() {
     @Serializable
     data class Utdanningslop(
-        val utdanningsprogram: Utdanningsprogram,
-        val utdanninger: Set<Utdanning>,
-    ) {
-        @Serializable
-        data class Utdanningsprogram(
+        @Serializable(with = UUIDSerializer::class)
+        val utdanningsprogram: UUID,
+        val utdanninger: Set<
             @Serializable(with = UUIDSerializer::class)
-            val id: UUID,
-            val navn: String,
-            @Serializable(with = LocalDateTimeSerializer::class)
-            val opprettetTidspunkt: LocalDateTime,
-            @Serializable(with = LocalDateTimeSerializer::class)
-            val oppdatertTidspunkt: LocalDateTime,
-            val nusKoder: List<String>,
-        )
-
-        @Serializable
-        data class Utdanning(
-            @Serializable(with = UUIDSerializer::class)
-            val id: UUID,
-            val navn: String,
-            val sluttkompetanse: Sluttkompetanse?,
-            @Serializable(with = LocalDateTimeSerializer::class)
-            val opprettetTidspunkt: LocalDateTime,
-            @Serializable(with = LocalDateTimeSerializer::class)
-            val oppdatertTidspunkt: LocalDateTime,
-            val nusKoder: List<String>,
-        )
-    }
+            UUID,
+            >,
+    )
 }
