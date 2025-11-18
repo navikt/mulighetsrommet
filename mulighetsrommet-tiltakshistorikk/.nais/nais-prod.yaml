@@ -78,3 +78,6 @@ spec:
           namespace: team-tiltak
       external:
         - host: data.brreg.no
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: "-XX:MaxRAMPercentage=60.0"

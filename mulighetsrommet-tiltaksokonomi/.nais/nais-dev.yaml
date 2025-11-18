@@ -82,3 +82,6 @@ spec:
         - host: oebs-po-ap-api-q1.dev-fss-pub.nais.io
   envFrom:
     - secret: tiltaksokonomi
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: "-XX:MaxRAMPercentage=60.0"
