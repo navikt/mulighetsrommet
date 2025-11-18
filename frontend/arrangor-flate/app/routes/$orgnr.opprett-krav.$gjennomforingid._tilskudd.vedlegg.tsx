@@ -1,4 +1,4 @@
-import { BodyShort, ErrorSummary, GuidePanel, Heading, VStack } from "@navikt/ds-react";
+import { BodyShort, ErrorSummary, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
 import {
   ActionFunction,
   Form,
@@ -224,7 +224,14 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
             tilhørerende fakturering er i henhold til avtalen.
           </BodyShort>
           <BodyShort>
-            Fakturavedleggsskjema eller tilsvarende dokumentasjon skal lastes opp under.
+            <Link
+              inlineText
+              target="_blank"
+              href="https://www.nav.no/samarbeidspartner/faktura-tiltak/#fakturavedlegg"
+            >
+              Fakturavedleggsskjema
+            </Link>{" "}
+            eller tilsvarende dokumentasjon skal lastes opp under.
           </BodyShort>
         </GuidePanel>
       );
