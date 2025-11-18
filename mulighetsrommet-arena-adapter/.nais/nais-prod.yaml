@@ -21,7 +21,7 @@ spec:
       cpu: 50m
       memory: 512Mi
     limits:
-      memory: 2048Mi
+      memory: 4096Mi
   liveness:
     path: /internal/liveness
     initialDelay: 20
