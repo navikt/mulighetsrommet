@@ -73,7 +73,7 @@ object DatabaseUtils {
         .trim()
         .split("\\s+".toRegex())
         .mapNotNull { token ->
-            val cleaned = token.replace(Regex("""[?`*&|!():'"\\]"""), "")
+            val cleaned = token.replace(Regex("""[<?`*&|!():'"\\]"""), "")
             if (cleaned.isNotBlank()) "$cleaned:*" else null
         }
         .joinToString(" & ")
