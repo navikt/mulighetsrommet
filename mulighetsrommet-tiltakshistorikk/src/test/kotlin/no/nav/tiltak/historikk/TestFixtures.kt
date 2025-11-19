@@ -61,7 +61,7 @@ object TestFixtures {
         registrertDato = LocalDateTime.of(2022, 1, 1, 0, 0),
         endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
         dagerPerUke = 2.5f,
-        prosentStilling = null,
+        prosentStilling = 50f,
         deltakelsesmengder = listOf(),
     )
 }

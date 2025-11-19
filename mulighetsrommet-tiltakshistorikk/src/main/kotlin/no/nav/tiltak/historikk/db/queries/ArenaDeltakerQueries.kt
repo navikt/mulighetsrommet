@@ -107,7 +107,9 @@ class ArenaDeltakerQueries(private val session: Session) {
                     start_dato,
                     slutt_dato,
                     beskrivelse,
-                    arrangor_organisasjonsnummer
+                    arrangor_organisasjonsnummer,
+                    deltidsprosent,
+                    dager_per_uke
                 from arena_deltaker
                 where norsk_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(slutt_dato, arena_reg_dato)) < make_interval(years => :max_age_years::integer))
@@ -146,5 +148,8 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        navn = null,
     ),
+    deltidsprosent = floatOrNull("deltidsprosent"),
+    dagerPerUke = floatOrNull("dager_per_uke"),
 )
