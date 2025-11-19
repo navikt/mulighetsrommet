@@ -162,7 +162,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "MENTOR",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
@@ -175,7 +177,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
 
@@ -196,7 +200,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
 
@@ -286,8 +292,11 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,
                             navn = gruppeAmo.navn,
+                            deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
             }
