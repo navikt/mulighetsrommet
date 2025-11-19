@@ -136,3 +136,14 @@ export enum TimelineDtoRowPeriodVariant {
   DANGER = "danger",
   NEUTRAL = "neutral",
 }
+
+export type LabeledDataElement = {
+  type: LabeledDataElementType;
+  label: string;
+  value: null | DataElement;
+};
+
+export enum LabeledDataElementType {
+  INLINE = "INLINE",
+  MULTILINE = "MULTILINE",
+}

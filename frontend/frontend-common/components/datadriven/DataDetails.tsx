@@ -1,7 +1,7 @@
-import { type LabeledDataElement, LabeledDataElementType } from "@tiltaksadministrasjon/api-client";
-import { BodyLong, VStack } from "@navikt/ds-react";
-import { Metadata, MetadataHorisontal } from "../detaljside/Metadata";
-import { getDataElement } from "@mr/frontend-common";
+import { VStack } from "@navikt/ds-react";
+import { type LabeledDataElement, LabeledDataElementType } from "./types";
+import { getDataElement } from "./DataElement";
+import { MetadataFritekstfelt, MetadataHorisontal } from "./Metadata";
 
 export interface DataElementProps {
   entries: LabeledDataElement[];
@@ -24,11 +24,6 @@ function LabeledDataElement(props: LabeledDataElement) {
     case LabeledDataElementType.INLINE:
       return <MetadataHorisontal header={props.label} value={valueOrFallback} />;
     case LabeledDataElementType.MULTILINE:
-      return (
-        <Metadata
-          header={props.label}
-          value={<BodyLong className="whitespace-pre-line">{valueOrFallback}</BodyLong>}
-        />
-      );
+      return <MetadataFritekstfelt header={props.label} value={valueOrFallback} />;
   }
 }

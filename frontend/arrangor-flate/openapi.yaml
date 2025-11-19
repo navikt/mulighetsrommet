@@ -1732,8 +1732,6 @@ components:
       properties:
         displayName:
           type: string
-        detaljer:
-          $ref: "#/components/schemas/Details"
         belop:
           type: integer
           format: int32
@@ -1747,13 +1745,51 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/DataDrivenTableDto"
+        satsDetaljer:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDetails"
       required:
       - belop
       - deltakelser
-      - detaljer
       - digest
       - displayName
+      - satsDetaljer
       - stengt
+    DataDetails:
+      type: object
+      properties:
+        header:
+          type:
+          - "null"
+          - string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/LabeledDataElement"
+      required:
+      - entries
+      - header
+    LabeledDataElement:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
+          type: string
+        value:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataElement"
+      required:
+      - label
+      - type
+      - value
+    LabeledDataElementType:
+      type: string
+      enum:
+      - INLINE
+      - MULTILINE
     ArrangforflateUtbetalingLinje:
       type: object
       properties:
