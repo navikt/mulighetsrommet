@@ -70,7 +70,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
         fun createProcessor(
             engine: HttpClientEngine = createMockEngine(),
-            tiltakskoder: Set<String> = setOf("INDOPPFAG"),
         ): TiltakgjennomforingEventProcessor {
             val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
                 "Bearer token"
@@ -85,7 +84,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             return TiltakgjennomforingEventProcessor(
-                config = TiltakgjennomforingEventProcessor.Config(tiltakskoder = tiltakskoder),
+                config = TiltakgjennomforingEventProcessor.Config(),
                 entities = entities,
                 ords = ords,
                 mulighetsrommetApiClient = client,
@@ -184,7 +183,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
             }
 
-            test("skal sende gjennomføring til tiltakshistorikk når tiltakskoden ikke er markert for migrering") {
+            test("skal sende gjennomføring til tiltakshistorikk når tiltaket ikke administreres i Tiltaksadministrasjon") {
                 val engine = createMockEngine {
                     get("/ords/arbeidsgiver") {
                         respondJson(
@@ -196,7 +195,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     }
                 }
 
-                val processor = createProcessor(engine, tiltakskoder = setOf("INDOPPFAG"))
+                val processor = createProcessor(engine)
 
                 val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
                     Insert,
@@ -214,44 +213,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     decodeRequestBody<TiltakshistorikkArenaGjennomforing>().apply {
                         id shouldBe mapping.entityId
                         arrangorOrganisasjonsnummer shouldBe Organisasjonsnummer("123456789")
-                        deltidsprosent shouldBe 100.0
-                    }
-                }
-            }
-
-            test("skal sende gjennomføringene til mr-api når tiltakskoden er markert for migrering") {
-                val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    }
-                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
-                        respondJson(UpsertTiltaksgjennomforingResponse(sanityId = null))
-                    }
-                }
-                val processor = createProcessor(engine, tiltakskoder = setOf("INDOPPFAG", "AMO"))
-
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ),
-                )
-
-                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
-
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Put
-
-                    decodeRequestBody<ArenaGjennomforingDbo>().apply {
-                        id shouldBe mapping.entityId
-                        tiltakstypeId shouldBe tiltakstype.id
-                        tiltaksnummer shouldBe "2022#123"
-                        arrangorOrganisasjonsnummer shouldBe "123456"
-                        startDato shouldBe LocalDate.of(2022, 10, 10)
-                        sluttDato shouldBe null
-                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                         deltidsprosent shouldBe 100.0
                     }
                 }

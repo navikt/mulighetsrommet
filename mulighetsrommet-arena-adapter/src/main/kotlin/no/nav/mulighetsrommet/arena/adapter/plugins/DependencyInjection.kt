@@ -142,7 +142,6 @@ private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Mo
             TiltakgjennomforingEventProcessor(
                 config = TiltakgjennomforingEventProcessor.Config(
                     retryUpsertTimes = 10,
-                    tiltakskoder = config.migrering.tiltakskoder,
                 ),
                 get(),
                 get(),

@@ -51,6 +51,14 @@ class TiltakshistorikkClient(
         return onSuccess(response) { OkResponse }
     }
 
+    suspend fun setArenaDeltakerGjennomforingId(dbo: TiltakshistorikkArenaDeltakerGjennomforingId): Either<ResponseException, OkResponse> {
+        val response = client.put("$baseUrl/api/v1/intern/arena/deltaker-gjennomforing-id") {
+            setBody(dbo)
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
+        }
+        return onSuccess(response) { OkResponse }
+    }
+
     suspend fun upsertArenaDeltaker(dbo: TiltakshistorikkArenaDeltaker): Either<ResponseException, OkResponse> {
         val response = client.put("$baseUrl/api/v1/intern/arena/deltaker") {
             setBody(dbo)

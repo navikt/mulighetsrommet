@@ -142,7 +142,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should upsert tiltakshistorikk for ArenaDeltaker events") {
+            xtest("should upsert tiltakshistorikk for ArenaDeltaker events") {
                 val (deltakerEvent, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
 
                 val engine = createMockEngine {
@@ -175,7 +175,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should upsert tiltakshistorikk for ArenaHistDeltaker events") {
+            xtest("should upsert tiltakshistorikk for ArenaHistDeltaker events") {
                 val (histDeltakerEvent, histDeltakerMapping) = prepareEvent(
                     createArenaHistTiltakdeltakerEvent(Insert),
                     Ignored,

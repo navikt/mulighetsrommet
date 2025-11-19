@@ -19,7 +19,6 @@ val ApplicationConfigProd = AppConfig(
         port = 8084,
         host = "0.0.0.0",
     ),
-    migrering = MigreringConfig(),
     enableFailedRecordProcessor = true,
     tasks = TaskConfig(
         retryFailedEvents = RetryFailedEvents.Config(
@@ -41,7 +40,7 @@ val ApplicationConfigProd = AppConfig(
         ),
         arenaEventService = ArenaEventService.Config(
             channelCapacity = 1000,
-            numChannelConsumers = 10,
+            numChannelConsumers = 50,
             maxRetries = 10,
         ),
         arenaOrdsProxy = ServiceClientConfig(

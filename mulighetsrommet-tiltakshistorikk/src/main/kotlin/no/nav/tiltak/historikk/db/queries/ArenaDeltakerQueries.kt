@@ -19,6 +19,7 @@ class ArenaDeltakerQueries(private val session: Session) {
         val query = """
             insert into arena_deltaker (id,
                                         norsk_ident,
+                                        arena_gjennomforing_id,
                                         arena_tiltakskode,
                                         status,
                                         start_dato,
@@ -31,6 +32,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                                         deltidsprosent)
             values (:id::uuid,
                     :norsk_ident,
+                    :arena_gjennomforing_id,
                     :arena_tiltakskode,
                     :status::arena_deltaker_status,
                     :start_dato,
@@ -42,6 +44,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                     :dager_per_uke,
                     :deltidsprosent)
             on conflict (id) do update set norsk_ident                  = excluded.norsk_ident,
+                                           arena_gjennomforing_id       = excluded.arena_gjennomforing_id,
                                            arena_tiltakskode            = excluded.arena_tiltakskode,
                                            status                       = excluded.status,
                                            start_dato                   = excluded.start_dato,
@@ -57,6 +60,7 @@ class ArenaDeltakerQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to deltaker.id,
+            "arena_gjennomforing_id" to deltaker.arenaGjennomforingId,
             "norsk_ident" to deltaker.norskIdent.value,
             "arena_tiltakskode" to deltaker.arenaTiltakskode,
             "status" to deltaker.status.name,
@@ -68,6 +72,22 @@ class ArenaDeltakerQueries(private val session: Session) {
             "arrangor_organisasjonsnummer" to deltaker.arrangorOrganisasjonsnummer.value,
             "dager_per_uke" to deltaker.dagerPerUke,
             "deltidsprosent" to deltaker.deltidsprosent,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun setArenaGjennomforignId(id: UUID, arenaGjennomforignId: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            update arena_deltaker
+            set arena_gjennomforing_id = :arena_gjennomforing_id::uuid
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "arena_gjennomforing_id" to arenaGjennomforignId,
         )
 
         session.execute(queryOf(query, params))
@@ -87,7 +107,9 @@ class ArenaDeltakerQueries(private val session: Session) {
                     start_dato,
                     slutt_dato,
                     beskrivelse,
-                    arrangor_organisasjonsnummer
+                    arrangor_organisasjonsnummer,
+                    deltidsprosent,
+                    dager_per_uke
                 from arena_deltaker
                 where norsk_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(slutt_dato, arena_reg_dato)) < make_interval(years => :max_age_years::integer))
@@ -126,5 +148,8 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        navn = null,
     ),
+    deltidsprosent = floatOrNull("deltidsprosent"),
+    dagerPerUke = floatOrNull("dager_per_uke"),
 )

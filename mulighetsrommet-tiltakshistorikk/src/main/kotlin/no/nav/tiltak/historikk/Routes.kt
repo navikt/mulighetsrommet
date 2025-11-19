@@ -51,7 +51,6 @@ fun Route.tiltakshistorikkRoutes(
             put("/deltaker") {
                 val dbo = call.receive<TiltakshistorikkArenaDeltaker>()
 
-                virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
                 db.session { queries.arenaDeltaker.upsertArenaDeltaker(dbo) }
 
                 call.respond(HttpStatusCode.OK)
@@ -61,6 +60,14 @@ fun Route.tiltakshistorikkRoutes(
                 val id: UUID by call.parameters
 
                 db.session { queries.arenaDeltaker.deleteArenaDeltaker(id) }
+
+                call.respond(HttpStatusCode.OK)
+            }
+
+            put("/deltaker-gjennomforing-id") {
+                val dbo = call.receive<TiltakshistorikkArenaDeltakerGjennomforingId>()
+
+                db.session { queries.arenaDeltaker.setArenaGjennomforignId(dbo.id, dbo.arenaGjennomforingId) }
 
                 call.respond(HttpStatusCode.OK)
             }

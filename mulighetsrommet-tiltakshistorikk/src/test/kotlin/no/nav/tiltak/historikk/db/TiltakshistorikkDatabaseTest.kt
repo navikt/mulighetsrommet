@@ -104,6 +104,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     context("Arena deltaker") {
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
+            arenaGjennomforingId = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "ARBTREN",
             status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -119,6 +120,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
+            arenaGjennomforingId = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "MENTOR",
             status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -160,7 +162,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "MENTOR",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
@@ -173,7 +177,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
 
@@ -194,7 +200,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
 
@@ -210,6 +218,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         test("filtrerer Arena-deltakere basert på maxAgeYears") {
             val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
                 id = UUID.randomUUID(),
+                arenaGjennomforingId = UUID.randomUUID(),
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "MENTOR",
                 status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -283,8 +292,11 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,
                             navn = gruppeAmo.navn,
+                            deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123"), null),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
             }
@@ -400,6 +412,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             db.transaction {
                 val deltaker1 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
+                    arenaGjennomforingId = UUID.randomUUID(),
                     norskIdent = NorskIdent("11111111111"),
                     arenaTiltakskode = "ARBTREN",
                     status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -415,6 +428,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 val deltaker2 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
+                    arenaGjennomforingId = UUID.randomUUID(),
                     norskIdent = NorskIdent("22222222222"),
                     arenaTiltakskode = "MENTOR",
                     status = ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
