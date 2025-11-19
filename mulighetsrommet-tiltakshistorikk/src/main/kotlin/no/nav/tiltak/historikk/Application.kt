@@ -90,8 +90,6 @@ fun Application.configure(config: AppConfig) {
         tiltakshistorikkRoutes(kafka, db, tiltakshistorikk, virksomheter)
     }
 
-    virksomheter.syncAlleVirksomheterUtenNavn(this)
-
     monitor.subscribe(ApplicationStopPreparing) {
         log.info("ApplicationStopPreparing")
         attributes.put(IsReadyState, false)
