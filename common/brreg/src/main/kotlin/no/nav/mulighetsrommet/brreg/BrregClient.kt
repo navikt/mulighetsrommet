@@ -37,13 +37,10 @@ class BrregClient(
     }
 
     suspend fun getBrregEnhet(orgnr: Organisasjonsnummer): Either<BrregError, BrregEnhet> {
-        // Sjekker først hovedenhet
-        return getHovedenhet(orgnr).fold(
+        return getUnderenhet(orgnr).fold(
             { error ->
                 if (error == BrregError.NotFound) {
-                    // Ingen treff på hovedenhet, vi sjekker underenheter også
-                    log.debug("Fant ingen treff på orgnr: '${orgnr.value}'. Sjekker underenheter....")
-                    getUnderenhet(orgnr)
+                    getHovedenhet(orgnr)
                 } else {
                     error.left()
                 }
