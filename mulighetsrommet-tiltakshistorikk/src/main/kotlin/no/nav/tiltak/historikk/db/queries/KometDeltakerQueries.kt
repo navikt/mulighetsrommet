@@ -93,9 +93,12 @@ class KometDeltakerQueries(private val session: Session) {
                     gjennomforing.id as gjennomforing_id,
                     gjennomforing.navn as gjennomforing_navn,
                     gjennomforing.tiltakskode as gjennomforing_tiltakskode,
-                    gjennomforing.arrangor_organisasjonsnummer,
-                    gjennomforing.deltidsprosent as gjennomforing_deltidsprosent
-                from komet_deltaker deltaker join gjennomforing on deltaker.gjennomforing_id = gjennomforing.id
+                    gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
+                    virksomhet.organisasjonsnummer as arrangor_organisasjonsnummer,
+                    virksomhet.navn as arrangor_navn
+                from komet_deltaker deltaker
+                    join gjennomforing on deltaker.gjennomforing_id = gjennomforing.id
+                    left join virksomhet on gjennomforing.arrangor_organisasjonsnummer = virksomhet.organisasjonsnummer
                 where deltaker.person_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
@@ -143,7 +146,7 @@ private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakD
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-        navn = null,
+        navn = stringOrNull("arrangor_navn"),
     ),
     deltidsprosent = floatOrNull("prosent_stilling"),
     dagerPerUke = floatOrNull("dager_per_uke"),
