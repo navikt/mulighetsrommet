@@ -28,13 +28,18 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
-    detaljer: {
-      entries: [
-        { key: "Antall månedsverk", value: "0.48", format: DetailsFormat.NUMBER },
-        { key: "Sats", value: "129", format: DetailsFormat.NOK },
-        { key: "Beløp", value: "10149", format: DetailsFormat.NOK },
-      ],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [
+            { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
+            { key: "Sats", value: "129", format: DetailsFormat.NOK },
+            { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
+          ],
+        },
+      },
+    ],
     belop: 10149,
     digest: "b3602d2a",
     deltakelser: toSatserUkesverkDeltakelse,
@@ -74,13 +79,22 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   beregning: {
     belop: 20000,
     digest: "ca0a6c20",
-    detaljer: {
-      entries: [
-        { key: "Avtalt månedspris per tiltaksplass", value: "10000", format: DetailsFormat.NOK },
-        { key: "Antall månedsverk", value: "2.0", format: DetailsFormat.NUMBER },
-        { key: "Beløp", value: "20000", format: DetailsFormat.NOK },
-      ],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [
+            {
+              key: "Avtalt månedspris per tiltaksplass",
+              value: "10000",
+              format: DetailsFormat.NOK,
+            },
+            { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
+            { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
+          ],
+        },
+      },
+    ],
     deltakelser: avklaringManedDeltakelse,
     stengt: [],
     displayName: "Avtalt månedspris per tiltaksplass",
@@ -106,13 +120,18 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
-    detaljer: {
-      entries: [
-        { key: "Antall månedsverk", value: "11.58", format: DetailsFormat.NUMBER },
-        { key: "Sats", value: "129", format: DetailsFormat.NOK },
-        { key: "Beløp", value: "242904", format: DetailsFormat.NOK },
-      ],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [
+            { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
+            { key: "Sats", value: "129", format: DetailsFormat.NOK },
+            { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
+          ],
+        },
+      },
+    ],
     belop: 242904,
     digest: "db0c7c6e",
     deltakelser: toSatserUkesverkDeltakelse,
@@ -144,9 +163,14 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     deltakelser: null,
     stengt: [],
     displayName: "Annen avtalt pris",
-    detaljer: {
-      entries: [{ key: "Beløp", value: "242904", format: DetailsFormat.NOK }],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [{ key: "Beløp", value: "500", format: DetailsFormat.NOK }],
+        },
+      },
+    ],
     belop: 234,
     digest: "000001d4",
   },
@@ -172,9 +196,14 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     stengt: [],
     deltakelser: null,
     displayName: "Annen avtalt pris",
-    detaljer: {
-      entries: [{ key: "Beløp", value: "500", format: DetailsFormat.NOK }],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [{ key: "Beløp", value: "500", format: DetailsFormat.NOK }],
+        },
+      },
+    ],
     belop: 500,
     digest: "000003e8",
   },
@@ -210,13 +239,18 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
-    detaljer: {
-      entries: [
-        { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
-        { key: "Sats", value: "129", format: DetailsFormat.NOK },
-        { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
-      ],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [
+            { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
+            { key: "Sats", value: "129", format: DetailsFormat.NOK },
+            { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
+          ],
+        },
+      },
+    ],
     belop: 16848,
     digest: "38c07a43",
     deltakelser: vtaManedDeltakelse,
@@ -248,13 +282,18 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   beregning: {
     belop: 53100,
     digest: "28172363",
-    detaljer: {
-      entries: [
-        { key: "Avtalt ukespris per tiltaksplass", value: "4500", format: DetailsFormat.NOK },
-        { key: "Antall ukesverk", value: "11.8", format: DetailsFormat.NUMBER },
-        { key: "Beløp", value: "53100", format: DetailsFormat.NOK },
-      ],
-    },
+    satsDetaljer: [
+      {
+        periode: { start: "2025-01-01", slutt: "2025-02-01" },
+        details: {
+          entries: [
+            { key: "Antall månedsverk", value: "1.0", format: DetailsFormat.NUMBER },
+            { key: "Sats", value: "129", format: DetailsFormat.NOK },
+            { key: "Beløp", value: "16848", format: DetailsFormat.NOK },
+          ],
+        },
+      },
+    ],
     deltakelser: arrUkesverkDeltakelse,
     stengt: [],
     displayName: "Avtalt ukespris per tiltaksplass",

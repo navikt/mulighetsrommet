@@ -13,12 +13,12 @@ import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { getEnvironment } from "~/services/environment";
-import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { deltakerOversiktLenke, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 
 export const meta: MetaFunction = () => {
   return [
@@ -97,7 +97,10 @@ export default function UtbetalingBeregning() {
           advarsler={utbetaling.advarsler}
           deltakerlisteUrl={deltakerlisteUrl}
         />
-        <Definisjonsliste definitions={utbetaling.beregning.detaljer.entries} className="my-2" />
+        <SatsPerioderOgBelop
+          satsDetaljer={utbetaling.beregning.satsDetaljer}
+          belop={utbetaling.beregning.belop}
+        />
         <HStack gap="4">
           <Button
             as={ReactRouterLink}

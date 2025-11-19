@@ -38,7 +38,7 @@ export function MetadataHorisontal({ header, value, compact }: MetadataProps) {
 
 export interface MetadataFritekstfeltProps {
   header: string;
-  value: string | undefined | null;
+  value: string | number | undefined | null | ReactNode;
 }
 
 export function MetadataFritekstfelt({ header, value }: MetadataFritekstfeltProps) {

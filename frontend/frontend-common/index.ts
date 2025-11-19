@@ -28,6 +28,7 @@ import { useSortableData } from "./hooks/useSortableData";
 import { DataDrivenTable } from "./components/datadriven/DataDrivenTable";
 import { getDataElement } from "./components/datadriven/DataElement";
 import { DataElementStatusTag } from "./components/datadriven/DataElementStatusTag";
+import { DataDetails } from "./components/datadriven/DataDetails";
 
 export {
   useDebounce,
@@ -59,4 +60,5 @@ export {
   DataDrivenTable,
   DataElementStatusTag,
   getDataElement,
+  DataDetails,
 };
