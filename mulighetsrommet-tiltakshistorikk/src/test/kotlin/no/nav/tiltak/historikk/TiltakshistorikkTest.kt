@@ -303,6 +303,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
 
     val arbeidstrening = TiltakshistorikkArenaDeltaker(
         id = ARENA_ARBEIDSTRENING_ID,
+        arenaGjennomforingId = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "ARBTREN",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -319,6 +320,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
 
     val mentor = TiltakshistorikkArenaDeltaker(
         id = ARENA_MENTOR_ID,
+        arenaGjennomforingId = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "MENTOR",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -335,6 +337,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
 
     val enkeltAMO = TiltakshistorikkArenaDeltaker(
         id = ARENA_ENKEL_AMO_ID,
+        arenaGjennomforingId = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "AMO",
         status = ArenaDeltakerStatus.GJENNOMFORES,

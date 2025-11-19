@@ -104,6 +104,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     context("Arena deltaker") {
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
+            arenaGjennomforingId = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "ARBTREN",
             status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -119,6 +120,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
+            arenaGjennomforingId = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "MENTOR",
             status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -210,6 +212,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         test("filtrerer Arena-deltakere basert på maxAgeYears") {
             val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
                 id = UUID.randomUUID(),
+                arenaGjennomforingId = UUID.randomUUID(),
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "MENTOR",
                 status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -400,6 +403,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             db.transaction {
                 val deltaker1 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
+                    arenaGjennomforingId = UUID.randomUUID(),
                     norskIdent = NorskIdent("11111111111"),
                     arenaTiltakskode = "ARBTREN",
                     status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -415,6 +419,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 val deltaker2 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
+                    arenaGjennomforingId = UUID.randomUUID(),
                     norskIdent = NorskIdent("22222222222"),
                     arenaTiltakskode = "MENTOR",
                     status = ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,

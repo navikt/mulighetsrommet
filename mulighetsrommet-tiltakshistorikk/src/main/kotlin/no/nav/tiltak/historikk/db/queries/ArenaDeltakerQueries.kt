@@ -19,6 +19,7 @@ class ArenaDeltakerQueries(private val session: Session) {
         val query = """
             insert into arena_deltaker (id,
                                         norsk_ident,
+                                        arena_gjennomforing_id,
                                         arena_tiltakskode,
                                         status,
                                         start_dato,
@@ -31,6 +32,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                                         deltidsprosent)
             values (:id::uuid,
                     :norsk_ident,
+                    :arena_gjennomforing_id,
                     :arena_tiltakskode,
                     :status::arena_deltaker_status,
                     :start_dato,
@@ -42,6 +44,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                     :dager_per_uke,
                     :deltidsprosent)
             on conflict (id) do update set norsk_ident                  = excluded.norsk_ident,
+                                           arena_gjennomforing_id       = excluded.arena_gjennomforing_id,
                                            arena_tiltakskode            = excluded.arena_tiltakskode,
                                            status                       = excluded.status,
                                            start_dato                   = excluded.start_dato,
@@ -57,6 +60,7 @@ class ArenaDeltakerQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to deltaker.id,
+            "arena_gjennomforing_id" to deltaker.arenaGjennomforingId,
             "norsk_ident" to deltaker.norskIdent.value,
             "arena_tiltakskode" to deltaker.arenaTiltakskode,
             "status" to deltaker.status.name,

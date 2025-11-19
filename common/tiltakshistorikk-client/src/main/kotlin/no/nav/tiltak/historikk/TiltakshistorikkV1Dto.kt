@@ -161,6 +161,8 @@ data class TiltakshistorikkArenaDeltaker(
     val arenaRegDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val arenaModDato: LocalDateTime,
+    @Serializable(with = UUIDSerializer::class)
+    val arenaGjennomforingId: UUID,
     val norskIdent: NorskIdent,
     val arenaTiltakskode: String,
     val status: ArenaDeltakerStatus,
