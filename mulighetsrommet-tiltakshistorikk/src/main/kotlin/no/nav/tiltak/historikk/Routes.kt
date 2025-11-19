@@ -63,6 +63,14 @@ fun Route.tiltakshistorikkRoutes(
 
                 call.respond(HttpStatusCode.OK)
             }
+
+            put("/deltaker-gjennomforing-id") {
+                val dbo = call.receive<TiltakshistorikkArenaDeltakerGjennomforingId>()
+
+                db.session { queries.arenaDeltaker.setArenaGjennomforignId(dbo.id, dbo.arenaGjennomforingId) }
+
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 
