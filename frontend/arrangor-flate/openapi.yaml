@@ -1700,6 +1700,7 @@ components:
       - UTBETALT
       - KREVER_ENDRING
       - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
     ArrangorflateUtbetalinger:
       type: object
       properties:
