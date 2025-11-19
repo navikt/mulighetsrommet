@@ -81,7 +81,7 @@ class ArenaDeltakerQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update arena_deltaker
-            set arena_gjennomforign_id = :arena_gjennomforing_id::uuid
+            set arena_gjennomforing_id = :arena_gjennomforing_id::uuid
             where id = :id::uuid
         """.trimIndent()
 
