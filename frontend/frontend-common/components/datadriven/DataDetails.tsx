@@ -1,7 +1,7 @@
 import { VStack } from "@navikt/ds-react";
 import { type LabeledDataElement, LabeledDataElementType } from "./types";
-import { getDataElement } from "./DataElement";
 import { MetadataFritekstfelt, MetadataHorisontal } from "./Metadata";
+import { getDataElement } from "./DataElement";
 
 export interface DataElementProps {
   entries: LabeledDataElement[];

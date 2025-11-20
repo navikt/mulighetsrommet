@@ -29,18 +29,27 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
       type: LabeledDataElementType.INLINE,
       value: {
         value: arrangorMock.navn,
+        type: "DATA_ELEMENT_TEXT",
         format: null,
       },
     },
     {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
-      value: { value: gjennomforingAFT.navn, format: null },
+      value: {
+        value: gjennomforingAFT.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
     {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
-      value: { value: gjennomforingAFT.tiltakstype.navn, format: null },
+      value: {
+        value: gjennomforingAFT.tiltakstype.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
   ],
   tilsagn: [
@@ -63,27 +72,47 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
           {
             label: "Tilsagnsperiode",
             type: LabeledDataElementType.INLINE,
-            value: { value: formaterPeriode(tilsagnsPeriode()), format: null },
+            value: {
+              value: formaterPeriode(tilsagnsPeriode()),
+              type: "DATA_ELEMENT_TEXT",
+              format: null,
+            },
           },
           {
             label: "Antall plasser",
             type: LabeledDataElementType.INLINE,
-            value: { value: "14", format: DataElementTextFormat.NUMBER },
+            value: {
+              value: "14",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NUMBER,
+            },
           },
           {
             label: "Sats per tiltaksplass per måned",
             type: LabeledDataElementType.INLINE,
-            value: { value: "20975", format: DataElementTextFormat.NOK },
+            value: {
+              value: "20975",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
           },
           {
             label: "Totalbeløp",
             type: LabeledDataElementType.INLINE,
-            value: { value: "284177", format: DataElementTextFormat.NOK },
+            value: {
+              value: "284177",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
           },
           {
             label: "Gjenstående beløp",
             type: LabeledDataElementType.INLINE,
-            value: { value: "276722", format: DataElementTextFormat.NOK },
+            value: {
+              value: "276722",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
           },
         ],
       },
@@ -102,18 +131,27 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       type: LabeledDataElementType.INLINE,
       value: {
         value: arrangorMock.navn,
+        type: "DATA_ELEMENT_TEXT",
         format: null,
       },
     },
     {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
-      value: { value: gjennomforingAFT.navn, format: null },
+      value: {
+        value: gjennomforingAFT.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
     {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
-      value: { value: gjennomforingAFT.tiltakstype.navn, format: null },
+      value: {
+        value: gjennomforingAFT.tiltakstype.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
   ],
   tilsagn: [
@@ -136,27 +174,47 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
           {
             label: "Tilsagnsperiode",
             type: LabeledDataElementType.INLINE,
-            value: { value: formaterPeriode(tilsagnsPeriode()), format: null },
+            value: {
+              value: formaterPeriode(tilsagnsPeriode()),
+              type: "DATA_ELEMENT_TEXT",
+              format: null,
+            },
           },
           {
             label: "Antall plasser",
             type: LabeledDataElementType.INLINE,
-            value: { value: "14", format: DataElementTextFormat.NUMBER },
+            value: {
+              value: "14",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NUMBER,
+            },
           },
           {
             label: "Sats per tiltaksplass per måned",
             type: LabeledDataElementType.INLINE,
-            value: { value: "20975", format: DataElementTextFormat.NOK },
+            value: {
+              value: "20975",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
           },
           {
             label: "Totalbeløp",
             type: LabeledDataElementType.INLINE,
-            value: { value: "284177", format: DataElementTextFormat.NOK },
+            value: {
+              value: "284177",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
           },
           {
             label: "Gjenstående beløp",
             type: LabeledDataElementType.INLINE,
-            value: { value: "276722", format: DataElementTextFormat.NOK },
+            value: {
+              value: "276722",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
           },
         ],
       },
@@ -179,17 +237,26 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
       value: {
         value: arrangorMock.navn,
         format: null,
+        type: "DATA_ELEMENT_TEXT",
       },
     },
     {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
-      value: { value: gjennomforingAFT.navn, format: null },
+      value: {
+        value: gjennomforingAFT.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
     {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
-      value: { value: gjennomforingAFT.tiltakstype.navn, format: null },
+      value: {
+        value: gjennomforingAFT.tiltakstype.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
   ],
   tilsagn: [
@@ -212,27 +279,47 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
           {
             label: "Tilsagnsperiode",
             type: LabeledDataElementType.INLINE,
-            value: { value: formaterPeriode(tilsagnsPeriode()), format: null },
+            value: {
+              value: formaterPeriode(tilsagnsPeriode()),
+              type: "DATA_ELEMENT_TEXT",
+              format: null,
+            },
           },
           {
             label: "Antall plasser",
             type: LabeledDataElementType.INLINE,
-            value: { value: "14", format: DataElementTextFormat.NUMBER },
+            value: {
+              value: "14",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NUMBER,
+            },
           },
           {
             label: "Sats per tiltaksplass per måned",
             type: LabeledDataElementType.INLINE,
-            value: { value: "20975", format: DataElementTextFormat.NOK },
+            value: {
+              type: "DATA_ELEMENT_TEXT",
+              value: "20975",
+              format: DataElementTextFormat.NOK,
+            },
           },
           {
             label: "Totalbeløp",
             type: LabeledDataElementType.INLINE,
-            value: { value: "284177", format: DataElementTextFormat.NOK },
+            value: {
+              type: "DATA_ELEMENT_TEXT",
+              value: "284177",
+              format: DataElementTextFormat.NOK,
+            },
           },
           {
             label: "Gjenstående beløp",
             type: LabeledDataElementType.INLINE,
-            value: { value: "276722", format: DataElementTextFormat.NOK },
+            value: {
+              type: "DATA_ELEMENT_TEXT",
+              value: "276722",
+              format: DataElementTextFormat.NOK,
+            },
           },
         ],
       },

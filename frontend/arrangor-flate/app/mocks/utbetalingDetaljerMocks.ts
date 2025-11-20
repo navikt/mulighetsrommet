@@ -1,6 +1,7 @@
 import {
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
+  DataDetails,
   DataElementTextFormat,
   DelutbetalingStatus,
   LabeledDataElementType,
@@ -15,24 +16,36 @@ import {
   vtaManedDeltakelse,
 } from "./deltakelserMocks";
 
-const satsDetaljer = [
+const satsDetaljer: DataDetails[] = [
   {
     header: "2025-01-01 - 2025-02-01",
     entries: [
       {
         label: "Antall månedsverk",
         type: LabeledDataElementType.INLINE,
-        value: { value: "1.0", format: DataElementTextFormat.NUMBER },
+        value: {
+          value: "1.0",
+          type: "DATA_ELEMENT_TEXT",
+          format: DataElementTextFormat.NUMBER,
+        },
       },
       {
         label: "Sats",
         type: LabeledDataElementType.INLINE,
-        value: { value: "129", format: DataElementTextFormat.NOK },
+        value: {
+          type: "DATA_ELEMENT_TEXT",
+          value: "129",
+          format: DataElementTextFormat.NOK,
+        },
       },
       {
         label: "Beløp",
         type: LabeledDataElementType.INLINE,
-        value: { value: "16848", format: DataElementTextFormat.NOK },
+        value: {
+          value: "16848",
+          type: "DATA_ELEMENT_TEXT",
+          format: DataElementTextFormat.NOK,
+        },
       },
     ],
   },

@@ -38,17 +38,21 @@ export const oppsummering: Record<
         {
           label: "Utbetalingsperiode",
           type: LabeledDataElementType.INLINE,
-          value: { value: formaterPeriode(periode), format: null },
+          value: { value: formaterPeriode(periode), type: "DATA_ELEMENT_TEXT", format: null },
         },
         {
           label: "Kontonummer",
           type: LabeledDataElementType.INLINE,
-          value: { value: "12345678910", format: null },
+          value: { value: "12345678910", type: "DATA_ELEMENT_TEXT", format: null },
         },
         {
           label: "Beløp",
           type: LabeledDataElementType.INLINE,
-          value: { value: request.belop.toString(), format: DataElementTextFormat.NOK },
+          value: {
+            value: request.belop.toString(),
+            type: "DATA_ELEMENT_TEXT",
+            format: DataElementTextFormat.NOK,
+          },
         },
       ],
       innsendingsData: {
@@ -72,17 +76,21 @@ export const oppsummering: Record<
         {
           label: "Utbetalingsperiode",
           type: LabeledDataElementType.INLINE,
-          value: { value: formaterPeriode(periode), format: null },
+          value: { value: formaterPeriode(periode), type: "DATA_ELEMENT_TEXT", format: null },
         },
         {
           label: "Kontonummer",
           type: LabeledDataElementType.INLINE,
-          value: { value: "12345678910", format: null },
+          value: { value: "12345678910", type: "DATA_ELEMENT_TEXT", format: null },
         },
         {
           label: "Beløp",
           type: LabeledDataElementType.INLINE,
-          value: { value: request.belop.toString(), format: DataElementTextFormat.NOK },
+          value: {
+            value: request.belop.toString(),
+            type: "DATA_ELEMENT_TEXT",
+            format: DataElementTextFormat.NOK,
+          },
         },
       ],
 
@@ -110,17 +118,21 @@ export const oppsummering: Record<
         {
           label: "Utbetalingsperiode",
           type: LabeledDataElementType.INLINE,
-          value: { value: formaterPeriode(periode), format: null },
+          value: { value: formaterPeriode(periode), type: "DATA_ELEMENT_TEXT", format: null },
         },
         {
           label: "Kontonummer",
           type: LabeledDataElementType.INLINE,
-          value: { value: "12345678910", format: null },
+          value: { value: "12345678910", type: "DATA_ELEMENT_TEXT", format: null },
         },
         {
           label: "Beløp",
           type: LabeledDataElementType.INLINE,
-          value: { value: request.belop.toString(), format: DataElementTextFormat.NOK },
+          value: {
+            value: request.belop.toString(),
+            type: "DATA_ELEMENT_TEXT",
+            format: DataElementTextFormat.NOK,
+          },
         },
       ],
       innsendingsData: {

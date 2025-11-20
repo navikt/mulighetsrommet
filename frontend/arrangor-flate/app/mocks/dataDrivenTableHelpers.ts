@@ -5,7 +5,7 @@ export function dataElementText(
   format: DataElementTextFormat | null = null,
 ): DataElement {
   return {
-    type: "no.nav.mulighetsrommet.model.DataElement.Text",
+    type: "DATA_ELEMENT_TEXT",
     value: text,
     format: format,
   };
@@ -13,7 +13,7 @@ export function dataElementText(
 
 export function dataElementLink(text: string, href: string): DataElement {
   return {
-    type: "no.nav.mulighetsrommet.model.DataElement.Link",
+    type: "DATA_ELEMENT_LINK",
     text: text,
     href: href,
     digest: crypto.randomUUID().slice(0, 8),
