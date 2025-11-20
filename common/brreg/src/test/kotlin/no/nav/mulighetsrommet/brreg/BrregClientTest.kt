@@ -198,6 +198,9 @@ class BrregClientTest : FunSpec({
                     get("/enhetsregisteret/api/enheter/991825827") {
                         respondJson(BrregFixtures.ENHET)
                     }
+                    get("/enhetsregisteret/api/underenheter/991825827") {
+                        respondError(HttpStatusCode.NotFound)
+                    }
                 },
             )
 

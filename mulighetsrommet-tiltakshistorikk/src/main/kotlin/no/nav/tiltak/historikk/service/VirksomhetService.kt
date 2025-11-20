@@ -1,17 +1,19 @@
 package no.nav.tiltak.historikk.service
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.tiltak.historikk.db.QueryContext
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
-import org.slf4j.LoggerFactory
+import org.intellij.lang.annotations.Language
 
 class VirksomhetService(
     private val db: TiltakshistorikkDatabase,
     private val brreg: BrregClient,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     fun getVirksomhet(organisasjonsnummer: Organisasjonsnummer): VirksomhetDbo? = db.session {
         queries.virksomhet.get(organisasjonsnummer)
     }
@@ -26,56 +28,96 @@ class VirksomhetService(
         }
     }
 
-    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) {
-        brreg.getBrregEnhet(organisasjonsnummer)
-            .onRight { enhet ->
-                db.session { queries.virksomhet.upsert(mapBrregEnhetToVirsomhetDbo(enhet)) }
-            }
-            .onLeft { error ->
+    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) = db.session {
+        val error = syncFromBrreg(organisasjonsnummer)
+        if (error != null) {
+            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
+        }
+    }
+
+    fun syncAlleVirksomheterUtenNavn(scope: CoroutineScope) {
+        scope.launch {
+            var sisteOrgnr: Organisasjonsnummer? = Organisasjonsnummer("800000000")
+            do {
+                sisteOrgnr = db.transaction {
+                    @Language("PostgreSQL")
+                    val query = """
+                    select organisasjonsnummer
+                    from virksomhet
+                    where organisasjonsnummer > ? and navn is null
+                    order by organisasjonsnummer
+                    limit 100
+                    for update skip locked
+                    """.trimIndent()
+
+                    val orgnrs = session.list(queryOf(query, sisteOrgnr?.value)) {
+                        Organisasjonsnummer(it.string("organisasjonsnummer"))
+                    }
+                    orgnrs.forEach { syncFromBrreg(it) }
+                    orgnrs.lastOrNull()
+                }
+            } while (sisteOrgnr != null)
+        }
+    }
+
+    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): BrregError? {
+        return brreg.getBrregEnhet(organisasjonsnummer)
+            .fold({ error ->
                 when (error) {
                     is BrregError.FjernetAvJuridiskeArsaker -> {
-                        logger.warn("Virksomhet med orgnr=$organisasjonsnummer er fjernet fra Brreg")
-                        return
+                        queries.virksomhet.upsert(error.enhet.toVirksomhetDbo())
+                        null
                     }
 
-                    else -> {
-                        throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
-                    }
+                    else -> error
                 }
-            }
+            }, { enhet ->
+                queries.virksomhet.upsert(enhet.toVirksomhetDbo())
+                null
+            })
     }
 }
 
-private fun mapBrregEnhetToVirsomhetDbo(enhet: BrregEnhet): VirksomhetDbo = when (enhet) {
-    is BrregHovedenhetDto -> VirksomhetDbo(
-        organisasjonsnummer = enhet.organisasjonsnummer,
+private fun FjernetBrregEnhetDto.toVirksomhetDbo(): VirksomhetDbo {
+    return VirksomhetDbo(
+        organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
-        navn = enhet.navn,
-        organisasjonsform = enhet.organisasjonsform,
+        navn = null,
+        organisasjonsform = null,
+        slettetDato = slettetDato,
+    )
+}
+
+private fun BrregEnhet.toVirksomhetDbo(): VirksomhetDbo = when (this) {
+    is BrregHovedenhetDto -> VirksomhetDbo(
+        organisasjonsnummer = organisasjonsnummer,
+        overordnetEnhetOrganisasjonsnummer = null,
+        navn = navn,
+        organisasjonsform = organisasjonsform,
         slettetDato = null,
     )
 
     is SlettetBrregHovedenhetDto -> VirksomhetDbo(
-        organisasjonsnummer = enhet.organisasjonsnummer,
+        organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
-        navn = enhet.navn,
-        organisasjonsform = enhet.organisasjonsform,
-        slettetDato = enhet.slettetDato,
+        navn = navn,
+        organisasjonsform = organisasjonsform,
+        slettetDato = slettetDato,
     )
 
     is BrregUnderenhetDto -> VirksomhetDbo(
-        organisasjonsnummer = enhet.organisasjonsnummer,
-        overordnetEnhetOrganisasjonsnummer = enhet.overordnetEnhet,
-        navn = enhet.navn,
-        organisasjonsform = enhet.organisasjonsform,
+        organisasjonsnummer = organisasjonsnummer,
+        overordnetEnhetOrganisasjonsnummer = overordnetEnhet,
+        navn = navn,
+        organisasjonsform = organisasjonsform,
         slettetDato = null,
     )
 
     is SlettetBrregUnderenhetDto -> VirksomhetDbo(
-        organisasjonsnummer = enhet.organisasjonsnummer,
+        organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
-        navn = enhet.navn,
-        organisasjonsform = enhet.organisasjonsform,
-        slettetDato = enhet.slettetDato,
+        navn = navn,
+        organisasjonsform = organisasjonsform,
+        slettetDato = slettetDato,
     )
 }

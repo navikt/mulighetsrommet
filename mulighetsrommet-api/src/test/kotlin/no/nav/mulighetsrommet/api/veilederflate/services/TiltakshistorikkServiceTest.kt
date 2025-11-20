@@ -47,6 +47,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         gjennomforing = Gjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
+            deltidsprosent = 100f,
         ),
         norskIdent = NorskIdent("12345678910"),
         status = DeltakerStatus(
@@ -56,7 +57,9 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
-        arrangor = Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer),
+        arrangor = Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer, null),
+        deltidsprosent = 100f,
+        dagerPerUke = 5f,
     )
 
     val tiltakshistorikkAvklaring = TiltakshistorikkV1Dto.ArenaDeltakelse(
@@ -70,7 +73,9 @@ class TiltakshistorikkServiceTest : FunSpec({
             navn = null,
         ),
         beskrivelse = "Avklaring",
-        arrangor = Arrangor(Organisasjonsnummer("123456789")),
+        arrangor = Arrangor(Organisasjonsnummer("123456789"), null),
+        deltidsprosent = 100f,
+        dagerPerUke = 5f,
     )
 
     val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
@@ -83,7 +88,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             navn = null,
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer.value),
+        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer.value, null),
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
@@ -391,7 +396,9 @@ class TiltakshistorikkServiceTest : FunSpec({
                 navn = null,
             ),
             beskrivelse = "Tilfeldig enkeltplass fra Arena",
-            arrangor = Arrangor(Organisasjonsnummer("123456789")),
+            arrangor = Arrangor(Organisasjonsnummer("123456789"), null),
+            deltidsprosent = 100f,
+            dagerPerUke = 5f,
         )
 
         val deltakelseEnkelAmo = DeltakelseFraKomet(

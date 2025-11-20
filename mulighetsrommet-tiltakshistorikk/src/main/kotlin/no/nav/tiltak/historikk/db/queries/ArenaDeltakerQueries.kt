@@ -100,17 +100,19 @@ class ArenaDeltakerQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
                 select
-                    id,
-                    norsk_ident,
-                    arena_tiltakskode,
-                    status,
-                    start_dato,
-                    slutt_dato,
-                    beskrivelse,
-                    arrangor_organisasjonsnummer,
-                    deltidsprosent,
-                    dager_per_uke
-                from arena_deltaker
+                    deltaker.id,
+                    deltaker.norsk_ident,
+                    deltaker.arena_tiltakskode,
+                    deltaker.status,
+                    deltaker.start_dato,
+                    deltaker.slutt_dato,
+                    deltaker.beskrivelse,
+                    deltaker.arrangor_organisasjonsnummer,
+                    deltaker.deltidsprosent,
+                    deltaker.dager_per_uke,
+                    virksomhet.navn as arrangor_navn
+                from arena_deltaker deltaker
+                    left join virksomhet on virksomhet.organisasjonsnummer = deltaker.arrangor_organisasjonsnummer
                 where norsk_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(slutt_dato, arena_reg_dato)) < make_interval(years => :max_age_years::integer))
                 order by start_dato desc nulls last;
@@ -148,7 +150,7 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-        navn = null,
+        navn = stringOrNull("arrangor_navn"),
     ),
     deltidsprosent = floatOrNull("deltidsprosent"),
     dagerPerUke = floatOrNull("dager_per_uke"),
