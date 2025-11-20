@@ -373,7 +373,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
     satsLabel: String,
     faktorLabel: String,
 ): List<DataDetails> {
-    return satser.map { satsPeriode ->
+    return satser.mapNotNull { satsPeriode ->
         val faktor = deltakelser
             .flatMap { it.perioder }
             .filter { it.sats == satsPeriode.sats }
@@ -382,13 +382,17 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
             .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
             .toDouble()
 
-        DataDetails(
-            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
-            entries = listOf(
-                LabeledDataElement.nok(satsLabel, satsPeriode.sats),
-                LabeledDataElement.number(faktorLabel, faktor),
-            ),
-        )
+        if (faktor.equals(BigDecimal.ZERO)) {
+            null
+        } else {
+            DataDetails(
+                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                entries = listOf(
+                    LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                    LabeledDataElement.number(faktorLabel, faktor),
+                ),
+            )
+        }
     }
 }
 
