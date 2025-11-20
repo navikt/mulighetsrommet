@@ -1,5 +1,6 @@
 import {
   ArrangorflateTilsagnDto,
+  DataDetails,
   DataElementTextFormat,
   LabeledDataElementType,
   TilsagnStatus,
@@ -8,33 +9,53 @@ import {
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
-const beregning = {
+const beregning: DataDetails = {
   header: null,
   entries: [
     {
       label: "Tilsagnsperiode",
       type: LabeledDataElementType.INLINE,
-      value: { value: "01.10.2025 - 06.11.2025", format: null },
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "01.10.2025 - 06.11.2025",
+        format: null,
+      },
     },
     {
       label: "Antall plasser",
       type: LabeledDataElementType.INLINE,
-      value: { value: "100", format: DataElementTextFormat.NUMBER },
+      value: {
+        value: "100",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NUMBER,
+      },
     },
     {
       label: "Avtalt månedspris per tiltaksplass",
       type: LabeledDataElementType.INLINE,
-      value: { value: "10000", format: DataElementTextFormat.NOK },
+      value: {
+        value: "10000",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
     },
     {
       label: "Totalbeløp",
       type: LabeledDataElementType.INLINE,
-      value: { value: "1200000", format: DataElementTextFormat.NOK },
+      value: {
+        value: "1200000",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
     },
     {
       label: "Gjenstående beløp",
       type: LabeledDataElementType.INLINE,
-      value: { value: "1200000", format: DataElementTextFormat.NOK },
+      value: {
+        value: "1200000",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
     },
   ],
 };

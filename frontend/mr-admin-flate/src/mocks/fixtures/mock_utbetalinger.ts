@@ -473,12 +473,12 @@ export const mockBeregning: UtbetalingBeregningDto = {
         {
           label: "Sats",
           type: LabeledDataElementType.INLINE,
-          value: { value: "25000", format: DataElementTextFormat.NOK },
+          value: { value: "25000", type: "DATA_ELEMENT_TEXT", format: DataElementTextFormat.NOK },
         },
         {
           label: "Antall månedsverk",
           type: LabeledDataElementType.INLINE,
-          value: { value: "50", format: null },
+          value: { value: "50", type: "DATA_ELEMENT_TEXT", format: null },
         },
       ],
     },

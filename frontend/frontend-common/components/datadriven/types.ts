@@ -1,3 +1,14 @@
+export type LabeledDataElement = {
+  type: LabeledDataElementType;
+  label: string;
+  value: null | DataElement;
+};
+
+export enum LabeledDataElementType {
+  INLINE = "INLINE",
+  MULTILINE = "MULTILINE",
+}
+
 export type DataDrivenTableDto = {
   columns: Array<DataDrivenTableDtoColumn>;
   rows: Array<DataDrivenTableDtoRow>;
@@ -25,22 +36,22 @@ export type DataDrivenTableDtoRow = {
 
 export type DataElement =
   | ({
-      type?: "no.nav.mulighetsrommet.model.DataElement.Link";
+      type?: "DATA_ELEMENT_LINK";
     } & DataElementLink)
   | ({
-      type?: "no.nav.mulighetsrommet.model.DataElement.MathOperator";
+      type?: "DATA_ELEMENT_MATH_OPERATOR";
     } & DataElementMathOperator)
   | ({
-      type?: "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal";
+      type?: "DATA_ELEMENT_MULTI_LINK_MODAL";
     } & DataElementMultiLinkModal)
   | ({
-      type?: "no.nav.mulighetsrommet.model.DataElement.Periode";
+      type?: "DATA_ELEMENT_PERIODE";
     } & DataElementPeriode)
   | ({
-      type?: "no.nav.mulighetsrommet.model.DataElement.Status";
+      type?: "DATA_ELEMENT_STATUS";
     } & DataElementStatus)
   | ({
-      type?: "no.nav.mulighetsrommet.model.DataElement.Text";
+      type?: "DATA_ELEMENT_TEXT";
     } & DataElementText);
 
 export type DataElementLink = {
@@ -135,15 +146,4 @@ export enum TimelineDtoRowPeriodVariant {
   WARNING = "warning",
   DANGER = "danger",
   NEUTRAL = "neutral",
-}
-
-export type LabeledDataElement = {
-  type: LabeledDataElementType;
-  label: string;
-  value: null | DataElement;
-};
-
-export enum LabeledDataElementType {
-  INLINE = "INLINE",
-  MULTILINE = "MULTILINE",
 }

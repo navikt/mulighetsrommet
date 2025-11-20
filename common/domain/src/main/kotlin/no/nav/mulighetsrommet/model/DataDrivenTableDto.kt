@@ -98,6 +98,7 @@ enum class LabeledDataElementType {
 @JsonClassDiscriminator("type")
 sealed class DataElement {
     @Serializable
+    @SerialName("DATA_ELEMENT_TEXT")
     data class Text(
         val value: String?,
         val format: Format?,
@@ -114,6 +115,7 @@ sealed class DataElement {
         }
     }
 
+    @SerialName("DATA_ELEMENT_STATUS")
     @Serializable
     data class Status(
         val value: String,
@@ -159,6 +161,7 @@ sealed class DataElement {
         }
     }
 
+    @SerialName("DATA_ELEMENT_LINK")
     @Serializable
     data class Link(
         val text: String,
@@ -167,6 +170,7 @@ sealed class DataElement {
         val digest = this.hashCode().toHexString()
     }
 
+    @SerialName("DATA_ELEMENT_MULTI_LINK_MODAL")
     @Serializable
     data class MultiLinkModal(
         val buttonText: String,
@@ -180,6 +184,7 @@ sealed class DataElement {
         )
     }
 
+    @SerialName("DATA_ELEMENT_PERIODE")
     @Serializable
     data class Periode(
         val start: String,
@@ -187,6 +192,7 @@ sealed class DataElement {
     ) : DataElement()
 
     @Serializable
+    @SerialName("DATA_ELEMENT_MATH_OPERATOR")
     data class MathOperator(
         val operator: Type,
     ) : DataElement() {
