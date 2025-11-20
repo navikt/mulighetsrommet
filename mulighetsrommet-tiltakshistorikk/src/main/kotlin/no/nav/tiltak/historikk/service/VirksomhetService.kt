@@ -1,14 +1,10 @@
 package no.nav.tiltak.historikk.service
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.db.QueryContext
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
-import org.intellij.lang.annotations.Language
 
 class VirksomhetService(
     private val db: TiltakshistorikkDatabase,
@@ -28,11 +24,23 @@ class VirksomhetService(
         }
     }
 
-    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) = db.session {
+    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Unit = db.session {
+        if (erUtenlandskVirksomhet(organisasjonsnummer)) {
+            return queries.virksomhet.upsert(VirksomhetDbo(organisasjonsnummer, null, null, null, null))
+        }
+
         val error = syncFromBrreg(organisasjonsnummer)
         if (error != null) {
             throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
         }
+    }
+
+    /**
+     * Arena oppretter fiktive organisasjonsnummer for utenlandske virksomheter, og disse kan vi identifisere ved at de starter med '1'.
+     * Foreløpig lagrer vi disse på samme måte, men unngår å gjøre oppslag mot Brreg. Dette bør forbedres på sikt.
+     */
+    private fun erUtenlandskVirksomhet(organisasjonsnummer: Organisasjonsnummer): Boolean {
+        return organisasjonsnummer.value.first() == '1'
     }
 
     private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): BrregError? {
