@@ -25,7 +25,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         beforeEach {
             db.session {
                 queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
-                queries.gjennomforing.upsert(toGjennomforingDbo(TestFixtures.gjennomforingGruppe))
+                queries.gjennomforing.upsert(TestFixtures.gjennomforingGruppe.toGjennomforingDbo())
             }
         }
 

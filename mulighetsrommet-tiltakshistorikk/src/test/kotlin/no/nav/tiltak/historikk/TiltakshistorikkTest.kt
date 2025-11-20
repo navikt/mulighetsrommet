@@ -374,7 +374,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
 
     val tiltak = TestFixtures.gjennomforingGruppe
-    queries.gjennomforing.upsert(toGjennomforingDbo(tiltak))
+    queries.gjennomforing.upsert(tiltak.toGjennomforingDbo())
 
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,

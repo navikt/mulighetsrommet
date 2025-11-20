@@ -39,27 +39,27 @@ class SisteTiltaksgjennomforingerV2KafkaConsumer(
     }
 
     private fun upsertGjennomforing(gjennomforing: TiltaksgjennomforingV2Dto): Unit = db.session {
-        val dbo = toGjennomforingDbo(gjennomforing)
+        val dbo = gjennomforing.toGjennomforingDbo()
         queries.gjennomforing.upsert(dbo)
     }
 }
 
-fun toGjennomforingDbo(gjennomforing: TiltaksgjennomforingV2Dto): GjennomforingDbo {
-    return when (gjennomforing) {
+fun TiltaksgjennomforingV2Dto.toGjennomforingDbo(): GjennomforingDbo {
+    return when (this) {
         is TiltaksgjennomforingV2Dto.Gruppe -> GjennomforingDbo(
-            id = gjennomforing.id,
+            id = id,
             type = GjennomforingType.GRUPPE,
-            tiltakskode = gjennomforing.tiltakskode,
-            arrangorOrganisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
-            navn = gjennomforing.navn,
-            deltidsprosent = gjennomforing.deltidsprosent,
+            tiltakskode = tiltakskode,
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
+            navn = navn,
+            deltidsprosent = deltidsprosent,
         )
 
         is TiltaksgjennomforingV2Dto.Enkeltplass -> GjennomforingDbo(
-            id = gjennomforing.id,
+            id = id,
             type = GjennomforingType.ENKELTPLASS,
-            tiltakskode = gjennomforing.tiltakskode,
-            arrangorOrganisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
+            tiltakskode = tiltakskode,
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             navn = null,
             deltidsprosent = null,
         )
