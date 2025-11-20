@@ -396,7 +396,7 @@ class AvtaleValidatorTest : FunSpec({
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
                 "/arrangor/underenheter",
-                "Arrangøren Underenhet 1 AS er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
+                "Arrangøren Underenhet 1 AS - ${ArrangorFixtures.underenhet1.organisasjonsnummer.value} er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
             ),
         )
 
