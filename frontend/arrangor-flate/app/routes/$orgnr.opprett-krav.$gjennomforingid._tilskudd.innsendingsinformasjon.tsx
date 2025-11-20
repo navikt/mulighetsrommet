@@ -392,7 +392,7 @@ function PeriodeSelect({
 }
 
 interface PeriodeVelgerProps {
-  maksSluttdato: string | null;
+  maksSluttdato: string;
   onPeriodeSelected: (periode?: Periode) => void;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
@@ -409,13 +409,15 @@ function PeriodeVelger({
   sessionPeriodeSlutt,
   errors,
 }: PeriodeVelgerProps) {
+  // maks sluttdato er eksklusiv, men skal ikke kunne velge den
+  const sisteDato = subDuration(maksSluttdato, { days: 1 });
   const {
     datepickerProps: periodeStartPickerProps,
     inputProps: periodeStartInputProps,
     selectedDay: selectedStartDato,
   } = useDatepicker({
     defaultSelected: parseDate(sessionPeriodeStart),
-    toDate: parseDate(maksSluttdato),
+    toDate: sisteDato,
   });
   const {
     datepickerProps: periodeSluttPickerProps,
@@ -423,8 +425,7 @@ function PeriodeVelger({
     selectedDay: selectedSluttDato,
   } = useDatepicker({
     defaultSelected: parseDate(sessionPeriodeSlutt),
-    // maks sluttdato er eksklusiv, men skal ikke kunne velge den
-    toDate: subDuration(maksSluttdato, { days: 1 }),
+    toDate: sisteDato,
   });
 
   useEffect(() => {

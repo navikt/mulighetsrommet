@@ -1374,9 +1374,7 @@ components:
       type: object
       properties:
         maksSluttdato:
-          type:
-          - "null"
-          - string
+          type: string
           format: date
       required:
       - maksSluttdato
