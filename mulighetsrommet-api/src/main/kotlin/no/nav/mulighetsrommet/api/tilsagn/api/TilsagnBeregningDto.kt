@@ -12,7 +12,6 @@ data class TilsagnBeregningDto(
     val prismodell: DataDetails,
     val regnestykke: CalculationDto,
 ) {
-
     companion object {
         fun from(beregning: TilsagnBeregning): TilsagnBeregningDto {
             return when (beregning) {
