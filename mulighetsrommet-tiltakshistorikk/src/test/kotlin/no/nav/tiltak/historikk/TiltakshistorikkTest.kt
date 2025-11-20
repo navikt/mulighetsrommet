@@ -129,10 +129,14 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
-                        beskrivelse = "Arbeidstrening hos Fretex",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
                             navn = null,
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.arenaArbeidstrening.id,
+                            navn = "Arbeidstrening hos Fretex",
+                            deltidsprosent = 80f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
                         deltidsprosent = 100f,
@@ -144,10 +148,14 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
-                        beskrivelse = "Mentortiltak hos Joblearn",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
                             navn = null,
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.arenaMentor.id,
+                            navn = "Mentortiltak hos Joblearn",
+                            deltidsprosent = 100f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
                         deltidsprosent = 100f,
@@ -159,10 +167,14 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
-                        beskrivelse = "Enkelt-AMO hos Joblearn",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "AMO",
                             navn = null,
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.arenaAmo.id,
+                            navn = "Enkelt-AMO hos Joblearn",
+                            deltidsprosent = 100f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
                         deltidsprosent = 100f,
