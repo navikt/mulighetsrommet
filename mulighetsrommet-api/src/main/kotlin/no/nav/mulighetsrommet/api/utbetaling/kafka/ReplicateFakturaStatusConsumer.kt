@@ -18,7 +18,7 @@ class ReplicateFakturaStatusConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: String, message: JsonElement): Unit = db.transaction {
+    override suspend fun consume(key: String, message: JsonElement) {
         logger.info("Konsumerer statusmelding fakturanummer=$key")
 
         val (fakturanummer, status, fakturaStatusSistOppdatert) =
