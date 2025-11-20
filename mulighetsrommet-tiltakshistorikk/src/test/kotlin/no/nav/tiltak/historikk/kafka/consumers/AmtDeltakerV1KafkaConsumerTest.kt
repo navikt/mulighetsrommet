@@ -24,6 +24,7 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         beforeEach {
             db.session {
+                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
                 queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
                 queries.gjennomforing.upsert(TestFixtures.Gjennomforing.gruppeAmo.toGjennomforingDbo())
             }

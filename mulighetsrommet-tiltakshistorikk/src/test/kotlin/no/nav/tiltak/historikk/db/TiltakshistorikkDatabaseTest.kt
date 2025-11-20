@@ -123,7 +123,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
-                            navn = null,
+                            navn = "Mentor",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = arenaMentor.id,
@@ -142,7 +142,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 1, 31),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = arenaArbeidstrening.id,
@@ -169,7 +169,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 1, 31),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = arenaArbeidstrening.id,
@@ -300,7 +300,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
                             tiltakskode = gruppeAmo.tiltakskode,
-                            navn = null,
+                            navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,

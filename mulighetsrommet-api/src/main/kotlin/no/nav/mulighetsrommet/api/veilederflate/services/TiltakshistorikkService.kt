@@ -169,7 +169,7 @@ class TiltakshistorikkService(
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MENTOR -> "MENTOR"
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.INKLUDERINGSTILSKUDD -> "INKLUTILS"
             TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.SOMMERJOBB -> "TILSJOBB"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAR -> "VATIAROR"
+            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VTAO -> "VATIAROR"
         }
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode).let {
             DeltakelseTiltakstype(it.navn, it.tiltakskode)

@@ -2,6 +2,7 @@ package no.nav.tiltak.historikk
 
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import java.time.Instant
 import java.time.LocalDate
@@ -9,6 +10,20 @@ import java.time.LocalDateTime
 import java.util.*
 
 object TestFixtures {
+    object Tiltakstype {
+        val gruppeAmo = TiltakstypeDbo(
+            navn = "Arbeidsmarkedsopplæring (gruppe)",
+            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING.name,
+            arenaTiltakskode = "GRUPPEAMO",
+        )
+
+        val enkelAmo = TiltakstypeDbo(
+            navn = "Arbeidsmarkedsopplæring (enkeltplass)",
+            tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING.name,
+            arenaTiltakskode = "ENKELAMO",
+        )
+    }
+
     object Virksomhet {
         val arrangor = VirksomhetDbo(
             organisasjonsnummer = Organisasjonsnummer("987654321"),

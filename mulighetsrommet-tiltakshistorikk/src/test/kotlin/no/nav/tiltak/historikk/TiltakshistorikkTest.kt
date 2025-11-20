@@ -1,3 +1,6 @@
+
+
+
 package no.nav.tiltak.historikk
 
 import io.kotest.core.spec.style.FunSpec
@@ -131,7 +134,7 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2023, 1, 31),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.Gjennomforing.arenaArbeidstrening.id,
@@ -150,7 +153,7 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 2, 29),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
-                            navn = null,
+                            navn = "Mentor",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.Gjennomforing.arenaMentor.id,
@@ -169,7 +172,7 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 2, 29),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "AMO",
-                            navn = null,
+                            navn = "Arbeidsmarkedsopplæring (AMO)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.Gjennomforing.arenaAmo.id,
@@ -187,7 +190,7 @@ class TiltakshistorikkTest : FunSpec({
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
                         tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
                             tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
-                            navn = null,
+                            navn = "Arbeidstrening",
                         ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("876543210", "Arbeidsgiver"),
@@ -204,7 +207,7 @@ class TiltakshistorikkTest : FunSpec({
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-                            navn = null,
+                            navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.Gjennomforing.gruppeAmo.id,
