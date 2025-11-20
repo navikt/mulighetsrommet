@@ -79,8 +79,10 @@ class ArenaDeltakerQueries(private val session: Session) {
                     deltaker.slutt_dato,
                     deltaker.deltidsprosent,
                     deltaker.dager_per_uke,
+                    gjennomforing.id as gjennomforing_id,
                     gjennomforing.arena_tiltakskode,
-                    gjennomforing.navn as beskrivelse,
+                    gjennomforing.navn as gjennomforing_navn,
+                    gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
                     arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
                     arrangor.navn as arrangor_navn
                 from arena_deltaker deltaker
@@ -116,10 +118,14 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     status = ArenaDeltakerStatus.valueOf(string("status")),
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
-    beskrivelse = string("beskrivelse"),
     tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
         tiltakskode = string("arena_tiltakskode"),
         navn = null,
+    ),
+    gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+        id = uuid("gjennomforing_id"),
+        navn = stringOrNull("gjennomforing_navn"),
+        deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
         organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
