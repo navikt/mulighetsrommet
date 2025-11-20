@@ -276,7 +276,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         beforeAny {
             db.session {
                 queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
-                queries.gjennomforing.upsert(toGjennomforingDbo(gruppeAmo))
+                queries.gjennomforing.upsert(gruppeAmo.toGjennomforingDbo())
             }
         }
 

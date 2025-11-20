@@ -78,8 +78,8 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         test("delete gjennomforing for tombstone messages") {
             db.session {
-                queries.gjennomforing.upsert(toGjennomforingDbo(gruppe))
-                queries.gjennomforing.upsert(toGjennomforingDbo(enkeltplass))
+                queries.gjennomforing.upsert(gruppe.toGjennomforingDbo())
+                queries.gjennomforing.upsert(enkeltplass.toGjennomforingDbo())
             }
 
             consumer.consume(gruppe.id, JsonNull)
