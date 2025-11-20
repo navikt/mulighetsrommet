@@ -18,7 +18,7 @@ data class AmtVirksomhetV1Dto(
     val overordnetEnhetOrganisasjonsnummer: Organisasjonsnummer?,
 )
 
-class AmtVirksomheterV1KafkaConsumer(
+class ReplikerAmtVirksomheterV1KafkaConsumer(
     private val virksomheter: VirksomhetService,
 ) : KafkaTopicConsumer<String, JsonElement>(
     stringDeserializer(),

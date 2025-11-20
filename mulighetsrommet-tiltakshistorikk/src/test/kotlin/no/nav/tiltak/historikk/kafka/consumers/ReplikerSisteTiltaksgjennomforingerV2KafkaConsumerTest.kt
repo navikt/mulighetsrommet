@@ -21,7 +21,7 @@ import no.nav.tiltak.historikk.db.queries.GjennomforingType
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import no.nav.tiltak.historikk.service.VirksomhetService
 
-class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
+class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     beforeEach {
@@ -38,7 +38,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     context("konsumer gjennomføringer") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val consumer = SisteTiltaksgjennomforingerV2KafkaConsumer(db, mockk(relaxed = true))
+        val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, mockk(relaxed = true))
 
         val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
         val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.enkelAmo
@@ -114,7 +114,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             ).right()
             var virksomheter = VirksomhetService(db, brreg)
 
-            val consumer = SisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
+            val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
             consumer.consume(gruppe.id, Json.encodeToJsonElement(gruppe))
 
             database.assertRequest("select * from gjennomforing")
@@ -133,7 +133,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("111222333")),
             )
 
-            val consumer = SisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
+            val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
             consumer.consume(gjennomforing.id, Json.encodeToJsonElement(gjennomforing))
 
             database.assertRequest("select * from gjennomforing")

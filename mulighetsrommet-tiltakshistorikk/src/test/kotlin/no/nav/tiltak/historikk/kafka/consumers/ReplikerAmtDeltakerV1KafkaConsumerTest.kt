@@ -12,13 +12,13 @@ import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.time.LocalDateTime
 
-class AmtDeltakerV1KafkaConsumerTest : FunSpec({
+class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("consume deltakere") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val deltakerConsumer = AmtDeltakerV1KafkaConsumer(db)
+        val deltakerConsumer = ReplikerAmtDeltakerV1KafkaConsumer(db)
 
         val amtDeltaker1 = TestFixtures.Deltaker.gruppeAmo
 
