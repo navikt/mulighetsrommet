@@ -38,17 +38,17 @@ import { useTilsagn, useTilsagnEndringshistorikk } from "./tilsagnDetaljerLoader
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import {
-  MetadataFritekstfelt,
-  MetadataHorisontal,
-  Separator,
-} from "@/components/detaljside/Metadata";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { DataDetails } from "@/components/data-element/DataDetails";
+import {
+  MetadataFritekstfelt,
+  MetadataHorisontal,
+  Separator,
+} from "@mr/frontend-common/components/datadriven/Metadata";
+import { DataDetails } from "@mr/frontend-common";
 
 function useTilsagnDetaljer(tilsagnId: string) {
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);

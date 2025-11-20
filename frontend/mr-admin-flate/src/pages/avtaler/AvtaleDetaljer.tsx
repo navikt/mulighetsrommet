@@ -2,7 +2,6 @@ import { getDisplayName } from "@/api/enhet/helpers";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
 import { hentOpsjonsmodell } from "@/components/avtaler/opsjoner/opsjonsmodeller";
-import { Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -21,6 +20,7 @@ import { Link } from "react-router";
 import { AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();

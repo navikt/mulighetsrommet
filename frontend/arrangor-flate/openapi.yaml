@@ -1214,26 +1214,26 @@ components:
       - INVESTERING_VTA_AFT
       - TIMESPRIS
       - AVTALT_PRIS
-    DetailsEntry:
+    LabeledDataElement:
       type: object
       properties:
-        key:
+        type:
+          $ref: "#/components/schemas/LabeledDataElementType"
+        label:
           type: string
         value:
-          type: string
-        format:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/DetailsFormat"
+          - $ref: "#/components/schemas/DataElement"
       required:
-      - format
-      - key
+      - label
+      - type
       - value
-    DetailsFormat:
+    LabeledDataElementType:
       type: string
       enum:
-      - NOK
-      - NUMBER
+      - INLINE
+      - MULTILINE
     ArrangorflateTilsagnDto:
       type: object
       properties:
@@ -1259,7 +1259,7 @@ components:
           type: integer
           format: int32
         beregning:
-          $ref: "#/components/schemas/Details"
+          $ref: "#/components/schemas/DataDetails"
         bestillingsnummer:
           type: string
       required:
@@ -1352,15 +1352,20 @@ components:
       - ANNULLERT
       - TIL_OPPGJOR
       - OPPGJORT
-    Details:
+    DataDetails:
       type: object
       properties:
+        header:
+          type:
+          - "null"
+          - string
         entries:
           type: array
           items:
-            $ref: "#/components/schemas/DetailsEntry"
+            $ref: "#/components/schemas/LabeledDataElement"
       required:
       - entries
+      - header
     OpprettKravInnsendingsInformasjon.DatoVelger:
       anyOf:
       - $ref: "#/components/schemas/DatoVelgerRange"
@@ -1413,7 +1418,7 @@ components:
         definisjonsListe:
           type: array
           items:
-            $ref: "#/components/schemas/DetailsEntry"
+            $ref: "#/components/schemas/LabeledDataElement"
         tilsagn:
           type: array
           items:
@@ -1458,7 +1463,7 @@ components:
         tabellFooter:
           type: array
           items:
-            $ref: "#/components/schemas/DetailsEntry"
+            $ref: "#/components/schemas/LabeledDataElement"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
@@ -1549,11 +1554,11 @@ components:
         innsendingsInformasjon:
           type: array
           items:
-            $ref: "#/components/schemas/DetailsEntry"
+            $ref: "#/components/schemas/LabeledDataElement"
         utbetalingInformasjon:
           type: array
           items:
-            $ref: "#/components/schemas/DetailsEntry"
+            $ref: "#/components/schemas/LabeledDataElement"
         innsendingsData:
           $ref: "#/components/schemas/OpprettKravOppsummering.InnsendingsData"
         navigering:
@@ -1757,40 +1762,6 @@ components:
       - displayName
       - satsDetaljer
       - stengt
-    DataDetails:
-      type: object
-      properties:
-        header:
-          type:
-          - "null"
-          - string
-        entries:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
-      required:
-      - entries
-      - header
-    LabeledDataElement:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/LabeledDataElementType"
-        label:
-          type: string
-        value:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataElement"
-      required:
-      - label
-      - type
-      - value
-    LabeledDataElementType:
-      type: string
-      enum:
-      - INLINE
-      - MULTILINE
     ArrangforflateUtbetalingLinje:
       type: object
       properties:

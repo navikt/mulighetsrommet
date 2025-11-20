@@ -1,7 +1,7 @@
-import { ArrangorflateTilsagnDto } from "api-client";
-import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
+import { ArrangorflateTilsagnDto, LabeledDataElement, LabeledDataElementType } from "api-client";
+import { Definisjonsliste2 } from "../common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { TilsagnStatusTag } from "./TilsagnStatusTag";
+import { tilsagnStatusElement } from "./TilsagnStatusTag";
 
 interface Props {
   tilsagn: ArrangorflateTilsagnDto;
@@ -10,16 +10,28 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
-  const tilsagnDetaljer: Definition[] = !minimal
+  const tilsagnDetaljer: LabeledDataElement[] = !minimal
     ? [
-        { key: "Status", value: <TilsagnStatusTag status={tilsagn.status} /> },
-        { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
-        { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
+        {
+          label: "Status",
+          type: LabeledDataElementType.INLINE,
+          value: tilsagnStatusElement(tilsagn.status),
+        },
+        {
+          label: "Tiltakstype",
+          type: LabeledDataElementType.INLINE,
+          value: { value: tilsagn.tiltakstype.navn, format: null },
+        },
+        {
+          label: "Tiltaksnavn",
+          type: LabeledDataElementType.INLINE,
+          value: { value: tilsagn.gjennomforing.navn, format: null },
+        },
       ]
     : [];
 
   return (
-    <Definisjonsliste
+    <Definisjonsliste2
       headingLevel={headingLevel ?? "3"}
       className="p-4 border-1 border-border-divider rounded-lg w-xl"
       title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}

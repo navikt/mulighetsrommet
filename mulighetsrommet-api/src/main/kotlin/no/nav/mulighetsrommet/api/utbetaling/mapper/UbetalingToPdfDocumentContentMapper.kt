@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.DataElement
 import java.util.UUID
 
 object UbetalingToPdfDocumentContentMapper {
@@ -134,7 +135,11 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
             entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
 
             beregningDetails(utbetaling.beregning).entries.forEach { entry ->
-                entry(entry.key, entry.value, entry.format?.toPdfDocumentContentFormat())
+                val format = when (val value = entry.value) {
+                    is DataElement.Text -> value.format?.toPdfDocumentContentFormat()
+                    else -> null
+                }
+                entry(entry.label, entry.value?.toPdfDocumentValue(), format)
             }
         }
     }
@@ -309,7 +314,17 @@ private fun PdfDocumentContentBuilder.addDeltakelsesfaktorSection(
     }
 }
 
-private fun DetailsFormat.toPdfDocumentContentFormat(): Format? = when (this) {
-    DetailsFormat.NOK -> Format.NOK
-    DetailsFormat.NUMBER -> null
+private fun DataElement.Text.Format.toPdfDocumentContentFormat(): Format? = when (this) {
+    DataElement.Text.Format.DATE -> Format.DATE
+    DataElement.Text.Format.NOK -> Format.NOK
+    DataElement.Text.Format.NUMBER -> null
+}
+
+private fun DataElement.toPdfDocumentValue(): String? = when (this) {
+    is DataElement.Link -> this.text
+    is DataElement.MathOperator -> this.operator.toString()
+    is DataElement.MultiLinkModal -> this.buttonText
+    is DataElement.Periode -> "${this.start} - ${this.slutt}"
+    is DataElement.Status -> this.value
+    is DataElement.Text -> this.value
 }

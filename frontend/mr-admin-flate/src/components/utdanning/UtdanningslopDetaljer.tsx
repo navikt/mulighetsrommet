@@ -1,8 +1,8 @@
 import { Bolk } from "../detaljside/Bolk";
-import { Metadata, Separator } from "../detaljside/Metadata";
 import { List } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { UtdanningslopDto } from "@tiltaksadministrasjon/api-client";
+import { Metadata, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   utdanningslop: UtdanningslopDto;

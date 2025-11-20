@@ -4,7 +4,6 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/TilgjengeligTiltakForArrangor";
@@ -22,6 +21,7 @@ import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
+import { Metadata, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);

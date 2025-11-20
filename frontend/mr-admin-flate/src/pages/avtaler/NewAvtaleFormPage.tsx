@@ -5,7 +5,6 @@ import { HarTilgang } from "@/components/auth/HarTilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { Header } from "@/components/detaljside/Header";
-import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
@@ -30,6 +29,7 @@ import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, toAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 const steps = [
   {

@@ -1,9 +1,9 @@
 import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
-import { Metadata, MetadataFritekstfelt } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { AvtaleDto, AvtaltSatsDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
+import { Metadata, MetadataFritekstfelt } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   switch (avtale.prismodell.type) {

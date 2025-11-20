@@ -1,5 +1,4 @@
 import { AmoKategorisering } from "@tiltaksadministrasjon/api-client";
-import { Metadata } from "@/components/detaljside/Metadata";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import {
@@ -8,6 +7,7 @@ import {
   kurstypeToString,
   bransjeToString,
 } from "@/utils/Utils";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   amoKategorisering: AmoKategorisering;

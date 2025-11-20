@@ -1,5 +1,5 @@
+import { MetadataHorisontal } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Box } from "@navikt/ds-react";
-import { MetadataHorisontal } from "../../components/detaljside/Metadata";
 import {
   ArrangorKontaktperson,
   GjennomforingArrangorKontaktperson,
