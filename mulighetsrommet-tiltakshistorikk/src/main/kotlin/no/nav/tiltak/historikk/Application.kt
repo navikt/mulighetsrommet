@@ -18,10 +18,10 @@ import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
-import no.nav.tiltak.historikk.kafka.consumers.AmtVirksomheterV1KafkaConsumer
+import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerV1KafkaConsumer
+import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtVirksomheterV1KafkaConsumer
+import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltakstyperV3KafkaConsumer
-import no.nav.tiltak.historikk.kafka.consumers.SisteTiltaksgjennomforingerV2KafkaConsumer
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
@@ -122,9 +122,9 @@ fun Application.configureKafka(
 
     val consumers = mapOf(
         config.consumers.replikerSisteTiltakstyper to ReplikerSisteTiltakstyperV3KafkaConsumer(db),
-        config.consumers.sisteTiltaksgjennomforingerV2 to SisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter),
-        config.consumers.amtDeltakerV1 to AmtDeltakerV1KafkaConsumer(db),
-        config.consumers.amtVirksomhetV1 to AmtVirksomheterV1KafkaConsumer(virksomheter),
+        config.consumers.replikerSisteTiltaksgjennomforinger to ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter),
+        config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(db),
+        config.consumers.replikerAmtVirksomhet to ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter),
     )
 
     val kafka = KafkaConsumerOrchestrator(
