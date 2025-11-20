@@ -35,31 +35,6 @@ class VirksomhetService(
         }
     }
 
-    fun syncAlleVirksomheterUtenNavn(scope: CoroutineScope) {
-        scope.launch {
-            var sisteOrgnr: Organisasjonsnummer? = Organisasjonsnummer("800000000")
-            do {
-                sisteOrgnr = db.transaction {
-                    @Language("PostgreSQL")
-                    val query = """
-                    select organisasjonsnummer
-                    from virksomhet
-                    where organisasjonsnummer > ? and navn is null
-                    order by organisasjonsnummer
-                    limit 100
-                    for update skip locked
-                    """.trimIndent()
-
-                    val orgnrs = session.list(queryOf(query, sisteOrgnr?.value)) {
-                        Organisasjonsnummer(it.string("organisasjonsnummer"))
-                    }
-                    orgnrs.forEach { syncFromBrreg(it) }
-                    orgnrs.lastOrNull()
-                }
-            } while (sisteOrgnr != null)
-        }
-    }
-
     private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): BrregError? {
         return brreg.getBrregEnhet(organisasjonsnummer)
             .fold({ error ->
