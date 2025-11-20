@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
 import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.left
 import arrow.core.raise.either
-import arrow.core.right
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
@@ -19,7 +16,6 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkClient
@@ -79,24 +75,15 @@ class TiltakshistorikkEventProcessor(
             return@either ProcessingResult(Ignored, "Historikk ikke relevant fordi fødselsnummer mangler i Arena")
         }
 
-        val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)
-            .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
-            .map { Organisasjonsnummer(it.virksomhetsnummer) }
-            .bind()
-
         val deltaker = TiltakshistorikkArenaDeltaker(
             id = mapping.entityId,
             arenaGjennomforingId = tiltaksgjennomforing.id,
             arenaRegDato = ArenaUtils.parseTimestamp(data.REG_DATO),
             arenaModDato = ArenaUtils.parseTimestamp(data.MOD_DATO),
             norskIdent = NorskIdent(norskIdent),
-            arenaTiltakskode = tiltakstype.tiltakskode,
             status = ArenaDeltakerStatus.valueOf(data.DELTAKERSTATUSKODE.name),
             startDato = ArenaUtils.parseNullableTimestamp(data.DATO_FRA),
             sluttDato = ArenaUtils.parseNullableTimestamp(data.DATO_TIL),
-            beskrivelse = tiltaksgjennomforing.navn,
-            arrangorOrganisasjonsnummer = organisasjonsnummer,
             dagerPerUke = data.ANTALL_DAGER_PR_UKE,
             deltidsprosent = data.PROSENT_DELTID,
         )

@@ -71,7 +71,7 @@ object TestFixtures {
         arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
         arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
         arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
-        navn = "Arbeidstrening",
+        navn = "Arbeidstrening hos Fretex",
         deltidsprosent = 80.0,
     )
 
@@ -81,7 +81,7 @@ object TestFixtures {
         arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
         arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
         arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
-        navn = "Mentor",
+        navn = "Mentortiltak hos Joblearn",
         deltidsprosent = 100.0,
     )
 
@@ -91,7 +91,7 @@ object TestFixtures {
         arenaRegDato = LocalDate.of(2024, 1, 1).atStartOfDay(),
         arenaModDato = LocalDate.of(2024, 1, 1).atStartOfDay(),
         arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
-        navn = "AMO",
+        navn = "Enkelt-AMO hos Joblearn",
         deltidsprosent = 100.0,
     )
 }
