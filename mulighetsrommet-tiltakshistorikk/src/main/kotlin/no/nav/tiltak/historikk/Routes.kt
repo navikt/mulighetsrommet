@@ -34,10 +34,17 @@ fun Route.tiltakshistorikkRoutes(
             put("/gjennomforing") {
                 val dbo = call.receive<TiltakshistorikkArenaGjennomforing>()
 
-                virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
-                db.session { queries.arenaGjennomforing.upsert(dbo) }
-
-                call.respond(HttpStatusCode.OK)
+                virksomheter.getOrSyncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
+                    .onRight {
+                        db.session { queries.arenaGjennomforing.upsert(dbo) }
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    .onLeft {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Klarte ikke utlede virksomhet fra for orgnr=${dbo.arrangorOrganisasjonsnummer}",
+                        )
+                    }
             }
 
             delete("/gjennomforing/{id}") {

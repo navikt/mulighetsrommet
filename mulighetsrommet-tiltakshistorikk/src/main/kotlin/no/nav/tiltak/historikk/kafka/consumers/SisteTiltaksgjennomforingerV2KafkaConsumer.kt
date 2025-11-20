@@ -33,7 +33,9 @@ class SisteTiltaksgjennomforingerV2KafkaConsumer(
     }
 
     private suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) {
-        virksomheter.syncVirksomhetIfNotExists(organisasjonsnummer)
+        virksomheter.getOrSyncVirksomhetIfNotExists(organisasjonsnummer).onLeft { error ->
+            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
+        }
     }
 
     private fun upsertGjennomforing(gjennomforing: TiltaksgjennomforingV2Dto): Unit = db.session {
