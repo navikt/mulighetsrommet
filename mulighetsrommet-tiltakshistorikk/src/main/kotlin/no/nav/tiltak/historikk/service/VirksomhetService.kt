@@ -1,5 +1,8 @@
 package no.nav.tiltak.historikk.service
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.db.QueryContext
@@ -18,21 +21,18 @@ class VirksomhetService(
         queries.virksomhet.delete(organisasjonsnummer)
     }
 
-    suspend fun syncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer) {
-        if (getVirksomhet(organisasjonsnummer) == null) {
-            syncVirksomhet(organisasjonsnummer)
-        }
+    suspend fun getOrSyncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
+        return getVirksomhet(organisasjonsnummer)?.right() ?: return getAndSyncVirksomhet(organisasjonsnummer)
     }
 
-    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Unit = db.session {
+    suspend fun getAndSyncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> = db.session {
         if (erUtenlandskVirksomhet(organisasjonsnummer)) {
-            return queries.virksomhet.upsert(VirksomhetDbo(organisasjonsnummer, null, null, null, null))
+            return VirksomhetDbo(organisasjonsnummer, null, null, null, null)
+                .also { queries.virksomhet.upsert(it) }
+                .right()
         }
 
-        val error = syncFromBrreg(organisasjonsnummer)
-        if (error != null) {
-            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
-        }
+        return syncFromBrreg(organisasjonsnummer)
     }
 
     /**
@@ -43,20 +43,18 @@ class VirksomhetService(
         return organisasjonsnummer.value.first() == '1'
     }
 
-    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): BrregError? {
+    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
         return brreg.getBrregEnhet(organisasjonsnummer)
             .fold({ error ->
                 when (error) {
                     is BrregError.FjernetAvJuridiskeArsaker -> {
-                        queries.virksomhet.upsert(error.enhet.toVirksomhetDbo())
-                        null
+                        error.enhet.toVirksomhetDbo().also { queries.virksomhet.upsert(it) }.right()
                     }
 
-                    else -> error
+                    else -> error.left()
                 }
             }, { enhet ->
-                queries.virksomhet.upsert(enhet.toVirksomhetDbo())
-                null
+                enhet.toVirksomhetDbo().also { queries.virksomhet.upsert(it) }.right()
             })
     }
 }

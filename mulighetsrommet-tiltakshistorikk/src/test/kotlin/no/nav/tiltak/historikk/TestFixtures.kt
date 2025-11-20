@@ -9,10 +9,18 @@ import java.time.LocalDateTime
 import java.util.*
 
 object TestFixtures {
-    val virksomhet = VirksomhetDbo(
+    val arrangorVirksomhet = VirksomhetDbo(
         organisasjonsnummer = Organisasjonsnummer("987654321"),
         overordnetEnhetOrganisasjonsnummer = null,
         navn = "Arrangør",
+        organisasjonsform = "BEDR",
+        slettetDato = null,
+    )
+
+    val arbeidsgiverVirksomhet = VirksomhetDbo(
+        organisasjonsnummer = Organisasjonsnummer("876543210"),
+        overordnetEnhetOrganisasjonsnummer = null,
+        navn = "Arbeidsgiver",
         organisasjonsform = "BEDR",
         slettetDato = null,
     )
