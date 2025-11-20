@@ -64,4 +64,34 @@ object TestFixtures {
         prosentStilling = 50f,
         deltakelsesmengder = listOf(),
     )
+
+    val arenaArbeidstrening = TiltakshistorikkArenaGjennomforing(
+        id = UUID.randomUUID(),
+        arenaTiltakskode = "ARBTREN",
+        arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
+        arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
+        navn = "Arbeidstrening",
+        deltidsprosent = 80.0,
+    )
+
+    val arenaMentor = TiltakshistorikkArenaGjennomforing(
+        id = UUID.randomUUID(),
+        arenaTiltakskode = "MENTOR",
+        arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
+        arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
+        arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
+        navn = "Mentor",
+        deltidsprosent = 100.0,
+    )
+
+    val arenaAmo = TiltakshistorikkArenaGjennomforing(
+        id = UUID.randomUUID(),
+        arenaTiltakskode = "AMO",
+        arenaRegDato = LocalDate.of(2024, 1, 1).atStartOfDay(),
+        arenaModDato = LocalDate.of(2024, 1, 1).atStartOfDay(),
+        arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
+        navn = "AMO",
+        deltidsprosent = 100.0,
+    )
 }
