@@ -10,7 +10,7 @@ import java.util.*
 
 object TestFixtures {
     val virksomhet = VirksomhetDbo(
-        organisasjonsnummer = Organisasjonsnummer("123123123"),
+        organisasjonsnummer = Organisasjonsnummer("987654321"),
         overordnetEnhetOrganisasjonsnummer = null,
         navn = "Arrangør",
         organisasjonsform = "BEDR",
@@ -21,7 +21,7 @@ object TestFixtures {
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         arrangor = TiltaksgjennomforingV2Dto.Arrangor(
-            organisasjonsnummer = Organisasjonsnummer("123123123"),
+            organisasjonsnummer = Organisasjonsnummer("987654321"),
         ),
         navn = "Gruppe AMO",
         startDato = LocalDate.now(),
@@ -41,7 +41,7 @@ object TestFixtures {
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangor = TiltaksgjennomforingV2Dto.Arrangor(
-            organisasjonsnummer = Organisasjonsnummer("123123123"),
+            organisasjonsnummer = Organisasjonsnummer("987654321"),
         ),
         opprettetTidspunkt = Instant.now(),
         oppdatertTidspunkt = Instant.now(),

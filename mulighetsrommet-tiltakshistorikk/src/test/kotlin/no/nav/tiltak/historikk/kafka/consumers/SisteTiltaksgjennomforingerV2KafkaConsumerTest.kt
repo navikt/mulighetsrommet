@@ -9,7 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -18,10 +18,15 @@ import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.GjennomforingType
+import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import no.nav.tiltak.historikk.service.VirksomhetService
 
 class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
+
+    beforeEach {
+        database.truncateAll()
+    }
 
     context("konsumer gjennomføringer") {
         val db = TiltakshistorikkDatabase(database.db)
@@ -47,14 +52,14 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 .value("id").isEqualTo(gruppe.id)
                 .value("gjennomforing_type").isEqualTo(GjennomforingType.GRUPPE.name)
                 .value("tiltakskode").isEqualTo(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING.name)
-                .value("arrangor_organisasjonsnummer").isEqualTo("123123123")
+                .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
                 .value("navn").isEqualTo("Gruppe AMO")
                 .value("deltidsprosent").isEqualTo(80.0)
                 .row()
                 .value("id").isEqualTo(enkeltplass.id)
                 .value("gjennomforing_type").isEqualTo(GjennomforingType.ENKELTPLASS.name)
                 .value("tiltakskode").isEqualTo(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING.name)
-                .value("arrangor_organisasjonsnummer").isEqualTo("123123123")
+                .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
                 .value("navn").isNull
                 .value("deltidsprosent").isNull
 
@@ -90,13 +95,15 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingGruppe
 
-        test("upsert gjennomforing from topic") {
+        test("lagrer virksomhet fra brreg") {
             var brreg = mockk<BrregClient>()
-            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123123123")) } returns BrregUnderenhetDto(
-                organisasjonsnummer = Organisasjonsnummer("123123123"),
+            coEvery { brreg.getBrregEnhet(Organisasjonsnummer("987654321")) } returns BrregHovedenhetDto(
+                organisasjonsnummer = Organisasjonsnummer("987654321"),
                 organisasjonsform = "BEDR",
                 navn = "Arrangør",
-                overordnetEnhet = Organisasjonsnummer("987654321"),
+                postadresse = null,
+                forretningsadresse = null,
+                overordnetEnhet = null,
             ).right()
             var virksomheter = VirksomhetService(db, brreg)
 
@@ -106,9 +113,34 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             database.assertRequest("select * from gjennomforing")
                 .hasNumberOfRows(1)
                 .row()
-                .value("arrangor_organisasjonsnummer").isEqualTo("123123123")
+                .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
 
-            virksomheter.getVirksomhet(Organisasjonsnummer("123123123")).shouldBe(TestFixtures.virksomhet)
+            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.virksomhet)
+        }
+
+        test("lagrer utenlandsk virksomhet uten navn") {
+            var brreg = mockk<BrregClient>()
+            var virksomheter = VirksomhetService(db, brreg)
+
+            var gjennomforing: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingGruppe.copy(
+                arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("111222333")),
+            )
+
+            val consumer = SisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
+            consumer.consume(gjennomforing.id, Json.encodeToJsonElement(gjennomforing))
+
+            database.assertRequest("select * from gjennomforing")
+                .hasNumberOfRows(1)
+                .row()
+                .value("arrangor_organisasjonsnummer").isEqualTo("111222333")
+
+            virksomheter.getVirksomhet(Organisasjonsnummer("111222333")) shouldBe VirksomhetDbo(
+                organisasjonsnummer = Organisasjonsnummer("111222333"),
+                overordnetEnhetOrganisasjonsnummer = null,
+                navn = null,
+                organisasjonsform = null,
+                slettetDato = null,
+            )
         }
     }
 })

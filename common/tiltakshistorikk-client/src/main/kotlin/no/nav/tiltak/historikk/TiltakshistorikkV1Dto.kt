@@ -182,11 +182,3 @@ data class TiltakshistorikkArenaDeltaker(
     val dagerPerUke: Double?,
     val deltidsprosent: Double?,
 )
-
-@Serializable
-data class TiltakshistorikkArenaDeltakerGjennomforingId(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val arenaGjennomforingId: UUID,
-)

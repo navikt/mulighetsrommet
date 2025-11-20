@@ -86,8 +86,6 @@ fun Application.configure(config: AppConfig) {
         config.arbeidsgiverTiltakCutOffDatoMapping,
     )
 
-    virksomheter.syncAlleVirksomheterUtenNavn(this)
-
     routing {
         tiltakshistorikkRoutes(kafka, db, tiltakshistorikk, virksomheter)
     }
