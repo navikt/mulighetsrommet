@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class TiltakstypeEksternV2Dto(
+data class TiltakstypeV3Dto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
