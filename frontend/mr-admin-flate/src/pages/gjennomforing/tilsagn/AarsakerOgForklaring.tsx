@@ -1,4 +1,4 @@
-import { MetadataFritekstfelt } from "@/components/detaljside/Metadata";
+import { MetadataFritekstfelt } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Alert, BodyShort, Heading, List } from "@navikt/ds-react";
 
 type Props = {

@@ -7,8 +7,8 @@ import {
 import { HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { Metadata } from "@/components/detaljside/Metadata";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;

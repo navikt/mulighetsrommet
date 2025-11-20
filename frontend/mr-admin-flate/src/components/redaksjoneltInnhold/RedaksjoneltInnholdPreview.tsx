@@ -6,7 +6,6 @@ import { Suspense, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { LenkerList } from "../lenker/LenkerList";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { Metadata } from "../detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useAvtale } from "@/api/avtaler/useAvtale";
@@ -20,6 +19,7 @@ import {
   GjennomforingTiltakstype,
   Kontorstruktur,
 } from "@tiltaksadministrasjon/api-client";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: GjennomforingTiltakstype;

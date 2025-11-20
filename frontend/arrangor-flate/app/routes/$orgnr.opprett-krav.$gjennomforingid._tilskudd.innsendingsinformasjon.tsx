@@ -48,7 +48,7 @@ import {
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
-import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { Definisjonsliste2 } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
@@ -220,7 +220,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           </Heading>
           <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanel} />
           <VStack gap="6" className="max-w-2xl">
-            <Definisjonsliste definitions={innsendingsinformasjon.definisjonsListe} />
+            <Definisjonsliste2 definitions={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
               <Label size="small">Periode</Label>
               <BodyShort textColor="subtle" size="small">

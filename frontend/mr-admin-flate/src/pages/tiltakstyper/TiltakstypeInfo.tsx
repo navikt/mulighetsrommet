@@ -1,10 +1,10 @@
 import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { SANITY_STUDIO_URL } from "@/constants";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { Metadata, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function TiltakstypeInfo() {
   const { data: tiltakstype } = useTiltakstypeById();

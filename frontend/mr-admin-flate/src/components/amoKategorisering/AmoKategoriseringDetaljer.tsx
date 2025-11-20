@@ -1,5 +1,4 @@
 import { AmoKategorisering } from "@tiltaksadministrasjon/api-client";
-import { Separator } from "@/components/detaljside/Metadata";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import {
   forerkortKlasseToString,
@@ -8,6 +7,7 @@ import {
   bransjeToString,
 } from "@/utils/Utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   amoKategorisering: AmoKategorisering;

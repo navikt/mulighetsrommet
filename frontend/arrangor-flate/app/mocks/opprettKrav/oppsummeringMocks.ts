@@ -1,5 +1,6 @@
 import {
-  DetailsFormat,
+  DataElementTextFormat,
+  LabeledDataElementType,
   OpprettKravOppsummering,
   OpprettKravOppsummeringRequest,
   OpprettKravVeiviserNavigering,
@@ -13,7 +14,6 @@ import {
 } from "./gjennomforingMocks";
 import { innsendingsInformasjon } from "./innsendingsInformasjonMocks";
 import { addDuration, formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { kontonummer } from "./utbetalingsInformasjonMocks";
 
 const navigering: OpprettKravVeiviserNavigering = {
   tilbake: OpprettKravVeiviserSteg.VEDLEGG,
@@ -35,9 +35,21 @@ export const oppsummering: Record<
     const oppsummering: OpprettKravOppsummering = {
       innsendingsInformasjon: innsendingsInformasjon[gjennomforingIdAFT].definisjonsListe,
       utbetalingInformasjon: [
-        { key: "Utbetalingsperiode", value: formaterPeriode(periode), format: null },
-        { key: "Kontonummer", value: "12345678910", format: null },
-        { key: "Beløp", value: request.belop.toString(), format: DetailsFormat.NOK },
+        {
+          label: "Utbetalingsperiode",
+          type: LabeledDataElementType.INLINE,
+          value: { value: formaterPeriode(periode), format: null },
+        },
+        {
+          label: "Kontonummer",
+          type: LabeledDataElementType.INLINE,
+          value: { value: "12345678910", format: null },
+        },
+        {
+          label: "Beløp",
+          type: LabeledDataElementType.INLINE,
+          value: { value: request.belop.toString(), format: DataElementTextFormat.NOK },
+        },
       ],
       innsendingsData: {
         periode: periode,
@@ -57,10 +69,23 @@ export const oppsummering: Record<
     const oppsummering: OpprettKravOppsummering = {
       innsendingsInformasjon: innsendingsInformasjon[gjennomforingIdAvklaring].definisjonsListe,
       utbetalingInformasjon: [
-        { key: "Utbetalingsperiode", value: formaterPeriode(periode), format: null },
-        { key: "Kontonummer", value: "12345678910", format: null },
-        { key: "Beløp", value: request.belop.toString(), format: DetailsFormat.NOK },
+        {
+          label: "Utbetalingsperiode",
+          type: LabeledDataElementType.INLINE,
+          value: { value: formaterPeriode(periode), format: null },
+        },
+        {
+          label: "Kontonummer",
+          type: LabeledDataElementType.INLINE,
+          value: { value: "12345678910", format: null },
+        },
+        {
+          label: "Beløp",
+          type: LabeledDataElementType.INLINE,
+          value: { value: request.belop.toString(), format: DataElementTextFormat.NOK },
+        },
       ],
+
       innsendingsData: {
         periode: periode,
         belop: request.belop,
@@ -82,9 +107,21 @@ export const oppsummering: Record<
     const oppsummering: OpprettKravOppsummering = {
       innsendingsInformasjon: innsendingsInformasjon[gjennomforingIdOppfolging].definisjonsListe,
       utbetalingInformasjon: [
-        { key: "Utbetalingsperiode", value: formaterPeriode(periode), format: null },
-        { key: "Kontonummer", value: kontonummer, format: null },
-        { key: "Beløp", value: request.belop.toString(), format: DetailsFormat.NOK },
+        {
+          label: "Utbetalingsperiode",
+          type: LabeledDataElementType.INLINE,
+          value: { value: formaterPeriode(periode), format: null },
+        },
+        {
+          label: "Kontonummer",
+          type: LabeledDataElementType.INLINE,
+          value: { value: "12345678910", format: null },
+        },
+        {
+          label: "Beløp",
+          type: LabeledDataElementType.INLINE,
+          value: { value: request.belop.toString(), format: DataElementTextFormat.NOK },
+        },
       ],
       innsendingsData: {
         periode: periode,

@@ -3,7 +3,6 @@ import { getDisplayName } from "@/api/enhet/helpers";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
-import { Separator } from "@/components/detaljside/Metadata";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/TilgjengeligTiltakForArrangor";
@@ -25,6 +24,7 @@ import {
   Definisjonsliste,
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);

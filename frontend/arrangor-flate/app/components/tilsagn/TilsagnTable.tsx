@@ -1,11 +1,12 @@
 import { ArrangorflateTilsagnDto, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
 import { LinkWithTabState } from "../common/LinkWithTabState";
-import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { useSortState } from "~/hooks/useSortState";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { getDataElement } from "@mr/frontend-common";
+import { tilsagnStatusElement } from "./TilsagnStatusTag";
 
 interface Props {
   tilsagn: ArrangorflateTilsagnDto[];
@@ -72,6 +73,7 @@ export function TilsagnTable({ tilsagn }: Props) {
       </Table.Header>
       <Table.Body>
         {sortedData.map((tilsagn, i) => {
+          const statusElement = tilsagnStatusElement(tilsagn.status);
           return (
             <Table.Row key={i}>
               <Table.HeaderCell scope="row">{tilsagn.gjennomforing.navn}</Table.HeaderCell>
@@ -81,7 +83,7 @@ export function TilsagnTable({ tilsagn }: Props) {
               <Table.DataCell>{tilsagn.bestillingsnummer}</Table.DataCell>
               <Table.DataCell>{formaterTilsagnType(tilsagn.type)}</Table.DataCell>
               <Table.DataCell>
-                <TilsagnStatusTag status={tilsagn.status} />
+                {statusElement ? getDataElement(statusElement) : null}
               </Table.DataCell>
               <Table.DataCell>
                 <LinkWithTabState

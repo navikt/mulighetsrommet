@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { MetadataFritekstfelt, MetadataHorisontal } from "@/components/detaljside/Metadata";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
@@ -32,6 +31,10 @@ import { BesluttUtbetalingLinjeView } from "@/components/utbetaling/BesluttUtbet
 import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbetalingLinjeView";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  MetadataFritekstfelt,
+  MetadataHorisontal,
+} from "@mr/frontend-common/components/datadriven/Metadata";
 
 function useUtbetalingPageData() {
   const { gjennomforingId, utbetalingId } = useRequiredParams(["gjennomforingId", "utbetalingId"]);

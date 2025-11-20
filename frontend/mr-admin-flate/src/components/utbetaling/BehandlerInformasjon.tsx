@@ -1,7 +1,7 @@
 import { Besluttelse, TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
 import { HStack } from "@navikt/ds-react";
-import { Metadata } from "../detaljside/Metadata";
 import { isBesluttet } from "@/utils/totrinnskontroll";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface BehandlerInformasjonProps {
   opprettelse: TotrinnskontrollDto;
