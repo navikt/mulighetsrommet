@@ -307,12 +307,12 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val virksomhet = TestFixtures.virksomhet
     queries.virksomhet.upsert(virksomhet)
 
-    val tiltak = TestFixtures.gjennomforingGruppe
-    queries.gjennomforing.upsert(toGjennomforingDbo(tiltak))
+    val arenaArbeidstrening = TestFixtures.arenaArbeidstrening
+    queries.arenaGjennomforing.upsert(arenaArbeidstrening)
 
     val arbeidstrening = TiltakshistorikkArenaDeltaker(
         id = ARENA_ARBEIDSTRENING_ID,
-        arenaGjennomforingId = UUID.randomUUID(),
+        arenaGjennomforingId = arenaArbeidstrening.id,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "ARBTREN",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -327,9 +327,12 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
 
+    val arenaMentor = TestFixtures.arenaMentor
+    queries.arenaGjennomforing.upsert(arenaMentor)
+
     val mentor = TiltakshistorikkArenaDeltaker(
         id = ARENA_MENTOR_ID,
-        arenaGjennomforingId = UUID.randomUUID(),
+        arenaGjennomforingId = arenaMentor.id,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "MENTOR",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -344,9 +347,12 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.arenaDeltaker.upsertArenaDeltaker(mentor)
 
+    val arenaAmo = TestFixtures.arenaAmo
+    queries.arenaGjennomforing.upsert(arenaAmo)
+
     val enkeltAMO = TiltakshistorikkArenaDeltaker(
         id = ARENA_ENKEL_AMO_ID,
-        arenaGjennomforingId = UUID.randomUUID(),
+        arenaGjennomforingId = arenaAmo.id,
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "AMO",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -360,6 +366,9 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         deltidsprosent = 100.0,
     )
     queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
+
+    val tiltak = TestFixtures.gjennomforingGruppe
+    queries.gjennomforing.upsert(toGjennomforingDbo(tiltak))
 
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
