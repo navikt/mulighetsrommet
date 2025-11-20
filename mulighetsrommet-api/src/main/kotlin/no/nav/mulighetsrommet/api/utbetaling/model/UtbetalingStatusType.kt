@@ -27,7 +27,7 @@ enum class UtbetalingStatusType {
     FERDIG_BEHANDLET,
 
     /**
-     * Minst én delutbetalingslinje har fått fakturastatus FEILET eller FULLT_BETALT
+     * Minst én delutbetalingslinje har fått fakturastatus DELVIS_BETALT eller FULLT_BETALT
      */
     DELVIS_UTBETALT,
 
