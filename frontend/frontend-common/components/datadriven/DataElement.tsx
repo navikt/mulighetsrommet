@@ -3,10 +3,10 @@ import { Lenke } from "../lenke/Lenke";
 import { DataElementMathOperator } from "./DataElementMathOperator";
 import { DataElementMultiLinkModal } from "./DataElementMultiLinkModal";
 import { DataElementStatusTag } from "./DataElementStatusTag";
-import { DataElement as Type } from "./types";
+import { DataElement } from "./types";
 import { formatText } from "./util";
 
-export function getDataElement(element: Type) {
+export function getDataElement(element: DataElement) {
   switch (element.type) {
     case "no.nav.mulighetsrommet.model.DataElement.Text":
       return element.value ? formatText(element.value, element.format) : null;

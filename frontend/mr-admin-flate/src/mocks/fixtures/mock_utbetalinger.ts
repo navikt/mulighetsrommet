@@ -1,9 +1,9 @@
 import {
   Besluttelse,
-  DataElementMathOperatorType,
   DataElementStatusVariant,
   DataElementTextFormat,
   DelutbetalingStatus,
+  LabeledDataElementType,
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
@@ -465,20 +465,22 @@ export const mockBeregning: UtbetalingBeregningDto = {
     columns: [],
     rows: [],
   },
-  regnestykke: [
+  belop: 24000,
+  satsDetaljer: [
     {
-      type: "no.nav.mulighetsrommet.model.DataElement.Text",
-      value: "Innsendt beløp",
-      format: null,
-    },
-    {
-      type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
-      operator: DataElementMathOperatorType.EQUALS,
-    },
-    {
-      type: "no.nav.mulighetsrommet.model.DataElement.Text",
-      value: "20975",
-      format: DataElementTextFormat.NOK,
+      header: "Periode mars",
+      entries: [
+        {
+          label: "Sats",
+          type: LabeledDataElementType.INLINE,
+          value: { value: "25000", format: DataElementTextFormat.NOK },
+        },
+        {
+          label: "Antall månedsverk",
+          type: LabeledDataElementType.INLINE,
+          value: { value: "50", format: null },
+        },
+      ],
     },
   ],
 };
