@@ -146,9 +146,6 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 val (deltakerEvent, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
 
                 val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
-                    }
                     get("/ords/fnr") {
                         respondJson(ArenaOrdsFnr("12345678910"))
                     }
@@ -182,9 +179,6 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 )
 
                 val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
-                    }
                     get("/ords/fnr") {
                         respondJson(ArenaOrdsFnr("12345678910"))
                     }
