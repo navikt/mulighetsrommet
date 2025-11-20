@@ -77,22 +77,6 @@ class ArenaDeltakerQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setArenaGjennomforignId(id: UUID, arenaGjennomforignId: UUID) {
-        @Language("PostgreSQL")
-        val query = """
-            update arena_deltaker
-            set arena_gjennomforing_id = :arena_gjennomforing_id::uuid
-            where id = :id::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to id,
-            "arena_gjennomforing_id" to arenaGjennomforignId,
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
     fun getArenaHistorikk(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,

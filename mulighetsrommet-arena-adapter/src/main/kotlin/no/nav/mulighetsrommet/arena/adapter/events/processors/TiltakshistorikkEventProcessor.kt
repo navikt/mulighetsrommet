@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
-import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltakerGjennomforingId
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 
 class TiltakshistorikkEventProcessor(
@@ -71,69 +70,50 @@ class TiltakshistorikkEventProcessor(
 
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
-        val deltaker = TiltakshistorikkArenaDeltakerGjennomforingId(
+        val norskIdent = ords.getFnr(data.PERSON_ID)
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .map { it?.fnr }
+            .bind()
+
+        if (norskIdent == null) {
+            return@either ProcessingResult(Ignored, "Historikk ikke relevant fordi fødselsnummer mangler i Arena")
+        }
+
+        val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
+            .map { Organisasjonsnummer(it.virksomhetsnummer) }
+            .bind()
+
+        val deltaker = TiltakshistorikkArenaDeltaker(
             id = mapping.entityId,
             arenaGjennomforingId = tiltaksgjennomforing.id,
+            arenaRegDato = ArenaUtils.parseTimestamp(data.REG_DATO),
+            arenaModDato = ArenaUtils.parseTimestamp(data.MOD_DATO),
+            norskIdent = NorskIdent(norskIdent),
+            arenaTiltakskode = tiltakstype.tiltakskode,
+            status = ArenaDeltakerStatus.valueOf(data.DELTAKERSTATUSKODE.name),
+            startDato = ArenaUtils.parseNullableTimestamp(data.DATO_FRA),
+            sluttDato = ArenaUtils.parseNullableTimestamp(data.DATO_TIL),
+            beskrivelse = tiltaksgjennomforing.navn,
+            arrangorOrganisasjonsnummer = organisasjonsnummer,
+            dagerPerUke = data.ANTALL_DAGER_PR_UKE,
+            deltidsprosent = data.PROSENT_DELTID,
         )
 
-        upsertDeltakerGjennomforingId(event.operation, deltaker)
+        upsertDeltaker(event.operation, deltaker)
             .map { ProcessingResult(Handled) }
             .mapLeft { ProcessingError.fromResponseException(it) }
             .bind()
-
-//        val norskIdent = ords.getFnr(data.PERSON_ID)
-//            .mapLeft { ProcessingError.fromResponseException(it) }
-//            .map { it?.fnr }
-//            .bind()
-//
-//        if (norskIdent == null) {
-//            return@either ProcessingResult(Ignored, "Historikk ikke relevant fordi fødselsnummer mangler i Arena")
-//        }
-//
-//        val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)
-//            .mapLeft { ProcessingError.fromResponseException(it) }
-//            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
-//            .map { Organisasjonsnummer(it.virksomhetsnummer) }
-//            .bind()
-//
-//        val deltaker = TiltakshistorikkArenaDeltaker(
-//            id = mapping.entityId,
-//            arenaGjennomforingId = tiltaksgjennomforing.id,
-//            arenaRegDato = ArenaUtils.parseTimestamp(data.REG_DATO),
-//            arenaModDato = ArenaUtils.parseTimestamp(data.MOD_DATO),
-//            norskIdent = NorskIdent(norskIdent),
-//            arenaTiltakskode = tiltakstype.tiltakskode,
-//            status = ArenaDeltakerStatus.valueOf(data.DELTAKERSTATUSKODE.name),
-//            startDato = ArenaUtils.parseNullableTimestamp(data.DATO_FRA),
-//            sluttDato = ArenaUtils.parseNullableTimestamp(data.DATO_TIL),
-//            beskrivelse = tiltaksgjennomforing.navn,
-//            arrangorOrganisasjonsnummer = organisasjonsnummer,
-//            dagerPerUke = data.ANTALL_DAGER_PR_UKE,
-//            deltidsprosent = data.PROSENT_DELTID,
-//        )
-//
-//        upsertDeltaker(event.operation, deltaker)
-//            .map { ProcessingResult(Handled) }
-//            .mapLeft { ProcessingError.fromResponseException(it) }
-//            .bind()
     }
 
-//    private suspend fun upsertDeltaker(
-//        operation: ArenaEvent.Operation,
-//        deltaker: TiltakshistorikkArenaDeltaker,
-//    ) = if (operation == ArenaEvent.Operation.Delete) {
-//        client.deleteArenaDeltaker(deltaker.id)
-//    } else {
-//        client.upsertArenaDeltaker(deltaker)
-//    }
-
-    private suspend fun upsertDeltakerGjennomforingId(
+    private suspend fun upsertDeltaker(
         operation: ArenaEvent.Operation,
-        deltaker: TiltakshistorikkArenaDeltakerGjennomforingId,
+        deltaker: TiltakshistorikkArenaDeltaker,
     ) = if (operation == ArenaEvent.Operation.Delete) {
-        Either.right()
+        client.deleteArenaDeltaker(deltaker.id)
     } else {
-        client.setArenaDeltakerGjennomforingId(deltaker)
+        client.upsertArenaDeltaker(deltaker)
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
