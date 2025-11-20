@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
@@ -165,25 +166,37 @@ object UtbetalingValidator {
 
     fun maksUtbetalingsPeriodeSluttDato(
         prismodell: PrismodellType,
+        opprettKravPeriode: Map<PrismodellType, Periode>,
         relativeDate: LocalDate = LocalDate.now(),
-    ): LocalDate? = when (prismodell) {
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-            relativeDate
+    ): LocalDate {
+        val opprettKravPeriodeSlutt = opprettKravPeriode[prismodell]
+            ?: invalidPrismodellOpprettKrav(prismodell)
 
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-            relativeDate.withDayOfMonth(1)
+        return when (prismodell) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                minOf(relativeDate, opprettKravPeriodeSlutt.slutt)
 
-        PrismodellType.ANNEN_AVTALT_PRIS,
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-        ->
-            null
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriodeSlutt.slutt)
+
+            PrismodellType.ANNEN_AVTALT_PRIS ->
+                opprettKravPeriodeSlutt.slutt
+
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            ->
+                invalidPrismodellOpprettKrav(prismodell)
+        }
     }
+
+    @Throws(IllegalArgumentException::class)
+    private fun invalidPrismodellOpprettKrav(prismodell: PrismodellType): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for prismodell: ${prismodell.navn}")
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
         prismodellType: PrismodellType,
+        opprettKravPeriode: Map<PrismodellType, Periode>,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
@@ -217,13 +230,11 @@ object UtbetalingValidator {
             )
         }
 
-        maksUtbetalingsPeriodeSluttDato(prismodellType)?.let {
-            validate(!slutt.isAfter(it)) {
-                FieldError.of(
-                    "Du kan ikke sende inn for valgt periode før perioden er passert",
-                    OpprettKravUtbetalingRequest::periodeSlutt,
-                )
-            }
+        validate(!slutt.isAfter(maksUtbetalingsPeriodeSluttDato(prismodellType, opprettKravPeriode))) {
+            FieldError.of(
+                "Du kan ikke sende inn for valgt periode før perioden er passert",
+                OpprettKravUtbetalingRequest::periodeSlutt,
+            )
         }
 
         validate(request.belop > 0) {

@@ -391,6 +391,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     UtbetalingValidator.validateOpprettKravArrangorflate(
                         request,
                         gjennomforing.avtalePrismodell!!,
+                        okonomiConfig.opprettKravPeriode,
                         it,
                     )
                 }
@@ -600,7 +601,7 @@ data class OpprettKravInnsendingsInformasjon(
         @SerialName("DatoVelgerRange")
         data class DatoRange(
             @Serializable(with = LocalDateSerializer::class)
-            val maksSluttdato: LocalDate? = null,
+            val maksSluttdato: LocalDate,
         ) : DatoVelger()
 
         companion object {
@@ -628,7 +629,12 @@ data class OpprettKravInnsendingsInformasjon(
                     PrismodellType.ANNEN_AVTALT_PRIS,
                     PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                     -> {
-                        return DatoRange(maksUtbetalingsPeriodeSluttDato(gjennomforing.avtalePrismodell))
+                        return DatoRange(
+                            maksUtbetalingsPeriodeSluttDato(
+                                gjennomforing.avtalePrismodell,
+                                okonomiConfig.opprettKravPeriode,
+                            ),
+                        )
                     }
 
                     else ->
@@ -715,7 +721,11 @@ data class OpprettKravDeltakere(
             )
         }
 
-        fun tableFooter(prismodellType: PrismodellType, satser: Set<SatsPeriode>, antallDeltakere: Int): List<DetailsEntry> {
+        fun tableFooter(
+            prismodellType: PrismodellType,
+            satser: Set<SatsPeriode>,
+            antallDeltakere: Int,
+        ): List<DetailsEntry> {
             return listOf(DetailsEntry.number("Antall deltakere", antallDeltakere)) +
                 getSatserDetails(prismodellType.navn, satser.toList())
         }

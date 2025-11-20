@@ -2,33 +2,26 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
-import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.OpprettDelutbetaling
-import no.nav.mulighetsrommet.api.utbetaling.api.DelutbetalingRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
 
@@ -151,31 +144,40 @@ class UtbetalingValidatorTest : FunSpec({
     }
 
     context("opprett krav") {
-        test("opprett krav - investering - gyldig investeringsperiode") {
+
+        test("investering - gyldig investeringsperiode") {
             val today = LocalDate.now()
             val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
             val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+            val opprettKravPeriode = mapOf(
+                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+            )
             every { vedlegg.size } returns 1
-
             val periodeStart = LocalDate.now().minusMonths(1).withDayOfMonth(1)
-            val periodeSlutt = today
             val kontonummer = Kontonummer("12345678910")
             val request = OpprettKravUtbetalingRequest(
                 tilsagnId = UUID.randomUUID(),
                 periodeStart = periodeStart.toString(),
-                periodeSlutt = periodeSlutt.toString(),
+                periodeSlutt = today.toString(),
                 kidNummer = null,
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(
+                request,
+                prismodell,
+                opprettKravPeriode,
+                kontonummer,
+            )
             result.shouldBeRight()
         }
-        test("opprett krav - investering - ugyldig investeringsperiode") {
+        test("investering - ugyldig investeringsperiode") {
             val today = LocalDate.now()
             val kontonummer = Kontonummer("12345678910")
             val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-
+            val opprettKravPeriode = mapOf(
+                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+            )
             val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
             every { vedlegg.size } returns 1
 
@@ -190,14 +192,17 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
             result.shouldBeLeft()
         }
 
-        test("opprett krav - gyldig annen avtalt pris") {
+        test("gyldig annen avtalt pris") {
             val today = LocalDate.now()
             val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
             val prismodell = PrismodellType.ANNEN_AVTALT_PRIS
+            val opprettKravPeriode = mapOf(
+                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+            )
             every { vedlegg.size } returns 0
 
             val periodeStart = LocalDate.now().minusDays(5)
@@ -211,14 +216,17 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
             result.shouldBeRight()
         }
 
-        test("opprett krav - gyldig timespris") {
+        test("gyldig timespris") {
             val today = LocalDate.now()
             val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
             val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+            val opprettKravPeriode = mapOf(
+                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+            )
             every { vedlegg.size } returns 1
 
             val periodeSlutt = today.withDayOfMonth(1)
@@ -233,14 +241,18 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
             result.shouldBeRight()
         }
 
-        test("opprett krav - ugyldig timespris") {
+        test("ugyldig timespris") {
             val today = LocalDate.now()
             val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
             val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+            val opprettKravPeriode = mapOf(
+                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+            )
+
             every { vedlegg.size } returns 1
 
             val periodeSlutt = today.withDayOfMonth(1)
@@ -255,8 +267,67 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, kontonummer)
+            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
             result.shouldBeLeft()
+        }
+
+        context("maks utbetalings periode sluttdato") {
+            val opprettKravPeriode = mapOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2026, 1, 1),
+                ),
+                PrismodellType.ANNEN_AVTALT_PRIS to Periode(
+                    LocalDate.of(2025, 9, 1),
+                    LocalDate.of(2026, 1, 1),
+                ),
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                    LocalDate.of(2025, 9, 1),
+                    LocalDate.of(2026, 1, 1),
+                ),
+            )
+
+            test("skal tryne for prismodeller som ikke er støttet") {
+                forAll(
+                    row(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
+                    row(PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                    row(PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                ) {
+                    shouldThrow<IllegalArgumentException> {
+                        UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(it, opprettKravPeriode = opprettKravPeriode)
+                    }
+                }
+            }
+
+            context("investering") {
+                test("skal gi dagens dato som maks, hhvis innenfor opprett krav periode") {
+                    val dato = LocalDate.of(2025, 11, 30)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, opprettKravPeriode, dato) shouldBe dato
+                }
+                test("skal gi siste dag i opprett krav konfigurasjonen, om dagens dato er etter den perioden") {
+                    val dato = LocalDate.of(2026, 5, 17)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, opprettKravPeriode, dato) shouldBe opprettKravPeriode[PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK]!!.slutt
+                }
+            }
+
+            context("annen avtalt pris") {
+                test("skal kunne sende inn fremover i tid, opptil siste dag i opprett krav perioden") {
+                    val dato = LocalDate.of(2026, 11, 1)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.ANNEN_AVTALT_PRIS, opprettKravPeriode, dato) shouldBe opprettKravPeriode[PrismodellType.ANNEN_AVTALT_PRIS]!!.slutt
+                }
+            }
+
+            context("timespris") {
+                test("skal være 1. dag i samme måned som dagens dato") {
+                    val dato = LocalDate.of(2025, 11, 7)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER, opprettKravPeriode, dato) shouldBe dato.withDayOfMonth(1)
+                }
+
+                test("skal være siste dag i opprett krav perioden, hhvis dagens dato har forbigått datoen") {
+                    val dato = LocalDate.of(2026, 1, 1)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER, opprettKravPeriode, dato) shouldBe opprettKravPeriode[PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER]!!.slutt
+                }
+            }
         }
     }
 
