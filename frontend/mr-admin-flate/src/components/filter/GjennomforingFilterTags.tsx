@@ -80,6 +80,17 @@ export function GjennomforingFilterTags({
           }}
         />
       )}
+      {filter.publisert.map((value) => (
+        <FilterTag
+          label={value === "publisert" ? "Publisert" : "Ikke publisert"}
+          onClose={() => {
+            updateFilter({
+              publisert: addOrRemove(filter.publisert, value),
+              page: 1,
+            });
+          }}
+        />
+      ))}
       {filter.arrangorer.map((id) => (
         <FilterTag
           key={id}
