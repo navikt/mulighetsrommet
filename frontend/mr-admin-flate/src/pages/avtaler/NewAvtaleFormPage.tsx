@@ -110,7 +110,7 @@ export function NewAvtaleFormPage() {
   };
   const handleBackStep = () => {
     if (activeStep === 1) {
-      navigate(-1);
+      navigate("/avtaler");
     }
     setActiveStep(activeStep - 1);
   };
