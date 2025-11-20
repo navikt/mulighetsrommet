@@ -134,7 +134,9 @@ class TiltakshistorikkTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -147,7 +149,9 @@ class TiltakshistorikkTest : FunSpec({
                             tiltakskode = "MENTOR",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -160,7 +164,9 @@ class TiltakshistorikkTest : FunSpec({
                             tiltakskode = "AMO",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                     TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
                         norskIdent = NorskIdent("12345678910"),
@@ -172,7 +178,7 @@ class TiltakshistorikkTest : FunSpec({
                             navn = null,
                         ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("123456789"),
+                        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("123456789", null),
                     ),
                     TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -191,8 +197,11 @@ class TiltakshistorikkTest : FunSpec({
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = TestFixtures.gjennomforingGruppe.id,
                             navn = "Gruppe AMO",
+                            deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                 )
             }
@@ -303,6 +312,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
 
     val arbeidstrening = TiltakshistorikkArenaDeltaker(
         id = ARENA_ARBEIDSTRENING_ID,
+        arenaGjennomforingId = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "ARBTREN",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -319,6 +329,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
 
     val mentor = TiltakshistorikkArenaDeltaker(
         id = ARENA_MENTOR_ID,
+        arenaGjennomforingId = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "MENTOR",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -335,6 +346,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
 
     val enkeltAMO = TiltakshistorikkArenaDeltaker(
         id = ARENA_ENKEL_AMO_ID,
+        arenaGjennomforingId = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         arenaTiltakskode = "AMO",
         status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -362,8 +374,8 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         ),
         registrertDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
         endretDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
-        dagerPerUke = 2.5f,
-        prosentStilling = null,
+        dagerPerUke = 5f,
+        prosentStilling = 100f,
         deltakelsesmengder = listOf(),
     )
     queries.kometDeltaker.upsertKometDeltaker(amtDeltaker)

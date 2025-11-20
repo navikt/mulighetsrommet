@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -53,7 +52,6 @@ import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import java.awt.Label
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -392,6 +390,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     UtbetalingValidator.validateOpprettKravArrangorflate(
                         request,
                         gjennomforing.avtalePrismodell!!,
+                        okonomiConfig.opprettKravPeriode,
                         it,
                     )
                 }
@@ -601,7 +600,7 @@ data class OpprettKravInnsendingsInformasjon(
         @SerialName("DatoVelgerRange")
         data class DatoRange(
             @Serializable(with = LocalDateSerializer::class)
-            val maksSluttdato: LocalDate? = null,
+            val maksSluttdato: LocalDate,
         ) : DatoVelger()
 
         companion object {
@@ -629,7 +628,12 @@ data class OpprettKravInnsendingsInformasjon(
                     PrismodellType.ANNEN_AVTALT_PRIS,
                     PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                     -> {
-                        return DatoRange(maksUtbetalingsPeriodeSluttDato(gjennomforing.avtalePrismodell))
+                        return DatoRange(
+                            maksUtbetalingsPeriodeSluttDato(
+                                gjennomforing.avtalePrismodell,
+                                okonomiConfig.opprettKravPeriode,
+                            ),
+                        )
                     }
 
                     else ->
@@ -716,7 +720,11 @@ data class OpprettKravDeltakere(
             )
         }
 
-        fun tableFooter(prismodellType: PrismodellType, satser: Set<SatsPeriode>, antallDeltakere: Int): List<LabeledDataElement> {
+        fun tableFooter(
+            prismodellType: PrismodellType,
+            satser: Set<SatsPeriode>,
+            antallDeltakere: Int,
+        ): List<LabeledDataElement> {
             return listOf(LabeledDataElement.number("Antall deltakere", antallDeltakere)) +
                 getSatserDetails(prismodellType.navn, satser.toList())
         }

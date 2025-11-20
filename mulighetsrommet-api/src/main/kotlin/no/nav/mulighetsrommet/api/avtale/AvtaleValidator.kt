@@ -298,7 +298,7 @@ object AvtaleValidator {
             validate(underenhet.overordnetEnhet == arrangor.organisasjonsnummer) {
                 FieldError.ofPointer(
                     "/arrangor/underenheter",
-                    "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${arrangor.navn}.",
+                    "Arrangøren ${underenhet.navn} - ${underenhet.organisasjonsnummer.value} er ikke en gyldig underenhet til hovedenheten ${arrangor.navn}.",
                 )
             }
         }

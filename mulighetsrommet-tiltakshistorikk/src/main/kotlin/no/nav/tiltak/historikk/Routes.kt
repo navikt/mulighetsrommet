@@ -51,7 +51,6 @@ fun Route.tiltakshistorikkRoutes(
             put("/deltaker") {
                 val dbo = call.receive<TiltakshistorikkArenaDeltaker>()
 
-                virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
                 db.session { queries.arenaDeltaker.upsertArenaDeltaker(dbo) }
 
                 call.respond(HttpStatusCode.OK)

@@ -27,11 +27,13 @@ sealed class TiltakshistorikkV1Dto {
     @Serializable
     data class Arrangor(
         val organisasjonsnummer: Organisasjonsnummer,
+        val navn: String?,
     )
 
     @Serializable
     data class Arbeidsgiver(
         val organisasjonsnummer: String,
+        val navn: String?,
     )
 
     @Serializable
@@ -39,6 +41,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String?,
+        val deltidsprosent: Float?,
     )
 
     @Serializable
@@ -55,6 +58,8 @@ sealed class TiltakshistorikkV1Dto {
         val status: ArenaDeltakerStatus,
         val beskrivelse: String,
         val arrangor: Arrangor,
+        val deltidsprosent: Float?,
+        val dagerPerUke: Float?,
     ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.ARENA
 
@@ -79,6 +84,8 @@ sealed class TiltakshistorikkV1Dto {
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
         val arrangor: Arrangor,
+        val deltidsprosent: Float?,
+        val dagerPerUke: Float?,
     ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.TEAM_KOMET
 
@@ -161,6 +168,8 @@ data class TiltakshistorikkArenaDeltaker(
     val arenaRegDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val arenaModDato: LocalDateTime,
+    @Serializable(with = UUIDSerializer::class)
+    val arenaGjennomforingId: UUID,
     val norskIdent: NorskIdent,
     val arenaTiltakskode: String,
     val status: ArenaDeltakerStatus,

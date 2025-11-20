@@ -163,7 +163,10 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       bestillingsnummer: "A-2025/82143-1",
     },
   ],
-  datoVelger: { type: "DatoVelgerRange", maksSluttdato: null },
+  datoVelger: {
+    type: "DatoVelgerRange",
+    maksSluttdato: new Date(31, 12, today.getFullYear()).toISOString().slice(0, 8),
+  },
   navigering: { tilbake: null, neste: OpprettKravVeiviserSteg.UTBETALING },
 };
 

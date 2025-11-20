@@ -153,5 +153,5 @@ private fun toTiltakshistorikk(avtale: Avtale) = TiltakshistorikkV1Dto.Arbeidsgi
         Avtale.Status.GJENNOMFORES -> ArbeidsgiverAvtaleStatus.GJENNOMFORES
         Avtale.Status.AVSLUTTET -> ArbeidsgiverAvtaleStatus.AVSLUTTET
     },
-    arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(organisasjonsnummer = avtale.bedriftNr),
+    arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(avtale.bedriftNr, null),
 )

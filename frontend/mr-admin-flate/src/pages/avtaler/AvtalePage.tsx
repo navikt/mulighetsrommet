@@ -13,6 +13,7 @@ import { AvtalePageLayout } from "./AvtalePageLayout";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { DataElementStatusTag } from "@mr/frontend-common";
+import { useUmami } from "@/sporing/useUmami";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -80,6 +81,7 @@ export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale } = useAvtale(avtaleId);
+  const { logUmamiHendelse } = useUmami();
   const currentTab = getCurrentTab(pathname);
 
   const brodsmuler = useAvtaleBrodsmuler(avtale.id);
@@ -104,7 +106,15 @@ export function AvtalePage() {
               key={value}
               label={label}
               value={value}
-              onClick={() => navigateAndReplaceUrl(href)}
+              onClick={() => {
+                logUmamiHendelse({
+                  type: "FANE_BYTTET",
+                  tekst: label,
+                  fraFane: currentTab,
+                  sidenavn: "Avtale",
+                });
+                navigateAndReplaceUrl(href);
+              }}
               data-testid={testId}
             />
           ))}

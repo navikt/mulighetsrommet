@@ -87,6 +87,7 @@ class TiltakshistorikkEventProcessor(
 
         val deltaker = TiltakshistorikkArenaDeltaker(
             id = mapping.entityId,
+            arenaGjennomforingId = tiltaksgjennomforing.id,
             arenaRegDato = ArenaUtils.parseTimestamp(data.REG_DATO),
             arenaModDato = ArenaUtils.parseTimestamp(data.MOD_DATO),
             norskIdent = NorskIdent(norskIdent),

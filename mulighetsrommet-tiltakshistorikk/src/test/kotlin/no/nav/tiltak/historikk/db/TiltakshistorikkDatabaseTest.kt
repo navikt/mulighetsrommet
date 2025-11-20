@@ -23,7 +23,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         test("oppretter, henter og sletter virksomhet") {
             val virksomhet = VirksomhetDbo(
-                organisasjonsnummer = Organisasjonsnummer("123456789"),
+                organisasjonsnummer = Organisasjonsnummer("876543210"),
                 overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321"),
                 navn = "Test Virksomhet",
                 organisasjonsform = "AS",
@@ -45,7 +45,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         test("oppdaterer eksisterende virksomhet ved upsert") {
             val virksomhet = VirksomhetDbo(
-                organisasjonsnummer = Organisasjonsnummer("111222333"),
+                organisasjonsnummer = Organisasjonsnummer("888999777"),
                 overordnetEnhetOrganisasjonsnummer = null,
                 navn = "Original Navn",
                 organisasjonsform = "AS",
@@ -104,13 +104,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     context("Arena deltaker") {
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
+            arenaGjennomforingId = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "ARBTREN",
             status = ArenaDeltakerStatus.GJENNOMFORES,
             startDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             sluttDato = LocalDateTime.of(2024, 1, 31, 0, 0, 0),
             beskrivelse = "Arbeidstrening hos Fretex",
-            arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+            arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             dagerPerUke = 2.5,
@@ -119,13 +120,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
+            arenaGjennomforingId = UUID.randomUUID(),
             norskIdent = NorskIdent("12345678910"),
             arenaTiltakskode = "MENTOR",
             status = ArenaDeltakerStatus.GJENNOMFORES,
             startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
             sluttDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
             beskrivelse = "Mentortiltak hos Joblearn",
-            arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+            arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
             arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             dagerPerUke = 5.0,
@@ -160,7 +162,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "MENTOR",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
@@ -173,7 +177,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
 
@@ -194,7 +200,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = null,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
 
@@ -210,13 +218,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         test("filtrerer Arena-deltakere basert på maxAgeYears") {
             val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
                 id = UUID.randomUUID(),
+                arenaGjennomforingId = UUID.randomUUID(),
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "MENTOR",
                 status = ArenaDeltakerStatus.GJENNOMFORES,
                 startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
                 sluttDato = null,
                 beskrivelse = "Mentortiltak hos Joblearn",
-                arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+                arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
                 arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
                 arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
                 dagerPerUke = 5.0,
@@ -283,8 +292,11 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,
                             navn = gruppeAmo.navn,
+                            deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("123123123")),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        deltidsprosent = 50f,
+                        dagerPerUke = 2.5f,
                     ),
                 )
             }
@@ -400,13 +412,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             db.transaction {
                 val deltaker1 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
+                    arenaGjennomforingId = UUID.randomUUID(),
                     norskIdent = NorskIdent("11111111111"),
                     arenaTiltakskode = "ARBTREN",
                     status = ArenaDeltakerStatus.GJENNOMFORES,
                     startDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
                     sluttDato = LocalDateTime.of(2020, 6, 1, 0, 0, 0),
                     beskrivelse = "Første deltakelse",
-                    arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+                    arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
                     arenaRegDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
                     arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
                     dagerPerUke = null,
@@ -415,13 +428,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 val deltaker2 = TiltakshistorikkArenaDeltaker(
                     id = UUID.randomUUID(),
+                    arenaGjennomforingId = UUID.randomUUID(),
                     norskIdent = NorskIdent("22222222222"),
                     arenaTiltakskode = "MENTOR",
                     status = ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
                     startDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
                     sluttDato = LocalDateTime.of(2021, 3, 1, 0, 0, 0),
                     beskrivelse = "Andre deltakelse",
-                    arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+                    arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
                     arenaRegDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
                     arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
                     dagerPerUke = null,

@@ -20,7 +20,7 @@ import no.nav.tiltak.historikk.service.VirksomhetService
 class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val orgnr = Organisasjonsnummer("123456789")
+    val orgnr = Organisasjonsnummer("876543210")
 
     val virksomhetDto = AmtVirksomhetV1Dto(
         organisasjonsnummer = orgnr,
