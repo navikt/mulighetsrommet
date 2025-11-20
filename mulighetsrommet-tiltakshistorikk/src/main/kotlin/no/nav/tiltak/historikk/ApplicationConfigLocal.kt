@@ -55,9 +55,9 @@ val ApplicationConfigLocal = AppConfig(
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(
-            sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "siste-tiltaksgjennomforinger-v1",
+            replikerSisteTiltakstyper = KafkaTopicConsumer.Config(
+                id = "repliker-siste-tiltakstyper",
+                topic = "siste-tiltakstyper-v3",
                 consumerProperties = consumerProperties,
             ),
             sisteTiltaksgjennomforingerV2 = KafkaTopicConsumer.Config(
