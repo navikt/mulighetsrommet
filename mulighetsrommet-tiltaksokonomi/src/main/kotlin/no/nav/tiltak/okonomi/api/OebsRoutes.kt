@@ -93,6 +93,7 @@ data class OebsFakturaKvittering(
          * Prosessert ok i OeBS, men at den ikke er sendt til banken
          */
         IkkeBetalt,
+
         /**
          * Betyr at noe av beløpet er sendt til banken (visstnok lite brukt)
          */

@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
 import io.ktor.http.HttpStatusCode
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -41,6 +42,8 @@ import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -333,6 +336,7 @@ class UtbetalingService(
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.INNSENDT,
             -> Unit
+
             UtbetalingStatusType.GENERERT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -361,6 +365,55 @@ class UtbetalingService(
         val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         publishOpprettFaktura(delutbetaling)
         delutbetaling
+    }
+
+    fun oppdaterFakturaStatus(
+        fakturanummer: String,
+        status: FakturaStatusType,
+        fakturaStatusSistOppdatert: LocalDateTime?,
+    ) = db.transaction {
+        queries.delutbetaling.setFakturaStatus(fakturanummer, status, fakturaStatusSistOppdatert)
+        when (status) {
+            FakturaStatusType.FEILET,
+            FakturaStatusType.SENDT,
+            FakturaStatusType.IKKE_BETALT,
+            -> queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+
+            FakturaStatusType.DELVIS_BETALT,
+            FakturaStatusType.FULLT_BETALT,
+            -> {
+                val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
+                if (delutbetaling.status != DelutbetalingStatus.UTBETALT) {
+                    queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.UTBETALT)
+                    delutbetalingUtbetalt(fakturanummer)
+                }
+            }
+        }
+    }
+
+    private fun TransactionalQueryContext.delutbetalingUtbetalt(
+        fakturanummer: String,
+    ) {
+        val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
+        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+        val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
+
+        logEndring(
+            "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
+            utbetaling,
+            Tiltaksadministrasjon,
+        )
+
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
+        val oppdatertUtbetalingStatus = when {
+            delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT } -> UtbetalingStatusType.UTBETALT
+            delutbetalinger.any { it.status == DelutbetalingStatus.UTBETALT } -> UtbetalingStatusType.DELVIS_UTBETALT
+            else -> utbetaling.status
+        }
+        if (utbetaling.status != oppdatertUtbetalingStatus) {
+            queries.utbetaling.setStatus(utbetaling.id, oppdatertUtbetalingStatus)
+        }
     }
 
     private fun TransactionalQueryContext.automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {

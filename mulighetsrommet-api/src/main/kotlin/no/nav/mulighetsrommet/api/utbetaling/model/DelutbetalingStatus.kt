@@ -6,4 +6,5 @@ enum class DelutbetalingStatus(val beskrivelse: String) {
     RETURNERT("Returnert"),
     UTBETALT("Utbetalt"),
     OVERFORT_TIL_UTBETALING("Overført til utbetaling"),
+    DELVIS_UTBETALT("Delvis utbetalt"),
 }
