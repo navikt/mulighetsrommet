@@ -14,7 +14,7 @@ import no.nav.tiltak.historikk.db.queries.GjennomforingType
 import no.nav.tiltak.historikk.service.VirksomhetService
 import java.util.*
 
-class SisteTiltaksgjennomforingerV2KafkaConsumer(
+class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
     private val db: TiltakshistorikkDatabase,
     private val virksomheter: VirksomhetService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(

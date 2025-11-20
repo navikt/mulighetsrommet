@@ -17,7 +17,7 @@ import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import no.nav.tiltak.historikk.service.VirksomhetService
 
-class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
+class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val orgnr = Organisasjonsnummer("876543210")
@@ -49,7 +49,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
         val virksomheter = VirksomhetService(db, brreg)
 
-        val consumer = AmtVirksomheterV1KafkaConsumer(virksomheter)
+        val consumer = ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter)
 
         afterEach {
             database.truncateAll()
