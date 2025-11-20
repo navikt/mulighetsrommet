@@ -66,7 +66,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: String,
-            val navn: String?,
+            val navn: String,
         )
     }
 
@@ -92,7 +92,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
-            val navn: String?,
+            val navn: String,
         )
     }
 
@@ -115,7 +115,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
-            val navn: String?,
+            val navn: String,
         )
 
         enum class Tiltakskode {
@@ -125,7 +125,7 @@ sealed class TiltakshistorikkV1Dto {
             MENTOR,
             INKLUDERINGSTILSKUDD,
             SOMMERJOBB,
-            VARIG_TILRETTELAGT_ARBEID_ORDINAR,
+            VTAO,
         }
     }
 }

@@ -25,6 +25,13 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     beforeEach {
+        TiltakshistorikkDatabase(database.db).session {
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.enkelAmo)
+        }
+    }
+
+    afterEach {
         database.truncateAll()
     }
 
@@ -36,7 +43,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
         val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
         val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.enkelAmo
 
-        beforeAny {
+        beforeEach {
             db.session {
                 queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
             }

@@ -15,6 +15,7 @@ import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GraphqlRequest
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -100,8 +101,9 @@ class TiltakshistorikkService(
                         !avtaleDato.isBefore(minAvtaleDato)
                     }
                     .map { avtale ->
+                        val tiltakstype = getTiltakstype(avtale.tiltakstype)
                         val arbeidsgiver = getArbeidsgiver(avtale.bedriftNr)
-                        toTiltakshistorikk(avtale, arbeidsgiver)
+                        toTiltakshistorikk(avtale, tiltakstype, arbeidsgiver)
                     }
             }
             .mapLeft { errors ->
@@ -114,6 +116,10 @@ class TiltakshistorikkService(
         return virksomheter.getOrSyncVirksomhetIfNotExists(Organisasjonsnummer(organisasjonsnummer))
             .onLeft { log.warn("Klarte ikke utlede arbeidsgiver for organisasjonsnummer=$organisasjonsnummer") }
             .getOrNull()
+    }
+
+    private fun getTiltakstype(tiltakskode: Avtale.Tiltakstype): TiltakstypeDbo = db.session {
+        queries.tiltakstype.getByTiltakskode(tiltakskode.name)
     }
 }
 
@@ -138,7 +144,7 @@ private fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype? {
     }
 }
 
-private fun toTiltakshistorikk(avtale: Avtale, arbeidsgiver: VirksomhetDbo?) = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
+private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbeidsgiver: VirksomhetDbo?) = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
     norskIdent = avtale.deltakerFnr,
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
@@ -151,9 +157,9 @@ private fun toTiltakshistorikk(avtale: Avtale, arbeidsgiver: VirksomhetDbo?) = T
             Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MENTOR
             Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.INKLUDERINGSTILSKUDD
             Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.SOMMERJOBB
-            Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAR
+            Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VTAO
         },
-        navn = null,
+        navn = tiltakstype.navn,
     ),
     status = when (avtale.avtaleStatus) {
         Avtale.Status.ANNULLERT -> ArbeidsgiverAvtaleStatus.ANNULLERT

@@ -42,7 +42,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         id = UUID.randomUUID(),
         tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-            navn = null,
+            navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
         gjennomforing = Gjennomforing(
             id = gjennomforing.id,
@@ -70,7 +70,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         sluttDato = LocalDate.of(2019, 12, 3),
         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
             tiltakskode = TiltakstypeFixtures.Avklaring.arenaKode,
-            navn = null,
+            navn = TiltakstypeFixtures.Avklaring.navn,
         ),
         gjennomforing = Gjennomforing(
             id = UUID.randomUUID(),
@@ -89,7 +89,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         id = UUID.randomUUID(),
         tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
             tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
-            navn = null,
+            navn = "Arbeidstrening",
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
         arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer.value, null),
@@ -397,7 +397,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             sluttDato = LocalDate.of(2019, 12, 3),
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                 tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
-                navn = null,
+                navn = TiltakstypeFixtures.EnkelAmo.navn,
             ),
             gjennomforing = Gjennomforing(
                 id = UUID.randomUUID(),

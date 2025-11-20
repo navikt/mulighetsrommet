@@ -6,6 +6,7 @@ import no.nav.tiltak.historikk.db.queries.ArenaDeltakerQueries
 import no.nav.tiltak.historikk.db.queries.ArenaGjennomforingQueries
 import no.nav.tiltak.historikk.db.queries.GjennomforingQueries
 import no.nav.tiltak.historikk.db.queries.KometDeltakerQueries
+import no.nav.tiltak.historikk.db.queries.TiltakstypeQueries
 import no.nav.tiltak.historikk.db.queries.VirksomhetQueries
 
 class TiltakshistorikkDatabase(
@@ -34,6 +35,7 @@ class QueryContext(val session: Session) {
     val queries by lazy { Queries() }
 
     inner class Queries {
+        val tiltakstype = TiltakstypeQueries(session)
         val gjennomforing = GjennomforingQueries(session)
         val kometDeltaker = KometDeltakerQueries(session)
         val arenaGjennomforing = ArenaGjennomforingQueries(session)
