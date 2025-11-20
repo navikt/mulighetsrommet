@@ -38,7 +38,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
+                queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
             }
         }
 
@@ -115,7 +115,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 .row()
                 .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
 
-            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.virksomhet)
+            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.arrangorVirksomhet)
         }
 
         test("lagrer utenlandsk virksomhet uten navn") {

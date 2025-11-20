@@ -100,7 +100,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
+                queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
                 queries.arenaGjennomforing.upsert(arenaArbeidstrening)
                 queries.arenaGjennomforing.upsert(arenaMentor)
             }
@@ -275,7 +275,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
+                queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
                 queries.gjennomforing.upsert(toGjennomforingDbo(gruppeAmo))
             }
         }

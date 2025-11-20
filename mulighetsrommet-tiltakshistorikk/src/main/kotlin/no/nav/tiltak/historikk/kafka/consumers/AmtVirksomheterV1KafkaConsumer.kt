@@ -40,7 +40,9 @@ class AmtVirksomheterV1KafkaConsumer(
             return
         }
 
-        virksomheter.syncVirksomhet(organisasjonsnummer)
+        virksomheter.getAndSyncVirksomhet(organisasjonsnummer).onLeft { error ->
+            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
+        }
     }
 
     private fun shouldIgnoreMessage(organisasjonsnummer: Organisasjonsnummer): Boolean {

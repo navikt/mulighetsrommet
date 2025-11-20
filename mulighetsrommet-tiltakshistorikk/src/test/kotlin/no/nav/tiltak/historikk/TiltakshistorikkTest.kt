@@ -89,7 +89,7 @@ class TiltakshistorikkTest : FunSpec({
                                 avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                                 avtaleNr = 1,
                                 deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = "123456789",
+                                bedriftNr = "876543210",
                                 tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
                                 startDato = LocalDate.of(2024, 1, 1),
                                 sluttDato = LocalDate.of(2024, 12, 31),
@@ -190,7 +190,7 @@ class TiltakshistorikkTest : FunSpec({
                             navn = null,
                         ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("123456789", null),
+                        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver("876543210", "Arbeidsgiver"),
                     ),
                     TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -228,7 +228,7 @@ class TiltakshistorikkTest : FunSpec({
                                 avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                                 avtaleNr = 1,
                                 deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = "123456789",
+                                bedriftNr = "876543210",
                                 tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
                                 startDato = LocalDate.of(2024, 1, 1),
                                 sluttDato = LocalDate.of(2024, 12, 31),
@@ -316,8 +316,11 @@ private fun mockTiltakDatadeling(
 }
 
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
-    val virksomhet = TestFixtures.virksomhet
-    queries.virksomhet.upsert(virksomhet)
+    val arrangor = TestFixtures.arrangorVirksomhet
+    queries.virksomhet.upsert(arrangor)
+
+    val arbeidsgiver = TestFixtures.arbeidsgiverVirksomhet
+    queries.virksomhet.upsert(arbeidsgiver)
 
     val arenaArbeidstrening = TestFixtures.arenaArbeidstrening
     queries.arenaGjennomforing.upsert(arenaArbeidstrening)

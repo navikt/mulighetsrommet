@@ -81,9 +81,10 @@ fun Application.configure(config: AppConfig) {
     val kafka = configureKafka(config.kafka, db, virksomheter)
 
     val tiltakshistorikk = TiltakshistorikkService(
-        db,
-        tiltakDatadelingClient,
-        config.arbeidsgiverTiltakCutOffDatoMapping,
+        db = db,
+        tiltakDatadelingClient = tiltakDatadelingClient,
+        cutOffDatoMapping = config.arbeidsgiverTiltakCutOffDatoMapping,
+        virksomheter = virksomheter,
     )
 
     routing {
