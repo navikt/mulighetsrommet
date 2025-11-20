@@ -25,6 +25,13 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     beforeEach {
+        TiltakshistorikkDatabase(database.db).session {
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.enkelAmo)
+        }
+    }
+
+    afterEach {
         database.truncateAll()
     }
 
@@ -33,12 +40,12 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         val consumer = SisteTiltaksgjennomforingerV2KafkaConsumer(db, mockk(relaxed = true))
 
-        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingGruppe
-        val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingEnkeltplass
+        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
+        val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.enkelAmo
 
-        beforeAny {
+        beforeEach {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
             }
         }
 
@@ -63,7 +70,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 .value("navn").isNull
                 .value("deltidsprosent").isNull
 
-            var updatedGruppe: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingGruppe.copy(navn = "Nytt navn")
+            var updatedGruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(navn = "Nytt navn")
             consumer.consume(gruppe.id, Json.encodeToJsonElement(updatedGruppe))
 
             database.assertRequest("select * from gjennomforing order by updated_at desc")
@@ -78,8 +85,8 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         test("delete gjennomforing for tombstone messages") {
             db.session {
-                queries.gjennomforing.upsert(toGjennomforingDbo(gruppe))
-                queries.gjennomforing.upsert(toGjennomforingDbo(enkeltplass))
+                queries.gjennomforing.upsert(gruppe.toGjennomforingDbo())
+                queries.gjennomforing.upsert(enkeltplass.toGjennomforingDbo())
             }
 
             consumer.consume(gruppe.id, JsonNull)
@@ -93,7 +100,7 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     context("synkroniserer virksomhet hvis den ikke finnes") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingGruppe
+        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
 
         test("lagrer virksomhet fra brreg") {
             var brreg = mockk<BrregClient>()
@@ -115,14 +122,14 @@ class SisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 .row()
                 .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
 
-            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.arrangorVirksomhet)
+            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.Virksomhet.arrangor)
         }
 
         test("lagrer utenlandsk virksomhet uten navn") {
             var brreg = mockk<BrregClient>()
             var virksomheter = VirksomhetService(db, brreg)
 
-            var gjennomforing: TiltaksgjennomforingV2Dto = TestFixtures.gjennomforingGruppe.copy(
+            var gjennomforing: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
                 arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("111222333")),
             )
 

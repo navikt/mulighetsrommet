@@ -68,7 +68,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     }
 
     context("Arena deltaker") {
-        val arenaArbeidstrening = TestFixtures.arenaArbeidstrening
+        val arenaArbeidstrening = TestFixtures.Gjennomforing.arenaArbeidstrening
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             arenaGjennomforingId = arenaArbeidstrening.id,
@@ -82,7 +82,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             deltidsprosent = 50.0,
         )
 
-        val arenaMentor = TestFixtures.arenaMentor
+        val arenaMentor = TestFixtures.Gjennomforing.arenaMentor
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             arenaGjennomforingId = arenaMentor.id,
@@ -100,7 +100,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
                 queries.arenaGjennomforing.upsert(arenaArbeidstrening)
                 queries.arenaGjennomforing.upsert(arenaMentor)
             }
@@ -123,7 +123,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
-                            navn = null,
+                            navn = "Mentor",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = arenaMentor.id,
@@ -142,7 +142,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 1, 31),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = arenaArbeidstrening.id,
@@ -169,7 +169,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         sluttDato = LocalDate.of(2024, 1, 31),
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = arenaArbeidstrening.id,
@@ -268,15 +268,15 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     }
 
     context("Komet deltaker") {
-        val gruppeAmo = TestFixtures.gjennomforingGruppe
-        val amtDeltaker = TestFixtures.amtDeltaker
+        val gruppeAmo = TestFixtures.Gjennomforing.gruppeAmo
+        val amtDeltaker = TestFixtures.Deltaker.gruppeAmo
 
         val db = TiltakshistorikkDatabase(database.db)
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.arrangorVirksomhet)
-                queries.gjennomforing.upsert(toGjennomforingDbo(gruppeAmo))
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.gjennomforing.upsert(gruppeAmo.toGjennomforingDbo())
             }
         }
 
@@ -300,7 +300,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
                             tiltakskode = gruppeAmo.tiltakskode,
-                            navn = null,
+                            navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,

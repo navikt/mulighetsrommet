@@ -79,14 +79,16 @@ class ArenaDeltakerQueries(private val session: Session) {
                     deltaker.slutt_dato,
                     deltaker.deltidsprosent,
                     deltaker.dager_per_uke,
+                    tiltakstype.arena_tiltakskode as tiltakstype_tiltakskode,
+                    tiltakstype.navn as tiltakstype_navn,
                     gjennomforing.id as gjennomforing_id,
-                    gjennomforing.arena_tiltakskode,
                     gjennomforing.navn as gjennomforing_navn,
                     gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
                     arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
                     arrangor.navn as arrangor_navn
                 from arena_deltaker deltaker
                     join arena_gjennomforing gjennomforing on gjennomforing.id = arena_gjennomforing_id
+                    join tiltakstype on tiltakstype.arena_tiltakskode = gjennomforing.arena_tiltakskode
                     join virksomhet arrangor on arrangor.organisasjonsnummer = gjennomforing.arrangor_organisasjonsnummer
                 where deltaker.norsk_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.arena_reg_dato)) < make_interval(years => :max_age_years::integer))
@@ -119,8 +121,8 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
     tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
-        tiltakskode = string("arena_tiltakskode"),
-        navn = null,
+        tiltakskode = string("tiltakstype_tiltakskode"),
+        navn = string("tiltakstype_navn"),
     ),
     gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
         id = uuid("gjennomforing_id"),

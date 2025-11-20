@@ -54,10 +54,10 @@ data class KafkaConfig(
 )
 
 data class KafkaConsumers(
-    val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "siste-tiltaksgjennomforinger",
-        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v1"),
+    val replikerSisteTiltakstyper: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-siste-tiltakstyper",
+        topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.tiltakstyper.v1"),
     ),
     val sisteTiltaksgjennomforingerV2: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "siste-tiltaksgjennomforinger-v2",
