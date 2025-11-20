@@ -33,13 +33,19 @@ export function AvtaleArrangorForm() {
     formState: { errors },
   } = useFormContext<DeepPartial<AvtaleFormValues>>();
   const watchedArrangor = watch("detaljer.arrangor.hovedenhet") ?? "";
+  const watchedUnderenheter = (watch("detaljer.arrangor.underenheter") ?? []).filter(
+    (o): o is string => typeof o === "string",
+  );
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
   const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id ?? "");
 
   const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
-  const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);
+  const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(
+    underenheter ?? [],
+    watchedUnderenheter,
+  );
   const arrangorKontaktpersonOptions = getArrangorKontaktpersonOptions(kontaktpersoner ?? []);
 
   const underenheterIsEmpty = arrangorUnderenhetOptions.length === 0;
@@ -193,11 +199,25 @@ function getArrangorHovedenhetOptions(
   return options;
 }
 
-function getArrangorUnderenhetOptions(underenheter: BrregUnderenhetDto[]): SelectOption[] {
-  return underenheter.map((virksomet) => ({
-    value: virksomet.organisasjonsnummer,
-    label: `${virksomet.navn} - ${virksomet.organisasjonsnummer}`,
+function getArrangorUnderenhetOptions(
+  underenheter: BrregUnderenhetDto[],
+  valgteOrgnr: string[],
+): SelectOption[] {
+  const brregOrgnr = new Set(underenheter.map((u) => u.organisasjonsnummer));
+
+  const baseOptions: SelectOption[] = underenheter.map((virksomhet) => ({
+    value: virksomhet.organisasjonsnummer,
+    label: `${virksomhet.navn} - ${virksomhet.organisasjonsnummer}`,
   }));
+
+  const missingOptions: SelectOption[] = valgteOrgnr
+    .filter((orgnr) => !brregOrgnr.has(orgnr))
+    .map((orgnr) => ({
+      value: orgnr,
+      label: orgnr,
+    }));
+
+  return [...baseOptions, ...missingOptions];
 }
 
 function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]): SelectOption[] {
