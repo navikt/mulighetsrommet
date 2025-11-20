@@ -5872,15 +5872,19 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/DataDrivenTableDto"
-        regnestykke:
+        belop:
+          type: integer
+          format: int32
+        satsDetaljer:
           type: array
           items:
-            $ref: "#/components/schemas/DataElement"
+            $ref: "#/components/schemas/DataDetails"
       required:
+      - belop
       - deltakerRegioner
       - deltakerTableData
       - heading
-      - regnestykke
+      - satsDetaljer
     UtbetalingLinje:
       type: object
       properties:
