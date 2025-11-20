@@ -81,7 +81,7 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto = with(session) {
+    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -89,11 +89,7 @@ class TiltakstypeQueries(private val session: Session) {
             where arena_kode = ?
         """.trimIndent()
 
-        val tiltakstype = single(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
-
-        return requireNotNull(tiltakstype) {
-            "Det finnes ingen tiltakstype med arena_kode $arenaTiltakskode"
-        }
+        return single(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
     }
 
     fun getBySanityId(sanityId: UUID): TiltakstypeDto = with(session) {

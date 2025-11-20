@@ -101,86 +101,14 @@ class TiltakshistorikkService(
         is TiltakshistorikkV1Dto.ArbeidsgiverAvtale -> toDeltakelse(it)
     }
 
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse = coroutineScope {
-        val tiltakstype = async {
-            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
-                DeltakelseTiltakstype(it.navn, it.tiltakskode)
-            }
-        }
-        val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
-
-        Deltakelse(
-            id = deltakelse.id,
-            periode = DeltakelsePeriode(
-                startDato = deltakelse.startDato,
-                sluttDato = deltakelse.sluttDato,
-            ),
-            status = DeltakelseStatus(
-                type = deltakelse.status.toDataElement(),
-                aarsak = null,
-            ),
-            tittel = tiltakstype.await().navn.hosTitleCaseArrangor(arrangorNavn.await()),
-            tiltakstype = tiltakstype.await(),
-            innsoktDato = null,
-            sistEndretDato = null,
-            eierskap = DeltakelseEierskap.ARENA,
-            tilstand = getTilstand(deltakelse.status),
-            pamelding = null,
-        )
-    }
-
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse = coroutineScope {
-        val tiltakstype = async {
-            tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
-                DeltakelseTiltakstype(it.navn, it.tiltakskode)
-            }
-        }
-
-        val arrangorNavn = async { getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer) }
-
-        Deltakelse(
-            id = deltakelse.id,
-            periode = DeltakelsePeriode(
-                startDato = deltakelse.startDato,
-                sluttDato = deltakelse.sluttDato,
-            ),
-            status = DeltakelseStatus(
-                type = deltakelse.status.type.toDataElement(),
-                aarsak = deltakelse.status.aarsak?.description,
-            ),
-            tittel = tiltakstype.await().navn.hosTitleCaseArrangor(arrangorNavn.await()),
-            tiltakstype = tiltakstype.await(),
-            innsoktDato = null,
-            sistEndretDato = null,
-            eierskap = DeltakelseEierskap.TEAM_KOMET,
-            tilstand = getTilstand(deltakelse.status.type),
-            /**
-             * Vi inkluderer ikke info om påmelding før deltakelsen er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
-             */
-            pamelding = null,
-        )
-    }
-
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
-        val arenaKode = when (deltakelse.tiltakstype.tiltakskode) {
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING -> "ARBTREN"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_LONNSTILSKUDD -> "VARLONTIL"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MENTOR -> "MENTOR"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.INKLUDERINGSTILSKUDD -> "INKLUTILS"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.SOMMERJOBB -> "TILSJOBB"
-            TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VTAO -> "VATIAROR"
-        }
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaKode).let {
-            DeltakelseTiltakstype(it.navn, it.tiltakskode)
-        }
-
-        val arrangorNavn = Organisasjonsnummer.parse(deltakelse.arbeidsgiver.organisasjonsnummer)?.let {
-            getArrangorNavn(it)
-        } ?: run {
-            log.warn("Fant arbeidsgiver med orgnr som ikke kunne parses: ${deltakelse.arbeidsgiver.organisasjonsnummer}")
-            null
-        }
+    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
+        // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
+        //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
+        //  som feature toggle er definert for
+        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
+            ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+            ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
+        val arrangorNavn = getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -195,6 +123,54 @@ class TiltakshistorikkService(
             tiltakstype = tiltakstype,
             innsoktDato = null,
             sistEndretDato = null,
+            eierskap = DeltakelseEierskap.ARENA,
+            tilstand = getTilstand(deltakelse.status),
+            pamelding = null,
+        )
+    }
+
+    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse {
+        val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode)
+        val arrangorNavn = getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer)
+        return Deltakelse(
+            id = deltakelse.id,
+            periode = DeltakelsePeriode(
+                startDato = deltakelse.startDato,
+                sluttDato = deltakelse.sluttDato,
+            ),
+            status = DeltakelseStatus(
+                type = deltakelse.status.type.toDataElement(),
+                aarsak = deltakelse.status.aarsak?.description,
+            ),
+            tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
+            tiltakstype = tiltakstype,
+            innsoktDato = null,
+            sistEndretDato = null,
+            eierskap = DeltakelseEierskap.TEAM_KOMET,
+            tilstand = getTilstand(deltakelse.status.type),
+            /**
+             * Vi inkluderer ikke info om påmelding før deltakelsen er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
+             */
+            pamelding = null,
+        )
+    }
+
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
+        val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
+        return Deltakelse(
+            id = deltakelse.id,
+            periode = DeltakelsePeriode(
+                startDato = deltakelse.startDato,
+                sluttDato = deltakelse.sluttDato,
+            ),
+            status = DeltakelseStatus(
+                type = deltakelse.status.toDataElement(),
+                aarsak = null,
+            ),
+            tittel = tiltakstype.navn.hosTitleCaseArrangor(deltakelse.arbeidsgiver.navn),
+            tiltakstype = tiltakstype,
+            innsoktDato = null,
+            sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_TILTAK,
             tilstand = getTilstand(deltakelse.status),
             pamelding = null,
@@ -202,9 +178,13 @@ class TiltakshistorikkService(
     }
 
     private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).let {
-            DeltakelseTiltakstype(it.navn, it.tiltakskode)
-        }
+        // TODO: ideelt sett hadde vi fått tiltakskode i stedet for arenakode fra komet
+        //  (og enda mer ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
+        //  `tiltakshistorikk`-appen som kilde)
+        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
+            ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+            ?: throw IllegalStateException("Arena-tiltakskode finnes ikke i db=${deltakelse.tiltakstype.tiltakskode}")
+
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
@@ -287,15 +267,6 @@ class TiltakshistorikkService(
             null
         }, { virksomhet ->
             virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(it) } ?: virksomhet.navn
-        })
-    }
-
-    private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
-        arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
-            log.warn("Klarte ikke hente hente arrangør: $orgnr. BrregError: $error")
-            null
-        }, { virksomhet ->
-            virksomhet.navn
         })
     }
 
