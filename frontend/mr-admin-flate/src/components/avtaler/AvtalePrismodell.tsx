@@ -53,7 +53,7 @@ function PrismodellHeading() {
 }
 
 function PrismodellNavn({ navn }: { navn: string }) {
-  return <Metadata header={avtaletekster.prismodell.label} value={navn} />;
+  return <Metadata label={avtaletekster.prismodell.label} value={navn} />;
 }
 
 function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
@@ -66,15 +66,15 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
       borderRadius="medium"
     >
       <HStack gap="4" key={sats.gjelderFra}>
-        <Metadata header={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
-        <Metadata header={avtaletekster.prismodell.sats.label} value={formaterTall(sats.pris)} />
+        <Metadata label={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
+        <Metadata label={avtaletekster.prismodell.sats.label} value={formaterTall(sats.pris)} />
         <Metadata
-          header={avtaletekster.prismodell.periodeStart.label}
+          label={avtaletekster.prismodell.periodeStart.label}
           value={formaterDato(sats.gjelderFra)}
         />
         {sats.gjelderTil && (
           <Metadata
-            header={avtaletekster.prismodell.periodeSlutt.label}
+            label={avtaletekster.prismodell.periodeSlutt.label}
             value={formaterDato(sats.gjelderTil)}
           />
         )}
@@ -84,7 +84,5 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
 }
 
 function PrismodellPrisbetingelser({ prisbetingelser }: { prisbetingelser: string | null }) {
-  return (
-    <MetadataFritekstfelt header={avtaletekster.prisOgBetalingLabel} value={prisbetingelser} />
-  );
+  return <MetadataFritekstfelt label={avtaletekster.prisOgBetalingLabel} value={prisbetingelser} />;
 }

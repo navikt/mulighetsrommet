@@ -20,19 +20,16 @@ export function GjennomforingDetaljerMini({ gjennomforing, meny }: Props) {
         {meny}
       </HStack>
       <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
-        <Metadata header="Tiltaksnavn" value={gjennomforing.navn} />
+        <Metadata label="Tiltaksnavn" value={gjennomforing.navn} />
         <Metadata
-          header="Arrangør"
+          label="Arrangør"
           value={`${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer}`}
         />
-        <Metadata header="Tiltaksnummer" value={gjennomforing.tiltaksnummer} />
-        <Metadata header="Startdato" value={formaterDato(gjennomforing.startDato)} />
-        <Metadata header="Sluttdato" value={formaterDato(gjennomforing.sluttDato) || "-"} />
-        <Metadata header="Antall plasser" value={gjennomforing.antallPlasser} />
-        <Metadata
-          header="Status"
-          value={<GjennomforingStatusTag status={gjennomforing.status} />}
-        />
+        <Metadata label="Tiltaksnummer" value={gjennomforing.tiltaksnummer} />
+        <Metadata label="Startdato" value={formaterDato(gjennomforing.startDato)} />
+        <Metadata label="Sluttdato" value={formaterDato(gjennomforing.sluttDato) || "-"} />
+        <Metadata label="Antall plasser" value={gjennomforing.antallPlasser} />
+        <Metadata label="Status" value={<GjennomforingStatusTag status={gjennomforing.status} />} />
       </HGrid>
     </VStack>
   );

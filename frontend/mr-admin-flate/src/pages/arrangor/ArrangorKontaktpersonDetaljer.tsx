@@ -14,14 +14,10 @@ export function ArrangorKontaktpersonDetaljer({ kontaktperson }: Props) {
   return (
     <Box marginBlock="5">
       <dl className="flex flex-col gap-2">
-        <MetadataHorisontal header="Navn" value={navn} compact />
-        {beskrivelse && <MetadataHorisontal header="Beskrivelse" value={beskrivelse} compact />}
-        <MetadataHorisontal
-          header="Epost"
-          value={<a href={`mailto:${epost}`}>{epost}</a>}
-          compact
-        />
-        <MetadataHorisontal header="Telefon" value={telefon} compact />
+        <MetadataHorisontal label="Navn" value={navn} compact />
+        {beskrivelse && <MetadataHorisontal label="Beskrivelse" value={beskrivelse} compact />}
+        <MetadataHorisontal label="Epost" value={<a href={`mailto:${epost}`}>{epost}</a>} compact />
+        <MetadataHorisontal label="Telefon" value={telefon} compact />
       </dl>
     </Box>
   );

@@ -32,7 +32,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           <List.Item key={aarsak}>{aarsak}</List.Item>
         ))}
       </List>
-      {forklaring && <MetadataFritekstfelt header={forklaringHeading} value={forklaring} />}
+      {forklaring && <MetadataFritekstfelt label={forklaringHeading} value={forklaring} />}
     </Alert>
   );
 }

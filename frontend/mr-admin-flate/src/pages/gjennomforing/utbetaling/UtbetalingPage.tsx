@@ -101,41 +101,41 @@ export function UtbetalingPage() {
                   </Heading>
                   <VStack gap="2">
                     <MetadataHorisontal
-                      header={utbetalingTekster.metadata.status}
+                      label={utbetalingTekster.metadata.status}
                       value={<UtbetalingStatusTag status={utbetaling.status} />}
                     />
 
                     <MetadataHorisontal
-                      header={utbetalingTekster.metadata.periode}
+                      label={utbetalingTekster.metadata.periode}
                       value={formaterPeriode(utbetaling.periode)}
                     />
                     {utbetaling.type.tagName && (
                       <MetadataHorisontal
-                        header={utbetalingTekster.metadata.type}
+                        label={utbetalingTekster.metadata.type}
                         value={<UtbetalingTypeText type={utbetaling.type} />}
                       />
                     )}
                     <MetadataHorisontal
-                      header={utbetalingTekster.metadata.innsendtDato}
+                      label={utbetalingTekster.metadata.innsendtDato}
                       value={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
                     />
                     <MetadataHorisontal
-                      header={utbetalingTekster.metadata.innsendtAv}
+                      label={utbetalingTekster.metadata.innsendtAv}
                       value={utbetaling.innsendtAv}
                     />
                     <MetadataHorisontal
-                      header={utbetalingTekster.beregning.belop.label}
+                      label={utbetalingTekster.beregning.belop.label}
                       value={formaterNOK(utbetaling.belop)}
                     />
                     {utbetaling.beskrivelse && (
                       <MetadataFritekstfelt
-                        header={utbetalingTekster.metadata.beskrivelse}
+                        label={utbetalingTekster.metadata.beskrivelse}
                         value={utbetaling.beskrivelse}
                       />
                     )}
                     {utbetaling.begrunnelseMindreBetalt && (
                       <MetadataFritekstfelt
-                        header={utbetalingTekster.metadata.begrunnelseMindreBetalt}
+                        label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
                         value={utbetaling.begrunnelseMindreBetalt}
                       />
                     )}
@@ -147,11 +147,11 @@ export function UtbetalingPage() {
                   </Heading>
                   <VStack gap="2">
                     <MetadataHorisontal
-                      header="Kontonummer"
+                      label="Kontonummer"
                       value={utbetaling.betalingsinformasjon.kontonummer}
                     />
                     <MetadataHorisontal
-                      header="KID (valgfritt)"
+                      label="KID (valgfritt)"
                       value={utbetaling.betalingsinformasjon.kid}
                     />
                   </VStack>
@@ -162,7 +162,7 @@ export function UtbetalingPage() {
                       </Heading>
                       <VStack gap="2">
                         <MetadataHorisontal
-                          header="Journalpost-ID i Gosys"
+                          label="Journalpost-ID i Gosys"
                           value={
                             <HStack align="center">
                               <CopyButton

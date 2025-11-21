@@ -183,10 +183,10 @@ function Brukernavn() {
         </Modal.Header>
         <Modal.Body>
           <Bolk>
-            <Metadata header="Navn" value={ansattNavn} />
-            <Metadata header="Navident" value={ansatt.navIdent} />
-            <Metadata header="Epost" value={ansatt.epost || "Ikke registrert"} />
-            <Metadata header="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
+            <Metadata label="Navn" value={ansattNavn} />
+            <Metadata label="Navident" value={ansatt.navIdent} />
+            <Metadata label="Epost" value={ansatt.epost || "Ikke registrert"} />
+            <Metadata label="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
           </Bolk>
           <ReadMore header="Roller" defaultOpen>
             <ul>

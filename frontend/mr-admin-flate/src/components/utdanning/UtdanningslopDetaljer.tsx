@@ -13,13 +13,13 @@ export function UtdanningslopDetaljer({ utdanningslop }: Props) {
     <>
       <Bolk>
         <Metadata
-          header={avtaletekster.utdanning.utdanningsprogram.label}
+          label={avtaletekster.utdanning.utdanningsprogram.label}
           value={utdanningslop.utdanningsprogram.navn}
         />
       </Bolk>
       <Bolk>
         <Metadata
-          header={avtaletekster.utdanning.laerefag.label}
+          label={avtaletekster.utdanning.laerefag.label}
           value={
             <List>
               {utdanningslop.utdanninger
