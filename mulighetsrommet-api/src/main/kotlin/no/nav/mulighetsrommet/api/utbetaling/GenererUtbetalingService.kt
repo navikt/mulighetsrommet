@@ -94,6 +94,8 @@ class GenererUtbetalingService(
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.RETURNERT,
                     UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
                     -> false
 
                     UtbetalingStatusType.GENERERT -> true

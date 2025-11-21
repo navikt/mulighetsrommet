@@ -22,6 +22,12 @@ export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
           Utbetalt
         </Tag>
       );
+    case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
+      return (
+        <Tag variant="success" size={tagSize}>
+          Delvis utbetalt
+        </Tag>
+      );
     case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
       return (
         <Tag variant="warning" size={tagSize}>

@@ -19,6 +19,7 @@ function isAktiv(utbetaling: ArrangorflateUtbetalingKompaktDto): boolean {
       return true;
     case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
     case ArrangorflateUtbetalingStatus.UTBETALT:
+    case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
       return false;
   }
 }

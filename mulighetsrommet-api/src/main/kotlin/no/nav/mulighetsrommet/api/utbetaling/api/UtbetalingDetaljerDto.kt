@@ -52,8 +52,8 @@ data class DelutbetalingStatusDto(
                     value = status.beskrivelse,
                     when (status) {
                         DelutbetalingStatus.GODKJENT,
-                        DelutbetalingStatus.UTBETALT,
                         DelutbetalingStatus.OVERFORT_TIL_UTBETALING,
+                        DelutbetalingStatus.UTBETALT,
                         -> DataElement.Status.Variant.SUCCESS
 
                         DelutbetalingStatus.TIL_ATTESTERING,

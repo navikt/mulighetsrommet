@@ -42,7 +42,10 @@ object UbetalingToPdfDocumentContentMapper {
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             -> Unit
-            UtbetalingStatusType.FERDIG_BEHANDLET ->
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            ->
                 addUtbetalingsstatusSection(linjer)
         }
     }

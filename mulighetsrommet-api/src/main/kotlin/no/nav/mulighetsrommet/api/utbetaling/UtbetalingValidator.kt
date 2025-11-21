@@ -50,6 +50,8 @@ object UtbetalingValidator {
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.DELVIS_UTBETALT,
+                UtbetalingStatusType.UTBETALT,
                 -> false
             },
         ) {
