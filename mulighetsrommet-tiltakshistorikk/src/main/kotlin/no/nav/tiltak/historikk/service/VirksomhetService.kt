@@ -1,6 +1,7 @@
 package no.nav.tiltak.historikk.service
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.brreg.*
@@ -45,6 +46,17 @@ class VirksomhetService(
 
     private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
         return brreg.getBrregEnhet(organisasjonsnummer)
+            .flatMap { enhet ->
+                val overordnetEnhet = when (enhet) {
+                    is BrregHovedenhetDto -> enhet.overordnetEnhet
+                    is BrregUnderenhetDto -> enhet.overordnetEnhet
+
+                    is SlettetBrregHovedenhetDto,
+                    is SlettetBrregUnderenhetDto,
+                    -> null
+                }
+                overordnetEnhet?.let { getOrSyncVirksomhetIfNotExists(it).map { enhet } } ?: enhet.right()
+            }
             .fold({ error ->
                 when (error) {
                     is BrregError.FjernetAvJuridiskeArsaker -> {
