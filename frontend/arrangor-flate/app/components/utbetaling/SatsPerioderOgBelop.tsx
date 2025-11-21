@@ -1,7 +1,7 @@
-import { Heading, VStack } from "@navikt/ds-react";
-import { Definisjonsliste, Definisjonsliste2 } from "../common/Definisjonsliste";
-import { Separator } from "../common/Separator";
+import { Heading, HStack, VStack } from "@navikt/ds-react";
 import { DataDetails } from "@api-client";
+import { getDataElement } from "@mr/frontend-common";
+import { formaterNOK } from "@mr/frontend-common/utils/utils";
 
 export function SatsPerioderOgBelop({
   belop,
@@ -11,27 +11,29 @@ export function SatsPerioderOgBelop({
   satsDetaljer: DataDetails[];
 }) {
   return (
-    <VStack className="max-w-[400px]" gap="2">
+    <VStack className="w-[400px]" gap="2">
       {satsDetaljer.length > 0 && (
         <>
           {satsDetaljer.map((s) => (
             <VStack>
               {satsDetaljer.length > 1 && <Heading size="xsmall">{s.header}</Heading>}
-              <Definisjonsliste2 definitions={s.entries} className="my-2" />
+              {s.entries.map((entry) => (
+                <HStack justify="space-between">
+                  <dt className="font-bold w-max">{entry.label}:</dt>
+                  <dd className="whitespace-nowrap w-fit">
+                    {entry.value ? getDataElement(entry.value) : "-"}
+                  </dd>
+                </HStack>
+              ))}
             </VStack>
           ))}
-          <Separator />
+          <hr className="border-t border-border-divider w-full" />
         </>
       )}
-      <Definisjonsliste
-        definitions={[
-          {
-            key: "Beløp",
-            value: String(belop),
-            format: "NOK",
-          },
-        ]}
-      />
+      <HStack justify="space-between">
+        <dt className="font-bold w-max">Beløp:</dt>
+        <dd className="whitespace-nowrap w-fit">{formaterNOK(belop)}</dd>
+      </HStack>
     </VStack>
   );
 }

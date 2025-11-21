@@ -166,9 +166,7 @@ sealed class DataElement {
     data class Link(
         val text: String,
         val href: String,
-    ) : DataElement() {
-        val digest = this.hashCode().toHexString()
-    }
+    ) : DataElement()
 
     @SerialName("DATA_ELEMENT_MULTI_LINK_MODAL")
     @Serializable

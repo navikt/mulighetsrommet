@@ -190,7 +190,6 @@ export default function BekreftUtbetaling() {
       <VStack gap="6">
         <Definisjonsliste
           title="Innsendingsinformasjon"
-          headingLevel="3"
           definitions={[
             {
               key: "Arrangør",
@@ -203,7 +202,6 @@ export default function BekreftUtbetaling() {
         <Separator />
         <Definisjonsliste
           title={"Utbetaling"}
-          headingLevel="3"
           definitions={[
             {
               key: "Utbetalingsperiode",
