@@ -79,6 +79,8 @@ fun Application.configure(config: AppConfig) {
         BrregClient(config.httpClientEngine),
     )
 
+    virksomheter.syncAlleVirksomheterUtenNavn(this)
+
     val kafka = configureKafka(config.kafka, db, virksomheter)
 
     val tiltakshistorikk = TiltakshistorikkService(
