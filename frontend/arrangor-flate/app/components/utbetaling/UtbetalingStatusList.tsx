@@ -29,7 +29,6 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
     <VStack gap="4">
       <Definisjonsliste
         title="Utbetalingsstatus"
-        headingLevel="3"
         definitions={[
           {
             key: "Status",

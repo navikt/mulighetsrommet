@@ -9,7 +9,7 @@ import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { getEnvironment } from "~/services/environment";
-import { Definisjonsliste2 } from "~/components/common/Definisjonsliste";
+import { LabeledDataElementList } from "~/components/common/Definisjonsliste";
 import {
   deltakerOversiktLenke,
   getOrgnrGjennomforingIdFrom,
@@ -94,7 +94,7 @@ export default function OpprettKravDeltakerTabell() {
           </Alert>
         )}
         <DataDrivenTable data={deltakselseInfo.tabell} />
-        <Definisjonsliste2 definitions={deltakselseInfo.tabellFooter} className="my-2" />
+        <LabeledDataElementList entries={deltakselseInfo.tabellFooter} className="my-2" />
         <OpprettKravVeiviserButtons
           navigering={deltakselseInfo.navigering}
           orgnr={orgnr}

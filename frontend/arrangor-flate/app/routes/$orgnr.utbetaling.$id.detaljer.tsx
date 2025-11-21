@@ -101,7 +101,6 @@ export default function UtbetalingDetaljerSide() {
       />
       <Definisjonsliste
         title={"Utbetaling"}
-        headingLevel="3"
         definitions={[
           {
             key: "Utbetalingsperiode",
@@ -116,7 +115,6 @@ export default function UtbetalingDetaljerSide() {
       <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} />
       <Definisjonsliste
         title="Betalingsinformasjon"
-        headingLevel="3"
         definitions={[
           {
             key: "Kontonummer",
