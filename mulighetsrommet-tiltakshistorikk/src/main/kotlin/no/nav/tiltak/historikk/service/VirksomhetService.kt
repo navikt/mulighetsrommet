@@ -4,11 +4,15 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.db.QueryContext
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import org.intellij.lang.annotations.Language
 
 class VirksomhetService(
     private val db: TiltakshistorikkDatabase,
@@ -34,6 +38,29 @@ class VirksomhetService(
         }
 
         return syncFromBrreg(organisasjonsnummer)
+    }
+
+    fun syncAlleVirksomheterUtenNavn(scope: CoroutineScope) {
+        scope.launch {
+            var sisteOrgnr: String? = "800000000"
+            do {
+                sisteOrgnr = db.transaction {
+                    @Language("PostgreSQL")
+                    val query = """
+                    select organisasjonsnummer
+                    from virksomhet
+                    where organisasjonsnummer > ? and navn is null
+                    order by organisasjonsnummer
+                    limit 1
+                    for update skip locked
+                    """.trimIndent()
+
+                    session.single(queryOf(query, sisteOrgnr)) { it.string("organisasjonsnummer") }?.also {
+                        syncFromBrreg(Organisasjonsnummer(it))
+                    }
+                }
+            } while (sisteOrgnr != null)
+        }
     }
 
     /**
