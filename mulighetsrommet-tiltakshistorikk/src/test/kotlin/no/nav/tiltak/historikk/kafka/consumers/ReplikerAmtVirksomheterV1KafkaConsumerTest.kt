@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -20,18 +21,25 @@ import no.nav.tiltak.historikk.service.VirksomhetService
 class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
-    val orgnr = Organisasjonsnummer("876543210")
-
+    val organisasjonsnummer = Organisasjonsnummer("876543210")
+    var overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321")
     val virksomhetDto = AmtVirksomhetV1Dto(
-        organisasjonsnummer = orgnr,
+        organisasjonsnummer = organisasjonsnummer,
         navn = "Gammelt navn",
-        overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321"),
+        overordnetEnhetOrganisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
     )
 
-    var dbo = VirksomhetDbo(
-        organisasjonsnummer = orgnr,
+    var virksomhetOverordnetEnhet = VirksomhetDbo(
+        organisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
+        navn = "Overordnet enhet",
+        overordnetEnhetOrganisasjonsnummer = null,
+        organisasjonsform = "AS",
+        slettetDato = null,
+    )
+    var virksomhet = VirksomhetDbo(
+        organisasjonsnummer = organisasjonsnummer,
         navn = "Gammelt navn",
-        overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321"),
+        overordnetEnhetOrganisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
         organisasjonsform = "AS",
         slettetDato = null,
     )
@@ -40,11 +48,11 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
         val db = TiltakshistorikkDatabase(database.db)
 
         val brreg = mockk<BrregClient>()
-        coEvery { brreg.getBrregEnhet(orgnr) } returns BrregUnderenhetDto(
-            organisasjonsnummer = orgnr,
+        coEvery { brreg.getBrregEnhet(organisasjonsnummer) } returns BrregUnderenhetDto(
+            organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = "AS",
             navn = "Nytt navn",
-            overordnetEnhet = Organisasjonsnummer("987654321"),
+            overordnetEnhet = overordnetEnhetOrganisasjonsnummer,
         ).right()
 
         val virksomheter = VirksomhetService(db, brreg)
@@ -56,29 +64,49 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
         }
 
         test("skal ignorere melding hvis virksomheten ikke finnes i databasen") {
-            consumer.consume(orgnr.value, Json.encodeToJsonElement(virksomhetDto))
+            consumer.consume(organisasjonsnummer.value, Json.encodeToJsonElement(virksomhetDto))
 
-            virksomheter.getVirksomhet(orgnr) shouldBe null
+            virksomheter.getVirksomhet(organisasjonsnummer) shouldBe null
         }
 
-        test("skal oppdatere virksomhet når melding mottas og virksomheten finnes") {
+        test("skal oppdatere virksomhet når melding mottas og virksomheten finnes i databasen") {
             db.session {
-                queries.virksomhet.upsert(dbo)
+                queries.virksomhet.upsert(virksomhetOverordnetEnhet)
+                queries.virksomhet.upsert(virksomhet)
             }
 
-            consumer.consume(orgnr.value, Json.encodeToJsonElement(virksomhetDto))
+            consumer.consume(organisasjonsnummer.value, Json.encodeToJsonElement(virksomhetDto))
 
-            virksomheter.getVirksomhet(orgnr)?.navn shouldBe "Nytt navn"
+            virksomheter.getVirksomhet(organisasjonsnummer)?.navn shouldBe "Nytt navn"
+        }
+
+        test("skal lagre overordnet enhet til virksomhet når den ikke finnes i databasen") {
+            coEvery { brreg.getBrregEnhet(overordnetEnhetOrganisasjonsnummer) } returns BrregHovedenhetDto(
+                organisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
+                organisasjonsform = "AS",
+                navn = "Overordnet enhet",
+                postadresse = null,
+                forretningsadresse = null,
+                overordnetEnhet = null,
+            ).right()
+
+            db.session {
+                queries.virksomhet.upsert(virksomhet)
+            }
+
+            consumer.consume(organisasjonsnummer.value, Json.encodeToJsonElement(virksomhetDto))
+
+            virksomheter.getVirksomhet(overordnetEnhetOrganisasjonsnummer) shouldBe virksomhetOverordnetEnhet
         }
 
         test("skal slette virksomhet ved tombstone-melding") {
             db.session {
-                queries.virksomhet.upsert(dbo)
+                queries.virksomhet.upsert(virksomhet)
             }
 
-            consumer.consume(orgnr.value, JsonNull)
+            consumer.consume(organisasjonsnummer.value, JsonNull)
 
-            virksomheter.getVirksomhet(orgnr) shouldBe null
+            virksomheter.getVirksomhet(organisasjonsnummer) shouldBe null
         }
     }
 })
