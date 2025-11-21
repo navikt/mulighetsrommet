@@ -6,8 +6,7 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { Heading, Tabs, VStack } from "@navikt/ds-react";
-import classNames from "classnames";
+import { Heading, Spacer, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -57,31 +56,22 @@ export function GjennomforingPage() {
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <div
-          className={classNames("flex justify-between gap-6 flex-wrap w-full [&>span]:self-center")}
-        >
-          <div className="flex justify-start gap-6 items-center flex-wrap">
-            <GjennomforingIkon />
-            <VStack>
-              <Heading className="max-w-[50rem]" size="large" level="2">
-                {gjennomforing.navn}
-              </Heading>
-            </VStack>
-            <DataElementStatusTag {...gjennomforing.status.status} />
-          </div>
-          {gjennomforing.status.type === GjennomforingStatusType.GJENNOMFORES && (
-            <div className="pr-2">
-              <Lenkeknapp
-                size="small"
-                isExternal={true}
-                variant="secondary"
-                to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${gjennomforing.id}`}
-              >
-                Forhåndsvis i Modia
-              </Lenkeknapp>
-            </div>
-          )}
-        </div>
+        <GjennomforingIkon />
+        <Heading className="max-w-200" size="large" level="2">
+          {gjennomforing.navn}
+        </Heading>
+        <DataElementStatusTag {...gjennomforing.status.status} />
+        <Spacer />
+        {gjennomforing.status.type === GjennomforingStatusType.GJENNOMFORES && (
+          <Lenkeknapp
+            size="small"
+            isExternal={true}
+            variant="secondary"
+            to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${gjennomforing.id}`}
+          >
+            Forhåndsvis i Modia
+          </Lenkeknapp>
+        )}
       </Header>
       <Tabs value={currentTab}>
         <Tabs.List className="p-[0 0.5rem] w-[1920px] flex items-start m-auto">

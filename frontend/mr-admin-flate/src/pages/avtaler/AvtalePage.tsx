@@ -1,7 +1,7 @@
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { Heading, HStack, Tabs } from "@navikt/ds-react";
+import { Heading, Tabs } from "@navikt/ds-react";
 import { useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
@@ -91,13 +91,11 @@ export function AvtalePage() {
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <HStack gap="6">
-          <AvtaleIkon />
-          <Heading size="large" level="2">
-            {avtale.navn}
-          </Heading>
-          <DataElementStatusTag {...avtale.status.status} />
-        </HStack>
+        <AvtaleIkon />
+        <Heading size="large" level="2">
+          {avtale.navn}
+        </Heading>
+        <DataElementStatusTag {...avtale.status.status} />
       </Header>
       <Tabs value={currentTab}>
         <Tabs.List>
