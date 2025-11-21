@@ -22,8 +22,8 @@ function LabeledDataElement(props: LabeledDataElement) {
   const valueOrFallback = value || "-";
   switch (props.type) {
     case LabeledDataElementType.INLINE:
-      return <MetadataHorisontal header={props.label} value={valueOrFallback} />;
+      return <MetadataHorisontal label={props.label} value={valueOrFallback} />;
     case LabeledDataElementType.MULTILINE:
-      return <MetadataFritekstfelt header={props.label} value={valueOrFallback} />;
+      return <MetadataFritekstfelt label={props.label} value={valueOrFallback} />;
   }
 }

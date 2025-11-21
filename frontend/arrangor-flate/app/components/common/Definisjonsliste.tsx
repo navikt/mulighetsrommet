@@ -52,7 +52,7 @@ export function Definisjonsliste({ title, definitions, className }: Props) {
           <MetadataHorisontal
             compact
             key={index}
-            header={definition.key}
+            label={definition.key}
             value={getFormattedValue(definition)}
           />
         ))}

@@ -22,17 +22,17 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
         <VStack gap="1">
           <MetadataHorisontal
             compact
-            header="Status"
+            label="Status"
             value={status ? getDataElement(status) : null}
           />
-          <MetadataHorisontal compact header="Tiltakstype" value={tilsagn.tiltakstype.navn} />
-          <MetadataHorisontal compact header="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
+          <MetadataHorisontal compact label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
+          <MetadataHorisontal compact label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
         </VStack>
       )}
       {tilsagn.beregning.entries.map((entry) => (
         <MetadataHorisontal
           compact
-          header={entry.label}
+          label={entry.label}
           value={entry.value ? getDataElement(entry.value) : null}
         />
       ))}

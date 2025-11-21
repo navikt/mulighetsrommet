@@ -14,14 +14,14 @@ export function TiltakstypeInfo() {
   return (
     <WhitePaddedBox>
       <Bolk>
-        <Metadata header="Tiltakstype" value={tiltakstype.navn} />
-        <Metadata header="Tiltakskode" value={tiltakstype.arenaKode} />
+        <Metadata label="Tiltakstype" value={tiltakstype.navn} />
+        <Metadata label="Tiltakskode" value={tiltakstype.arenaKode} />
       </Bolk>
       <Separator />
       <Bolk>
-        <Metadata header="Startdato" value={formaterDato(tiltakstype.startDato)} />
+        <Metadata label="Startdato" value={formaterDato(tiltakstype.startDato)} />
         <Metadata
-          header="Sluttdato"
+          label="Sluttdato"
           value={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
         />
       </Bolk>
@@ -30,7 +30,7 @@ export function TiltakstypeInfo() {
           <Separator />
           <Bolk aria-label="Sanity-dokument">
             <Metadata
-              header="Sanity-dokument"
+              label="Sanity-dokument"
               value={
                 <>
                   <Lenke isExternal target="_blank" to={tiltakstypeSanityUrl}>

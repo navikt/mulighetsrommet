@@ -41,7 +41,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   return (
     <VStack gap="4">
       <Metadata
-        header={tilsagnTekster.prismodell.label}
+        label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(type)}
       />
       <Textarea
