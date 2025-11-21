@@ -10,10 +10,10 @@ export interface MetadataProps {
 
 export function Metadata({ label, value }: MetadataProps) {
   return (
-    <div className={`flex flex-col gap-2`}>
+    <dl className={`flex flex-col gap-2`}>
       <dt className="font-bold">{label}</dt>
       <dd className="mr-6 whitespace-pre-line">{value ?? "-"}</dd>
-    </div>
+    </dl>
   );
 }
 
@@ -29,7 +29,7 @@ export function Separator({ style, classname }: { style?: any; classname?: strin
 export function MetadataHorisontal({ label, value, compact }: MetadataProps) {
   const gridLayout = compact ? "max-content 1fr" : "0.5fr 1fr";
   return (
-    <HGrid columns={gridLayout} gap="2" align="start">
+    <HGrid as="dl" columns={gridLayout} gap="2" align="start">
       <dt className="font-bold w-max">{label}:</dt>
       <dd className="whitespace-nowrap w-fit">{value ?? "-"}</dd>
     </HGrid>

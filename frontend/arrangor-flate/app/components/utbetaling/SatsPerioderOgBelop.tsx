@@ -18,7 +18,7 @@ export function SatsPerioderOgBelop({
             <VStack>
               {satsDetaljer.length > 1 && <Heading size="xsmall">{s.header}</Heading>}
               {s.entries.map((entry) => (
-                <HStack justify="space-between">
+                <HStack as="dl" justify="space-between">
                   <dt className="font-bold w-max">{entry.label}:</dt>
                   <dd className="whitespace-nowrap w-fit">
                     {entry.value ? getDataElement(entry.value) : "-"}
@@ -30,7 +30,7 @@ export function SatsPerioderOgBelop({
           <hr className="border-t border-border-divider w-full" />
         </>
       )}
-      <HStack justify="space-between">
+      <HStack as="dl" justify="space-between">
         <dt className="font-bold w-max">Beløp:</dt>
         <dd className="whitespace-nowrap w-fit">{formaterNOK(belop)}</dd>
       </HStack>
