@@ -5,7 +5,6 @@ import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleIn
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
 import { Header } from "@/components/detaljside/Header";
-import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
@@ -19,6 +18,7 @@ import { toDetaljerRequest, toPersonvernRequest, toVeilederinfoRequest } from ".
 import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [

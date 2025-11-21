@@ -24,17 +24,17 @@ export function compareDataElements(aCell: DataElement | null, bCell: DataElemen
 
 export function getComparableValue(element: DataElement) {
   switch (element.type) {
-    case "no.nav.mulighetsrommet.model.DataElement.Text":
+    case "DATA_ELEMENT_TEXT":
       return element.value;
-    case "no.nav.mulighetsrommet.model.DataElement.Status":
+    case "DATA_ELEMENT_STATUS":
       return element.value;
-    case "no.nav.mulighetsrommet.model.DataElement.Periode":
+    case "DATA_ELEMENT_PERIODE":
       return element.start;
-    case "no.nav.mulighetsrommet.model.DataElement.Link":
+    case "DATA_ELEMENT_LINK":
       return element.text;
-    case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
+    case "DATA_ELEMENT_MATH_OPERATOR":
       return element.operator;
-    case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
+    case "DATA_ELEMENT_MULTI_LINK_MODAL":
       return element.modalContent.links[0].digest;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);

@@ -7,8 +7,8 @@ import {
 import { HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
-import { Metadata } from "@/components/detaljside/Metadata";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -44,7 +44,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   return (
     <VStack gap="4">
       <Metadata
-        header={tilsagnTekster.prismodell.label}
+        label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(
           TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         )}

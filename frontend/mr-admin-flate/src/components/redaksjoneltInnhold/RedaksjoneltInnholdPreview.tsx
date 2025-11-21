@@ -6,7 +6,6 @@ import { Suspense, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { LenkerList } from "../lenker/LenkerList";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
-import { Metadata } from "../detaljside/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useAvtale } from "@/api/avtaler/useAvtale";
@@ -20,6 +19,7 @@ import {
   GjennomforingTiltakstype,
   Kontorstruktur,
 } from "@tiltaksadministrasjon/api-client";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: GjennomforingTiltakstype;
@@ -149,14 +149,14 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
       <RedaksjoneltInnholdContainer>
         <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
           <Metadata
-            header={gjennomforingTekster.tilgjengeligIModiaLabel}
+            label={gjennomforingTekster.tilgjengeligIModiaLabel}
             value={<RegionOgUnderenheter kontorstruktur={kontorstruktur} />}
           />
         </Bolk>
         {kontaktpersoner.length > 0 && (
           <Bolk>
             <Metadata
-              header={gjennomforingTekster.kontaktpersonNav.mainLabel}
+              label={gjennomforingTekster.kontaktpersonNav.mainLabel}
               value={
                 <VStack gap="2">
                   {kontaktpersoner.map((kp, index) => (

@@ -3,15 +3,15 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 
 export interface MetadataProps {
-  header: string | ReactNode;
+  label: string | ReactNode;
   value: string | number | undefined | null | ReactNode;
   compact?: boolean;
 }
 
-export function Metadata({ header, value }: MetadataProps) {
+export function Metadata({ label, value }: MetadataProps) {
   return (
     <div className={`flex flex-col gap-2`}>
-      <dt className="font-bold">{header}</dt>
+      <dt className="font-bold">{label}</dt>
       <dd className="mr-6 whitespace-pre-line">{value ?? "-"}</dd>
     </div>
   );
@@ -26,25 +26,25 @@ export function Separator({ style, classname }: { style?: any; classname?: strin
   );
 }
 
-export function MetadataHorisontal({ header, value, compact }: MetadataProps) {
+export function MetadataHorisontal({ label, value, compact }: MetadataProps) {
   const gridLayout = compact ? "max-content 1fr" : "0.5fr 1fr";
   return (
     <HGrid columns={gridLayout} gap="2" align="start">
-      <dt className="font-bold w-max">{header}:</dt>
+      <dt className="font-bold w-max">{label}:</dt>
       <dd className="whitespace-nowrap w-fit">{value ?? "-"}</dd>
     </HGrid>
   );
 }
 
 export interface MetadataFritekstfeltProps {
-  header: string;
-  value: string | undefined | null;
+  label: string;
+  value: string | number | undefined | null | ReactNode;
 }
 
-export function MetadataFritekstfelt({ header, value }: MetadataFritekstfeltProps) {
+export function MetadataFritekstfelt({ label, value }: MetadataFritekstfeltProps) {
   return (
     <Metadata
-      header={header}
+      label={label}
       value={<BodyLong className="whitespace-pre-line">{value ?? "-"}</BodyLong>}
     />
   );

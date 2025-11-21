@@ -173,48 +173,48 @@ export const mockTilsagnTable: DataDrivenTableDto = {
     {
       cells: {
         bestillingsnummer: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "A-2025/11133-23",
           format: null,
         },
         periodeStart: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "2025-06-01",
           format: DataElementTextFormat.DATE,
         },
         periodeSlutt: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "2025-11-30",
           format: DataElementTextFormat.DATE,
         },
         type: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "Tilsagn",
           format: null,
         },
         kostnadssted: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "Nav tiltak Oslo",
           format: null,
         },
         antallPlasser: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "97",
           format: DataElementTextFormat.NUMBER,
         },
         belop: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "12207450",
           format: DataElementTextFormat.NOK,
         },
         status: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Status",
+          type: "DATA_ELEMENT_STATUS",
           value: "Til godkjenning",
           variant: DataElementStatusVariant.WARNING,
           description: null,
         },
         action: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Link",
+          type: "DATA_ELEMENT_LINK",
           digest: window.crypto.randomUUID().slice(0, 8),
           text: "Behandle",
           href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/10e393b0-1b7c-4c68-9a42-b541b2f114b8",
@@ -225,48 +225,48 @@ export const mockTilsagnTable: DataDrivenTableDto = {
     {
       cells: {
         bestillingsnummer: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "A-2025/11133-22",
           format: null,
         },
         periodeStart: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "2025-08-28",
           format: DataElementTextFormat.DATE,
         },
         periodeSlutt: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "2025-08-29",
           format: DataElementTextFormat.DATE,
         },
         type: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "Ekstratilsagn",
           format: null,
         },
         kostnadssted: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "Nav Alta-Kvænangen-Loppa",
           format: null,
         },
         antallPlasser: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "1",
           format: DataElementTextFormat.NUMBER,
         },
         belop: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "1353",
           format: DataElementTextFormat.NOK,
         },
         status: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Status",
+          type: "DATA_ELEMENT_STATUS",
           value: "Returnert",
           variant: DataElementStatusVariant.ERROR,
           description: null,
         },
         action: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Link",
+          type: "DATA_ELEMENT_LINK",
           digest: window.crypto.randomUUID().slice(0, 8),
           text: "Behandle",
           href: "/gjennomforinger/a7d63fb0-4366-412c-84b7-7c15518ee362/tilsagn/fd1825aa-1951-4de2-9b72-12d22f121e92",
