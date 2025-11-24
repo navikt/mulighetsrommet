@@ -11,7 +11,6 @@ import {
   Personopplysning,
   PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
-import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().nullable(),
@@ -99,7 +98,7 @@ export function defaultAvtaleData(
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
       beskrivelse: avtale?.beskrivelse ?? null,
-      faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold) ?? null,
+      faneinnhold: avtale?.faneinnhold ?? null,
     },
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,
