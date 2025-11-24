@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class SlateTilPortableText(
+class SlateTilPortableTextGjennomforing(
     private val db: ApiDatabase,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -22,8 +22,8 @@ class SlateTilPortableText(
         .execute { _, _ -> execute() }
 
     fun execute() {
-        val mapped = getAvtalerFaneinnhold().map { avtaleFaneInnhold ->
-            val faneInnhold = avtaleFaneInnhold.faneInnhold
+        val mapped = getGjennomforingFaneinnhold().map { gjennomforingFaneInnhold ->
+            val faneInnhold = gjennomforingFaneInnhold.faneInnhold
             val mappedFaneInnhold = faneInnhold.copy(
                 forHvem = faneInnhold.forHvem?.fromSlateFormat(),
                 detaljerOgInnhold = faneInnhold.detaljerOgInnhold?.fromSlateFormat(),
@@ -31,29 +31,29 @@ class SlateTilPortableText(
                 kontaktinfo = faneInnhold.kontaktinfo?.fromSlateFormat(),
                 oppskrift = faneInnhold.oppskrift?.fromSlateFormat(),
             )
-            return@map AvtaleFaneInnhold(avtaleFaneInnhold.id, mappedFaneInnhold)
+            return@map GjennomforingFaneInnhold(gjennomforingFaneInnhold.id, mappedFaneInnhold)
         }
-        logger.info("Konverterer ${mapped.size} avtalers Faneinnhold fra Slate til Portable Text format")
+        logger.info("Konverterer ${mapped.size} gjennomforinger Faneinnhold fra Slate til Portable Text format")
         db.transaction {
             mapped.forEach { mapped ->
                 upsertFaneinnhold(mapped.id, mapped.faneInnhold)
             }
         }
-        logger.info("${mapped.size} avtaler konvertert fra Slate til Portable Text format")
+        logger.info("${mapped.size} gjennomforinger konvertert fra Slate til Portable Text format")
     }
 
-    private fun getAvtalerFaneinnhold(): List<AvtaleFaneInnhold> = db.session {
+    private fun getGjennomforingFaneinnhold(): List<GjennomforingFaneInnhold> = db.session {
         @Language("PostgreSQL")
         val query = """
             select
               id,
               faneinnhold
-            from avtale
+            from gjennomforing
             where faneinnhold is not null
         """.trimIndent()
 
         session.list(queryOf(query, emptyMap())) {
-            AvtaleFaneInnhold(
+            GjennomforingFaneInnhold(
                 id = it.uuid("id"),
                 faneInnhold = it.string("faneinnhold").let { str -> Json.decodeFromString<Faneinnhold>(str) },
             )
@@ -63,7 +63,7 @@ class SlateTilPortableText(
     private fun TransactionalQueryContext.upsertFaneinnhold(id: UUID, faneInnhold: Faneinnhold) {
         @Language("PostgreSQL")
         val query = """
-                update avtale
+                update gjennomforing
                 set
                     faneinnhold = :faneinnhold::jsonb
                  where id = :id::uuid
@@ -78,4 +78,4 @@ class SlateTilPortableText(
     }
 }
 
-data class AvtaleFaneInnhold(val id: UUID, val faneInnhold: Faneinnhold)
+data class GjennomforingFaneInnhold(val id: UUID, val faneInnhold: Faneinnhold)
