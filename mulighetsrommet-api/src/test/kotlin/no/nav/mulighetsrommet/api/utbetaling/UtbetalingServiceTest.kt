@@ -1534,7 +1534,7 @@ class UtbetalingServiceTest : FunSpec({
             service.oppdaterFakturaStatus(
                 delutbetalingMock.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
-                lagretFakturaStatusSistOppdatert,
+                lagretFakturaStatusSistOppdatert.plusMinutes(1),
             )
 
             database.run {
