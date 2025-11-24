@@ -23,7 +23,7 @@ import { destroySession, getSession } from "~/sessions.server";
 import { apiHeaders } from "~/auth/auth.server";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { useEffect, useRef, useState } from "react";
-import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { LabeledDataElementList } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
@@ -207,17 +207,12 @@ export default function OpprettKrav() {
         Oppsummering
       </Heading>
       <VStack gap="6">
-        <Definisjonsliste
+        <LabeledDataElementList
           title="Innsendingsinformasjon"
-          headingLevel="3"
-          definitions={oppsummering.innsendingsInformasjon}
+          entries={oppsummering.innsendingsInformasjon}
         />
         <Separator />
-        <Definisjonsliste
-          title={"Utbetaling"}
-          headingLevel="3"
-          definitions={oppsummering.utbetalingInformasjon}
-        />
+        <LabeledDataElementList title="Utbetaling" entries={oppsummering.utbetalingInformasjon} />
         <Separator />
         <Form method="post" encType="multipart/form-data">
           <input

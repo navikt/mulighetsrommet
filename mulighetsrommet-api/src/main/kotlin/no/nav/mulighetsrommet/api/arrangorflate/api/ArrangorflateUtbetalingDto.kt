@@ -43,11 +43,11 @@ data class ArrangorflateBetalingsinformasjon(
 @Serializable
 class ArrangorflateBeregning(
     val displayName: String,
-    val detaljer: Details,
     val belop: Int,
     val digest: String,
     val stengt: List<StengtPeriode>,
     val deltakelser: DataDrivenTableDto?,
+    val satsDetaljer: List<DataDetails>,
 )
 
 @Serializable

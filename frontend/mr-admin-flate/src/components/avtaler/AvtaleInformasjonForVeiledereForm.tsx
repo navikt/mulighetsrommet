@@ -11,7 +11,6 @@ import {
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { InformasjonForVeiledereForm } from "../redaksjoneltInnhold/InformasjonForVeiledereForm";
 import { AvtaleDto, NavEnhetType } from "@tiltaksadministrasjon/api-client";
-import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 export function AvtaleInformasjonForVeiledereForm() {
   const [key, setKey] = useState(0);
@@ -28,10 +27,7 @@ export function AvtaleInformasjonForVeiledereForm() {
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
     setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);
-    setValue(
-      "veilederinformasjon.faneinnhold",
-      slateFaneinnholdToPortableText(faneinnhold ?? null),
-    );
+    setValue("veilederinformasjon.faneinnhold", faneinnhold ?? null);
   }
 
   const regionerOptions = enheter

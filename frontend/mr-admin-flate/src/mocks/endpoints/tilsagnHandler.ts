@@ -1,6 +1,5 @@
 import {
   DataDrivenTableDto,
-  DataElementMathOperatorType,
   DataElementTextFormat,
   LabeledDataElementType,
   TilsagnBeregningDto,
@@ -91,7 +90,7 @@ const beregning: TilsagnBeregningDto = {
         type: LabeledDataElementType.INLINE,
         label: "Prismodell",
         value: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "Fast sats per tiltaksplass per måned",
           format: null,
         },
@@ -100,7 +99,7 @@ const beregning: TilsagnBeregningDto = {
         type: LabeledDataElementType.INLINE,
         label: "Antall plasser",
         value: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "97",
           format: DataElementTextFormat.NUMBER,
         },
@@ -109,7 +108,7 @@ const beregning: TilsagnBeregningDto = {
         type: LabeledDataElementType.INLINE,
         label: "Sats",
         value: {
-          type: "no.nav.mulighetsrommet.model.DataElement.Text",
+          type: "DATA_ELEMENT_TEXT",
           value: "20975",
           format: DataElementTextFormat.NOK,
         },
@@ -119,43 +118,9 @@ const beregning: TilsagnBeregningDto = {
   regnestykke: {
     expression: [
       {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "97",
+        type: "DATA_ELEMENT_TEXT",
+        value: "97 plasser * 2099 per tiltaksplass per måned x 6.0 = 123000",
         format: DataElementTextFormat.NUMBER,
-      },
-      { type: "no.nav.mulighetsrommet.model.DataElement.Text", value: "plasser", format: null },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
-        operator: DataElementMathOperatorType.MULTIPLY,
-      },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "20975",
-        format: DataElementTextFormat.NOK,
-      },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "per tiltaksplass per måned",
-        format: null,
-      },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
-        operator: DataElementMathOperatorType.MULTIPLY,
-      },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "6.0",
-        format: DataElementTextFormat.NUMBER,
-      },
-      { type: "no.nav.mulighetsrommet.model.DataElement.Text", value: "måneder", format: null },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.MathOperator",
-        operator: DataElementMathOperatorType.EQUALS,
-      },
-      {
-        type: "no.nav.mulighetsrommet.model.DataElement.Text",
-        value: "12207450",
-        format: DataElementTextFormat.NOK,
       },
     ],
     breakdown: null,

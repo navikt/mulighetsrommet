@@ -3,26 +3,26 @@ import { Lenke } from "../lenke/Lenke";
 import { DataElementMathOperator } from "./DataElementMathOperator";
 import { DataElementMultiLinkModal } from "./DataElementMultiLinkModal";
 import { DataElementStatusTag } from "./DataElementStatusTag";
-import { DataElement as Type } from "./types";
+import { DataElement } from "./types";
 import { formatText } from "./util";
 
-export function getDataElement(element: Type) {
+export function getDataElement(element: DataElement) {
   switch (element.type) {
-    case "no.nav.mulighetsrommet.model.DataElement.Text":
+    case "DATA_ELEMENT_TEXT":
       return element.value ? formatText(element.value, element.format) : null;
-    case "no.nav.mulighetsrommet.model.DataElement.Status":
+    case "DATA_ELEMENT_STATUS":
       return <DataElementStatusTag {...element} />;
-    case "no.nav.mulighetsrommet.model.DataElement.Periode":
+    case "DATA_ELEMENT_PERIODE":
       return `${formaterDato(element.start)} - ${formaterDato(element.slutt)}`;
-    case "no.nav.mulighetsrommet.model.DataElement.Link":
+    case "DATA_ELEMENT_LINK":
       return (
         <Lenke to={element.href} className="whitespace-nowrap">
           {element.text}
         </Lenke>
       );
-    case "no.nav.mulighetsrommet.model.DataElement.MathOperator":
+    case "DATA_ELEMENT_MATH_OPERATOR":
       return <DataElementMathOperator operator={element.operator} />;
-    case "no.nav.mulighetsrommet.model.DataElement.MultiLinkModal":
+    case "DATA_ELEMENT_MULTI_LINK_MODAL":
       return <DataElementMultiLinkModal data={element} />;
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);

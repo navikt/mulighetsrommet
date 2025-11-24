@@ -54,9 +54,9 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        val tiltakstype: Tiltakstype,
         val status: ArenaDeltakerStatus,
-        val beskrivelse: String,
+        val tiltakstype: Tiltakstype,
+        val gjennomforing: Gjennomforing,
         val arrangor: Arrangor,
         val deltidsprosent: Float?,
         val dagerPerUke: Float?,
@@ -66,7 +66,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: String,
-            val navn: String?,
+            val navn: String,
         )
     }
 
@@ -92,7 +92,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
-            val navn: String?,
+            val navn: String,
         )
     }
 
@@ -115,7 +115,7 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
-            val navn: String?,
+            val navn: String,
         )
 
         enum class Tiltakskode {
@@ -125,7 +125,7 @@ sealed class TiltakshistorikkV1Dto {
             MENTOR,
             INKLUDERINGSTILSKUDD,
             SOMMERJOBB,
-            VARIG_TILRETTELAGT_ARBEID_ORDINAR,
+            VTAO,
         }
     }
 }
@@ -171,14 +171,11 @@ data class TiltakshistorikkArenaDeltaker(
     @Serializable(with = UUIDSerializer::class)
     val arenaGjennomforingId: UUID,
     val norskIdent: NorskIdent,
-    val arenaTiltakskode: String,
     val status: ArenaDeltakerStatus,
     @Serializable(with = LocalDateTimeSerializer::class)
     val startDato: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val sluttDato: LocalDateTime?,
-    val beskrivelse: String,
-    val arrangorOrganisasjonsnummer: Organisasjonsnummer,
     val dagerPerUke: Double?,
     val deltidsprosent: Double?,
 )

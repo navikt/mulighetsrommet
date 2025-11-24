@@ -51,6 +51,7 @@ object AvtaleValidator {
             val arrangor: no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet,
             val startDato: LocalDate,
             val utdanningslop: UtdanningslopDto?,
+            val status: GjennomforingStatusType,
         )
 
         data class Tiltakstype(
@@ -147,7 +148,7 @@ object AvtaleValidator {
                         DetaljerRequest.Arrangor::hovedenhet,
                     )
                 }
-                validate(ctx.arrangor?.underenheter?.map { it.id }?.contains(arrangorId) == true) {
+                validate(gjennomforing.status != GjennomforingStatusType.GJENNOMFORES || ctx.arrangor?.underenheter?.map { it.id }?.contains(arrangorId) == true) {
                     FieldError.ofPointer(
                         "/arrangorUnderenheter",
                         "Arrangøren ${gjennomforing.arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",

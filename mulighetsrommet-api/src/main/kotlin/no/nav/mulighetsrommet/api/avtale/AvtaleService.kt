@@ -162,6 +162,7 @@ class AvtaleService(
                                 arrangor = it.arrangor,
                                 startDato = it.startDato,
                                 utdanningslop = it.utdanningslop,
+                                status = it.status.type,
                             )
                         },
                         prismodell = it.prismodell,

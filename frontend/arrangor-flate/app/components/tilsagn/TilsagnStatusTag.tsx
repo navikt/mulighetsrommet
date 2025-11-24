@@ -1,28 +1,44 @@
-import { TilsagnStatus } from "api-client";
-import { Tag } from "@navikt/ds-react";
+import { DataElement, DataElementStatusVariant, TilsagnStatus } from "api-client";
 
-interface Props {
-  status: TilsagnStatus;
-}
-
-export function TilsagnStatusTag({ status }: Props) {
+export function tilsagnStatusElement(status: TilsagnStatus): DataElement | null {
   switch (status) {
     case TilsagnStatus.RETURNERT:
     case TilsagnStatus.TIL_GODKJENNING:
       return null;
     case TilsagnStatus.GODKJENT:
-      return <Tag variant="success">Godkjent</Tag>;
+      return {
+        variant: DataElementStatusVariant.SUCCESS,
+        value: "Godkjent",
+        type: "DATA_ELEMENT_STATUS",
+        description: null,
+      };
     case TilsagnStatus.TIL_ANNULLERING:
-      return <Tag variant="warning">Til annullering</Tag>;
+      return {
+        variant: DataElementStatusVariant.WARNING,
+        value: "Til annullering",
+        type: "DATA_ELEMENT_STATUS",
+        description: null,
+      };
     case TilsagnStatus.ANNULLERT:
-      return (
-        <Tag variant="error" className="line-through bg-white! text-text-danger!">
-          Annullert
-        </Tag>
-      );
+      return {
+        variant: DataElementStatusVariant.ERROR_BORDER_STRIKETHROUGH,
+        value: "Annullert",
+        type: "DATA_ELEMENT_STATUS",
+        description: null,
+      };
     case TilsagnStatus.TIL_OPPGJOR:
-      return <Tag variant="warning">Til oppgjør</Tag>;
+      return {
+        type: "DATA_ELEMENT_STATUS",
+        variant: DataElementStatusVariant.WARNING,
+        value: "Til oppgjør",
+        description: null,
+      };
     case TilsagnStatus.OPPGJORT:
-      return <Tag variant="neutral">Oppgjort</Tag>;
+      return {
+        type: "DATA_ELEMENT_STATUS",
+        variant: DataElementStatusVariant.NEUTRAL,
+        value: "Oppgjort",
+        description: null,
+      };
   }
 }

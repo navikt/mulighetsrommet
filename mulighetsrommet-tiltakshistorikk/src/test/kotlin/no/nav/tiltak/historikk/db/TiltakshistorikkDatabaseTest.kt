@@ -8,7 +8,10 @@ import io.kotest.matchers.shouldBe
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.historikk.*
+import no.nav.tiltak.historikk.TestFixtures
+import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
+import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
+import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
 import java.time.LocalDate
@@ -64,70 +67,29 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         }
     }
 
-    context("Arena gjennomføring") {
-        val db = TiltakshistorikkDatabase(database.db)
-
-        test("oppretter og sletter gjennomføring") {
-            val gjennomforing = TiltakshistorikkArenaGjennomforing(
-                id = UUID.randomUUID(),
-                arenaTiltakskode = "ARBTREN",
-                arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
-                arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
-                arrangorOrganisasjonsnummer = Organisasjonsnummer("123456789"),
-                navn = "Arbeidstrening",
-                deltidsprosent = 80.0,
-            )
-
-            db.session {
-                queries.arenaGjennomforing.upsert(gjennomforing)
-            }
-
-            database.assertRequest("select * from arena_gjennomforing")
-                .hasNumberOfRows(1)
-                .row()
-                .value("id").isEqualTo(gjennomforing.id)
-                .value("arena_tiltakskode").isEqualTo("ARBTREN")
-                .value("arena_reg_dato").isEqualTo(gjennomforing.arenaRegDato)
-                .value("arena_mod_dato").isEqualTo(gjennomforing.arenaModDato)
-                .value("arrangor_organisasjonsnummer").isEqualTo(gjennomforing.arrangorOrganisasjonsnummer.value)
-                .value("navn").isEqualTo(gjennomforing.navn)
-                .value("deltidsprosent").isEqualTo(gjennomforing.deltidsprosent)
-
-            db.session {
-                queries.arenaGjennomforing.delete(gjennomforing.id)
-            }
-
-            database.assertRequest("select * from arena_gjennomforing").isEmpty
-        }
-    }
-
     context("Arena deltaker") {
+        val arenaArbeidstrening = TestFixtures.Gjennomforing.arenaArbeidstrening
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
-            arenaGjennomforingId = UUID.randomUUID(),
+            arenaGjennomforingId = arenaArbeidstrening.id,
             norskIdent = NorskIdent("12345678910"),
-            arenaTiltakskode = "ARBTREN",
             status = ArenaDeltakerStatus.GJENNOMFORES,
             startDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             sluttDato = LocalDateTime.of(2024, 1, 31, 0, 0, 0),
-            beskrivelse = "Arbeidstrening hos Fretex",
-            arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             dagerPerUke = 2.5,
             deltidsprosent = 50.0,
         )
 
+        val arenaMentor = TestFixtures.Gjennomforing.arenaMentor
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
-            arenaGjennomforingId = UUID.randomUUID(),
+            arenaGjennomforingId = arenaMentor.id,
             norskIdent = NorskIdent("12345678910"),
-            arenaTiltakskode = "MENTOR",
             status = ArenaDeltakerStatus.GJENNOMFORES,
             startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
             sluttDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
-            beskrivelse = "Mentortiltak hos Joblearn",
-            arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
             arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
             dagerPerUke = 5.0,
@@ -138,7 +100,9 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.arenaGjennomforing.upsert(arenaArbeidstrening)
+                queries.arenaGjennomforing.upsert(arenaMentor)
             }
         }
 
@@ -157,10 +121,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         startDato = LocalDate.of(2002, 2, 1),
                         sluttDato = LocalDate.of(2002, 2, 1),
                         status = ArenaDeltakerStatus.GJENNOMFORES,
-                        beskrivelse = "Mentortiltak hos Joblearn",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
-                            navn = null,
+                            navn = "Mentor",
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = arenaMentor.id,
+                            navn = "Mentortiltak hos Joblearn",
+                            deltidsprosent = 100f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
                         deltidsprosent = 100f,
@@ -172,10 +140,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
-                        beskrivelse = "Arbeidstrening hos Fretex",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = arenaArbeidstrening.id,
+                            navn = "Arbeidstrening hos Fretex",
+                            deltidsprosent = 80f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
                         deltidsprosent = 50f,
@@ -195,10 +167,14 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
-                        beskrivelse = "Arbeidstrening hos Fretex",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
-                            navn = null,
+                            navn = "Arbeidstrening",
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = arenaArbeidstrening.id,
+                            navn = "Arbeidstrening hos Fretex",
+                            deltidsprosent = 80f,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
                         deltidsprosent = 50f,
@@ -218,14 +194,11 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         test("filtrerer Arena-deltakere basert på maxAgeYears") {
             val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
                 id = UUID.randomUUID(),
-                arenaGjennomforingId = UUID.randomUUID(),
+                arenaGjennomforingId = arenaMentor.id,
                 norskIdent = NorskIdent("12345678910"),
-                arenaTiltakskode = "MENTOR",
                 status = ArenaDeltakerStatus.GJENNOMFORES,
                 startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
                 sluttDato = null,
-                beskrivelse = "Mentortiltak hos Joblearn",
-                arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
                 arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
                 arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
                 dagerPerUke = 5.0,
@@ -252,18 +225,58 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 )
             }
         }
+
+        test("henter Arena-historikk for flere identiteter") {
+            db.transaction {
+                val deltaker1 = TiltakshistorikkArenaDeltaker(
+                    id = UUID.randomUUID(),
+                    arenaGjennomforingId = arenaArbeidstrening.id,
+                    norskIdent = NorskIdent("11111111111"),
+                    status = ArenaDeltakerStatus.GJENNOMFORES,
+                    startDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
+                    sluttDato = LocalDateTime.of(2020, 6, 1, 0, 0, 0),
+                    arenaRegDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
+                    arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+                    dagerPerUke = null,
+                    deltidsprosent = null,
+                )
+
+                val deltaker2 = TiltakshistorikkArenaDeltaker(
+                    id = UUID.randomUUID(),
+                    arenaGjennomforingId = arenaMentor.id,
+                    norskIdent = NorskIdent("22222222222"),
+                    status = ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
+                    startDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
+                    sluttDato = LocalDateTime.of(2021, 3, 1, 0, 0, 0),
+                    arenaRegDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
+                    arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+                    dagerPerUke = null,
+                    deltidsprosent = null,
+                )
+
+                queries.arenaDeltaker.upsertArenaDeltaker(deltaker1)
+                queries.arenaDeltaker.upsertArenaDeltaker(deltaker2)
+
+                val historikk = queries.arenaDeltaker.getArenaHistorikk(
+                    identer = listOf(NorskIdent("11111111111"), NorskIdent("22222222222")),
+                    maxAgeYears = null,
+                )
+
+                historikk.map { it.id } shouldContainExactlyInAnyOrder listOf(deltaker1.id, deltaker2.id)
+            }
+        }
     }
 
     context("Komet deltaker") {
-        val gruppeAmo = TestFixtures.gjennomforingGruppe
-        val amtDeltaker = TestFixtures.amtDeltaker
+        val gruppeAmo = TestFixtures.Gjennomforing.gruppeAmo
+        val amtDeltaker = TestFixtures.Deltaker.gruppeAmo
 
         val db = TiltakshistorikkDatabase(database.db)
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
-                queries.gjennomforing.upsert(toGjennomforingDbo(gruppeAmo))
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.gjennomforing.upsert(gruppeAmo.toGjennomforingDbo())
             }
         }
 
@@ -287,7 +300,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
                             tiltakskode = gruppeAmo.tiltakskode,
-                            navn = null,
+                            navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                             id = gruppeAmo.id,
@@ -395,62 +408,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     identer = listOf(NorskIdent(testDeltaker.personIdent)),
                     maxAgeYears = null,
                 ).shouldBeEmpty()
-            }
-        }
-    }
-
-    context("Flere identiteter") {
-        var db = TiltakshistorikkDatabase(database.db)
-
-        beforeAny {
-            db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
-            }
-        }
-
-        test("henter Arena-historikk for flere identiteter") {
-            db.transaction {
-                val deltaker1 = TiltakshistorikkArenaDeltaker(
-                    id = UUID.randomUUID(),
-                    arenaGjennomforingId = UUID.randomUUID(),
-                    norskIdent = NorskIdent("11111111111"),
-                    arenaTiltakskode = "ARBTREN",
-                    status = ArenaDeltakerStatus.GJENNOMFORES,
-                    startDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
-                    sluttDato = LocalDateTime.of(2020, 6, 1, 0, 0, 0),
-                    beskrivelse = "Første deltakelse",
-                    arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
-                    arenaRegDato = LocalDateTime.of(2020, 1, 1, 0, 0, 0),
-                    arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-                    dagerPerUke = null,
-                    deltidsprosent = null,
-                )
-
-                val deltaker2 = TiltakshistorikkArenaDeltaker(
-                    id = UUID.randomUUID(),
-                    arenaGjennomforingId = UUID.randomUUID(),
-                    norskIdent = NorskIdent("22222222222"),
-                    arenaTiltakskode = "MENTOR",
-                    status = ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
-                    startDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-                    sluttDato = LocalDateTime.of(2021, 3, 1, 0, 0, 0),
-                    beskrivelse = "Andre deltakelse",
-                    arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
-                    arenaRegDato = LocalDateTime.of(2021, 1, 1, 0, 0, 0),
-                    arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-                    dagerPerUke = null,
-                    deltidsprosent = null,
-                )
-
-                queries.arenaDeltaker.upsertArenaDeltaker(deltaker1)
-                queries.arenaDeltaker.upsertArenaDeltaker(deltaker2)
-
-                val historikk = queries.arenaDeltaker.getArenaHistorikk(
-                    identer = listOf(NorskIdent("11111111111"), NorskIdent("22222222222")),
-                    maxAgeYears = null,
-                )
-
-                historikk.map { it.id } shouldContainExactlyInAnyOrder listOf(deltaker1.id, deltaker2.id)
             }
         }
     }

@@ -1,4 +1,4 @@
-import { MetadataFritekstfelt } from "@/components/detaljside/Metadata";
+import { MetadataFritekstfelt } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Alert, BodyShort, Heading, List } from "@navikt/ds-react";
 
 type Props = {
@@ -32,7 +32,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
           <List.Item key={aarsak}>{aarsak}</List.Item>
         ))}
       </List>
-      {forklaring && <MetadataFritekstfelt header={forklaringHeading} value={forklaring} />}
+      {forklaring && <MetadataFritekstfelt label={forklaringHeading} value={forklaring} />}
     </Alert>
   );
 }

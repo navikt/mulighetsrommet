@@ -1,10 +1,18 @@
 package no.nav.tiltak.historikk.service
 
+import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.brreg.*
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.db.QueryContext
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import org.intellij.lang.annotations.Language
 
 class VirksomhetService(
     private val db: TiltakshistorikkDatabase,
@@ -18,20 +26,40 @@ class VirksomhetService(
         queries.virksomhet.delete(organisasjonsnummer)
     }
 
-    suspend fun syncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer) {
-        if (getVirksomhet(organisasjonsnummer) == null) {
-            syncVirksomhet(organisasjonsnummer)
-        }
+    suspend fun getOrSyncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
+        return getVirksomhet(organisasjonsnummer)?.right() ?: return getAndSyncVirksomhet(organisasjonsnummer)
     }
 
-    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Unit = db.session {
+    suspend fun getAndSyncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> = db.session {
         if (erUtenlandskVirksomhet(organisasjonsnummer)) {
-            return queries.virksomhet.upsert(VirksomhetDbo(organisasjonsnummer, null, null, null, null))
+            return VirksomhetDbo(organisasjonsnummer, null, null, null, null)
+                .also { queries.virksomhet.upsert(it) }
+                .right()
         }
 
-        val error = syncFromBrreg(organisasjonsnummer)
-        if (error != null) {
-            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
+        return syncFromBrreg(organisasjonsnummer)
+    }
+
+    fun syncAlleVirksomheterUtenNavn(scope: CoroutineScope) {
+        scope.launch {
+            var sisteOrgnr: String? = "800000000"
+            do {
+                sisteOrgnr = db.transaction {
+                    @Language("PostgreSQL")
+                    val query = """
+                    select organisasjonsnummer
+                    from virksomhet
+                    where organisasjonsnummer > ? and navn is null
+                    order by organisasjonsnummer
+                    limit 1
+                    for update skip locked
+                    """.trimIndent()
+
+                    session.single(queryOf(query, sisteOrgnr)) { it.string("organisasjonsnummer") }?.also {
+                        syncFromBrreg(Organisasjonsnummer(it))
+                    }
+                }
+            } while (sisteOrgnr != null)
         }
     }
 
@@ -43,20 +71,29 @@ class VirksomhetService(
         return organisasjonsnummer.value.first() == '1'
     }
 
-    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): BrregError? {
+    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
         return brreg.getBrregEnhet(organisasjonsnummer)
+            .flatMap { enhet ->
+                val overordnetEnhet = when (enhet) {
+                    is BrregHovedenhetDto -> enhet.overordnetEnhet
+                    is BrregUnderenhetDto -> enhet.overordnetEnhet
+
+                    is SlettetBrregHovedenhetDto,
+                    is SlettetBrregUnderenhetDto,
+                    -> null
+                }
+                overordnetEnhet?.let { getOrSyncVirksomhetIfNotExists(it).map { enhet } } ?: enhet.right()
+            }
             .fold({ error ->
                 when (error) {
                     is BrregError.FjernetAvJuridiskeArsaker -> {
-                        queries.virksomhet.upsert(error.enhet.toVirksomhetDbo())
-                        null
+                        error.enhet.toVirksomhetDbo().also { queries.virksomhet.upsert(it) }.right()
                     }
 
-                    else -> error
+                    else -> error.left()
                 }
             }, { enhet ->
-                queries.virksomhet.upsert(enhet.toVirksomhetDbo())
-                null
+                enhet.toVirksomhetDbo().also { queries.virksomhet.upsert(it) }.right()
             })
     }
 }
