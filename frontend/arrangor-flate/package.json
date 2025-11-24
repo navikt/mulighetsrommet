@@ -34,7 +34,7 @@
     "@navikt/ds-react": "7.33.5",
     "@navikt/ds-tailwind": "7.33.5",
     "@navikt/nav-dekoratoren-moduler": "3.5.0",
-    "@navikt/oasis": "4.1.0",
+    "@navikt/oasis": "4.1.1",
     "@react-router/express": "7.9.6",
     "@react-router/node": "7.9.6",
     "@react-router/serve": "7.9.6",
@@ -45,7 +45,7 @@
     "csp-header": "6.2.0",
     "express": "5.1.0",
     "express-prom-bundle": "8.0.0",
-    "html-react-parser": "5.2.8",
+    "html-react-parser": "5.2.10",
     "http-proxy-middleware": "3.0.5",
     "isbot": "5.1.32",
     "jsdom": "^27.2.0",
@@ -71,8 +71,8 @@
     "@types/node": "24.10.1",
     "@types/react": "19.0.3",
     "@types/react-dom": "19.0.4",
-    "@typescript-eslint/eslint-plugin": "8.46.4",
-    "@typescript-eslint/parser": "8.46.4",
+    "@typescript-eslint/eslint-plugin": "8.47.0",
+    "@typescript-eslint/parser": "8.47.0",
     "autoprefixer": "10.4.22",
     "eslint": "9.39.1",
     "eslint-plugin-prettier": "5.5.4",
@@ -85,10 +85,10 @@
     "postcss-import": "16.1.1",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.46.4",
-    "vite": "7.2.2",
+    "typescript-eslint": "8.47.0",
+    "vite": "7.2.4",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "4.0.9"
+    "vitest": "4.0.13"
   },
   "engines": {
     "node": ">=20.0.0"
