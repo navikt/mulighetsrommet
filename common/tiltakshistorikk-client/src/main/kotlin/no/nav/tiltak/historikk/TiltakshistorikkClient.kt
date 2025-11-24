@@ -71,7 +71,11 @@ class TiltakshistorikkClient(
         handleSuccess: suspend () -> T,
     ): Either<ResponseException, T> {
         return if (response.status.isSuccess()) {
-            Either.Right(handleSuccess())
+            try {
+                Either.Right(handleSuccess())
+            } catch (e: Throwable) {
+                Either.Left(ResponseException(response, e.message ?: "Ukjent feil"))
+            }
         } else {
             Either.Left(ResponseException(response, response.bodyAsText()))
         }
