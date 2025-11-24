@@ -43,7 +43,7 @@ flere formål, så unngår du å dytte dine egne vaner på naboen.
 ### Gradle
 
 Det anbefales å ha `gradle` installert, det gjør det lettere å kjøre kommandoer uavhengig av hvilket prosjekt du jobber
-med. Hvis du ikke har installert `gradle` via `asdf` så kan det
+med. Hvis du ikke har installert `gradle` via `mise` så kan det
 også [installeres manuelt](https://gradle.org/install/).
 
 Det ligger et [gradlew](./gradlew) script i repoet som oppgraderes ved nye versjoner og `gradle` plukker automatisk opp
