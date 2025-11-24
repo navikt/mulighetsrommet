@@ -1,8 +1,8 @@
 [versions]
 common-java-modules = "3.2025.11.10_14.07-a9f44944d7bc"
-flyway = "11.17.0"
+flyway = "11.17.1"
 koin = "4.1.0-Beta8"
-kotest = "6.0.4"
+kotest = "6.0.5"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.2.21"
 ktor = "3.3.2"
