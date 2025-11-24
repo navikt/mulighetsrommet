@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
-import no.nav.mulighetsrommet.api.avtale.task.SlateTilPortableText
+import no.nav.mulighetsrommet.api.avtale.task.SlateTilPortableTextGjennomforing
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -465,7 +465,7 @@ private fun tasks(config: AppConfig) = module {
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { SlateTilPortableText(get()) }
+    single { SlateTilPortableTextGjennomforing(get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -497,7 +497,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: OppdaterUtbetalingBeregning by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
-        val slateTilPortableText: SlateTilPortableText by inject()
+        val slateTilPortableText: SlateTilPortableTextGjennomforing by inject()
 
         val db: Database by inject()
 
