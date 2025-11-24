@@ -32,7 +32,7 @@ enum class UtbetalingStatusType {
     DELVIS_UTBETALT,
 
     /**
-     * Alle delutbetalinger har fått fakturastatus FULLT_BETALT
+     * Alle delutbetalinger har status UTBETALT
      */
     UTBETALT,
 }
