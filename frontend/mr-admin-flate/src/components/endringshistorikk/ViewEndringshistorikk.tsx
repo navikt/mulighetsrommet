@@ -4,7 +4,6 @@ import type {
   EndringshistorikkDtoUser,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterDatoTid } from "@mr/frontend-common/utils/date";
-import classNames from "classnames";
 
 export interface ViewEndringshistorikkProps {
   historikk: EndringshistorikkDto;
@@ -26,9 +25,7 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
 
         return (
           <li
-            className={classNames({
-              "italic font-thin text-text-subtle": !isNavAnsatt(editedBy),
-            })}
+            className={!isNavAnsatt(editedBy) ? "italic font-thin text-text-subtle" : undefined}
             key={editedAt}
           >
             {formaterDatoTid(editedAt)} - <b>{operation}</b> - {user}
