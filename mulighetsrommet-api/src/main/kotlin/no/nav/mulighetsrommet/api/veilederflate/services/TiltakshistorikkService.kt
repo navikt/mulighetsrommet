@@ -4,8 +4,6 @@ import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
@@ -30,7 +28,6 @@ import org.slf4j.LoggerFactory
 class TiltakshistorikkService(
     private val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery,
     private val tiltakstypeService: TiltakstypeService,
-    private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkClient: TiltakshistorikkClient,
     private val features: FeatureToggleService,
@@ -102,20 +99,19 @@ class TiltakshistorikkService(
         })
     }
 
-    private suspend fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
+    private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
         is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
         is TiltakshistorikkV1Dto.GruppetiltakDeltakelse -> toDeltakelse(it)
         is TiltakshistorikkV1Dto.ArbeidsgiverAvtale -> toDeltakelse(it)
     }
 
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
         // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
         //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
         //  som feature toggle er definert for
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
             ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
             ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
-        val arrangorNavn = getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -126,7 +122,7 @@ class TiltakshistorikkService(
                 type = deltakelse.status.toDataElement(),
                 aarsak = null,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
+            tittel = tiltakstype.navn.hosTitleCaseArrangor(deltakelse.arrangor.underenhet.navn),
             tiltakstype = tiltakstype,
             innsoktDato = null,
             sistEndretDato = null,
@@ -136,9 +132,9 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse {
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse {
         val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode)
-        val arrangorNavn = getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer)
+        val arrangorNavn = deltakelse.arrangor.hovedenhet?.navn ?: deltakelse.arrangor.underenhet.navn
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -266,33 +262,6 @@ class TiltakshistorikkService(
                     PdlError.NotFound -> listOf(norskIdent)
                 }
             }
-    }
-
-    private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
-        arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
-            log.warn("Klarte ikke hente arrangørs hovedenhet: $orgnr. BrregError: $error")
-            null
-        }, { virksomhet ->
-            virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(it) } ?: virksomhet.navn
-        })
-    }
-
-    private suspend fun <T> retryOnException(
-        times: Int = 3,
-        initialDelay: Long = 50,
-        block: suspend () -> T,
-    ): T {
-        repeat(times - 1) { attempt ->
-            val nextDelay = initialDelay * (attempt + 1)
-            try {
-                return block()
-            } catch (e: Exception) {
-                log.info("Exception oppsto under forsøk ${attempt + 1} av $times, venter $nextDelay ms før nytt forsøk. Feilmelding: ${e.message}")
-                delay(nextDelay)
-            }
-        }
-
-        return block()
     }
 }
 

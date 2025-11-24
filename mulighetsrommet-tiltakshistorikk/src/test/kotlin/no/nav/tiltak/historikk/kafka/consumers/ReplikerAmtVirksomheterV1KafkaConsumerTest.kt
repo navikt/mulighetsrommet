@@ -80,27 +80,9 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
             virksomheter.getVirksomhet(organisasjonsnummer)?.navn shouldBe "Nytt navn"
         }
 
-        test("skal lagre overordnet enhet til virksomhet når den ikke finnes i databasen") {
-            coEvery { brreg.getBrregEnhet(overordnetEnhetOrganisasjonsnummer) } returns BrregHovedenhetDto(
-                organisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
-                organisasjonsform = "AS",
-                navn = "Overordnet enhet",
-                postadresse = null,
-                forretningsadresse = null,
-                overordnetEnhet = null,
-            ).right()
-
-            db.session {
-                queries.virksomhet.upsert(virksomhet)
-            }
-
-            consumer.consume(organisasjonsnummer.value, Json.encodeToJsonElement(virksomhetDto))
-
-            virksomheter.getVirksomhet(overordnetEnhetOrganisasjonsnummer) shouldBe virksomhetOverordnetEnhet
-        }
-
         test("skal slette virksomhet ved tombstone-melding") {
             db.session {
+                queries.virksomhet.upsert(virksomhetOverordnetEnhet)
                 queries.virksomhet.upsert(virksomhet)
             }
 

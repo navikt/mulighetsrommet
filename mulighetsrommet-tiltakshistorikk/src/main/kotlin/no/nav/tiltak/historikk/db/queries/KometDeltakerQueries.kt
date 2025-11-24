@@ -95,12 +95,15 @@ class KometDeltakerQueries(private val session: Session) {
                     gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
                     tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                     tiltakstype.navn as tiltakstype_navn,
-                    virksomhet.organisasjonsnummer as arrangor_organisasjonsnummer,
-                    virksomhet.navn as arrangor_navn
+                    arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
+                    arrangor.navn as arrangor_navn,
+                    arrangor_hovedenhet.organisasjonsnummer as arrangor_hovedenhet_organisasjonsnummer,
+                    arrangor_hovedenhet.navn as arrangor_hovedenhet_navn
                 from komet_deltaker deltaker
                     join gjennomforing on deltaker.gjennomforing_id = gjennomforing.id
                     join tiltakstype on tiltakstype.tiltakskode = gjennomforing.tiltakskode
-                    join virksomhet on gjennomforing.arrangor_organisasjonsnummer = virksomhet.organisasjonsnummer
+                    join virksomhet arrangor on gjennomforing.arrangor_organisasjonsnummer = arrangor.organisasjonsnummer
+                    left join virksomhet arrangor_hovedenhet on arrangor.overordnet_enhet_organisasjonsnummer = arrangor_hovedenhet.organisasjonsnummer
                 where deltaker.person_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
@@ -147,8 +150,16 @@ private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakD
         deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
-        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-        navn = stringOrNull("arrangor_navn"),
+        hovedenhet = stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let {
+            TiltakshistorikkV1Dto.Virksomhet(
+                organisasjonsnummer = Organisasjonsnummer(it),
+                navn = stringOrNull("arrangor_hovedenhet_navn"),
+            )
+        },
+        underenhet = TiltakshistorikkV1Dto.Virksomhet(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = stringOrNull("arrangor_navn"),
+        ),
     ),
     deltidsprosent = floatOrNull("prosent_stilling"),
     dagerPerUke = floatOrNull("dager_per_uke"),
