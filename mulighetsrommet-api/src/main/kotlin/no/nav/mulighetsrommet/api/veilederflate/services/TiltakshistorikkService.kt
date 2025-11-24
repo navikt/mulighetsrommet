@@ -50,28 +50,35 @@ class TiltakshistorikkService(
         obo: AccessType.OBO,
     ): Deltakelser = coroutineScope {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
-        val historikk = tiltakshistorikkClient.getHistorikk(identer).getOrElse {
-            // TODO: return egen melding i stedet for å feile
-            throw it
-        }
+        tiltakshistorikkClient.getHistorikk(identer).fold(
+            { error ->
+                log.warn("Feil oppstå ved henting av tiltakshistorikken: $error")
+                Deltakelser(
+                    meldinger = setOf(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN),
+                    aktive = listOf(),
+                    historiske = listOf(),
+                )
+            },
+            { response ->
+                val meldinger = response.meldinger
+                    .map {
+                        when (it) {
+                            TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+                        }
+                    }
+                    .toSet()
 
-        val meldinger = historikk.meldinger
-            .map {
-                when (it) {
-                    TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
-                }
-            }
-            .toSet()
+                val (aktive, historiske) = response.historikk
+                    .map { async { toDeltakelse(it) } }
+                    .awaitAll()
+                    .partition { erAktiv(it.tilstand) }
 
-        val (aktive, historiske) = historikk.historikk
-            .map { async { toDeltakelse(it) } }
-            .awaitAll()
-            .partition { erAktiv(it.tilstand) }
-
-        Deltakelser(
-            meldinger = meldinger,
-            aktive = aktive,
-            historiske = historiske,
+                Deltakelser(
+                    meldinger = meldinger,
+                    aktive = aktive,
+                    historiske = historiske,
+                )
+            },
         )
     }
 
@@ -354,6 +361,7 @@ private fun getTilstand(status: ArbeidsgiverAvtaleStatus): DeltakelseTilstand = 
 enum class DeltakelserMelding {
     MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET,
     MANGLER_DELTAKELSER_FRA_TEAM_TILTAK,
+    MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN,
 }
 
 data class Deltakelser(
