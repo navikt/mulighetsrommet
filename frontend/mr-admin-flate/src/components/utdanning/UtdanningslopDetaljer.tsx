@@ -1,8 +1,8 @@
 import { Bolk } from "../detaljside/Bolk";
-import { Metadata, Separator } from "../detaljside/Metadata";
 import { List } from "@navikt/ds-react";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { UtdanningslopDto } from "@tiltaksadministrasjon/api-client";
+import { Metadata, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   utdanningslop: UtdanningslopDto;
@@ -13,13 +13,13 @@ export function UtdanningslopDetaljer({ utdanningslop }: Props) {
     <>
       <Bolk>
         <Metadata
-          header={avtaletekster.utdanning.utdanningsprogram.label}
+          label={avtaletekster.utdanning.utdanningsprogram.label}
           value={utdanningslop.utdanningsprogram.navn}
         />
       </Bolk>
       <Bolk>
         <Metadata
-          header={avtaletekster.utdanning.laerefag.label}
+          label={avtaletekster.utdanning.laerefag.label}
           value={
             <List>
               {utdanningslop.utdanninger

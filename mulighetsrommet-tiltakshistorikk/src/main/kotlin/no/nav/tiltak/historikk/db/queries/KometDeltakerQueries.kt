@@ -92,13 +92,15 @@ class KometDeltakerQueries(private val session: Session) {
                     deltaker.dager_per_uke,
                     gjennomforing.id as gjennomforing_id,
                     gjennomforing.navn as gjennomforing_navn,
-                    gjennomforing.tiltakskode as gjennomforing_tiltakskode,
                     gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
+                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
+                    tiltakstype.navn as tiltakstype_navn,
                     virksomhet.organisasjonsnummer as arrangor_organisasjonsnummer,
                     virksomhet.navn as arrangor_navn
                 from komet_deltaker deltaker
                     join gjennomforing on deltaker.gjennomforing_id = gjennomforing.id
-                    left join virksomhet on gjennomforing.arrangor_organisasjonsnummer = virksomhet.organisasjonsnummer
+                    join tiltakstype on tiltakstype.tiltakskode = gjennomforing.tiltakskode
+                    join virksomhet on gjennomforing.arrangor_organisasjonsnummer = virksomhet.organisasjonsnummer
                 where deltaker.person_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
@@ -136,8 +138,8 @@ private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakD
         opprettetDato = localDateTime("status_opprettet_dato"),
     ),
     tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
-        tiltakskode = Tiltakskode.valueOf(string("gjennomforing_tiltakskode")),
-        navn = null,
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        navn = string("tiltakstype_navn"),
     ),
     gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
         id = uuid("gjennomforing_id"),

@@ -8,13 +8,12 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.TimelineDto
-import no.nav.mulighetsrommet.model.TimelineDto.Row.Period
-import no.nav.mulighetsrommet.model.TimelineDto.Row.Period.Variant
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
@@ -47,7 +46,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         deltakelser = beregningDeltakerTable(utbetaling, deltakelser),
         stengt = beregningStengt(utbetaling.beregning),
         displayName = beregningDisplayName(utbetaling.beregning),
-        detaljer = beregningDetails(utbetaling.beregning),
+        satsDetaljer = beregningSatsDetaljer(utbetaling.beregning),
     )
 
     return ArrangorflateUtbetalingDto(
@@ -111,15 +110,17 @@ data class ArrangorflateBeregningDeltakelse(
     val deltaker: Deltaker?,
 )
 
-fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<DetailsEntry> {
+fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<LabeledDataElement> {
     return satser.singleOrNull()?.let {
-        listOf(DetailsEntry.nok(label, it.sats))
+        listOf(LabeledDataElement.nok(label, it.sats))
     } ?: satser.map {
-        DetailsEntry.nok("$label (${it.periode.formatPeriode()})", it.sats)
+        LabeledDataElement.nok("$label (${it.periode.formatPeriode()})", it.sats)
     }
 }
 
-private fun getBelopDetails(belop: Int): List<DetailsEntry> = listOf(DetailsEntry.nok("Beløp", belop))
+private fun getBelopDetails(belop: Int): List<LabeledDataElement> = listOf(
+    LabeledDataElement.nok("Beløp", belop),
+)
 
 fun deltakelseCommonColumns() = listOf(
     DataDrivenTableDto.Column("navn", "Navn"),
@@ -266,7 +267,7 @@ fun beregningStengt(beregning: UtbetalingBeregning) = when (beregning) {
         emptyList()
 }
 
-fun beregningDetails(beregning: UtbetalingBeregning): Details {
+fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
     val totalFaktor = beregning.output.deltakelser()
         .flatMap { deltakelse -> deltakelse.perioder.map { it.faktor } }
         .map { BigDecimal(it) }
@@ -276,46 +277,136 @@ fun beregningDetails(beregning: UtbetalingBeregning): Details {
 
     return when (beregning) {
         is UtbetalingBeregningFri ->
-            Details(entries = getBelopDetails(beregning.output.belop))
+            DataDetails(entries = getBelopDetails(beregning.output.belop))
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
-            Details(
+            DataDetails(
                 entries = getSatserDetails("Sats", satser) +
-                    DetailsEntry.number("Antall månedsverk", totalFaktor) +
+                    listOf(LabeledDataElement.number("Antall månedsverk", totalFaktor)) +
                     getBelopDetails(beregning.output.belop),
             )
         }
         is UtbetalingBeregningPrisPerManedsverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
-            Details(
+            DataDetails(
                 entries = getSatserDetails("Avtalt månedspris per tiltaksplass", satser) +
-                    DetailsEntry.number("Antall månedsverk", totalFaktor) +
+                    listOf(LabeledDataElement.number("Antall månedsverk", totalFaktor)) +
                     getBelopDetails(beregning.output.belop),
             )
         }
         is UtbetalingBeregningPrisPerUkesverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
-            Details(
+            DataDetails(
                 entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
-                    DetailsEntry.number("Antall ukesverk", totalFaktor) +
+                    listOf(LabeledDataElement.number("Antall ukesverk", totalFaktor)) +
                     getBelopDetails(beregning.output.belop),
             )
         }
         is UtbetalingBeregningPrisPerHeleUkesverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
-            Details(
+            DataDetails(
                 entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
-                    DetailsEntry.number("Antall ukesverk", totalFaktor) +
+                    listOf(LabeledDataElement.number("Antall ukesverk", totalFaktor)) +
                     getBelopDetails(beregning.output.belop),
             )
         }
         is UtbetalingBeregningPrisPerTimeOppfolging -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
-            Details(
+            DataDetails(
                 entries = getSatserDetails("Avtalt pris per time oppfølging", satser) +
                     getBelopDetails(beregning.output.belop),
             )
         }
+    }
+}
+
+fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
+    return when (beregning) {
+        is UtbetalingBeregningFri -> emptyList()
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+        -> {
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
+            beregningSatsPeriodeDetaljerMedFaktor(
+                satser,
+                satsLabel = "Sats",
+                deltakelser = beregning.output.deltakelser(),
+                faktorLabel = "Antall månedsverk",
+            )
+        }
+        is UtbetalingBeregningPrisPerManedsverk -> {
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
+            beregningSatsPeriodeDetaljerMedFaktor(
+                satser,
+                satsLabel = "Avtalt månedspris per tiltaksplass",
+                deltakelser = beregning.output.deltakelser(),
+                faktorLabel = "Antall månedsverk",
+            )
+        }
+        is UtbetalingBeregningPrisPerUkesverk -> {
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
+            beregningSatsPeriodeDetaljerMedFaktor(
+                satser,
+                satsLabel = "Avtalt ukespris per tiltaksplass",
+                deltakelser = beregning.output.deltakelser(),
+                faktorLabel = "Antall ukesverk",
+            )
+        }
+        is UtbetalingBeregningPrisPerHeleUkesverk -> {
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
+            beregningSatsPeriodeDetaljerMedFaktor(
+                satser,
+                satsLabel = "Avtalt ukespris per tiltaksplass",
+                deltakelser = beregning.output.deltakelser(),
+                faktorLabel = "Antall ukesverk",
+            )
+        }
+        is UtbetalingBeregningPrisPerTimeOppfolging -> {
+            val satser = beregning.input.satser.sortedBy { it.periode.start }
+            beregningSatsPeriodeDetaljerUtenFaktor(satser, "Avtalt pris per time oppfølging")
+        }
+    }
+}
+
+fun beregningSatsPeriodeDetaljerMedFaktor(
+    satser: List<SatsPeriode>,
+    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    satsLabel: String,
+    faktorLabel: String,
+): List<DataDetails> {
+    return satser.mapNotNull { satsPeriode ->
+        val faktor = deltakelser
+            .flatMap { it.perioder }
+            .filter { it.sats == satsPeriode.sats }
+            .map { it.faktor.toBigDecimal() }
+            .sumOf { it }
+            .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
+            .toDouble()
+
+        if (faktor.equals(BigDecimal.ZERO)) {
+            null
+        } else {
+            DataDetails(
+                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                entries = listOf(
+                    LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                    LabeledDataElement.number(faktorLabel, faktor),
+                ),
+            )
+        }
+    }
+}
+
+fun beregningSatsPeriodeDetaljerUtenFaktor(
+    satser: List<SatsPeriode>,
+    satsLabel: String,
+): List<DataDetails> {
+    return satser.map { satsPeriode ->
+        DataDetails(
+            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+            entries = listOf(
+                LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+            ),
+        )
     }
 }
 

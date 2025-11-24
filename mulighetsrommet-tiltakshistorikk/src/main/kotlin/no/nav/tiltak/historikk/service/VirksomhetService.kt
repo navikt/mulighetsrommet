@@ -1,5 +1,9 @@
 package no.nav.tiltak.historikk.service
 
+import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotliquery.queryOf
@@ -22,22 +26,23 @@ class VirksomhetService(
         queries.virksomhet.delete(organisasjonsnummer)
     }
 
-    suspend fun syncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer) {
-        if (getVirksomhet(organisasjonsnummer) == null) {
-            syncVirksomhet(organisasjonsnummer)
-        }
+    suspend fun getOrSyncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
+        return getVirksomhet(organisasjonsnummer)?.right() ?: return getAndSyncVirksomhet(organisasjonsnummer)
     }
 
-    suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) = db.session {
-        val error = syncFromBrreg(organisasjonsnummer)
-        if (error != null) {
-            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
+    suspend fun getAndSyncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> = db.session {
+        if (erUtenlandskVirksomhet(organisasjonsnummer)) {
+            return VirksomhetDbo(organisasjonsnummer, null, null, null, null)
+                .also { queries.virksomhet.upsert(it) }
+                .right()
         }
+
+        return syncFromBrreg(organisasjonsnummer)
     }
 
     fun syncAlleVirksomheterUtenNavn(scope: CoroutineScope) {
         scope.launch {
-            var sisteOrgnr: Organisasjonsnummer? = Organisasjonsnummer("800000000")
+            var sisteOrgnr: String? = "800000000"
             do {
                 sisteOrgnr = db.transaction {
                     @Language("PostgreSQL")
@@ -46,34 +51,49 @@ class VirksomhetService(
                     from virksomhet
                     where organisasjonsnummer > ? and navn is null
                     order by organisasjonsnummer
-                    limit 100
+                    limit 1
                     for update skip locked
                     """.trimIndent()
 
-                    val orgnrs = session.list(queryOf(query, sisteOrgnr?.value)) {
-                        Organisasjonsnummer(it.string("organisasjonsnummer"))
+                    session.single(queryOf(query, sisteOrgnr)) { it.string("organisasjonsnummer") }?.also {
+                        syncFromBrreg(Organisasjonsnummer(it))
                     }
-                    orgnrs.forEach { syncFromBrreg(it) }
-                    orgnrs.lastOrNull()
                 }
             } while (sisteOrgnr != null)
         }
     }
 
-    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): BrregError? {
+    /**
+     * Arena oppretter fiktive organisasjonsnummer for utenlandske virksomheter, og disse kan vi identifisere ved at de starter med '1'.
+     * Foreløpig lagrer vi disse på samme måte, men unngår å gjøre oppslag mot Brreg. Dette bør forbedres på sikt.
+     */
+    private fun erUtenlandskVirksomhet(organisasjonsnummer: Organisasjonsnummer): Boolean {
+        return organisasjonsnummer.value.first() == '1'
+    }
+
+    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
         return brreg.getBrregEnhet(organisasjonsnummer)
+            .flatMap { enhet ->
+                val overordnetEnhet = when (enhet) {
+                    is BrregHovedenhetDto -> enhet.overordnetEnhet
+                    is BrregUnderenhetDto -> enhet.overordnetEnhet
+
+                    is SlettetBrregHovedenhetDto,
+                    is SlettetBrregUnderenhetDto,
+                    -> null
+                }
+                overordnetEnhet?.let { getOrSyncVirksomhetIfNotExists(it).map { enhet } } ?: enhet.right()
+            }
             .fold({ error ->
                 when (error) {
                     is BrregError.FjernetAvJuridiskeArsaker -> {
-                        queries.virksomhet.upsert(error.enhet.toVirksomhetDbo())
-                        null
+                        error.enhet.toVirksomhetDbo().also { queries.virksomhet.upsert(it) }.right()
                     }
 
-                    else -> error
+                    else -> error.left()
                 }
             }, { enhet ->
-                queries.virksomhet.upsert(enhet.toVirksomhetDbo())
-                null
+                enhet.toVirksomhetDbo().also { queries.virksomhet.upsert(it) }.right()
             })
     }
 }

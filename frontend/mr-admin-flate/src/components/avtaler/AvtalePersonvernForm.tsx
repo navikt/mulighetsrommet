@@ -11,10 +11,10 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleFormValues } from "@/schemas/avtale";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AvtalePersonvernForm() {
   const { register, control, setValue, watch } = useFormContext<AvtaleFormValues>();

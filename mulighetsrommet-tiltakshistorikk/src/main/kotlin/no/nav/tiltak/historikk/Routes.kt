@@ -34,10 +34,17 @@ fun Route.tiltakshistorikkRoutes(
             put("/gjennomforing") {
                 val dbo = call.receive<TiltakshistorikkArenaGjennomforing>()
 
-                virksomheter.syncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
-                db.session { queries.arenaGjennomforing.upsert(dbo) }
-
-                call.respond(HttpStatusCode.OK)
+                virksomheter.getOrSyncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
+                    .onRight {
+                        db.session { queries.arenaGjennomforing.upsert(dbo) }
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    .onLeft {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Klarte ikke utlede virksomhet fra for orgnr=${dbo.arrangorOrganisasjonsnummer}",
+                        )
+                    }
             }
 
             delete("/gjennomforing/{id}") {
@@ -60,14 +67,6 @@ fun Route.tiltakshistorikkRoutes(
                 val id: UUID by call.parameters
 
                 db.session { queries.arenaDeltaker.deleteArenaDeltaker(id) }
-
-                call.respond(HttpStatusCode.OK)
-            }
-
-            put("/deltaker-gjennomforing-id") {
-                val dbo = call.receive<TiltakshistorikkArenaDeltakerGjennomforingId>()
-
-                db.session { queries.arenaDeltaker.setArenaGjennomforignId(dbo.id, dbo.arenaGjennomforingId) }
 
                 call.respond(HttpStatusCode.OK)
             }

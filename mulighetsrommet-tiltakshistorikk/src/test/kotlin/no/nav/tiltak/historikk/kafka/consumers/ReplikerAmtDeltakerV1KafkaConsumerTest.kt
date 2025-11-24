@@ -12,20 +12,21 @@ import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import java.time.LocalDateTime
 
-class AmtDeltakerV1KafkaConsumerTest : FunSpec({
+class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("consume deltakere") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val deltakerConsumer = AmtDeltakerV1KafkaConsumer(db)
+        val deltakerConsumer = ReplikerAmtDeltakerV1KafkaConsumer(db)
 
-        val amtDeltaker1 = TestFixtures.amtDeltaker
+        val amtDeltaker1 = TestFixtures.Deltaker.gruppeAmo
 
         beforeEach {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.virksomhet)
-                queries.gjennomforing.upsert(toGjennomforingDbo(TestFixtures.gjennomforingGruppe))
+                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.gruppeAmo.toGjennomforingDbo())
             }
         }
 

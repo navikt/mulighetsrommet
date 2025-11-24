@@ -22,7 +22,7 @@ import { useOpprettUtbetaling } from "@/api/utbetaling/useOpprettUtbetaling";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
-import { Separator } from "@/components/detaljside/Metadata";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;

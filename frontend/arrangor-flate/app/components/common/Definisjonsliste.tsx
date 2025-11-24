@@ -1,6 +1,29 @@
-import { Heading, HeadingProps, HStack, VStack } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
+import { LabeledDataElement } from "@api-client";
+import { getDataElement } from "@mr/frontend-common";
+import { MetadataHorisontal } from "@mr/frontend-common/components/datadriven/Metadata";
+
+interface LabeledDataElementListProps {
+  title?: string;
+  className?: string;
+  entries: LabeledDataElement[];
+}
+
+export function LabeledDataElementList({ title, entries, className }: LabeledDataElementListProps) {
+  return (
+    <Definisjonsliste
+      className={className}
+      title={title}
+      definitions={entries.map((entry) => ({
+        key: entry.label,
+        value: entry.value ? getDataElement(entry.value) : null,
+        format: null,
+      }))}
+    />
+  );
+}
 
 export interface Definition {
   key: string;
@@ -14,26 +37,26 @@ interface Props {
   title?: string;
   className?: string;
   definitions: Definition[];
-  headingLevel?: HeadingProps["level"];
 }
 
-export function Definisjonsliste({ title, definitions, className, headingLevel }: Props) {
-  const headingSize = headingLevel === "4" ? "small" : "medium";
+export function Definisjonsliste({ title, definitions, className }: Props) {
   return (
     <VStack gap="3" className={className}>
       {title && (
-        <Heading size={headingSize} level={headingLevel}>
+        <Heading size="medium" level="3">
           {title}
         </Heading>
       )}
-      <dl className="flex flex-col gap-1.5">
+      <VStack gap="1">
         {definitions.map((definition, index) => (
-          <HStack gap="2" align="center" key={index}>
-            <dt>{definition.key}:</dt>
-            <dd className="font-bold text-right">{getFormattedValue(definition)}</dd>
-          </HStack>
+          <MetadataHorisontal
+            compact
+            key={index}
+            label={definition.key}
+            value={getFormattedValue(definition)}
+          />
         ))}
-      </dl>
+      </VStack>
     </VStack>
   );
 }

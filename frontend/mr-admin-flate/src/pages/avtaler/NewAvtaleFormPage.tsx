@@ -1,11 +1,9 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
 import { Header } from "@/components/detaljside/Header";
-import { Separator } from "@/components/detaljside/Metadata";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
@@ -19,7 +17,7 @@ import {
 } from "@/schemas/avtale";
 import { avtaleDetaljerFormSchema } from "@/schemas/avtaledetaljer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, Rolle, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { Box, Button, Heading, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +28,7 @@ import { ZodObject } from "zod";
 import { mapNameToSchemaPropertyName, toAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 const steps = [
   {
@@ -111,7 +110,7 @@ export function NewAvtaleFormPage() {
   };
   const handleBackStep = () => {
     if (activeStep === 1) {
-      navigate(-1);
+      navigate("/avtaler");
     }
     setActiveStep(activeStep - 1);
   };
@@ -145,50 +144,48 @@ export function NewAvtaleFormPage() {
           Opprett ny avtale
         </Heading>
       </Header>
-      <HarTilgang rolle={Rolle.AVTALER_SKRIV}>
-        <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
-          <Heading size="medium" spacing level="2" id="stepper-heading">
-            Steg
-          </Heading>
-          <Stepper
-            aria-labelledby="stepper-heading"
-            activeStep={activeStep}
-            onStepChange={handleStepChange}
-            orientation="horizontal"
-          >
-            {steps.map((step) => (
-              <Stepper.Step key={step.key}>{step.key}</Stepper.Step>
-            ))}
-          </Stepper>
-          <Separator />
-          <FormProvider {...methods}>
-            <form onSubmit={handleForwardStep}>
-              <VStack gap="2">
-                {currentStep.Component}
-                <Separator />
-                <HStack gap="2" justify="end">
-                  <ValideringsfeilOppsummering />
-                  <Button
-                    size="small"
-                    type="button"
-                    variant="tertiary"
-                    onClick={() => handleBackStep()}
-                  >
-                    {activeStep === 1 ? "Avbryt" : "Tilbake"}
-                  </Button>
-                  <Button
-                    size="small"
-                    type="button"
-                    onClick={methods.handleSubmit(handleForwardStep)}
-                  >
-                    {activeStep === 4 ? "Opprett avtale" : "Neste"}
-                  </Button>
-                </HStack>
-              </VStack>
-            </form>
-          </FormProvider>
-        </Box>
-      </HarTilgang>
+      <Box borderRadius="4" marginBlock="4" marginInline="2" padding="4" background="bg-default">
+        <Heading size="medium" spacing level="2" id="stepper-heading">
+          Steg
+        </Heading>
+        <Stepper
+          aria-labelledby="stepper-heading"
+          activeStep={activeStep}
+          onStepChange={handleStepChange}
+          orientation="horizontal"
+        >
+          {steps.map((step) => (
+            <Stepper.Step key={step.key}>{step.key}</Stepper.Step>
+          ))}
+        </Stepper>
+        <Separator />
+        <FormProvider {...methods}>
+          <form onSubmit={handleForwardStep}>
+            <VStack gap="2">
+              {currentStep.Component}
+              <Separator />
+              <HStack gap="2" justify="end">
+                <ValideringsfeilOppsummering />
+                <Button
+                  size="small"
+                  type="button"
+                  variant="tertiary"
+                  onClick={() => handleBackStep()}
+                >
+                  {activeStep === 1 ? "Avbryt" : "Tilbake"}
+                </Button>
+                <Button
+                  size="small"
+                  type="button"
+                  onClick={methods.handleSubmit(handleForwardStep)}
+                >
+                  {activeStep === 4 ? "Opprett avtale" : "Neste"}
+                </Button>
+              </HStack>
+            </VStack>
+          </form>
+        </FormProvider>
+      </Box>
     </>
   );
 }

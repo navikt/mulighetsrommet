@@ -37,6 +37,7 @@ import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/Utbetal
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 
 type BekreftUtbetalingData = {
   utbetaling: ArrangorflateUtbetalingDto;
@@ -189,7 +190,6 @@ export default function BekreftUtbetaling() {
       <VStack gap="6">
         <Definisjonsliste
           title="Innsendingsinformasjon"
-          headingLevel="3"
           definitions={[
             {
               key: "Arrangør",
@@ -202,14 +202,16 @@ export default function BekreftUtbetaling() {
         <Separator />
         <Definisjonsliste
           title={"Utbetaling"}
-          headingLevel="3"
           definitions={[
             {
               key: "Utbetalingsperiode",
               value: formaterPeriode(utbetaling.periode),
             },
-            ...utbetaling.beregning.detaljer.entries,
           ]}
+        />
+        <SatsPerioderOgBelop
+          belop={utbetaling.beregning.belop}
+          satsDetaljer={utbetaling.beregning.satsDetaljer}
         />
         <Separator />
         <Form method="post">

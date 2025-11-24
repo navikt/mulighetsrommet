@@ -142,13 +142,10 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 }
             }
 
-            xtest("should upsert tiltakshistorikk for ArenaDeltaker events") {
+            test("should upsert tiltakshistorikk for ArenaDeltaker events") {
                 val (deltakerEvent, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
 
                 val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
-                    }
                     get("/ords/fnr") {
                         respondJson(ArenaOrdsFnr("12345678910"))
                     }
@@ -175,16 +172,13 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 }
             }
 
-            xtest("should upsert tiltakshistorikk for ArenaHistDeltaker events") {
+            test("should upsert tiltakshistorikk for ArenaHistDeltaker events") {
                 val (histDeltakerEvent, histDeltakerMapping) = prepareEvent(
                     createArenaHistTiltakdeltakerEvent(Insert),
                     Ignored,
                 )
 
                 val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(ArenaOrdsArrangor("123456789", "000000000"))
-                    }
                     get("/ords/fnr") {
                         respondJson(ArenaOrdsFnr("12345678910"))
                     }

@@ -19,7 +19,6 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/gjennomforing/useTiltakstypeFaneinnhold";
-import { Separator } from "../detaljside/Metadata";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon, PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -37,6 +36,7 @@ import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { PortableTextFormEditor } from "../portableText/PortableTextEditor";
 import { VeilederinformasjonValues } from "@/schemas/avtale";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   tiltakId: string;
