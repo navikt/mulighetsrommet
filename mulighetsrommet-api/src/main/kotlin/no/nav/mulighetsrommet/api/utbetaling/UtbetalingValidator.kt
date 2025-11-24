@@ -120,9 +120,11 @@ object UtbetalingValidator {
             FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
         }
         requireValid(request.periodeSlutt != null && request.periodeStart != null)
-        requireValid(request.periodeStart.isBefore(request.periodeSlutt)) {
+        validate(request.periodeStart.isBefore(request.periodeSlutt)) {
             FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt)
         }
+        requireValid(request.periodeStart.isBefore(request.periodeSlutt))
+        requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null)
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
         OpprettAnnenAvtaltPrisUtbetaling(
@@ -243,7 +245,7 @@ object UtbetalingValidator {
         validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(prismodellType)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
-        validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
+        requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
             FieldError.of(
                 "Ugyldig kid",
                 OpprettKravUtbetalingRequest::kidNummer,
@@ -311,7 +313,7 @@ object UtbetalingValidator {
         validate(utbetaling.betalingsinformasjon.kontonummer != null) {
             FieldError.ofPointer("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
         }
-        validate(request.kid == null || Kid.parse(request.kid) != null) {
+        requireValid(request.kid == null || Kid.parse(request.kid) != null) {
             FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
         }
         request.kid?.let { Kid.parseOrThrow(it) }
