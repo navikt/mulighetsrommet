@@ -25,23 +25,32 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         val db = TiltakshistorikkDatabase(database.db)
 
         test("oppretter, henter og sletter virksomhet") {
-            val virksomhet = VirksomhetDbo(
-                organisasjonsnummer = Organisasjonsnummer("876543210"),
-                overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321"),
-                navn = "Test Virksomhet",
+            val virksomhetForetak = VirksomhetDbo(
+                organisasjonsnummer = Organisasjonsnummer("987654321"),
+                overordnetEnhetOrganisasjonsnummer = null,
+                navn = "Virksomhet Foretak",
                 organisasjonsform = "AS",
                 slettetDato = null,
             )
 
+            val virksomhetAvdeling = VirksomhetDbo(
+                organisasjonsnummer = Organisasjonsnummer("876543210"),
+                overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321"),
+                navn = "Virksomhet Avdeling",
+                organisasjonsform = "BEDR",
+                slettetDato = null,
+            )
+
             db.session {
-                queries.virksomhet.upsert(virksomhet)
+                queries.virksomhet.upsert(virksomhetForetak)
+                queries.virksomhet.upsert(virksomhetAvdeling)
 
-                val hentet = queries.virksomhet.get(virksomhet.organisasjonsnummer)
-                hentet shouldBe virksomhet
+                val hentet = queries.virksomhet.get(virksomhetAvdeling.organisasjonsnummer)
+                hentet shouldBe virksomhetAvdeling
 
-                queries.virksomhet.delete(virksomhet.organisasjonsnummer)
+                queries.virksomhet.delete(virksomhetAvdeling.organisasjonsnummer)
 
-                val slettet = queries.virksomhet.get(virksomhet.organisasjonsnummer)
+                val slettet = queries.virksomhet.get(virksomhetAvdeling.organisasjonsnummer)
                 slettet.shouldBeNull()
             }
         }
@@ -96,11 +105,17 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             deltidsprosent = 100.0,
         )
 
+        var hovedenhet = TestFixtures.Virksomhet.arrangorHovedenhet
+        var underenhet = TestFixtures.Virksomhet.arrangor.copy(
+            overordnetEnhetOrganisasjonsnummer = hovedenhet.organisasjonsnummer,
+        )
+
         var db = TiltakshistorikkDatabase(database.db)
 
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.virksomhet.upsert(hovedenhet)
+                queries.virksomhet.upsert(underenhet)
                 queries.arenaGjennomforing.upsert(arenaArbeidstrening)
                 queries.arenaGjennomforing.upsert(arenaMentor)
             }
@@ -130,7 +145,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             navn = "Mentortiltak hos Joblearn",
                             deltidsprosent = 100f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                        ),
                         deltidsprosent = 100f,
                         dagerPerUke = 5f,
                     ),
@@ -149,7 +167,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             navn = "Arbeidstrening hos Fretex",
                             deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                        ),
                         deltidsprosent = 50f,
                         dagerPerUke = 2.5f,
                     ),
@@ -176,7 +197,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             navn = "Arbeidstrening hos Fretex",
                             deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                        ),
                         deltidsprosent = 50f,
                         dagerPerUke = 2.5f,
                     ),
@@ -273,9 +297,15 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         val db = TiltakshistorikkDatabase(database.db)
 
+        var hovedenhet = TestFixtures.Virksomhet.arrangorHovedenhet
+        var underenhet = TestFixtures.Virksomhet.arrangor.copy(
+            overordnetEnhetOrganisasjonsnummer = hovedenhet.organisasjonsnummer,
+        )
+
         beforeAny {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.virksomhet.upsert(hovedenhet)
+                queries.virksomhet.upsert(underenhet)
                 queries.gjennomforing.upsert(gruppeAmo.toGjennomforingDbo())
             }
         }
@@ -307,7 +337,10 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             navn = gruppeAmo.navn,
                             deltidsprosent = 80f,
                         ),
-                        arrangor = TiltakshistorikkV1Dto.Arrangor(Organisasjonsnummer("987654321"), "Arrangør"),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(hovedenhet.organisasjonsnummer, hovedenhet.navn),
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(underenhet.organisasjonsnummer, underenhet.navn),
+                        ),
                         deltidsprosent = 50f,
                         dagerPerUke = 2.5f,
                     ),

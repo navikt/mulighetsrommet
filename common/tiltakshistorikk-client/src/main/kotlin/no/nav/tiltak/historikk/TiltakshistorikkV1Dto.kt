@@ -25,15 +25,25 @@ sealed class TiltakshistorikkV1Dto {
     }
 
     @Serializable
-    data class Arrangor(
+    data class Virksomhet(
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String?,
     )
 
     @Serializable
-    data class Arbeidsgiver(
-        val organisasjonsnummer: String,
-        val navn: String?,
+    data class Arrangor(
+        /**
+         * Hovedenhet/Juridisk enhet hos arrangør (fra brreg)
+         */
+        val hovedenhet: Virksomhet?,
+
+        /**
+         * Underenhet hos arrangør (fra brreg) som tiltaksgjennomføringen er registrert på.
+         *
+         * MERK: Dette kan også være en "utenlandsk arrangør" fra Arena. En slik arrangør er
+         * representert med et fiktivt organisasjonsnummer som begynner på "1" (i stedet for "8" eller "9").
+         */
+        val underenhet: Virksomhet,
     )
 
     @Serializable
@@ -108,7 +118,7 @@ sealed class TiltakshistorikkV1Dto {
         override val id: UUID,
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
-        val arbeidsgiver: Arbeidsgiver,
+        val arbeidsgiver: Virksomhet,
     ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.TEAM_TILTAK
 

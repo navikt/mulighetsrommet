@@ -85,11 +85,14 @@ class ArenaDeltakerQueries(private val session: Session) {
                     gjennomforing.navn as gjennomforing_navn,
                     gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
                     arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
-                    arrangor.navn as arrangor_navn
+                    arrangor.navn as arrangor_navn,
+                    arrangor_hovedenhet.organisasjonsnummer as arrangor_hovedenhet_organisasjonsnummer,
+                    arrangor_hovedenhet.navn as arrangor_hovedenhet_navn
                 from arena_deltaker deltaker
                     join arena_gjennomforing gjennomforing on gjennomforing.id = arena_gjennomforing_id
                     join tiltakstype on tiltakstype.arena_tiltakskode = gjennomforing.arena_tiltakskode
-                    join virksomhet arrangor on arrangor.organisasjonsnummer = gjennomforing.arrangor_organisasjonsnummer
+                    join virksomhet arrangor on gjennomforing.arrangor_organisasjonsnummer = arrangor.organisasjonsnummer
+                    left join virksomhet arrangor_hovedenhet on arrangor.overordnet_enhet_organisasjonsnummer = arrangor_hovedenhet.organisasjonsnummer
                 where deltaker.norsk_ident = any(:identer)
                 and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.arena_reg_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
@@ -130,8 +133,16 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
         deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
     ),
     arrangor = TiltakshistorikkV1Dto.Arrangor(
-        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-        navn = stringOrNull("arrangor_navn"),
+        hovedenhet = stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let {
+            TiltakshistorikkV1Dto.Virksomhet(
+                organisasjonsnummer = Organisasjonsnummer(it),
+                navn = stringOrNull("arrangor_hovedenhet_navn"),
+            )
+        },
+        underenhet = TiltakshistorikkV1Dto.Virksomhet(
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = stringOrNull("arrangor_navn"),
+        ),
     ),
     deltidsprosent = floatOrNull("deltidsprosent"),
     dagerPerUke = floatOrNull("dager_per_uke"),

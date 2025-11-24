@@ -373,7 +373,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
