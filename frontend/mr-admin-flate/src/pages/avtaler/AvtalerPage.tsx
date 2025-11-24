@@ -39,7 +39,7 @@ export function AvtalerPage() {
   return (
     <>
       <title>Avtaler</title>
-      <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
+      <HeaderBanner heading="Oversikt over avtaler" ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
