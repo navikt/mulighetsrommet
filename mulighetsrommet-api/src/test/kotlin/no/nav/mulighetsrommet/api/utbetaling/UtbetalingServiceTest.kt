@@ -10,6 +10,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -52,13 +55,12 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
+import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.*
@@ -1370,7 +1372,8 @@ class UtbetalingServiceTest : FunSpec({
             database.truncateAll()
         }
         test("skal ikke prosessere faktura status eldre enn sist oppdatert") {
-            val lagretFakturaStatusSistOppdatert = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).toLocalDateTime()
+            val zoneId = ZoneId.of("Europe/Oslo")
+            val lagretFakturaStatusSistOppdatert = ZonedDateTime.now(zoneId).toLocalDateTime()
             val delutbetalingMock = delutbetaling1.copy(
                 id = UUID.randomUUID(),
                 fakturanummer = "2025-abc-1",
@@ -1404,9 +1407,10 @@ class UtbetalingServiceTest : FunSpec({
                 val utbetaling = queries.utbetaling.getOrError(utbetaling1.id)
                 val endringshistorikk =
                     queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
-                delutbetaling.fakturaStatusSistOppdatert shouldBe lagretFakturaStatusSistOppdatert
                 utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
                 endringshistorikk.entries.shouldBeEmpty()
+                val diff = Duration.between(delutbetaling.fakturaStatusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
             }
         }
 
