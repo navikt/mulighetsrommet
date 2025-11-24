@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
@@ -122,7 +121,7 @@ class TiltakshistorikkService(
                 type = deltakelse.status.toDataElement(),
                 aarsak = null,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(deltakelse.arrangor.underenhet.navn),
+            tittel = deltakelse.tittel,
             tiltakstype = tiltakstype,
             innsoktDato = null,
             sistEndretDato = null,
@@ -133,8 +132,6 @@ class TiltakshistorikkService(
     }
 
     private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse {
-        val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode)
-        val arrangorNavn = deltakelse.arrangor.hovedenhet?.navn ?: deltakelse.arrangor.underenhet.navn
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -145,8 +142,8 @@ class TiltakshistorikkService(
                 type = deltakelse.status.type.toDataElement(),
                 aarsak = deltakelse.status.aarsak?.description,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
-            tiltakstype = tiltakstype,
+            tittel = deltakelse.tittel,
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_KOMET,
@@ -159,7 +156,6 @@ class TiltakshistorikkService(
     }
 
     private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
-        val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -170,8 +166,8 @@ class TiltakshistorikkService(
                 type = deltakelse.status.toDataElement(),
                 aarsak = null,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(deltakelse.arbeidsgiver.navn),
-            tiltakstype = tiltakstype,
+            tittel = deltakelse.tittel,
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_TILTAK,

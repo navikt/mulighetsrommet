@@ -7,6 +7,7 @@ import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
+import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -128,28 +129,12 @@ class KometDeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
-    norskIdent = NorskIdent(string("norsk_ident")),
-    id = uuid("id"),
-    startDato = localDateOrNull("start_dato"),
-    sluttDato = localDateOrNull("slutt_dato"),
-    status = DeltakerStatus(
-        type = DeltakerStatusType.valueOf(string("status_type")),
-        aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
-            DeltakerStatusAarsak.valueOf(aarsak)
-        },
-        opprettetDato = localDateTime("status_opprettet_dato"),
-    ),
-    tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+private fun Row.toGruppetiltakDeltakelse(): TiltakshistorikkV1Dto.GruppetiltakDeltakelse {
+    val tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
         tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         navn = string("tiltakstype_navn"),
-    ),
-    gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
-        id = uuid("gjennomforing_id"),
-        navn = stringOrNull("gjennomforing_navn"),
-        deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
-    ),
-    arrangor = TiltakshistorikkV1Dto.Arrangor(
+    )
+    val arrangor = TiltakshistorikkV1Dto.Arrangor(
         hovedenhet = stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let {
             TiltakshistorikkV1Dto.Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer(it),
@@ -160,7 +145,31 @@ private fun Row.toGruppetiltakDeltakelse() = TiltakshistorikkV1Dto.GruppetiltakD
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
             navn = stringOrNull("arrangor_navn"),
         ),
-    ),
-    deltidsprosent = floatOrNull("prosent_stilling"),
-    dagerPerUke = floatOrNull("dager_per_uke"),
-)
+    )
+    return TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+        norskIdent = NorskIdent(string("norsk_ident")),
+        id = uuid("id"),
+        startDato = localDateOrNull("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        tittel = Tiltaksnavn.hosTitleCaseVirksomhet(
+            tiltakstype.navn,
+            arrangor.hovedenhet?.navn ?: arrangor.underenhet.navn,
+        ),
+        status = DeltakerStatus(
+            type = DeltakerStatusType.valueOf(string("status_type")),
+            aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
+                DeltakerStatusAarsak.valueOf(aarsak)
+            },
+            opprettetDato = localDateTime("status_opprettet_dato"),
+        ),
+        tiltakstype = tiltakstype,
+        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+            id = uuid("gjennomforing_id"),
+            navn = stringOrNull("gjennomforing_navn"),
+            deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
+        ),
+        arrangor = arrangor,
+        deltidsprosent = floatOrNull("prosent_stilling"),
+        dagerPerUke = floatOrNull("dager_per_uke"),
+    )
+}

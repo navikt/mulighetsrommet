@@ -135,6 +135,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2002, 2, 1),
                         sluttDato = LocalDate.of(2002, 2, 1),
+                        tittel = "Mentor hos Arrangør",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
@@ -158,6 +159,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
+                        tittel = "Arbeidstrening hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
                             navn = "Arbeidstrening",
@@ -188,6 +190,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
+                        tittel = "Arbeidstrening hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
                             navn = "Arbeidstrening",
@@ -323,6 +326,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                         norskIdent = NorskIdent("10101010100"),
                         startDato = null,
                         sluttDato = null,
+                        tittel = "Arbeidsmarkedsopplæring (gruppe) hos Arrangør Foretak",
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,

@@ -17,6 +17,7 @@ sealed class TiltakshistorikkV1Dto {
     abstract val opphav: Opphav
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
+    abstract val tittel: String
 
     enum class Opphav {
         ARENA,
@@ -64,6 +65,7 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        override val tittel: String,
         val status: ArenaDeltakerStatus,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
@@ -90,6 +92,7 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        override val tittel: String,
         val status: DeltakerStatus,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
@@ -116,6 +119,7 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        override val tittel: String,
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
         val arbeidsgiver: Virksomhet,
