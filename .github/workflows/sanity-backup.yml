@@ -11,7 +11,7 @@ jobs:
     permissions:
       id-token: "write" # Used to authenticate with Google Cloud
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
         env:
