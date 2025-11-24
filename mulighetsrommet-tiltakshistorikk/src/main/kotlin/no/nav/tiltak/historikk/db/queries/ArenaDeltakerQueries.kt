@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
+import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -117,22 +118,12 @@ class ArenaDeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
-    norskIdent = NorskIdent(string("norsk_ident")),
-    id = uuid("id"),
-    status = ArenaDeltakerStatus.valueOf(string("status")),
-    startDato = localDateOrNull("start_dato"),
-    sluttDato = localDateOrNull("slutt_dato"),
-    tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+private fun Row.toArenaDeltakelse(): TiltakshistorikkV1Dto.ArenaDeltakelse {
+    val tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
         tiltakskode = string("tiltakstype_tiltakskode"),
         navn = string("tiltakstype_navn"),
-    ),
-    gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
-        id = uuid("gjennomforing_id"),
-        navn = stringOrNull("gjennomforing_navn"),
-        deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
-    ),
-    arrangor = TiltakshistorikkV1Dto.Arrangor(
+    )
+    val arrangor = TiltakshistorikkV1Dto.Arrangor(
         hovedenhet = stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let {
             TiltakshistorikkV1Dto.Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer(it),
@@ -143,7 +134,22 @@ private fun Row.toArenaDeltakelse() = TiltakshistorikkV1Dto.ArenaDeltakelse(
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
             navn = stringOrNull("arrangor_navn"),
         ),
-    ),
-    deltidsprosent = floatOrNull("deltidsprosent"),
-    dagerPerUke = floatOrNull("dager_per_uke"),
-)
+    )
+    return TiltakshistorikkV1Dto.ArenaDeltakelse(
+        norskIdent = NorskIdent(string("norsk_ident")),
+        id = uuid("id"),
+        status = ArenaDeltakerStatus.valueOf(string("status")),
+        startDato = localDateOrNull("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arrangor.underenhet.navn),
+        tiltakstype = tiltakstype,
+        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+            id = uuid("gjennomforing_id"),
+            navn = stringOrNull("gjennomforing_navn"),
+            deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
+        ),
+        arrangor = arrangor,
+        deltidsprosent = floatOrNull("deltidsprosent"),
+        dagerPerUke = floatOrNull("dager_per_uke"),
+    )
+}

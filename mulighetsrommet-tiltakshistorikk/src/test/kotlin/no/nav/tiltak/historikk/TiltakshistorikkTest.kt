@@ -132,6 +132,7 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
+                        tittel = "Arbeidstrening hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
                             navn = "Arbeidstrening",
@@ -154,6 +155,7 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
+                        tittel = "Mentor hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
                             navn = "Mentor",
@@ -176,6 +178,7 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
+                        tittel = "Arbeidsmarkedsopplæring (AMO) hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "AMO",
                             navn = "Arbeidsmarkedsopplæring (AMO)",
@@ -197,6 +200,7 @@ class TiltakshistorikkTest : FunSpec({
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
+                        tittel = "Arbeidstrening hos Arbeidsgiver",
                         tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
                             tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
                             navn = "Arbeidstrening",
@@ -209,6 +213,7 @@ class TiltakshistorikkTest : FunSpec({
                         id = TEAM_KOMET_GRUPPE_AMO_ID,
                         startDato = null,
                         sluttDato = null,
+                        tittel = "Arbeidsmarkedsopplæring (gruppe) hos Arrangør",
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,

@@ -56,6 +56,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
+        tittel = "Oppfølging hos Hovedenhet AS",
         arrangor = Arrangor(
             hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
             underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
@@ -79,6 +80,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             navn = "IPS",
             deltidsprosent = 100f,
         ),
+        tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
         arrangor = Arrangor(
             hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
             underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
@@ -97,6 +99,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             navn = "Arbeidstrening",
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+        tittel = "Arbeidstrening hos Underenhet 2 AS",
         arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
             organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
             navn = "Underenhet 2 AS",
@@ -402,6 +405,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             status = ArenaDeltakerStatus.VENTELISTE,
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
+            tittel = "Enkel AMO hos Underenhet 1 AS",
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                 tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
