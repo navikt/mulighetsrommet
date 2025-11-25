@@ -396,13 +396,13 @@ class UtbetalingService(
                 queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.UTBETALT)
                 oppdaterUtbetalingForUtbetaltDelutbetaling(originalDelutbetaling.utbetalingId)
                 if (!originalDelutbetaling.faktura.erUtbetalt()) {
-                    logDelutbetalingUtbetalt(originalDelutbetaling)
+                    logDelutbetalingUtbetalt(originalDelutbetaling, fakturaStatusSistOppdatert)
                 }
             }
         }
     }
 
-    private fun TransactionalQueryContext.logDelutbetalingUtbetalt(delutbetaling: Delutbetaling) {
+    private fun TransactionalQueryContext.logDelutbetalingUtbetalt(delutbetaling: Delutbetaling, fakturaStatusSistOppdatert: LocalDateTime?) {
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
         val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
 
@@ -410,6 +410,7 @@ class UtbetalingService(
             "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
             utbetaling,
             Tiltaksadministrasjon,
+            fakturaStatusSistOppdatert ?: LocalDateTime.now(),
         )
     }
 
@@ -657,13 +658,14 @@ class UtbetalingService(
         operation: String,
         dto: Utbetaling,
         endretAv: Agent,
+        timestamp: LocalDateTime = LocalDateTime.now(),
     ): Utbetaling {
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,
             operation,
             endretAv,
             dto.id,
-            LocalDateTime.now(),
+            timestamp,
         ) {
             Json.encodeToJsonElement(dto)
         }
