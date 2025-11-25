@@ -62,6 +62,7 @@ class ArrangorflateService(
                     ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
                     -> true
 
+                    ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
                     ArrangorflateUtbetalingStatus.UTBETALT,
                     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
                     -> false
@@ -199,14 +200,12 @@ class ArrangorflateService(
             }
     }
 
-    private fun QueryContext.getArrangorflateUtbetalingStatus(
+    private fun getArrangorflateUtbetalingStatus(
         utbetaling: Utbetaling,
         advarsler: List<DeltakerAdvarsel>,
     ): ArrangorflateUtbetalingStatus {
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
         return ArrangorflateUtbetalingStatus.fromUtbetaling(
             utbetaling.status,
-            delutbetalinger,
             harAdvarsler = advarsler.isNotEmpty(),
         )
     }

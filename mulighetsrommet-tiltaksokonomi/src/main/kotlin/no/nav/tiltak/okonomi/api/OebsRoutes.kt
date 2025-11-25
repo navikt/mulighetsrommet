@@ -89,8 +89,19 @@ data class OebsFakturaKvittering(
     fun isSuccess(): Boolean = statusOpprettet != "Avvist" && feilKode == null && feilMelding == null
 
     enum class StatusBetalt {
+        /**
+         * Prosessert ok i OeBS, men at den ikke er sendt til banken
+         */
         IkkeBetalt,
+
+        /**
+         * Betyr at noe av beløpet er sendt til banken (visstnok lite brukt)
+         */
         DelvisBetalt,
+
+        /**
+         * Betyr at hele beløpet er sendt til banken
+         */
         FulltBetalt,
         ;
 

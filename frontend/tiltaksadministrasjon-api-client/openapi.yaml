@@ -5672,6 +5672,8 @@ components:
       - TIL_ATTESTERING
       - RETURNERT
       - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - UTBETALT
     UtbetalingTypeDto:
       type: object
       properties:
