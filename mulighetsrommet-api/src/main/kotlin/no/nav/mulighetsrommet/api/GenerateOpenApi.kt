@@ -4,6 +4,7 @@ import io.github.smiley4.ktoropenapi.OpenApiPlugin
 import io.ktor.server.application.*
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.security.MessageDigest
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 
@@ -44,10 +45,44 @@ fun main(args: Array<String>) {
 
 private fun generateOpenApiSpec(openApiSpecName: String, outputPath: String) {
     val spec = OpenApiPlugin.getOpenApiSpec(openApiSpecName)
+    val hash = sha256Of(spec)
+
+    val specWithHash = insertHashEnum(spec, hash)
 
     val targetPath = Paths.get(outputPath)
     Files.createDirectories(targetPath.parent)
-    Files.writeString(targetPath, spec)
+    Files.writeString(targetPath, specWithHash)
 
-    println("   -> ✅ Saved '$openApiSpecName' to '$outputPath'")
+    println("   -> ✅ Saved '$openApiSpecName' to '$outputPath' with embedded hash")
+}
+
+private fun sha256Of(spec: String): String = MessageDigest.getInstance("SHA-256")
+    .digest(spec.toByteArray())
+    .joinToString("") { "%02x".format(it) }
+
+fun generateOpenApiHash(openApiSpecName: String): String {
+    val spec = OpenApiPlugin.getOpenApiSpec(openApiSpecName)
+    return sha256Of(spec)
+}
+
+private fun insertHashEnum(spec: String, hash: String): String {
+    val lines = spec.lines().toMutableList()
+
+    val schemasIndex = lines.indexOfFirst { it.trim() == "schemas:" }
+    if (schemasIndex == -1) {
+        throw IllegalStateException("Fant ikke \"schemas:\" block")
+    }
+
+    val indent = lines[schemasIndex].takeWhile { it == ' ' || it == '\t' }
+
+    val schemaBlock = listOf(
+        "$indent  OpenApiHash:",
+        "$indent    type: string",
+        "$indent    enum:",
+        "$indent      - \"$hash\"",
+    )
+
+    lines.addAll(schemasIndex + 1, schemaBlock)
+
+    return lines.joinToString("\n")
 }

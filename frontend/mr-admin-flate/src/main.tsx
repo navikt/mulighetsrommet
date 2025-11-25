@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { client } from "@tiltaksadministrasjon/api-client";
+import { client, OpenApiHash } from "@tiltaksadministrasjon/api-client";
 import "./index.css";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
@@ -41,6 +41,17 @@ function configureClient(client: ClientType) {
     }
 
     return request;
+  });
+
+  client.interceptors.response.use(async (response) => {
+    const requiredHash = response.headers.get("X-OpenAPI-Hash");
+
+    const hash = Object.values(OpenApiHash)[0] as string;
+    if (requiredHash && requiredHash !== hash) {
+      window.dispatchEvent(new CustomEvent("openapi-version-mismatch"));
+    }
+
+    return response;
   });
 }
 

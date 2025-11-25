@@ -112,6 +112,10 @@ paths:
       deprecated: false
 components:
   schemas:
+    OpenApiHash:
+      type: string
+      enum:
+        - "3bd8cc110ec947158f75243a56eccac82afe527e1582d1eaa8c66940dc866dea"
     TiltaksgjennomforingV2.Enkeltplass:
       type: object
       properties:

@@ -861,6 +861,10 @@ paths:
       deprecated: false
 components:
   schemas:
+    OpenApiHash:
+      type: string
+      enum:
+        - "630723b1613b379abbc5a8181e90b5c841ac0629aaff258b92822c3b9008b8e5"
     ArrangorDto:
       type: object
       properties:

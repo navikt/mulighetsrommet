@@ -16,6 +16,7 @@ import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.mergePropertyAttri
 import io.github.smiley4.schemakenerator.swagger.data.RefType
 import io.ktor.server.application.*
 import io.swagger.v3.oas.models.media.Schema
+import no.nav.mulighetsrommet.api.generateOpenApiHash
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattAuthorizationRouteSelector
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -36,6 +37,15 @@ fun RequestConfig.queryParameterUuid(name: String, block: RequestParameterConfig
         it.format = "uuid"
     }
     queryParameter(name, uuidSchema, block)
+}
+
+fun Application.configureOpenApiHash() {
+    monitor.subscribe(ServerReady) {
+        OpenApiSpec.entries.forEach {
+            val hash = generateOpenApiHash(it.specName)
+            this.attributes.put(it.hashAttributeKey, hash)
+        }
+    }
 }
 
 fun Application.configureOpenApiGenerator() {

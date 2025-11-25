@@ -3112,6 +3112,10 @@ paths:
       deprecated: false
 components:
   schemas:
+    OpenApiHash:
+      type: string
+      enum:
+        - "7e7302fa19378b9bd10cffbc33093dad6e617423202f3008e011fa4da574d2c8"
     TiltakstypeDto:
       type: object
       properties:

@@ -42,6 +42,7 @@ import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { UtdatertKlientBanner } from "./api/UtdatertKlientBanner";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -75,6 +76,7 @@ function AppLayout() {
       <Page background="bg-subtle">
         <Page.Block as="header" className="max-w-[1920px]">
           <AdministratorHeader />
+          <UtdatertKlientBanner />
         </Page.Block>
         <Page.Block as="main" className="max-w-[1920px]">
           <Suspense fallback={<Laster tekst="Laster..." />}>
