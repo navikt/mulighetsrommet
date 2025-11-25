@@ -57,13 +57,13 @@ Flere parter i Nav har behov for å se samlet tiltakshistorikk for en gitt bruke
 
 ## Hvordan
 
-Tiltakshistorikken holdes oppdatert ved å lytte på Kafka-events fra Arena og Komet. Tiltak fra Team Tiltak hentes
+Tiltakshistorikken holdes oppdatert ved å lytte på Kafka-events fra Arena og Team Komet. Tiltak fra Team Tiltak hentes
 on-demand via GraphQL når konsumenter spør etter historikk.
 
 ```mermaid
 flowchart RL
     Arena[Arena]
-    Komet[Komet]
+    Komet[Team Komet]
     TeamTiltak[Team Tiltak]
     Kafka[/Kafka Topics/]
     DB[(Database)]
