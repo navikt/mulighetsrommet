@@ -6,7 +6,7 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
-import { Heading, Spacer, Tabs } from "@navikt/ds-react";
+import { Heading, HStack, Spacer, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -57,7 +57,7 @@ export function GjennomforingPage() {
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <GjennomforingIkon />
-        <Heading className="max-w-200" size="large" level="2">
+        <Heading size="large" level="2">
           {gjennomforing.navn}
         </Heading>
         <DataElementStatusTag {...gjennomforing.status.status} />
