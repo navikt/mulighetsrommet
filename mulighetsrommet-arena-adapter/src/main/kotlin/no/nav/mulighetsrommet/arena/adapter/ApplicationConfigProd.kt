@@ -53,7 +53,6 @@ val ApplicationConfigProd = AppConfig(
         maximumPoolSize = 20,
         micrometerRegistry = Metrics.micrometerRegistry,
     ),
-    flyway = FlywayMigrationManager.MigrationConfig(),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(
             arenaTiltakEndret = KafkaTopicConsumer.Config(

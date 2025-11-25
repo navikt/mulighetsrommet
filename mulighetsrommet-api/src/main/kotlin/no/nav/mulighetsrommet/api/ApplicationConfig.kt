@@ -31,7 +31,9 @@ data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
-    val flyway: FlywayMigrationManager.MigrationConfig,
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
+        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+    ),
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,

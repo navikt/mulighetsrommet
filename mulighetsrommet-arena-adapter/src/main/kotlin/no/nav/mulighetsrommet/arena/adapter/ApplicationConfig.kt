@@ -18,7 +18,9 @@ data class AppConfig(
     val tasks: TaskConfig,
     val services: ServiceConfig,
     val database: DatabaseConfig,
-    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
+        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+    ),
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val slack: SlackConfig,
