@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.plugins.OpenApiHashHeader
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
@@ -94,6 +95,10 @@ fun Route.apiRoutes(config: AppConfig) {
 
             authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
                 authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
+                    install(OpenApiHashHeader) {
+                        hashAttributeKey = OpenApiSpec.TILTAKSADMINISTRASJON.hashAttributeKey
+                    }
+
                     tiltaksadministrasjonRoutes()
                 }
             }

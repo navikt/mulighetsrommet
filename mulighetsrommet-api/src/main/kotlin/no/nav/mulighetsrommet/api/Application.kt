@@ -65,6 +65,7 @@ fun Application.configure(config: AppConfig) {
     configureSerialization()
     configureStatusPages()
     configureOpenApiGenerator()
+    configureOpenApiHash()
 
     FlywayMigrationManager(config.flyway).migrate(db)
 
