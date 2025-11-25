@@ -12,7 +12,7 @@ interface Props {
 export function ArrangorKontaktpersonDetaljer({ kontaktperson }: Props) {
   const { navn, telefon, epost, beskrivelse } = kontaktperson;
   return (
-    <Box marginBlock="5">
+    <Box marginBlock="0 5">
       <dl className="flex flex-col gap-2">
         <MetadataHorisontal label="Navn" value={navn} compact />
         {beskrivelse && <MetadataHorisontal label="Beskrivelse" value={beskrivelse} compact />}
