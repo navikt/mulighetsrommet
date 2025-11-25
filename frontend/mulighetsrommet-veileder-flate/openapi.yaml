@@ -1014,6 +1014,7 @@ components:
       enum:
       - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
       - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+      - MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN
     Deltakelse:
       type: object
       properties:

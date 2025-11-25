@@ -7,7 +7,6 @@ import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Heading, Tabs, VStack } from "@navikt/ds-react";
-import classNames from "classnames";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -57,13 +56,11 @@ export function GjennomforingPage() {
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <div
-          className={classNames("flex justify-between gap-6 flex-wrap w-full [&>span]:self-center")}
-        >
+        <div className="flex justify-between gap-6 flex-wrap w-full [&>span]:self-center">
           <div className="flex justify-start gap-6 items-center flex-wrap">
             <GjennomforingIkon />
             <VStack>
-              <Heading className="max-w-[50rem]" size="large" level="2">
+              <Heading className="max-w-200" size="large" level="2">
                 {gjennomforing.navn}
               </Heading>
             </VStack>

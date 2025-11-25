@@ -25,6 +25,14 @@ object TestFixtures {
     }
 
     object Virksomhet {
+        val arrangorHovedenhet = VirksomhetDbo(
+            organisasjonsnummer = Organisasjonsnummer("912345678"),
+            overordnetEnhetOrganisasjonsnummer = null,
+            navn = "Arrangør Foretak",
+            organisasjonsform = "AS",
+            slettetDato = null,
+        )
+
         val arrangor = VirksomhetDbo(
             organisasjonsnummer = Organisasjonsnummer("987654321"),
             overordnetEnhetOrganisasjonsnummer = null,

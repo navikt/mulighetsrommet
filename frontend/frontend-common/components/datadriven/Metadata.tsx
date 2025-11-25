@@ -1,5 +1,4 @@
 import { BodyLong, HGrid } from "@navikt/ds-react";
-import classNames from "classnames";
 import { ReactNode } from "react";
 
 export interface MetadataProps {
@@ -17,13 +16,8 @@ export function Metadata({ label, value }: MetadataProps) {
   );
 }
 
-export function Separator({ style, classname }: { style?: any; classname?: string }) {
-  return (
-    <hr
-      style={style}
-      className={classNames("bg-[var(--a-border-divider)] h-px border-0 w-full my-4", classname)}
-    />
-  );
+export function Separator() {
+  return <hr className="bg-(--a-border-divider) h-px border-0 w-full my-4" />;
 }
 
 export function MetadataHorisontal({ label, value, compact }: MetadataProps) {
@@ -43,9 +37,11 @@ export interface MetadataFritekstfeltProps {
 
 export function MetadataFritekstfelt({ label, value }: MetadataFritekstfeltProps) {
   return (
-    <Metadata
-      label={label}
-      value={<BodyLong className="whitespace-pre-line">{value ?? "-"}</BodyLong>}
-    />
+    <dl className={`flex flex-col gap-2`}>
+      <dt className="font-bold">{label}</dt>
+      <dd>
+        <BodyLong className="whitespace-pre-wrap">{value ?? "-"}</BodyLong>
+      </dd>
+    </dl>
   );
 }

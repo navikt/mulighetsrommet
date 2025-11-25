@@ -17,6 +17,7 @@ import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
@@ -149,6 +150,7 @@ private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbe
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
     id = avtale.avtaleId,
+    tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arbeidsgiver?.navn),
     tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
         tiltakskode = when (avtale.tiltakstype) {
             Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING
@@ -170,5 +172,5 @@ private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbe
         Avtale.Status.GJENNOMFORES -> ArbeidsgiverAvtaleStatus.GJENNOMFORES
         Avtale.Status.AVSLUTTET -> ArbeidsgiverAvtaleStatus.AVSLUTTET
     },
-    arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(avtale.bedriftNr, arbeidsgiver?.navn),
+    arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer(avtale.bedriftNr), arbeidsgiver?.navn),
 )
