@@ -1,4 +1,5 @@
 import { BodyLong, HGrid } from "@navikt/ds-react";
+import classNames from "classnames";
 import { ReactNode } from "react";
 
 export interface MetadataProps {
@@ -17,7 +18,14 @@ export function Metadata({ label, value }: MetadataProps) {
 }
 
 export function Separator() {
-  return <hr className="bg-(--a-border-divider) h-px border-0 w-full my-4" />;
+  return (
+    <hr
+      style={{
+        color: "var(--a-border-divider)",
+        marginBlock: "1.5rem",
+      }}
+    />
+  );
 }
 
 export function MetadataHorisontal({ label, value, compact }: MetadataProps) {
