@@ -17,7 +17,9 @@ import java.util.*
 data class AppConfig(
     val httpClientEngine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
-    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
+        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+    ),
     val database: DatabaseConfig,
     val auth: AuthConfig,
     val kafka: KafkaConfig,
