@@ -72,11 +72,11 @@ spec:
         - application: mulighetsrommet-api
           permissions:
             roles:
-              - tiltakshistorikk:read
+              - tiltakshistorikk-read
         - application: mulighetsrommet-arena-adapter
           permissions:
             roles:
-              - tiltakshistorikk:write
+              - tiltakshistorikk-write
         - application: mulighetsrommet-arena-adapter-manager
           permissions:
             roles:

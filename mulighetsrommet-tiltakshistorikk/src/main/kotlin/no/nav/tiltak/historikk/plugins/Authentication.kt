@@ -16,11 +16,11 @@ abstract class AuthProvider {
 }
 
 object TiltakshistorikkRead : AuthProvider() {
-    override val requiredRoles: List<String> = listOf(ACCESS_AS_APPLICATION, "tiltakshistorikk:read")
+    override val requiredRoles: List<String> = listOf(ACCESS_AS_APPLICATION, "tiltakshistorikk-read")
 }
 
 object TiltakshistorikkWrite : AuthProvider() {
-    override val requiredRoles: List<String> = listOf(ACCESS_AS_APPLICATION, "tiltakshistorikk:write")
+    override val requiredRoles: List<String> = listOf(ACCESS_AS_APPLICATION, "tiltakshistorikk-write")
 }
 
 object TiltakshistorikkAdmin : AuthProvider() {
