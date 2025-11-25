@@ -1,7 +1,7 @@
 package no.nav.tiltak.okonomi
 
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -18,7 +18,7 @@ data class AppConfig(
     val httpClientEngine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
     val database: DatabaseConfig,
     val auth: AuthConfig,

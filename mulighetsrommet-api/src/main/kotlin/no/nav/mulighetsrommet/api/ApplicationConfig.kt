@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -32,7 +32,7 @@ data class AppConfig(
     val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
     val kafka: KafkaConfig,
     val auth: AuthConfig,
