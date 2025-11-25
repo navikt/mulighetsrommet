@@ -15,7 +15,7 @@ export function OppgaveoversiktPage() {
   return (
     <>
       <title>Oppgaveoversikt</title>
-      <HeaderBanner heading="Oppgaveoversikt" harUndermeny ikon={<OppgaveoversiktIkon />} />
+      <HeaderBanner heading="Oppgaveoversikt" ikon={<OppgaveoversiktIkon />} />
       <Tabs
         value={pathname.includes("notifikasjoner") ? "notifikasjoner" : "oppgaver"}
         selectionFollowsFocus

@@ -10,7 +10,6 @@ import {
   Tag,
   VStack,
 } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useState } from "react";
 import { ReadNotificationButton } from "./ReadNotificationButton";
 import { PaperplaneIcon } from "@navikt/aksel-icons";
@@ -45,9 +44,7 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
                 level="2"
                 size="small"
                 title={title}
-                className={classNames("overflow-hidden overflow-wrap-normal", {
-                  "line-through": lest,
-                })}
+                className={`overflow-hidden overflow-wrap-normal ${lest ? "line-through" : ""}`}
               >
                 {title}
               </Heading>
