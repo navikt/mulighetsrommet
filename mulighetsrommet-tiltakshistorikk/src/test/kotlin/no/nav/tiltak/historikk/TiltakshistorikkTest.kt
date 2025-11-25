@@ -208,14 +208,14 @@ class TiltakshistorikkTest : FunSpec({
                         deltidsprosent = 100f,
                         dagerPerUke = 5f,
                     ),
-                    TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
+                    TiltakshistorikkV1Dto.TeamTiltakAvtale(
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
                         tittel = "Arbeidstrening hos Arbeidsgiver",
-                        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
-                            tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
+                        tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
+                            tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
                             navn = "Arbeidstrening",
                         ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
@@ -224,7 +224,7 @@ class TiltakshistorikkTest : FunSpec({
                             "Arbeidsgiver",
                         ),
                     ),
-                    TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+                    TiltakshistorikkV1Dto.TeamKometDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = TEAM_KOMET_GRUPPE_AMO_ID,
                         startDato = null,
@@ -235,7 +235,7 @@ class TiltakshistorikkTest : FunSpec({
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
-                        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+                        tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                             navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),

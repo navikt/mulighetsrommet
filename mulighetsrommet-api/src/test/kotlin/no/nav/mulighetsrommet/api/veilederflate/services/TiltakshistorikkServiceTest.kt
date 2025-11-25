@@ -37,9 +37,9 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1
 
-    val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+    val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
-        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+        tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
@@ -89,13 +89,13 @@ class TiltakshistorikkServiceTest : FunSpec({
         dagerPerUke = 5f,
     )
 
-    val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
+    val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.TeamTiltakAvtale(
         norskIdent = NorskIdent("12345678910"),
         startDato = LocalDate.of(2020, 1, 1),
         sluttDato = LocalDate.of(2021, 12, 31),
         id = UUID.randomUUID(),
-        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
-            tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
+        tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
+            tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
             navn = "Arbeidstrening",
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,

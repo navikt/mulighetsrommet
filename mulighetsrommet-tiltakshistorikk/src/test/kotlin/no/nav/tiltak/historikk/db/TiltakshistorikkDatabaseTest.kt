@@ -321,7 +321,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     identer = listOf(NorskIdent(amtDeltaker.personIdent)),
                     maxAgeYears = null,
                 ) shouldBe listOf(
-                    TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+                    TiltakshistorikkV1Dto.TeamKometDeltakelse(
                         id = amtDeltaker.id,
                         norskIdent = NorskIdent("10101010100"),
                         startDato = null,
@@ -332,7 +332,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
                         ),
-                        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+                        tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
                             tiltakskode = gruppeAmo.tiltakskode,
                             navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
