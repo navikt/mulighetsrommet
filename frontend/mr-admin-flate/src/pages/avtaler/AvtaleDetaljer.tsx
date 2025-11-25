@@ -154,15 +154,10 @@ export function AvtaleDetaljer() {
         <Separator />
         <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
         <Separator />
-        {amoKategorisering && (
-          <>
-            <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
-            <Separator />
-          </>
-        )}
-        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
         <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
         {avtale.opsjonerRegistrert.length > 0 ? <RegistrerteOpsjoner readOnly /> : null}
+        {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+        {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
         <Separator />
         <AvtalePrismodell avtale={avtale} />
       </VStack>

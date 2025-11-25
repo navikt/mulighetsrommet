@@ -17,7 +17,7 @@ import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
+import { Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
@@ -76,21 +76,22 @@ export function GjennomforingDetaljer() {
       key: gjennomforingTekster.tiltakstypeLabel,
       value: tiltakstype.navn,
     },
-    {
-      key: gjennomforingTekster.oppstartstypeLabel,
-      value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
-    },
+    { key: gjennomforingTekster.apentForPameldingLabel, value: apentForPamelding ? "Ja" : "Nei" },
     {
       key: gjennomforingTekster.tiltaksnummerLabel,
       value: tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />,
     },
   ];
 
-  const varighet: Definition[] = [
+  const varighetMeta: Definition[] = [
     { key: gjennomforingTekster.startdatoLabel, value: formaterDato(startDato) },
     { key: gjennomforingTekster.sluttdatoLabel, value: formaterDato(sluttDato) ?? "" },
+    {
+      key: gjennomforingTekster.oppstartstypeLabel,
+      value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
+    },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
-    { key: gjennomforingTekster.apentForPameldingLabel, value: apentForPamelding ? "Ja" : "Nei" },
+
     ...(isKursTiltak(tiltakstype.tiltakskode)
       ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
       : []),
@@ -169,8 +170,8 @@ export function GjennomforingDetaljer() {
   ];
 
   const stedMeta: Definition[] = [
-    { key: gjennomforingTekster.stedForGjennomforingLabel, value: stedForGjennomforing },
-    { key: gjennomforingTekster.oppmoteStedLabel, value: oppmoteSted },
+    { key: gjennomforingTekster.stedForGjennomforingLabel, value: stedForGjennomforing ?? "-" },
+    { key: gjennomforingTekster.oppmoteStedLabel, value: oppmoteSted ?? "-" },
   ];
 
   return (
@@ -179,25 +180,20 @@ export function GjennomforingDetaljer() {
         <VStack justify={"space-between"}>
           <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
           <Separator />
-          <Definisjonsliste title="Avtale" definitions={avtaleMeta} />
+          <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
           <Separator />
-          <Definisjonsliste title="Varighet og påmelding" definitions={varighet} />
-          {amoKategorisering && (
-            <>
-              <Separator />
-              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
-            </>
-          )}
+          <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
+          {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>
         <VStack>
-          <Definisjonsliste title="Administrator" definitions={administratorMeta} />
+          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
           <Separator />
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
           {(stedForGjennomforing || oppmoteSted) && (
             <>
               <Separator />
-              <Definisjonsliste title="Sted" definitions={stedMeta} />
+              <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />
             </>
           )}
           {gjennomforing.stengt.length !== 0 && (
