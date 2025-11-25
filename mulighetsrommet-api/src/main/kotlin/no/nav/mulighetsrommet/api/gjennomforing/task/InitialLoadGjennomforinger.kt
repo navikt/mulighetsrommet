@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.task
 
-import arrow.core.NonEmptyList
-import arrow.core.toNonEmptyListOrNull
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
@@ -44,7 +42,7 @@ class InitialLoadGjennomforinger(
             @Serializable(with = UUIDSerializer::class)
             UUID,
             >? = null,
-        val tiltakskoder: List<Tiltakskode>? = null,
+        val tiltakskode: Tiltakskode? = null,
         @Serializable(with = UUIDSerializer::class)
         val avtaleId: UUID? = null,
     )
@@ -60,12 +58,12 @@ class InitialLoadGjennomforinger(
                 initialLoadGjennomforingerById(input.ids)
             }
 
-            input.tiltakskoder?.filter { Tiltakskoder.isGruppetiltak(it) }?.toNonEmptyListOrNull()?.let {
-                initialLoadGruppetiltakByTiltakskode(tiltakskoder = it)
+            input.tiltakskode?.takeIf { Tiltakskoder.isGruppetiltak(it) }?.let {
+                initialLoadGruppetiltakByTiltakskode(it)
             }
 
-            input.tiltakskoder?.filter { Tiltakskoder.isEnkeltplassTiltak(it) }?.toNonEmptyListOrNull()?.let {
-                initialLoadEnkeltplassByTiltakskode(tiltakskoder = it)
+            input.tiltakskode?.takeIf { Tiltakskoder.isEnkeltplassTiltak(it) }?.let {
+                initialLoadEnkeltplassByTiltakskode(it)
             }
 
             if (input.avtaleId != null) {
@@ -85,16 +83,16 @@ class InitialLoadGjennomforinger(
     }
 
     private suspend fun initialLoadGruppetiltakByTiltakskode(
-        tiltakskoder: NonEmptyList<Tiltakskode>,
+        tiltakskode: Tiltakskode,
     ): Unit = db.session {
-        val tiltakstypeIder = tiltakskoder.map { queries.tiltakstype.getByTiltakskode(it).id }
+        val tiltakstypeId = queries.tiltakstype.getByTiltakskode(tiltakskode).id
 
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter gjennomføringer pagination=$pagination")
                 val result = queries.gjennomforing.getAll(
                     pagination = pagination,
-                    tiltakstypeIder = tiltakstypeIder,
+                    tiltakstypeIder = listOf(tiltakstypeId),
                 )
                 result.items
             },
@@ -106,16 +104,16 @@ class InitialLoadGjennomforinger(
     }
 
     private suspend fun initialLoadEnkeltplassByTiltakskode(
-        tiltakskoder: NonEmptyList<Tiltakskode>,
+        tiltakskode: Tiltakskode,
     ): Unit = db.session {
-        val tiltakstyper = tiltakskoder.map { queries.tiltakstype.getByTiltakskode(it).id }
+        val tiltakstypeId = queries.tiltakstype.getByTiltakskode(tiltakskode).id
 
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter enkeltplasser pagination=$pagination")
                 val result = queries.enkeltplass.getAll(
                     pagination = pagination,
-                    tiltakstyper = tiltakstyper,
+                    tiltakstyper = listOf(tiltakstypeId),
                 )
                 result.items
             },
