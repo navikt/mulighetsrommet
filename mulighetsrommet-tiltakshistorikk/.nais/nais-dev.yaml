@@ -69,8 +69,17 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-api
+          permissions:
+            roles:
+              - tiltakshistorikk-read
         - application: mulighetsrommet-arena-adapter
+          permissions:
+            roles:
+              - tiltakshistorikk-write
         - application: mulighetsrommet-arena-adapter-manager
+          permissions:
+            roles:
+              - admin
     outbound:
       rules:
         - application: tiltak-datadeling

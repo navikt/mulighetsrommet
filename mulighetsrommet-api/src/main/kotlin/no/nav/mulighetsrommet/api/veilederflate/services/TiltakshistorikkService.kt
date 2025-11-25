@@ -100,8 +100,8 @@ class TiltakshistorikkService(
 
     private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
         is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
-        is TiltakshistorikkV1Dto.GruppetiltakDeltakelse -> toDeltakelse(it)
-        is TiltakshistorikkV1Dto.ArbeidsgiverAvtale -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.TeamKometDeltakelse -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.TeamTiltakAvtale -> toDeltakelse(it)
     }
 
     private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
@@ -131,7 +131,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse {
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.TeamKometDeltakelse): Deltakelse {
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -155,7 +155,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.TeamTiltakAvtale): Deltakelse {
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(

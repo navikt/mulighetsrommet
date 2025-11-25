@@ -78,7 +78,7 @@ class KometDeltakerQueries(private val session: Session) {
     fun getKometHistorikk(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): List<TiltakshistorikkV1Dto.GruppetiltakDeltakelse> {
+    ): List<TiltakshistorikkV1Dto.TeamKometDeltakelse> {
         @Language("PostgreSQL")
         val query = """
                 select
@@ -115,7 +115,7 @@ class KometDeltakerQueries(private val session: Session) {
             "max_age_years" to maxAgeYears,
         )
 
-        return session.list(queryOf(query, params)) { it.toGruppetiltakDeltakelse() }
+        return session.list(queryOf(query, params)) { it.toTeamKometDeltakelse() }
     }
 
     fun deleteKometDeltaker(id: UUID) {
@@ -129,8 +129,8 @@ class KometDeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toGruppetiltakDeltakelse(): TiltakshistorikkV1Dto.GruppetiltakDeltakelse {
-    val tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakelse {
+    val tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
         tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         navn = string("tiltakstype_navn"),
     )
@@ -146,7 +146,7 @@ private fun Row.toGruppetiltakDeltakelse(): TiltakshistorikkV1Dto.GruppetiltakDe
             navn = stringOrNull("arrangor_navn"),
         ),
     )
-    return TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+    return TiltakshistorikkV1Dto.TeamKometDeltakelse(
         norskIdent = NorskIdent(string("norsk_ident")),
         id = uuid("id"),
         startDato = localDateOrNull("start_dato"),

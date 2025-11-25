@@ -130,8 +130,8 @@ sealed class TiltakshistorikkV1Dto {
     }
 
     @Serializable
-    @SerialName("GruppetiltakDeltakelse")
-    data class GruppetiltakDeltakelse(
+    @SerialName("TeamKometDeltakelse")
+    data class TeamKometDeltakelse(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
@@ -157,8 +157,8 @@ sealed class TiltakshistorikkV1Dto {
     }
 
     @Serializable
-    @SerialName("ArbeidsgiverAvtale")
-    data class ArbeidsgiverAvtale(
+    @SerialName("TeamTiltakAvtale")
+    data class TeamTiltakAvtale(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
