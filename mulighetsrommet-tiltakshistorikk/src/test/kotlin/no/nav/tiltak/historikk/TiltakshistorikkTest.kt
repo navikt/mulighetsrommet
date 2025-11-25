@@ -1,6 +1,3 @@
-
-
-
 package no.nav.tiltak.historikk
 
 import io.kotest.core.spec.style.FunSpec
@@ -22,6 +19,8 @@ import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
 import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
+import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
+import no.nav.tiltak.historikk.plugins.TiltakshistorikkRead
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -67,12 +66,26 @@ class TiltakshistorikkTest : FunSpec({
             }
         }
 
+        test("unauthorized når riktige roles mangler") {
+            val mockEngine = mockTiltakDatadeling()
+
+            withTestApplication(oauth, mockEngine) {
+                val response = client.post("/api/v1/historikk") {
+                    bearerAuth(oauth.issueToken(claims = mapOf("roles" to listOf(ACCESS_AS_APPLICATION))).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                }
+
+                response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
+
         test("tom historikk når det ikke finnes noen deltakelser for gitt ident") {
             val mockEngine = mockTiltakDatadeling()
 
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
                 }
@@ -118,7 +131,7 @@ class TiltakshistorikkTest : FunSpec({
             )
             withTestApplication(oauth, mockEngine, config) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
@@ -206,7 +219,10 @@ class TiltakshistorikkTest : FunSpec({
                             navn = "Arbeidstrening",
                         ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("876543210"), "Arbeidsgiver"),
+                        arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
+                            Organisasjonsnummer("876543210"),
+                            "Arbeidsgiver",
+                        ),
                     ),
                     TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
@@ -275,7 +291,7 @@ class TiltakshistorikkTest : FunSpec({
             )
             withTestApplication(oauth, mockEngine, config) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
@@ -303,7 +319,7 @@ class TiltakshistorikkTest : FunSpec({
 
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
                 }
@@ -321,6 +337,10 @@ class TiltakshistorikkTest : FunSpec({
         }
     }
 })
+
+private fun tiltakshistorikkReadClaims(): Map<String, List<String>> {
+    return mapOf("roles" to TiltakshistorikkRead.requiredRoles)
+}
 
 private fun mockTiltakDatadeling(
     response: GraphqlResponse<GetAvtalerForPersonResponse> = GraphqlResponse(
