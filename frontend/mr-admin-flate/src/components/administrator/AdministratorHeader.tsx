@@ -13,7 +13,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router";
 import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
 import { Bolk } from "../detaljside/Bolk";
-import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AdministratorHeader() {
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
@@ -183,10 +183,10 @@ function Brukernavn() {
         </Modal.Header>
         <Modal.Body>
           <Bolk>
-            <Metadata label="Navn" value={ansattNavn} />
-            <Metadata label="Navident" value={ansatt.navIdent} />
-            <Metadata label="Epost" value={ansatt.epost || "Ikke registrert"} />
-            <Metadata label="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
+            <MetadataVStack label="Navn" value={ansattNavn} />
+            <MetadataVStack label="Navident" value={ansatt.navIdent} />
+            <MetadataVStack label="Epost" value={ansatt.epost || "Ikke registrert"} />
+            <MetadataVStack label="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
           </Bolk>
           <ReadMore header="Roller" defaultOpen>
             <ul>

@@ -113,18 +113,6 @@ data class ArrangorflateBeregningDeltakelse(
     val deltaker: Deltaker?,
 )
 
-fun getSatserDetails(label: String, satser: List<SatsPeriode>): List<LabeledDataElement> {
-    return satser.singleOrNull()?.let {
-        listOf(LabeledDataElement.nok(label, it.sats))
-    } ?: satser.map {
-        LabeledDataElement.nok("$label (${it.periode.formatPeriode()})", it.sats)
-    }
-}
-
-private fun getBelopDetails(belop: Int): List<LabeledDataElement> = listOf(
-    LabeledDataElement.nok("Beløp", belop),
-)
-
 fun deltakelseCommonColumns() = listOf(
     DataDrivenTableDto.Column("navn", "Navn"),
     DataDrivenTableDto.Column("identitetsnummer", "Fødselsnr."),
@@ -277,64 +265,6 @@ fun beregningStengt(beregning: UtbetalingBeregning) = when (beregning) {
 
     is UtbetalingBeregningFri ->
         emptyList()
-}
-
-fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
-    val totalFaktor = beregning.output.deltakelser()
-        .flatMap { deltakelse -> deltakelse.perioder.map { it.faktor } }
-        .map { BigDecimal(it) }
-        .sumOf { it }
-        .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
-        .toDouble()
-
-    return when (beregning) {
-        is UtbetalingBeregningFri ->
-            DataDetails(entries = getBelopDetails(beregning.output.belop))
-
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-            val satser = beregning.input.satser.sortedBy { it.periode.start }
-            DataDetails(
-                entries = getSatserDetails("Sats", satser) +
-                    listOf(LabeledDataElement.number("Antall månedsverk", totalFaktor)) +
-                    getBelopDetails(beregning.output.belop),
-            )
-        }
-
-        is UtbetalingBeregningPrisPerManedsverk -> {
-            val satser = beregning.input.satser.sortedBy { it.periode.start }
-            DataDetails(
-                entries = getSatserDetails("Avtalt månedspris per tiltaksplass", satser) +
-                    listOf(LabeledDataElement.number("Antall månedsverk", totalFaktor)) +
-                    getBelopDetails(beregning.output.belop),
-            )
-        }
-
-        is UtbetalingBeregningPrisPerUkesverk -> {
-            val satser = beregning.input.satser.sortedBy { it.periode.start }
-            DataDetails(
-                entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
-                    listOf(LabeledDataElement.number("Antall ukesverk", totalFaktor)) +
-                    getBelopDetails(beregning.output.belop),
-            )
-        }
-
-        is UtbetalingBeregningPrisPerHeleUkesverk -> {
-            val satser = beregning.input.satser.sortedBy { it.periode.start }
-            DataDetails(
-                entries = getSatserDetails("Avtalt ukespris per tiltaksplass", satser) +
-                    listOf(LabeledDataElement.number("Antall ukesverk", totalFaktor)) +
-                    getBelopDetails(beregning.output.belop),
-            )
-        }
-
-        is UtbetalingBeregningPrisPerTimeOppfolging -> {
-            val satser = beregning.input.satser.sortedBy { it.periode.start }
-            DataDetails(
-                entries = getSatserDetails("Avtalt pris per time oppfølging", satser) +
-                    getBelopDetails(beregning.output.belop),
-            )
-        }
-    }
 }
 
 fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {

@@ -1,4 +1,4 @@
-import { BodyLong, HGrid } from "@navikt/ds-react";
+import { BodyLong, HGrid, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
 export interface MetadataProps {
@@ -7,12 +7,12 @@ export interface MetadataProps {
   compact?: boolean;
 }
 
-export function Metadata({ label, value }: MetadataProps) {
+export function MetadataVStack({ label, value }: MetadataProps) {
   return (
-    <dl className={`flex flex-col gap-2`}>
+    <VStack as="dl" gap="2">
       <dt className="font-bold">{label}</dt>
       <dd className="mr-6 whitespace-pre-line">{value ?? "-"}</dd>
-    </dl>
+    </VStack>
   );
 }
 
@@ -27,7 +27,16 @@ export function Separator() {
   );
 }
 
-export function MetadataHorisontal({ label, value, compact }: MetadataProps) {
+export function MetadataHStack({ label, value }: MetadataProps) {
+  return (
+    <HStack as="dl" justify="space-between" gap="2" align="start">
+      <dt className="font-bold w-max">{label}:</dt>
+      <dd className="whitespace-nowrap w-fit">{value ?? "-"}</dd>
+    </HStack>
+  );
+}
+
+export function MetadataHGrid({ label, value, compact }: MetadataProps) {
   const gridLayout = compact ? "max-content 1fr" : "0.5fr 1fr";
   return (
     <HGrid as="dl" columns={gridLayout} gap="2" align="start">

@@ -4,7 +4,7 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { Metadata, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function TiltakstypeInfo() {
   const { data: tiltakstype } = useTiltakstypeById();
@@ -14,13 +14,13 @@ export function TiltakstypeInfo() {
   return (
     <WhitePaddedBox>
       <Bolk>
-        <Metadata label="Tiltakstype" value={tiltakstype.navn} />
-        <Metadata label="Tiltakskode" value={tiltakstype.arenaKode} />
+        <MetadataVStack label="Tiltakstype" value={tiltakstype.navn} />
+        <MetadataVStack label="Tiltakskode" value={tiltakstype.arenaKode} />
       </Bolk>
       <Separator />
       <Bolk>
-        <Metadata label="Startdato" value={formaterDato(tiltakstype.startDato)} />
-        <Metadata
+        <MetadataVStack label="Startdato" value={formaterDato(tiltakstype.startDato)} />
+        <MetadataVStack
           label="Sluttdato"
           value={tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-"}
         />
@@ -29,7 +29,7 @@ export function TiltakstypeInfo() {
         <>
           <Separator />
           <Bolk aria-label="Sanity-dokument">
-            <Metadata
+            <MetadataVStack
               label="Sanity-dokument"
               value={
                 <>

@@ -1,7 +1,7 @@
 import { ArrangorflateTilsagnDto } from "api-client";
 import { tekster } from "~/tekster";
 import { tilsagnStatusElement } from "./TilsagnStatusTag";
-import { MetadataHorisontal } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Heading, VStack } from "@navikt/ds-react";
 import { getDataElement } from "@mr/frontend-common";
 
@@ -20,18 +20,13 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
       </Heading>
       {!minimal && (
         <VStack gap="1">
-          <MetadataHorisontal
-            compact
-            label="Status"
-            value={status ? getDataElement(status) : null}
-          />
-          <MetadataHorisontal compact label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
-          <MetadataHorisontal compact label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
+          <MetadataHGrid label="Status" value={status ? getDataElement(status) : null} />
+          <MetadataHGrid label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
+          <MetadataHGrid label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
         </VStack>
       )}
       {tilsagn.beregning.entries.map((entry) => (
-        <MetadataHorisontal
-          compact
+        <MetadataHGrid
           label={entry.label}
           value={entry.value ? getDataElement(entry.value) : null}
         />

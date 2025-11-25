@@ -94,7 +94,16 @@ export default function OpprettKravDeltakerTabell() {
           </Alert>
         )}
         <DataDrivenTable data={deltakselseInfo.tabell} />
-        <LabeledDataElementList entries={deltakselseInfo.tabellFooter} className="my-2" />
+        <VStack gap="2">
+          {deltakselseInfo.tabellFooter.map((details) => (
+            <VStack gap="2">
+              {details.header && deltakselseInfo.tabellFooter.length > 2 && (
+                <Heading size="xsmall">{details.header}</Heading>
+              )}
+              <LabeledDataElementList entries={details.entries} className="my-2" />
+            </VStack>
+          ))}
+        </VStack>
         <OpprettKravVeiviserButtons
           navigering={deltakselseInfo.navigering}
           orgnr={orgnr}

@@ -45,7 +45,7 @@ import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import {
   MetadataFritekstfelt,
-  MetadataHorisontal,
+  MetadataHGrid,
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { DataDetails } from "@mr/frontend-common";
@@ -265,25 +265,25 @@ export function TilsagnDetaljer() {
             <HGrid columns={1} gap="2">
               <HGrid columns={{ xl: 2 }} gap="4">
                 <VStack gap="4" className="flex-1">
-                  <MetadataHorisontal
+                  <MetadataHGrid
                     label={tilsagnTekster.bestillingsnummer.label}
                     value={bestillingsnummer}
                   />
-                  <MetadataHorisontal
+                  <MetadataHGrid
                     label={tilsagnTekster.kostnadssted.label}
                     value={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
                   />
-                  <MetadataHorisontal
+                  <MetadataHGrid
                     label={tilsagnTekster.periode.label}
                     value={formaterPeriode(periode)}
                   />
                 </VStack>
                 <VStack gap="4" className="flex-1">
-                  <MetadataHorisontal
+                  <MetadataHGrid
                     label={tilsagnTekster.status.label}
                     value={<TilsagnTag status={status} />}
                   />
-                  <MetadataHorisontal
+                  <MetadataHGrid
                     label={tilsagnTekster.type.label}
                     value={avtaletekster.tilsagn.type(type)}
                   />
@@ -295,15 +295,15 @@ export function TilsagnDetaljer() {
             </HGrid>
             <HGrid columns={1} gap="2" align="center">
               <VStack gap="4">
-                <MetadataHorisontal
+                <MetadataHGrid
                   label={tilsagnTekster.beregning.belop.label}
                   value={formaterNOK(beregning.belop)}
                 />
-                <MetadataHorisontal
+                <MetadataHGrid
                   label={tilsagnTekster.belopBrukt.label}
                   value={formaterNOK(tilsagn.belopBrukt)}
                 />
-                <MetadataHorisontal
+                <MetadataHGrid
                   label={tilsagnTekster.belopGjenstaende.label}
                   value={formaterNOK(tilsagn.belopGjenstaende)}
                 />
@@ -323,7 +323,7 @@ export function TilsagnDetaljer() {
                       ? "Begrunnelse for annullering"
                       : "Begrunnelse for oppgjør"}
                   </Heading>
-                  <MetadataHorisontal
+                  <MetadataHGrid
                     label={"Årsaker"}
                     value={(tilOppgjor?.aarsaker || annullering?.aarsaker)
                       ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnStatusAarsak))

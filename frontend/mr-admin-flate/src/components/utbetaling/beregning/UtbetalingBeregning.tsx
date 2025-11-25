@@ -1,6 +1,7 @@
 import { DataDrivenTable, getDataElement } from "@mr/frontend-common";
+import { MetadataHStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
-import { CopyButton, Heading, HStack, VStack } from "@navikt/ds-react";
+import { CopyButton, Heading, VStack } from "@navikt/ds-react";
 import { DataDetails, UtbetalingBeregningDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
@@ -31,29 +32,27 @@ function SatsPerioderOgBelop({
             <VStack>
               {satsDetaljer.length > 1 && <Heading size="xsmall">{s.header}</Heading>}
               {s.entries.map((entry) => (
-                <HStack justify="space-between">
-                  <dt>{entry.label}:</dt>
-                  <dd className="font-bold whitespace-nowrap w-fit">
-                    {entry.value ? getDataElement(entry.value) : "-"}
-                  </dd>
-                </HStack>
+                <MetadataHStack
+                  label={entry.label}
+                  value={entry.value ? getDataElement(entry.value) : null}
+                />
               ))}
             </VStack>
           ))}
           <hr className="w-[500px] bg-[var(--a-border-divider)] h-px border-0" />
         </>
       )}
-      <HStack justify="space-between">
-        <dt>Beløp:</dt>
-        <dd className="font-bold whitespace-nowrap w-fit">
+      <MetadataHStack
+        label="Beløp"
+        value={
           <CopyButton
             variant="action"
             size="small"
             copyText={belop.toString()}
             text={formaterNOK(belop)}
           />
-        </dd>
-      </HStack>
+        }
+      />
     </VStack>
   );
 }
