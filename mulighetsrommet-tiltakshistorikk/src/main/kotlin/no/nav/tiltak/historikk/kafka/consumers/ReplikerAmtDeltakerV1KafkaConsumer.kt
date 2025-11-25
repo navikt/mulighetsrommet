@@ -13,7 +13,7 @@ import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class AmtDeltakerV1KafkaConsumer(
+class ReplikerAmtDeltakerV1KafkaConsumer(
     private val db: TiltakshistorikkDatabase,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),

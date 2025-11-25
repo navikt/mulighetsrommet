@@ -1,7 +1,7 @@
+import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { UtdanningslopDto } from "@tiltaksadministrasjon/api-client";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { Separator } from "../detaljside/Metadata";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   utdanningslop: UtdanningslopDto;

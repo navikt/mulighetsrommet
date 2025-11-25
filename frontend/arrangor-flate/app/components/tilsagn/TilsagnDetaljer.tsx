@@ -1,7 +1,9 @@
 import { ArrangorflateTilsagnDto } from "api-client";
-import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { TilsagnStatusTag } from "./TilsagnStatusTag";
+import { tilsagnStatusElement } from "./TilsagnStatusTag";
+import { MetadataHorisontal } from "@mr/frontend-common/components/datadriven/Metadata";
+import { Heading, VStack } from "@navikt/ds-react";
+import { getDataElement } from "@mr/frontend-common";
 
 interface Props {
   tilsagn: ArrangorflateTilsagnDto;
@@ -10,20 +12,30 @@ interface Props {
 }
 
 export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
-  const tilsagnDetaljer: Definition[] = !minimal
-    ? [
-        { key: "Status", value: <TilsagnStatusTag status={tilsagn.status} /> },
-        { key: "Tiltakstype", value: tilsagn.tiltakstype.navn },
-        { key: "Tiltaksnavn", value: tilsagn.gjennomforing.navn },
-      ]
-    : [];
-
+  const status = tilsagnStatusElement(tilsagn.status);
   return (
-    <Definisjonsliste
-      headingLevel={headingLevel ?? "3"}
-      className="p-4 border-1 border-border-divider rounded-lg w-xl"
-      title={`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
-      definitions={[...tilsagnDetaljer, ...tilsagn.beregning.entries]}
-    />
+    <VStack gap="1" className="p-4 border-1 border-border-divider rounded-lg w-xl">
+      <Heading size={headingLevel == "4" ? "small" : "medium"}>
+        {`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
+      </Heading>
+      {!minimal && (
+        <VStack gap="1">
+          <MetadataHorisontal
+            compact
+            label="Status"
+            value={status ? getDataElement(status) : null}
+          />
+          <MetadataHorisontal compact label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
+          <MetadataHorisontal compact label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
+        </VStack>
+      )}
+      {tilsagn.beregning.entries.map((entry) => (
+        <MetadataHorisontal
+          compact
+          label={entry.label}
+          value={entry.value ? getDataElement(entry.value) : null}
+        />
+      ))}
+    </VStack>
   );
 }

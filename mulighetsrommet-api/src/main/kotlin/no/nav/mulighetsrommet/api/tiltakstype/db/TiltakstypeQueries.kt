@@ -53,7 +53,7 @@ class TiltakstypeQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.toTiltakstypeDto() }
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? = with(session) {
+    fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
@@ -81,7 +81,7 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto = with(session) {
+    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -89,11 +89,7 @@ class TiltakstypeQueries(private val session: Session) {
             where arena_kode = ?
         """.trimIndent()
 
-        val tiltakstype = single(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
-
-        return requireNotNull(tiltakstype) {
-            "Det finnes ingen tiltakstype med arena_kode $arenaTiltakskode"
-        }
+        return single(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
     }
 
     fun getBySanityId(sanityId: UUID): TiltakstypeDto = with(session) {
@@ -215,12 +211,12 @@ class TiltakstypeQueries(private val session: Session) {
 
     private fun Row.tiltakstypeEksternDto(
         deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
-    ): TiltakstypeEksternV2Dto {
+    ): TiltakstypeV3Dto {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
-        return TiltakstypeEksternV2Dto(
+        return TiltakstypeV3Dto(
             id = uuid("id"),
             navn = string("navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),

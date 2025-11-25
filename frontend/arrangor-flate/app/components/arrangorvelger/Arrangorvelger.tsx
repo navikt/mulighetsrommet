@@ -22,7 +22,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
           iconPosition="right"
         >
           <VStack align="start">
-            <BodyShort size="small">{arrangor!.navn}</BodyShort>
+            <BodyShort size="small">{arrangor?.navn}</BodyShort>
             <BodyShort size="small">{orgnr}</BodyShort>
           </VStack>
         </Button>

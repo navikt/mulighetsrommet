@@ -1,20 +1,28 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsPeriodeDetaljerMedFaktor
+import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.navenhet.NavRegionDto
 import no.nav.mulighetsrommet.api.utbetaling.DeltakerPersonaliaMedGeografiskEnhet
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Serializable
 data class UtbetalingBeregningDto(
     val heading: String,
     val deltakerRegioner: List<NavRegionDto>,
     val deltakerTableData: DataDrivenTableDto?,
-    val regnestykke: List<DataElement>,
+    val belop: Int,
+    val satsDetaljer: List<DataDetails>,
 ) {
     companion object {
         fun from(
@@ -28,15 +36,13 @@ data class UtbetalingBeregningDto(
                     heading = PrismodellType.ANNEN_AVTALT_PRIS.navn,
                     deltakerRegioner = regioner,
                     deltakerTableData = null,
-                    regnestykke = listOf(
-                        DataElement.text("Innsendt beløp"),
-                        DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-                        DataElement.nok(beregning.output.belop),
-                    ),
+                    belop = beregning.output.belop,
+                    satsDetaljer = emptyList(),
                 )
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-                    val deltakelser = deltakere.map { it.deltakelse }.toSet()
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
@@ -46,12 +52,19 @@ data class UtbetalingBeregningDto(
                             deltakere,
                             beregning.input.deltakelser,
                         ),
-                        regnestykke = getRegnestykkeManedsverk(deltakelser),
+                        belop = belop,
+                        beregningSatsPeriodeDetaljerMedFaktor(
+                            satser,
+                            satsLabel = "Sats",
+                            deltakelser = beregning.output.deltakelser(),
+                            faktorLabel = "Antall månedsverk",
+                        ),
                     )
                 }
 
                 is UtbetalingBeregningPrisPerManedsverk -> {
-                    val deltakelser = deltakere.map { it.deltakelse }.toSet()
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
                         deltakerRegioner = regioner,
@@ -60,12 +73,19 @@ data class UtbetalingBeregningDto(
                             stengt = beregning.input.stengt.sortedBy { it.periode.start },
                             deltakere,
                         ),
-                        regnestykke = getRegnestykkeManedsverk(deltakelser),
+                        belop = belop,
+                        beregningSatsPeriodeDetaljerMedFaktor(
+                            satser,
+                            satsLabel = "Avtalt månedspris per tiltaksplass",
+                            deltakelser = beregning.output.deltakelser(),
+                            faktorLabel = "Antall månedsverk",
+                        ),
                     )
                 }
 
                 is UtbetalingBeregningPrisPerUkesverk -> {
-                    val deltakelser = deltakere.map { it.deltakelse }.toSet()
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
                         deltakerRegioner = regioner,
@@ -74,12 +94,19 @@ data class UtbetalingBeregningDto(
                             stengt = beregning.input.stengt.sortedBy { it.periode.start },
                             deltakere,
                         ),
-                        regnestykke = getRegnestykkeUkesverk(deltakelser),
+                        belop = belop,
+                        beregningSatsPeriodeDetaljerMedFaktor(
+                            satser,
+                            satsLabel = "Avtalt ukespris per tiltaksplass",
+                            deltakelser = beregning.output.deltakelser(),
+                            faktorLabel = "Antall ukesverk",
+                        ),
                     )
                 }
 
                 is UtbetalingBeregningPrisPerHeleUkesverk -> {
-                    val deltakelser = deltakere.map { it.deltakelse }.toSet()
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
                         deltakerRegioner = regioner,
@@ -88,21 +115,27 @@ data class UtbetalingBeregningDto(
                             stengt = beregning.input.stengt.sortedBy { it.periode.start },
                             deltakere,
                         ),
-                        regnestykke = getRegnestykkeUkesverk(deltakelser),
+                        belop = belop,
+                        satsDetaljer = beregningSatsPeriodeDetaljerMedFaktor(
+                            satser,
+                            satsLabel = "Avtalt ukespris per tiltaksplass",
+                            deltakelser = beregning.output.deltakelser(),
+                            faktorLabel = "Antall ukesverk",
+                        ),
                     )
                 }
 
-                is UtbetalingBeregningPrisPerTimeOppfolging ->
+                is UtbetalingBeregningPrisPerTimeOppfolging -> {
+                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
                         deltakerRegioner = regioner,
                         deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakere),
-                        regnestykke = listOf(
-                            DataElement.text("Innsendt beløp"),
-                            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-                            DataElement.number(beregning.output.belop),
-                        ),
+                        belop = belop,
+                        satsDetaljer = beregningSatsPeriodeDetaljerUtenFaktor(satser, "Avtalt pris per time oppfølging"),
                     )
+                }
             }
         }
     }
@@ -262,4 +295,47 @@ private fun getRegnestykkeDeltakelsesfaktor(
         }
         .plus(DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS))
         .plus(DataElement.nok(belop))
+}
+
+fun beregningSatsPeriodeDetaljerMedFaktor(
+    satser: List<SatsPeriode>,
+    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    satsLabel: String,
+    faktorLabel: String,
+): List<DataDetails> {
+    return satser.mapNotNull { satsPeriode ->
+        val faktor = deltakelser
+            .flatMap { it.perioder }
+            .filter { it.sats == satsPeriode.sats }
+            .map { it.faktor.toBigDecimal() }
+            .sumOf { it }
+            .setScale(UtbetalingBeregningHelpers.OUTPUT_PRECISION, RoundingMode.HALF_UP)
+            .toDouble()
+
+        if (faktor.equals(BigDecimal.ZERO)) {
+            null
+        } else {
+            DataDetails(
+                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                entries = listOf(
+                    LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+                    LabeledDataElement.number(faktorLabel, faktor),
+                ),
+            )
+        }
+    }
+}
+
+fun beregningSatsPeriodeDetaljerUtenFaktor(
+    satser: List<SatsPeriode>,
+    satsLabel: String,
+): List<DataDetails> {
+    return satser.map { satsPeriode ->
+        DataDetails(
+            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+            entries = listOf(
+                LabeledDataElement.nok(satsLabel, satsPeriode.sats),
+            ),
+        )
+    }
 }

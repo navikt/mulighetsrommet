@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.LocalDateTime
 import java.util.*
@@ -29,5 +30,7 @@ data class Delutbetaling(
     data class Faktura(
         val fakturanummer: String,
         val status: FakturaStatusType?,
-    )
+    ) {
+        fun erUtbetalt() = status in setOf(FakturaStatusType.DELVIS_BETALT, FakturaStatusType.FULLT_BETALT)
+    }
 }

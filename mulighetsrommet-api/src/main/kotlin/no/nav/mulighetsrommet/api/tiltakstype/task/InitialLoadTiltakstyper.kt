@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.model.TiltakstypeEksternV2Dto
+import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
@@ -66,7 +66,7 @@ class InitialLoadTiltakstyper(
         }
     }
 
-    private fun publishToKafka(value: TiltakstypeEksternV2Dto) {
+    private fun publishToKafka(value: TiltakstypeV3Dto) {
         val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.topic,
             value.id.toString().toByteArray(),

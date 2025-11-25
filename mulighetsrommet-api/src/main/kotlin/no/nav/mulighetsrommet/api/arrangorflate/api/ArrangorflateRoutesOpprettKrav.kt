@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -531,7 +530,7 @@ fun getVeiviserNavigering(steg: OpprettKravVeiviserSteg, gjennomforing: Gjennomf
 @Serializable
 data class OpprettKravInnsendingsInformasjon(
     val guidePanel: GuidePanelType?,
-    val definisjonsListe: List<DetailsEntry>,
+    val definisjonsListe: List<LabeledDataElement>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
     val datoVelger: DatoVelger,
     val navigering: OpprettKravVeiviserNavigering,
@@ -572,13 +571,13 @@ data class OpprettKravInnsendingsInformasjon(
             else -> null
         }
 
-        fun definisjonsListe(gjennomforing: Gjennomforing): List<DetailsEntry> = listOf(
-            DetailsEntry(
+        fun definisjonsListe(gjennomforing: Gjennomforing): List<LabeledDataElement> = listOf(
+            LabeledDataElement.text(
                 "Arrangør",
                 "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
             ),
-            DetailsEntry("Tiltaksnavn", gjennomforing.navn),
-            DetailsEntry("Tiltakstype", gjennomforing.tiltakstype.navn),
+            LabeledDataElement.text("Tiltaksnavn", gjennomforing.navn),
+            LabeledDataElement.text("Tiltakstype", gjennomforing.tiltakstype.navn),
         )
     }
 
@@ -688,7 +687,7 @@ data class OpprettKravDeltakere(
     val guidePanel: GuidePanelType,
     val stengtHosArrangor: Set<StengtPeriode>,
     val tabell: DataDrivenTableDto,
-    val tabellFooter: List<DetailsEntry>,
+    val tabellFooter: List<LabeledDataElement>,
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
@@ -725,8 +724,8 @@ data class OpprettKravDeltakere(
             prismodellType: PrismodellType,
             satser: Set<SatsPeriode>,
             antallDeltakere: Int,
-        ): List<DetailsEntry> {
-            return listOf(DetailsEntry.number("Antall deltakere", antallDeltakere)) +
+        ): List<LabeledDataElement> {
+            return listOf(LabeledDataElement.number("Antall deltakere", antallDeltakere)) +
                 getSatserDetails(prismodellType.navn, satser.toList())
         }
     }
@@ -781,8 +780,8 @@ data class OpprettKravOppsummeringRequest(
 
 @Serializable
 data class OpprettKravOppsummering(
-    val innsendingsInformasjon: List<DetailsEntry>,
-    val utbetalingInformasjon: List<DetailsEntry>,
+    val innsendingsInformasjon: List<LabeledDataElement>,
+    val utbetalingInformasjon: List<LabeledDataElement>,
     val innsendingsData: InnsendingsData,
     val navigering: OpprettKravVeiviserNavigering,
 ) {
@@ -802,35 +801,35 @@ data class OpprettKravOppsummering(
 
             return OpprettKravOppsummering(
                 innsendingsInformasjon = listOf(
-                    DetailsEntry(
-                        key = "Arrangør",
-                        value = "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
+                    LabeledDataElement.text(
+                        "Arrangør",
+                        "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
                     ),
-                    DetailsEntry(
-                        key = "Tiltaksnavn",
-                        value = gjennomforing.navn,
+                    LabeledDataElement.text(
+                        "Tiltaksnavn",
+                        gjennomforing.navn,
                     ),
-                    DetailsEntry(
-                        key = "Tiltakstype",
-                        value = gjennomforing.tiltakstype.navn,
+                    LabeledDataElement.text(
+                        "Tiltakstype",
+                        gjennomforing.tiltakstype.navn,
                     ),
                 ),
                 utbetalingInformasjon = listOf(
-                    DetailsEntry(
-                        key = "Utbetalingsperiode",
-                        value = periode.formatPeriode(),
+                    LabeledDataElement.text(
+                        "Utbetalingsperiode",
+                        periode.formatPeriode(),
                     ),
-                    DetailsEntry(
-                        key = "Kontonummer",
-                        value = kontonummer?.value ?: "Klarte ikke hente kontonummer",
+                    LabeledDataElement.text(
+                        "Kontonummer",
+                        kontonummer?.value ?: "Klarte ikke hente kontonummer",
                     ),
-                    DetailsEntry(
-                        key = "KID-nummer",
-                        value = requestData.kidNummer ?: "",
+                    LabeledDataElement.text(
+                        "KID-nummer",
+                        requestData.kidNummer ?: "",
                     ),
-                    DetailsEntry.nok(
-                        key = "Beløp",
-                        value = requestData.belop,
+                    LabeledDataElement.nok(
+                        "Beløp",
+                        requestData.belop,
                     ),
                 ),
                 innsendingsData = InnsendingsData(

@@ -16,9 +16,9 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Metadata } from "@/components/detaljside/Metadata";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -46,7 +46,7 @@ function BeregningInputSkjema() {
   return (
     <VStack gap="4">
       <Metadata
-        header={tilsagnTekster.prismodell.label}
+        label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.FRI)}
       />
       <Textarea

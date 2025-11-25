@@ -4,8 +4,11 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.model.DataElement.Text
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import javax.xml.crypto.Data
 
 @Serializable
 class DataDrivenTableDto(
@@ -51,7 +54,39 @@ data class LabeledDataElement(
     val type: LabeledDataElementType,
     val label: String,
     val value: DataElement?,
-)
+) {
+    companion object {
+        fun text(label: String, value: String?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.text(value),
+        )
+
+        fun nok(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.nok(value),
+        )
+
+        fun date(label: String, value: LocalDate?, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.date(value),
+        )
+
+        fun number(label: String, value: Number, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.number(value),
+        )
+
+        fun periode(label: String, periode: Periode, type: LabeledDataElementType = LabeledDataElementType.INLINE) = LabeledDataElement(
+            type = type,
+            label = label,
+            value = DataElement.periode(periode),
+        )
+    }
+}
 
 enum class LabeledDataElementType {
     INLINE,
@@ -63,6 +98,7 @@ enum class LabeledDataElementType {
 @JsonClassDiscriminator("type")
 sealed class DataElement {
     @Serializable
+    @SerialName("DATA_ELEMENT_TEXT")
     data class Text(
         val value: String?,
         val format: Format?,
@@ -79,6 +115,7 @@ sealed class DataElement {
         }
     }
 
+    @SerialName("DATA_ELEMENT_STATUS")
     @Serializable
     data class Status(
         val value: String,
@@ -124,6 +161,7 @@ sealed class DataElement {
         }
     }
 
+    @SerialName("DATA_ELEMENT_LINK")
     @Serializable
     data class Link(
         val text: String,
@@ -132,6 +170,7 @@ sealed class DataElement {
         val digest = this.hashCode().toHexString()
     }
 
+    @SerialName("DATA_ELEMENT_MULTI_LINK_MODAL")
     @Serializable
     data class MultiLinkModal(
         val buttonText: String,
@@ -145,6 +184,7 @@ sealed class DataElement {
         )
     }
 
+    @SerialName("DATA_ELEMENT_PERIODE")
     @Serializable
     data class Periode(
         val start: String,
@@ -152,6 +192,7 @@ sealed class DataElement {
     ) : DataElement()
 
     @Serializable
+    @SerialName("DATA_ELEMENT_MATH_OPERATOR")
     data class MathOperator(
         val operator: Type,
     ) : DataElement() {
@@ -184,9 +225,15 @@ sealed class DataElement {
 
         fun number(value: Number) = Text(value.toString(), Format.NUMBER)
 
-        fun periode(periode: no.nav.mulighetsrommet.model.Periode) = Periode(
-            start = periode.start,
-            slutt = periode.getLastInclusiveDate(),
+        fun periode(periode: no.nav.mulighetsrommet.model.Periode) = DataElement.Periode(
+            start = periode.start.formaterDatoTilEuropeiskDatoformat(),
+            slutt = periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
         )
     }
+}
+
+const val EUROPEAN_DATE_PATTERN = "dd.MM.yyyy"
+
+fun LocalDate.formaterDatoTilEuropeiskDatoformat(): String {
+    return format(DateTimeFormatter.ofPattern(EUROPEAN_DATE_PATTERN))
 }

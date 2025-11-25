@@ -15,7 +15,9 @@ data class AppConfig(
     val server: ServerConfig = ServerConfig(),
     val httpClientEngine: HttpClientEngine = CIO.create(),
     val database: DatabaseConfig,
-    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
+        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
+    ),
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
@@ -54,23 +56,23 @@ data class KafkaConfig(
 )
 
 data class KafkaConsumers(
-    val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "siste-tiltaksgjennomforinger",
-        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
-        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v1"),
+    val replikerSisteTiltakstyper: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-siste-tiltakstyper",
+        topic = "team-mulighetsrommet.siste-tiltakstyper-v3",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.tiltakstyper.v1"),
     ),
-    val sisteTiltaksgjennomforingerV2: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "siste-tiltaksgjennomforinger-v2",
+    val replikerSisteTiltaksgjennomforinger: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-siste-tiltaksgjennomforinger",
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v2"),
     ),
-    val amtDeltakerV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "amt-deltaker",
+    val replikerAmtDeltaker: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "replilker-amt-deltaker",
         topic = "amt.deltaker-v1",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker.v1"),
     ),
-    val amtVirksomhetV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "amt-virksomheter",
+    val replikerAmtVirksomhet: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-amt-virksomheter",
         topic = "amt.virksomheter-v1",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.amt-virksomheter.v1"),
     ),

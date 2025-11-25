@@ -3873,7 +3873,7 @@ components:
         type:
           $ref: "#/components/schemas/AvtaleStatusType"
         status:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
       - type
@@ -3884,7 +3884,7 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - UTKAST
-    DataElement.Status:
+    DATA_ELEMENT_STATUS:
       type: object
       properties:
         value:
@@ -4606,7 +4606,7 @@ components:
         type:
           $ref: "#/components/schemas/GjennomforingStatusType"
         status:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
       - type
@@ -5015,22 +5015,22 @@ components:
       - content
     DataElement:
       anyOf:
-      - $ref: "#/components/schemas/DataElement.Link"
-      - $ref: "#/components/schemas/DataElement.MathOperator"
-      - $ref: "#/components/schemas/DataElement.MultiLinkModal"
-      - $ref: "#/components/schemas/DataElement.Periode"
-      - $ref: "#/components/schemas/DataElement.Status"
-      - $ref: "#/components/schemas/DataElement.Text"
+      - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
+      - $ref: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
+      - $ref: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
+      - $ref: "#/components/schemas/DATA_ELEMENT_PERIODE"
+      - $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      - $ref: "#/components/schemas/DATA_ELEMENT_TEXT"
       discriminator:
         propertyName: type
         mapping:
-          no.nav.mulighetsrommet.model.DataElement.Link: "#/components/schemas/DataElement.Link"
-          no.nav.mulighetsrommet.model.DataElement.MathOperator: "#/components/schemas/DataElement.MathOperator"
-          no.nav.mulighetsrommet.model.DataElement.MultiLinkModal: "#/components/schemas/DataElement.MultiLinkModal"
-          no.nav.mulighetsrommet.model.DataElement.Periode: "#/components/schemas/DataElement.Periode"
-          no.nav.mulighetsrommet.model.DataElement.Status: "#/components/schemas/DataElement.Status"
-          no.nav.mulighetsrommet.model.DataElement.Text: "#/components/schemas/DataElement.Text"
-    DataElement.Link:
+          DATA_ELEMENT_LINK: "#/components/schemas/DATA_ELEMENT_LINK"
+          DATA_ELEMENT_MATH_OPERATOR: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
+          DATA_ELEMENT_MULTI_LINK_MODAL: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
+          DATA_ELEMENT_PERIODE: "#/components/schemas/DATA_ELEMENT_PERIODE"
+          DATA_ELEMENT_STATUS: "#/components/schemas/DATA_ELEMENT_STATUS"
+          DATA_ELEMENT_TEXT: "#/components/schemas/DATA_ELEMENT_TEXT"
+    DATA_ELEMENT_LINK:
       type: object
       properties:
         text:
@@ -5043,7 +5043,7 @@ components:
       - digest
       - href
       - text
-    DataElement.MathOperator:
+    DATA_ELEMENT_MATH_OPERATOR:
       type: object
       properties:
         operator:
@@ -5058,7 +5058,7 @@ components:
       - multiply
       - divide
       - equals
-    DataElement.MultiLinkModal:
+    DATA_ELEMENT_MULTI_LINK_MODAL:
       type: object
       properties:
         buttonText:
@@ -5078,12 +5078,12 @@ components:
         links:
           type: array
           items:
-            $ref: "#/components/schemas/DataElement.Link"
+            $ref: "#/components/schemas/DATA_ELEMENT_LINK"
       required:
       - description
       - header
       - links
-    DataElement.Periode:
+    DATA_ELEMENT_PERIODE:
       type: object
       properties:
         start:
@@ -5093,7 +5093,7 @@ components:
       required:
       - slutt
       - start
-    DataElement.Text:
+    DATA_ELEMENT_TEXT:
       type: object
       properties:
         value:
@@ -5262,7 +5262,7 @@ components:
         type:
           $ref: "#/components/schemas/TilsagnStatus"
         status:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
       - type
@@ -5660,7 +5660,7 @@ components:
         type:
           $ref: "#/components/schemas/UtbetalingStatusDto.Type"
         status:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
       - type
@@ -5672,6 +5672,8 @@ components:
       - TIL_ATTESTERING
       - RETURNERT
       - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - UTBETALT
     UtbetalingTypeDto:
       type: object
       properties:
@@ -5872,15 +5874,19 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/DataDrivenTableDto"
-        regnestykke:
+        belop:
+          type: integer
+          format: int32
+        satsDetaljer:
           type: array
           items:
-            $ref: "#/components/schemas/DataElement"
+            $ref: "#/components/schemas/DataDetails"
       required:
+      - belop
       - deltakerRegioner
       - deltakerTableData
       - heading
-      - regnestykke
+      - satsDetaljer
     UtbetalingLinje:
       type: object
       properties:
@@ -5921,7 +5927,7 @@ components:
         type:
           $ref: "#/components/schemas/DelutbetalingStatus"
         status:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
       - type

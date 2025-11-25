@@ -12,11 +12,43 @@ import java.util.*
 
 @Serializable
 sealed class TiltakshistorikkV1Dto {
+    /**
+     * Id på deltakelse fra kildesystemet.
+     *
+     * MERK: Hvis kildesystemet er Arena så vil dette være en id som kun er kjent i `tiltakshistorikk`.
+     */
     abstract val id: UUID
+
+    /**
+     * Fødselsnummer til bruker.
+     */
     abstract val norskIdent: NorskIdent
+
+    /**
+     * Hvilket kildesystem deltakelsen kommer fra.
+     */
     abstract val opphav: Opphav
+
+    /**
+     * Startdato i tiltaket.
+     */
     abstract val startDato: LocalDate?
+
+    /**
+     * Sluttdato i tiltaket.
+     */
     abstract val sluttDato: LocalDate?
+
+    /**
+     * Beskrivende tittel/leslig navn for tiltaksdeltakelsen.
+     *
+     * Dette vises bl.a. til veileder i Modia og til bruker i aktivitetsplanen (for noen tiltak), og vil typisk være på
+     * formatet "<tiltakstype> hos <arrangør>", f.eks. "Oppfølging hos Arrangør AS".
+     *
+     * Selve innholdet/oppbygning av tittelen kan variere mellom de forskjellige tiltakstypene og det kan komme
+     * endringer i logikken på hvordan dette utledes.
+     */
+    abstract val tittel: String
 
     enum class Opphav {
         ARENA,
@@ -25,22 +57,48 @@ sealed class TiltakshistorikkV1Dto {
     }
 
     @Serializable
-    data class Arrangor(
+    data class Virksomhet(
         val organisasjonsnummer: Organisasjonsnummer,
+        /**
+         * Navn på virksomhet vil stort sett være tilgjenglig, men i noen sjeldne tilfeller så kan det være
+         * at dette er ukjent (typisk for eldre tiltaksdeltakelser).
+         */
         val navn: String?,
     )
 
     @Serializable
-    data class Arbeidsgiver(
-        val organisasjonsnummer: String,
-        val navn: String?,
+    data class Arrangor(
+        /**
+         * Hovedenhet/Juridisk enhet hos arrangør (fra brreg)
+         */
+        val hovedenhet: Virksomhet?,
+
+        /**
+         * Underenhet hos arrangør (fra brreg) som tiltaksgjennomføringen er registrert på.
+         *
+         * MERK: Dette kan også være en "utenlandsk arrangør" fra Arena. En slik arrangør er
+         * representert med et fiktivt organisasjonsnummer som begynner på "1" (i stedet for "8" eller "9").
+         */
+        val underenhet: Virksomhet,
     )
 
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
+        /**
+         * Navn på tiltaksgjennomføringen, enten fra Tiltaksadministrasjon eller fra Arena.
+         *
+         * MERK: Dette feltet inneholder fritekst og for eldre tiltaksdeltakelser fra Arena så kan det være persondata
+         * i dette feltet. Vurder om dette trengs eller om f.eks. [TiltakshistorikkV1Dto.tittel] er mer egnet til
+         * formålet (som f.eks. til visning i frontend).
+         */
         val navn: String?,
+
+        /**
+         * Deltidsprosent kan være definert på gjennomføringen og vil i så fall gjelde for alle deltakelser
+         * på tiltaket (med mindre en annen deltidsprosent er definert på deltakelsen).
+         */
         val deltidsprosent: Float?,
     )
 
@@ -54,6 +112,7 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        override val tittel: String,
         val status: ArenaDeltakerStatus,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
@@ -66,13 +125,13 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: String,
-            val navn: String?,
+            val navn: String,
         )
     }
 
     @Serializable
-    @SerialName("GruppetiltakDeltakelse")
-    data class GruppetiltakDeltakelse(
+    @SerialName("TeamKometDeltakelse")
+    data class TeamKometDeltakelse(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
@@ -80,6 +139,7 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        override val tittel: String,
         val status: DeltakerStatus,
         val tiltakstype: Tiltakstype,
         val gjennomforing: Gjennomforing,
@@ -92,13 +152,13 @@ sealed class TiltakshistorikkV1Dto {
         @Serializable
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
-            val navn: String?,
+            val navn: String,
         )
     }
 
     @Serializable
-    @SerialName("ArbeidsgiverAvtale")
-    data class ArbeidsgiverAvtale(
+    @SerialName("TeamTiltakAvtale")
+    data class TeamTiltakAvtale(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
@@ -106,16 +166,17 @@ sealed class TiltakshistorikkV1Dto {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
+        override val tittel: String,
         val tiltakstype: Tiltakstype,
         val status: ArbeidsgiverAvtaleStatus,
-        val arbeidsgiver: Arbeidsgiver,
+        val arbeidsgiver: Virksomhet,
     ) : TiltakshistorikkV1Dto() {
         override val opphav = Opphav.TEAM_TILTAK
 
         @Serializable
         data class Tiltakstype(
             val tiltakskode: Tiltakskode,
-            val navn: String?,
+            val navn: String,
         )
 
         enum class Tiltakskode {
@@ -125,7 +186,7 @@ sealed class TiltakshistorikkV1Dto {
             MENTOR,
             INKLUDERINGSTILSKUDD,
             SOMMERJOBB,
-            VARIG_TILRETTELAGT_ARBEID_ORDINAR,
+            VTAO,
         }
     }
 }

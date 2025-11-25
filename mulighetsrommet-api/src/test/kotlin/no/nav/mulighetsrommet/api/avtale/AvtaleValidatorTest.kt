@@ -589,6 +589,7 @@ class AvtaleValidatorTest : FunSpec({
                                     ),
                                     startDato = LocalDate.now(),
                                     utdanningslop = null,
+                                    status = GjennomforingStatusType.GJENNOMFORES,
                                 ),
                             ),
                         ),

@@ -1014,6 +1014,7 @@ components:
       enum:
       - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
       - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+      - MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN
     Deltakelse:
       type: object
       properties:
@@ -1117,7 +1118,7 @@ components:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         aarsak:
           type:
           - "null"
@@ -1125,7 +1126,7 @@ components:
       required:
       - aarsak
       - type
-    DataElement.Status:
+    DATA_ELEMENT_STATUS:
       type: object
       properties:
         value:

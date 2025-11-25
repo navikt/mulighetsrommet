@@ -1,6 +1,11 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
-import { Deltakelse, DeltakelserMelding, BrukerDeltakelseType } from "@api-client";
+import {
+  BrukerDeltakelseType,
+  Deltakelse,
+  DeltakelserMelding,
+  GetDeltakelserForBrukerResponse,
+} from "@api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,
@@ -183,12 +188,7 @@ function DeltakelserAktive() {
 
   return (
     <Container>
-      {data.meldinger.includes(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET) && (
-        <ManglerSisteDeltakelserFraTeamKometMelding />
-      )}
-      {data.meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
-        <ManglerDeltakelserFraTeamTiltakMelding />
-      )}
+      <TiltakshistorikkMeldinger {...data} />
       {data.deltakelser.map((deltakelse) => {
         return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
@@ -224,12 +224,7 @@ function DeltakelserHistoriske() {
 
   return (
     <Container>
-      {data.meldinger.includes(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET) && (
-        <ManglerSisteDeltakelserFraTeamKometMelding />
-      )}
-      {data.meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
-        <ManglerDeltakelserFraTeamTiltakMelding />
-      )}
+      <TiltakshistorikkMeldinger {...data} />
       {yngreEnn5aar.map((deltakelse) => {
         return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
@@ -251,6 +246,37 @@ function DeltakelserHistoriske() {
           return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
         })}
     </Container>
+  );
+}
+
+function TiltakshistorikkMeldinger({ meldinger }: GetDeltakelserForBrukerResponse) {
+  if (meldinger.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN) && (
+        <ManglerDeltakelserFraTiltakshistorikkenMelding />
+      )}
+      {meldinger.includes(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET) && (
+        <ManglerSisteDeltakelserFraTeamKometMelding />
+      )}
+      {meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
+        <ManglerDeltakelserFraTeamTiltakMelding />
+      )}
+    </>
+  );
+}
+
+function ManglerDeltakelserFraTiltakshistorikkenMelding() {
+  return (
+    <Alert variant="warning">
+      <HStack align="center">
+        Vi får ikke kontakt med baksystemene og informasjon om brukers tiltakshistorikk mangler
+        derfor i visningen.
+      </HStack>
+    </Alert>
   );
 }
 

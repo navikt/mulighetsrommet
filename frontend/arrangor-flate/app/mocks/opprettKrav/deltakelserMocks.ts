@@ -1,7 +1,7 @@
 import {
   DataDrivenTableDtoColumnAlign,
   DataElementTextFormat,
-  DetailsFormat,
+  LabeledDataElementType,
   OpprettKravDeltakere,
   OpprettKravDeltakereGuidePanelType,
   OpprettKravVeiviserSteg,
@@ -84,11 +84,23 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
     ],
   },
   tabellFooter: [
-    { key: "Antall deltakere", value: "4", format: DetailsFormat.NUMBER },
     {
-      key: "Avtalt pris per time oppfølging per deltaker",
-      value: "768",
-      format: DetailsFormat.NOK,
+      label: "Antall deltakere",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: "4",
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
+    {
+      label: "Avtalt pris per time oppfølging per deltaker",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: "768",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
     },
   ],
   navigering: {

@@ -6,7 +6,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
@@ -38,11 +37,11 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1
 
-    val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+    val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
-        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+        tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-            navn = null,
+            navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
         gjennomforing = Gjennomforing(
             id = gjennomforing.id,
@@ -57,42 +56,54 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
-        arrangor = Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer, null),
+        tittel = "Oppfølging hos Hovedenhet AS",
+        arrangor = Arrangor(
+            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
+            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
+        ),
         deltidsprosent = 100f,
         dagerPerUke = 5f,
     )
 
-    val tiltakshistorikkAvklaring = TiltakshistorikkV1Dto.ArenaDeltakelse(
+    val tiltakshistorikkIps = TiltakshistorikkV1Dto.ArenaDeltakelse(
         id = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.VENTELISTE,
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
-            tiltakskode = TiltakstypeFixtures.Avklaring.arenaKode,
-            navn = null,
+            tiltakskode = "IPSUNG",
+            navn = "IPS (Individuell jobbstøtte)",
         ),
         gjennomforing = Gjennomforing(
             id = UUID.randomUUID(),
-            navn = "Avklaring",
+            navn = "IPS",
             deltidsprosent = 100f,
         ),
-        arrangor = Arrangor(Organisasjonsnummer("123456789"), null),
+        tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
+        arrangor = Arrangor(
+            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
+            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
+        ),
         deltidsprosent = 100f,
         dagerPerUke = 5f,
     )
 
-    val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
+    val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.TeamTiltakAvtale(
         norskIdent = NorskIdent("12345678910"),
         startDato = LocalDate.of(2020, 1, 1),
         sluttDato = LocalDate.of(2021, 12, 31),
         id = UUID.randomUUID(),
-        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
-            tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
-            navn = null,
+        tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
+            tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
+            navn = "Arbeidstrening",
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(ArrangorFixtures.underenhet2.organisasjonsnummer.value, null),
+        tittel = "Arbeidstrening hos Underenhet 2 AS",
+        arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
+            organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
+            navn = "Underenhet 2 AS",
+        ),
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
@@ -137,12 +148,12 @@ class TiltakshistorikkServiceTest : FunSpec({
             status = DeltakerStatusType.VENTELISTE,
         ),
     )
-    val deltakelseAvklaring = Deltakelse(
-        id = tiltakshistorikkAvklaring.id,
+    val deltakelseIps = Deltakelse(
+        id = tiltakshistorikkIps.id,
         eierskap = DeltakelseEierskap.ARENA,
         tilstand = DeltakelseTilstand.AKTIV,
-        tittel = "Avklaring hos Hovedenhet AS",
-        tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Avklaring.navn, Tiltakskode.AVKLARING),
+        tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
+        tiltakstype = DeltakelseTiltakstype("IPS (Individuell jobbstøtte)", null),
         status = DeltakelseStatus(
             type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
             aarsak = null,
@@ -183,7 +194,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         tiltakstypeService = TiltakstypeService(database.db),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
-        arrangorService = ArrangorService(database.db, mockk()),
         features = object : FeatureToggleService {
             override fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext) = isEnabled()
             override fun isEnabledForTiltakstype(feature: FeatureToggle, vararg tiltakskoder: Tiltakskode) = isEnabled()
@@ -218,7 +228,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     test("henter historikk for bruker basert på person id") {
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
-            historikk = listOf(tiltakshistorikkOppfolging, tiltakshistorikkAvklaring, tiltakshistorikkArbeidstrening),
+            historikk = listOf(tiltakshistorikkOppfolging, tiltakshistorikkIps, tiltakshistorikkArbeidstrening),
             meldinger = setOf(),
         ).right()
 
@@ -238,14 +248,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(deltakelseArbeidstrening, deltakelseOppfolging, deltakelseAvklaring),
+            aktive = listOf(deltakelseArbeidstrening, deltakelseOppfolging, deltakelseIps),
             historiske = emptyList(),
         )
     }
 
     test("inkluderer deltakelser fra komet når de ikke finnes i tiltakshistorikken") {
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
-            historikk = listOf(tiltakshistorikkAvklaring),
+            historikk = listOf(tiltakshistorikkIps),
             meldinger = setOf(),
         ).right()
 
@@ -265,14 +275,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(deltakelseOppfolging, deltakelseAvklaring),
+            aktive = listOf(deltakelseOppfolging, deltakelseIps),
             historiske = emptyList(),
         )
     }
 
     test("ikke inkluder informasjon om påmelding når deltakelse er avsluttet") {
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
-            historikk = listOf(tiltakshistorikkAvklaring),
+            historikk = listOf(tiltakshistorikkIps),
             meldinger = setOf(),
         ).right()
 
@@ -309,7 +319,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                     ),
                     pamelding = null,
                 ),
-                deltakelseAvklaring,
+                deltakelseIps,
             ),
             historiske = emptyList(),
         )
@@ -317,7 +327,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
-            historikk = listOf(tiltakshistorikkAvklaring),
+            historikk = listOf(tiltakshistorikkIps),
             meldinger = setOf(),
         ).right()
 
@@ -337,14 +347,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(deltakelseAvklaring),
+            aktive = listOf(deltakelseIps),
             historiske = emptyList(),
         )
     }
 
     test("sorterer deltakelser basert nyeste startdato") {
         coEvery { tiltakshistorikkClient.getHistorikk(any()) } returns TiltakshistorikkV1Response(
-            historikk = listOf(tiltakshistorikkAvklaring, tiltakshistorikkOppfolging),
+            historikk = listOf(tiltakshistorikkIps, tiltakshistorikkOppfolging),
             meldinger = setOf(),
         ).right()
 
@@ -383,7 +393,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(expectedDeltakelseUtenStartdato, deltakelseOppfolging, deltakelseAvklaring),
+            aktive = listOf(expectedDeltakelseUtenStartdato, deltakelseOppfolging, deltakelseIps),
             historiske = emptyList(),
         )
     }
@@ -395,16 +405,20 @@ class TiltakshistorikkServiceTest : FunSpec({
             status = ArenaDeltakerStatus.VENTELISTE,
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
+            tittel = "Enkel AMO hos Underenhet 1 AS",
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                 tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
-                navn = null,
+                navn = TiltakstypeFixtures.EnkelAmo.navn,
             ),
             gjennomforing = Gjennomforing(
                 id = UUID.randomUUID(),
                 navn = "Tilfeldig enkeltplass fra Arena",
                 deltidsprosent = 100f,
             ),
-            arrangor = Arrangor(Organisasjonsnummer("123456789"), null),
+            arrangor = Arrangor(
+                hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
+                underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
+            ),
             deltidsprosent = 100f,
             dagerPerUke = 5f,
         )
@@ -459,7 +473,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         id = tiltakshistorikkEnkelAmo.id,
                         eierskap = DeltakelseEierskap.ARENA,
                         tilstand = DeltakelseTilstand.AKTIV,
-                        tittel = "Enkel AMO hos Hovedenhet AS",
+                        tittel = "Enkel AMO hos Underenhet 1 AS",
                         tiltakstype = DeltakelseTiltakstype(
                             TiltakstypeFixtures.EnkelAmo.navn,
                             Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,

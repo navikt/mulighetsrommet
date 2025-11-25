@@ -17,11 +17,11 @@ import { useAtom } from "jotai";
 import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { Separator } from "@/components/detaljside/Metadata";
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { GjennomforingFormDetaljer } from "./GjennomforingFormDetaljer";
 import { GjennomforingFormKnapperad } from "./GjennomforingFormKnapperad";
 import { GjennomforingInformasjonForVeiledereForm } from "./GjennomforingInformasjonForVeiledereForm";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   onClose: () => void;
