@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import { formaterNOK, formaterTall } from "@mr/frontend-common/utils/utils";
 import { LabeledDataElement } from "@api-client";
 import { getDataElement } from "@mr/frontend-common";
-import { MetadataHorisontal } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface LabeledDataElementListProps {
   title?: string;
@@ -49,7 +49,7 @@ export function Definisjonsliste({ title, definitions, className }: Props) {
       )}
       <VStack gap="1">
         {definitions.map((definition, index) => (
-          <MetadataHorisontal
+          <MetadataHGrid
             compact
             key={index}
             label={definition.key}

@@ -3,7 +3,10 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
 import { AvtaleDto, AvtaltSatsDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
-import { Metadata, MetadataFritekstfelt } from "@mr/frontend-common/components/datadriven/Metadata";
+import {
+  MetadataVStack,
+  MetadataFritekstfelt,
+} from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
   switch (avtale.prismodell.type) {
@@ -53,7 +56,7 @@ function PrismodellHeading() {
 }
 
 function PrismodellNavn({ navn }: { navn: string }) {
-  return <Metadata label={avtaletekster.prismodell.label} value={navn} />;
+  return <MetadataVStack label={avtaletekster.prismodell.label} value={navn} />;
 }
 
 function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
@@ -66,14 +69,17 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
       borderRadius="medium"
     >
       <HStack gap="4" key={sats.gjelderFra}>
-        <Metadata label={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
-        <Metadata label={avtaletekster.prismodell.sats.label} value={formaterTall(sats.pris)} />
-        <Metadata
+        <MetadataVStack label={avtaletekster.prismodell.valuta.label} value={sats.valuta} />
+        <MetadataVStack
+          label={avtaletekster.prismodell.sats.label}
+          value={formaterTall(sats.pris)}
+        />
+        <MetadataVStack
           label={avtaletekster.prismodell.periodeStart.label}
           value={formaterDato(sats.gjelderFra)}
         />
         {sats.gjelderTil && (
-          <Metadata
+          <MetadataVStack
             label={avtaletekster.prismodell.periodeSlutt.label}
             value={formaterDato(sats.gjelderTil)}
           />

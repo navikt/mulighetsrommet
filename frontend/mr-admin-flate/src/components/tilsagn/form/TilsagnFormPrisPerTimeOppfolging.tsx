@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
-import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -40,7 +40,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
 
   return (
     <VStack gap="4">
-      <Metadata
+      <MetadataVStack
         label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(type)}
       />
