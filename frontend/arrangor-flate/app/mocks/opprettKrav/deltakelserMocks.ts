@@ -14,17 +14,17 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
   stengtHosArrangor: [],
   tabell: {
     columns: [
-      { key: "navn", label: "Navn", sortable: false, align: DataDrivenTableDtoColumnAlign.LEFT },
+      { key: "navn", label: "Navn", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
       {
         key: "identitetsnummer",
         label: "Fødselsnr.",
-        sortable: false,
+        sortable: true,
         align: DataDrivenTableDtoColumnAlign.LEFT,
       },
       {
         key: "tiltakStart",
         label: "Startdato i tiltaket",
-        sortable: false,
+        sortable: true,
         align: DataDrivenTableDtoColumnAlign.LEFT,
       },
       {
