@@ -47,14 +47,9 @@ export function Definisjonsliste({ title, definitions, className }: Props) {
           {title}
         </Heading>
       )}
-      <VStack gap="1">
+      <VStack gap="1" className="max-w-[700px]">
         {definitions.map((definition, index) => (
-          <MetadataHGrid
-            compact
-            key={index}
-            label={definition.key}
-            value={getFormattedValue(definition)}
-          />
+          <MetadataHGrid key={index} label={definition.key} value={getFormattedValue(definition)} />
         ))}
       </VStack>
     </VStack>

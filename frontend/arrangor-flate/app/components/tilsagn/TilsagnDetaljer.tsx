@@ -20,14 +20,13 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
       </Heading>
       {!minimal && (
         <VStack gap="1">
-          <MetadataHGrid compact label="Status" value={status ? getDataElement(status) : null} />
-          <MetadataHGrid compact label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
-          <MetadataHGrid compact label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
+          <MetadataHGrid label="Status" value={status ? getDataElement(status) : null} />
+          <MetadataHGrid label="Tiltakstype" value={tilsagn.tiltakstype.navn} />
+          <MetadataHGrid label="Tiltaksnavn" value={tilsagn.gjennomforing.navn} />
         </VStack>
       )}
       {tilsagn.beregning.entries.map((entry) => (
         <MetadataHGrid
-          compact
           label={entry.label}
           value={entry.value ? getDataElement(entry.value) : null}
         />

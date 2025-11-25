@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -687,7 +688,7 @@ data class OpprettKravDeltakere(
     val guidePanel: GuidePanelType,
     val stengtHosArrangor: Set<StengtPeriode>,
     val tabell: DataDrivenTableDto,
-    val tabellFooter: List<LabeledDataElement>,
+    val tabellFooter: List<DataDetails>,
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
@@ -715,18 +716,17 @@ data class OpprettKravDeltakere(
                         )
                     },
                 ),
-                tabellFooter = tableFooter(gjennomforing.avtalePrismodell, satser, deltakelsePerioder.size),
+                tabellFooter = tableFooter(satser, deltakelsePerioder.size),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.DELTAKERLISTE, gjennomforing),
             )
         }
 
         fun tableFooter(
-            prismodellType: PrismodellType,
             satser: Set<SatsPeriode>,
             antallDeltakere: Int,
-        ): List<LabeledDataElement> {
-            return listOf(LabeledDataElement.number("Antall deltakere", antallDeltakere)) +
-                getSatserDetails(prismodellType.navn, satser.toList())
+        ): List<DataDetails> {
+            return listOf(DataDetails(entries = listOf(LabeledDataElement.number("Antall deltakere", antallDeltakere)))) +
+                beregningSatsPeriodeDetaljerUtenFaktor(satser.toList(), "Avtalt pris per time oppfølging")
         }
     }
 

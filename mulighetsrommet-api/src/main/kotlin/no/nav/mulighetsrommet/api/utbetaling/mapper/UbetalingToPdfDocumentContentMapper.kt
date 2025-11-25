@@ -135,15 +135,19 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
 private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetaling) {
     section("Utbetaling") {
         descriptionList {
-            entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
-
-            beregningDetails(utbetaling.beregning).entries.forEach { entry ->
-                val format = when (val value = entry.value) {
-                    is DataElement.Text -> value.format?.toPdfDocumentContentFormat()
-                    else -> null
+            beregningSatsDetaljer(utbetaling.beregning).forEach { satsPeriode ->
+                descriptionList {
+                    description = satsPeriode.header
+                    satsPeriode.entries.forEach { entry ->
+                        val format = when (val value = entry.value) {
+                            is DataElement.Text -> value.format?.toPdfDocumentContentFormat()
+                            else -> null
+                        }
+                        entry(entry.label, entry.value?.toPdfDocumentValue(), format)
+                    }
                 }
-                entry(entry.label, entry.value?.toPdfDocumentValue(), format)
             }
+            entry("Beløp", utbetaling.beregning.output.belop, Format.NOK)
         }
     }
 }
