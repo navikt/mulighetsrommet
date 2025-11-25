@@ -162,7 +162,7 @@ interface DeltakerModalProps {
 function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
-  if (!utbetaling.kanViseBeregning || !("deltakelser" in utbetaling.beregning)) {
+  if (!utbetaling.kanViseBeregning) {
     return null;
   }
 
