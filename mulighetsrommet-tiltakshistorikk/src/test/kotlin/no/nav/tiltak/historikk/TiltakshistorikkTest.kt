@@ -4,18 +4,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.body
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.call.*
+import io.ktor.client.engine.mock.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.arena.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -25,6 +18,9 @@ import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
 import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
+import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
+import no.nav.tiltak.historikk.plugins.TiltakshistorikkRead
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -63,7 +59,21 @@ class TiltakshistorikkTest : FunSpec({
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                }
+
+                response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
+
+        test("unauthorized når riktige roles mangler") {
+            val mockEngine = mockTiltakDatadeling()
+
+            withTestApplication(oauth, mockEngine) {
+                val response = client.post("/api/v1/historikk") {
+                    bearerAuth(oauth.issueToken(claims = mapOf("roles" to listOf(ACCESS_AS_APPLICATION))).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -75,14 +85,14 @@ class TiltakshistorikkTest : FunSpec({
 
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                response.body<TiltakshistorikkResponse>().historikk.shouldBeEmpty()
+                response.body<TiltakshistorikkV1Response>().historikk.shouldBeEmpty()
             }
         }
 
@@ -95,7 +105,7 @@ class TiltakshistorikkTest : FunSpec({
                                 avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                                 avtaleNr = 1,
                                 deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = "123456789",
+                                bedriftNr = "876543210",
                                 tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
                                 startDato = LocalDate.of(2024, 1, 1),
                                 sluttDato = LocalDate.of(2024, 12, 31),
@@ -121,69 +131,125 @@ class TiltakshistorikkTest : FunSpec({
             )
             withTestApplication(oauth, mockEngine, config) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                response.body<TiltakshistorikkResponse>().historikk shouldContainExactlyInAnyOrder listOf(
-                    Tiltakshistorikk.ArenaDeltakelse(
+                response.body<TiltakshistorikkV1Response>().historikk shouldContainExactlyInAnyOrder listOf(
+                    TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ARBEIDSTRENING_ID,
-                        arenaTiltakskode = "ARBTREN",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
-                        beskrivelse = "Arbeidstrening hos Fretex",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        tittel = "Arbeidstrening hos Arrangør",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "ARBTREN",
+                            navn = "Arbeidstrening",
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.Gjennomforing.arenaArbeidstrening.id,
+                            navn = "Arbeidstrening hos Fretex",
+                            deltidsprosent = 80f,
+                        ),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = null,
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("987654321"), "Arrangør"),
+                        ),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
-                    Tiltakshistorikk.ArenaDeltakelse(
+                    TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("4bf76cc3-ade9-45ef-b22b-5c4d3ceee185"),
-                        arenaTiltakskode = "MENTOR",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
-                        beskrivelse = "Mentortiltak hos Joblearn",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        tittel = "Mentor hos Arrangør",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "MENTOR",
+                            navn = "Mentor",
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.Gjennomforing.arenaMentor.id,
+                            navn = "Mentortiltak hos Joblearn",
+                            deltidsprosent = 100f,
+                        ),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = null,
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("987654321"), "Arrangør"),
+                        ),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
-                    Tiltakshistorikk.ArenaDeltakelse(
+                    TiltakshistorikkV1Dto.ArenaDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = ARENA_ENKEL_AMO_ID,
-                        arenaTiltakskode = "AMO",
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
-                        beskrivelse = "Enkelt-AMO hos Joblearn",
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        tittel = "Arbeidsmarkedsopplæring (AMO) hos Arrangør",
+                        tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
+                            tiltakskode = "AMO",
+                            navn = "Arbeidsmarkedsopplæring (AMO)",
+                        ),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.Gjennomforing.arenaAmo.id,
+                            navn = "Enkelt-AMO hos Joblearn",
+                            deltidsprosent = 100f,
+                        ),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = null,
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("987654321"), "Arrangør"),
+                        ),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
-                    Tiltakshistorikk.ArbeidsgiverAvtale(
+                    TiltakshistorikkV1Dto.TeamTiltakAvtale(
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                        tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
+                        tittel = "Arbeidstrening hos Arbeidsgiver",
+                        tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
+                            tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
+                            navn = "Arbeidstrening",
+                        ),
                         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-                        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver("123456789"),
+                        arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
+                            Organisasjonsnummer("876543210"),
+                            "Arbeidsgiver",
+                        ),
                     ),
-                    Tiltakshistorikk.GruppetiltakDeltakelse(
+                    TiltakshistorikkV1Dto.TeamKometDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = TEAM_KOMET_GRUPPE_AMO_ID,
                         startDato = null,
                         sluttDato = null,
+                        tittel = "Arbeidsmarkedsopplæring (gruppe) hos Arrangør",
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
-                        gjennomforing = Tiltakshistorikk.Gjennomforing(
-                            id = TestFixtures.tiltak.id,
-                            navn = "Gruppe AMO",
+                        tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                            navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
-                        arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                            id = TestFixtures.Gjennomforing.gruppeAmo.id,
+                            navn = "Gruppe AMO",
+                            deltidsprosent = 80f,
+                        ),
+                        arrangor = TiltakshistorikkV1Dto.Arrangor(
+                            hovedenhet = null,
+                            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("987654321"), "Arrangør"),
+                        ),
+                        deltidsprosent = 100f,
+                        dagerPerUke = 5f,
                     ),
                 )
             }
@@ -198,7 +264,7 @@ class TiltakshistorikkTest : FunSpec({
                                 avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
                                 avtaleNr = 1,
                                 deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = "123456789",
+                                bedriftNr = "876543210",
                                 tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
                                 startDato = LocalDate.of(2024, 1, 1),
                                 sluttDato = LocalDate.of(2024, 12, 31),
@@ -225,14 +291,14 @@ class TiltakshistorikkTest : FunSpec({
             )
             withTestApplication(oauth, mockEngine, config) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
+                val historikk = response.body<TiltakshistorikkV1Response>().historikk.map { it.id }
 
                 historikk shouldContainExactlyInAnyOrder listOf(
                     TEAM_TILTAK_ARBEIDSTRENING_ID,
@@ -253,14 +319,14 @@ class TiltakshistorikkTest : FunSpec({
 
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken().serialize())
+                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
 
-                val historikk = response.body<TiltakshistorikkResponse>().historikk.map { it.id }
+                val historikk = response.body<TiltakshistorikkV1Response>().historikk.map { it.id }
 
                 historikk shouldContainExactlyInAnyOrder listOf(
                     ARENA_ENKEL_AMO_ID,
@@ -272,13 +338,17 @@ class TiltakshistorikkTest : FunSpec({
     }
 })
 
+private fun tiltakshistorikkReadClaims(): Map<String, List<String>> {
+    return mapOf("roles" to TiltakshistorikkRead.requiredRoles)
+}
+
 private fun mockTiltakDatadeling(
     response: GraphqlResponse<GetAvtalerForPersonResponse> = GraphqlResponse(
         data = GetAvtalerForPersonResponse(avtalerForPerson = listOf()),
     ),
 ): MockEngine {
     return createMockEngine {
-        post("/tiltak-datadeling/graphql") {
+        post("/tiltak-datadeling/graphql") { _: HttpRequestData ->
             val serializer = GraphqlResponse.serializer(GetAvtalerForPersonResponse.serializer())
             respondJson(response, serializer)
         }
@@ -286,47 +356,65 @@ private fun mockTiltakDatadeling(
 }
 
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
-    val tiltak = TestFixtures.tiltak
-    queries.gruppetiltak.upsert(tiltak)
+    val arrangor = TestFixtures.Virksomhet.arrangor
+    queries.virksomhet.upsert(arrangor)
 
-    val arbeidstrening = ArenaDeltakerDbo(
+    val arbeidsgiver = TestFixtures.Virksomhet.arbeidsgiver
+    queries.virksomhet.upsert(arbeidsgiver)
+
+    val arenaArbeidstrening = TestFixtures.Gjennomforing.arenaArbeidstrening
+    queries.arenaGjennomforing.upsert(arenaArbeidstrening)
+
+    val arbeidstrening = TiltakshistorikkArenaDeltaker(
         id = ARENA_ARBEIDSTRENING_ID,
+        arenaGjennomforingId = arenaArbeidstrening.id,
         norskIdent = NorskIdent("12345678910"),
-        arenaTiltakskode = "ARBTREN",
         status = ArenaDeltakerStatus.GJENNOMFORES,
         startDato = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
         sluttDato = LocalDateTime.of(2023, 1, 31, 0, 0, 0),
-        beskrivelse = "Arbeidstrening hos Fretex",
-        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        dagerPerUke = 5.0,
+        deltidsprosent = 100.0,
     )
-    queries.deltaker.upsertArenaDeltaker(arbeidstrening)
+    queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
 
-    val mentor = ArenaDeltakerDbo(
+    val arenaMentor = TestFixtures.Gjennomforing.arenaMentor
+    queries.arenaGjennomforing.upsert(arenaMentor)
+
+    val mentor = TiltakshistorikkArenaDeltaker(
         id = ARENA_MENTOR_ID,
+        arenaGjennomforingId = arenaMentor.id,
         norskIdent = NorskIdent("12345678910"),
-        arenaTiltakskode = "MENTOR",
         status = ArenaDeltakerStatus.GJENNOMFORES,
         startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
         sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
-        beskrivelse = "Mentortiltak hos Joblearn",
-        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        dagerPerUke = 5.0,
+        deltidsprosent = 100.0,
     )
-    queries.deltaker.upsertArenaDeltaker(mentor)
+    queries.arenaDeltaker.upsertArenaDeltaker(mentor)
 
-    val enkeltAMO = ArenaDeltakerDbo(
+    val arenaAmo = TestFixtures.Gjennomforing.arenaAmo
+    queries.arenaGjennomforing.upsert(arenaAmo)
+
+    val enkeltAMO = TiltakshistorikkArenaDeltaker(
         id = ARENA_ENKEL_AMO_ID,
+        arenaGjennomforingId = arenaAmo.id,
         norskIdent = NorskIdent("12345678910"),
-        arenaTiltakskode = "AMO",
         status = ArenaDeltakerStatus.GJENNOMFORES,
         startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
         sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
-        beskrivelse = "Enkelt-AMO hos Joblearn",
-        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        dagerPerUke = 5.0,
+        deltidsprosent = 100.0,
     )
-    queries.deltaker.upsertArenaDeltaker(enkeltAMO)
+    queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
+
+    val tiltak = TestFixtures.Gjennomforing.gruppeAmo
+    queries.gjennomforing.upsert(tiltak.toGjennomforingDbo())
 
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
@@ -341,9 +429,9 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         ),
         registrertDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
         endretDato = LocalDateTime.of(2002, 3, 1, 0, 0, 0),
-        dagerPerUke = 2.5f,
-        prosentStilling = null,
+        dagerPerUke = 5f,
+        prosentStilling = 100f,
         deltakelsesmengder = listOf(),
     )
-    queries.deltaker.upsertKometDeltaker(amtDeltaker)
+    queries.kometDeltaker.upsertKometDeltaker(amtDeltaker)
 }

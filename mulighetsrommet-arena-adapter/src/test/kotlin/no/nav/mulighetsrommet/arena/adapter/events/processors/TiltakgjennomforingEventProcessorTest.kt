@@ -6,7 +6,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -41,6 +40,9 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.tiltak.historikk.TiltakshistorikkArenaGjennomforing
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
@@ -68,21 +70,25 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
         fun createProcessor(
             engine: HttpClientEngine = createMockEngine(),
-            tiltakskoder: Set<String> = setOf("INDOPPFAG"),
         ): TiltakgjennomforingEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "") {
-                "Bearer token"
-            }
-
             val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
                 "Bearer token"
             }
 
+            val client = MulighetsrommetApiClient(engine, baseUri = "http://mr-api") {
+                "Bearer token"
+            }
+
+            val tiltakshistorikkClient = TiltakshistorikkClient(engine, baseUrl = "http://tiltakshistorikk") {
+                "Bearer token"
+            }
+
             return TiltakgjennomforingEventProcessor(
-                config = TiltakgjennomforingEventProcessor.Config(tiltakskoder = tiltakskoder),
+                config = TiltakgjennomforingEventProcessor.Config(),
                 entities = entities,
-                client = client,
                 ords = ords,
+                mulighetsrommetApiClient = client,
+                tiltakshistorikkClient = tiltakshistorikkClient,
             )
         }
 
@@ -177,8 +183,19 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 )
             }
 
-            test("skal lagre gjennomføringene når tiltakskoden ikke er markert for migrering") {
-                val processor = createProcessor(tiltakskoder = setOf("INDOPPFAG"))
+            test("skal sende gjennomføring til tiltakshistorikk når tiltaket ikke administreres i Tiltaksadministrasjon") {
+                val engine = createMockEngine {
+                    get("/ords/arbeidsgiver") {
+                        respondJson(
+                            ArenaOrdsArrangor("123456789", "000000000"),
+                        )
+                    }
+                    put("http://tiltakshistorikk/api/v1/intern/arena/gjennomforing") {
+                        respondOk()
+                    }
+                }
+
+                val processor = createProcessor(engine)
 
                 val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
                     Insert,
@@ -186,69 +203,16 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 ) {
                     it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                 }
-                val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
-                    Insert,
-                    TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                ) {
-                    it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
-                }
 
-                forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
-                    runBlocking {
-                        val (e) = prepareEvent(event)
-                        processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
-                    }
-                }
-            }
-
-            test("skal ikke sende gjennomføringene til mr-api npr tiltakskoden ikke er markert for migrering") {
-                val engine = createMockEngine { }
-                val processor = createProcessor(engine, tiltakskoder = setOf("INDOPPFAG"))
-
-                val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ),
-                )
-
-                processor.handleEvent(event).shouldBeRight()
-                engine.requestHistory.shouldBeEmpty()
-            }
-
-            test("skal sende gjennomføringene til mr-api når tiltakskoden er markert for migrering") {
-                val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
-                        respondJson(UpsertTiltaksgjennomforingResponse(sanityId = null))
-                    }
-                }
-                val processor = createProcessor(engine, tiltakskoder = setOf("INDOPPFAG", "AMO"))
-
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ),
-                )
-
+                val (event, mapping) = prepareEvent(eventWithOldSluttDato)
                 processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
 
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
 
-                    decodeRequestBody<ArenaGjennomforingDbo>().apply {
+                    decodeRequestBody<TiltakshistorikkArenaGjennomforing>().apply {
                         id shouldBe mapping.entityId
-                        tiltakstypeId shouldBe tiltakstype.id
-                        tiltaksnummer shouldBe "2022#123"
-                        arrangorOrganisasjonsnummer shouldBe "123456"
-                        startDato shouldBe LocalDate.of(2022, 10, 10)
-                        sluttDato shouldBe null
-                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+                        arrangorOrganisasjonsnummer shouldBe Organisasjonsnummer("123456789")
                         deltidsprosent shouldBe 100.0
                     }
                 }
@@ -285,10 +249,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(sanityId = null))
                     }
-                    delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                    delete("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
                 }
                 val processor = createProcessor(engine)
 
@@ -355,7 +319,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondError(HttpStatusCode.InternalServerError)
                     }
                 }
@@ -386,10 +350,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(null))
                     }
-                    delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                    delete("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
                 }
                 val processor = createProcessor(engine)
 
@@ -455,10 +419,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             get("/ords/arbeidsgiver") {
                                 respondJson(ArenaOrdsArrangor("123456", "000000"))
                             }
-                            put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                            put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                                 respondJson(UpsertTiltaksgjennomforingResponse(null))
                             }
-                            delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                            delete("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
                         }
                         val processor = createProcessor(engine)
 
@@ -512,7 +476,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "000000"))
                     }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(null))
                     }
                 }
@@ -539,7 +503,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "000000"))
                     }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(null))
                     }
                 }
@@ -583,10 +547,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     get("/ords/arbeidsgiver") {
                         respondJson(ArenaOrdsArrangor("123456", "000000"))
                     }
-                    put("/api/v1/intern/arena/tiltaksgjennomforing") {
+                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
                         respondJson(UpsertTiltaksgjennomforingResponse(sanityId))
                     }
-                    delete("/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
+                    delete("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}") { respondOk() }
                 }
                 val processor = createProcessor(engine)
 

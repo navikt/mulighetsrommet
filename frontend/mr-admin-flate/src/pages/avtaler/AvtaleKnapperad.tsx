@@ -1,5 +1,4 @@
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
-import { HarTilgang } from "@/components/auth/HarTilgang";
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -12,7 +11,6 @@ import {
   AvtaleDto,
   AvtaleHandling,
   FieldError,
-  Rolle,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
@@ -78,73 +76,68 @@ export function AvtaleKnapperad({ avtale }: Props) {
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
-      <HarTilgang rolle={Rolle.AVTALER_SKRIV}>
-        <Dropdown>
-          <Button size="small" variant="secondary" as={Dropdown.Toggle}>
-            Handlinger
-          </Button>
-          <Dropdown.Menu>
-            <Dropdown.Menu.GroupedList>
-              {handlinger.includes(AvtaleHandling.REDIGER) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    if (
-                      avtale.administratorer.length > 0 &&
-                      !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
-                    ) {
-                      advarselModal.current?.showModal();
-                    } else {
-                      navigate(`${location.pathname}/skjema`);
-                    }
-                  }}
-                >
-                  Rediger avtale
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => {
-                    registrerOpsjonModalRef.current?.showModal();
-                  }}
-                >
-                  Registrer opsjon
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
-                <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
-                  Oppdater pris
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {handlinger.includes(AvtaleHandling.AVBRYT) && (
-                <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
-                  Avbryt avtale
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-              {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
-                <Dropdown.Menu.GroupedList.Item
-                  onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
-                >
-                  Opprett ny gjennomføring
-                </Dropdown.Menu.GroupedList.Item>
-              )}
-            </Dropdown.Menu.GroupedList>
-            {handlinger.includes(AvtaleHandling.DUPLISER) && (
-              <>
-                <Dropdown.Menu.Divider />
-                <Dropdown.Menu.List>
-                  <Dropdown.Menu.List.Item onClick={dupliserAvtale}>
-                    <LayersPlusIcon
-                      fontSize="1.5rem"
-                      aria-label="Ikon for duplisering av dokument"
-                    />
-                    Dupliser
-                  </Dropdown.Menu.List.Item>
-                </Dropdown.Menu.List>
-              </>
+      <Dropdown>
+        <Button size="small" variant="secondary" as={Dropdown.Toggle}>
+          Handlinger
+        </Button>
+        <Dropdown.Menu>
+          <Dropdown.Menu.GroupedList>
+            {handlinger.includes(AvtaleHandling.REDIGER) && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => {
+                  if (
+                    avtale.administratorer.length > 0 &&
+                    !avtale.administratorer.map((a) => a.navIdent).includes(ansatt.navIdent)
+                  ) {
+                    advarselModal.current?.showModal();
+                  } else {
+                    navigate(`${location.pathname}/skjema`);
+                  }
+                }}
+              >
+                Rediger avtale
+              </Dropdown.Menu.GroupedList.Item>
             )}
-          </Dropdown.Menu>
-        </Dropdown>
-      </HarTilgang>
+            {handlinger.includes(AvtaleHandling.REGISTRER_OPSJON) && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => {
+                  registrerOpsjonModalRef.current?.showModal();
+                }}
+              >
+                Registrer opsjon
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.includes(AvtaleHandling.OPPDATER_PRIS) && (
+              <Dropdown.Menu.GroupedList.Item onClick={() => setOppdaterPrisModalOpen(true)}>
+                Oppdater pris
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.includes(AvtaleHandling.AVBRYT) && (
+              <Dropdown.Menu.GroupedList.Item onClick={() => setAvbrytModalOpen(true)}>
+                Avbryt avtale
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+            {handlinger.includes(AvtaleHandling.OPPRETT_GJENNOMFORING) && (
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => navigate(`/avtaler/${avtale.id}/gjennomforinger/skjema`)}
+              >
+                Opprett ny gjennomføring
+              </Dropdown.Menu.GroupedList.Item>
+            )}
+          </Dropdown.Menu.GroupedList>
+          {handlinger.includes(AvtaleHandling.DUPLISER) && (
+            <>
+              <Dropdown.Menu.Divider />
+              <Dropdown.Menu.List>
+                <Dropdown.Menu.List.Item onClick={dupliserAvtale}>
+                  <LayersPlusIcon fontSize="1.5rem" aria-label="Ikon for duplisering av dokument" />
+                  Dupliser
+                </Dropdown.Menu.List.Item>
+              </Dropdown.Menu.List>
+            </>
+          )}
+        </Dropdown.Menu>
+      </Dropdown>
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}

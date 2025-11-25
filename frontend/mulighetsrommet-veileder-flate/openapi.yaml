@@ -815,7 +815,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "ba630610a6b1c09ed84f913900a48d48e5b6d6f8b84c1d8820ae14f1aec10f17"
+        - "90339ed950d1ffa7c517b5a2de4048108da6c4473c8fcf5ca20547af59574dcf"
     LagretFilterType:
       type: string
       enum:
@@ -1018,6 +1018,7 @@ components:
       enum:
       - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
       - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+      - MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN
     Deltakelse:
       type: object
       properties:
@@ -1121,7 +1122,7 @@ components:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/DataElement.Status"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         aarsak:
           type:
           - "null"
@@ -1129,7 +1130,7 @@ components:
       required:
       - aarsak
       - type
-    DataElement.Status:
+    DATA_ELEMENT_STATUS:
       type: object
       properties:
         value:

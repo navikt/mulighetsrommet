@@ -70,9 +70,23 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-api
+          permissions:
+            roles:
+              - tiltakshistorikk-read
         - application: mulighetsrommet-arena-adapter
+          permissions:
+            roles:
+              - tiltakshistorikk-write
         - application: mulighetsrommet-arena-adapter-manager
+          permissions:
+            roles:
+              - admin
     outbound:
       rules:
         - application: tiltak-datadeling
           namespace: team-tiltak
+      external:
+        - host: data.brreg.no
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: "-XX:MaxRAMPercentage=60.0"

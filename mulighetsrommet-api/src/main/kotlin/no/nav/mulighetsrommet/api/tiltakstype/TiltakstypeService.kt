@@ -75,8 +75,8 @@ class TiltakstypeService(
         }
     }
 
-    fun getByArenaTiltakskode(arenaKode: String): TiltakstypeDto {
-        return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, arenaKode) {
+    fun getByArenaTiltakskode(arenaKode: String): TiltakstypeDto? {
+        return CacheUtils.tryCacheFirstNullable(cacheByTiltakskode, arenaKode) {
             db.session { queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
         }
     }

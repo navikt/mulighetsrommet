@@ -12,7 +12,7 @@ spec:
     - https://mulighetsrommet-arena-adapter.intern.nav.no
   replicas:
     min: 2
-    max: 4
+    max: 2
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
@@ -21,7 +21,7 @@ spec:
       cpu: 50m
       memory: 512Mi
     limits:
-      memory: 2048Mi
+      memory: 4096Mi
   liveness:
     path: /internal/liveness
     initialDelay: 20
@@ -80,3 +80,6 @@ spec:
         - host: slack.com
   envFrom:
     - secret: mulighetsrommet-arena-adapter
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: "-XX:MaxRAMPercentage=60.0"

@@ -11,6 +11,9 @@ interface ArenaTiltakdeltakelse {
     val DATO_FRA: String?
     val DATO_TIL: String?
     val REG_DATO: String
+    val MOD_DATO: String
+    val PROSENT_DELTID: Double?
+    val ANTALL_DAGER_PR_UKE: Double?
 }
 
 @Suppress("PropertyName")
@@ -23,6 +26,9 @@ data class ArenaTiltakdeltaker(
     override val DATO_FRA: String?,
     override val DATO_TIL: String?,
     override val REG_DATO: String,
+    override val MOD_DATO: String,
+    override val PROSENT_DELTID: Double? = null,
+    override val ANTALL_DAGER_PR_UKE: Double? = null,
 ) : ArenaTiltakdeltakelse
 
 @Suppress("PropertyName")
@@ -35,6 +41,9 @@ data class ArenaHistTiltakdeltaker(
     override val DATO_FRA: String?,
     override val DATO_TIL: String?,
     override val REG_DATO: String,
+    override val MOD_DATO: String,
+    override val PROSENT_DELTID: Double? = null,
+    override val ANTALL_DAGER_PR_UKE: Double? = null,
 ) : ArenaTiltakdeltakelse
 
 @Serializable

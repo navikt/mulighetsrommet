@@ -1,21 +1,74 @@
 import {
   ArrangorflateTilsagnDto,
-  DetailsFormat,
+  DataDetails,
+  DataElementTextFormat,
+  LabeledDataElementType,
   TilsagnStatus,
   TilsagnType,
   Tiltakskode,
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
-const arrManedsprisTilsagn: ArrangorflateTilsagnDto = {
+const beregning: DataDetails = {
+  header: null,
+  entries: [
+    {
+      label: "Tilsagnsperiode",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "01.10.2025 - 06.11.2025",
+        format: null,
+      },
+    },
+    {
+      label: "Antall plasser",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: "100",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NUMBER,
+      },
+    },
+    {
+      label: "Avtalt månedspris per tiltaksplass",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: "10000",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+    {
+      label: "Totalbeløp",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: "1200000",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+    {
+      label: "Gjenstående beløp",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: "1200000",
+        type: "DATA_ELEMENT_TEXT",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+  ],
+};
+
+const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   id: "5b08cd43-102e-4845-889e-99c5de2bc252",
   tiltakstype: {
-    navn: "Arbeidsrettet rehabilitering",
-    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+    navn: "Avklaring",
+    tiltakskode: Tiltakskode.AVKLARING,
   },
   gjennomforing: {
-    id: "a47092ba-410b-4ca1-9713-36506a039742",
-    navn: "Arbeidsrettet rehabilitering - Månedlig",
+    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
+    navn: "Avklaring - avtalt månedspris",
   },
   arrangor: arrangorMock,
   type: TilsagnType.TILSAGN,
@@ -23,40 +76,27 @@ const arrManedsprisTilsagn: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bruktBelop: 0,
   gjenstaendeBelop: 1200000,
-  beregning: {
-    entries: [
-      { key: "Tilsagnsperiode", value: "01.10.2025 - 06.11.2025", format: null },
-      { key: "Antall plasser", value: "100", format: DetailsFormat.NUMBER },
-      { key: "Avtalt månedspris per tiltaksplass", value: "10000", format: DetailsFormat.NOK },
-      { key: "Totalbeløp", value: "1200000", format: DetailsFormat.NOK },
-      { key: "Gjenstående beløp", value: "1200000", format: DetailsFormat.NOK },
-    ],
-  },
+  beregning,
   bestillingsnummer: "A-2025/12611-1",
 };
 
-const avklaringUkesprisTilsagn: ArrangorflateTilsagnDto = {
+const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   id: "a7e0df87-f37e-4f6a-92d6-a25a1cded9e7",
-  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
+  tiltakstype: {
+    navn: "Arbeidsrettet rehabilitering",
+    tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  },
   gjennomforing: {
-    id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
-    navn: "Avklaring - Avtalt ukespris per tiltaksplass",
+    id: "a47092ba-410b-4ca1-9713-36506a039742",
+    navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
   },
   arrangor: arrangorMock,
   type: TilsagnType.TILSAGN,
-  periode: { start: "2025-11-01", slutt: "2025-12-01" },
+  periode: { start: "2025-10-01", slutt: "2025-11-01" },
   status: TilsagnStatus.GODKJENT,
   bruktBelop: 0,
-  gjenstaendeBelop: 1280000,
-  beregning: {
-    entries: [
-      { key: "Tilsagnsperiode", value: "01.11.2025 - 30.11.2025", format: null },
-      { key: "Antall plasser", value: "40", format: DetailsFormat.NUMBER },
-      { key: "Avtalt ukespris per tiltaksplass", value: "8000", format: DetailsFormat.NOK },
-      { key: "Totalbeløp", value: "1280000", format: DetailsFormat.NOK },
-      { key: "Gjenstående beløp", value: "1280000", format: DetailsFormat.NOK },
-    ],
-  },
+  gjenstaendeBelop: 248400,
+  beregning,
   bestillingsnummer: "A-2025/4123-1",
 };
 
@@ -78,30 +118,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-01-01",
       slutt: "2025-07-01",
     },
-    beregning: {
-      entries: [
-        {
-          key: "Antall plasser",
-          value: "42",
-          format: DetailsFormat.NUMBER,
-        },
-        {
-          key: "Pris per månedsverk",
-          value: "20975",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Totalbeløp",
-          value: "5285700",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Gjenstående beløp",
-          value: "5234495",
-          format: DetailsFormat.NOK,
-        },
-      ],
-    },
+    beregning,
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-1",
@@ -123,20 +140,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-01-01",
       slutt: "2025-12-31",
     },
-    beregning: {
-      entries: [
-        {
-          key: "Totalbeløp",
-          value: "5285700",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Gjenstående beløp",
-          value: "123456",
-          format: DetailsFormat.NOK,
-        },
-      ],
-    },
+    beregning,
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-2",
@@ -155,20 +159,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-04-01",
       slutt: "2025-05-01",
     },
-    beregning: {
-      entries: [
-        {
-          key: "Totalbeløp",
-          value: "39000",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Gjenstående beløp",
-          value: "0",
-          format: DetailsFormat.NOK,
-        },
-      ],
-    },
+    beregning,
     arrangor: arrangorMock,
     status: TilsagnStatus.ANNULLERT,
     bestillingsnummer: "A-2025/11147-2",
@@ -190,35 +181,11 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-03-18",
       slutt: "2025-04-02",
     },
-    beregning: {
-      entries: [
-        {
-          key: "Antall plasser",
-          value: "114",
-          format: DetailsFormat.NUMBER,
-        },
-        {
-          key: "Pris per månedsverk",
-          value: "20975",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Totalbeløp",
-          value: "1147752",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Gjenstående beløp",
-          value: "0",
-          format: DetailsFormat.NOK,
-        },
-      ],
-    },
+    beregning,
     arrangor: arrangorMock,
     status: TilsagnStatus.OPPGJORT,
     bestillingsnummer: "A-2025/11073-2",
   },
-
   {
     id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
     gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
@@ -230,34 +197,11 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     },
     type: TilsagnType.TILSAGN,
     periode: { start: "2025-04-01", slutt: "2025-10-01" },
-    beregning: {
-      entries: [
-        {
-          key: "Antall plasser",
-          value: "30",
-          format: DetailsFormat.NUMBER,
-        },
-        {
-          key: "Pris per månedsverk",
-          value: "16848",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Totalbeløp",
-          value: "6000",
-          format: DetailsFormat.NOK,
-        },
-        {
-          key: "Gjenstående beløp",
-          value: "6000",
-          format: DetailsFormat.NOK,
-        },
-      ],
-    },
+    beregning,
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11398-1",
   },
-  avklaringUkesprisTilsagn,
-  arrManedsprisTilsagn,
+  avklaringManedsprisTilsagn,
+  arrUkesprisTilsagn,
 ];

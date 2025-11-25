@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
+import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
@@ -24,7 +23,7 @@ import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
-import no.nav.mulighetsrommet.api.avtale.task.SlateTilPortableText
+import no.nav.mulighetsrommet.api.avtale.task.SlateTilPortableTextGjennomforing
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -36,7 +35,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
@@ -105,6 +103,7 @@ import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
@@ -374,7 +373,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
@@ -466,7 +465,7 @@ private fun tasks(config: AppConfig) = module {
     single { NotificationTask(get()) }
     single { OppdaterUtbetalingBeregning(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { SlateTilPortableText(get()) }
+    single { SlateTilPortableTextGjennomforing(get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
             get(),
@@ -498,7 +497,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: OppdaterUtbetalingBeregning by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
-        val slateTilPortableText: SlateTilPortableText by inject()
+        val slateTilPortableText: SlateTilPortableTextGjennomforing by inject()
 
         val db: Database by inject()
 

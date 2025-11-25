@@ -10,6 +10,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.comparables.shouldBeLessThanOrEqualTo
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -22,6 +25,7 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
@@ -51,11 +55,14 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
+import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 
 class UtbetalingServiceTest : FunSpec({
@@ -1326,6 +1333,212 @@ class UtbetalingServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 tilsagnService.gjorOppTilsagnVedUtbetaling(Tilsagn1.id, any(), any(), any())
+            }
+        }
+    }
+
+    context("sletting og avbryting") {
+        test("kan ikke slette ferdig behandlet") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
+                FieldError.root("Kan ikke slette utbetaling fordi den har status: FERDIG_BEHANDLET"),
+            )
+        }
+
+        test("kan ikke slette ikke korreksjon") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.INNSENDT)),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
+                FieldError.root("Kan kun slette korreksjoner"),
+            )
+        }
+    }
+
+    context("oppdaterFakturaStatus") {
+        beforeEach {
+            database.truncateAll()
+        }
+        test("skal ikke prosessere faktura status eldre enn sist oppdatert") {
+            val zoneId = ZoneId.of("Europe/Oslo")
+            val lagretFakturaStatusSistOppdatert = ZonedDateTime.now(zoneId).toLocalDateTime()
+            val delutbetalingMock = delutbetaling1.copy(
+                id = UUID.randomUUID(),
+                fakturanummer = "2025-abc-1",
+                fakturaStatusSistOppdatert = lagretFakturaStatusSistOppdatert,
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
+                    ),
+                ),
+                delutbetalinger = listOf(
+                    delutbetalingMock,
+                ),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            database.run {
+                service.oppdaterFakturaStatus(
+                    delutbetalingMock.fakturanummer,
+                    FakturaStatusType.FEILET,
+                    lagretFakturaStatusSistOppdatert.minusMinutes(1),
+                )
+
+                val delutbetaling = queries.delutbetaling.getOrError(delutbetalingMock.id)
+                val utbetaling = queries.utbetaling.getOrError(utbetaling1.id)
+                val endringshistorikk =
+                    queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
+                utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
+                endringshistorikk.entries.shouldBeEmpty()
+                val diff = Duration.between(delutbetaling.fakturaStatusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
+            }
+        }
+
+        test("skal oppdatere utbetaling endringslogg når faktura status er utbetalt") {
+            val lagretFakturaStatusSistOppdatert = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).toLocalDateTime()
+            val delutbetalingMock = delutbetaling1.copy(
+                id = UUID.randomUUID(),
+                fakturanummer = "2025-abc-1",
+                fakturaStatusSistOppdatert = lagretFakturaStatusSistOppdatert,
+                fakturaStatus = FakturaStatusType.SENDT,
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
+                    ),
+                ),
+                delutbetalinger = listOf(
+                    delutbetalingMock,
+                ),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.oppdaterFakturaStatus(
+                delutbetalingMock.fakturanummer,
+                FakturaStatusType.FULLT_BETALT,
+                lagretFakturaStatusSistOppdatert.plusMinutes(1),
+            )
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetalingMock.id).status shouldBe DelutbetalingStatus.UTBETALT
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.UTBETALT
+                queries.endringshistorikk.getEndringshistorikk(
+                    DocumentClass.UTBETALING,
+                    utbetaling1.id,
+                ).entries.size shouldBe 1
+            }
+        }
+
+        test("skal ikke oppdatere utbetaling endringslogg når delutbetaling allerede er utbetalt") {
+            val lagretFakturaStatusSistOppdatert = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).toLocalDateTime()
+            val delutbetalingMock = delutbetaling1.copy(
+                id = UUID.randomUUID(),
+                fakturanummer = "2025-abc-1",
+                fakturaStatusSistOppdatert = lagretFakturaStatusSistOppdatert,
+                fakturaStatus = FakturaStatusType.DELVIS_BETALT,
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
+                    ),
+                ),
+                delutbetalinger = listOf(
+                    delutbetalingMock,
+                ),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.oppdaterFakturaStatus(
+                delutbetalingMock.fakturanummer,
+                FakturaStatusType.FULLT_BETALT,
+                lagretFakturaStatusSistOppdatert.plusMinutes(1),
+            )
+
+            database.run {
+                queries.delutbetaling.getOrError(delutbetalingMock.id).status shouldBe DelutbetalingStatus.UTBETALT
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.UTBETALT
+                queries.endringshistorikk.getEndringshistorikk(
+                    DocumentClass.UTBETALING,
+                    utbetaling1.id,
+                ).entries.size shouldBe 0
+            }
+        }
+
+        test("skal oppdatere utbetaling status til delvis hvis minst en delutbetaling er utbetalt") {
+            val lagretFakturaStatusSistOppdatert = ZonedDateTime.now(ZoneId.of("Europe/Oslo")).toLocalDateTime()
+            val delutbetalingMock = delutbetaling1.copy(
+                id = UUID.randomUUID(),
+                fakturanummer = "2025-abc-1",
+                fakturaStatusSistOppdatert = lagretFakturaStatusSistOppdatert,
+                fakturaStatus = FakturaStatusType.SENDT,
+                lopenummer = 2,
+            )
+            val delutbetalingMock2 = delutbetaling1.copy(
+                id = UUID.randomUUID(),
+                tilsagnId = Tilsagn2.id,
+                fakturanummer = "2025-abcd-1",
+                fakturaStatusSistOppdatert = lagretFakturaStatusSistOppdatert,
+                fakturaStatus = FakturaStatusType.SENDT,
+                lopenummer = 3,
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1, Tilsagn2),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
+                    ),
+                ),
+                delutbetalinger = listOf(
+                    delutbetalingMock,
+                    delutbetalingMock2,
+                ),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.oppdaterFakturaStatus(
+                delutbetalingMock.fakturanummer,
+                FakturaStatusType.FULLT_BETALT,
+                lagretFakturaStatusSistOppdatert.plusMinutes(1),
+            )
+
+            database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.DELVIS_UTBETALT
             }
         }
     }

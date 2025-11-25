@@ -6,9 +6,10 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
@@ -27,34 +28,31 @@ class DatavarehusTiltakV1KafkaProducer(
     )
 
     override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
+        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV2Dto?>(message)
+            ?: throw UnsupportedOperationException("Støtter ikke tombstones av gjennomføringer")
 
-        if (gjennomforing != null) {
-            publishDatavarehusTiltak(gjennomforing.id)
-        } else {
-            retractDatavarehusTiltak(UUID.fromString(key))
+        when (gjennomforing) {
+            is TiltaksgjennomforingV2Dto.Gruppe -> publishGruppetiltak(gjennomforing.id)
+            is TiltaksgjennomforingV2Dto.Enkeltplass -> publishEnkeltplass(gjennomforing.id)
         }
     }
 
-    private fun publishDatavarehusTiltak(id: UUID) = db.session {
-        val dto = queries.dvh.getTiltak(id)
-
-        val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
-            config.producerTopic,
-            dto.gjennomforing.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
-        )
-
-        kafkaProducerClient.sendSync(record)
+    private fun publishGruppetiltak(id: UUID) = db.session {
+        val tiltak = queries.dvh.getGruppetiltak(id)
+        publish(tiltak)
     }
 
-    private fun retractDatavarehusTiltak(id: UUID) {
+    private fun publishEnkeltplass(id: UUID) = db.session {
+        val tiltak = queries.dvh.getEnkeltplass(id)
+        publish(tiltak)
+    }
+
+    private fun publish(tiltak: DatavarehusTiltakV1) {
         val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.producerTopic,
-            id.toString().toByteArray(),
-            null,
+            tiltak.gjennomforing.id.toString().toByteArray(),
+            Json.encodeToString(tiltak).toByteArray(),
         )
-
         kafkaProducerClient.sendSync(record)
     }
 }

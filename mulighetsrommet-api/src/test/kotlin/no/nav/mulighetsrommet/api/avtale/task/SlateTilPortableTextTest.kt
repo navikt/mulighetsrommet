@@ -12,12 +12,15 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.FaneinnholdLenke
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.PortableTextTypedObject
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,7 +30,7 @@ import kotlin.collections.List
 class SlateTilPortableTextTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    fun createTask() = SlateTilPortableText(
+    fun createTask() = SlateTilPortableTextGjennomforing(
         database.db,
     )
 
@@ -51,24 +54,25 @@ class SlateTilPortableTextTest : FunSpec({
         delMedBruker = null,
     )
 
-    val avtale1 = AvtaleFixtures.oppfolging.copy(
+    val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = LocalDate.of(2025, 5, 31),
-        status = AvtaleStatusType.AKTIV,
+        status = GjennomforingStatusType.GJENNOMFORES,
         faneinnhold = faneinnhold,
     )
-    val avtale2 = AvtaleFixtures.oppfolging.copy(
+    val gjennomforing2 = GjennomforingFixtures.ArbeidsrettetRehabilitering.copy(
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = LocalDate.of(2025, 6, 30),
-        status = AvtaleStatusType.AKTIV,
+        status = GjennomforingStatusType.GJENNOMFORES,
         faneinnhold = faneinnhold,
     )
 
     val domain = MulighetsrommetTestDomain(
-        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-        avtaler = listOf(avtale1, avtale2),
+        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.ArbeidsrettetRehabilitering),
+        avtaler = listOf(AvtaleFixtures.ARR, AvtaleFixtures.oppfolging),
+        gjennomforinger = listOf(gjennomforing1, gjennomforing2),
     )
 
     beforeEach {
@@ -81,8 +85,8 @@ class SlateTilPortableTextTest : FunSpec({
 
     test("skal mappe faneinnhold fra slate til portable text") {
         database.run {
-            val assertFaneinnhold = { avtale: Avtale ->
-                val serialized = Json.encodeToString(avtale.faneinnhold)
+            val assertFaneinnhold = { gjennomforing: Gjennomforing ->
+                val serialized = Json.encodeToString(gjennomforing.faneinnhold)
                 serialized.shouldNotContain("null")
             }
 
@@ -91,10 +95,10 @@ class SlateTilPortableTextTest : FunSpec({
             task.execute()
 
             database.run {
-                queries.avtale.get(avtale1.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
                     assertFaneinnhold(it)
                 }
-                queries.avtale.get(avtale2.id).shouldNotBeNull().should {
+                queries.gjennomforing.get(gjennomforing2.id).shouldNotBeNull().should {
                     assertFaneinnhold(it)
                 }
             }

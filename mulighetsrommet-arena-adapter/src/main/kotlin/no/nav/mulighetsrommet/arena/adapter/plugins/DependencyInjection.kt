@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import io.ktor.client.engine.*
 import io.ktor.server.application.*
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
-import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -24,6 +22,7 @@ import no.nav.mulighetsrommet.tasks.OpenTelemetrySchedulerListener
 import no.nav.mulighetsrommet.tasks.SlackNotifierSchedulerListener
 import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.tiltak.historikk.TiltakshistorikkClient
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
@@ -123,10 +122,9 @@ private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Mo
     }
     single {
         TiltakshistorikkClient(
-            config = TiltakshistorikkClient.Config(maxRetries = 2),
-            baseUri = services.tiltakshistorikk.url,
+            clientEngine = engine,
+            baseUrl = services.tiltakshistorikk.url,
             tokenProvider = tokenProvider.withScope(services.tiltakshistorikk.scope),
-            engine = engine,
         )
     }
     single<ArenaOrdsProxyClient> {
@@ -144,8 +142,8 @@ private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Mo
             TiltakgjennomforingEventProcessor(
                 config = TiltakgjennomforingEventProcessor.Config(
                     retryUpsertTimes = 10,
-                    tiltakskoder = config.migrering.tiltakskoder,
                 ),
+                get(),
                 get(),
                 get(),
                 get(),

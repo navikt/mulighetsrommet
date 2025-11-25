@@ -4,7 +4,6 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { NokkeltallDeltakere } from "@/components/gjennomforing/NokkeltallDeltakere";
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { TiltakTilgjengeligForArrangor } from "@/components/gjennomforing/TilgjengeligTiltakForArrangor";
@@ -22,6 +21,7 @@ import { BodyShort, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
+import { Metadata, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -51,16 +51,16 @@ export function GjennomforingDetaljer() {
       <TwoColumnGrid separator>
         <VStack justify={"space-between"}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
-            <Metadata header={gjennomforingTekster.tiltaksnavnLabel} value={gjennomforing.navn} />
+            <Metadata label={gjennomforingTekster.tiltaksnavnLabel} value={gjennomforing.navn} />
             <Metadata
-              header={gjennomforingTekster.tiltaksnummerLabel}
+              label={gjennomforingTekster.tiltaksnummerLabel}
               value={tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />}
             />
           </Bolk>
 
           <Bolk aria-label="Tiltakstype og avtaletype">
             <Metadata
-              header={gjennomforingTekster.avtaleLabel}
+              label={gjennomforingTekster.avtaleLabel}
               value={
                 avtale?.id ? (
                   <>
@@ -79,7 +79,7 @@ export function GjennomforingDetaljer() {
                 )
               }
             />
-            <Metadata header={gjennomforingTekster.tiltakstypeLabel} value={tiltakstype.navn} />
+            <Metadata label={gjennomforingTekster.tiltakstypeLabel} value={tiltakstype.navn} />
           </Bolk>
           <Separator />
           {amoKategorisering && (
@@ -91,17 +91,14 @@ export function GjennomforingDetaljer() {
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           <Bolk aria-label={gjennomforingTekster.oppstartstypeLabel}>
             <Metadata
-              header={gjennomforingTekster.oppstartstypeLabel}
+              label={gjennomforingTekster.oppstartstypeLabel}
               value={oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart"}
             />
           </Bolk>
           <Bolk aria-label="Start- og sluttdato">
+            <Metadata label={gjennomforingTekster.startdatoLabel} value={formaterDato(startDato)} />
             <Metadata
-              header={gjennomforingTekster.startdatoLabel}
-              value={formaterDato(startDato)}
-            />
-            <Metadata
-              header={gjennomforingTekster.sluttdatoLabel}
+              label={gjennomforingTekster.sluttdatoLabel}
               value={sluttDato ? formaterDato(sluttDato) : "-"}
             />
           </Bolk>
@@ -110,16 +107,16 @@ export function GjennomforingDetaljer() {
           )}
 
           <Bolk>
-            <Metadata header={gjennomforingTekster.antallPlasserLabel} value={antallPlasser} />
+            <Metadata label={gjennomforingTekster.antallPlasserLabel} value={antallPlasser} />
             {isKursTiltak(tiltakstype.tiltakskode) && (
-              <Metadata header={gjennomforingTekster.deltidsprosentLabel} value={deltidsprosent} />
+              <Metadata label={gjennomforingTekster.deltidsprosentLabel} value={deltidsprosent} />
             )}
           </Bolk>
 
           <Separator />
           <Bolk aria-label={gjennomforingTekster.apentForPameldingLabel}>
             <Metadata
-              header={gjennomforingTekster.apentForPameldingLabel}
+              label={gjennomforingTekster.apentForPameldingLabel}
               value={apentForPamelding ? "Ja" : "Nei"}
             />
           </Bolk>
@@ -130,7 +127,7 @@ export function GjennomforingDetaljer() {
             <>
               <Bolk aria-label={gjennomforingTekster.estimertVentetidLabel}>
                 <Metadata
-                  header={gjennomforingTekster.estimertVentetidLabel}
+                  label={gjennomforingTekster.estimertVentetidLabel}
                   value={formatertVentetid(
                     gjennomforing.estimertVentetid.verdi,
                     gjennomforing.estimertVentetid.enhet,
@@ -143,7 +140,7 @@ export function GjennomforingDetaljer() {
 
           <Bolk aria-label={gjennomforingTekster.administratorerForGjennomforingenLabel}>
             <Metadata
-              header={gjennomforingTekster.administratorerForGjennomforingenLabel}
+              label={gjennomforingTekster.administratorerForGjennomforingenLabel}
               value={
                 administratorer.length ? (
                   <ul>
@@ -175,7 +172,7 @@ export function GjennomforingDetaljer() {
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
-                  header={gjennomforingTekster.ansvarligEnhetFraArenaLabel}
+                  label={gjennomforingTekster.ansvarligEnhetFraArenaLabel}
                   value={getDisplayName(arenaAnsvarligEnhet)}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
@@ -189,7 +186,7 @@ export function GjennomforingDetaljer() {
           <VStack gap="5">
             {avtale?.arrangor ? (
               <Metadata
-                header={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
+                label={gjennomforingTekster.tiltaksarrangorHovedenhetLabel}
                 value={
                   <Link to={`/arrangorer/${avtale.arrangor.id}`}>
                     {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
@@ -198,12 +195,12 @@ export function GjennomforingDetaljer() {
               />
             ) : null}
             <Metadata
-              header={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
+              label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
               value={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
             />
             {arrangor.kontaktpersoner.length > 0 && (
               <Metadata
-                header={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
+                label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
                 value={
                   <VStack>
                     {arrangor.kontaktpersoner.map((kontaktperson) => (
@@ -220,10 +217,10 @@ export function GjennomforingDetaljer() {
               <>
                 <Separator />
                 <Metadata
-                  header={gjennomforingTekster.stedForGjennomforingLabel}
+                  label={gjennomforingTekster.stedForGjennomforingLabel}
                   value={stedForGjennomforing}
                 />
-                <Metadata header={gjennomforingTekster.oppmoteStedLabel} value={oppmoteSted} />
+                <Metadata label={gjennomforingTekster.oppmoteStedLabel} value={oppmoteSted} />
               </>
             )}
           </VStack>

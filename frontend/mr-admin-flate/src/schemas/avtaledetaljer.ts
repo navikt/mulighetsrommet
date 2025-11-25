@@ -42,9 +42,13 @@ export const avtaleDetaljerSchema = z.object({
       ),
     amoKategorisering: AmoKategoriseringSchema.nullish(),
     utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
-    arrangorHovedenhet: z.string().optional(),
-    arrangorUnderenheter: z.array(z.string()).optional(),
-    arrangorKontaktpersoner: z.uuid().array().optional(),
+    arrangor: z
+      .object({
+        hovedenhet: z.string(),
+        underenheter: z.array(z.string()),
+        kontaktpersoner: z.uuid().array(),
+      })
+      .optional(),
   }),
 });
 
@@ -92,7 +96,7 @@ export const validateAvtaledetaljer = (
       path: ["amoKategorisering.kurstype"],
     });
   }
-  if (!detaljer.arrangorHovedenhet && detaljer.arrangorUnderenheter?.length) {
+  if (detaljer.arrangor?.hovedenhet && detaljer.arrangor.underenheter.length < 0) {
     ctx.addIssue({
       code: "custom",
       message: "Underenheter kan bare være tom dersom hovedenhet er tom",

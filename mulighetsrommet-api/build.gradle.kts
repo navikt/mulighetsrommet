@@ -53,6 +53,7 @@ dependencies {
     implementation(projects.common.metrics)
     implementation(projects.common.slack)
     implementation(projects.common.tasks)
+    implementation(projects.common.tiltakshistorikkClient)
     implementation(projects.common.tiltaksokonomiClient)
 
     // Kotlin
@@ -111,7 +112,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.5") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.13") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.14") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

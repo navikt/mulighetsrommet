@@ -11,7 +11,7 @@ spec:
   ingresses:
     - https://mulighetsrommet-arena-adapter.intern.dev.nav.no
   replicas:
-    min: 1
+    min: 2
     max: 2
     scalingStrategy:
       cpu:
@@ -79,3 +79,6 @@ spec:
         - host: slack.com
   envFrom:
     - secret: mulighetsrommet-arena-adapter
+  env:
+    - name: JDK_JAVA_OPTIONS
+      value: "-XX:MaxRAMPercentage=60.0"

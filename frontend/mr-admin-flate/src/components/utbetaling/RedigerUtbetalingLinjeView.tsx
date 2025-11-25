@@ -8,13 +8,15 @@ import {
   UtbetalingLinje,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { FileCheckmarkIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import { FileCheckmarkIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
   ActionMenu,
   Alert,
+  BodyShort,
   Button,
   Heading,
   HStack,
+  Modal,
   Spacer,
   TextField,
   VStack,
@@ -32,6 +34,7 @@ import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { useSlettKorreksjon } from "@/api/utbetaling/useSlettKorreksjon";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -53,6 +56,7 @@ export function RedigerUtbetalingLinjeView({
   const [begrunnelseMindreBetalt, setBegrunnelseMindreBetalt] = useState<string | null>(null);
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
   const opprettMutation = useOpprettDelutbetalinger(utbetaling.id);
+  const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
 
   function sendTilAttestering(payload: OpprettDelutbetalingerRequest) {
     setErrors([]);
@@ -128,6 +132,14 @@ export function RedigerUtbetalingLinjeView({
                 <ActionMenu.Item icon={<FileCheckmarkIcon />} onSelect={oppdaterLinjer}>
                   {utbetalingTekster.delutbetaling.handlinger.hentGodkjenteTilsagn}
                 </ActionMenu.Item>
+                {handlinger.includes(UtbetalingHandling.SLETT) && (
+                  <ActionMenu.Item
+                    icon={<TrashFillIcon />}
+                    onSelect={() => setSlettKorreksjonModalOpen(true)}
+                  >
+                    Slett utbetaling
+                  </ActionMenu.Item>
+                )}
               </ActionMenu.Content>
             </ActionMenu>
           </HStack>
@@ -201,6 +213,13 @@ export function RedigerUtbetalingLinjeView({
           belopInnsendt={utbetaling.belop}
         />
       </form>
+      <SlettUtbetalingModal
+        utbetalingId={utbetaling.id}
+        open={slettKorreksjonModalOpen}
+        onClose={() => {
+          setSlettKorreksjonModalOpen(false);
+        }}
+      />
     </FormProvider>
   );
 }
@@ -231,5 +250,53 @@ function FjernUtbetalingLinje({ index }: { index: number }) {
     >
       {utbetalingTekster.delutbetaling.handlinger.fjern}
     </Button>
+  );
+}
+
+function SlettUtbetalingModal({
+  utbetalingId,
+  open,
+  onClose,
+}: {
+  utbetalingId: string;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const navigate = useNavigate();
+  const slettKorreksjonMutation = useSlettKorreksjon();
+
+  function slettKorreksjon() {
+    slettKorreksjonMutation.mutate(
+      { id: utbetalingId },
+      {
+        onSuccess: () => navigate(-1),
+      },
+    );
+  }
+
+  return (
+    <Modal onClose={onClose} closeOnBackdropClick aria-label="modal" open={open}>
+      <Modal.Header closeButton={false}>
+        <Heading align="start" size="medium">
+          Slett utbetaling
+        </Heading>
+      </Modal.Header>
+      <Modal.Body>
+        <BodyShort>
+          Du er i ferd med å slette en korrigeringsutbetaling. Dette vil fjerne den valgte
+          ubetalingen fra løsningen. Er du sikker på at du vil fortsette?
+        </BodyShort>
+      </Modal.Body>
+      <Modal.Footer>
+        <HStack gap="4">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Nei, takk
+          </Button>
+          <Button title="Slett utbetaling" variant="danger" onClick={slettKorreksjon}>
+            Ja, jeg vil slette utbetalingen
+          </Button>
+        </HStack>
+      </Modal.Footer>
+    </Modal>
   );
 }

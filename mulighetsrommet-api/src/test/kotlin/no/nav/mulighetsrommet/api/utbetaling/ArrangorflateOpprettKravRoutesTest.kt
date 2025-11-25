@@ -189,6 +189,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("Annen avtalt pris skal kunne velge fritt i datovelger") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val today = LocalDate.now()
             val response =
                 client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
@@ -201,7 +202,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
                     fail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
 
                 is DatoVelger.DatoRange ->
-                    data.datoVelger.maksSluttdato shouldBe null
+                    data.datoVelger.maksSluttdato shouldBe LocalDate.of(today.year + 1, 1, 1)
             }
         }
     }

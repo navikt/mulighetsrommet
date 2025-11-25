@@ -1,10 +1,10 @@
-import { Separator } from "@/components/detaljside/Metadata";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { VStack } from "@navikt/ds-react";
 import { GjennomforingKnapperad } from "./GjennomforingKnapperad";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 function useGjennomforingInfoData() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);

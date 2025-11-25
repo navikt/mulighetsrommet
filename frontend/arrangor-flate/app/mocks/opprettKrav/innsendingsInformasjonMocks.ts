@@ -1,5 +1,6 @@
 import {
-  DetailsFormat,
+  DataElementTextFormat,
+  LabeledDataElementType,
   OpprettKravInnsendingsInformasjon,
   OpprettKravInnsendingsInformasjonGuidePanelType,
   OpprettKravVeiviserSteg,
@@ -24,12 +25,32 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
   guidePanel: OpprettKravInnsendingsInformasjonGuidePanelType.INVESTERING_VTA_AFT,
   definisjonsListe: [
     {
-      key: "Arrangør",
-      value: arrangorMock.navn,
-      format: null,
+      label: "Arrangør",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: arrangorMock.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
-    { key: "Tiltaksnavn", value: gjennomforingAFT.navn, format: null },
-    { key: "Tiltakstype", value: gjennomforingAFT.tiltakstype.navn, format: null },
+    {
+      label: "Tiltaksnavn",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: gjennomforingAFT.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
+    {
+      label: "Tiltakstype",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: gjennomforingAFT.tiltakstype.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
   ],
   tilsagn: [
     {
@@ -46,12 +67,53 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
       bruktBelop: 7455,
       gjenstaendeBelop: 276722,
       beregning: {
+        header: null,
         entries: [
-          { key: "Tilsagnsperiode", value: formaterPeriode(tilsagnsPeriode()), format: null },
-          { key: "Antall plasser", value: "14", format: DetailsFormat.NUMBER },
-          { key: "Sats per tiltaksplass per måned", value: "20975", format: DetailsFormat.NOK },
-          { key: "Totalbeløp", value: "284177", format: DetailsFormat.NOK },
-          { key: "Gjenstående beløp", value: "276722", format: DetailsFormat.NOK },
+          {
+            label: "Tilsagnsperiode",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: formaterPeriode(tilsagnsPeriode()),
+              type: "DATA_ELEMENT_TEXT",
+              format: null,
+            },
+          },
+          {
+            label: "Antall plasser",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "14",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NUMBER,
+            },
+          },
+          {
+            label: "Sats per tiltaksplass per måned",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "20975",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
+          },
+          {
+            label: "Totalbeløp",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "284177",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
+          },
+          {
+            label: "Gjenstående beløp",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "276722",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
+          },
         ],
       },
       bestillingsnummer: "A-2025/12345-1",
@@ -65,12 +127,32 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
   guidePanel: OpprettKravInnsendingsInformasjonGuidePanelType.AVTALT_PRIS,
   definisjonsListe: [
     {
-      key: "Arrangør",
-      value: arrangorMock.navn,
-      format: null,
+      label: "Arrangør",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: arrangorMock.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
     },
-    { key: "Tiltaksnavn", value: gjennomforingAvklaring.navn, format: null },
-    { key: "Tiltakstype", value: gjennomforingAvklaring.tiltakstype.navn, format: null },
+    {
+      label: "Tiltaksnavn",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: gjennomforingAFT.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
+    {
+      label: "Tiltakstype",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: gjennomforingAFT.tiltakstype.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
   ],
   tilsagn: [
     {
@@ -84,29 +166,65 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       type: TilsagnType.TILSAGN,
       periode: tilsagnsPeriode(),
       status: TilsagnStatus.GODKJENT,
-      bruktBelop: 1300000,
-      gjenstaendeBelop: 35105891,
+      bruktBelop: 13000,
+      gjenstaendeBelop: 351058,
       beregning: {
+        header: null,
         entries: [
           {
-            key: "Tilsagnsperiode",
-            value: formaterPeriode(tilsagnsPeriode()),
-            format: null,
+            label: "Tilsagnsperiode",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: formaterPeriode(tilsagnsPeriode()),
+              type: "DATA_ELEMENT_TEXT",
+              format: null,
+            },
           },
-          { key: "Antall plasser", value: "333", format: DetailsFormat.NUMBER },
           {
-            key: "Avtalt ukespris per tiltaksplass",
-            value: "5015",
-            format: DetailsFormat.NOK,
+            label: "Antall plasser",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "14",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NUMBER,
+            },
           },
-          { key: "Totalbeløp", value: "36405891", format: DetailsFormat.NOK },
-          { key: "Gjenstående beløp", value: "35105891", format: DetailsFormat.NOK },
+          {
+            label: "Sats per tiltaksplass per måned",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "20975",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
+          },
+          {
+            label: "Totalbeløp",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "284177",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
+          },
+          {
+            label: "Gjenstående beløp",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "276722",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NOK,
+            },
+          },
         ],
       },
       bestillingsnummer: "A-2025/82143-1",
     },
   ],
-  datoVelger: { type: "DatoVelgerRange", maksSluttdato: null },
+  datoVelger: {
+    type: "DatoVelgerRange",
+    maksSluttdato: new Date(31, 12, today.getFullYear()).toISOString().slice(0, 8),
+  },
   navigering: { tilbake: null, neste: OpprettKravVeiviserSteg.UTBETALING },
 };
 
@@ -114,12 +232,32 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
   guidePanel: OpprettKravInnsendingsInformasjonGuidePanelType.TIMESPRIS,
   definisjonsListe: [
     {
-      key: "Arrangør",
-      value: arrangorMock.navn,
-      format: null,
+      label: "Arrangør",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: arrangorMock.navn,
+        format: null,
+        type: "DATA_ELEMENT_TEXT",
+      },
     },
-    { key: "Tiltaksnavn", value: gjennomforingOppfolging.navn, format: null },
-    { key: "Tiltakstype", value: gjennomforingOppfolging.tiltakstype.navn, format: null },
+    {
+      label: "Tiltaksnavn",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: gjennomforingAFT.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
+    {
+      label: "Tiltakstype",
+      type: LabeledDataElementType.INLINE,
+      value: {
+        value: gjennomforingAFT.tiltakstype.navn,
+        type: "DATA_ELEMENT_TEXT",
+        format: null,
+      },
+    },
   ],
   tilsagn: [
     {
@@ -134,14 +272,55 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
       periode: tilsagnsPeriode(),
       status: TilsagnStatus.GODKJENT,
       bruktBelop: 0,
-      gjenstaendeBelop: 12417720,
+      gjenstaendeBelop: 30720,
       beregning: {
+        header: null,
         entries: [
-          { key: "Tilsagnsperiode", value: formaterPeriode(tilsagnsPeriode()), format: null },
-          { key: "Antall plasser", value: "40", format: DetailsFormat.NUMBER },
-          { key: "Pris per time oppfølging", value: "44349", format: DetailsFormat.NOK },
-          { key: "Totalbeløp", value: "12417720", format: DetailsFormat.NOK },
-          { key: "Gjenstående beløp", value: "12417720", format: DetailsFormat.NOK },
+          {
+            label: "Tilsagnsperiode",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: formaterPeriode(tilsagnsPeriode()),
+              type: "DATA_ELEMENT_TEXT",
+              format: null,
+            },
+          },
+          {
+            label: "Antall plasser",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              value: "14",
+              type: "DATA_ELEMENT_TEXT",
+              format: DataElementTextFormat.NUMBER,
+            },
+          },
+          {
+            label: "Sats per tiltaksplass per måned",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              type: "DATA_ELEMENT_TEXT",
+              value: "20975",
+              format: DataElementTextFormat.NOK,
+            },
+          },
+          {
+            label: "Totalbeløp",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              type: "DATA_ELEMENT_TEXT",
+              value: "284177",
+              format: DataElementTextFormat.NOK,
+            },
+          },
+          {
+            label: "Gjenstående beløp",
+            type: LabeledDataElementType.INLINE,
+            value: {
+              type: "DATA_ELEMENT_TEXT",
+              value: "276722",
+              format: DataElementTextFormat.NOK,
+            },
+          },
         ],
       },
       bestillingsnummer: "A-2025/9123-1",

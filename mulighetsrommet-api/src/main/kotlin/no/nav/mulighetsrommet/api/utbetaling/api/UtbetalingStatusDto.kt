@@ -17,6 +17,8 @@ data class UtbetalingStatusDto(
                 UtbetalingStatusType.TIL_ATTESTERING -> Type.TIL_ATTESTERING
                 UtbetalingStatusType.RETURNERT -> Type.RETURNERT
                 UtbetalingStatusType.FERDIG_BEHANDLET -> Type.OVERFORT_TIL_UTBETALING
+                UtbetalingStatusType.DELVIS_UTBETALT -> Type.DELVIS_UTBETALT
+                UtbetalingStatusType.UTBETALT -> Type.UTBETALT
             }
             val status = DataElement.Status(type.beskrivelse, type.variant)
             return UtbetalingStatusDto(type, status)
@@ -29,5 +31,7 @@ data class UtbetalingStatusDto(
         TIL_ATTESTERING("Til attestering", DataElement.Status.Variant.WARNING),
         RETURNERT("Returnert", DataElement.Status.Variant.ERROR),
         OVERFORT_TIL_UTBETALING("Overført til utbetaling", DataElement.Status.Variant.SUCCESS),
+        DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),
+        UTBETALT("Utbetalt", DataElement.Status.Variant.SUCCESS),
     }
 }

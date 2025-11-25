@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -158,7 +159,7 @@ class InitialLoadGjennomforinger(
         )
         kafkaProducerClient.sendSync(recordV1)
 
-        val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
+        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
         val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV2Topic,
             gjennomforingV2.id.toString().toByteArray(),
@@ -168,7 +169,7 @@ class InitialLoadGjennomforinger(
     }
 
     private fun publish(enkeltplass: Enkeltplass) {
-        val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromEnkeltplass(enkeltplass)
+        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromEnkeltplass(enkeltplass)
         val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV2Topic,
             gjennomforingV2.id.toString().toByteArray(),

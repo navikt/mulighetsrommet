@@ -20,6 +20,8 @@ dependencies {
     testImplementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)
     implementation(projects.common.metrics)
+    implementation(projects.common.tiltakshistorikkClient)
+    implementation(projects.common.brreg)
 
     // Cache
     implementation(libs.caffeine)

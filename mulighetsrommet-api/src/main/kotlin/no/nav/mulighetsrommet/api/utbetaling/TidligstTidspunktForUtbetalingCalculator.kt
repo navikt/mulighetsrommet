@@ -15,6 +15,7 @@ val tidligstTidspunktForUtbetalingProd = TidligstTidspunktForUtbetalingCalculato
         Tiltakskode.OPPFOLGING,
         Tiltakskode.AVKLARING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         -> periode.getLastInclusiveDate()
             .withDayOfMonth(7)
             .plusMonths(1)
@@ -24,7 +25,6 @@ val tidligstTidspunktForUtbetalingProd = TidligstTidspunktForUtbetalingCalculato
             .toInstant()
 
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -41,10 +41,10 @@ val tidligstTidspunktForUtbetalingDev = TidligstTidspunktForUtbetalingCalculator
         Tiltakskode.OPPFOLGING,
         Tiltakskode.AVKLARING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         -> Instant.now().plus(5, ChronoUnit.MINUTES)
 
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,

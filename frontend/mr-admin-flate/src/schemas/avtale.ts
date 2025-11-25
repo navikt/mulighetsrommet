@@ -11,7 +11,6 @@ import {
   Personopplysning,
   PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
-import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 export const PrismodellSchema = z.object({
   prisbetingelser: z.string().nullable(),
@@ -72,14 +71,16 @@ export function defaultAvtaleData(
   return {
     detaljer: {
       administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
-      navn: avtale?.navn ?? "",
+      navn: avtale?.navn,
       avtaletype: avtale?.avtaletype,
-      arrangorHovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
-      arrangorUnderenheter: !avtale?.arrangor?.underenheter
-        ? []
-        : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-      arrangorKontaktpersoner:
-        avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+      arrangor: {
+        hovedenhet: avtale?.arrangor?.organisasjonsnummer ?? "",
+        underenheter: !avtale?.arrangor?.underenheter
+          ? []
+          : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+        kontaktpersoner:
+          avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+      },
       startDato: avtale?.startDato,
       sluttDato: avtale?.sluttDato ?? null,
       sakarkivNummer: avtale?.sakarkivNummer ?? null,
@@ -97,7 +98,7 @@ export function defaultAvtaleData(
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
       beskrivelse: avtale?.beskrivelse ?? null,
-      faneinnhold: slateFaneinnholdToPortableText(avtale?.faneinnhold) ?? null,
+      faneinnhold: avtale?.faneinnhold ?? null,
     },
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,

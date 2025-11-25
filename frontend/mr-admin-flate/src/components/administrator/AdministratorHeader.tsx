@@ -12,8 +12,8 @@ import { Dropdown, Heading, InternalHeader, Modal, ReadMore, Spacer } from "@nav
 import { useRef, useState } from "react";
 import { Link } from "react-router";
 import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
-import { Metadata } from "../detaljside/Metadata";
 import { Bolk } from "../detaljside/Bolk";
+import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function AdministratorHeader() {
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
@@ -183,10 +183,10 @@ function Brukernavn() {
         </Modal.Header>
         <Modal.Body>
           <Bolk>
-            <Metadata header="Navn" value={ansattNavn} />
-            <Metadata header="Navident" value={ansatt.navIdent} />
-            <Metadata header="Epost" value={ansatt.epost || "Ikke registrert"} />
-            <Metadata header="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
+            <Metadata label="Navn" value={ansattNavn} />
+            <Metadata label="Navident" value={ansatt.navIdent} />
+            <Metadata label="Epost" value={ansatt.epost || "Ikke registrert"} />
+            <Metadata label="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
           </Bolk>
           <ReadMore header="Roller" defaultOpen>
             <ul>

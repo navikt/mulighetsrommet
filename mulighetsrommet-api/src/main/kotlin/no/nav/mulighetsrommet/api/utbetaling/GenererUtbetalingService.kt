@@ -22,7 +22,6 @@ import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
@@ -95,6 +94,8 @@ class GenererUtbetalingService(
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.RETURNERT,
                     UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
                     -> false
 
                     UtbetalingStatusType.GENERERT -> true

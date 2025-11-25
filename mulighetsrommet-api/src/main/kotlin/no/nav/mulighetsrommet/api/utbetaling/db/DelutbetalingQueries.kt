@@ -42,7 +42,7 @@ class DelutbetalingQueries(private val session: Session) {
                 :lopenummer,
                 :fakturanummer,
                 :faktura_status,
-                :faktura_status_sist_oppdatert::date,
+                :faktura_status_sist_oppdatert::timestamp,
                 :datastream_periode_start::date,
                 :datastream_periode_slutt::date
             ) on conflict (id) do update set

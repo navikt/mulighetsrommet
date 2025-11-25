@@ -25,4 +25,14 @@ enum class UtbetalingStatusType {
      * Attestant har godkjent (attestert) utbetalingen.
      */
     FERDIG_BEHANDLET,
+
+    /**
+     * Minst én delutbetalingslinje har fått fakturastatus DELVIS_BETALT eller FULLT_BETALT
+     */
+    DELVIS_UTBETALT,
+
+    /**
+     * Alle delutbetalinger har status UTBETALT
+     */
+    UTBETALT,
 }

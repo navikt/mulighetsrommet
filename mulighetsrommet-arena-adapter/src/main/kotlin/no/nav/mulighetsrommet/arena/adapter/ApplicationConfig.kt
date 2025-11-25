@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.tokenprovider.TexasClient
 
 data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
-    val migrering: MigreringConfig,
     val server: ServerConfig,
     val enableFailedRecordProcessor: Boolean,
     val tasks: TaskConfig,
@@ -23,31 +22,6 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val slack: SlackConfig,
-)
-
-data class MigreringConfig(
-    val tiltakskoder: Set<String> = setOf(
-        // Gruppe
-        "ARBFORB",
-        "ARBRRHDAG",
-        "AVKLARAG",
-        "DIGIOPPARB",
-        "GRUFAGYRKE",
-        "GRUPPEAMO",
-        "INDOPPFAG",
-        "JOBBK",
-        "VASV",
-
-        // Egen regi
-        "INDJOBSTOT",
-        "IPSUNG",
-        "UTVAOONAV",
-
-        // Enkeltplass
-        "ENKELAMO",
-        "ENKFAGYRKE",
-        "HOYEREUTD",
-    ),
 )
 
 data class TaskConfig(

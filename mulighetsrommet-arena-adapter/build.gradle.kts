@@ -28,6 +28,7 @@ dependencies {
     implementation(projects.common.slack)
     implementation(projects.common.metrics)
     implementation(projects.common.tasks)
+    implementation(projects.common.tiltakshistorikkClient)
 
     // Kotlin
     implementation(libs.kotlinx.coroutines.core)

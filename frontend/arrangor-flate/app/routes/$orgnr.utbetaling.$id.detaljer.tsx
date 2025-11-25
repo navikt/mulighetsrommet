@@ -22,6 +22,7 @@ import { getTimestamp } from "~/utils/utbetaling";
 import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
+import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrangorflateUtbetalingDto;
@@ -100,19 +101,20 @@ export default function UtbetalingDetaljerSide() {
       />
       <Definisjonsliste
         title={"Utbetaling"}
-        headingLevel="3"
         definitions={[
           {
             key: "Utbetalingsperiode",
             value: formaterPeriode(utbetaling.periode),
           },
-          ...utbetaling.beregning.detaljer.entries,
         ]}
+      />
+      <SatsPerioderOgBelop
+        belop={utbetaling.beregning.belop}
+        satsDetaljer={utbetaling.beregning.satsDetaljer}
       />
       <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} />
       <Definisjonsliste
         title="Betalingsinformasjon"
-        headingLevel="3"
         definitions={[
           {
             key: "Kontonummer",
@@ -178,24 +180,29 @@ function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
         closeOnBackdropClick
       >
         <Modal.Body>
-          {utbetaling.beregning.stengt.length > 0 && (
-            <Alert variant={"info"}>
-              {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-              <ul>
-                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                  <li key={periode.start + periode.slutt}>
-                    {formaterPeriode(periode)}: {beskrivelse}
-                  </li>
-                ))}
-              </ul>
-            </Alert>
-          )}
-          <DeltakelserTable
-            beregning={utbetaling.beregning}
-            advarsler={utbetaling.advarsler}
-            deltakerlisteUrl={deltakerlisteUrl}
-          />
-          <Definisjonsliste definitions={utbetaling.beregning.detaljer.entries} className="my-2" />
+          <VStack gap="2">
+            {utbetaling.beregning.stengt.length > 0 && (
+              <Alert variant={"info"}>
+                {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+                <ul>
+                  {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                    <li key={periode.start + periode.slutt}>
+                      {formaterPeriode(periode)}: {beskrivelse}
+                    </li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
+            <DeltakelserTable
+              beregning={utbetaling.beregning}
+              advarsler={utbetaling.advarsler}
+              deltakerlisteUrl={deltakerlisteUrl}
+            />
+            <SatsPerioderOgBelop
+              belop={utbetaling.beregning.belop}
+              satsDetaljer={utbetaling.beregning.satsDetaljer}
+            />
+          </VStack>
         </Modal.Body>
       </Modal>
     </HStack>

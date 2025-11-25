@@ -32,14 +32,20 @@ export function AvtaleArrangorForm() {
     control,
     formState: { errors },
   } = useFormContext<DeepPartial<AvtaleFormValues>>();
-  const watchedArrangor = watch("detaljer.arrangorHovedenhet") ?? "";
+  const watchedArrangor = watch("detaljer.arrangor.hovedenhet") ?? "";
+  const watchedUnderenheter = (watch("detaljer.arrangor.underenheter") ?? []).filter(
+    (o): o is string => typeof o === "string",
+  );
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
   const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id ?? "");
 
   const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
-  const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);
+  const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(
+    underenheter ?? [],
+    watchedUnderenheter,
+  );
   const arrangorKontaktpersonOptions = getArrangorKontaktpersonOptions(kontaktpersoner ?? []);
 
   const underenheterIsEmpty = arrangorUnderenhetOptions.length === 0;
@@ -49,7 +55,7 @@ export function AvtaleArrangorForm() {
       <FormGroup>
         <Controller
           control={control}
-          name="detaljer.arrangorHovedenhet"
+          name="detaljer.arrangor.hovedenhet"
           render={({ field }) => (
             <UNSAFE_Combobox
               id="arrangorHovedenhet"
@@ -61,7 +67,7 @@ export function AvtaleArrangorForm() {
               size="small"
               onChange={setSokArrangor}
               name={field.name}
-              error={errors.detaljer?.arrangorHovedenhet?.message}
+              error={errors.detaljer?.arrangor?.hovedenhet?.message}
               filteredOptions={arrangorHovedenhetOptions}
               options={arrangorHovedenhetOptions}
               onToggleSelected={(option, isSelected) => {
@@ -69,7 +75,7 @@ export function AvtaleArrangorForm() {
                   field.onChange(option);
                 } else {
                   field.onChange(undefined);
-                  setValue("detaljer.arrangorUnderenheter", []);
+                  setValue("detaljer.arrangor.underenheter", []);
                 }
               }}
             />
@@ -83,7 +89,7 @@ export function AvtaleArrangorForm() {
         )}
         <Controller
           control={control}
-          name="detaljer.arrangorUnderenheter"
+          name="detaljer.arrangor.underenheter"
           render={({ field }) => (
             <UNSAFE_Combobox
               size="small"
@@ -102,7 +108,7 @@ export function AvtaleArrangorForm() {
                 field.value?.includes(option.value),
               )}
               name={field.name}
-              error={errors.detaljer?.arrangorUnderenheter?.message}
+              error={errors.detaljer?.arrangor?.underenheter?.message}
               options={arrangorUnderenhetOptions}
               readOnly={underenheterIsEmpty}
               onToggleSelected={(option, isSelected) => {
@@ -119,7 +125,7 @@ export function AvtaleArrangorForm() {
         <VStack>
           <Controller
             control={control}
-            name="detaljer.arrangorKontaktpersoner"
+            name="detaljer.arrangor.kontaktpersoner"
             render={({ field }) => (
               <UNSAFE_Combobox
                 id="arrangorKontaktpersoner"
@@ -131,7 +137,7 @@ export function AvtaleArrangorForm() {
                   field.value?.includes(v.value),
                 )}
                 name={field.name}
-                error={errors.detaljer?.arrangorKontaktpersoner?.message}
+                error={errors.detaljer?.arrangor?.kontaktpersoner?.message}
                 options={arrangorKontaktpersonOptions}
                 readOnly={!arrangor}
                 onToggleSelected={(option, isSelected) => {
@@ -160,8 +166,8 @@ export function AvtaleArrangorForm() {
               return;
             }
 
-            const kontaktpersoner = watch("detaljer.arrangorKontaktpersoner") ?? [];
-            setValue("detaljer.arrangorKontaktpersoner", [
+            const kontaktpersoner = watch("detaljer.arrangor.kontaktpersoner") ?? [];
+            setValue("detaljer.arrangor.kontaktpersoner", [
               ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
               kontaktperson.id,
             ]);
@@ -193,11 +199,25 @@ function getArrangorHovedenhetOptions(
   return options;
 }
 
-function getArrangorUnderenhetOptions(underenheter: BrregUnderenhetDto[]): SelectOption[] {
-  return underenheter.map((virksomet) => ({
-    value: virksomet.organisasjonsnummer,
-    label: `${virksomet.navn} - ${virksomet.organisasjonsnummer}`,
+function getArrangorUnderenhetOptions(
+  underenheter: BrregUnderenhetDto[],
+  valgteOrgnr: string[],
+): SelectOption[] {
+  const brregOrgnr = new Set(underenheter.map((u) => u.organisasjonsnummer));
+
+  const baseOptions: SelectOption[] = underenheter.map((virksomhet) => ({
+    value: virksomhet.organisasjonsnummer,
+    label: `${virksomhet.navn} - ${virksomhet.organisasjonsnummer}`,
   }));
+
+  const missingOptions: SelectOption[] = valgteOrgnr
+    .filter((orgnr) => !brregOrgnr.has(orgnr))
+    .map((orgnr) => ({
+      value: orgnr,
+      label: orgnr,
+    }));
+
+  return [...baseOptions, ...missingOptions];
 }
 
 function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]): SelectOption[] {

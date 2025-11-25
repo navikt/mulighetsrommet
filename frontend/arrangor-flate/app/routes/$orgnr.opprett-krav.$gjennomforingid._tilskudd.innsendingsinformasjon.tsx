@@ -48,7 +48,7 @@ import {
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
-import { Definisjonsliste } from "~/components/common/Definisjonsliste";
+import { LabeledDataElementList } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
@@ -220,7 +220,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           </Heading>
           <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanel} />
           <VStack gap="6" className="max-w-2xl">
-            <Definisjonsliste definitions={innsendingsinformasjon.definisjonsListe} />
+            <LabeledDataElementList entries={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
               <Label size="small">Periode</Label>
               <BodyShort textColor="subtle" size="small">
@@ -392,7 +392,7 @@ function PeriodeSelect({
 }
 
 interface PeriodeVelgerProps {
-  maksSluttdato: string | null;
+  maksSluttdato: string;
   onPeriodeSelected: (periode?: Periode) => void;
   sessionPeriodeStart?: string;
   sessionPeriodeSlutt?: string;
@@ -409,13 +409,15 @@ function PeriodeVelger({
   sessionPeriodeSlutt,
   errors,
 }: PeriodeVelgerProps) {
+  // maks sluttdato er eksklusiv, men skal ikke kunne velge den
+  const sisteDato = subDuration(maksSluttdato, { days: 1 });
   const {
     datepickerProps: periodeStartPickerProps,
     inputProps: periodeStartInputProps,
     selectedDay: selectedStartDato,
   } = useDatepicker({
     defaultSelected: parseDate(sessionPeriodeStart),
-    toDate: parseDate(maksSluttdato),
+    toDate: sisteDato,
   });
   const {
     datepickerProps: periodeSluttPickerProps,
@@ -423,8 +425,7 @@ function PeriodeVelger({
     selectedDay: selectedSluttDato,
   } = useDatepicker({
     defaultSelected: parseDate(sessionPeriodeSlutt),
-    // maks sluttdato er eksklusiv, men skal ikke kunne velge den
-    toDate: subDuration(maksSluttdato, { days: 1 }),
+    toDate: sisteDato,
   });
 
   useEffect(() => {

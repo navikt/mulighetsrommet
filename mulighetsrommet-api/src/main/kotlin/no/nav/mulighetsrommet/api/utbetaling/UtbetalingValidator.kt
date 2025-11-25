@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
@@ -49,6 +50,8 @@ object UtbetalingValidator {
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.DELVIS_UTBETALT,
+                UtbetalingStatusType.UTBETALT,
                 -> false
             },
         ) {
@@ -119,9 +122,11 @@ object UtbetalingValidator {
             FieldError.of("Ugyldig kid", OpprettUtbetalingRequest::kidNummer)
         }
         requireValid(request.periodeSlutt != null && request.periodeStart != null)
-        requireValid(request.periodeStart.isBefore(request.periodeSlutt)) {
+        validate(request.periodeStart.isBefore(request.periodeSlutt)) {
             FieldError.of("Periodeslutt må være etter periodestart", OpprettUtbetalingRequest::periodeSlutt)
         }
+        requireValid(request.periodeStart.isBefore(request.periodeSlutt))
+        requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null)
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
 
         OpprettAnnenAvtaltPrisUtbetaling(
@@ -165,25 +170,37 @@ object UtbetalingValidator {
 
     fun maksUtbetalingsPeriodeSluttDato(
         prismodell: PrismodellType,
+        opprettKravPeriode: Map<PrismodellType, Periode>,
         relativeDate: LocalDate = LocalDate.now(),
-    ): LocalDate? = when (prismodell) {
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-            relativeDate
+    ): LocalDate {
+        val opprettKravPeriodeSlutt = opprettKravPeriode[prismodell]
+            ?: invalidPrismodellOpprettKrav(prismodell)
 
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-            relativeDate.withDayOfMonth(1)
+        return when (prismodell) {
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                minOf(relativeDate, opprettKravPeriodeSlutt.slutt)
 
-        PrismodellType.ANNEN_AVTALT_PRIS,
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-        ->
-            null
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriodeSlutt.slutt)
+
+            PrismodellType.ANNEN_AVTALT_PRIS ->
+                opprettKravPeriodeSlutt.slutt
+
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            ->
+                invalidPrismodellOpprettKrav(prismodell)
+        }
     }
+
+    @Throws(IllegalArgumentException::class)
+    private fun invalidPrismodellOpprettKrav(prismodell: PrismodellType): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for prismodell: ${prismodell.navn}")
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
         prismodellType: PrismodellType,
+        opprettKravPeriode: Map<PrismodellType, Periode>,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
@@ -217,13 +234,11 @@ object UtbetalingValidator {
             )
         }
 
-        maksUtbetalingsPeriodeSluttDato(prismodellType)?.let {
-            validate(!slutt.isAfter(it)) {
-                FieldError.of(
-                    "Du kan ikke sende inn for valgt periode før perioden er passert",
-                    OpprettKravUtbetalingRequest::periodeSlutt,
-                )
-            }
+        validate(!slutt.isAfter(maksUtbetalingsPeriodeSluttDato(prismodellType, opprettKravPeriode))) {
+            FieldError.of(
+                "Du kan ikke sende inn for valgt periode før perioden er passert",
+                OpprettKravUtbetalingRequest::periodeSlutt,
+            )
         }
 
         validate(request.belop > 0) {
@@ -232,7 +247,7 @@ object UtbetalingValidator {
         validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(prismodellType)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
-        validate(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
+        requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {
             FieldError.of(
                 "Ugyldig kid",
                 OpprettKravUtbetalingRequest::kidNummer,
@@ -300,7 +315,7 @@ object UtbetalingValidator {
         validate(utbetaling.betalingsinformasjon.kontonummer != null) {
             FieldError.ofPointer("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
         }
-        validate(request.kid == null || Kid.parse(request.kid) != null) {
+        requireValid(request.kid == null || Kid.parse(request.kid) != null) {
             FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
         }
         request.kid?.let { Kid.parseOrThrow(it) }

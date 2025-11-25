@@ -22,7 +22,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
           iconPosition="right"
         >
           <VStack align="start">
-            <BodyShort size="small">{arrangor!.navn}</BodyShort>
+            <BodyShort size="small">{arrangor?.navn}</BodyShort>
             <BodyShort size="small">{orgnr}</BodyShort>
           </VStack>
         </Button>
@@ -31,6 +31,7 @@ export function Arrangorvelger({ arrangorer }: Props) {
         <VStack className="max-h-[500px] overflow-y-scroll">
           {arrangorer.map((arrangor) => (
             <ActionMenu.Item
+              key={arrangor.id}
               onSelect={() => navigate(pathByOrgnr(arrangor.organisasjonsnummer).utbetalinger)}
             >
               <BodyShort size="small">

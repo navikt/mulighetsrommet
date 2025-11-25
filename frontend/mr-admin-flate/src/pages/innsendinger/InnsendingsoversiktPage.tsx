@@ -36,7 +36,6 @@ export function InnsendingoversiktPage() {
       <title>Oversikt over manglende innsendinger</title>
       <HeaderBanner
         heading="Oversikt over manglende innsendinger"
-        harUndermeny
         ikon={<CurrencyExchangeIcon width="40" height="40" color="#3380A5" />}
       />
       <ContentBox>
