@@ -97,7 +97,7 @@ export function AvtaleInformasjonForVeiledereForm() {
                 onClick={() => {
                   kopierRedaksjoneltInnhold(avtale);
 
-                  // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
+                  // Ved å endre `key` så tvinger vi en update av den underliggende Portable Text komponenten slik at
                   // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
                   setKey(key + 1);
 

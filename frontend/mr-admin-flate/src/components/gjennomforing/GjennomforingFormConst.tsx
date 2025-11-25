@@ -3,7 +3,6 @@ import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpe
 import {
   AmoKategorisering,
   AvtaleDto,
-  Faneinnhold,
   GjennomforingArrangorKontaktperson,
   GjennomforingDto,
   GjennomforingOppstartstype,
@@ -12,7 +11,6 @@ import {
   UtdanningslopDbo,
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
-import { slateFaneinnholdToPortableText } from "../portableText/helper";
 import { DeepPartial } from "react-hook-form";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
@@ -73,10 +71,7 @@ export function defaultGjennomforingData(
 ): DeepPartial<GjennomforingRequest> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, gjennomforing);
 
-  // TODO: Fjern casting når avtaler er migrert til @tiltaksadministrasjon/api-client
-  const faneInnhold = slateFaneinnholdToPortableText(
-    (gjennomforing?.faneinnhold ?? avtale.faneinnhold) as Faneinnhold | null,
-  );
+  const faneInnhold = gjennomforing?.faneinnhold ?? avtale.faneinnhold;
 
   return {
     navn: gjennomforing?.navn || avtale.navn,
