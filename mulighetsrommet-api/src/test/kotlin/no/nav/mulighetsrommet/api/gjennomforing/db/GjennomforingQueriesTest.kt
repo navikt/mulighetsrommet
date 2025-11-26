@@ -63,7 +63,6 @@ class GjennomforingQueriesTest : FunSpec({
                         tiltakskode = Tiltakskode.OPPFOLGING,
                     )
                     it.navn shouldBe Oppfolging1.navn
-                    it.tiltaksnummer shouldBe null
                     it.arrangor shouldBe Gjennomforing.ArrangorUnderenhet(
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
@@ -73,7 +72,6 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
-                    it.arenaAnsvarligEnhet shouldBe null
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.apentForPamelding shouldBe true
                     it.antallPlasser shouldBe 12
@@ -92,6 +90,8 @@ class GjennomforingQueriesTest : FunSpec({
                     it.oppmoteSted shouldBe "Munch museet"
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null
+                    it.arena?.tiltaksnummer shouldBe null
+                    it.arena?.ansvarligNavEnhet shouldBe null
                 }
 
                 queries.delete(Oppfolging1.id)

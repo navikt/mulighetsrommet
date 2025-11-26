@@ -22,7 +22,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
                    gjennomforing.slutt_dato,
                    gjennomforing.status,
                    gjennomforing.deltidsprosent,
-                   gjennomforing.tiltaksnummer,
+                   gjennomforing.arena_tiltaksnummer,
                    gjennomforing.created_at     as opprettet_tidspunkt,
                    gjennomforing.updated_at     as oppdatert_tidspunkt,
                    tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
@@ -188,12 +188,8 @@ private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakV1Dto(
         arrangor = DatavarehusTiltakV1.Arrangor(
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
         ),
-        arena = stringOrNull("tiltaksnummer")?.let {
-            val tiltaksnummmer = Tiltaksnummer(it)
-            DatavarehusTiltakV1.ArenaData(
-                aar = tiltaksnummmer.aar,
-                lopenummer = tiltaksnummmer.lopenummer,
-            )
+        arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
+            DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
         },
         navn = string("navn"),
         startDato = localDate("start_dato"),
@@ -213,12 +209,8 @@ private fun Row.toDatavarehusEnkeltplassDto() = DatavarehusTiltakV1Dto(
         arrangor = DatavarehusTiltakV1.Arrangor(
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
         ),
-        arena = stringOrNull("arena_tiltaksnummer")?.let {
-            val tiltaksnummmer = Tiltaksnummer(it)
-            DatavarehusTiltakV1.ArenaData(
-                aar = tiltaksnummmer.aar,
-                lopenummer = tiltaksnummmer.lopenummer,
-            )
+        arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
+            DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
         },
         navn = null,
         startDato = null,

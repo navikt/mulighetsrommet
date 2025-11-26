@@ -124,7 +124,7 @@ private fun Row.toEnkeltplass(): Enkeltplass {
             startDato = localDateOrNull("arena_start_dato"),
             sluttDato = localDateOrNull("arena_slutt_dato"),
             status = stringOrNull("arena_status")?.let { GjennomforingStatusType.valueOf(it) },
-            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet"),
+            ansvarligNavEnhet = stringOrNull("arena_ansvarlig_enhet"),
         )
     }
 

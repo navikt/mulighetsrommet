@@ -458,7 +458,7 @@ fun Route.gjennomforingRoutes() {
 
             gjennomforinger.get(id)
                 ?.let { gjennomforing ->
-                    gjennomforing.tiltaksnummer
+                    gjennomforing.arena?.tiltaksnummer
                         ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it)) }
                         ?: call.respond(HttpStatusCode.NoContent)
                 }

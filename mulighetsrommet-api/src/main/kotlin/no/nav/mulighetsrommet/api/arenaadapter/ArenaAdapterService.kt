@@ -123,7 +123,7 @@ class ArenaAdapterService(
         )
 
         val next = queries.gjennomforing.getOrError(arenaGjennomforing.id)
-        if (previous.tiltaksnummer == null) {
+        if (previous.arena?.tiltaksnummer == null) {
             logTiltaksnummerHentetFraArena(next)
         } else {
             logUpdateGjennomforing(next)
@@ -188,7 +188,7 @@ class ArenaAdapterService(
         arenaGjennomforing: ArenaGjennomforingDbo,
         current: Gjennomforing,
     ): Boolean {
-        return arenaGjennomforing.tiltaksnummer != current.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arenaAnsvarligEnhet?.enhetsnummer
+        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arena.ansvarligNavEnhet?.enhetsnummer
     }
 
     private fun hasRelevantChanges(
@@ -202,7 +202,7 @@ class ArenaAdapterService(
             startDato = current.arena?.startDato,
             sluttDato = current.arena?.sluttDato,
             status = current.arena?.status,
-            arenaAnsvarligEnhet = current.arena?.arenaAnsvarligEnhet,
+            arenaAnsvarligEnhet = current.arena?.ansvarligNavEnhet,
         )
     }
 

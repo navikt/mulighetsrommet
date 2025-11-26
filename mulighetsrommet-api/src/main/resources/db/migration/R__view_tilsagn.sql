@@ -29,7 +29,6 @@ select tilsagn.id,
        arrangor.organisasjonsnummer      as arrangor_organisasjonsnummer,
        arrangor.navn                     as arrangor_navn,
        arrangor.slettet_dato is not null as arrangor_slettet,
-       gjennomforing.tiltaksnummer       as tiltaksnummer,
        gjennomforing.navn                as gjennomforing_navn,
        tiltakstype.tiltakskode           as tiltakskode,
        tiltakstype.navn                  as tiltakstype_navn
