@@ -115,3 +115,27 @@ alter table gjennomforing
     drop avsluttet_tidspunkt,
     drop avbrutt_aarsaker,
     drop avbrutt_forklaring;
+
+alter table enkeltplass
+    rename to gjennomforing_enkeltplass;
+
+alter table gjennomforing_enkeltplass
+    rename id to gjennomforing_id;
+
+insert into gjennomforing (id,
+                           created_at,
+                           updated_at,
+                           tiltakstype_id,
+                           arrangor_id,
+                           tiltaksnummer,
+                           arena_ansvarlig_enhet,
+                           opphav)
+select gjennomforing_id,
+       created_at,
+       updated_at,
+       tiltakstype_id,
+       arrangor_id,
+       arena_tiltaksnummer,
+       arena_ansvarlig_enhet,
+       'ARENA'::opphav
+from gjennomforing_enkeltplass
