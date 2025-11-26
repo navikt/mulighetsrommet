@@ -78,14 +78,14 @@ export function AdministratorHeader() {
               Veilederflate forhåndsvisning
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            <Dropdown.Menu.GroupedList.Item onClick={() => navigate(ENDRINGSMELDINGER_URL)}>
+            <Dropdown.Menu.GroupedList.Item as="a" href={ENDRINGSMELDINGER_URL} target="_blank">
               Endringsmeldinger
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>
           <Dropdown.Menu.Divider />
           <Dropdown.Menu.List>
-            <Dropdown.Menu.List.Item as="span">
-              <a href={SELECT_ACCOUNT_URL}>Logg ut</a>
+            <Dropdown.Menu.List.Item as="a" href={SELECT_ACCOUNT_URL}>
+              Logg ut
             </Dropdown.Menu.List.Item>
           </Dropdown.Menu.List>
         </Dropdown.Menu>
