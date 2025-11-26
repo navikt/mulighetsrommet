@@ -161,14 +161,14 @@ private fun Route.getGjennomforingArenaDataRoute() {
         val id: UUID by call.parameters
 
         val tiltaksnummer = db.session {
-            val gjennomoforing = queries.gjennomforing.get(id)
+            val gjennomforing = queries.gjennomforing.get(id)
             val enkeltplass = queries.enkeltplass.get(id)
 
-            if (gjennomoforing == null && enkeltplass == null) {
+            if (gjennomforing == null && enkeltplass == null) {
                 return@get call.respond(HttpStatusCode.NotFound)
             }
 
-            gjennomoforing?.tiltaksnummer ?: enkeltplass?.arena?.tiltaksnummer
+            gjennomforing?.arena?.tiltaksnummer ?: enkeltplass?.arena?.tiltaksnummer
         }
 
         val arenaData = tiltaksnummer?.let { toArenaDataDto(it) }

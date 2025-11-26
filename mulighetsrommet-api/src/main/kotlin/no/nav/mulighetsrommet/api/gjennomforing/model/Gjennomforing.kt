@@ -21,14 +21,12 @@ data class Gjennomforing(
     val id: UUID,
     val tiltakstype: Tiltakstype,
     val navn: String,
-    val tiltaksnummer: String?,
     val lopenummer: String,
     val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val status: GjennomforingStatus,
     val apentForPamelding: Boolean,
     val antallPlasser: Int,
@@ -57,6 +55,7 @@ data class Gjennomforing(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
+    val arena: ArenaData?,
 ) {
 
     @Serializable
@@ -107,5 +106,11 @@ data class Gjennomforing(
         @Serializable(with = LocalDateSerializer::class)
         val slutt: LocalDate,
         val beskrivelse: String,
+    )
+
+    @Serializable
+    data class ArenaData(
+        val tiltaksnummer: String?,
+        val ansvarligNavEnhet: ArenaNavEnhet?,
     )
 }
