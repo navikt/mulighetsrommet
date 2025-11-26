@@ -76,6 +76,23 @@ function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
   ];
 }
 
+function getTab(currentTab: AvtaleTab) {
+  switch (currentTab) {
+    case AvtaleTab.DETALJER:
+      return <AvtaleDetaljer />;
+    case AvtaleTab.PERSONVERN:
+      return <AvtalePersonvern />;
+    case AvtaleTab.VEILEDERINFORMASJON:
+      return <RedaksjoneltInnholdPreview />;
+    case AvtaleTab.GJENNOMFORINGER:
+      return (
+        <InlineErrorBoundary>
+          <GjennomforingerForAvtalePage />
+        </InlineErrorBoundary>
+      );
+  }
+}
+
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { pathname } = useLocation();
@@ -117,25 +134,8 @@ export function AvtalePage() {
             />
           ))}
         </Tabs.List>
-        <Tabs.Panel value={AvtaleTab.DETALJER}>
-          <AvtalePageLayout avtale={avtale}>
-            <AvtaleDetaljer />
-          </AvtalePageLayout>
-        </Tabs.Panel>
-        <Tabs.Panel value={AvtaleTab.PERSONVERN}>
-          <AvtalePageLayout avtale={avtale}>
-            <AvtalePersonvern />
-          </AvtalePageLayout>
-        </Tabs.Panel>
-        <Tabs.Panel value={AvtaleTab.VEILEDERINFORMASJON}>
-          <AvtalePageLayout avtale={avtale}>
-            <RedaksjoneltInnholdPreview />
-          </AvtalePageLayout>
-        </Tabs.Panel>
-        <Tabs.Panel value={AvtaleTab.GJENNOMFORINGER}>
-          <InlineErrorBoundary>
-            <GjennomforingerForAvtalePage />
-          </InlineErrorBoundary>
+        <Tabs.Panel value={currentTab}>
+          <AvtalePageLayout avtale={avtale}>{getTab(currentTab)}</AvtalePageLayout>
         </Tabs.Panel>
       </Tabs>
     </div>

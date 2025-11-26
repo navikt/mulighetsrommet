@@ -15,21 +15,20 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import {
-  AvtaleOpsjonLoggDto,
   Avtaletype,
   OpsjonLoggStatus,
   OpsjonsmodellType,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 
-interface AvtaleDetaljerFormProps {
-  opsjonerRegistrert?: AvtaleOpsjonLoggDto[];
-}
-
-export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormProps) {
+export function AvtaleDetaljerForm() {
+  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { data: administratorer } = useAvtaleAdministratorer();
   const { data: ansatt } = useHentAnsatt();
   const { data: tiltakstyper } = useTiltakstyper();
+  const { data: avtale } = useAvtale(avtaleId);
 
   const {
     register,
@@ -41,8 +40,8 @@ export function AvtaleDetaljerForm({ opsjonerRegistrert }: AvtaleDetaljerFormPro
   const tiltakskode = watch("detaljer.tiltakskode");
   const watchedAdministratorer = watch("detaljer.administratorer");
 
-  const antallOpsjonerUtlost = (
-    opsjonerRegistrert?.filter((log) => log.status === OpsjonLoggStatus.OPSJON_UTLOST) || []
+  const antallOpsjonerUtlost = avtale.opsjonerRegistrert.filter(
+    (log) => log.status === OpsjonLoggStatus.OPSJON_UTLOST,
   ).length;
 
   const avtaletypeOptions = isTiltakskode(tiltakskode)
