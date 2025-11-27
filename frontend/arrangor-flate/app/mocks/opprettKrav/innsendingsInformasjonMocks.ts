@@ -139,7 +139,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAFT.navn,
+        value: gjennomforingAvklaring.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -148,7 +148,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAFT.tiltakstype.navn,
+        value: gjennomforingAvklaring.tiltakstype.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -172,47 +172,29 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
         header: null,
         entries: [
           {
+            type: LabeledDataElementType.INLINE,
             label: "Tilsagnsperiode",
-            type: LabeledDataElementType.INLINE,
             value: {
-              value: formaterPeriode(tilsagnsPeriode()),
-              type: "DATA_ELEMENT_TEXT",
-              format: null,
+              type: "DATA_ELEMENT_PERIODE",
+              start: "01.11.2025",
+              slutt: "31.12.2025",
             },
           },
           {
-            label: "Antall plasser",
             type: LabeledDataElementType.INLINE,
-            value: {
-              value: "14",
-              type: "DATA_ELEMENT_TEXT",
-              format: DataElementTextFormat.NUMBER,
-            },
-          },
-          {
-            label: "Sats per tiltaksplass per måned",
-            type: LabeledDataElementType.INLINE,
-            value: {
-              value: "20975",
-              type: "DATA_ELEMENT_TEXT",
-              format: DataElementTextFormat.NOK,
-            },
-          },
-          {
             label: "Totalbeløp",
-            type: LabeledDataElementType.INLINE,
             value: {
-              value: "284177",
               type: "DATA_ELEMENT_TEXT",
+              value: "364058",
               format: DataElementTextFormat.NOK,
             },
           },
           {
-            label: "Gjenstående beløp",
             type: LabeledDataElementType.INLINE,
+            label: "Gjenstående beløp",
             value: {
-              value: "276722",
               type: "DATA_ELEMENT_TEXT",
+              value: "351058",
               format: DataElementTextFormat.NOK,
             },
           },
