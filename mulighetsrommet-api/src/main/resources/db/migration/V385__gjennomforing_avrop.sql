@@ -1,3 +1,10 @@
+drop view if exists view_avtale;
+drop view if exists view_gjennomforing;
+drop view if exists view_gjennomforing_enkeltplass;
+drop view if exists view_tilsagn;
+drop view if exists view_utbetaling;
+drop view if exists view_veilederflate_tiltak;
+
 create table gjennomforing_avrop
 (
     gjennomforing_id               uuid                                   not null primary key references gjennomforing,
@@ -95,6 +102,7 @@ from gjennomforing
 where avtale_id is not null;
 
 alter table gjennomforing
+    drop fts,
     drop avtale_id,
     drop navn,
     drop start_dato,
@@ -127,7 +135,7 @@ insert into gjennomforing (id,
                            updated_at,
                            tiltakstype_id,
                            arrangor_id,
-                           tiltaksnummer,
+                           arena_tiltaksnummer,
                            arena_ansvarlig_enhet,
                            opphav)
 select gjennomforing_id,
@@ -138,4 +146,8 @@ select gjennomforing_id,
        arena_tiltaksnummer,
        arena_ansvarlig_enhet,
        'ARENA'::opphav
-from gjennomforing_enkeltplass
+from gjennomforing_enkeltplass;
+
+alter table gjennomforing_enkeltplass
+    drop arena_tiltaksnummer,
+    drop arena_ansvarlig_enhet;

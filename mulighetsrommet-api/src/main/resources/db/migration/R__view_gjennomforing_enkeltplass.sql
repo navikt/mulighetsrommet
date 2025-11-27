@@ -1,7 +1,7 @@
 drop view if exists view_gjennomforing_enkeltplass;
 
 create view view_gjennomforing_enkeltplass as
-select enkeltplass.id,
+select gjennomforing.id,
        enkeltplass.created_at            as opprettet_tidspunkt,
        enkeltplass.updated_at            as oppdatert_tidspunkt,
        enkeltplass.arena_tiltaksnummer,
@@ -17,6 +17,7 @@ select enkeltplass.id,
        arrangor.organisasjonsnummer      as arrangor_organisasjonsnummer,
        arrangor.navn                     as arrangor_navn,
        arrangor.slettet_dato is not null as arrangor_slettet
-from enkeltplass
+from gjennomforing_enkeltplass enkeltplass
+         join gjennomforing on enkeltplass.gjennomforing_id = gjennomforing.id
          join tiltakstype on enkeltplass.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = enkeltplass.arrangor_id
