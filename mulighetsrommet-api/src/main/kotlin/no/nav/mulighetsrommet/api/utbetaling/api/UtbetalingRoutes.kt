@@ -89,7 +89,10 @@ fun Route.utbetalingRoutes() {
                 val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
                 val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
-                    UtbetalingStatusType.FERDIG_BEHANDLET ->
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
+                    ->
                         Pair(
                             delutbetalinger.sumOf {
                                 it.belop
@@ -98,8 +101,11 @@ fun Route.utbetalingRoutes() {
                                 queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
                             }.distinct(),
                         )
-
-                    else -> (null to emptyList())
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.RETURNERT,
+                    -> (null to emptyList())
                 }
 
                 UtbetalingKompaktDto(
