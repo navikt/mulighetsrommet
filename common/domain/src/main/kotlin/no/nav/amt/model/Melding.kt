@@ -204,6 +204,7 @@ object MeldingSerializer : KSerializer<Melding?> {
                 Melding.Forslag.serializer(),
                 jsonElement,
             )
+
             else -> null
         }
     }

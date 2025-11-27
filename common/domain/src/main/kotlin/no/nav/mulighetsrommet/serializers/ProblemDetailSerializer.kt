@@ -72,7 +72,9 @@ object ProblemDetailSerializer : KSerializer<ProblemDetail> {
         is Iterable<*> -> {
             JsonArray(value.map { mapAnyToJsonElement(it!!) })
         }
+
         null -> JsonNull
+
         else -> Json.encodeToJsonElement(serializer(value::class.starProjectedType), value)
     }
 }

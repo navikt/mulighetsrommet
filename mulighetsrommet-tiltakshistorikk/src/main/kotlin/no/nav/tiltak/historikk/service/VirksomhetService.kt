@@ -49,6 +49,7 @@ class VirksomhetService(
             .flatMap { enhet ->
                 val overordnetEnhet = when (enhet) {
                     is BrregHovedenhetDto -> enhet.overordnetEnhet
+
                     is BrregUnderenhetDto -> enhet.overordnetEnhet
 
                     is SlettetBrregHovedenhetDto,

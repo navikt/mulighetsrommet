@@ -27,5 +27,6 @@ fun Agent.textRepr(): String = when (this) {
     Tiltaksadministrasjon,
     ->
         this.toString()
+
     is NavIdent -> this.value
 }

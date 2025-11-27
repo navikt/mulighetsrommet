@@ -46,7 +46,6 @@ sealed class DatabaseOperationError(val error: PSQLException) {
          */
         fun fromPSQLException(error: PSQLException) = when {
             error.sqlState.startsWith("23") -> IntegrityConstraintViolation.fromPSQLException(error)
-
             else -> PostgresError(error)
         }
     }
@@ -66,11 +65,17 @@ sealed class IntegrityConstraintViolation private constructor(error: PSQLExcepti
     companion object {
         fun fromPSQLException(error: PSQLException) = when (error.sqlState) {
             "23001" -> RestrictViolation(error)
+
             "23502" -> NotNullViolation(error)
+
             "23503" -> ForeignKeyViolation(error)
+
             "23505" -> UniqueViolation(error)
+
             "23514" -> CheckViolation(error)
+
             "23P01" -> ExclusionViolation(error)
+
             else -> {
                 require(error.sqlState.startsWith("23")) {
                     "${error.sqlState} is not a known SQL Integrity Constraint Violation"
