@@ -50,6 +50,16 @@ function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   ];
 }
 
+function redigeringstittel(pathname: string): string {
+  if (pathname.includes("veilederinformasjon")) {
+    return "Redigerer veilederinformasjon";
+  } else if (pathname.includes("personvern")) {
+    return "Redigerer personvern";
+  } else {
+    return "Redigerer avtaledetaljer";
+  }
+}
+
 export function AvtaleFormPage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const navigate = useNavigate();
@@ -108,17 +118,19 @@ export function AvtaleFormPage() {
       <Header>
         <AvtaleIkon />
         <Heading size="large" level="2">
-          Redigerer {avtale.navn}
+          {avtale.navn}
         </Heading>
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
       <ContentBox>
         <WhitePaddedBox>
-          <AvtaleFormKnapperad />
-          <Separator />
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <AvtaleFormKnapperad heading={redigeringstittel(pathname)} />
+              <Separator />
               <Outlet />
+              <Separator />
+              <AvtaleFormKnapperad />
             </form>
           </FormProvider>
         </WhitePaddedBox>

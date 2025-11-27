@@ -183,12 +183,12 @@ const routes: RouteObject[] = [
             errorElement: <ErrorPage />,
           },
           {
-            path: "avtaler/:avtaleId/personvern/skjema",
+            path: "personvern",
             element: <AvtalePersonvernForm />,
             errorElement: <ErrorPage />,
           },
           {
-            path: "avtaler/:avtaleId/veilederinformasjon/skjema",
+            path: "veilederinformasjon",
             element: <AvtaleInformasjonForVeiledereForm />,
             errorElement: <ErrorPage />,
           },
