@@ -1,10 +1,9 @@
-import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
+import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 import { AvtaleFilterType } from "@/pages/avtaler/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 
@@ -23,7 +22,6 @@ export function AvtaleFilterTags({
   filterOpen,
   setTagsHeight,
 }: Props) {
-  const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorKobling.AVTALE, {
     pageSize: 10000,
@@ -77,20 +75,12 @@ export function AvtaleFilterTags({
           }}
         />
       )}
-      {filter.navEnheter.map((enhet) => (
-        <FilterTag
-          key={enhet.enhetsnummer}
-          label={
-            enheter.find((e) => e.enhetsnummer === enhet.enhetsnummer)?.navn || enhet.enhetsnummer
-          }
-          onClose={() => {
-            updateFilter({
-              navEnheter: addOrRemove(filter.navEnheter, enhet),
-              page: 1,
-            });
-          }}
+      {filter.navEnheter.length > 0 && (
+        <NavEnhetFilterTag
+          navEnheter={filter.navEnheter.map((enhet) => enhet.navn)}
+          onClose={() => updateFilter({ navEnheter: [], page: 1 })}
         />
-      ))}
+      )}
       {!tiltakstypeId &&
         filter.tiltakstyper.map((tiltakstype) => (
           <FilterTag
