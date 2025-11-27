@@ -57,7 +57,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Arrangører", async ({ page }) => {
     await page.getByRole("button", { name: "Meny" }).click();
-    await page.getByRole("link", { name: "Arrangører" }).click();
+    await page.getByRole("button", { name: "Arrangører" }).click();
     await expect(page.getByTestId("header_arrangorer")).toBeVisible();
     await sjekkUU(page, "header_arrangorer");
   });
