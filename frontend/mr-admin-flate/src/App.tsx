@@ -168,7 +168,7 @@ const routes: RouteObject[] = [
         ],
       },
       {
-        path: "avtaler/skjema",
+        path: "avtaler/opprett-avtale",
         element: <NewAvtaleFormPage />,
         errorElement: <ErrorPage />,
       },
