@@ -6,5 +6,5 @@ interface Props {
 }
 
 export function Header({ children }: Props) {
-  return <HStack className="bg-white m-auto px-4 gap-6">{children}</HStack>;
+  return <HStack className="bg-white m-auto px-4 pb-4 gap-6">{children}</HStack>;
 }

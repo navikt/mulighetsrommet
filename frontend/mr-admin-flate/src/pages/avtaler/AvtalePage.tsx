@@ -14,6 +14,7 @@ import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { useUmami } from "@/sporing/useUmami";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -76,14 +77,26 @@ function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
   ];
 }
 
-function getTab(currentTab: AvtaleTab) {
+function getTab(currentTab: AvtaleTab, avtale: AvtaleDto) {
   switch (currentTab) {
     case AvtaleTab.DETALJER:
-      return <AvtaleDetaljer />;
+      return (
+        <AvtalePageLayout avtale={avtale}>
+          <AvtaleDetaljer />
+        </AvtalePageLayout>
+      );
     case AvtaleTab.PERSONVERN:
-      return <AvtalePersonvern />;
+      return (
+        <AvtalePageLayout avtale={avtale}>
+          <AvtalePersonvern />
+        </AvtalePageLayout>
+      );
     case AvtaleTab.VEILEDERINFORMASJON:
-      return <RedaksjoneltInnholdPreview />;
+      return (
+        <AvtalePageLayout avtale={avtale}>
+          <RedaksjoneltInnholdPreview />
+        </AvtalePageLayout>
+      );
     case AvtaleTab.GJENNOMFORINGER:
       return (
         <InlineErrorBoundary>
@@ -134,9 +147,7 @@ export function AvtalePage() {
             />
           ))}
         </Tabs.List>
-        <Tabs.Panel value={currentTab}>
-          <AvtalePageLayout avtale={avtale}>{getTab(currentTab)}</AvtalePageLayout>
-        </Tabs.Panel>
+        <Tabs.Panel value={currentTab}>{getTab(currentTab, avtale)}</Tabs.Panel>
       </Tabs>
     </div>
   );
