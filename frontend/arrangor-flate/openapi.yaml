@@ -861,6 +861,10 @@ paths:
       deprecated: false
 components:
   schemas:
+    OpenApiHash:
+      type: string
+      enum:
+        - "c7e5da6b2e5a126c05165c8cc56d8e332ad0e2a343fc2d9f6a70c9264a2d84af"
     ArrangorDto:
       type: object
       properties:
@@ -1461,7 +1465,7 @@ components:
         tabellFooter:
           type: array
           items:
-            $ref: "#/components/schemas/LabeledDataElement"
+            $ref: "#/components/schemas/DataDetails"
         navigering:
           $ref: "#/components/schemas/OpprettKravVeiviserNavigering"
       required:
@@ -1703,6 +1707,7 @@ components:
       - UTBETALT
       - KREVER_ENDRING
       - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
     ArrangorflateUtbetalinger:
       type: object
       properties:

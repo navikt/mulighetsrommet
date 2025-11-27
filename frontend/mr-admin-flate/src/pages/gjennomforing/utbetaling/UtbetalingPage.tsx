@@ -33,7 +33,7 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   MetadataFritekstfelt,
-  MetadataHorisontal,
+  MetadataHGrid,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 
 function useUtbetalingPageData() {
@@ -100,30 +100,30 @@ export function UtbetalingPage() {
                     {utbetalingTekster.metadata.header}
                   </Heading>
                   <VStack gap="2">
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label={utbetalingTekster.metadata.status}
                       value={<UtbetalingStatusTag status={utbetaling.status} />}
                     />
 
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label={utbetalingTekster.metadata.periode}
                       value={formaterPeriode(utbetaling.periode)}
                     />
                     {utbetaling.type.tagName && (
-                      <MetadataHorisontal
+                      <MetadataHGrid
                         label={utbetalingTekster.metadata.type}
                         value={<UtbetalingTypeText type={utbetaling.type} />}
                       />
                     )}
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label={utbetalingTekster.metadata.innsendtDato}
                       value={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
                     />
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label={utbetalingTekster.metadata.innsendtAv}
                       value={utbetaling.innsendtAv}
                     />
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label={utbetalingTekster.beregning.belop.label}
                       value={formaterNOK(utbetaling.belop)}
                     />
@@ -146,11 +146,11 @@ export function UtbetalingPage() {
                     Betalingsinformasjon
                   </Heading>
                   <VStack gap="2">
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label="Kontonummer"
                       value={utbetaling.betalingsinformasjon.kontonummer}
                     />
-                    <MetadataHorisontal
+                    <MetadataHGrid
                       label="KID (valgfritt)"
                       value={utbetaling.betalingsinformasjon.kid}
                     />
@@ -161,7 +161,7 @@ export function UtbetalingPage() {
                         Journalføring
                       </Heading>
                       <VStack gap="2">
-                        <MetadataHorisontal
+                        <MetadataHGrid
                           label="Journalpost-ID i Gosys"
                           value={
                             <HStack align="center">
@@ -232,6 +232,8 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
       );
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
+    case UtbetalingStatusDtoType.DELVIS_UTBETALT:
+    case UtbetalingStatusDtoType.UTBETALT:
       return <BesluttUtbetalingLinjeView utbetaling={utbetaling} oppdaterLinjer={oppdaterLinjer} />;
   }
 }

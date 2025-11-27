@@ -261,7 +261,12 @@ private val expectedUtbetalingsdetaljerContent = """
             {
               "label": "Utbetalingsperiode",
               "value": "01.01.2025 - 31.01.2025"
-            },
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
             {
               "label": "Sats",
               "value": "34",
@@ -269,8 +274,13 @@ private val expectedUtbetalingsdetaljerContent = """
             },
             {
               "label": "Antall månedsverk",
-              "value": "2.75"
-            },
+              "value": "0.0"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
             {
               "label": "Beløp",
               "value": "100",
@@ -439,7 +449,12 @@ private val expectedJournalpostContent = """
             {
               "label": "Utbetalingsperiode",
               "value": "01.01.2025 - 31.01.2025"
-            },
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
             {
               "label": "Sats",
               "value": "34",
@@ -447,8 +462,13 @@ private val expectedJournalpostContent = """
             },
             {
               "label": "Antall månedsverk",
-              "value": "2.75"
-            },
+              "value": "0.0"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
             {
               "label": "Beløp",
               "value": "100",

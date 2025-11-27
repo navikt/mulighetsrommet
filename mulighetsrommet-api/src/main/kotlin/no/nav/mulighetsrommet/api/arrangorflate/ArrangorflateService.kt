@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -36,14 +35,14 @@ class ArrangorflateService(
     private val amtDeltakerClient: AmtDeltakerClient,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
-    suspend fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
+    fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
             .map { utbetaling ->
-                val advarsler = when (utbetaling.status) {
-                    UtbetalingStatusType.GENERERT -> getAdvarsler(utbetaling)
-                    else -> emptyList()
+                val harAdvarsler = when (utbetaling.status) {
+                    UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
+                    else -> false
                 }
-                val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
+                val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
                 val godkjentBelop = if (status in listOf(
                         ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
                         ArrangorflateUtbetalingStatus.UTBETALT,
@@ -62,6 +61,7 @@ class ArrangorflateService(
                     ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
                     -> true
 
+                    ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
                     ArrangorflateUtbetalingStatus.UTBETALT,
                     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
                     -> false
@@ -105,6 +105,14 @@ class ArrangorflateService(
             .map { toArrangorflateTilsagn(it) }
     }
 
+    fun harAdvarsler(utbetaling: Utbetaling): Boolean = db.session {
+        val deltakere = queries.deltaker
+            .getAll(gjennomforingId = utbetaling.gjennomforing.id)
+            .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
+
+        return (deltakereMedRelevanteForslag(utbetaling) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())).isNotEmpty()
+    }
+
     suspend fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
         val personalia = getPersonalia(utbetaling.beregning.output.deltakelser().map { it.deltakelseId }.toSet())
         val deltakere = queries.deltaker
@@ -119,29 +127,34 @@ class ArrangorflateService(
         personalia: Map<UUID, ArrangorflatePersonalia>,
         today: LocalDate,
     ): List<DeltakerAdvarsel.FeilSluttDato> {
-        return deltakere
-            .mapNotNull {
-                val navn = personalia[it.id]?.navn
+        return deltakereMedFeilSluttDato(deltakere, today)
+            .map { deltakerId ->
+                val navn = personalia[deltakerId]?.navn
+                val deltaker = deltakere.find { it.id == deltakerId }
                 DeltakerAdvarsel.FeilSluttDato(
-                    deltakerId = it.id,
-                    beskrivelse = "$navn har status “${it.status}” og slutt dato frem i tid",
+                    deltakerId = deltakerId,
+                    beskrivelse = "$navn har status “${deltaker?.status}” og slutt dato frem i tid",
                 )
-                    .takeIf { _ -> harFeilSluttDato(it.status.type, it.sluttDato, today = today) }
             }
     }
 
-    private fun QueryContext.getRelevanteForslag(utbetaling: Utbetaling, personalia: Map<UUID, ArrangorflatePersonalia>): List<DeltakerAdvarsel.RelevanteForslag> {
+    private fun QueryContext.deltakereMedRelevanteForslag(utbetaling: Utbetaling): List<UUID> {
         return queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
             .mapNotNull { (deltakerId, forslag) ->
                 when (forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
                     0 -> null
-
-                    else -> DeltakerAdvarsel.RelevanteForslag(
-                        deltakerId = deltakerId,
-                        beskrivelse = "${personalia[deltakerId]?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg",
-
-                    )
+                    else -> deltakerId
                 }
+            }
+    }
+
+    private fun QueryContext.getRelevanteForslag(utbetaling: Utbetaling, personalia: Map<UUID, ArrangorflatePersonalia>): List<DeltakerAdvarsel.RelevanteForslag> {
+        return deltakereMedRelevanteForslag(utbetaling)
+            .map { deltakerId ->
+                DeltakerAdvarsel.RelevanteForslag(
+                    deltakerId = deltakerId,
+                    beskrivelse = "${personalia[deltakerId]?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg",
+                )
             }
     }
 
@@ -167,7 +180,7 @@ class ArrangorflateService(
 
         val personalia = getPersonalia(deltakere.map { it.id }.toSet())
         val advarsler = getAdvarsler(utbetaling)
-        val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler)
+        val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler.isNotEmpty())
 
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
@@ -200,15 +213,13 @@ class ArrangorflateService(
             }
     }
 
-    private fun QueryContext.getArrangorflateUtbetalingStatus(
+    private fun getArrangorflateUtbetalingStatus(
         utbetaling: Utbetaling,
-        advarsler: List<DeltakerAdvarsel>,
+        harAdvarsler: Boolean,
     ): ArrangorflateUtbetalingStatus {
-        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
         return ArrangorflateUtbetalingStatus.fromUtbetaling(
             utbetaling.status,
-            delutbetalinger,
-            harAdvarsler = advarsler.isNotEmpty(),
+            harAdvarsler = harAdvarsler,
         )
     }
 
@@ -293,6 +304,15 @@ fun isForslagRelevantForPeriode(
         is Melding.Forslag.Endring.FjernOppstartsdato,
         is Melding.Forslag.Endring.EndreAvslutning,
         -> true
+    }
+}
+
+fun deltakereMedFeilSluttDato(
+    deltakere: List<Deltaker>,
+    today: LocalDate,
+): List<UUID> {
+    return deltakere.mapNotNull {
+        it.id.takeIf { _ -> harFeilSluttDato(it.status.type, it.sluttDato, today = today) }
     }
 }
 

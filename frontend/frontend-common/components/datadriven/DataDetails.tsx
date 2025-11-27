@@ -1,6 +1,6 @@
 import { VStack } from "@navikt/ds-react";
 import { type LabeledDataElement, LabeledDataElementType } from "./types";
-import { MetadataFritekstfelt, MetadataHorisontal } from "./Metadata";
+import { MetadataFritekstfelt, MetadataHGrid } from "./Metadata";
 import { getDataElement } from "./DataElement";
 
 export interface DataElementProps {
@@ -22,7 +22,7 @@ function LabeledDataElement(props: LabeledDataElement) {
   const valueOrFallback = value || "-";
   switch (props.type) {
     case LabeledDataElementType.INLINE:
-      return <MetadataHorisontal label={props.label} value={valueOrFallback} />;
+      return <MetadataHGrid label={props.label} value={valueOrFallback} />;
     case LabeledDataElementType.MULTILINE:
       return <MetadataFritekstfelt label={props.label} value={valueOrFallback} />;
   }

@@ -242,8 +242,8 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.tiltaksnummer shouldBe "2024#2024"
-                    it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
+                    it.arena?.tiltaksnummer shouldBe "2024#2024"
+                    it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.avtaleId shouldBe gjennomforing1.avtaleId
@@ -426,7 +426,7 @@ class ArenaAdapterServiceTest : FunSpec({
             database.run {
                 queries.enkeltplass.get(arenaGjennomforing.id).shouldNotBeNull().arena.shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.arenaAnsvarligEnhet shouldBe "1000"
+                    it.ansvarligNavEnhet shouldBe "1000"
                 }
             }
         }

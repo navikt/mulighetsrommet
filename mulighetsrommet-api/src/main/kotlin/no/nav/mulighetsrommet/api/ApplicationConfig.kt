@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -31,7 +31,9 @@ data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
     val server: ServerConfig = ServerConfig(),
     val database: DatabaseConfig,
-    val flyway: FlywayMigrationManager.MigrationConfig,
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(
+        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
+    ),
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
@@ -89,6 +91,7 @@ data class KafkaConfig(
 
 data class KafkaTopics(
     val okonomiBestillingTopic: String = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+    // TODO: fjern når alle konsumenter er over på v2
     val sisteTiltaksgjennomforingerV1Topic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
     val sisteTiltaksgjennomforingerV2Topic: String = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
     val sisteTiltakstyperTopic: String = "team-mulighetsrommet.siste-tiltakstyper-v3",
@@ -102,7 +105,7 @@ class KafkaClients(
 ) {
     var arenaMigreringGjennomforingerConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "arena-migrering-gjennomforinger",
-        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.arena-migrering-gjennomforing.v1"),
     )
     var datavarehusGjennomforingerConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
@@ -112,7 +115,7 @@ class KafkaClients(
     )
     var oppdaterUtbetalingForGjennomforing: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "oppdater-utbetaling-for-gjennomforing",
-        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+        topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.oppdater-utbetaling-for-gjennomforing.v1"),
     )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(

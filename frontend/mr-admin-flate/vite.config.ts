@@ -1,6 +1,5 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
-import terser from "@rollup/plugin-terser";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -11,7 +10,7 @@ export default defineConfig({
     host: "127.0.0.1",
     open: true,
   },
-  plugins: [tsconfigPaths(), react(), terser(), tailwindcss()],
+  plugins: [tsconfigPaths(), react(), tailwindcss()],
   base: process.env.VITE_BASE || "/",
   resolve: {
     dedupe: await dedupeDependencies("@mr/frontend-common"),
@@ -20,6 +19,7 @@ export default defineConfig({
     manifest: "asset-manifest.json",
     chunkSizeWarningLimit: 1400,
     sourcemap: true,
+    minify: "esbuild",
     commonjsOptions: {
       transformMixedEsModules: true,
     },

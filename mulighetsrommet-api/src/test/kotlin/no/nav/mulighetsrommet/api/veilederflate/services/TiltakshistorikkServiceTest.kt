@@ -6,7 +6,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
@@ -38,9 +37,9 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1
 
-    val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.GruppetiltakDeltakelse(
+    val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
-        tiltakstype = TiltakshistorikkV1Dto.GruppetiltakDeltakelse.Tiltakstype(
+        tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
@@ -57,7 +56,11 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
-        arrangor = Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer, null),
+        tittel = "Oppfølging hos Hovedenhet AS",
+        arrangor = Arrangor(
+            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
+            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
+        ),
         deltidsprosent = 100f,
         dagerPerUke = 5f,
     )
@@ -77,23 +80,28 @@ class TiltakshistorikkServiceTest : FunSpec({
             navn = "IPS",
             deltidsprosent = 100f,
         ),
-        arrangor = Arrangor(Organisasjonsnummer("123456789"), null),
+        tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
+        arrangor = Arrangor(
+            hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
+            underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
+        ),
         deltidsprosent = 100f,
         dagerPerUke = 5f,
     )
 
-    val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
+    val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.TeamTiltakAvtale(
         norskIdent = NorskIdent("12345678910"),
         startDato = LocalDate.of(2020, 1, 1),
         sluttDato = LocalDate.of(2021, 12, 31),
         id = UUID.randomUUID(),
-        tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
-            tiltakskode = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING,
+        tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
+            tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
             navn = "Arbeidstrening",
         ),
         status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
-        arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(
-            organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
+        tittel = "Arbeidstrening hos Underenhet 2 AS",
+        arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
+            organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
             navn = "Underenhet 2 AS",
         ),
     )
@@ -144,7 +152,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         id = tiltakshistorikkIps.id,
         eierskap = DeltakelseEierskap.ARENA,
         tilstand = DeltakelseTilstand.AKTIV,
-        tittel = "IPS (Individuell jobbstøtte) hos Hovedenhet AS",
+        tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
         tiltakstype = DeltakelseTiltakstype("IPS (Individuell jobbstøtte)", null),
         status = DeltakelseStatus(
             type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
@@ -186,7 +194,6 @@ class TiltakshistorikkServiceTest : FunSpec({
         tiltakstypeService = TiltakstypeService(database.db),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
-        arrangorService = ArrangorService(database.db, mockk()),
         features = object : FeatureToggleService {
             override fun isEnabled(feature: FeatureToggle, context: FeatureToggleContext) = isEnabled()
             override fun isEnabledForTiltakstype(feature: FeatureToggle, vararg tiltakskoder: Tiltakskode) = isEnabled()
@@ -398,6 +405,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             status = ArenaDeltakerStatus.VENTELISTE,
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
+            tittel = "Enkel AMO hos Underenhet 1 AS",
             tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                 tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
@@ -407,7 +415,10 @@ class TiltakshistorikkServiceTest : FunSpec({
                 navn = "Tilfeldig enkeltplass fra Arena",
                 deltidsprosent = 100f,
             ),
-            arrangor = Arrangor(Organisasjonsnummer("123456789"), null),
+            arrangor = Arrangor(
+                hovedenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("123456789"), "Hovedenhet AS"),
+                underenhet = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer("976663934"), "Underenhet 1 AS"),
+            ),
             deltidsprosent = 100f,
             dagerPerUke = 5f,
         )
@@ -462,7 +473,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         id = tiltakshistorikkEnkelAmo.id,
                         eierskap = DeltakelseEierskap.ARENA,
                         tilstand = DeltakelseTilstand.AKTIV,
-                        tittel = "Enkel AMO hos Hovedenhet AS",
+                        tittel = "Enkel AMO hos Underenhet 1 AS",
                         tiltakstype = DeltakelseTiltakstype(
                             TiltakstypeFixtures.EnkelAmo.navn,
                             Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,

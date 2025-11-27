@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
-import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -38,9 +37,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
+import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -337,6 +335,8 @@ class UtbetalingService(
             UtbetalingStatusType.GENERERT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
             ->
                 return FieldError.root(
                     "Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}",
@@ -360,6 +360,74 @@ class UtbetalingService(
         val delutbetaling = queries.delutbetaling.getOrError(fakturanummer)
         publishOpprettFaktura(delutbetaling)
         delutbetaling
+    }
+
+    fun oppdaterFakturaStatus(
+        fakturanummer: String,
+        nyStatus: FakturaStatusType,
+        fakturaStatusSistOppdatert: LocalDateTime?,
+    ) = db.transaction {
+        val originalDelutbetaling = queries.delutbetaling.getOrError(fakturanummer)
+        if (originalDelutbetaling.fakturaStatusSistOppdatert != null &&
+            fakturaStatusSistOppdatert != null &&
+            originalDelutbetaling.fakturaStatusSistOppdatert.isAfter(
+                fakturaStatusSistOppdatert,
+            )
+        ) {
+            return
+        }
+
+        queries.delutbetaling.setFakturaStatus(fakturanummer, nyStatus, fakturaStatusSistOppdatert)
+
+        when (nyStatus) {
+            FakturaStatusType.FEILET,
+            FakturaStatusType.SENDT,
+            FakturaStatusType.IKKE_BETALT,
+            -> {
+                check(!originalDelutbetaling.faktura.erUtbetalt()) {
+                    "Delutbetaling ${originalDelutbetaling.id} faktura status er ${originalDelutbetaling.faktura.status}, ny status $nyStatus"
+                }
+                queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+            }
+
+            FakturaStatusType.DELVIS_BETALT,
+            FakturaStatusType.FULLT_BETALT,
+            -> {
+                queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.UTBETALT)
+                oppdaterUtbetalingForUtbetaltDelutbetaling(originalDelutbetaling.utbetalingId)
+                if (!originalDelutbetaling.faktura.erUtbetalt()) {
+                    logDelutbetalingUtbetalt(originalDelutbetaling, fakturaStatusSistOppdatert)
+                }
+            }
+        }
+    }
+
+    private fun TransactionalQueryContext.logDelutbetalingUtbetalt(delutbetaling: Delutbetaling, fakturaStatusSistOppdatert: LocalDateTime?) {
+        val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
+        val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
+
+        logEndring(
+            "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
+            utbetaling,
+            Tiltaksadministrasjon,
+            fakturaStatusSistOppdatert ?: LocalDateTime.now(),
+        )
+    }
+
+    private fun TransactionalQueryContext.oppdaterUtbetalingForUtbetaltDelutbetaling(
+        utbetalingId: UUID,
+    ) {
+        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
+
+        val oppdatertUtbetalingStatus = when {
+            delutbetalinger.all { it.status == DelutbetalingStatus.UTBETALT } -> UtbetalingStatusType.UTBETALT
+            delutbetalinger.any { it.status == DelutbetalingStatus.UTBETALT } -> UtbetalingStatusType.DELVIS_UTBETALT
+            else -> utbetaling.status
+        }
+        if (utbetaling.status != oppdatertUtbetalingStatus) {
+            queries.utbetaling.setStatus(utbetaling.id, oppdatertUtbetalingStatus)
+        }
     }
 
     private fun TransactionalQueryContext.automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
@@ -590,13 +658,14 @@ class UtbetalingService(
         operation: String,
         dto: Utbetaling,
         endretAv: Agent,
+        timestamp: LocalDateTime = LocalDateTime.now(),
     ): Utbetaling {
         queries.endringshistorikk.logEndring(
             DocumentClass.UTBETALING,
             operation,
             endretAv,
             dto.id,
-            LocalDateTime.now(),
+            timestamp,
         ) {
             Json.encodeToJsonElement(dto)
         }
@@ -703,6 +772,8 @@ class UtbetalingService(
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
                     -> false
                 }
             },
@@ -715,6 +786,8 @@ class UtbetalingService(
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
                     -> false
                 }
             },

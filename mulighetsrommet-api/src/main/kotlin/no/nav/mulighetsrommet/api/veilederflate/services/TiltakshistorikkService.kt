@@ -4,8 +4,6 @@ import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
@@ -14,7 +12,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.*
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
@@ -30,7 +27,6 @@ import org.slf4j.LoggerFactory
 class TiltakshistorikkService(
     private val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery,
     private val tiltakstypeService: TiltakstypeService,
-    private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkClient: TiltakshistorikkClient,
     private val features: FeatureToggleService,
@@ -50,28 +46,35 @@ class TiltakshistorikkService(
         obo: AccessType.OBO,
     ): Deltakelser = coroutineScope {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
-        val historikk = tiltakshistorikkClient.getHistorikk(identer).getOrElse {
-            // TODO: return egen melding i stedet for å feile
-            throw it
-        }
+        tiltakshistorikkClient.getHistorikk(identer).fold(
+            { error ->
+                log.warn("Feil oppstå ved henting av tiltakshistorikken: $error")
+                Deltakelser(
+                    meldinger = setOf(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN),
+                    aktive = listOf(),
+                    historiske = listOf(),
+                )
+            },
+            { response ->
+                val meldinger = response.meldinger
+                    .map {
+                        when (it) {
+                            TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+                        }
+                    }
+                    .toSet()
 
-        val meldinger = historikk.meldinger
-            .map {
-                when (it) {
-                    TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
-                }
-            }
-            .toSet()
+                val (aktive, historiske) = response.historikk
+                    .map { async { toDeltakelse(it) } }
+                    .awaitAll()
+                    .partition { erAktiv(it.tilstand) }
 
-        val (aktive, historiske) = historikk.historikk
-            .map { async { toDeltakelse(it) } }
-            .awaitAll()
-            .partition { erAktiv(it.tilstand) }
-
-        Deltakelser(
-            meldinger = meldinger,
-            aktive = aktive,
-            historiske = historiske,
+                Deltakelser(
+                    meldinger = meldinger,
+                    aktive = aktive,
+                    historiske = historiske,
+                )
+            },
         )
     }
 
@@ -95,20 +98,19 @@ class TiltakshistorikkService(
         })
     }
 
-    private suspend fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
+    private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
         is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
-        is TiltakshistorikkV1Dto.GruppetiltakDeltakelse -> toDeltakelse(it)
-        is TiltakshistorikkV1Dto.ArbeidsgiverAvtale -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.TeamKometDeltakelse -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.TeamTiltakAvtale -> toDeltakelse(it)
     }
 
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
         // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
         //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
         //  som feature toggle er definert for
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
             ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
             ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
-        val arrangorNavn = getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -119,7 +121,7 @@ class TiltakshistorikkService(
                 type = deltakelse.status.toDataElement(),
                 aarsak = null,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
+            tittel = deltakelse.tittel,
             tiltakstype = tiltakstype,
             innsoktDato = null,
             sistEndretDato = null,
@@ -129,9 +131,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.GruppetiltakDeltakelse): Deltakelse {
-        val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode)
-        val arrangorNavn = getArrangorHovedenhetNavn(deltakelse.arrangor.organisasjonsnummer)
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.TeamKometDeltakelse): Deltakelse {
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -142,8 +142,8 @@ class TiltakshistorikkService(
                 type = deltakelse.status.type.toDataElement(),
                 aarsak = deltakelse.status.aarsak?.description,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
-            tiltakstype = tiltakstype,
+            tittel = deltakelse.tittel,
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_KOMET,
@@ -153,8 +153,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArbeidsgiverAvtale): Deltakelse {
-        val tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.TeamTiltakAvtale): Deltakelse {
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -165,8 +164,8 @@ class TiltakshistorikkService(
                 type = deltakelse.status.toDataElement(),
                 aarsak = null,
             ),
-            tittel = tiltakstype.navn.hosTitleCaseArrangor(deltakelse.arbeidsgiver.navn),
-            tiltakstype = tiltakstype,
+            tittel = deltakelse.tittel,
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_TILTAK,
@@ -258,33 +257,6 @@ class TiltakshistorikkService(
                 }
             }
     }
-
-    private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? = retryOnException {
-        arrangorService.getArrangorOrSyncFromBrreg(orgnr).fold({ error ->
-            log.warn("Klarte ikke hente arrangørs hovedenhet: $orgnr. BrregError: $error")
-            null
-        }, { virksomhet ->
-            virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(it) } ?: virksomhet.navn
-        })
-    }
-
-    private suspend fun <T> retryOnException(
-        times: Int = 3,
-        initialDelay: Long = 50,
-        block: suspend () -> T,
-    ): T {
-        repeat(times - 1) { attempt ->
-            val nextDelay = initialDelay * (attempt + 1)
-            try {
-                return block()
-            } catch (e: Exception) {
-                log.info("Exception oppsto under forsøk ${attempt + 1} av $times, venter $nextDelay ms før nytt forsøk. Feilmelding: ${e.message}")
-                delay(nextDelay)
-            }
-        }
-
-        return block()
-    }
 }
 
 private fun getTilstand(type: ArenaDeltakerStatus): DeltakelseTilstand = when (type) {
@@ -352,6 +324,7 @@ private fun getTilstand(status: ArbeidsgiverAvtaleStatus): DeltakelseTilstand = 
 enum class DeltakelserMelding {
     MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET,
     MANGLER_DELTAKELSER_FRA_TEAM_TILTAK,
+    MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN,
 }
 
 data class Deltakelser(

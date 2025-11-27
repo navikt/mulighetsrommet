@@ -50,6 +50,6 @@ data class Enkeltplass(
         @Serializable(with = LocalDateSerializer::class)
         val sluttDato: LocalDate?,
         val status: GjennomforingStatusType?,
-        val arenaAnsvarligEnhet: String?,
+        val ansvarligNavEnhet: String?,
     )
 }

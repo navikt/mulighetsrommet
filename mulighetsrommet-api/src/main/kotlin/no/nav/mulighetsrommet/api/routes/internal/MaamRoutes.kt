@@ -50,18 +50,21 @@ fun Route.maamRoutes() {
             }
 
             post("initial-load-gjennomforinger") {
-                val input = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
+                val request = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
 
-                val taskInput = if (input.id != null) {
-                    val ids = input.id.split(",").map { UUID.fromString(it.trim()) }
-                    InitialLoadGjennomforinger.Input(ids = ids)
-                } else if (input.tiltakstyper != null) {
-                    InitialLoadGjennomforinger.Input(tiltakskoder = input.tiltakstyper)
+                val taskId = if (request.id != null) {
+                    val ids = request.id.split(",").map { UUID.fromString(it.trim()) }
+                    initialLoadGjennomforinger.schedule(InitialLoadGjennomforinger.Input(ids = ids))
+                } else if (request.tiltakstyper != null) {
+                    request.tiltakstyper
+                        .map { tiltakskode ->
+                            val input = InitialLoadGjennomforinger.Input(tiltakskode = tiltakskode)
+                            initialLoadGjennomforinger.schedule(input)
+                        }
+                        .first()
                 } else {
                     throw BadRequestException("Ugyldig input")
                 }
-
-                val taskId = initialLoadGjennomforinger.schedule(taskInput)
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }

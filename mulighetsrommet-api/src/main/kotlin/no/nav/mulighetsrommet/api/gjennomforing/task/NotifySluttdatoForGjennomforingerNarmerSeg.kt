@@ -80,8 +80,8 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
                    gjennomforing.navn,
                    gjennomforing.slutt_dato,
                    array_agg(distinct nav_ident) as administratorer,
-                   gjennomforing.tiltaksnummer
-            from gjennomforing gjennomforing
+                   gjennomforing.arena_tiltaksnummer
+            from gjennomforing
                      join gjennomforing_administrator on gjennomforing_id = gjennomforing.id
             where (:today::timestamp + interval '14' day) = gjennomforing.slutt_dato
                or (:today::timestamp + interval '7' day) = gjennomforing.slutt_dato
@@ -100,6 +100,6 @@ private fun Row.toTiltaksgjennomforingNotificationDto(): GjennomforingNotificati
         navn = string("navn"),
         sluttDato = localDate("slutt_dato"),
         administratorer = administratorer,
-        tiltaksnummer = stringOrNull("tiltaksnummer"),
+        tiltaksnummer = stringOrNull("arena_tiltaksnummer"),
     )
 }

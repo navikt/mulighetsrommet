@@ -19,7 +19,7 @@ import {
   GjennomforingTiltakstype,
   Kontorstruktur,
 } from "@tiltaksadministrasjon/api-client";
-import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstype: GjennomforingTiltakstype;
@@ -148,14 +148,14 @@ export function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
       </RedaksjoneltInnholdContainer>
       <RedaksjoneltInnholdContainer>
         <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
-          <Metadata
+          <MetadataVStack
             label={gjennomforingTekster.tilgjengeligIModiaLabel}
             value={<RegionOgUnderenheter kontorstruktur={kontorstruktur} />}
           />
         </Bolk>
         {kontaktpersoner.length > 0 && (
           <Bolk>
-            <Metadata
+            <MetadataVStack
               label={gjennomforingTekster.kontaktpersonNav.mainLabel}
               value={
                 <VStack gap="2">

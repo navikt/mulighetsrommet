@@ -260,14 +260,15 @@ class GjennomforingQueries(private val session: Session) {
     fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) {
         @Language("PostgreSQL")
         val query = """
-            update gjennomforing set
-                tiltaksnummer = :tiltaksnummer, arena_ansvarlig_enhet = :arena_ansvarlig_enhet
+            update gjennomforing
+            set arena_tiltaksnummer = :arena_tiltaksnummer,
+                arena_ansvarlig_enhet = :arena_ansvarlig_enhet
             where id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
             "id" to id,
-            "tiltaksnummer" to tiltaksnummer,
+            "arena_tiltaksnummer" to tiltaksnummer,
             "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         )
 
@@ -338,8 +339,8 @@ class GjennomforingQueries(private val session: Session) {
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
-            "tiltaksnummer-ascending" -> "tiltaksnummer asc"
-            "tiltaksnummer-descending" -> "tiltaksnummer desc"
+            "tiltaksnummer-ascending" -> "arena_tiltaksnummer asc"
+            "tiltaksnummer-descending" -> "arena_tiltaksnummer desc"
             "arrangor-ascending" -> "arrangor_navn asc"
             "arrangor-descending" -> "arrangor_navn desc"
             "tiltakstype-ascending" -> "tiltakstype_navn asc"
@@ -595,7 +596,6 @@ class GjennomforingQueries(private val session: Session) {
         return Gjennomforing(
             id = uuid("id"),
             navn = string("navn"),
-            tiltaksnummer = stringOrNull("tiltaksnummer"),
             lopenummer = string("lopenummer"),
             startDato = startDato,
             sluttDato = sluttDato,
@@ -620,12 +620,6 @@ class GjennomforingQueries(private val session: Session) {
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             publisert = boolean("publisert"),
             kontorstruktur = kontorstruktur,
-            arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
-                ArenaNavEnhet(
-                    navn = stringOrNull("arena_nav_enhet_navn"),
-                    enhetsnummer = it,
-                )
-            },
             kontaktpersoner = kontaktpersoner,
             administratorer = administratorer,
             arrangor = Gjennomforing.ArrangorUnderenhet(
@@ -645,6 +639,15 @@ class GjennomforingQueries(private val session: Session) {
             utdanningslop = utdanningslop,
             stengt = stengt,
             oppmoteSted = stringOrNull("oppmote_sted"),
+            arena = Gjennomforing.ArenaData(
+                tiltaksnummer = stringOrNull("arena_tiltaksnummer"),
+                ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
+                    ArenaNavEnhet(
+                        navn = stringOrNull("arena_nav_enhet_navn"),
+                        enhetsnummer = it,
+                    )
+                },
+            ),
         )
     }
 }

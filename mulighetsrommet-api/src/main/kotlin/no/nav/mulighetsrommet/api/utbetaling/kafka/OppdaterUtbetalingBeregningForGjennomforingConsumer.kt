@@ -4,10 +4,12 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.task.OppdaterUtbetalingBeregning
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.time.Instant
 import java.util.*
@@ -20,13 +22,34 @@ class OppdaterUtbetalingBeregningForGjennomforingConsumer(
     JsonElementDeserializer(),
 ) {
     override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
-            ?: throw UnsupportedOperationException("Sletting av utbetalinger er ikke støttet. Tombstones er derfor ikke tillatt.")
+        when (val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV2Dto>(message)) {
+            is TiltaksgjennomforingV2Dto.Enkeltplass -> Unit
 
-        scheduleOppdateringAvUtbetaling(gjennomforing.id)
+            is TiltaksgjennomforingV2Dto.Gruppe -> db.session {
+                if (harGjennomforingGenererteUtbetalinger(gjennomforing.id)) {
+                    skedulerOppdateringAvUtbetaling(gjennomforing.id)
+                }
+            }
+        }
     }
 
-    private fun scheduleOppdateringAvUtbetaling(gjennomforingId: UUID) = db.session {
+    private fun QueryContext.harGjennomforingGenererteUtbetalinger(gjennomforingId: UUID): Boolean {
+        return queries.utbetaling.getByGjennomforing(gjennomforingId).any {
+            when (it.status) {
+                UtbetalingStatusType.INNSENDT,
+                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.RETURNERT,
+                UtbetalingStatusType.FERDIG_BEHANDLET,
+                UtbetalingStatusType.DELVIS_UTBETALT,
+                UtbetalingStatusType.UTBETALT,
+                -> false
+
+                UtbetalingStatusType.GENERERT -> true
+            }
+        }
+    }
+
+    private fun QueryContext.skedulerOppdateringAvUtbetaling(gjennomforingId: UUID) {
         val offsetITilfelleDetErMangeEndringerForGjennomforing = Instant.now().plusSeconds(30)
         oppdaterUtbetaling.schedule(gjennomforingId, offsetITilfelleDetErMangeEndringerForGjennomforing, session)
     }

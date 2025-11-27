@@ -41,8 +41,12 @@ import { RedaksjoneltInnholdPreview } from "./components/redaksjoneltInnhold/Red
 import { AvtaleFormPage } from "./pages/avtaler/AvtaleFormPage";
 import { TilsagnDetaljer } from "./pages/gjennomforing/tilsagn/detaljer/TilsagnDetaljer";
 import { InnsendingoversiktPage } from "./pages/innsendinger/InnsendingsoversiktPage";
+import { UtdatertKlientBanner } from "./api/UtdatertKlientBanner";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 import { Head } from "@unhead/react";
+import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
+import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm";
+import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -86,6 +90,7 @@ function AppLayout() {
       <Page background="bg-subtle">
         <Page.Block as="header" className="max-w-[1920px]">
           <AdministratorHeader />
+          <UtdatertKlientBanner />
         </Page.Block>
         <Page.Block as="main" className="max-w-[1920px]">
           <Suspense fallback={<Laster tekst="Laster..." />}>
@@ -163,7 +168,7 @@ const routes: RouteObject[] = [
         ],
       },
       {
-        path: "avtaler/skjema",
+        path: "avtaler/opprett-avtale",
         element: <NewAvtaleFormPage />,
         errorElement: <ErrorPage />,
       },
@@ -171,16 +176,23 @@ const routes: RouteObject[] = [
         path: "avtaler/:avtaleId/skjema",
         element: <AvtaleFormPage />,
         errorElement: <ErrorPage />,
-      },
-      {
-        path: "avtaler/:avtaleId/personvern/skjema",
-        element: <AvtaleFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "avtaler/:avtaleId/veilederinformasjon/skjema",
-        element: <AvtaleFormPage />,
-        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <AvtaleDetaljerForm />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "personvern",
+            element: <AvtalePersonvernForm />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "veilederinformasjon",
+            element: <AvtaleInformasjonForVeiledereForm />,
+            errorElement: <ErrorPage />,
+          },
+        ],
       },
       {
         path: "avtaler/:avtaleId/gjennomforinger/skjema",

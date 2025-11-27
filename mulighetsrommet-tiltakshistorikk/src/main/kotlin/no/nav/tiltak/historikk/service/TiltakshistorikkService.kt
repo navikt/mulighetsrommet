@@ -17,6 +17,7 @@ import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
@@ -31,19 +32,13 @@ class TiltakshistorikkService(
     suspend fun getTiltakshistorikk(request: TiltakshistorikkV1Request): TiltakshistorikkV1Response = coroutineScope {
         val (identer, years) = request
 
-        val arenaDeltakelser = async {
-            getArenaDeltakelser(identer, years)
-        }
-        val gruppetiltakDeltakelser = async {
-            getGruppetiltakDeltakelser(identer, years)
-        }
-        val arbeidsgiverAvtaler = async {
-            getArbeidsgiverAvtaler(identer, years)
-        }
+        val arenaDeltakelser = async { getHistorikkArena(identer, years) }
+        val teamKometDeltakelser = async { getHistorikkTeamKomet(identer, years) }
+        val teamTiltakAvtaler = async { getHistorikkTeamTiltak(identer, years) }
 
-        val deltakelser = arenaDeltakelser.await() + gruppetiltakDeltakelser.await()
+        val deltakelser = arenaDeltakelser.await() + teamKometDeltakelser.await()
 
-        arbeidsgiverAvtaler
+        teamTiltakAvtaler
             .await()
             .fold(
                 { meldinger ->
@@ -57,14 +52,14 @@ class TiltakshistorikkService(
             )
     }
 
-    private fun getGruppetiltakDeltakelser(
+    private fun getHistorikkTeamKomet(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): List<TiltakshistorikkV1Dto.GruppetiltakDeltakelse> = db.session {
+    ): List<TiltakshistorikkV1Dto.TeamKometDeltakelse> = db.session {
         queries.kometDeltaker.getKometHistorikk(identer, maxAgeYears)
     }
 
-    private fun getArenaDeltakelser(
+    private fun getHistorikkArena(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
     ): List<TiltakshistorikkV1Dto.ArenaDeltakelse> = db.session {
@@ -76,10 +71,10 @@ class TiltakshistorikkService(
         }
     }
 
-    private suspend fun getArbeidsgiverAvtaler(
+    private suspend fun getHistorikkTeamTiltak(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.ArbeidsgiverAvtale>> {
+    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
             .mapOrAccumulate {
@@ -144,20 +139,21 @@ private fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype? {
     }
 }
 
-private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbeidsgiver: VirksomhetDbo?) = TiltakshistorikkV1Dto.ArbeidsgiverAvtale(
+private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbeidsgiver: VirksomhetDbo?) = TiltakshistorikkV1Dto.TeamTiltakAvtale(
     norskIdent = avtale.deltakerFnr,
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
     id = avtale.avtaleId,
-    tiltakstype = TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakstype(
+    tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arbeidsgiver?.navn),
+    tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
         tiltakskode = when (avtale.tiltakstype) {
-            Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.ARBEIDSTRENING
-            Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD
-            Avtale.Tiltakstype.VARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VARIG_LONNSTILSKUDD
-            Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.MENTOR
-            Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.INKLUDERINGSTILSKUDD
-            Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.SOMMERJOBB
-            Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.ArbeidsgiverAvtale.Tiltakskode.VTAO
+            Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING
+            Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD
+            Avtale.Tiltakstype.VARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.VARIG_LONNSTILSKUDD
+            Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.MENTOR
+            Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.INKLUDERINGSTILSKUDD
+            Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.SOMMERJOBB
+            Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.VTAO
         },
         navn = tiltakstype.navn,
     ),
@@ -170,5 +166,5 @@ private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbe
         Avtale.Status.GJENNOMFORES -> ArbeidsgiverAvtaleStatus.GJENNOMFORES
         Avtale.Status.AVSLUTTET -> ArbeidsgiverAvtaleStatus.AVSLUTTET
     },
-    arbeidsgiver = TiltakshistorikkV1Dto.Arbeidsgiver(avtale.bedriftNr, arbeidsgiver?.navn),
+    arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer(avtale.bedriftNr), arbeidsgiver?.navn),
 )

@@ -1,3 +1,4 @@
+import { HStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 
 interface Props {
@@ -5,9 +6,5 @@ interface Props {
 }
 
 export function Header({ children }: Props) {
-  return (
-    <div className="bg-white p-[1rem 0.5rem 0.5rem]">
-      <div className="m-auto pl-2 gap-6 items-center flex">{children}</div>
-    </div>
-  );
+  return <HStack className="bg-white m-auto px-4 pb-4 gap-6">{children}</HStack>;
 }

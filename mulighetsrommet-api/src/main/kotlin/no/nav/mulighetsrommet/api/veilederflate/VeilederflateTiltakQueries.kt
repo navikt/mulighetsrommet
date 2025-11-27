@@ -99,7 +99,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
         navn = string("navn"),
         stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
         apentForPamelding = boolean("apent_for_pamelding"),
-        tiltaksnummer = stringOrNull("tiltaksnummer"),
+        tiltaksnummer = stringOrNull("arena_tiltaksnummer"),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
         oppstartsdato = localDate("start_dato"),
         sluttdato = localDateOrNull("slutt_dato"),

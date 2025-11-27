@@ -144,7 +144,9 @@ class OppgaverService(val db: ApiDatabase) {
     ): List<Oppgave> {
         return queries.oppgave
             .getGjennomforingOppgaveData(tiltakskoder = tiltakskoder)
-            .filter { navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter } }
+            .filter {
+                navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter }
+            }
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
@@ -344,6 +346,8 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
         UtbetalingStatusType.TIL_ATTESTERING,
         UtbetalingStatusType.RETURNERT,
         UtbetalingStatusType.FERDIG_BEHANDLET,
+        UtbetalingStatusType.DELVIS_UTBETALT,
+        UtbetalingStatusType.UTBETALT,
         -> null
 
         UtbetalingStatusType.INNSENDT ->

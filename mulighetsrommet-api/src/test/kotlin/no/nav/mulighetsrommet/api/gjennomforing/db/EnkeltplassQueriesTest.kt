@@ -66,7 +66,7 @@ class EnkeltplassQueriesTest : FunSpec({
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.arenaAnsvarligEnhet shouldBe "0400"
+                    it.ansvarligNavEnhet shouldBe "0400"
                 }
 
                 queries.delete(EnkelAmo.id)

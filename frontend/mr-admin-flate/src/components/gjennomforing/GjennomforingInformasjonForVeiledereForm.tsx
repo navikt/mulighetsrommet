@@ -11,7 +11,6 @@ import { GjennomforingList } from "./GjennomforingList";
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { InformasjonForVeiledereForm } from "@/components/redaksjoneltInnhold/InformasjonForVeiledereForm";
-import { slateFaneinnholdToPortableText } from "@/components/portableText/helper";
 
 interface Props {
   avtale: AvtaleDto;
@@ -30,12 +29,8 @@ export function GjennomforingInformasjonForVeiledereForm({
 
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: GjennomforingDto | AvtaleDto) {
     setValue("veilederinformasjon.beskrivelse", beskrivelse ?? null);
-    // Portabletext editoren er litt strengere enn slate
-    setValue(
-      "veilederinformasjon.faneinnhold",
-      slateFaneinnholdToPortableText(faneinnhold ?? null),
-    );
-    // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
+    setValue("veilederinformasjon.faneinnhold", faneinnhold ?? null);
+    // Ved å endre `key` så tvinger vi en update av den underliggende Portable text komponenten slik at
     // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
     setKey(key + 1);
   }

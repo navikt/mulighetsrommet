@@ -14,17 +14,17 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
   stengtHosArrangor: [],
   tabell: {
     columns: [
-      { key: "navn", label: "Navn", sortable: false, align: DataDrivenTableDtoColumnAlign.LEFT },
+      { key: "navn", label: "Navn", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
       {
         key: "identitetsnummer",
         label: "Fødselsnr.",
-        sortable: false,
+        sortable: true,
         align: DataDrivenTableDtoColumnAlign.LEFT,
       },
       {
         key: "tiltakStart",
         label: "Startdato i tiltaket",
-        sortable: false,
+        sortable: true,
         align: DataDrivenTableDtoColumnAlign.LEFT,
       },
       {
@@ -85,22 +85,32 @@ const oppfolgingDeltakere: OpprettKravDeltakere = {
   },
   tabellFooter: [
     {
-      label: "Antall deltakere",
-      type: LabeledDataElementType.INLINE,
-      value: {
-        value: "4",
-        type: "DATA_ELEMENT_TEXT",
-        format: null,
-      },
+      header: null,
+      entries: [
+        {
+          label: "Antall deltakere",
+          type: LabeledDataElementType.INLINE,
+          value: {
+            value: "4",
+            type: "DATA_ELEMENT_TEXT",
+            format: null,
+          },
+        },
+      ],
     },
     {
-      label: "Avtalt pris per time oppfølging per deltaker",
-      type: LabeledDataElementType.INLINE,
-      value: {
-        value: "768",
-        type: "DATA_ELEMENT_TEXT",
-        format: DataElementTextFormat.NOK,
-      },
+      header: null,
+      entries: [
+        {
+          label: "Avtalt pris per time oppfølging per deltaker",
+          type: LabeledDataElementType.INLINE,
+          value: {
+            value: "768",
+            type: "DATA_ELEMENT_TEXT",
+            format: DataElementTextFormat.NOK,
+          },
+        },
+      ],
     },
   ],
   navigering: {

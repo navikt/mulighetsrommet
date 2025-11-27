@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.*
@@ -32,8 +32,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
     )
 
     override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
-            ?: throw UnsupportedOperationException("Arena støtter ikke sletting av gjennomføringer. Tombstone-meldinger er derfor ikke tillatt så lenge data må deles med Arena.")
+        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV2Dto>(message)
 
         if (gjennomforingSkalDelesMedArena(gjennomforing)) {
             publishMigrertGjennomforing(gjennomforing.id)
@@ -43,7 +42,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
     private suspend fun publishMigrertGjennomforing(id: UUID): Unit = db.session {
         val arenaGjennomforing = arenaAdapterClient.hentArenadata(id)
 
-        val gjennomforing = checkNotNull(queries.gjennomforing.get(id))
+        val gjennomforing = queries.gjennomforing.getOrError(id)
 
         val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(
             gjennomforing,
@@ -53,8 +52,8 @@ class ArenaMigreringGjennomforingKafkaProducer(
         publish(migrertGjennomforing)
     }
 
-    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV1Dto): Boolean {
-        return tiltakstyper.isEnabled(gjennomforing.tiltakstype.tiltakskode)
+    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV2Dto): Boolean {
+        return tiltakstyper.isEnabled(gjennomforing.tiltakskode)
     }
 
     private fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {

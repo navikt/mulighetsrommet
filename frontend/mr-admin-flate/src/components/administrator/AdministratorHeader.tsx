@@ -6,28 +6,20 @@ import {
   SELECT_ACCOUNT_URL,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { MenuGridIcon } from "@navikt/aksel-icons";
+import { BellIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, Heading, InternalHeader, Modal, ReadMore, Spacer } from "@navikt/ds-react";
-import { useRef, useState } from "react";
-import { Link } from "react-router";
-import { NotifikasjonerBjelle } from "../notifikasjoner/NotifikasjonerBjelle";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { Bolk } from "../detaljside/Bolk";
-import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
+import { OppgaveoversiktIkon } from "../ikoner/OppgaveoversiktIkon";
 
 export function AdministratorHeader() {
-  const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
-  const avtalerLinkRef = useRef<HTMLAnchorElement>(null);
-  const gjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
-  const arrangorerLinkRef = useRef<HTMLAnchorElement>(null);
-  const individuelleGjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
-  const veilederflateLinkRef = useRef<HTMLAnchorElement>(null);
-  const oppgaverLinkRef = useRef<HTMLAnchorElement>(null);
-  const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
-  const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
-  const logoutLinkRef = useRef<HTMLAnchorElement>(null);
-  const menylenke = "text-blue-800";
+  const navigate = useNavigate();
+  const { data: summary } = useNotificationSummary();
 
+  const harUlesteNotifikasjoner = summary.unreadCount > 0;
   return (
     <InternalHeader>
       <InternalHeader.Title as="h1">
@@ -36,9 +28,13 @@ export function AdministratorHeader() {
         </Link>
       </InternalHeader.Title>
       <Spacer />
-      <div className="flex justify-end items-center">
-        <NotifikasjonerBjelle />
-      </div>
+      <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}>
+        {harUlesteNotifikasjoner ? (
+          <OppgaveoversiktIkon color="white" className="w-5" />
+        ) : (
+          <BellIcon fontSize={24} title="Notifikasjonsbjelle" />
+        )}
+      </InternalHeader.Button>
       <Dropdown>
         <InternalHeader.Button as={Dropdown.Toggle}>
           <MenuGridIcon style={{ fontSize: "1.5rem" }} title="Meny" />
@@ -46,108 +42,52 @@ export function AdministratorHeader() {
 
         <Dropdown.Menu>
           <Dropdown.Menu.GroupedList>
-            <Dropdown.Menu.GroupedList.Item
-              onClick={() => tiltakstyperLinkRef.current?.click()}
-              as="span"
-            >
-              <Link ref={tiltakstyperLinkRef} to="/tiltakstyper" className={menylenke}>
-                Tiltakstyper
-              </Link>
+            <Dropdown.Menu.GroupedList.Item onClick={() => navigate("/tiltakstyper")}>
+              Tiltakstyper
             </Dropdown.Menu.GroupedList.Item>
-            <Dropdown.Menu.GroupedList.Item
-              onClick={() => avtalerLinkRef.current?.click()}
-              as="span"
-            >
-              <Link ref={avtalerLinkRef} to="/avtaler" className={menylenke}>
-                Avtaler
-              </Link>
+            <Dropdown.Menu.GroupedList.Item onClick={() => navigate("/avtaler")}>
+              Avtaler
             </Dropdown.Menu.GroupedList.Item>
-            <Dropdown.Menu.GroupedList.Item
-              onClick={() => gjennomforingerLinkRef.current?.click()}
-              as="span"
-            >
-              <Link ref={gjennomforingerLinkRef} to="/gjennomforinger" className={menylenke}>
-                Gjennomføringer
-              </Link>
+            <Dropdown.Menu.GroupedList.Item onClick={() => navigate("/gjennomforinger")}>
+              Gjennomføringer
             </Dropdown.Menu.GroupedList.Item>
-            <Dropdown.Menu.GroupedList.Item
-              onClick={() => arrangorerLinkRef.current?.click()}
-              as="span"
-            >
-              <Link ref={arrangorerLinkRef} to="/arrangorer" className={menylenke}>
-                Arrangører
-              </Link>
+            <Dropdown.Menu.GroupedList.Item onClick={() => navigate("/arrangorer")}>
+              Arrangører
+            </Dropdown.Menu.GroupedList.Item>
+            <Dropdown.Menu.GroupedList.Item onClick={() => navigate("/innsendingsoversikt")}>
+              Manglende innsendinger
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            <Dropdown.Menu.GroupedList.Item
-              onClick={() => oppgaverLinkRef.current?.click()}
-              as="span"
-            >
-              <Link ref={oppgaverLinkRef} to="/oppgaveoversikt/oppgaver" className={menylenke}>
-                Oppgaver
-              </Link>
+            <Dropdown.Menu.GroupedList.Item onClick={() => navigate("/oppgaveoversikt/oppgaver")}>
+              Oppgaver
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
-              onClick={() => notifikasjonerLinkRef.current?.click()}
-              as="span"
+              onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}
             >
-              <Link
-                ref={notifikasjonerLinkRef}
-                to="/oppgaveoversikt/notifikasjoner"
-                className={menylenke}
-              >
-                Notifikasjoner
-              </Link>
+              Notifikasjoner
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            <Dropdown.Menu.GroupedList.Item
-              as="span"
-              onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
-            >
-              <Lenke
-                to={SANITY_STUDIO_URL}
-                target="_blank"
-                onClick={(e) => e.stopPropagation()}
-                className={menylenke}
-                isExternal
-              >
-                Individuelle tiltaksgjennomføringer
-              </Lenke>
+            <Dropdown.Menu.GroupedList.Item as="a" href={SANITY_STUDIO_URL} target="_blank">
+              Individuelle tiltaksgjennomføringer
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
-              onClick={() => veilederflateLinkRef.current?.click()}
-              as="span"
+              as="a"
+              href={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
+              target="_blank"
             >
-              <Lenke
-                to={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
-                target="_blank"
-                onClick={(e) => e.stopPropagation()}
-                className={menylenke}
-                isExternal
-              >
-                Veilederflate forhåndsvisning
-              </Lenke>
+              Veilederflate forhåndsvisning
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            <Dropdown.Menu.GroupedList.Item
-              onClick={() => endringsmeldingerLinkRef.current?.click()}
-              as="span"
-            >
-              <Link ref={endringsmeldingerLinkRef} to={ENDRINGSMELDINGER_URL} className={menylenke}>
-                Endringsmeldinger
-              </Link>
+            <Dropdown.Menu.GroupedList.Item as="a" href={ENDRINGSMELDINGER_URL} target="_blank">
+              Endringsmeldinger
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>
-          <>
-            <Dropdown.Menu.Divider />
-            <Dropdown.Menu.List>
-              <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                <a ref={logoutLinkRef} href={SELECT_ACCOUNT_URL}>
-                  Logg ut
-                </a>
-              </Dropdown.Menu.List.Item>
-            </Dropdown.Menu.List>
-          </>
+          <Dropdown.Menu.Divider />
+          <Dropdown.Menu.List>
+            <Dropdown.Menu.List.Item as="a" href={SELECT_ACCOUNT_URL}>
+              Logg ut
+            </Dropdown.Menu.List.Item>
+          </Dropdown.Menu.List>
         </Dropdown.Menu>
         <InlineErrorBoundary>
           <Brukernavn />
@@ -183,10 +123,10 @@ function Brukernavn() {
         </Modal.Header>
         <Modal.Body>
           <Bolk>
-            <Metadata label="Navn" value={ansattNavn} />
-            <Metadata label="Navident" value={ansatt.navIdent} />
-            <Metadata label="Epost" value={ansatt.epost || "Ikke registrert"} />
-            <Metadata label="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
+            <MetadataVStack label="Navn" value={ansattNavn} />
+            <MetadataVStack label="Navident" value={ansatt.navIdent} />
+            <MetadataVStack label="Epost" value={ansatt.epost || "Ikke registrert"} />
+            <MetadataVStack label="Mobil" value={ansatt.mobilnummer || "Ikke registrert"} />
           </Bolk>
           <ReadMore header="Roller" defaultOpen>
             <ul>

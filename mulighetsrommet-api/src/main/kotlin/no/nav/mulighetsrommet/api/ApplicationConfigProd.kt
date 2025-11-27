@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingProd
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -36,9 +35,6 @@ val ApplicationConfigProd = AppConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 20,
         micrometerRegistry = Metrics.micrometerRegistry,
-    ),
-    flyway = FlywayMigrationManager.MigrationConfig(
-        strategy = FlywayMigrationManager.InitializationStrategy.Migrate,
     ),
     kafka = KafkaConfig(
         producerProperties = KafkaPropertiesPreset.aivenByteProducerProperties("mulighetsrommet-api-kafka-producer.v1"),

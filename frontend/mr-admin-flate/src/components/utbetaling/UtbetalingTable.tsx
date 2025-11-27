@@ -3,6 +3,7 @@ import {
   NavEnhetDto,
   UtbetalingKompaktDto,
   UtbetalingStatusDto,
+  UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HelpText, HStack, Table, VStack } from "@navikt/ds-react";
@@ -116,11 +117,7 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
               )}
               <Table.DataCell>
                 <Link to={`/gjennomforinger/${gjennomforingId}/utbetalinger/${id}`}>
-                  {["OVERFORT_TIL_UTBETALING", "AVBRUTT", "VENTER_PA_ARRANGOR"].includes(
-                    status.type,
-                  )
-                    ? "Detaljer"
-                    : "Behandle"}
+                  {utbetalingLenkeText(status.type)}
                 </Link>
               </Table.DataCell>
             </Table.Row>
@@ -129,4 +126,18 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
       </Table.Body>
     </Table>
   );
+}
+
+function utbetalingLenkeText(status: UtbetalingStatusDtoType) {
+  switch (status) {
+    case UtbetalingStatusDtoType.TIL_ATTESTERING:
+    case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
+    case UtbetalingStatusDtoType.RETURNERT:
+      return "Behandle";
+    case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
+    case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
+    case UtbetalingStatusDtoType.DELVIS_UTBETALT:
+    case UtbetalingStatusDtoType.UTBETALT:
+      return "Detaljer";
+  }
 }

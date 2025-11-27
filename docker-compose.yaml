@@ -36,7 +36,7 @@ services:
                 },
                 {
                   "requestParam": "scope",
-                  "match": "mr-tiltakshistorikk",
+                  "match": "openid mr-tiltakshistorikk",
                   "claims": {
                     "aud": ["mr-tiltakshistorikk"]
                   }

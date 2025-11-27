@@ -26,6 +26,16 @@ interface Props {
   avtale: AvtaleDto;
 }
 
+function skjemaPath(pathname: string): string {
+  if (pathname.includes("veilederinformasjon")) {
+    return "skjema/veilederinformasjon";
+  } else if (pathname.includes("personvern")) {
+    return "skjema/personvern";
+  } else {
+    return "skjema";
+  }
+}
+
 export function AvtaleKnapperad({ avtale }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,6 +47,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
   const [oppdaterPrisModalOpen, setOppdaterPrisModalOpen] = useState<boolean>(false);
   const { data: ansatt } = useHentAnsatt();
   const avbrytMutation = useAvbrytAvtale();
+  const path = `/avtaler/${avtale.id}/${skjemaPath(location.pathname)}`;
 
   function dupliserAvtale() {
     navigate(`/avtaler/skjema`, {
@@ -91,7 +102,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
                   ) {
                     advarselModal.current?.showModal();
                   } else {
-                    navigate(`${location.pathname}/skjema`);
+                    navigate(path);
                   }
                 }}
               >
@@ -146,7 +157,7 @@ export function AvtaleKnapperad({ avtale }: Props) {
         body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
         secondaryButton
         primaryButton={
-          <Button variant="primary" onClick={() => navigate(`${location.pathname}/skjema`)}>
+          <Button variant="primary" onClick={() => navigate(path)}>
             Ja, jeg vil redigere
           </Button>
         }

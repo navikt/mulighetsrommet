@@ -9,10 +9,29 @@ data class BestillingStatus(
 )
 
 enum class BestillingStatusType {
+    /**
+     * Sendt til OeBS, venter på kvittering
+     */
     SENDT,
+
+    /**
+     * OK kvittering fra OeBS
+     */
     AKTIV,
+
+    /**
+     * Mottatt kvittering på annulering fra OeBS
+     */
     ANNULLERT,
+
+    /**
+     * Sendt annulering til OeBS
+     */
     ANNULLERING_SENDT,
     OPPGJORT,
+
+    /**
+     * Krever manuell oppfølging
+     */
     FEILET,
 }

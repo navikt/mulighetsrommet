@@ -18,7 +18,7 @@ import {
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { Metadata } from "@mr/frontend-common/components/datadriven/Metadata";
+import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -45,7 +45,7 @@ function BeregningInputSkjema() {
 
   return (
     <VStack gap="4">
-      <Metadata
+      <MetadataVStack
         label={tilsagnTekster.prismodell.label}
         value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.FRI)}
       />

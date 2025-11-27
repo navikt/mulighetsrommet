@@ -31,24 +31,21 @@ export function GjennomforingAmoKategoriseringForm(props: Props) {
             <option>{bransjeToString(avtaleAmo.bransje)}</option>
           </Select>
           {avtaleAmo.forerkort.length > 0 && (
-            <ForerkortForm
-              path="detaljer.amoKategorisering.forerkort"
-              options={avtaleAmo.forerkort}
-            />
+            <ForerkortForm path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
           )}
           {avtaleAmo.sertifiseringer.length > 0 && (
             <SertifiseringerSkjema
-              path="detaljer.amoKategorisering.sertifiseringer"
+              path="amoKategorisering.sertifiseringer"
               options={avtaleAmo.sertifiseringer}
             />
           )}
-          <InnholdElementerForm path="detaljer.amoKategorisering.innholdElementer" />
+          <InnholdElementerForm path="amoKategorisering.innholdElementer" />
         </>
       )}
       {avtaleAmo.kurstype === "NORSKOPPLAERING" && (
         <NorksopplaeringForm
-          norskprovePath="detaljer.amoKategorisering.norskprove"
-          innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
+          norskprovePath="amoKategorisering.norskprove"
+          innholdElementerPath="amoKategorisering.innholdElementer"
         />
       )}
     </HGrid>
