@@ -21,7 +21,7 @@ export function Separator() {
     <hr
       style={{
         color: "var(--a-border-divider)",
-        marginBlock: "1.5rem",
+        marginBlock: "1rem",
       }}
     />
   );

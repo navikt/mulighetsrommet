@@ -14,6 +14,7 @@ import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { useUmami } from "@/sporing/useUmami";
+import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -76,6 +77,35 @@ function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
   ];
 }
 
+function getTab(currentTab: AvtaleTab, avtale: AvtaleDto) {
+  switch (currentTab) {
+    case AvtaleTab.DETALJER:
+      return (
+        <AvtalePageLayout avtale={avtale}>
+          <AvtaleDetaljer />
+        </AvtalePageLayout>
+      );
+    case AvtaleTab.PERSONVERN:
+      return (
+        <AvtalePageLayout avtale={avtale}>
+          <AvtalePersonvern />
+        </AvtalePageLayout>
+      );
+    case AvtaleTab.VEILEDERINFORMASJON:
+      return (
+        <AvtalePageLayout avtale={avtale}>
+          <RedaksjoneltInnholdPreview />
+        </AvtalePageLayout>
+      );
+    case AvtaleTab.GJENNOMFORINGER:
+      return (
+        <InlineErrorBoundary>
+          <GjennomforingerForAvtalePage />
+        </InlineErrorBoundary>
+      );
+  }
+}
+
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { pathname } = useLocation();
@@ -117,26 +147,7 @@ export function AvtalePage() {
             />
           ))}
         </Tabs.List>
-        <Tabs.Panel value={AvtaleTab.DETALJER}>
-          <AvtalePageLayout avtale={avtale}>
-            <AvtaleDetaljer />
-          </AvtalePageLayout>
-        </Tabs.Panel>
-        <Tabs.Panel value={AvtaleTab.PERSONVERN}>
-          <AvtalePageLayout avtale={avtale}>
-            <AvtalePersonvern />
-          </AvtalePageLayout>
-        </Tabs.Panel>
-        <Tabs.Panel value={AvtaleTab.VEILEDERINFORMASJON}>
-          <AvtalePageLayout avtale={avtale}>
-            <RedaksjoneltInnholdPreview />
-          </AvtalePageLayout>
-        </Tabs.Panel>
-        <Tabs.Panel value={AvtaleTab.GJENNOMFORINGER}>
-          <InlineErrorBoundary>
-            <GjennomforingerForAvtalePage />
-          </InlineErrorBoundary>
-        </Tabs.Panel>
+        <Tabs.Panel value={currentTab}>{getTab(currentTab, avtale)}</Tabs.Panel>
       </Tabs>
     </div>
   );

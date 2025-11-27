@@ -1,24 +1,38 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
-import { AvtaleFormKnapperad } from "@/components/avtaler/AvtaleFormKnapperad";
-import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
-import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
-import { RedigerAvtaleContainer } from "@/components/avtaler/RedigerAvtaleContainer";
 import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Heading, Tabs } from "@navikt/ds-react";
-import { useLocation } from "react-router";
-import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
-import { toDetaljerRequest, toPersonvernRequest, toVeilederinfoRequest } from "./avtaleFormUtils";
-import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
+import { Heading } from "@navikt/ds-react";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
+import { Outlet, useLocation, useNavigate } from "react-router";
+import { AvtaleFormKnapperad } from "@/components/avtaler/AvtaleFormKnapperad";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { useUpsertDetaljer } from "@/api/avtaler/useUpsertDetaljer";
+import { useUpsertPersonvern } from "@/api/avtaler/useUpsertPersonvern";
+import { useUpsertVeilederinformasjon } from "@/api/avtaler/useUpsertVeilederinformasjon";
+import {
+  AvtaleFormInput,
+  avtaleFormSchema,
+  AvtaleFormValues,
+  defaultAvtaleData,
+} from "@/schemas/avtale";
+import {
+  toVeilederinfoRequest,
+  toPersonvernRequest,
+  toDetaljerRequest,
+  mapNameToSchemaPropertyName,
+} from "./avtaleFormUtils";
+import { FormProvider, useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
+import { AvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { useCallback } from "react";
+import { QueryKeys } from "@/api/QueryKeys";
 
 function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   return [
@@ -36,59 +50,66 @@ function brodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   ];
 }
 
-enum AvtaleTab {
-  DETALJER = "detaljer",
-  PERSONVERN = "personvern",
-  VEILEDERINFORMASJON = "veilederinformasjon",
-}
-
-function getCurrentTab(pathname: string) {
+function redigeringstittel(pathname: string): string {
   if (pathname.includes("veilederinformasjon")) {
-    return AvtaleTab.VEILEDERINFORMASJON;
+    return "Redigerer veilederinformasjon";
   } else if (pathname.includes("personvern")) {
-    return AvtaleTab.PERSONVERN;
+    return "Redigerer personvern";
   } else {
-    return AvtaleTab.DETALJER;
+    return "Redigerer avtaledetaljer";
   }
-}
-
-interface AvtaleTabDetaljer {
-  label: string;
-  value: AvtaleTab;
-  href: string;
-  testId?: string;
-}
-
-function getTabLinks(avtaleId: string): AvtaleTabDetaljer[] {
-  return [
-    {
-      label: "Detaljer",
-      value: AvtaleTab.DETALJER,
-      href: `/avtaler/${avtaleId}/skjema`,
-    },
-    {
-      label: "Personvern",
-      value: AvtaleTab.PERSONVERN,
-      href: `/avtaler/${avtaleId}/personvern/skjema`,
-    },
-    {
-      label: "Informasjon for veiledere",
-      value: AvtaleTab.VEILEDERINFORMASJON,
-      href: `/avtaler/${avtaleId}/veilederinformasjon/skjema`,
-    },
-  ];
 }
 
 export function AvtaleFormPage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
-  const { pathname } = useLocation();
-  const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
+  const navigate = useNavigate();
   const { data: avtale } = useAvtale(avtaleId);
-  const currentTab = getCurrentTab(pathname);
+  const { pathname } = useLocation();
+  const queryClient = useQueryClient();
+  const { data: ansatt } = useHentAnsatt();
 
-  const personvernMutation = useUpsertPersonvern(avtale.id);
-  const veilederinfoMutation = useUpsertVeilederinformasjon(avtale.id);
+  const methods = useForm<AvtaleFormInput, any, AvtaleFormValues>({
+    resolver: zodResolver(avtaleFormSchema),
+    defaultValues: defaultAvtaleData(ansatt, avtale),
+  });
+
+  const handleValidationError = useCallback(
+    (validation: ValidationError) => {
+      validation.errors.forEach((error) => {
+        const name = mapNameToSchemaPropertyName(jsonPointerToFieldPath(error.pointer));
+        methods.setError(name, { type: "custom", message: error.detail });
+      });
+    },
+    [methods],
+  );
+
   const detaljerMutation = useUpsertDetaljer(avtaleId);
+  const personvernMutation = useUpsertPersonvern(avtaleId);
+  const veilederinfoMutation = useUpsertVeilederinformasjon(avtaleId);
+
+  const onSubmit = async (data: AvtaleFormValues) => {
+    let mutation;
+    let request;
+
+    if (pathname.includes("veilederinformasjon")) {
+      mutation = veilederinfoMutation;
+      request = toVeilederinfoRequest({ data, id: avtaleId });
+    } else if (pathname.includes("personvern")) {
+      mutation = personvernMutation;
+      request = toPersonvernRequest({ data, id: avtaleId });
+    } else {
+      mutation = detaljerMutation;
+      request = toDetaljerRequest({ data, id: avtaleId });
+    }
+
+    (mutation as { mutate: (request: unknown, options: any) => void }).mutate(request, {
+      onValidationError: handleValidationError,
+      onSuccess: (dto: { data: AvtaleDto }) => {
+        queryClient.setQueryData(QueryKeys.avtale(dto.data.id), dto.data);
+        navigate(pathname.replace("/skjema", ""));
+      },
+    });
+  };
 
   return (
     <div data-testid="avtale-form-page">
@@ -97,71 +118,23 @@ export function AvtaleFormPage() {
       <Header>
         <AvtaleIkon />
         <Heading size="large" level="2">
-          Redigerer {avtale.navn}
+          {avtale.navn}
         </Heading>
         <DataElementStatusTag {...avtale.status.status} />
       </Header>
-      <Tabs value={currentTab}>
-        <Tabs.List>
-          {getTabLinks(avtale.id).map(({ label, value, href, testId }) => (
-            <Tabs.Tab
-              key={value}
-              label={label}
-              value={value}
-              onClick={() => navigateAndReplaceUrl(href)}
-              data-testid={testId}
-            />
-          ))}
-        </Tabs.List>
-        <RedigerAvtaleContainer
-          avtale={avtale}
-          mapToRequest={toDetaljerRequest}
-          mutation={detaljerMutation}
-        >
-          <FormTabsPanel value={AvtaleTab.DETALJER}>
-            <AvtaleDetaljerForm opsjonerRegistrert={avtale.opsjonerRegistrert} />
-          </FormTabsPanel>
-        </RedigerAvtaleContainer>
-        <RedigerAvtaleContainer
-          avtale={avtale}
-          mapToRequest={toPersonvernRequest}
-          mutation={personvernMutation}
-        >
-          <FormTabsPanel value={AvtaleTab.PERSONVERN}>
-            <AvtalePersonvernForm />
-          </FormTabsPanel>
-        </RedigerAvtaleContainer>
-        <RedigerAvtaleContainer
-          avtale={avtale}
-          mapToRequest={toVeilederinfoRequest}
-          mutation={veilederinfoMutation}
-        >
-          <FormTabsPanel value={AvtaleTab.VEILEDERINFORMASJON}>
-            <AvtaleInformasjonForVeiledereForm />
-          </FormTabsPanel>
-        </RedigerAvtaleContainer>
-      </Tabs>
-    </div>
-  );
-}
-
-interface FormTabsPanelProps {
-  value: AvtaleTab;
-  children: React.ReactNode;
-}
-
-function FormTabsPanel({ value, children }: FormTabsPanelProps) {
-  return (
-    <Tabs.Panel value={value}>
       <ContentBox>
         <WhitePaddedBox>
-          <AvtaleFormKnapperad />
-          <Separator />
-          {children}
-          <Separator />
-          <AvtaleFormKnapperad />
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <AvtaleFormKnapperad heading={redigeringstittel(pathname)} />
+              <Separator />
+              <Outlet />
+              <Separator />
+              <AvtaleFormKnapperad />
+            </form>
+          </FormProvider>
         </WhitePaddedBox>
       </ContentBox>
-    </Tabs.Panel>
+    </div>
   );
 }

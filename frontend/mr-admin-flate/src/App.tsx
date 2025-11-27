@@ -44,6 +44,9 @@ import { InnsendingoversiktPage } from "./pages/innsendinger/Innsendingsoversikt
 import { UtdatertKlientBanner } from "./api/UtdatertKlientBanner";
 import { createHead, UnheadProvider } from "@unhead/react/client";
 import { Head } from "@unhead/react";
+import { AvtaleDetaljerForm } from "./components/avtaler/AvtaleDetaljerForm";
+import { AvtalePersonvernForm } from "./components/avtaler/AvtalePersonvernForm";
+import { AvtaleInformasjonForVeiledereForm } from "./components/avtaler/AvtaleInformasjonForVeiledereForm";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -165,7 +168,7 @@ const routes: RouteObject[] = [
         ],
       },
       {
-        path: "avtaler/skjema",
+        path: "avtaler/opprett-avtale",
         element: <NewAvtaleFormPage />,
         errorElement: <ErrorPage />,
       },
@@ -173,16 +176,23 @@ const routes: RouteObject[] = [
         path: "avtaler/:avtaleId/skjema",
         element: <AvtaleFormPage />,
         errorElement: <ErrorPage />,
-      },
-      {
-        path: "avtaler/:avtaleId/personvern/skjema",
-        element: <AvtaleFormPage />,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "avtaler/:avtaleId/veilederinformasjon/skjema",
-        element: <AvtaleFormPage />,
-        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <AvtaleDetaljerForm />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "personvern",
+            element: <AvtalePersonvernForm />,
+            errorElement: <ErrorPage />,
+          },
+          {
+            path: "veilederinformasjon",
+            element: <AvtaleInformasjonForVeiledereForm />,
+            errorElement: <ErrorPage />,
+          },
+        ],
       },
       {
         path: "avtaler/:avtaleId/gjennomforinger/skjema",
