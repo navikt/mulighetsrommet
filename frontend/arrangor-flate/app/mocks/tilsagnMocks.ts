@@ -9,7 +9,7 @@ import {
 } from "api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
-const beregning: DataDetails = {
+const beregningManedspris: DataDetails = {
   header: null,
   entries: [
     {
@@ -60,6 +60,108 @@ const beregning: DataDetails = {
   ],
 };
 
+const beregningUkespris: DataDetails = {
+  header: null,
+  entries: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tilsagnsperiode",
+      value: {
+        type: "DATA_ELEMENT_PERIODE",
+        start: "01.08.2025",
+        slutt: "31.12.2025",
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Antall plasser",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "333",
+        format: DataElementTextFormat.NUMBER,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Avtalt ukespris per tiltaksplass",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "5015",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Totalbeløp",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "36405891",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Gjenstående beløp",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "35105891",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+  ],
+};
+
+const beregningFastSats: DataDetails = {
+  header: null,
+  entries: [
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Tilsagnsperiode",
+      value: {
+        type: "DATA_ELEMENT_PERIODE",
+        start: "01.07.2025",
+        slutt: "31.12.2025",
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Antall plasser",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "10",
+        format: DataElementTextFormat.NUMBER,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Sats per tiltaksplass per måned",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "20975",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Totalbeløp",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "1258500",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+    {
+      type: LabeledDataElementType.INLINE,
+      label: "Gjenstående beløp",
+      value: {
+        type: "DATA_ELEMENT_TEXT",
+        value: "1139293",
+        format: DataElementTextFormat.NOK,
+      },
+    },
+  ],
+};
+
 const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   id: "5b08cd43-102e-4845-889e-99c5de2bc252",
   tiltakstype: {
@@ -76,7 +178,7 @@ const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bruktBelop: 0,
   gjenstaendeBelop: 1200000,
-  beregning,
+  beregning: beregningManedspris,
   bestillingsnummer: "A-2025/12611-1",
 };
 
@@ -96,7 +198,7 @@ const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   status: TilsagnStatus.GODKJENT,
   bruktBelop: 0,
   gjenstaendeBelop: 248400,
-  beregning,
+  beregning: beregningUkespris,
   bestillingsnummer: "A-2025/4123-1",
 };
 
@@ -118,7 +220,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-01-01",
       slutt: "2025-07-01",
     },
-    beregning,
+    beregning: beregningFastSats,
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-1",
@@ -140,7 +242,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-01-01",
       slutt: "2025-12-31",
     },
-    beregning,
+    beregning: beregningFastSats,
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-2",
@@ -159,7 +261,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-04-01",
       slutt: "2025-05-01",
     },
-    beregning,
+    beregning: beregningManedspris,
     arrangor: arrangorMock,
     status: TilsagnStatus.ANNULLERT,
     bestillingsnummer: "A-2025/11147-2",
@@ -181,7 +283,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
       start: "2025-03-18",
       slutt: "2025-04-02",
     },
-    beregning,
+    beregning: beregningFastSats,
     arrangor: arrangorMock,
     status: TilsagnStatus.OPPGJORT,
     bestillingsnummer: "A-2025/11073-2",
@@ -197,7 +299,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     },
     type: TilsagnType.TILSAGN,
     periode: { start: "2025-04-01", slutt: "2025-10-01" },
-    beregning,
+    beregning: beregningFastSats,
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11398-1",
