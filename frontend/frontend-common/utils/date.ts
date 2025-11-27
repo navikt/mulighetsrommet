@@ -12,6 +12,7 @@ import {
   Duration,
   max,
   add,
+  format,
 } from "date-fns";
 import { tz } from "@date-fns/tz";
 import { utc, UTCDate } from "@date-fns/utc";
@@ -72,13 +73,7 @@ export function formaterDatoTid(dato: UnparsedDate): string | undefined {
   if (!parsedDato) {
     return;
   }
-  return parsedDato
-    .toLocaleTimeString("no-NO", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(",", " ");
+  return format(parsedDato, "dd.MM.yyyy HH:mm:ss");
 }
 
 type Periode = {
