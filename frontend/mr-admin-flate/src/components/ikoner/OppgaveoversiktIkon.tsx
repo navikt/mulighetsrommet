@@ -10,6 +10,7 @@ export function OppgaveoversiktIkon({ color = "#FFD799", className }: Oppgaveove
       viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      aria-label="Notifikasjonsbjelle"
       className={className}
     >
       <path
