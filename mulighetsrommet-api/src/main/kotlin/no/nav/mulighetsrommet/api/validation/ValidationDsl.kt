@@ -33,6 +33,7 @@ class ValidationDsl(
             errors.addAll(this.value)
             raise.raise(errors)
         }
+
         is Either.Right -> this.value
     }
 }

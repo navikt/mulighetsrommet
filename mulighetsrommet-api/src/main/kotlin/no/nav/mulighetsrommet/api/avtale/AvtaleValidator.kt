@@ -85,6 +85,13 @@ object AvtaleValidator {
         fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodellDbo, personvernDbo, veilederinformasjonDbo)
     }
 
+    /**
+     * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
+     *
+     * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og utbetaling (f.eks. når blir avtalen godkjent?),
+     * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
+     * gjennomføringer på avtalen eller ikke...
+     */
     fun validateUpdateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
@@ -115,13 +122,6 @@ object AvtaleValidator {
             )
         }
 
-        /**
-         * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
-         *
-         * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og utbetaling (f.eks. når blir avtalen godkjent?),
-         * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
-         * gjennomføringer på avtalen eller ikke...
-         */
         if (previous.gjennomforinger.isNotEmpty()) {
             validate(request.tiltakskode == previous.tiltakskode) {
                 FieldError.of(
@@ -148,7 +148,10 @@ object AvtaleValidator {
                         DetaljerRequest.Arrangor::hovedenhet,
                     )
                 }
-                validate(gjennomforing.status != GjennomforingStatusType.GJENNOMFORES || ctx.arrangor?.underenheter?.map { it.id }?.contains(arrangorId) == true) {
+                validate(
+                    gjennomforing.status != GjennomforingStatusType.GJENNOMFORES || ctx.arrangor?.underenheter?.map { it.id }
+                        ?.contains(arrangorId) == true,
+                ) {
                     FieldError.ofPointer(
                         "/arrangorUnderenheter",
                         "Arrangøren ${gjennomforing.arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",

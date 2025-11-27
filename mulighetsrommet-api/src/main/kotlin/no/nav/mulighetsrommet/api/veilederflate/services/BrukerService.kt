@@ -183,6 +183,7 @@ class BrukerService(
             .getOrElse {
                 when (it) {
                     NorgError.NotFound -> null
+
                     NorgError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
                         "Fant ikke nav enhet til geografisk tilknytning.",

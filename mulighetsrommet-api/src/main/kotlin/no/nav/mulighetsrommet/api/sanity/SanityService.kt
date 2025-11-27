@@ -449,7 +449,6 @@ class SanityService(
 
         return when (val response = sanityClient.query(query, params)) {
             is SanityResponse.Result -> response.decode<List<SanityNavKontaktperson>>().firstOrNull()
-
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktperson fra Sanity: ${response.error}")
         }
     }
@@ -459,7 +458,6 @@ class SanityService(
 
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> response.decode<List<SanityNavKontaktperson>?>()
-
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktpersoner fra Sanity: ${response.error}")
         } ?: emptyList()
     }

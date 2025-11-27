@@ -333,6 +333,7 @@ class UtbetalingService(
             UtbetalingStatusType.RETURNERT,
             UtbetalingStatusType.INNSENDT,
             -> Unit
+
             UtbetalingStatusType.GENERERT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -768,6 +769,7 @@ class UtbetalingService(
                     erBeslutter && behandletAv != ansatt.navIdent
 
                 UtbetalingLinjeHandling.RETURNER -> erBeslutter
+
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
             }
         }

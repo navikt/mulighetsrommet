@@ -95,6 +95,7 @@ data class ArrangorflatePersonalia(
                     erSkjermet = personalia.erSkjermet,
                 )
             }
+
             else -> ArrangorflatePersonalia(
                 navn = "Adressebeskyttet",
                 norskIdent = null,
@@ -240,12 +241,16 @@ private fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<ArrangorflateBe
 fun beregningDisplayName(beregning: UtbetalingBeregning) = when (beregning) {
     is UtbetalingBeregningFastSatsPerTiltaksplassPerManed ->
         "Fast sats per tiltaksplass per måned"
+
     is UtbetalingBeregningFri ->
         "Annen avtalt pris"
+
     is UtbetalingBeregningPrisPerManedsverk ->
         "Avtalt månedspris per tiltaksplass"
+
     is UtbetalingBeregningPrisPerTimeOppfolging ->
         "Avtalt pris per time oppfølging per deltaker"
+
     is UtbetalingBeregningPrisPerUkesverk,
     is UtbetalingBeregningPrisPerHeleUkesverk,
     ->
@@ -255,14 +260,19 @@ fun beregningDisplayName(beregning: UtbetalingBeregning) = when (beregning) {
 fun beregningStengt(beregning: UtbetalingBeregning) = when (beregning) {
     is UtbetalingBeregningFastSatsPerTiltaksplassPerManed ->
         beregning.input.stengt.sortedBy { it.periode.start }
+
     is UtbetalingBeregningPrisPerManedsverk ->
         beregning.input.stengt.sortedBy { it.periode.start }
+
     is UtbetalingBeregningPrisPerTimeOppfolging ->
         beregning.input.stengt.sortedBy { it.periode.start }
+
     is UtbetalingBeregningPrisPerUkesverk ->
         beregning.input.stengt.sortedBy { it.periode.start }
+
     is UtbetalingBeregningPrisPerHeleUkesverk ->
         beregning.input.stengt.sortedBy { it.periode.start }
+
     is UtbetalingBeregningFri ->
         emptyList()
 }
@@ -278,6 +288,7 @@ fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
     return when (beregning) {
         is UtbetalingBeregningFri ->
             DataDetails(entries = getBelopDetails(beregning.output.belop))
+
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             DataDetails(
@@ -286,6 +297,7 @@ fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
                     getBelopDetails(beregning.output.belop),
             )
         }
+
         is UtbetalingBeregningPrisPerManedsverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             DataDetails(
@@ -294,6 +306,7 @@ fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
                     getBelopDetails(beregning.output.belop),
             )
         }
+
         is UtbetalingBeregningPrisPerUkesverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             DataDetails(
@@ -302,6 +315,7 @@ fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
                     getBelopDetails(beregning.output.belop),
             )
         }
+
         is UtbetalingBeregningPrisPerHeleUkesverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             DataDetails(
@@ -310,6 +324,7 @@ fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
                     getBelopDetails(beregning.output.belop),
             )
         }
+
         is UtbetalingBeregningPrisPerTimeOppfolging -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             DataDetails(
@@ -323,6 +338,7 @@ fun beregningDetails(beregning: UtbetalingBeregning): DataDetails {
 fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
     return when (beregning) {
         is UtbetalingBeregningFri -> emptyList()
+
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
         -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
@@ -333,6 +349,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 faktorLabel = "Antall månedsverk",
             )
         }
+
         is UtbetalingBeregningPrisPerManedsverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
@@ -342,6 +359,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 faktorLabel = "Antall månedsverk",
             )
         }
+
         is UtbetalingBeregningPrisPerUkesverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
@@ -351,6 +369,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 faktorLabel = "Antall ukesverk",
             )
         }
+
         is UtbetalingBeregningPrisPerHeleUkesverk -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
@@ -360,6 +379,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 faktorLabel = "Antall ukesverk",
             )
         }
+
         is UtbetalingBeregningPrisPerTimeOppfolging -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerUtenFaktor(satser, "Avtalt pris per time oppfølging")
@@ -415,6 +435,7 @@ fun beregningDeltakerTable(
     deltakelser: List<ArrangorflateBeregningDeltakelse>,
 ) = when (val beregning = utbetaling.beregning) {
     is UtbetalingBeregningFri -> null
+
     is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
         val stengt = beregning.input.stengt.sortedBy { it.periode.start }
         deltakelseFastSatsPerTiltaksplassPerManedTable(
@@ -424,18 +445,22 @@ fun beregningDeltakerTable(
             stengt,
         )
     }
+
     is UtbetalingBeregningPrisPerManedsverk -> {
         val stengt = beregning.input.stengt.sortedBy { it.periode.start }
         deltakelsePrisPerManedsverkTable(utbetaling.periode, deltakelser, stengt)
     }
+
     is UtbetalingBeregningPrisPerUkesverk -> {
         val stengt = beregning.input.stengt.sortedBy { it.periode.start }
         deltakelsePrisPerUkesverkTable(utbetaling.periode, deltakelser, stengt)
     }
+
     is UtbetalingBeregningPrisPerHeleUkesverk -> {
         val stengt = beregning.input.stengt.sortedBy { it.periode.start }
         deltakelsePrisPerUkesverkTable(utbetaling.periode, deltakelser, stengt)
     }
+
     is UtbetalingBeregningPrisPerTimeOppfolging -> {
         deltakelsePrisPerTimeOppfolgingTable(deltakelser)
     }

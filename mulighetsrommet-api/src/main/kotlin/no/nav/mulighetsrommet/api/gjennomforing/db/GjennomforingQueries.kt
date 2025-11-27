@@ -576,6 +576,7 @@ class GjennomforingQueries(private val session: Session) {
 
         val status = when (GjennomforingStatusType.valueOf(string("status"))) {
             GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
+
             GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
 
             GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(

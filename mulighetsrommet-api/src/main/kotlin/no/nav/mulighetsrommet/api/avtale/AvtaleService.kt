@@ -415,6 +415,7 @@ class AvtaleService(
         val currentStatus = getOrError(avtaleId).status.type
         val newStatus = when (currentStatus) {
             AvtaleStatusType.UTKAST, AvtaleStatusType.AVBRUTT -> currentStatus
+
             AvtaleStatusType.AKTIV, AvtaleStatusType.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
                 AvtaleStatusType.AKTIV
             } else {
@@ -515,6 +516,7 @@ class AvtaleService(
             AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
                 when (avtale.status) {
                     AvtaleStatus.Aktiv -> true
+
                     is AvtaleStatus.Avbrutt,
                     AvtaleStatus.Avsluttet,
                     AvtaleStatus.Utkast,
@@ -540,6 +542,7 @@ class AvtaleService(
         fun tilgangTilHandling(handling: AvtaleHandling, ansatt: NavAnsatt): Boolean {
             return when (handling) {
                 AvtaleHandling.OPPRETT_GJENNOMFORING -> ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+
                 AvtaleHandling.AVBRYT,
                 AvtaleHandling.OPPDATER_PRIS,
                 AvtaleHandling.REGISTRER_OPSJON,

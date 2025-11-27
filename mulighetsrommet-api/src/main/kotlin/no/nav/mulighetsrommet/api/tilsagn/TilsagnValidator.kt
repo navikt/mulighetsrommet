@@ -100,6 +100,7 @@ object TilsagnValidator {
         periode: Periode,
     ): Int = when (beregningType) {
         TilsagnBeregningType.FRI -> 0
+
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
         TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
@@ -213,6 +214,7 @@ object TilsagnValidator {
         TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
         TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         -> 0
+
         TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING -> {
             requireValid(antallTimerOppfolgingPerDeltaker != null && antallTimerOppfolgingPerDeltaker > 0) {
                 FieldError.of(
@@ -227,6 +229,7 @@ object TilsagnValidator {
 
     private fun ValidationDsl.validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Int = when (beregningType) {
         TilsagnBeregningType.FRI -> 0
+
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
         TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,

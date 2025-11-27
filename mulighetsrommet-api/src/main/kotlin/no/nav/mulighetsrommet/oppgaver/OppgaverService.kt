@@ -153,6 +153,7 @@ class OppgaverService(val db: ApiDatabase) {
         kostnadssteder: Set<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
+
         else -> {
             data.kostnadssteder.isEmpty() || data.kostnadssteder.any { it in kostnadssteder }
         }
@@ -309,6 +310,7 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 )
             }
         }
+
         DelutbetalingStatus.RETURNERT -> {
             Oppgave(
                 id = data.id,
@@ -343,6 +345,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
         UtbetalingStatusType.RETURNERT,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         -> null
+
         UtbetalingStatusType.INNSENDT ->
             Oppgave(
                 id = data.id,

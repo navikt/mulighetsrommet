@@ -135,6 +135,7 @@ class ArrangorflateService(
             .mapNotNull { (deltakerId, forslag) ->
                 when (forslag.count { isForslagRelevantForUtbetaling(it, utbetaling) }) {
                     0 -> null
+
                     else -> DeltakerAdvarsel.RelevanteForslag(
                         deltakerId = deltakerId,
                         beskrivelse = "${personalia[deltakerId]?.navn} har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg",

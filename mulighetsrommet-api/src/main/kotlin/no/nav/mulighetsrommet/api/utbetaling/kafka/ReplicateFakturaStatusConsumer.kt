@@ -31,6 +31,7 @@ class ReplicateFakturaStatusConsumer(
             FakturaStatusType.SENDT,
             FakturaStatusType.IKKE_BETALT,
             -> queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.OVERFORT_TIL_UTBETALING)
+
             FakturaStatusType.DELVIS_BETALT,
             FakturaStatusType.FULLT_BETALT,
             -> queries.delutbetaling.setStatus(fakturanummer, DelutbetalingStatus.UTBETALT)

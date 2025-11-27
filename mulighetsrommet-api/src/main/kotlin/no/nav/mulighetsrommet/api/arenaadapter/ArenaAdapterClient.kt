@@ -32,6 +32,7 @@ class ArenaAdapterClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
+
             HttpStatusCode.NotFound -> {
                 log.info("Tiltaksgjennomføring finnes ikke: $arenaId")
                 null
@@ -48,6 +49,7 @@ class ArenaAdapterClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> response.body()
+
             HttpStatusCode.NotFound -> {
                 log.info("Tiltaksgjennomføring finnes ikke: $id")
                 null

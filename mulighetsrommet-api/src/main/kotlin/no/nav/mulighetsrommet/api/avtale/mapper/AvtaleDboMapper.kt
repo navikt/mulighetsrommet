@@ -134,8 +134,11 @@ fun Prismodell.satser(): List<AvtaltSats> = when (this) {
     -> emptyList()
 
     is Prismodell.AvtaltPrisPerManedsverk -> toAvtalteSatser(satser)
+
     is Prismodell.AvtaltPrisPerUkesverk -> toAvtalteSatser(satser)
+
     is Prismodell.AvtaltPrisPerHeleUkesverk -> toAvtalteSatser(satser)
+
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> toAvtalteSatser(satser)
 }
 
