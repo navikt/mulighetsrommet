@@ -380,6 +380,7 @@ private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adress
         )
 
         null -> null
+
         else -> OebsBestillingMelding.Selger.Adresse(
             gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
             by = it.poststed ?: return null,

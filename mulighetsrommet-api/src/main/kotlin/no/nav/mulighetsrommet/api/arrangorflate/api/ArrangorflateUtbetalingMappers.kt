@@ -270,6 +270,7 @@ fun beregningStengt(beregning: UtbetalingBeregning) = when (beregning) {
 fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
     return when (beregning) {
         is UtbetalingBeregningFri -> emptyList()
+
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
         -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
@@ -374,6 +375,7 @@ fun beregningDeltakerTable(
     }
     return when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> null
+
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
             val stengt = beregning.input.stengt.sortedBy { it.periode.start }
             deltakelseFastSatsPerTiltaksplassPerManedTable(

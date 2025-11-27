@@ -527,13 +527,17 @@ class UtbetalingQueries(private val session: Session) {
     private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {
         return when (beregning) {
             UtbetalingBeregningType.FRI -> getBeregningFri(id)
+
             UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED -> {
                 getBeregningFastSatsPerTiltaksplassPerManed(id)
             }
 
             UtbetalingBeregningType.PRIS_PER_MANEDSVERK -> getBeregningPrisPerManedsverk(id)
+
             UtbetalingBeregningType.PRIS_PER_UKESVERK -> getBeregningPrisPerUkesverk(id)
+
             UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK -> getBeregningPrisPerHeleUkesverk(id)
+
             UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING -> getBeregningPrisPerTimeOppfolging(id)
         }
     }

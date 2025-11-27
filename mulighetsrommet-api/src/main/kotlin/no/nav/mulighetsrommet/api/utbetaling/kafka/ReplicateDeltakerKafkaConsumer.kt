@@ -66,6 +66,7 @@ private fun toDeltakerDbo(deltaker: AmtDeltakerV1Dto, prismodell: PrismodellType
     val deltakelsesprosent = when (prismodell) {
         // Hvis deltakelsesprosent mangler for forhåndsgodkjente tiltak så skal det antas å være 100%
         PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> deltaker.prosentStilling?.toDouble() ?: 100.0
+
         else -> null
     }
     return DeltakerDbo(

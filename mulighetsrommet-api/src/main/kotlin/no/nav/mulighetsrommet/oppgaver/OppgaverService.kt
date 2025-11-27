@@ -155,6 +155,7 @@ class OppgaverService(val db: ApiDatabase) {
         kostnadssteder: Set<NavEnhetNummer>,
     ): Boolean = when {
         kostnadssteder.isEmpty() -> true
+
         else -> {
             data.kostnadssteder.isEmpty() || data.kostnadssteder.any { it in kostnadssteder }
         }

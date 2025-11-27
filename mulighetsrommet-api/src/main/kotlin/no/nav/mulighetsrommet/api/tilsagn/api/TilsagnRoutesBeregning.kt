@@ -201,6 +201,7 @@ fun resolveTilsagnDefaults(
     val periode = when (prismodell) {
         is Prismodell.ForhandsgodkjentPrisPerManedsverk ->
             getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+
         is Prismodell.AnnenAvtaltPris -> null
 
         else -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)

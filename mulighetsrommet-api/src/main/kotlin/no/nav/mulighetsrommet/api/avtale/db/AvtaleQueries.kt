@@ -758,8 +758,11 @@ class AvtaleQueries(private val session: Session) {
 
         val status = when (AvtaleStatusType.valueOf(string("status"))) {
             AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
+
             AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
+
             AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
+
             AvtaleStatusType.AVBRUTT -> {
                 AvtaleStatus.Avbrutt(
                     localDateTime("avbrutt_tidspunkt"),

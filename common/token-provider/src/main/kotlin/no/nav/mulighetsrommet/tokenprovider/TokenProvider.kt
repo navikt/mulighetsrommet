@@ -18,6 +18,7 @@ class AzureAdTokenProvider(private val texasClient: TexasClient) {
                     resource = null,
                     skipCache = false,
                 )
+
                 is AccessType.OBO -> texasClient.exchangeOBOToken(
                     token = accessType.token,
                     identityProvider = IdentityProvider.azuread,

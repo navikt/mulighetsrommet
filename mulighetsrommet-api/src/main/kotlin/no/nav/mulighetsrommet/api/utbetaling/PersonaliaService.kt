@@ -114,6 +114,7 @@ class PersonaliaService(
             .getOrElse {
                 when (it) {
                     NorgError.NotFound -> null
+
                     NorgError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
                         "Fant ikke navenhet til geografisk tilknytning.",

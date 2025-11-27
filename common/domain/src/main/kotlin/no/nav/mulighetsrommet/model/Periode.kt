@@ -82,7 +82,7 @@ data class Periode(
     }
 
     operator fun contains(date: LocalDate): Boolean {
-        return date.isEqual(start) || date.isAfter(start) && date.isBefore(slutt)
+        return (date.isEqual(start) || date.isAfter(start)) && date.isBefore(slutt)
     }
 
     operator fun contains(periode: Periode): Boolean {

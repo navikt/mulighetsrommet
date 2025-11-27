@@ -148,9 +148,7 @@ class TiltakshistorikkService(
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_KOMET,
             tilstand = getTilstand(deltakelse.status.type),
-            /**
-             * Vi inkluderer ikke info om påmelding før deltakelsen er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
-             */
+            // Vi inkluderer ikke info om påmelding før deltakelsen er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
             pamelding = null,
         )
     }

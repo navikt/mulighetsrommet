@@ -52,8 +52,11 @@ class AmtDeltakerClient(
 
         return when (response.status) {
             HttpStatusCode.OK -> Either.Right(response.body<DeltakelserResponse>())
+
             HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
+
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
+
             else -> {
                 val bodyAsText = response.bodyAsText()
                 log.error("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
@@ -91,7 +94,9 @@ class AmtDeltakerClient(
                 .right()
 
             HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
+
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
+
             else -> {
                 val bodyAsText = response.bodyAsText()
                 log.error("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")

@@ -23,12 +23,16 @@ enum class ArrangorflateUtbetalingStatus {
                     KLAR_FOR_GODKJENNING
                 }
             }
+
             UtbetalingStatusType.INNSENDT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             -> BEHANDLES_AV_NAV
+
             UtbetalingStatusType.FERDIG_BEHANDLET -> OVERFORT_TIL_UTBETALING
+
             UtbetalingStatusType.DELVIS_UTBETALT -> DELVIS_UTBETALT
+
             UtbetalingStatusType.UTBETALT -> UTBETALT
         }
 

@@ -20,7 +20,6 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
     companion object {
         fun fromDatabaseOperationError(error: DatabaseOperationError): ProcessingError = when (error) {
             is IntegrityConstraintViolation.ForeignKeyViolation -> ForeignKeyViolation(error.error.localizedMessage)
-
             else -> ProcessingFailed(error.error.localizedMessage)
         }
 

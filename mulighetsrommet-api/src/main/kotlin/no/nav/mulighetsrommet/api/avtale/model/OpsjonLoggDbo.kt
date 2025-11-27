@@ -23,6 +23,7 @@ enum class OpsjonLoggStatus {
             OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
             OpprettOpsjonLoggRequest.Type.ETT_AAR,
             -> OPSJON_UTLOST
+
             OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> SKAL_IKKE_UTLOSE_OPSJON
         }
     }

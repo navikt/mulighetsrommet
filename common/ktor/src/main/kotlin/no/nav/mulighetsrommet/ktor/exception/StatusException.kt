@@ -17,9 +17,13 @@ fun StatusException.toProblemDetail(requestId: String): ProblemDetail {
     val statusInt = status.value
     return when (status) {
         HttpStatusCode.InternalServerError -> InternalServerError(detail)
+
         HttpStatusCode.BadRequest -> BadRequest(detail)
+
         HttpStatusCode.Forbidden -> Forbidden(detail)
+
         HttpStatusCode.NotFound -> NotFound(detail)
+
         else -> {
             object : ProblemDetail() {
                 override val type = "status-exception"

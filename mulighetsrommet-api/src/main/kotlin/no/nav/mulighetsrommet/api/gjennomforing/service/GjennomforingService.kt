@@ -364,6 +364,7 @@ class GjennomforingService(
     ): GjennomforingStatusType {
         return when (previous) {
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> previous
+
             else -> if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
                 GjennomforingStatusType.GJENNOMFORES
             } else {

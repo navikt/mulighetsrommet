@@ -42,6 +42,7 @@ object UbetalingToPdfDocumentContentMapper {
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
             -> Unit
+
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
@@ -68,9 +69,11 @@ object UbetalingToPdfDocumentContentMapper {
 
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> Unit
+
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
                 addDeltakelsesmengderSection(utbetaling.beregning, personalia)
             }
+
             is UtbetalingBeregningPrisPerUkesverk,
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerTimeOppfolging,
@@ -82,6 +85,7 @@ object UbetalingToPdfDocumentContentMapper {
 
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri -> Unit
+
             is UtbetalingBeregningPrisPerTimeOppfolging -> Unit
 
             is UtbetalingBeregningPrisPerManedsverk,

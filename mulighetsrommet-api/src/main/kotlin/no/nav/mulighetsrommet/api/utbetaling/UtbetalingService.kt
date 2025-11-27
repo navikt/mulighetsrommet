@@ -842,6 +842,7 @@ class UtbetalingService(
                     erBeslutter && behandletAv != ansatt.navIdent
 
                 UtbetalingLinjeHandling.RETURNER -> erBeslutter
+
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
             }
         }

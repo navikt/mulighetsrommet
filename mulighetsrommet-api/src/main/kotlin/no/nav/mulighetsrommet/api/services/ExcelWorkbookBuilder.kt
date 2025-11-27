@@ -58,6 +58,7 @@ class ExcelSheetBuilder(
             val cell = row.createCell(idx)
             when (value) {
                 null -> cell.setBlank()
+
                 is Number -> {
                     cell.setCellValue(value.toDouble())
                     cell.setCellType(CellType.NUMERIC)

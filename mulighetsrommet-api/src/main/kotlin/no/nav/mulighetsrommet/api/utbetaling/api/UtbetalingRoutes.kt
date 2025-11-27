@@ -101,6 +101,7 @@ fun Route.utbetalingRoutes() {
                                 queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
                             }.distinct(),
                         )
+
                     UtbetalingStatusType.GENERERT,
                     UtbetalingStatusType.INNSENDT,
                     UtbetalingStatusType.TIL_ATTESTERING,

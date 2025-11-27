@@ -39,6 +39,12 @@ fun RequestConfig.queryParameterUuid(name: String, block: RequestParameterConfig
     queryParameter(name, uuidSchema, block)
 }
 
+/**
+ * Denne implementasjonen er basert på implementasjonen til [io.github.smiley4.ktoropenapi.config.SchemaGenerator.kotlinx].
+ * Noen enddringer har blitt gjort fra "standard" implementasjon, samt noen ting er verdt å være klar over
+ * ifm. generering av openapi-dokumentasjon:
+ * - Noen steg har blitt fjernet da de uansett ikke er i bruk i dette prosjektet (f.eks. prosessering av noen annotasjoner, eller generering av titles)
+ */
 fun Application.configureOpenApiHash() {
     monitor.subscribe(ServerReady) {
         OpenApiSpec.entries.forEach {
@@ -67,12 +73,6 @@ fun Application.configureOpenApiGenerator() {
         )
 
         schemas {
-            /**
-             * Denne implementasjonen er basert på implementasjonen til [io.github.smiley4.ktoropenapi.config.SchemaGenerator.kotlinx].
-             * Noen enddringer har blitt gjort fra "standard" implementasjon, samt noen ting er verdt å være klar over
-             * ifm. generering av openapi-dokumentasjon:
-             * - Noen steg har blitt fjernet da de uansett ikke er i bruk i dette prosjektet (f.eks. prosessering av noen annotasjoner, eller generering av titles)
-             */
             generator = { type ->
                 type
                     .analyzeTypeUsingKotlinxSerialization {
@@ -81,14 +81,10 @@ fun Application.configureOpenApiGenerator() {
                     .addJsonClassDiscriminatorProperty()
                     .handleNameAnnotation()
                     .generateSwaggerSchema {
-                        /**
-                         * Optional constructor-felter blir required i generert skjema hvis selve typen ikke er nullable
-                         */
+                        // Optional constructor-felter blir required i generert skjema hvis selve typen ikke er nullable
                         optionals = SwaggerSteps.RequiredHandling.REQUIRED
 
-                        /**
-                         * Nullable felter blir required i generert skjema (men fortsatt nullable)
-                         */
+                        // Nullable felter blir required i generert skjema (men fortsatt nullable)
                         nullables = SwaggerSteps.RequiredHandling.REQUIRED
 
                         customModules.addAll(customSchemaOverwrites)
@@ -96,9 +92,7 @@ fun Application.configureOpenApiGenerator() {
                     .handleSchemaAnnotations()
                     .mergePropertyAttributesIntoType()
                     .compileReferencingRoot(
-                        /**
-                         * Sørger for at "null" blir en del av gyldige typer for nullable felter i generert json schema
-                         */
+                        // Sørger for at "null" blir en del av gyldige typer for nullable felter i generert json schema
                         explicitNullTypes = true,
                         pathType = RefType.OPENAPI_SIMPLE,
                     )
