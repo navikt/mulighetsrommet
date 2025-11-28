@@ -126,7 +126,7 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerTimeOppfolging -> {
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val belop = beregning.input.belop
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
