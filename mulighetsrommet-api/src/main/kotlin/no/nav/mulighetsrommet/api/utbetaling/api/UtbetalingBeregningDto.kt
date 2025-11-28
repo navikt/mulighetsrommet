@@ -160,7 +160,7 @@ private fun deltakelseFastSatsPerTiltaksplassPerManedTable(
                     stengt,
                     UtbetalingTimeline.fastSatsPerTiltaksplassPerManedRow(
                         deltaker.deltakelse,
-                        input.perioder.map { it.deltakelsesprosent },
+                        input.perioder,
                     ),
                 ),
             )

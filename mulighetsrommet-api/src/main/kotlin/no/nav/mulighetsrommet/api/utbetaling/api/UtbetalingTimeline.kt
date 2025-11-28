@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -91,18 +92,19 @@ object UtbetalingTimeline {
 
     fun fastSatsPerTiltaksplassPerManedRow(
         beregningOutput: UtbetalingBeregningOutputDeltakelse,
-        deltakelsesprosenter: List<Double>,
+        deltakelsesprosenter: List<DeltakelsesprosentPeriode>,
     ) = TimelineDto.Row(
         label = "Beregning",
         periods = beregningOutput.perioder.mapIndexed { index, beregnetPeriode ->
+            val prosentPeriode = deltakelsesprosenter.find { it.periode.contains(beregnetPeriode.periode) }
             Period(
                 start = beregnetPeriode.periode.start,
                 key = index.toString(),
                 end = beregnetPeriode.periode.getLastInclusiveDate(),
                 status = Variant.INFO,
-                content = "Deltakesesprosent: ${formatter.format(deltakelsesprosenter[index])}, Månedsverk: ${formatter.format(beregnetPeriode.faktor)}",
+                content = "Deltakesesprosent: ${formatter.format(prosentPeriode?.deltakelsesprosent)}, Månedsverk: ${formatter.format(beregnetPeriode.faktor)}",
                 hover = """
-                    Deltakesesprosent: ${formatter.format(deltakelsesprosenter[index])},
+                    Deltakesesprosent: ${formatter.format(prosentPeriode?.deltakelsesprosent)},
                     Månedsverk: ${formatter.format(beregnetPeriode.faktor)},
                     Periode: ${beregnetPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} -
                         ${beregnetPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}
