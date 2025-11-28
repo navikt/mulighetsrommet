@@ -51,6 +51,76 @@ const satsDetaljer: DataDetails[] = [
   },
 ];
 
+const satsDetaljerForhondsgodkjent: DataDetails[] = [
+  {
+    header: "Periode 01.01.2025 - 01.02.2025",
+    entries: [
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Sats",
+        value: { type: "DATA_ELEMENT_TEXT", value: "20975", format: DataElementTextFormat.NOK },
+      },
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Antall månedsverk",
+        value: {
+          type: "DATA_ELEMENT_TEXT",
+          value: "10.05",
+          format: DataElementTextFormat.NUMBER,
+        },
+      },
+    ],
+  },
+];
+
+const satsDetaljerManedspris: DataDetails[] = [
+  {
+    header: "Periode 10.10.2025 - 31.10.2025",
+    entries: [
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Avtalt månedspris per tiltaksplass",
+        value: { type: "DATA_ELEMENT_TEXT", value: "6000", format: DataElementTextFormat.NOK },
+      },
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Antall månedsverk",
+        value: {
+          type: "DATA_ELEMENT_TEXT",
+          value: "0.69565",
+          format: DataElementTextFormat.NUMBER,
+        },
+      },
+    ],
+  },
+];
+
+const satsDetaljerUkespris: DataDetails[] = [
+  {
+    header: "Periode 01.07.2025 - 31.07.2025",
+    entries: [
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Avtalt ukespris per tiltaksplass",
+        value: {
+          type: "DATA_ELEMENT_TEXT",
+          value: "1234",
+          format: DataElementTextFormat.NUMBER,
+        },
+      },
+      {
+        type: LabeledDataElementType.INLINE,
+        label: "Antall ukesverk",
+        value: {
+          type: "DATA_ELEMENT_TEXT",
+          value: "4.42857",
+          format: DataElementTextFormat.NUMBER,
+        },
+      },
+    ],
+  },
+];
+
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
@@ -65,7 +135,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
-    satsDetaljer,
+    satsDetaljer: satsDetaljerForhondsgodkjent,
     belop: 10149,
     digest: "b3602d2a",
     deltakelser: toSatserUkesverkDeltakelse,
@@ -105,7 +175,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   beregning: {
     belop: 20000,
     digest: "ca0a6c20",
-    satsDetaljer,
+    satsDetaljer: satsDetaljerManedspris,
     deltakelser: avklaringManedDeltakelse,
     stengt: [],
     displayName: "Avtalt månedspris per tiltaksplass",
@@ -131,7 +201,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
-    satsDetaljer,
+    satsDetaljer: satsDetaljerForhondsgodkjent,
     belop: 242904,
     digest: "db0c7c6e",
     deltakelser: toSatserUkesverkDeltakelse,
@@ -225,7 +295,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   kanViseBeregning: true,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
-    satsDetaljer,
+    satsDetaljer: satsDetaljerForhondsgodkjent,
     belop: 16848,
     digest: "38c07a43",
     deltakelser: vtaManedDeltakelse,
@@ -257,7 +327,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   beregning: {
     belop: 53100,
     digest: "28172363",
-    satsDetaljer,
+    satsDetaljer: satsDetaljerUkespris,
     deltakelser: arrUkesverkDeltakelse,
     stengt: [],
     displayName: "Avtalt ukespris per tiltaksplass",
