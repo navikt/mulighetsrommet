@@ -275,7 +275,20 @@ object UtbetalingBeregningHelpers {
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
 
-    fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.input.deltakelser().map {
+    fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregningOutputDeltakelse> = when (beregning) {
+        is UtbetalingBeregningPrisPerTimeOppfolging ->
+            getDeltakelseOutputPrisPerTimeOppfolging(beregning)
+
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+        is UtbetalingBeregningPrisPerHeleUkesverk,
+        is UtbetalingBeregningPrisPerManedsverk,
+        is UtbetalingBeregningPrisPerUkesverk,
+        is UtbetalingBeregningFri,
+        ->
+            beregning.output.deltakelser()
+    }
+
+    private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.input.deltakelser().map {
         UtbetalingBeregningOutputDeltakelse(
             it.deltakelseId,
             setOf(

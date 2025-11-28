@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelser
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
@@ -79,7 +80,7 @@ object UbetalingToPdfDocumentContentMapper {
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningPrisPerManedsverk,
             -> {
-                addDeltakerperioderSection(utbetaling.beregning.output.deltakelser(), personalia)
+                addDeltakerperioderSection(getDeltakelser(utbetaling.beregning), personalia)
             }
         }
 
@@ -94,7 +95,7 @@ object UbetalingToPdfDocumentContentMapper {
                 addDeltakelsesfaktorSection(
                     sectionHeader = "Beregnet månedsverk",
                     deltakelseFaktorColumnName = "Månedsverk",
-                    deltakelser = utbetaling.beregning.output.deltakelser(),
+                    deltakelser = getDeltakelser(utbetaling.beregning),
                     personalia = personalia,
                 )
 
@@ -103,7 +104,7 @@ object UbetalingToPdfDocumentContentMapper {
             -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet ukesverk",
                 deltakelseFaktorColumnName = "Ukesverk",
-                deltakelser = utbetaling.beregning.output.deltakelser(),
+                deltakelser = getDeltakelser(utbetaling.beregning),
                 personalia = personalia,
             )
         }

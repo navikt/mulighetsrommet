@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelser
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
@@ -29,7 +30,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrangorflateUtbetalingDto {
-    val deltakelseById = utbetaling.beregning.output.deltakelser().associateBy { it.deltakelseId }
+    val deltakelseById = getDeltakelser(utbetaling.beregning).associateBy { it.deltakelseId }
     val deltakelser = deltakelseById
         .map { (id, beregningOutput) ->
             ArrangorflateBeregningDeltakelse(
