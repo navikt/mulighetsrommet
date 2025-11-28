@@ -97,6 +97,7 @@ export default function UtbetalingDetaljerSide() {
           innsendtTidspunkt,
           { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
           { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+          { key: "Løpenummer", value: utbetaling.gjennomforing.lopenummer },
         ]}
       />
       <Definisjonsliste
