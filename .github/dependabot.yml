@@ -40,6 +40,8 @@ updates:
       time: "07:00"
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
+    cooldown:
+      default-days: 7
     groups:
       # Trukket ut til egen gruppe siden nye versjoner av biblioteket kan introdusere regler som gjør at bygget feiler
       ktlint:
@@ -62,6 +64,8 @@ updates:
       day: monday
       time: "07:00"
       timezone: Europe/Oslo
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 10
     groups:
       # Trukket ut til egen gruppe siden biblioteket enda ikke er stabilt
