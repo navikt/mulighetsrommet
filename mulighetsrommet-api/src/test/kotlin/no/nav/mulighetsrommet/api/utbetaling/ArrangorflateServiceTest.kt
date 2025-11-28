@@ -12,11 +12,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.DeltakerOgPeriode
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateBeregning
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.harFeilSluttDato
 import no.nav.mulighetsrommet.api.arrangorflate.harOverlappendePeriode
@@ -26,7 +24,6 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -117,8 +114,7 @@ class ArrangorflateServiceTest : FunSpec({
         val arrangorflateService = createService()
 
         val result = arrangorflateService.getTilsagn(
-            filter = ArrangorflateTilsagnFilter(),
-            ArrangorflateTestUtils.underenhet.organisasjonsnummer,
+            orgnr = ArrangorflateTestUtils.underenhet.organisasjonsnummer,
         )
 
         result shouldHaveSize 1

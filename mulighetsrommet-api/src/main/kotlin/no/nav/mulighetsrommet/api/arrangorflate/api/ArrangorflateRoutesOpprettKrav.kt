@@ -190,12 +190,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
                 }
             val tilsagn = arrangorFlateService.getTilsagn(
-                ArrangorflateTilsagnFilter(
-                    typer = tilsagnsTyper,
-                    statuser = listOf(TilsagnStatus.GODKJENT),
-                    gjennomforingId = gjennomforing.id,
-                ),
-                gjennomforing.arrangor.organisasjonsnummer,
+                orgnr = gjennomforing.arrangor.organisasjonsnummer,
+                typer = tilsagnsTyper,
+                statuser = listOf(TilsagnStatus.GODKJENT),
+                gjennomforingId = gjennomforing.id,
             )
 
             // TODO: Inkluder filtrering på eksisternde utbetalinger

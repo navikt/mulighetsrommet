@@ -514,31 +514,6 @@ paths:
         explode: false
         schema:
           type: string
-      - name: statuser
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnStatus"
-      - name: typer
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnType"
-      - name: gjennomforingId
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: string
       responses:
         "200":
           description: Alle tilsagn for gitt organisasjonsnummer
@@ -864,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "c7e5da6b2e5a126c05165c8cc56d8e332ad0e2a343fc2d9f6a70c9264a2d84af"
+        - "c0b8f28ee7c01684eaa7cee18b606a9c50d3f0a413557c783f7149eef0c78606"
     ArrangorDto:
       type: object
       properties:

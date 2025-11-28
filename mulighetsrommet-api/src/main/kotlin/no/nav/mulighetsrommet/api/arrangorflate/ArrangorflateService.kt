@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-private val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
+val TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR = listOf(
     TilsagnStatus.GODKJENT,
     TilsagnStatus.TIL_ANNULLERING,
     TilsagnStatus.ANNULLERT,
@@ -83,13 +83,18 @@ class ArrangorflateService(
             ?.let { toArrangorflateTilsagn(it) }
     }
 
-    fun getTilsagn(filter: ArrangorflateTilsagnFilter, orgnr: Organisasjonsnummer): List<ArrangorflateTilsagnDto> = db.session {
+    fun getTilsagn(
+        orgnr: Organisasjonsnummer,
+        statuser: List<TilsagnStatus>? = null,
+        typer: List<TilsagnType>? = null,
+        gjennomforingId: UUID? = null,
+    ): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 arrangor = orgnr,
-                statuser = filter.statuser,
-                typer = filter.typer,
-                gjennomforingId = filter.gjennomforingId,
+                statuser = statuser,
+                typer = typer,
+                gjennomforingId = gjennomforingId,
             )
             .map { toArrangorflateTilsagn(it) }
     }
