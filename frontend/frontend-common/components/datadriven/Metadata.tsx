@@ -37,10 +37,10 @@ export function MetadataHStack({ label, value }: MetadataProps) {
 }
 
 export function MetadataHGrid({ label, value, compact }: MetadataProps) {
-  const gridLayout = compact ? "max-content 1fr" : "0.5fr 1fr";
+  const gridLayout = compact ? "max-content 1fr" : "200px 1fr";
   return (
     <HGrid as="dl" columns={gridLayout} gap="2" align="start">
-      <dt className="font-bold w-max">{label}:</dt>
+      <dt className="font-bold">{label}:</dt>
       <dd className="whitespace-nowrap w-fit">{value ?? "-"}</dd>
     </HGrid>
   );
