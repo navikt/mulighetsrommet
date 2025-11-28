@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -43,7 +44,7 @@ data class Enkeltplass(
 
     @Serializable
     data class ArenaData(
-        val tiltaksnummer: String?,
+        val tiltaksnummer: Tiltaksnummer?,
         val navn: String?,
         @Serializable(with = LocalDateSerializer::class)
         val startDato: LocalDate?,

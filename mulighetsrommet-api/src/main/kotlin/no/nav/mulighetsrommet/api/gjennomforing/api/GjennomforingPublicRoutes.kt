@@ -15,10 +15,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Map
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.*
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -137,11 +134,6 @@ private fun Route.getGjennomforingIdRoute() {
 private fun Route.getGjennomforingArenaDataRoute() {
     val db: ApiDatabase by inject()
 
-    fun toArenaDataDto(tiltaksnummer: String): TiltaksgjennomforingArenaDataDto {
-        val (aar, lopenr) = tiltaksnummer.split("#")
-        return TiltaksgjennomforingArenaDataDto(opprettetAar = aar.toInt(), lopenr = lopenr.toInt())
-    }
-
     get("arenadata/{id}", {
         tags = setOf("Tiltaksgjennomforing")
         operationId = "getTiltaksgjennomforingArenadata"
@@ -171,7 +163,8 @@ private fun Route.getGjennomforingArenaDataRoute() {
             gjennomforing?.arena?.tiltaksnummer ?: enkeltplass?.arena?.tiltaksnummer
         }
 
-        val arenaData = tiltaksnummer?.let { toArenaDataDto(it) }
+        val arenaData = tiltaksnummer
+            ?.let { TiltaksgjennomforingArenaDataDto(opprettetAar = it.aar, lopenr = it.lopenummer) }
             ?: return@get call.respond(HttpStatusCode.NoContent)
 
         call.respond(HttpStatusCode.OK, arenaData)

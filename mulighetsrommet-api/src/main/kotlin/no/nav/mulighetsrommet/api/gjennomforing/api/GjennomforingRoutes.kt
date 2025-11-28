@@ -459,7 +459,7 @@ fun Route.gjennomforingRoutes() {
             gjennomforinger.get(id)
                 ?.let { gjennomforing ->
                     gjennomforing.arena?.tiltaksnummer
-                        ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it)) }
+                        ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
                         ?: call.respond(HttpStatusCode.NoContent)
                 }
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")

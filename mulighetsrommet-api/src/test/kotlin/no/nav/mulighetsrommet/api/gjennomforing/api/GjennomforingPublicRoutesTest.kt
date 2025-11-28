@@ -4,10 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -18,6 +16,7 @@ import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -196,7 +195,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
                 queries.enkeltplass.setArenaData(
                     EnkeltplassArenaDataDbo(
                         id = tiltakEnkeltplassId,
-                        tiltaksnummer = "2025#1",
+                        tiltaksnummer = Tiltaksnummer("2025#1"),
                         navn = null,
                         startDato = null,
                         sluttDato = null,

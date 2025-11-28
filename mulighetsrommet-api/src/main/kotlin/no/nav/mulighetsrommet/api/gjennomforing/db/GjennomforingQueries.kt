@@ -339,8 +339,8 @@ class GjennomforingQueries(private val session: Session) {
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
-            "tiltaksnummer-ascending" -> "arena_tiltaksnummer asc"
-            "tiltaksnummer-descending" -> "arena_tiltaksnummer desc"
+            "lopenummer-ascending" -> "lopenummer asc"
+            "lopenummer-descending" -> "lopenummer desc"
             "arrangor-ascending" -> "arrangor_navn asc"
             "arrangor-descending" -> "arrangor_navn desc"
             "tiltakstype-ascending" -> "tiltakstype_navn asc"
@@ -640,7 +640,7 @@ class GjennomforingQueries(private val session: Session) {
             stengt = stengt,
             oppmoteSted = stringOrNull("oppmote_sted"),
             arena = Gjennomforing.ArenaData(
-                tiltaksnummer = stringOrNull("arena_tiltaksnummer"),
+                tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
                 ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
                     ArenaNavEnhet(
                         navn = stringOrNull("arena_nav_enhet_navn"),

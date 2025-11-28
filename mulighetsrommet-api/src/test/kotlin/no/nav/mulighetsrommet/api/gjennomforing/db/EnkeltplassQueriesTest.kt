@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 
 class EnkeltplassQueriesTest : FunSpec({
@@ -51,7 +52,7 @@ class EnkeltplassQueriesTest : FunSpec({
                 queries.setArenaData(
                     EnkeltplassArenaDataDbo(
                         id = EnkelAmo.id,
-                        tiltaksnummer = "2025#1",
+                        tiltaksnummer = Tiltaksnummer("2025#1"),
                         navn = "Arena-navn",
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = null,
@@ -61,7 +62,7 @@ class EnkeltplassQueriesTest : FunSpec({
                 )
 
                 queries.get(EnkelAmo.id).shouldNotBeNull().arena.shouldNotBeNull().should {
-                    it.tiltaksnummer shouldBe "2025#1"
+                    it.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
                     it.navn shouldBe "Arena-navn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
