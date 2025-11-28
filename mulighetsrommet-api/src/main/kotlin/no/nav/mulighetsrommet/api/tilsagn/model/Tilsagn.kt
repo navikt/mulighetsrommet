@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.*
@@ -36,6 +37,7 @@ data class Tilsagn(
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
+        val lopenummer: Tiltaksnummer,
         val navn: String,
     )
 
@@ -58,5 +60,9 @@ data class Tilsagn(
         0
     } else {
         beregning.output.belop - belopBrukt
+    }
+
+    fun getTiltaksnavn(): String {
+        return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
     }
 }

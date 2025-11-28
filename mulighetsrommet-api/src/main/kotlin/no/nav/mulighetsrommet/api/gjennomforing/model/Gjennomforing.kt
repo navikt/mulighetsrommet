@@ -21,7 +21,7 @@ data class Gjennomforing(
     val id: UUID,
     val tiltakstype: Tiltakstype,
     val navn: String,
-    val lopenummer: String,
+    val lopenummer: Tiltaksnummer,
     val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,

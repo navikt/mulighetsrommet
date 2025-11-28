@@ -481,6 +481,7 @@ class UtbetalingQueries(private val session: Session) {
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
+                lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
                 navn = string("gjennomforing_navn"),
             ),
             arrangor = Utbetaling.Arrangor(

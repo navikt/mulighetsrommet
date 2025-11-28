@@ -82,9 +82,11 @@ class OppgaveQueries(private val session: Session) {
                 id = it.uuid("id"),
                 navn = it.string("navn"),
                 updatedAt = it.localDateTime("updated_at"),
-                tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
-                tiltakstypeNavn = it.string("tiltakstype_navn"),
                 kontorstruktur = kontorstruktur,
+                tiltakstype = OppgaveTiltakstype(
+                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
+                    navn = it.string("tiltakstype_navn"),
+                ),
             )
         }
     }
@@ -107,10 +109,10 @@ class OppgaveQueries(private val session: Session) {
                 delutbetaling.fakturanummer,
                 delutbetaling.faktura_status,
                 delutbetaling.faktura_status_sist_oppdatert,
-                tilsagn.gjennomforing_id,
                 nav_enhet.navn AS kostnadssted_navn,
                 nav_enhet.enhetsnummer AS kostnadssted_enhetsnummer,
-                gjennomforing.navn,
+                gjennomforing.id as gjennomforing_id,
+                gjennomforing.lopenummer as gjennomforing_lopenummer,
                 tiltakstype.tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
                 tk.besluttet_tidspunkt,
@@ -144,20 +146,22 @@ class OppgaveQueries(private val session: Session) {
                 id = it.uuid("id"),
                 periode = it.periode("periode"),
                 status = DelutbetalingStatus.valueOf(it.string("status")),
-                gjennomforingId = it.uuid("gjennomforing_id"),
-                gjennomforingNavn = it.string("navn"),
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
-                    navn = it.string("tiltakstype_navn"),
-                ),
-                kostnadssted = DelutbetalingOppgaveData.Kostnadssted(
+                kostnadssted = OppgaveEnhet(
                     navn = it.string("kostnadssted_navn"),
-                    enhetsnummer = NavEnhetNummer(it.string("kostnadssted_enhetsnummer")),
+                    nummer = NavEnhetNummer(it.string("kostnadssted_enhetsnummer")),
                 ),
                 opprettelse = DelutbetalingOppgaveData.Opprettelse(
                     behandletAv = it.string("behandlet_av").toAgent(),
                     behandletTidspunkt = it.localDateTime("behandlet_tidspunkt"),
                     besluttetTidspunkt = it.localDateTimeOrNull("besluttet_tidspunkt"),
+                ),
+                tiltakstype = OppgaveTiltakstype(
+                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+                    navn = it.string("tiltakstype_navn"),
+                ),
+                gjennomforing = OppgaveGjennomforing(
+                    id = it.uuid("gjennomforing_id"),
+                    lopenummer = Tiltaksnummer(it.string("gjennomforing_lopenummer")),
                 ),
             )
         }
@@ -168,14 +172,14 @@ class OppgaveQueries(private val session: Session) {
         val query = """
             select
                 tilsagn.id,
-                tilsagn.gjennomforing_id,
                 tilsagn.bestillingsnummer,
                 tilsagn.bestilling_status,
                 tilsagn.belop_brukt,
                 tilsagn.kostnadssted,
                 tilsagn.status,
                 nav_enhet.navn                    as kostnadssted_navn,
-                gjennomforing.navn                as gjennomforing_navn,
+                gjennomforing.id                  as gjennomforing_id,
+                gjennomforing.lopenummer          as gjennomforing_lopenummer,
                 tiltakstype.tiltakskode           as tiltakskode,
                 tiltakstype.navn                  as tiltakstype_navn
             from tilsagn
@@ -193,24 +197,26 @@ class OppgaveQueries(private val session: Session) {
                 TilsagnStatus.TIL_ANNULLERING,
                 TilsagnStatus.TIL_OPPGJOR,
                 TilsagnStatus.RETURNERT,
-
-            )
-                .let { session.createArrayOfTilsagnStatus(it) },
+            ).let { session.createArrayOfTilsagnStatus(it) },
         )
 
         return session.list(queryOf(query, params)) {
             TilsagnOppgaveData(
                 id = it.uuid("id"),
                 status = TilsagnStatus.valueOf(it.string("status")),
-                gjennomforingId = it.uuid("gjennomforing_id"),
                 belopBrukt = it.int("belop_brukt"),
-                gjennomforingNavn = it.string("gjennomforing_navn"),
-                kostnadssted = NavEnhetNummer(it.string("kostnadssted")),
-                kostnadsstedNavn = it.string("kostnadssted_navn"),
+                kostnadssted = OppgaveEnhet(
+                    navn = it.string("kostnadssted_navn"),
+                    nummer = NavEnhetNummer(it.string("kostnadssted")),
+                ),
                 bestillingsnummer = it.string("bestillingsnummer"),
                 tiltakstype = OppgaveTiltakstype(
                     tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
                     navn = it.string("tiltakstype_navn"),
+                ),
+                gjennomforing = OppgaveGjennomforing(
+                    id = it.uuid("gjennomforing_id"),
+                    lopenummer = Tiltaksnummer(it.string("gjennomforing_lopenummer")),
                 ),
             )
         }
@@ -220,38 +226,49 @@ class OppgaveQueries(private val session: Session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select
-                view_utbetaling.*,
+                utbetaling.id,
+                utbetaling.periode,
+                utbetaling.created_at,
+                utbetaling.godkjent_av_arrangor_tidspunkt,
+                utbetaling.status,
+                gjennomforing.id as gjennomforing_id,
+                gjennomforing.lopenummer as gjennomforing_lopenummer,
+                tiltakstype.navn as tiltakstype_navn,
+                tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                 ks.kostnadssteder
-            from view_utbetaling
+            from utbetaling
+                join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
+                join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join lateral (
                     select array_agg(tilsagn.kostnadssted) as kostnadssteder
                     from tilsagn
-                    where
-                        tilsagn.gjennomforing_id = view_utbetaling.gjennomforing_id
-                        and tilsagn.periode && view_utbetaling.periode
+                    where tilsagn.gjennomforing_id = utbetaling.gjennomforing_id
+                      and tilsagn.periode && utbetaling.periode
                 ) ks on true
             where
-                (:tiltakskoder::tiltakskode[] is null or view_utbetaling.tiltakskode = any(:tiltakskoder::tiltakskode[]));
+                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]));
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createArrayOfTiltakskode(it) },
         )
 
-        return session.list(queryOf(utbetalingQuery, params)) {
+        return session.list(queryOf(utbetalingQuery, params)) { row ->
             UtbetalingOppgaveData(
-                id = it.uuid("id"),
-                gjennomforingId = it.uuid("gjennomforing_id"),
-                gjennomforingNavn = it.string("gjennomforing_navn"),
+                id = row.uuid("id"),
+                periode = row.periode("periode"),
+                createdAt = row.localDateTime("created_at"),
+                godkjentAvArrangorTidspunkt = row.localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
+                status = UtbetalingStatusType.valueOf(row.string("status")),
+                kostnadssteder = row.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
                 tiltakstype = OppgaveTiltakstype(
-                    navn = it.string("tiltakstype_navn"),
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+                    navn = row.string("tiltakstype_navn"),
+                    tiltakskode = Tiltakskode.valueOf(row.string("tiltakstype_tiltakskode")),
                 ),
-                periode = it.periode("periode"),
-                createdAt = it.localDateTime("created_at"),
-                godkjentAvArrangorTidspunkt = it.localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
-                status = UtbetalingStatusType.valueOf(it.string("status")),
-                kostnadssteder = it.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
+                gjennomforing = OppgaveGjennomforing(
+                    id = row.uuid("gjennomforing_id"),
+                    lopenummer = Tiltaksnummer(row.string("gjennomforing_lopenummer")),
+                ),
             )
         }
     }
@@ -330,27 +347,21 @@ data class GjennomforingOppgaveData(
     val id: UUID,
     val navn: String,
     val kontorstruktur: List<Kontorstruktur>,
-    val tiltakskode: Tiltakskode,
-    val tiltakstypeNavn: String,
     val updatedAt: LocalDateTime,
+    val tiltakstype: OppgaveTiltakstype,
 )
 
 data class DelutbetalingOppgaveData(
     val id: UUID,
     val status: DelutbetalingStatus,
     val periode: Periode,
-    val gjennomforingId: UUID,
     val utbetalingId: UUID,
     val tilsagnId: UUID,
-    val gjennomforingNavn: String,
-    val tiltakstype: OppgaveTiltakstype,
-    val kostnadssted: Kostnadssted,
+    val kostnadssted: OppgaveEnhet,
     val opprettelse: Opprettelse,
+    val tiltakstype: OppgaveTiltakstype,
+    val gjennomforing: OppgaveGjennomforing,
 ) {
-    data class Kostnadssted(
-        val navn: String,
-        val enhetsnummer: NavEnhetNummer,
-    )
     data class Opprettelse(
         val behandletTidspunkt: LocalDateTime,
         val besluttetTidspunkt: LocalDateTime?,
@@ -361,25 +372,22 @@ data class DelutbetalingOppgaveData(
 data class TilsagnOppgaveData(
     val id: UUID,
     val belopBrukt: Int,
-    val gjennomforingId: UUID,
-    val gjennomforingNavn: String,
     val status: TilsagnStatus,
-    val tiltakstype: OppgaveTiltakstype,
-    val kostnadssted: NavEnhetNummer,
-    val kostnadsstedNavn: String,
+    val kostnadssted: OppgaveEnhet,
     val bestillingsnummer: String,
+    val tiltakstype: OppgaveTiltakstype,
+    val gjennomforing: OppgaveGjennomforing,
 )
 
 data class UtbetalingOppgaveData(
     val id: UUID,
     val status: UtbetalingStatusType,
-    val gjennomforingId: UUID,
-    val gjennomforingNavn: String,
     val periode: Periode,
-    val tiltakstype: OppgaveTiltakstype,
     val createdAt: LocalDateTime,
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val kostnadssteder: List<NavEnhetNummer>,
+    val tiltakstype: OppgaveTiltakstype,
+    val gjennomforing: OppgaveGjennomforing,
 )
 
 data class AvtaleOppgaveData(
@@ -388,4 +396,9 @@ data class AvtaleOppgaveData(
     val createdAt: LocalDateTime,
     val kontorstruktur: List<Kontorstruktur>,
     val tiltakstype: OppgaveTiltakstype,
+)
+
+data class OppgaveGjennomforing(
+    val id: UUID,
+    val lopenummer: Tiltaksnummer,
 )

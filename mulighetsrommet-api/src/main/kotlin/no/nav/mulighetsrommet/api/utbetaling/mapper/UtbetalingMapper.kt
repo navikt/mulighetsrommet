@@ -24,8 +24,9 @@ object UtbetalingMapper {
                 gjennomforing.tiltakstype.tiltakskode,
             ),
             gjennomforing = Utbetaling.Gjennomforing(
-                gjennomforing.id,
-                gjennomforing.navn,
+                id = gjennomforing.id,
+                lopenummer = gjennomforing.lopenummer,
+                navn = gjennomforing.navn,
             ),
             arrangor = Utbetaling.Arrangor(
                 gjennomforing.arrangor.id,

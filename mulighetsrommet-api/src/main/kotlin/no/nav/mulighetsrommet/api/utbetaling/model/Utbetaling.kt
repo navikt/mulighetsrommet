@@ -35,6 +35,7 @@ data class Utbetaling(
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
+        val lopenummer: Tiltaksnummer,
         val navn: String,
     )
 

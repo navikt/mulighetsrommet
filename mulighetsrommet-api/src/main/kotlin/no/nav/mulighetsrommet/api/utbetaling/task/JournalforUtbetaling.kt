@@ -68,7 +68,7 @@ class JournalforUtbetaling(
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
 
-        val fagsakId = gjennomforing.arena?.tiltaksnummer ?: gjennomforing.lopenummer
+        val fagsakId = gjennomforing.arena?.tiltaksnummer ?: gjennomforing.lopenummer.value
 
         generatePdf(utbetaling)
             .flatMap { pdf ->

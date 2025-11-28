@@ -240,7 +240,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
                 }
 
-                call.respond(toArrangorflateGjennomforing((gjennomforing)))
+                call.respond(toArrangorflateGjennomforing(gjennomforing))
             }
         }
 

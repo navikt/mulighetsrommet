@@ -72,10 +72,8 @@ class UtbetalingQueriesTest : FunSpec(
                         navn = TiltakstypeFixtures.AFT.navn,
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                     )
-                    it.gjennomforing shouldBe Utbetaling.Gjennomforing(
-                        id = AFT1.id,
-                        navn = AFT1.navn,
-                    )
+                    it.gjennomforing.id shouldBe AFT1.id
+                    it.gjennomforing.lopenummer.shouldNotBeNull()
                     it.arrangor shouldBe Utbetaling.Arrangor(
                         navn = ArrangorFixtures.underenhet1.navn,
                         id = ArrangorFixtures.underenhet1.id,

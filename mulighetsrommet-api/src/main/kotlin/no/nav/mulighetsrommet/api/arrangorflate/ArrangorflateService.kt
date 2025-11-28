@@ -365,8 +365,9 @@ fun toArrangorflateTilsagn(
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
         gjennomforing = ArrangorflateGjennomforingInfo(
-            tilsagn.gjennomforing.id,
-            tilsagn.gjennomforing.navn,
+            id = tilsagn.gjennomforing.id,
+            lopenummer = tilsagn.gjennomforing.lopenummer,
+            navn = tilsagn.gjennomforing.navn,
         ),
         bruktBelop = tilsagn.belopBrukt,
         gjenstaendeBelop = tilsagn.gjenstaendeBelop(),

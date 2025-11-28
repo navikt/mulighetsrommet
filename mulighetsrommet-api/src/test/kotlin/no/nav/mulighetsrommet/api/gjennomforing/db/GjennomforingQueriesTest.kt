@@ -580,7 +580,7 @@ class GjennomforingQueriesTest : FunSpec({
                 ).setup(session)
 
                 val queries = GjennomforingQueries(session)
-                val lopenummer = queries.get(Oppfolging1.id)!!.lopenummer
+                val lopenummer = queries.getOrError(Oppfolging1.id).lopenummer.value
 
                 queries.getAll(search = lopenummer).should {
                     it.items.size shouldBe 1
