@@ -130,17 +130,21 @@ fun utbetalingJournalpost(
                 ),
             ),
         ),
-    ) + vedlegg.map {
-        Journalpost.Dokument(
-            tittel = it.filename,
-            dokumentvarianter = listOf(
-                Journalpost.Dokument.Dokumentvariant(
-                    "PDF",
-                    it.content.content,
-                    "ARKIV",
+    ) + vedlegg.mapNotNull {
+        if (it.content.content.isEmpty()) {
+            null
+        } else {
+            Journalpost.Dokument(
+                tittel = it.filename,
+                dokumentvarianter = listOf(
+                    Journalpost.Dokument.Dokumentvariant(
+                        "PDF",
+                        it.content.content,
+                        "ARKIV",
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     },
     eksternReferanseId = utbetalingId.toString(),
     journalfoerendeEnhet = "9999", // Automatisk journalføring
