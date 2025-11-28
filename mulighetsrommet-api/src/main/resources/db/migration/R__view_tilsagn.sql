@@ -4,7 +4,6 @@ drop view if exists view_tilsagn;
 
 create view view_tilsagn as
 select tilsagn.id,
-       tilsagn.gjennomforing_id,
        tilsagn.belop_brukt,
        tilsagn.belop_beregnet,
        tilsagn.periode,
@@ -21,6 +20,9 @@ select tilsagn.id,
        tilsagn.beregning_antall_timer_oppfolging_per_deltaker,
        tilsagn.beregning_prisbetingelser,
        tilsagn.created_at,
+       gjennomforing.id                  as gjennomforing_id,
+       gjennomforing.lopenummer          as gjennomforing_lopenummer,
+       gjennomforing.navn                as gjennomforing_navn,
        nav_enhet.navn                    as kostnadssted_navn,
        nav_enhet.overordnet_enhet        as kostnadssted_overordnet_enhet,
        nav_enhet.type                    as kostnadssted_type,
@@ -29,7 +31,6 @@ select tilsagn.id,
        arrangor.organisasjonsnummer      as arrangor_organisasjonsnummer,
        arrangor.navn                     as arrangor_navn,
        arrangor.slettet_dato is not null as arrangor_slettet,
-       gjennomforing.navn                as gjennomforing_navn,
        tiltakstype.tiltakskode           as tiltakskode,
        tiltakstype.navn                  as tiltakstype_navn
 from tilsagn

@@ -171,6 +171,7 @@ const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   gjennomforing: {
     id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
     navn: "Avklaring - avtalt månedspris",
+    lopenummer: "2025/10000",
   },
   arrangor: arrangorMock,
   type: TilsagnType.TILSAGN,
@@ -191,6 +192,7 @@ const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   gjennomforing: {
     id: "a47092ba-410b-4ca1-9713-36506a039742",
     navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
+    lopenummer: "2025/10001",
   },
   arrangor: arrangorMock,
   type: TilsagnType.TILSAGN,
@@ -208,6 +210,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     gjennomforing: {
       id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
       navn: "AFT Foobar",
+      lopenummer: "2025/10001",
     },
     bruktBelop: 51205,
     gjenstaendeBelop: 5234495,
@@ -230,6 +233,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     gjennomforing: {
       id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
       navn: "AFT Foobar",
+      lopenummer: "2025/10001",
     },
     bruktBelop: 0,
     gjenstaendeBelop: 123456,
@@ -249,7 +253,11 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
   },
   {
     id: "f8fbc0f7-3280-410b-8387-20ff63896926",
-    gjennomforing: arrangorMock,
+    gjennomforing: {
+      id: "a47092ba-410b-4ca1-9713-c6506a039742",
+      navn: "Avklaringen sin det",
+      lopenummer: "2025/10002",
+    },
     bruktBelop: 0,
     gjenstaendeBelop: 0,
     tiltakstype: {
@@ -271,6 +279,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     gjennomforing: {
       id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
       navn: "AFT Foobar",
+      lopenummer: "2025/10001",
     },
     bruktBelop: 55,
     gjenstaendeBelop: 0,
@@ -290,7 +299,11 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
   },
   {
     id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
-    gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
+    gjennomforing: {
+      id: "6a760ab8-fb12-4c6e-b143-b711331f63f6",
+      navn: "May rain - VTA",
+      lopenummer: "2025/10003",
+    },
     bruktBelop: 0,
     gjenstaendeBelop: 6000,
     tiltakstype: {

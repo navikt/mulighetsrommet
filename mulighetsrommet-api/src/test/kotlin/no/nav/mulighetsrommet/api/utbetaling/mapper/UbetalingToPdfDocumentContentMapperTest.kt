@@ -44,6 +44,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         tiltakstype = Utbetaling.Tiltakstype("Avklaring", Tiltakskode.AVKLARING),
         gjennomforing = Utbetaling.Gjennomforing(
             id = UUID.randomUUID(),
+            lopenummer = Tiltaksnummer("2025/10000"),
             navn = "Avklaring hos Nav",
         ),
         arrangor = Utbetaling.Arrangor(
@@ -238,12 +239,12 @@ private val expectedUtbetalingsdetaljerContent = """
               "value": "02.01.2025"
             },
             {
-              "label": "Tiltaksnavn",
-              "value": "Avklaring hos Nav"
-            },
-            {
               "label": "Tiltakstype",
               "value": "Avklaring"
+            },
+            {
+              "label": "Løpenummer",
+              "value": "2025/10000"
             }
           ]
         }
@@ -426,12 +427,12 @@ private val expectedJournalpostContent = """
               "value": "02.01.2025"
             },
             {
-              "label": "Tiltaksnavn",
-              "value": "Avklaring hos Nav"
-            },
-            {
               "label": "Tiltakstype",
               "value": "Avklaring"
+            },
+            {
+              "label": "Løpenummer",
+              "value": "2025/10000"
             }
           ]
         }

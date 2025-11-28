@@ -75,10 +75,8 @@ class TilsagnQueriesTest : FunSpec({
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
-                    it.gjennomforing shouldBe Tilsagn.Gjennomforing(
-                        id = GjennomforingFixtures.AFT1.id,
-                        navn = GjennomforingFixtures.AFT1.navn,
-                    )
+                    it.gjennomforing.id shouldBe GjennomforingFixtures.AFT1.id
+                    it.gjennomforing.lopenummer.shouldNotBeNull()
                     it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
                     it.lopenummer shouldBe 1

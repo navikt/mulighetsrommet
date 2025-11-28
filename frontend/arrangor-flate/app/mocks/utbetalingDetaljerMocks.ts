@@ -95,7 +95,11 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
   },
-  gjennomforing: { id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1", navn: "AFT Foobar" },
+  gjennomforing: {
+    id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
+    navn: "AFT Foobar",
+    lopenummer: "2025/10000",
+  },
   arrangor: arrangorMock,
   kanViseBeregning: true,
   beregning: {
@@ -134,6 +138,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   gjennomforing: {
     id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
     navn: "Avklaring - avtalt månedspris",
+    lopenummer: "2025/10001",
   },
   arrangor: arrangorMock,
   betalingsinformasjon: { kontonummer: "78029049393", kid: null },
@@ -160,7 +165,11 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
   },
-  gjennomforing: { id: "b3e1cfbb-bfb5-4b4b-b8a4-af837631ed51", navn: "Solrikt AFT" },
+  gjennomforing: {
+    id: "b3e1cfbb-bfb5-4b4b-b8a4-af837631ed51",
+    navn: "Solrikt AFT",
+    lopenummer: "2025/10002",
+  },
   arrangor: arrangorMock,
   advarsler: [],
   kanViseBeregning: true,
@@ -191,6 +200,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   gjennomforing: {
     id: "d29cb67c-8e68-4ece-90dc-ff21c498aa3f",
     navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
+    lopenummer: "2025/10003",
   },
   arrangor: arrangorMock,
   kanViseBeregning: false,
@@ -217,7 +227,11 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     navn: "Avklaring",
     tiltakskode: Tiltakskode.AVKLARING,
   },
-  gjennomforing: { id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1", navn: "AFT Foobar" },
+  gjennomforing: {
+    id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
+    navn: "AFT Foobar",
+    lopenummer: "2025/10004",
+  },
   arrangor: arrangorMock,
   kanViseBeregning: false,
   beregning: {
@@ -255,7 +269,11 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
     tiltakskode: Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
   },
-  gjennomforing: { id: "6a760ab8-fb12-4c6e-b143-b711331f63f6", navn: "May rain - VTA " },
+  gjennomforing: {
+    id: "6a760ab8-fb12-4c6e-b143-b711331f63f6",
+    navn: "May rain - VTA",
+    lopenummer: "2025/10005",
+  },
   arrangor: arrangorMock,
   kanViseBeregning: true,
   beregning: {
@@ -286,6 +304,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   gjennomforing: {
     id: "a47092ba-410b-4ca1-9713-36506a039742",
     navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
+    lopenummer: "2025/10006",
   },
   arrangor: arrangorMock,
   betalingsinformasjon: { kontonummer: "10002427740", kid: null },

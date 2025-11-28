@@ -839,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "c0b8f28ee7c01684eaa7cee18b606a9c50d3f0a413557c783f7149eef0c78606"
+        - "0175dae632d2cc6a2f2097e6d39fbc6c5938ab101a20b6f190abf778610b8405"
     ArrangorDto:
       type: object
       properties:
@@ -1286,8 +1286,11 @@ components:
           format: uuid
         navn:
           type: string
+        lopenummer:
+          type: string
       required:
       - id
+      - lopenummer
       - navn
     ArrangorflateArrangor:
       type: object

@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -235,7 +236,7 @@ class TilsagnQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toTilsagnDto() }
+        return session.single(queryOf(query, id)) { it.toTilsagn() }
     }
 
     fun getOrError(bestillingsnummer: String): Tilsagn {
@@ -250,7 +251,7 @@ class TilsagnQueries(private val session: Session) {
             where bestillingsnummer = ?
         """.trimIndent()
 
-        return session.single(queryOf(query, bestillingsnummer)) { it.toTilsagnDto() }
+        return session.single(queryOf(query, bestillingsnummer)) { it.toTilsagn() }
     }
 
     fun getAll(
@@ -281,7 +282,7 @@ class TilsagnQueries(private val session: Session) {
             "periode" to periodeIntersectsWith?.toDaterange(),
         )
 
-        return session.list(queryOf(query, params)) { it.toTilsagnDto() }
+        return session.list(queryOf(query, params)) { it.toTilsagn() }
     }
 
     fun delete(id: UUID) {
@@ -313,7 +314,7 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, status.name, bestillingsnummer))
     }
 
-    private fun Row.toTilsagnDto(): Tilsagn {
+    private fun Row.toTilsagn(): Tilsagn {
         val id = uuid("id")
 
         val beregning = getBeregning(id, TilsagnBeregningType.valueOf(string("beregning_type")))
@@ -327,6 +328,7 @@ class TilsagnQueries(private val session: Session) {
             ),
             gjennomforing = Tilsagn.Gjennomforing(
                 id = uuid("gjennomforing_id"),
+                lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
                 navn = string("gjennomforing_navn"),
             ),
             belopBrukt = int("belop_brukt"),

@@ -46,8 +46,7 @@ object UbetalingToPdfDocumentContentMapper {
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
-            ->
-                addUtbetalingsstatusSection(linjer)
+            -> addUtbetalingsstatusSection(linjer)
         }
     }
 
@@ -90,13 +89,12 @@ object UbetalingToPdfDocumentContentMapper {
 
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            ->
-                addDeltakelsesfaktorSection(
-                    sectionHeader = "Beregnet månedsverk",
-                    deltakelseFaktorColumnName = "Månedsverk",
-                    deltakelser = utbetaling.beregning.output.deltakelser(),
-                    personalia = personalia,
-                )
+            -> addDeltakelsesfaktorSection(
+                sectionHeader = "Beregnet månedsverk",
+                deltakelseFaktorColumnName = "Månedsverk",
+                deltakelser = utbetaling.beregning.output.deltakelser(),
+                personalia = personalia,
+            )
 
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerUkesverk,
@@ -130,8 +128,8 @@ private fun PdfDocumentContentBuilder.addInnsendingSection(utbetaling: Utbetalin
                     "Dato opprettet hos Nav",
                     utbetaling.createdAt.toLocalDate().formaterDatoTilEuropeiskDatoformat(),
                 )
-            entry("Tiltaksnavn", utbetaling.gjennomforing.navn)
             entry("Tiltakstype", utbetaling.tiltakstype.navn)
+            entry("Løpenummer", utbetaling.gjennomforing.lopenummer.value)
         }
     }
 }

@@ -434,15 +434,35 @@ class UtbetalingQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val query = """
-            SELECT *
-        FROM view_utbetaling
-        where (:tiltakstyper::uuid[] is null or tiltakstype_id = any (:tiltakstyper))
-        and (:nav_enheter::text[] is null or (
-                   exists(select true
-                          from jsonb_array_elements(nav_enheter_json) as nav_enhet
-                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter))))
-            AND (status = 'GENERERT')
-        order by $order
+            select utbetaling.id,
+                   utbetaling.gjennomforing_id,
+                   utbetaling.periode,
+                   utbetaling.belop_beregnet,
+                   utbetaling.status,
+                   arrangor.navn as arrangor_navn,
+                   tiltakstype.navn as tiltakstype_navn,
+                   tiltakstype.tiltakskode,
+                   kostnadssteder_json
+            from utbetaling
+                     inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
+                     inner join arrangor on gjennomforing.arrangor_id = arrangor.id
+                     inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+                     left join lateral (select jsonb_agg(
+                                                      distinct jsonb_build_object(
+                                                               'enhetsnummer', nav_enhet.enhetsnummer,
+                                                               'navn', nav_enhet.navn
+                                                       )
+                                               ) as kostnadssteder_json
+                                        from tilsagn
+                                                 join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
+                                        where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id and utbetaling.periode && tilsagn.periode) on true
+            where (utbetaling.status = 'GENERERT')
+              and (:tiltakstyper::uuid[] is null or gjennomforing.tiltakstype_id = any (:tiltakstyper))
+              and (:nav_enheter::text[] is null or (
+                       exists(select true
+                              from jsonb_array_elements(kostnadssteder_json) as nav_enhet
+                              where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter))))
+            order by $order
         """.trimIndent()
         return session.list(queryOf(query, parameters)) { it.toInnsendingKompaktDto() }
     }
@@ -481,6 +501,7 @@ class UtbetalingQueries(private val session: Session) {
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
+                lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
                 navn = string("gjennomforing_navn"),
             ),
             arrangor = Utbetaling.Arrangor(
@@ -513,15 +534,16 @@ class UtbetalingQueries(private val session: Session) {
         id = uuid("id"),
         gjennomforingId = uuid("gjennomforing_id"),
         periode = periode("periode"),
-        kostnadssteder = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<KostnadsstedDto>>(it) } ?: emptyList(),
-        arrangor = string("arrangor_navn"),
         belop = intOrNull("belop_beregnet"),
+        status = UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.valueOf(string("status"))),
+        arrangor = string("arrangor_navn"),
         tiltakstype = Utbetaling.Tiltakstype(
             navn = string("tiltakstype_navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
         ),
-        status = UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.valueOf(string("status"))),
+        kostnadssteder = stringOrNull("kostnadssteder_json")
+            ?.let { Json.decodeFromString<List<KostnadsstedDto>>(it) }
+            ?: emptyList(),
     )
 
     private fun getBeregning(id: UUID, beregning: UtbetalingBeregningType): UtbetalingBeregning {

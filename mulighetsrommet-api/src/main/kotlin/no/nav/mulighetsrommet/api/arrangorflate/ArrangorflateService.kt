@@ -40,17 +40,26 @@ class ArrangorflateService(
             .map { utbetaling ->
                 val harAdvarsler = when (utbetaling.status) {
                     UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
-                    else -> false
+
+                    UtbetalingStatusType.INNSENDT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
+                    -> false
                 }
                 val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
-                val godkjentBelop = if (status in listOf(
-                        ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                        ArrangorflateUtbetalingStatus.UTBETALT,
-                    )
-                ) {
-                    getGodkjentBelopForUtbetaling(utbetaling.id)
-                } else {
-                    null
+                val godkjentBelop = when (status) {
+                    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+                    ArrangorflateUtbetalingStatus.UTBETALT,
+                    -> getGodkjentBelopForUtbetaling(utbetaling.id)
+
+                    ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                    ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+                    ArrangorflateUtbetalingStatus.KREVER_ENDRING,
+                    -> null
                 }
                 ArrangorflateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
             }
@@ -356,8 +365,9 @@ fun toArrangorflateTilsagn(
     return ArrangorflateTilsagnDto(
         id = tilsagn.id,
         gjennomforing = ArrangorflateGjennomforingInfo(
-            tilsagn.gjennomforing.id,
-            tilsagn.gjennomforing.navn,
+            id = tilsagn.gjennomforing.id,
+            lopenummer = tilsagn.gjennomforing.lopenummer,
+            navn = tilsagn.gjennomforing.navn,
         ),
         bruktBelop = tilsagn.belopBrukt,
         gjenstaendeBelop = tilsagn.gjenstaendeBelop(),

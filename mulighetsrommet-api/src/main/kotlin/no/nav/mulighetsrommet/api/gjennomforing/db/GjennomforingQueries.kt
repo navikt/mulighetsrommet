@@ -596,7 +596,7 @@ class GjennomforingQueries(private val session: Session) {
         return Gjennomforing(
             id = uuid("id"),
             navn = string("navn"),
-            lopenummer = string("lopenummer"),
+            lopenummer = Tiltaksnummer(string("lopenummer")),
             startDato = startDato,
             sluttDato = sluttDato,
             status = status,

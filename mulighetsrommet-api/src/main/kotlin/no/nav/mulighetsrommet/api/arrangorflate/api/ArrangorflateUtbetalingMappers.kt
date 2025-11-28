@@ -8,17 +8,10 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.DataDetails
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.LabeledDataElement
-import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
-import kotlin.String
-import kotlin.collections.List
 
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
@@ -63,6 +56,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         ),
         gjennomforing = ArrangorflateGjennomforingInfo(
             id = utbetaling.gjennomforing.id,
+            lopenummer = utbetaling.gjennomforing.lopenummer,
             navn = utbetaling.gjennomforing.navn,
         ),
         arrangor = ArrangorflateArrangor(
