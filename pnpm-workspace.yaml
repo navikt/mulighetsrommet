@@ -1,6 +1,6 @@
-# Sørger for at installerte pakker må være 48 timer gamle før de kan installeres
+# Sørger for at installerte pakker må være 7 dager gamle før de kan installeres (likt som dependabot cooldown)
 # Et sikkerhetstiltak i tilfelle en pakke blir komprimittert
-minimumReleaseAge: 2880
+minimumReleaseAge: 10080
 
 # Gjør at peer dependencies ikke blir installert automatisk og at vi i stedet må ta aktiv stilling
 # til hvilke peer dependencies vi ønsker å støtte
