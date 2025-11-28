@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.collections.shouldHaveAtMostSize
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -13,7 +12,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn3
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
+import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto.Type
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -32,7 +33,7 @@ class UtbetalingQueriesTest : FunSpec(
             avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.VTA),
             gjennomforinger = listOf(AFT1, VTA1),
             tilsagn = listOf(
-                Tilsagn1,
+                Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
                 Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
             ),
         )
@@ -474,7 +475,10 @@ class UtbetalingQueriesTest : FunSpec(
                             tiltakstyper = emptyList(),
                             sortering = null,
                         ),
-                    ).shouldHaveSize(1).shouldForAll { it.status.type == Type.VENTER_PA_ARRANGOR }
+                    ).shouldHaveSize(1).should { (first) ->
+                        first.id shouldBe utbetaling1.id
+                        first.status.type shouldBe Type.VENTER_PA_ARRANGOR
+                    }
 
                     queries.upsert(utbetaling3)
 
@@ -484,7 +488,65 @@ class UtbetalingQueriesTest : FunSpec(
                             tiltakstyper = emptyList(),
                             sortering = null,
                         ),
-                    ).shouldHaveSize(2).shouldForAll { it.status.type == Type.VENTER_PA_ARRANGOR }
+                    ).shouldHaveSize(2).should { (first, second) ->
+                        first.id shouldBe utbetaling1.id
+                        first.status.type shouldBe Type.VENTER_PA_ARRANGOR
+
+                        second.id shouldBe utbetaling3.id
+                        second.status.type shouldBe Type.VENTER_PA_ARRANGOR
+                    }
+                }
+            }
+
+            test("Utleder kostnadssteder fra tilsagn") {
+                var periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
+
+                database.runAndRollback { session ->
+                    domain.copy(
+                        tilsagn = listOf(
+                            Tilsagn1.copy(
+                                periode = periode,
+                                kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+                            ),
+                            Tilsagn2.copy(
+                                periode = periode,
+                                kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer,
+                            ),
+                            Tilsagn3.copy(
+                                periode = periode,
+                                kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+                            ),
+                        ),
+                    ).setup(session)
+
+                    val utbetalingQueries = UtbetalingQueries(session)
+
+                    val utbetaling1 = utbetaling1.copy(
+                        status = UtbetalingStatusType.GENERERT,
+                        gjennomforingId = AFT1.id,
+                        periode = periode,
+                    )
+
+                    utbetalingQueries.upsert(utbetaling1)
+
+                    utbetalingQueries.getAll(
+                        filter = AdminInnsendingerFilter(
+                            navEnheter = listOf(),
+                            tiltakstyper = emptyList(),
+                            sortering = null,
+                        ),
+                    ).shouldHaveSize(1).should { (utbetaling) ->
+                        utbetaling.kostnadssteder shouldContainExactlyInAnyOrder listOf(
+                            KostnadsstedDto(
+                                NavEnhetFixtures.Innlandet.navn,
+                                NavEnhetFixtures.Innlandet.enhetsnummer,
+                            ),
+                            KostnadsstedDto(
+                                NavEnhetFixtures.Gjovik.navn,
+                                NavEnhetFixtures.Gjovik.enhetsnummer,
+                            ),
+                        )
+                    }
                 }
             }
 
@@ -512,8 +574,10 @@ class UtbetalingQueriesTest : FunSpec(
                             tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
                             sortering = null,
                         ),
-                    ).shouldHaveAtMostSize(1)
-                        .shouldForAll { it.tiltakstype.tiltakskode == TiltakstypeFixtures.AFT.tiltakskode }
+                    ).shouldHaveSize(1).should { (first) ->
+                        first.id shouldBe utbetaling1.id
+                        first.tiltakstype.tiltakskode shouldBe TiltakstypeFixtures.AFT.tiltakskode
+                    }
                 }
             }
 
@@ -543,8 +607,15 @@ class UtbetalingQueriesTest : FunSpec(
                             tiltakstyper = emptyList(),
                             sortering = null,
                         ),
-                    ).shouldHaveAtMostSize(1)
-                        .shouldForAll { it.kostnadssteder == listOf(NavEnhetFixtures.Gjovik.enhetsnummer) }
+                    ).shouldHaveSize(1).should { (first) ->
+                        first.id shouldBe utbetaling2.id
+                        first.kostnadssteder shouldBe listOf(
+                            KostnadsstedDto(
+                                NavEnhetFixtures.Gjovik.navn,
+                                NavEnhetFixtures.Gjovik.enhetsnummer,
+                            ),
+                        )
+                    }
                 }
             }
         }
