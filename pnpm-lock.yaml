@@ -169,7 +169,7 @@ importers:
         specifier: 5.1.32
         version: 5.1.32
       jsdom:
-        specifier: ^27.2.0
+        specifier: 27.2.0
         version: 27.2.0
       morgan:
         specifier: 1.10.1
@@ -323,10 +323,10 @@ importers:
   frontend/frontend-common:
     dependencies:
       '@date-fns/tz':
-        specifier: ^1.4.1
+        specifier: 1.4.1
         version: 1.4.1
       '@date-fns/utc':
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1
       '@hookform/resolvers':
         specifier: 5.2.2
@@ -347,7 +347,7 @@ importers:
         specifier: 2.5.1
         version: 2.5.1
       date-fns:
-        specifier: ^4.1.0
+        specifier: 4.1.0
         version: 4.1.0
       react:
         specifier: 19.0.0
@@ -444,7 +444,7 @@ importers:
         specifier: workspace:*
         version: link:../tiltaksadministrasjon-api-client
       '@unhead/react':
-        specifier: ^2.0.19
+        specifier: 2.0.19
         version: 2.0.19(react@19.0.0)
       dequal:
         specifier: 2.0.3
@@ -2348,6 +2348,9 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@7.33.5':
     resolution: {integrity: sha512-GSvO4VN7t9EKcqxXUfccRylRnv2s5DsVNPAoIFElxXuVDj9Da0mcbRm/ueEXl/jfC0YR1UrRAKdkX6K7Zzhz/A==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/7.33.5/25b993062758d6cee8cec7effe4eadb42af927a4}
@@ -2363,6 +2366,9 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@4.1.1':
     resolution: {integrity: sha512-WNAoUvK9z098/4lFzAD/09Q0Oz+Hf2mTTN8iAVi62xUgEXryq3am3t82cVfi3YttDKPrYrsrkEo8bJnte8qxbg==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.1.1/970a0555b93c862b7c7b0919349f48fc8e7de53c}
@@ -10489,12 +10495,13 @@ snapshots:
       '@floating-ui/react-dom': 2.1.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@navikt/aksel-icons': 7.33.5
       '@navikt/ds-tokens': 7.33.5
-      '@types/react': 19.0.3
       clsx: 2.1.1
       date-fns: 4.1.0
       react: 19.0.0
       react-day-picker: 9.7.0(react@19.0.0)
       react-dom: 19.0.0(react@19.0.0)
+    optionalDependencies:
+      '@types/react': 19.0.3
 
   '@navikt/ds-tailwind@7.33.5': {}
 
@@ -10506,6 +10513,7 @@ snapshots:
       html-react-parser: 5.2.10(@types/react@19.0.3)(react@19.0.0)
       js-cookie: 3.0.5
       jsdom: 27.2.0
+    optionalDependencies:
       react: 19.0.0
 
   '@navikt/oasis@4.1.1':
