@@ -16,41 +16,6 @@ import {
   vtaManedDeltakelse,
 } from "./deltakelserMocks";
 
-const satsDetaljer: DataDetails[] = [
-  {
-    header: "2025-01-01 - 2025-02-01",
-    entries: [
-      {
-        label: "Antall månedsverk",
-        type: LabeledDataElementType.INLINE,
-        value: {
-          value: "1.0",
-          type: "DATA_ELEMENT_TEXT",
-          format: DataElementTextFormat.NUMBER,
-        },
-      },
-      {
-        label: "Sats",
-        type: LabeledDataElementType.INLINE,
-        value: {
-          type: "DATA_ELEMENT_TEXT",
-          value: "129",
-          format: DataElementTextFormat.NOK,
-        },
-      },
-      {
-        label: "Beløp",
-        type: LabeledDataElementType.INLINE,
-        value: {
-          value: "16848",
-          type: "DATA_ELEMENT_TEXT",
-          format: DataElementTextFormat.NOK,
-        },
-      },
-    ],
-  },
-];
-
 const satsDetaljerForhondsgodkjent: DataDetails[] = [
   {
     header: "Periode 01.01.2025 - 01.02.2025",
@@ -65,7 +30,7 @@ const satsDetaljerForhondsgodkjent: DataDetails[] = [
         label: "Antall månedsverk",
         value: {
           type: "DATA_ELEMENT_TEXT",
-          value: "10.05",
+          value: "0.8",
           format: DataElementTextFormat.NUMBER,
         },
       },
@@ -80,14 +45,14 @@ const satsDetaljerManedspris: DataDetails[] = [
       {
         type: LabeledDataElementType.INLINE,
         label: "Avtalt månedspris per tiltaksplass",
-        value: { type: "DATA_ELEMENT_TEXT", value: "6000", format: DataElementTextFormat.NOK },
+        value: { type: "DATA_ELEMENT_TEXT", value: "10000", format: DataElementTextFormat.NOK },
       },
       {
         type: LabeledDataElementType.INLINE,
         label: "Antall månedsverk",
         value: {
           type: "DATA_ELEMENT_TEXT",
-          value: "0.69565",
+          value: "2",
           format: DataElementTextFormat.NUMBER,
         },
       },
@@ -104,7 +69,7 @@ const satsDetaljerUkespris: DataDetails[] = [
         label: "Avtalt ukespris per tiltaksplass",
         value: {
           type: "DATA_ELEMENT_TEXT",
-          value: "1234",
+          value: "4500",
           format: DataElementTextFormat.NUMBER,
         },
       },
@@ -113,7 +78,7 @@ const satsDetaljerUkespris: DataDetails[] = [
         label: "Antall ukesverk",
         value: {
           type: "DATA_ELEMENT_TEXT",
-          value: "4.42857",
+          value: "11,8",
           format: DataElementTextFormat.NUMBER,
         },
       },

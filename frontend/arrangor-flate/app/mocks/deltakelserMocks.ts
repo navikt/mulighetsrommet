@@ -185,7 +185,7 @@ export const vtaManedDeltakelse = createDeltakelsesTable("Ukesverk", [
       tiltakStart: "2025-05-15",
       periodeStart: "2025-06-01",
       periodeSlutt: "2025-06-30",
-      faktor: "1",
+      faktor: "0.8",
     },
     content: null,
   },
