@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelser
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
@@ -128,7 +129,8 @@ class ArrangorflateService(
     }
 
     suspend fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
-        val personalia = getPersonalia(utbetaling.beregning.output.deltakelser().map { it.deltakelseId }.toSet())
+        val deltakelseIds = getDeltakelser(utbetaling.beregning).map { it.deltakelseId }.toSet()
+        val personalia = getPersonalia(deltakelseIds)
         val deltakere = queries.deltaker
             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
