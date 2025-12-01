@@ -8,6 +8,12 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
     override val output: Output,
 ) : UtbetalingBeregning() {
 
+    override fun deltakelsePerioder(): Set<DeltakelsePeriode> {
+        return input.deltakelser().map {
+            DeltakelsePeriode(it.deltakelseId, it.periode())
+        }.toSet()
+    }
+
     @Serializable
     data class Input(
         val satser: Set<SatsPeriode>,

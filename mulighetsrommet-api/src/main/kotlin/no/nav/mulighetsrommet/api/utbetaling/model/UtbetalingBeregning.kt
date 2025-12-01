@@ -19,6 +19,12 @@ sealed class UtbetalingBeregning {
     fun getDigest(): String {
         return (input.hashCode() + output.hashCode()).toHexString()
     }
+
+    open fun deltakelsePerioder(): Set<DeltakelsePeriode> {
+        return output.deltakelser().map {
+            DeltakelsePeriode(it.deltakelseId, it.periode())
+        }.toSet()
+    }
 }
 
 sealed class UtbetalingBeregningInput {

@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.clients.dokark.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelser
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -80,7 +79,7 @@ class JournalforUtbetaling(
     }
 
     private suspend fun generatePdf(utbetaling: Utbetaling): Either<String, ByteArray> {
-        val deltakelseIds = getDeltakelser(utbetaling.beregning).map { it.deltakelseId }.toSet()
+        val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }.toSet()
         val personalia = amtDeltakerClient.hentPersonalia(deltakelseIds)
             .getOrElse {
                 throw Exception("Klarte ikke hente personalia fra amt-deltaker error: $it")

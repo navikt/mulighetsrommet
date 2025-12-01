@@ -5,12 +5,12 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.pdfgen.*
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelser
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
@@ -79,7 +79,7 @@ object UbetalingToPdfDocumentContentMapper {
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningPrisPerManedsverk,
             -> {
-                addDeltakerperioderSection(getDeltakelser(utbetaling.beregning), personalia)
+                addDeltakerperioderSection(utbetaling.beregning.deltakelsePerioder(), personalia)
             }
         }
 
@@ -93,7 +93,7 @@ object UbetalingToPdfDocumentContentMapper {
             -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet månedsverk",
                 deltakelseFaktorColumnName = "Månedsverk",
-                deltakelser = getDeltakelser(utbetaling.beregning),
+                deltakelser = utbetaling.beregning.output.deltakelser(),
                 personalia = personalia,
             )
 
@@ -102,7 +102,7 @@ object UbetalingToPdfDocumentContentMapper {
             -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet ukesverk",
                 deltakelseFaktorColumnName = "Ukesverk",
-                deltakelser = getDeltakelser(utbetaling.beregning),
+                deltakelser = utbetaling.beregning.output.deltakelser(),
                 personalia = personalia,
             )
         }
@@ -268,7 +268,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
-    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    deltakelser: Set<DeltakelsePeriode>,
     personalia: Map<UUID, DeltakerPersonalia>,
 ) {
     section("Deltakerperioder") {
@@ -289,10 +289,10 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
                         if (erSkjermet) null else person?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.periode().start.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.periode().getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
                     ),
                 )
             }
