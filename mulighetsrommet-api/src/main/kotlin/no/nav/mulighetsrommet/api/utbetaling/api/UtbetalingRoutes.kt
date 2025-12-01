@@ -240,7 +240,7 @@ fun Route.utbetalingRoutes() {
 
                 val beregning = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val deltakelser = getDeltakelser(utbetaling.beregning).associateBy { it.deltakelseId }
+                    val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
 
@@ -253,10 +253,8 @@ fun Route.utbetalingRoutes() {
                     )
 
                     val deltakelsePersoner = personalia
-                        .map { personalia ->
-                            UtbetalingBeregningDeltaker(personalia, deltakelser.getValue(personalia.deltakerId))
-                        }
-                        .filter { filter.navEnheter.isEmpty() || it.personalia.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
+                        .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
+                        .associateBy { it.deltakerId }
 
                     UtbetalingBeregningDto.from(
                         utbetaling.beregning,

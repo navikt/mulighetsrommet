@@ -23,6 +23,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.api.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -708,7 +709,7 @@ data class OpprettKravDeltakere(
                         DataDrivenTableDto.Row(
                             cells = deltakelseCommonCells(
                                 personalia[deltakelsePeriode.deltakelseId],
-                                deltakere.find { it.id == deltakelsePeriode.deltakelseId },
+                                deltakere.find { it.id == deltakelsePeriode.deltakelseId }?.startDato,
                                 deltakelsePeriode.periode,
                             ),
                         )

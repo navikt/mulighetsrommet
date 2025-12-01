@@ -7,11 +7,11 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelser
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.*
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.LocalDate
 import java.util.*
 
 fun mapUtbetalingToArrangorflateUtbetaling(
@@ -23,21 +23,10 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
 ): ArrangorflateUtbetalingDto {
-    val deltakelseById = getDeltakelser(utbetaling.beregning).associateBy { it.deltakelseId }
-    val deltakelser = deltakelseById
-        .map { (id, beregningOutput) ->
-            ArrangorflateBeregningDeltakelse(
-                deltaker = deltakereById[id],
-                personalia = personaliaById[id],
-                beregningOutput = beregningOutput,
-            )
-        }
-        .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })
-
     val beregning = ArrangorflateBeregning(
         belop = utbetaling.beregning.output.belop,
         digest = utbetaling.beregning.getDigest(),
-        deltakelser = beregningDeltakerTable(utbetaling, deltakelser),
+        deltakelser = beregningDeltakerTable(utbetaling, deltakereById, personaliaById),
         stengt = beregningStengt(utbetaling.beregning),
         displayName = beregningDisplayName(utbetaling.beregning),
         satsDetaljer = beregningSatsDetaljer(utbetaling.beregning),
@@ -118,18 +107,18 @@ fun deltakelseCommonColumns() = listOf(
 
 private fun deltakelseCommonCells(deltaker: ArrangorflateBeregningDeltakelse) = deltakelseCommonCells(
     deltaker.personalia,
-    deltaker.deltaker,
+    deltaker.deltaker?.startDato,
     Periode.fromRange(deltaker.beregningOutput.perioder.map { it.periode }),
 )
 
 fun deltakelseCommonCells(
     personalia: ArrangorflatePersonalia?,
-    deltaker: Deltaker?,
+    startDato: LocalDate?,
     periode: Periode,
 ): Map<String, DataElement?> = mapOf(
     "navn" to DataElement.text(personalia?.navn),
     "identitetsnummer" to DataElement.text(personalia?.norskIdent?.value),
-    "tiltakStart" to DataElement.date(deltaker?.startDato),
+    "tiltakStart" to DataElement.date(startDato),
     "periodeStart" to DataElement.date(periode.start),
     "periodeSlutt" to DataElement.date(periode.getLastInclusiveDate()),
 )
@@ -153,14 +142,14 @@ private fun deltakelsePrisPerUkesverkTable(
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = deltakelseCommonColumns() + deltakelseFaktorColumns("Ukesverk"),
-        rows = deltakere.map {
-            val faktor = it.beregningOutput.perioder.sumOf { it.faktor }
+        rows = deltakere.map { deltaker ->
+            val faktor = deltaker.beregningOutput.perioder.sumOf { it.faktor }
             DataDrivenTableDto.Row(
-                cells = deltakelseCommonCells(it) + deltakelseFaktorCells(faktor),
+                cells = deltakelseCommonCells(deltaker) + deltakelseFaktorCells(faktor),
                 content = UtbetalingTimeline.deltakelseTimeline(
                     periode,
                     stengt,
-                    UtbetalingTimeline.ukesverkBeregningRow(it.beregningOutput),
+                    UtbetalingTimeline.ukesverkBeregningRow(deltaker.beregningOutput),
                 ),
             )
         },
@@ -214,11 +203,17 @@ private fun deltakelseFastSatsPerTiltaksplassPerManedTable(
     )
 }
 
-private fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<ArrangorflateBeregningDeltakelse>) = DataDrivenTableDto(
+private fun deltakelsePrisPerTimeOppfolgingTable(
+    deltakelser: Set<DeltakelsePeriode>,
+    deltakereById: Map<UUID, Deltaker>,
+    personaliaById: Map<UUID, ArrangorflatePersonalia?>,
+) = DataDrivenTableDto(
     columns = deltakelseCommonColumns(),
-    rows = deltakere.map {
+    rows = deltakelser.map { deltakelse ->
+        val deltaker = deltakereById[deltakelse.deltakelseId]
+        val personalia = personaliaById[deltakelse.deltakelseId]
         DataDrivenTableDto.Row(
-            cells = deltakelseCommonCells(it),
+            cells = deltakelseCommonCells(personalia, deltaker?.startDato, deltakelse.periode),
         )
     },
 )
@@ -363,15 +358,18 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
 
 fun beregningDeltakerTable(
     utbetaling: Utbetaling,
-    deltakelser: List<ArrangorflateBeregningDeltakelse>,
+    deltakereById: Map<UUID, Deltaker>,
+    personaliaById: Map<UUID, ArrangorflatePersonalia?>,
 ): DataDrivenTableDto? {
-    if (deltakelser.isEmpty()) {
-        return null
-    }
     return when (val beregning = utbetaling.beregning) {
         is UtbetalingBeregningFri -> null
 
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
+            val deltakelser = getArrangorflateBeregningDeltakelse(
+                utbetaling.beregning.output.deltakelser(),
+                deltakereById,
+                personaliaById,
+            )
             val stengt = beregning.input.stengt.sortedBy { it.periode.start }
             deltakelseFastSatsPerTiltaksplassPerManedTable(
                 utbetaling.periode,
@@ -382,22 +380,52 @@ fun beregningDeltakerTable(
         }
 
         is UtbetalingBeregningPrisPerManedsverk -> {
+            val deltakelser = getArrangorflateBeregningDeltakelse(
+                utbetaling.beregning.output.deltakelser(),
+                deltakereById,
+                personaliaById,
+            )
             val stengt = beregning.input.stengt.sortedBy { it.periode.start }
             deltakelsePrisPerManedsverkTable(utbetaling.periode, deltakelser, stengt)
         }
 
         is UtbetalingBeregningPrisPerUkesverk -> {
+            val deltakelser = getArrangorflateBeregningDeltakelse(
+                utbetaling.beregning.output.deltakelser(),
+                deltakereById,
+                personaliaById,
+            )
             val stengt = beregning.input.stengt.sortedBy { it.periode.start }
             deltakelsePrisPerUkesverkTable(utbetaling.periode, deltakelser, stengt)
         }
 
         is UtbetalingBeregningPrisPerHeleUkesverk -> {
+            val deltakelser = getArrangorflateBeregningDeltakelse(
+                utbetaling.beregning.output.deltakelser(),
+                deltakereById,
+                personaliaById,
+            )
             val stengt = beregning.input.stengt.sortedBy { it.periode.start }
             deltakelsePrisPerUkesverkTable(utbetaling.periode, deltakelser, stengt)
         }
 
         is UtbetalingBeregningPrisPerTimeOppfolging -> {
-            deltakelsePrisPerTimeOppfolgingTable(deltakelser)
+            val deltakelsePerioder = utbetaling.beregning.deltakelsePerioder()
+            deltakelsePrisPerTimeOppfolgingTable(deltakelsePerioder, deltakereById, personaliaById)
         }
     }
 }
+
+private fun getArrangorflateBeregningDeltakelse(
+    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    deltakereById: Map<UUID, Deltaker>,
+    personaliaById: Map<UUID, ArrangorflatePersonalia?>,
+): List<ArrangorflateBeregningDeltakelse> = deltakelser.associateBy { it.deltakelseId }
+    .map { (id, beregningOutput) ->
+        ArrangorflateBeregningDeltakelse(
+            deltaker = deltakereById[id],
+            personalia = personaliaById[id],
+            beregningOutput = beregningOutput,
+        )
+    }
+    .sortedWith(compareBy(nullsLast()) { it.personalia?.navn })

@@ -294,12 +294,12 @@ object UtbetalingBeregningHelpers {
             beregning.output.deltakelser()
     }
 
-    private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.input.deltakelser().map {
+    private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.deltakelsePerioder().map {
         UtbetalingBeregningOutputDeltakelse(
             it.deltakelseId,
             setOf(
                 UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                    it.periode(),
+                    it.periode,
                     faktor = 0.0,
                     sats = 0,
                 ),
