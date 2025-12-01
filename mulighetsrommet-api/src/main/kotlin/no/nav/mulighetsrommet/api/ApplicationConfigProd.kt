@@ -375,37 +375,28 @@ val ApplicationConfigProd = AppConfig(
         channel = "#team-valp-monitoring",
         enable = true,
     ),
-    okonomi = OkonomiConfig(
-        gyldigTilsagnPeriode = mapOf(
-            // Forhåndsgodkjente tiltak
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), LocalDate.of(2026, 1, 1)),
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(
-                LocalDate.of(2025, 7, 1),
-                LocalDate.of(2026, 1, 1),
+    okonomi = run {
+        val slutt = LocalDate.of(2027, 1, 1)
+        OkonomiConfig(
+            gyldigTilsagnPeriode = mapOf(
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to Periode(LocalDate.of(2025, 7, 1), slutt),
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to Periode(LocalDate.of(2025, 7, 1), slutt),
+                Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), slutt),
+                Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), slutt),
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), slutt),
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), slutt),
             ),
-            // Anskaffede tiltak
-            Tiltakskode.AVKLARING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
-            Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), LocalDate.of(2026, 1, 1)),
-            // DOFA Digitalt oppfølgingstiltak
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), LocalDate.of(2026, 1, 1)),
-        ),
-        opprettKravPeriode = mapOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
-                LocalDate.of(2025, 11, 1),
-                LocalDate.of(2026, 1, 1),
+            opprettKravPeriode = mapOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 11, 1), slutt),
+                PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 11, 1), slutt),
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                    LocalDate.of(2025, 11, 1),
+                    slutt,
+                ),
             ),
-            PrismodellType.ANNEN_AVTALT_PRIS to Periode(
-                LocalDate.of(2025, 11, 1),
-                LocalDate.of(2026, 1, 1),
-            ),
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
-                LocalDate.of(2025, 11, 1),
-                LocalDate.of(2026, 1, 1),
-            ),
-        ),
-        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
-    ),
+            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
+        )
+    },
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",
     ),
