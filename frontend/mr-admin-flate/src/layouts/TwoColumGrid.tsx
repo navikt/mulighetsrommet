@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function TwoColumnGrid(props: Props) {
-  const [leftChild, rightChild] = React.Children.toArray(props.children);
+  const [leftChild, ...rightChildren] = React.Children.toArray(props.children);
   const { separator = false } = props;
 
   return (
@@ -21,7 +21,7 @@ export function TwoColumnGrid(props: Props) {
         {separator && (
           <div className="hidden lg:block absolute inset-y-0 left-0 w-px bg-gray-300 md:my-4"></div>
         )}
-        {rightChild}
+        {...rightChildren}
       </div>
     </div>
   );
