@@ -385,6 +385,9 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.OPPFOLGING to Periode(LocalDate.of(2025, 10, 1), slutt),
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(LocalDate.of(2025, 10, 1), slutt),
                 Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to Periode(LocalDate.of(2025, 11, 1), slutt),
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.JOBBKLUBB to Periode(LocalDate.of(2026, 1, 1), slutt),
             ),
             opprettKravPeriode = mapOf(
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 11, 1), slutt),
