@@ -59,6 +59,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
       gjennomforing: {
         id: gjennomforingAFT.id,
         navn: gjennomforingAFT.navn,
+        lopenummer: "2025/10000",
       },
       arrangor: arrangorMock,
       type: TilsagnType.INVESTERING,
@@ -161,6 +162,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
       gjennomforing: {
         id: gjennomforingAvklaring.id,
         navn: gjennomforingAvklaring.navn,
+        lopenummer: "2025/10001",
       },
       arrangor: arrangorMock,
       type: TilsagnType.TILSAGN,
@@ -248,6 +250,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
       gjennomforing: {
         id: gjennomforingOppfolging.id,
         navn: gjennomforingOppfolging.navn,
+        lopenummer: "2025/10002",
       },
       arrangor: arrangorMock,
       type: TilsagnType.TILSAGN,

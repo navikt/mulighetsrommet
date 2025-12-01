@@ -8,12 +8,14 @@ import { Separator } from "../common/Separator";
 export function SatsPerioderOgBelop({
   belop,
   satsDetaljer,
+  className,
 }: {
   belop: number;
   satsDetaljer: DataDetails[];
+  className?: string;
 }) {
   return (
-    <VStack className="w-[700px]" gap="2">
+    <VStack className={className} gap="2">
       {satsDetaljer.length > 0 && (
         <>
           {satsDetaljer.map((s) => (
@@ -27,7 +29,7 @@ export function SatsPerioderOgBelop({
               ))}
             </VStack>
           ))}
-          <Separator className="w-[350px]" />
+          <Separator className="w-1/2" />
         </>
       )}
       <MetadataHGrid label="Beløp" value={formaterNOK(belop)} />

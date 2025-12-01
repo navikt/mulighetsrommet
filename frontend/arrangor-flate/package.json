@@ -48,7 +48,7 @@
     "html-react-parser": "5.2.10",
     "http-proxy-middleware": "3.0.5",
     "isbot": "5.1.32",
-    "jsdom": "^27.2.0",
+    "jsdom": "27.2.0",
     "morgan": "1.10.1",
     "msw": "2.12.2",
     "prom-client": "15.1.3",

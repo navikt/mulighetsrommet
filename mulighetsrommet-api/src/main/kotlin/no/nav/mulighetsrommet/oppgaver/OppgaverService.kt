@@ -89,7 +89,7 @@ class OppgaverService(val db: ApiDatabase) {
             .getTilsagnOppgaveData()
             .asSequence()
             .filter { oppgave ->
-                kostnadssteder.isEmpty() || oppgave.kostnadssted in kostnadssteder
+                kostnadssteder.isEmpty() || oppgave.kostnadssted.nummer in kostnadssteder
             }
             .filter { tiltakskoder.isEmpty() || it.tiltakstype.tiltakskode in tiltakskoder }
             .mapNotNull { toOppgave(it, ansatt) }
@@ -176,21 +176,22 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
 
     val link = OppgaveLink(
         linkText = "Se tilsagn",
-        link = "/gjennomforinger/${data.gjennomforingId}/tilsagn/${data.id}",
+        link = "/gjennomforinger/${data.gjennomforing.id}/tilsagn/${data.id}",
     )
 
     val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.OPPRETT)
     val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.ANNULLER)
     val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.GJOR_OPP)
 
+    var title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
             Oppgave(
                 id = data.id,
                 type = OppgaveType.TILSAGN_TIL_GODKJENNING,
                 navn = OppgaveType.TILSAGN_TIL_GODKJENNING.navn,
-                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
-                title = data.gjennomforingNavn,
+                enhet = data.kostnadssted,
+                title = title,
                 description = "Tilsagnet ${data.bestillingsnummer} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
                 link = link,
@@ -199,7 +200,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN,
                     ansatt = ansatt,
-                    kostnadssted = data.kostnadssted,
+                    kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
@@ -213,8 +214,8 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 id = data.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
                 navn = OppgaveType.TILSAGN_RETURNERT.navn,
-                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
-                title = data.gjennomforingNavn,
+                enhet = data.kostnadssted,
+                title = title,
                 description = "Tilsagnet ${data.bestillingsnummer} er returnert av beslutter",
                 tiltakstype = tiltakstype,
                 link = link,
@@ -223,7 +224,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.REDIGER,
                     ansatt = ansatt,
-                    kostnadssted = data.kostnadssted,
+                    kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
@@ -237,8 +238,8 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 id = data.id,
                 type = OppgaveType.TILSAGN_TIL_ANNULLERING,
                 navn = OppgaveType.TILSAGN_TIL_ANNULLERING.navn,
-                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
-                title = data.gjennomforingNavn,
+                enhet = data.kostnadssted,
+                title = title,
                 description = "Tilsagnet ${data.bestillingsnummer} er sendt til annullering",
                 tiltakstype = tiltakstype,
                 link = link,
@@ -247,7 +248,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_ANNULLERING,
                     ansatt = ansatt,
-                    kostnadssted = data.kostnadssted,
+                    kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
@@ -261,8 +262,8 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 id = data.id,
                 type = OppgaveType.TILSAGN_TIL_OPPGJOR,
                 navn = OppgaveType.TILSAGN_TIL_OPPGJOR.navn,
-                enhet = OppgaveEnhet(navn = data.kostnadsstedNavn, nummer = data.kostnadssted),
-                title = data.gjennomforingNavn,
+                enhet = data.kostnadssted,
+                title = title,
                 description = "Tilsagnet ${data.bestillingsnummer} er klar til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
@@ -271,7 +272,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_OPPGJOR,
                     ansatt = ansatt,
-                    kostnadssted = data.kostnadssted,
+                    kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
@@ -286,7 +287,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
 private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
     val link = OppgaveLink(
         linkText = "Se utbetaling",
-        link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.utbetalingId}",
+        link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.utbetalingId}",
     )
 
     return when (data.status) {
@@ -295,10 +296,8 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 id = data.id,
                 type = OppgaveType.UTBETALING_TIL_ATTESTERING,
                 navn = OppgaveType.UTBETALING_TIL_ATTESTERING.navn,
-                enhet = data.kostnadssted.let {
-                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
-                },
-                title = data.gjennomforingNavn,
+                enhet = data.kostnadssted,
+                title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
                 description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til attestering",
                 tiltakstype = data.tiltakstype,
                 link = link,
@@ -307,7 +306,7 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 UtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.ATTESTER,
                     ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.enhetsnummer,
+                    kostnadssted = data.kostnadssted.nummer,
                     behandletAv = data.opprettelse.behandletAv,
                 )
             }
@@ -318,10 +317,8 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 id = data.id,
                 type = OppgaveType.UTBETALING_RETURNERT,
                 navn = OppgaveType.UTBETALING_RETURNERT.navn,
-                enhet = data.kostnadssted.let {
-                    OppgaveEnhet(navn = it.navn, nummer = it.enhetsnummer)
-                },
-                title = data.gjennomforingNavn,
+                enhet = data.kostnadssted,
+                title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
                 description = "Utbetaling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
                 tiltakstype = data.tiltakstype,
                 link = link,
@@ -330,7 +327,7 @@ private fun toOppgave(data: DelutbetalingOppgaveData, ansatt: NavAnsatt): Oppgav
                 UtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
                     ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.enhetsnummer,
+                    kostnadssted = data.kostnadssted.nummer,
                     behandletAv = data.opprettelse.behandletAv,
                 )
             }
@@ -356,15 +353,12 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                 type = OppgaveType.UTBETALING_TIL_BEHANDLING,
                 navn = OppgaveType.UTBETALING_TIL_BEHANDLING.navn,
                 enhet = null,
-                title = data.gjennomforingNavn,
+                title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
                 description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til behandling",
-                tiltakstype = OppgaveTiltakstype(
-                    tiltakskode = data.tiltakstype.tiltakskode,
-                    navn = data.tiltakstype.navn,
-                ),
+                tiltakstype = data.tiltakstype,
                 link = OppgaveLink(
                     linkText = "Se utbetaling",
-                    link = "/gjennomforinger/${data.gjennomforingId}/utbetalinger/${data.id}",
+                    link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
                 ),
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
             ).takeIf { UtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
@@ -372,51 +366,49 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
 }
 
 private fun AvtaleOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
-    id = this.id,
+    id = id,
     type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
-    enhet = this.kontorstruktur.firstOrNull()?.region?.let {
+    enhet = kontorstruktur.firstOrNull()?.region?.let {
         OppgaveEnhet(
             nummer = it.enhetsnummer,
             navn = it.navn,
         )
     },
-    title = this.navn,
+    title = navn,
     description = """Gå til avtalen og sett deg som administrator hvis du eier avtalen.""",
-    tiltakstype = OppgaveTiltakstype(
-        tiltakskode = this.tiltakstype.tiltakskode,
-        navn = this.tiltakstype.navn,
-    ),
+    tiltakstype = tiltakstype,
     link = OppgaveLink(
         linkText = "Se avtale",
-        link = "/avtaler/${this.id}",
+        link = "/avtaler/$id",
     ),
-    createdAt = this.createdAt,
+    createdAt = createdAt,
 ).takeIf {
     AvtaleService.tilgangTilHandling(AvtaleHandling.REDIGER, ansatt)
 }
 
 private fun GjennomforingOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
-    id = this.id,
+    id = id,
     type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-    enhet = this.kontorstruktur.firstOrNull()?.region?.let {
+    enhet = kontorstruktur.firstOrNull()?.region?.let {
         OppgaveEnhet(
             nummer = it.enhetsnummer,
             navn = it.navn,
         )
     },
-    title = this.navn,
+    title = navn,
     description = """Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
-    tiltakstype = OppgaveTiltakstype(
-        tiltakskode = this.tiltakskode,
-        navn = this.tiltakstypeNavn,
-    ),
+    tiltakstype = tiltakstype,
     link = OppgaveLink(
         linkText = "Se gjennomføring",
-        link = "/gjennomforinger/${this.id}",
+        link = "/gjennomforinger/$id",
     ),
-    createdAt = this.updatedAt,
+    createdAt = updatedAt,
 ).takeIf {
     GjennomforingService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
+}
+
+private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforing: OppgaveGjennomforing): String {
+    return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
 }

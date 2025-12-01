@@ -604,9 +604,10 @@ class TilsagnService(
 
         val notification = ScheduledNotification(
             title = "Et $tilsagnDisplayName du sendte til annullering er blitt avvist",
-            description = """$beslutterNavn avviste annulleringen av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen
-                    | "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
-            """.trimMargin(),
+            description = listOf(
+                "$beslutterNavn avviste annulleringen av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for tiltaket ${tilsagn.getTiltaksnavn()}.",
+                "Kontakt $beslutterNavn om dette er feil.",
+            ).joinToString(" "),
             metadata = NotificationMetadata(
                 linkText = "Gå til tilsagn",
                 link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
@@ -627,9 +628,10 @@ class TilsagnService(
 
         val notification = ScheduledNotification(
             title = "Et $tilsagnDisplayName du sendte til oppgjør er blitt avvist",
-            description = """$beslutterNavn avviste oppgjøret av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn}
-                    | for gjennomføringen "${tilsagn.gjennomforing.navn}". Kontakt $beslutterNavn om dette er feil.
-            """.trimMargin(),
+            description = listOf(
+                "$beslutterNavn avviste oppgjøret av $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for tiltaket ${tilsagn.getTiltaksnavn()}.",
+                "Kontakt $beslutterNavn om dette er feil.",
+            ).joinToString(" "),
             metadata = NotificationMetadata(
                 linkText = "Gå til tilsagn",
                 link = "/gjennomforinger/${tilsagn.gjennomforing.id}/tilsagn/${tilsagn.id}",
@@ -650,7 +652,10 @@ class TilsagnService(
 
         val notification = ScheduledNotification(
             title = "Et $tilsagnDisplayName du sendte til godkjenning er blitt slettet",
-            description = """$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for gjennomføringen ${tilsagn.gjennomforing.navn}. Kontakt $beslutterNavn om dette er feil.""",
+            description = listOf(
+                "$beslutterNavn slettet et $tilsagnDisplayName med kostnadssted ${tilsagn.kostnadssted.navn} for tiltaket ${tilsagn.getTiltaksnavn()}.",
+                "Kontakt $beslutterNavn om dette er feil.",
+            ).joinToString(" "),
             metadata = NotificationMetadata(
                 linkText = "Gå til gjennomføringen",
                 link = "/gjennomforinger/${tilsagn.gjennomforing.id}",

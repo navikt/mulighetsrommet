@@ -41,11 +41,11 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
     .filter((region) => region.enheter.length <= 1)
     .map((r) => {
       const enkel = r.enheter.length > 0;
-      const enhet = enkel
+      return enkel
         ? enheter.find((e) => e.enhetsnummer === r.enheter[0].enhetsnummer)
         : enheter.find((e) => e.enhetsnummer === r.enhetsnummer);
-      return enhet;
-    });
+    })
+    .filter((enhet) => enhet !== undefined);
 
   return (
     <>
@@ -72,21 +72,18 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
               regioner={regioner.filter((region) => region.enheter.length > 1)}
             />
             {enkleKostnadssteder.map((kostnadssted) => (
-              <>
-                {kostnadssted ? (
-                  <Checkbox
-                    value={kostnadssted}
-                    size="small"
-                    onChange={() =>
-                      updateFilter({
-                        navEnheter: addOrRemove(filter.navEnheter, kostnadssted),
-                      })
-                    }
-                  >
-                    {kostnadssted.navn}
-                  </Checkbox>
-                ) : null}
-              </>
+              <Checkbox
+                key={kostnadssted.enhetsnummer}
+                value={kostnadssted}
+                size="small"
+                onChange={() =>
+                  updateFilter({
+                    navEnheter: addOrRemove(filter.navEnheter, kostnadssted),
+                  })
+                }
+              >
+                {kostnadssted.navn}
+              </Checkbox>
             ))}
           </Accordion.Content>
         </Accordion.Item>

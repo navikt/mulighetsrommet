@@ -17,6 +17,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
   gjennomforing: {
     id: "a47092ba-410b-4ca1-9713-36506a039742",
     navn: "Arbeidsrettet rehabilitering - avtalt ukespris",
+    lopenummer: "2025/10000",
   },
   arrangor: arrangorMock,
   periode: { start: "2025-10-01", slutt: "2025-11-01" },
@@ -33,6 +34,7 @@ const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingKompaktDto = {
   gjennomforing: {
     id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
     navn: "Avklaring - avtalt månedspris",
+    lopenummer: "2025/10001",
   },
   arrangor: arrangorMock,
   periode: { start: "2025-10-01", slutt: "2025-11-06" },
@@ -54,6 +56,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     gjennomforing: {
       id: "ded95e13-c121-45b1-a6b7-beadd85e2aa1",
       navn: "AFT Foobar",
+      lopenummer: "2025/10002",
     },
     arrangor: arrangorMock,
     periode: {
@@ -74,6 +77,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     gjennomforing: {
       id: "b3e1cfbb-bfb5-4b4b-b8a4-af837631ed51",
       navn: "Solrikt AFT",
+      lopenummer: "2025/10003",
     },
     arrangor: arrangorMock,
     periode: {
@@ -95,6 +99,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     gjennomforing: {
       id: "d29cb67c-8e68-4ece-90dc-ff21c498aa3f",
       navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
+      lopenummer: "2025/10004",
     },
     arrangor: arrangorMock,
     periode: {
@@ -117,6 +122,7 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     gjennomforing: {
       id: "6d71a9c5-c920-4d56-bc3b-2da07e4b6100",
       navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
+      lopenummer: "2025/10005",
     },
     arrangor: arrangorMock,
     periode: {
@@ -136,7 +142,8 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     },
     gjennomforing: {
       id: "6a760ab8-fb12-4c6e-b143-b711331f63f6",
-      navn: "May rain - VTA ",
+      navn: "May rain - VTA",
+      lopenummer: "2025/10006",
     },
     arrangor: arrangorMock,
     periode: {

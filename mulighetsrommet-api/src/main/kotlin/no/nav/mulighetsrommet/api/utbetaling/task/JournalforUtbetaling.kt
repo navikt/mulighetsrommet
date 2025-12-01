@@ -68,7 +68,7 @@ class JournalforUtbetaling(
         val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
 
-        val fagsakId = gjennomforing.arena?.tiltaksnummer ?: gjennomforing.lopenummer
+        val fagsakId = gjennomforing.arena?.tiltaksnummer ?: gjennomforing.lopenummer.value
 
         generatePdf(utbetaling)
             .flatMap { pdf ->
@@ -130,17 +130,21 @@ fun utbetalingJournalpost(
                 ),
             ),
         ),
-    ) + vedlegg.map {
-        Journalpost.Dokument(
-            tittel = it.filename,
-            dokumentvarianter = listOf(
-                Journalpost.Dokument.Dokumentvariant(
-                    "PDF",
-                    it.content.content,
-                    "ARKIV",
+    ) + vedlegg.mapNotNull {
+        if (it.content.content.isEmpty()) {
+            null
+        } else {
+            Journalpost.Dokument(
+                tittel = it.filename,
+                dokumentvarianter = listOf(
+                    Journalpost.Dokument.Dokumentvariant(
+                        "PDF",
+                        it.content.content,
+                        "ARKIV",
+                    ),
                 ),
-            ),
-        )
+            )
+        }
     },
     eksternReferanseId = utbetalingId.toString(),
     journalfoerendeEnhet = "9999", // Automatisk journalføring

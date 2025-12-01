@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -23,4 +24,5 @@ data class ArrangorflateGjennomforingInfo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
+    val lopenummer: Tiltaksnummer,
 )

@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -239,7 +240,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
                 }
 
-                call.respond(toArrangorflateGjennomforing((gjennomforing)))
+                call.respond(toArrangorflateGjennomforing(gjennomforing))
             }
         }
 
@@ -277,15 +278,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 operationId = "getAllArrangorflateTilsagn"
                 request {
                     pathParameter<Organisasjonsnummer>("orgnr")
-                    queryParameter<List<TilsagnStatus>>("statuser") {
-                        explode = true
-                    }
-                    queryParameter<List<TilsagnType>>("typer") {
-                        explode = true
-                    }
-                    queryParameter<String>("gjennomforingId") {
-                        explode = true
-                    }
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -302,8 +294,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
                 requireTilgangHosArrangor(orgnr)
 
-                val filter = getArrangorflateTilsagnFilter()
-                val tilsagn = arrangorFlateService.getTilsagn(filter, orgnr)
+                val tilsagn = arrangorFlateService.getTilsagn(
+                    orgnr,
+                    statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
+                )
 
                 call.respond(tilsagn)
             }
@@ -657,20 +651,6 @@ sealed class DeltakerAdvarsel {
 data class ScanVedleggRequest(
     val vedlegg: List<Vedlegg>,
 )
-
-data class ArrangorflateTilsagnFilter(
-    val statuser: List<TilsagnStatus>? = null,
-    val typer: List<TilsagnType>? = null,
-    val gjennomforingId: UUID? = null,
-)
-
-fun RoutingContext.getArrangorflateTilsagnFilter(): ArrangorflateTilsagnFilter {
-    return ArrangorflateTilsagnFilter(
-        statuser = call.parameters.getAll("statuser")?.map { TilsagnStatus.valueOf(it) },
-        typer = call.parameters.getAll("typer")?.map { TilsagnType.valueOf(it) },
-        gjennomforingId = call.parameters["gjennomforingId"]?.let { UUID.fromString(it) },
-    )
-}
 
 private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
     id = gjennomforing.id,

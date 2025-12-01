@@ -113,7 +113,7 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
     header(
         "Tiltakskode",
         "Gjennomføring - Id",
-        "Gjennomføring - Navn",
+        "Gjennomføring - Løpenummer",
         "Utbetaling - Beregning",
         "Utbetaling - Periode",
         "Utbetaling - Beløp",
@@ -122,7 +122,10 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
         "Deltakelse - Faktor",
     )
 
-    val utbetalingComparator = compareBy<Utbetaling>({ it.tiltakstype.tiltakskode }, { it.gjennomforing.navn })
+    val utbetalingComparator = compareBy<Utbetaling>(
+        { it.tiltakstype.tiltakskode },
+        { it.gjennomforing.lopenummer.value },
+    )
 
     getDifference(source, other).sortedWith(utbetalingComparator).forEach { utbetaling ->
         val otherUtbetaling = other.find { it.gjennomforing.id == utbetaling.gjennomforing.id }
@@ -132,7 +135,7 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
             row(
                 utbetaling.tiltakstype.tiltakskode,
                 utbetaling.gjennomforing.id,
-                utbetaling.gjennomforing.navn,
+                utbetaling.gjennomforing.lopenummer,
                 utbetaling.beregning::class.simpleName!!,
                 utbetaling.periode.formatPeriode(),
                 utbetaling.beregning.output.belop,

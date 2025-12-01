@@ -37,6 +37,7 @@ data class ArrangorflateUtbetalingKompaktDto(
             ),
             gjennomforing = ArrangorflateGjennomforingInfo(
                 id = utbetaling.gjennomforing.id,
+                lopenummer = utbetaling.gjennomforing.lopenummer,
                 navn = utbetaling.gjennomforing.navn,
             ),
             arrangor = ArrangorflateArrangor(
