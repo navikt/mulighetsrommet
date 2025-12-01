@@ -194,23 +194,25 @@ export function GjennomforingDetaljer() {
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>
-        <VStack>
-          <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
-          <Separator />
-          <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-          {(stedForGjennomforing || oppmoteSted) && (
-            <>
-              <Separator />
-              <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />
-            </>
-          )}
+        <VStack gap="space-16">
+          <div>
+            <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
+            <Separator />
+            <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
+            {(stedForGjennomforing || oppmoteSted) && (
+              <>
+                <Separator />
+                <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />
+              </>
+            )}
+          </div>
           {gjennomforing.stengt.length !== 0 && (
             <StengtHosArrangorTable gjennomforing={gjennomforing} readOnly />
           )}
+          {new Date() < new Date(gjennomforing.startDato) && (
+            <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
+          )}
         </VStack>
-        {new Date() < new Date(gjennomforing.startDato) && (
-          <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
-        )}
       </TwoColumnGrid>
       <Separator />
       <NokkeltallDeltakere gjennomforingId={gjennomforing.id} />
