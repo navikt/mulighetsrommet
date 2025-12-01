@@ -11,9 +11,15 @@ interface TextInputFormProps {
 
 export function TextInputForm({ label, description, name, onSubmit, loading }: TextInputFormProps) {
   const [value, setValue] = useState("");
+  const [hasError, setHasError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (value.trim() === "") {
+      setHasError(true);
+      return;
+    }
+    setHasError(false);
     onSubmit({ [name]: value });
   };
 
@@ -23,9 +29,9 @@ export function TextInputForm({ label, description, name, onSubmit, loading }: T
         <TextField
           label={label}
           description={description}
+          error={hasError && "Dette feltet kan ikke være tomt"}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          required
         />
         <Button type="submit" loading={loading}>
           Run task 💥

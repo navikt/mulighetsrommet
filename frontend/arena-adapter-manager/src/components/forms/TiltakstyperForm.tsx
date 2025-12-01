@@ -24,6 +24,7 @@ const TILTAKSTYPER = [
 export function TiltakstyperForm({ onSubmit, loading }: TiltakstyperFormProps) {
   const [value, setValue] = useState("");
   const [selectedTiltakstyper, setSelectedTiltakstyper] = useState<string[]>([]);
+  const [hasError, setHasError] = useState(false);
 
   const filteredOptions = useMemo(
     () => TILTAKSTYPER.filter((option) => option.label.toLowerCase().includes(value.toLowerCase())),
@@ -40,6 +41,11 @@ export function TiltakstyperForm({ onSubmit, loading }: TiltakstyperFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectedTiltakstyper.length === 0) {
+      setHasError(true);
+      return;
+    }
+    setHasError(false);
     onSubmit({ tiltakstyper: selectedTiltakstyper });
   };
 
@@ -54,7 +60,7 @@ export function TiltakstyperForm({ onSubmit, loading }: TiltakstyperFormProps) {
           onToggleSelected={onToggleSelected}
           options={TILTAKSTYPER}
           onChange={setValue}
-          required
+          error={hasError && "Du må velge minst én tiltakstype"}
           value={value}
         />
 
