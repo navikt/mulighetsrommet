@@ -14,11 +14,8 @@ import {
   add,
   format,
 } from "date-fns";
-import { tz } from "@date-fns/tz";
 import { utc, UTCDate } from "@date-fns/utc";
 
-const NORSK_TID = tz("Europe/Oslo");
-const norwegianParseContext = { in: NORSK_TID };
 const utcParseContext: ParseISOOptions<UTCDate> = { in: utc };
 
 type DateInput = Date | string;
@@ -241,15 +238,15 @@ export function parseDate(date: UnparsedDate): Date | undefined {
 
   const utcDate = parseISO(date, utcParseContext);
   if (validateDate(utcDate)) {
-    return NORSK_TID(utcDate);
+    return utcDate;
   }
 
-  const localDate = parse(date, "dd.MM.yyyy HH:mm", new UTCDate(), norwegianParseContext);
+  const localDate = parse(date, "dd.MM.yyyy HH:mm", new UTCDate(), utcParseContext);
   if (validateDate(localDate)) {
     return localDate;
   }
 
-  const utcDate2 = parse(date, "dd.MM.yyyy", new UTCDate(), norwegianParseContext);
+  const utcDate2 = parse(date, "dd.MM.yyyy", new UTCDate(), utcParseContext);
   if (validateDate(utcDate2)) {
     return utcDate2;
   }

@@ -35,18 +35,14 @@ describe("date.ts", () => {
       expect(parseDate(new Date("2025-02-28"))?.toISOString()).toBe("2025-02-28T00:00:00.000Z");
     });
     test("valid date-string to date", () => {
-      expect(parseDate("2025-02-28")?.toISOString()).toBe("2025-02-28T01:00:00.000+01:00");
+      expect(parseDate("2025-02-28")?.toISOString()).toBe("2025-02-28T00:00:00.000Z");
     });
-    test("valid norwegian date-string to date", () => {
-      expect(parseDate("28.02.2025")?.toISOString()).toBe("2025-02-28T00:00:00.000+01:00");
+    test("valid date-time-string to date", () => {
+      expect(parseDate("28.02.2025 10:30")?.toISOString()).toBe("2025-02-28T10:30:00.000Z");
     });
-    test("valid norwegian date-time-string to date", () => {
-      expect(parseDate("28.02.2025 10:30")?.toISOString()).toBe("2025-02-28T10:30:00.000+01:00");
-    });
-    test("valid norwegian iso time to norwegian iso time", () => {
-      // T00:00:000Z
+    test("valid norwegian iso time to iso time", () => {
       expect(parseDate("2025-02-28T01:00:00.000+01:00")?.toISOString()).toBe(
-        "2025-02-28T01:00:00.000+01:00",
+        "2025-02-28T00:00:00.000Z",
       );
     });
   });
