@@ -1,194 +1,118 @@
-import { Box, Heading, Link, VStack } from "@chakra-ui/react";
 import { RunTask } from "../sections/RunTask";
 import TopicOverview from "../sections/TopicOverview.tsx";
 import { ApiBase } from "../core/api.tsx";
+import { BodyShort, Link } from "@navikt/ds-react";
+import { TiltakstyperOrIdsForm } from "../components/forms/TiltakstyperOrIdsForm";
+import { TextInputForm } from "../components/forms/TextInputForm";
+import { DatePickerForm } from "../components/forms/DatePickerForm";
 
 export function MrApi() {
   return (
-    <Box>
-      <Heading mb="10">mr-api</Heading>
-      <VStack spacing={8}>
-        <TopicOverview base={ApiBase.MR_API} />
+    <>
+      <TopicOverview base={ApiBase.MR_API} />
 
-        <RunTask base={ApiBase.MR_API} task="generate-validation-report">
-          <p>
-            Genererer en rapport med alle valideringsfeil på gjennomføringer og laster rapporten opp
-            til en
-            <Link href="https://console.cloud.google.com/storage/browser">bucket i GCP.</Link>
-          </p>
-          <p>
-            Rapporten kan benyttes til å få en oversikt over tilstanden til gjennomføringene vi skal
-            migrere.
-          </p>
-        </RunTask>
+      <RunTask base={ApiBase.MR_API} task="generate-validation-report">
+        <BodyShort>
+          Genererer en rapport med alle valideringsfeil på gjennomføringer og laster rapporten opp
+          til en <Link href="https://console.cloud.google.com/storage/browser">bucket i GCP.</Link>
+        </BodyShort>
+        <BodyShort>
+          Rapporten kan benyttes til å få en oversikt over tilstanden til gjennomføringene vi skal
+          migrere.
+        </BodyShort>
+      </RunTask>
 
-        <RunTask base={ApiBase.MR_API} task="initial-load-tiltakstyper">
-          Starter en initial load av alle relevante tiltakstyper.
-        </RunTask>
+      <RunTask base={ApiBase.MR_API} task="initial-load-tiltakstyper">
+        <BodyShort>Starter en initial load av alle relevante tiltakstyper.</BodyShort>
+      </RunTask>
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task="initial-load-gjennomforinger"
-          input={{
-            oneOf: [
-              { $ref: "#/definitions/tiltakstyperInput" },
-              { $ref: "#/definitions/idsInput" },
-            ],
-            definitions: {
-              tiltakstyperInput: {
-                type: "object",
-                title: "Initial load basert på tiltakstyper",
-                description:
-                  "Starter en initial load av gjennomføringer, både gruppetiltak og enkeltplasser, filtrert basert på input fra skjemaet.",
-                properties: {
-                  tiltakstyper: {
-                    title: "Tiltakstyper",
-                    description: "For hvilke tiltakstyper skal gjennomføringer relastes på topic?",
-                    type: "array",
-                    items: {
-                      type: "string",
-                      enum: [
-                        "ARBEIDSFORBEREDENDE_TRENING",
-                        "ARBEIDSRETTET_REHABILITERING",
-                        "AVKLARING",
-                        "DIGITALT_OPPFOLGINGSTILTAK",
-                        "ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING",
-                        "ENKELTPLASS_FAG_OG_YRKESOPPLAERING",
-                        "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
-                        "GRUPPE_FAG_OG_YRKESOPPLAERING",
-                        "HOYERE_UTDANNING",
-                        "JOBBKLUBB",
-                        "OPPFOLGING",
-                        "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
-                      ],
-                    },
-                    uniqueItems: true,
-                    minItems: 1,
-                  },
-                },
-                required: ["tiltakstyper"],
-              },
-              idsInput: {
-                type: "object",
-                title: "Send ny melding basert på id",
-                description:
-                  "Hvis det ikke finnes noen gjennomføring for gitt id blir det en noop.",
-                properties: {
-                  id: {
-                    title: "ID til gjennomføring",
-                    description: "Flere id'er kan separeres med et komma (,)",
-                    type: "string",
-                  },
-                },
-                required: ["id"],
-              },
-            },
-          }}
-        />
+      <RunTask
+        base={ApiBase.MR_API}
+        task="initial-load-gjennomforinger"
+        form={(props) => <TiltakstyperOrIdsForm {...props} />}
+      />
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task="republish-opprett-bestilling"
-          input={{
-            type: "object",
-            title: 'Resend "Opprett bestilling" basert på bestillingsnummer',
-            properties: {
-              bestillingsnummer: {
-                title: "Bestillingsnummer til tilsagn",
-                description: "Flere bestillingsnummere kan separeres med et komma (,)",
-                type: "string",
-              },
-            },
-            required: ["bestillingsnummer"],
-          }}
-        />
+      <RunTask
+        base={ApiBase.MR_API}
+        task="republish-opprett-bestilling"
+        form={(props) => (
+          <TextInputForm
+            {...props}
+            label="Bestillingsnummer til tilsagn"
+            description="Flere bestillingsnummere kan separeres med et komma (,)"
+            name="bestillingsnummer"
+          />
+        )}
+      />
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task="republish-opprett-faktura"
-          input={{
-            type: "object",
-            title: 'Resend "Opprett faktura" basert på fakturanummer',
-            properties: {
-              fakturanummer: {
-                title: "Fakturanummer til delutbetaling",
-                description: "Flere fakturanummer kan separeres med et komma (,)",
-                type: "string",
-              },
-            },
-            required: ["fakturanummer"],
-          }}
-        />
+      <RunTask
+        base={ApiBase.MR_API}
+        task="republish-opprett-faktura"
+        form={(props) => (
+          <TextInputForm
+            {...props}
+            label="Fakturanummer til delutbetaling"
+            description="Flere fakturanummer kan separeres med et komma (,)"
+            name="fakturanummer"
+          />
+        )}
+      />
 
-        <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
-          Synkroniserer Nav-ansatte fra relevante AD-grupper.
-        </RunTask>
+      <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
+        <BodyShort>Synkroniserer Nav-ansatte fra relevante AD-grupper.</BodyShort>
+      </RunTask>
 
-        <RunTask base={ApiBase.MR_API} task={"sync-utdanning"}>
-          Synkroniserer data fra utdanning.no.
-        </RunTask>
+      <RunTask base={ApiBase.MR_API} task={"sync-utdanning"}>
+        <BodyShort>Synkroniserer data fra utdanning.no.</BodyShort>
+      </RunTask>
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task={"sync-arrangorer"}
-          input={{
-            type: "object",
-            required: ["organisasjonsnummer"],
-            properties: {
-              organisasjonsnummer: {
-                title: "Organisasjonsnummer til arrangør som skal synkroniseres med Brreg",
-                description: "Flere organisasjonsnummer kan separeres med et komma (,)",
-                type: "string",
-              },
-            },
-          }}
-        />
+      <RunTask
+        base={ApiBase.MR_API}
+        task={"sync-arrangorer"}
+        form={(props) => (
+          <TextInputForm
+            {...props}
+            label="Organisasjonsnummer til arrangør som skal synkroniseres med Brreg"
+            description="Flere organisasjonsnummer kan separeres med et komma (,)"
+            name="organisasjonsnummer"
+          />
+        )}
+      />
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task={"generate-utbetaling"}
-          input={{
-            type: "object",
-            required: ["date"],
-            properties: {
-              date: {
-                type: "string",
-                format: "date",
-                title: "Velg dato",
-                description: "Velg dato for måneden det skal genereres utbetaling for",
-              },
-            },
-          }}
-        />
+      <RunTask
+        base={ApiBase.MR_API}
+        task={"generate-utbetaling"}
+        form={(props) => (
+          <DatePickerForm
+            {...props}
+            label="Velg dato"
+            description="Velg dato for måneden det skal genereres utbetaling for"
+          />
+        )}
+      />
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task={"beregn-utbetaling"}
-          input={{
-            type: "object",
-            required: ["date"],
-            properties: {
-              date: {
-                type: "string",
-                format: "date",
-                title: "Velg dato",
-                description: "Velg dato for måneden det skal beregnes utbetalinger for",
-              },
-            },
-          }}
-        >
-          <p>
-            Beregner utbetalinger for gitt måned og genererer en rapport som inneholder forskjeller
-            mellom utbetalinger i som allerede er behandlet i Tiltaksadministrasjon sammenlignet med
-            ny beregning av utbetalingen.
-          </p>
-          <p>
-            Rapporten blir tilgjengelig i en{" "}
-            <Link href="https://console.cloud.google.com/storage/browser">GCP bucket</Link> når
-            jobben har kjørt ferdig.
-          </p>
-        </RunTask>
-      </VStack>
-    </Box>
+      <RunTask
+        base={ApiBase.MR_API}
+        task={"beregn-utbetaling"}
+        form={(props) => (
+          <DatePickerForm
+            {...props}
+            label="Velg dato"
+            description="Velg dato for måneden det skal beregnes utbetalinger for"
+          />
+        )}
+      >
+        <BodyShort>
+          Beregner utbetalinger for gitt måned og genererer en rapport som inneholder forskjeller
+          mellom utbetalinger i som allerede er behandlet i Tiltaksadministrasjon sammenlignet med
+          ny beregning av utbetalingen.
+        </BodyShort>
+        <BodyShort>
+          Rapporten blir tilgjengelig i en{" "}
+          <Link href="https://console.cloud.google.com/storage/browser">GCP bucket</Link> når jobben
+          har kjørt ferdig.
+        </BodyShort>
+      </RunTask>
+    </>
   );
 }
