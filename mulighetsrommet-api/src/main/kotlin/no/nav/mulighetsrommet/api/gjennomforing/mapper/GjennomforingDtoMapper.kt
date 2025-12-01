@@ -10,6 +10,7 @@ object GjennomforingDtoMapper {
         id = gjennomforing.id,
         tiltakstype = gjennomforing.tiltakstype,
         navn = gjennomforing.navn,
+        lopenummer = gjennomforing.lopenummer,
         tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
         arrangor = gjennomforing.arrangor,
         startDato = gjennomforing.startDato,

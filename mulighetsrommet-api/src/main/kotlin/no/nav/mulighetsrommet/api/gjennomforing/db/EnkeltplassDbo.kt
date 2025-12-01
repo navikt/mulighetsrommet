@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 import java.util.*
 
@@ -12,7 +13,7 @@ data class EnkeltplassDbo(
 
 data class EnkeltplassArenaDataDbo(
     val id: UUID,
-    val tiltaksnummer: String?,
+    val tiltaksnummer: Tiltaksnummer?,
     val navn: String?,
     val startDato: LocalDate?,
     val sluttDato: LocalDate?,

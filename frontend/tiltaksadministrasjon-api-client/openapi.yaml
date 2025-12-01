@@ -3140,7 +3140,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "98999960f21d9a63530667fac55f54a602603e6977a21958b5c4401fbe5efea8"
+        - "79443ba5db7a78834c8729616c45e6c066845f7560490b7f1984a6aa6a137567"
     TiltakstypeDto:
       type: object
       properties:
@@ -4697,6 +4697,8 @@ components:
           $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
         navn:
           type: string
+        lopenummer:
+          type: string
         tiltaksnummer:
           type:
           - "null"
@@ -4800,6 +4802,7 @@ components:
       - id
       - kontaktpersoner
       - kontorstruktur
+      - lopenummer
       - navn
       - opphav
       - oppmoteSted

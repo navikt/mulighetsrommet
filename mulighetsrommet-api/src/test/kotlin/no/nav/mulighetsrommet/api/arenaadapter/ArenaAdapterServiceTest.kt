@@ -242,7 +242,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.get(gjennomforing1.id).shouldNotBeNull().should {
-                    it.arena?.tiltaksnummer shouldBe "2024#2024"
+                    it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
@@ -336,7 +336,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 navn = "Oppfølging",
                 sanityId = null,
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                tiltaksnummer = "12345",
+                tiltaksnummer = "2021#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),

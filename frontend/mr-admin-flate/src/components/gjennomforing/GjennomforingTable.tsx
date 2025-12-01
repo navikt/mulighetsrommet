@@ -154,11 +154,9 @@ export function GjennomforingTable({
                         </Table.DataCell>
                       </SkjulKolonne>
 
-                      <SkjulKolonne skjul={!!skjulKolonner?.tiltaksnummer}>
-                        <Table.DataCell
-                          aria-label={`Tiltaksnummer: ${gjennomforing.tiltaksnummer}`}
-                        >
-                          {gjennomforing.tiltaksnummer ?? "-"}
+                      <SkjulKolonne skjul={!!skjulKolonner?.lopenummer}>
+                        <Table.DataCell aria-label={`Løpenummer: ${gjennomforing.lopenummer}`}>
+                          {gjennomforing.lopenummer}
                         </Table.DataCell>
                       </SkjulKolonne>
 
@@ -268,8 +266,8 @@ const headers: ColumnHeader[] = [
     width: "2fr",
   },
   {
-    sortKey: "tiltaksnummer",
-    tittel: "Tiltaksnr.",
+    sortKey: "lopenummer",
+    tittel: "Løpenr.",
     sortable: true,
     width: "1fr",
   },
@@ -309,7 +307,7 @@ type Kolonne =
   | "dupliser"
   | "navn"
   | "enhet"
-  | "tiltaksnummer"
+  | "lopenummer"
   | "tiltakstype"
   | "arrangor"
   | "startdato"

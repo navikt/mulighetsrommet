@@ -155,7 +155,7 @@ class ArenaAdapterService(
 
         val arenadata = EnkeltplassArenaDataDbo(
             id = arenaGjennomforing.id,
-            tiltaksnummer = arenaGjennomforing.tiltaksnummer,
+            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
             navn = arenaGjennomforing.navn,
             startDato = arenaGjennomforing.startDato,
             sluttDato = arenaGjennomforing.sluttDato,
@@ -188,7 +188,7 @@ class ArenaAdapterService(
         arenaGjennomforing: ArenaGjennomforingDbo,
         current: Gjennomforing,
     ): Boolean {
-        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer || arenaGjennomforing.arenaAnsvarligEnhet != current.arena.ansvarligNavEnhet?.enhetsnummer
+        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer?.value || arenaGjennomforing.arenaAnsvarligEnhet != current.arena.ansvarligNavEnhet?.enhetsnummer
     }
 
     private fun hasRelevantChanges(

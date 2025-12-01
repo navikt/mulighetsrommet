@@ -34,6 +34,7 @@ export function GjennomforingDetaljer() {
   const {
     navn,
     tiltakstype,
+    lopenummer,
     tiltaksnummer,
     startDato,
     sluttDato,
@@ -76,10 +77,17 @@ export function GjennomforingDetaljer() {
       key: gjennomforingTekster.tiltakstypeLabel,
       value: tiltakstype.navn,
     },
-    { key: gjennomforingTekster.apentForPameldingLabel, value: apentForPamelding ? "Ja" : "Nei" },
     {
       key: gjennomforingTekster.tiltaksnummerLabel,
       value: tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />,
+    },
+    {
+      key: gjennomforingTekster.lopenummerLabel,
+      value: lopenummer,
+    },
+    {
+      key: gjennomforingTekster.apentForPameldingLabel,
+      value: apentForPamelding ? "Ja" : "Nei",
     },
   ];
 
