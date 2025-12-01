@@ -1,20 +1,38 @@
-import { Container, Box } from "@chakra-ui/react";
-import { Outlet } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import Navigation from "./Navigation";
+import { Box, Tabs, VStack } from "@navikt/ds-react";
+import { CogIcon } from "@navikt/aksel-icons";
 
 interface Props {
   apps: { name: string; path: string }[];
 }
 
 export function Layout({ apps }: Props) {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
   return (
-    <Box as="main" w="100%">
-      <Navigation apps={apps} />
-      <Box w="inherit" py="8">
-        <Container maxW="container.xl">
-          <Outlet />
-        </Container>
-      </Box>
+    <Box as="main" width="100%">
+      <Navigation />
+
+      <Tabs value={pathname}>
+        <Tabs.List>
+          {apps.map((app) => (
+            <Tabs.Tab
+              key={app.name}
+              value={app.path}
+              label={app.name}
+              icon={<CogIcon />}
+              onClick={() => navigate(app.path)}
+            />
+          ))}
+        </Tabs.List>
+        <Tabs.Panel value={pathname}>
+          <VStack gap="8" padding="8">
+            <Outlet />
+          </VStack>
+        </Tabs.Panel>
+      </Tabs>
     </Box>
   );
 }
