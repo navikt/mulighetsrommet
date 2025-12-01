@@ -281,32 +281,6 @@ object UtbetalingBeregningHelpers {
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
 
-    fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregningOutputDeltakelse> = when (beregning) {
-        is UtbetalingBeregningPrisPerTimeOppfolging ->
-            getDeltakelseOutputPrisPerTimeOppfolging(beregning)
-
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-        is UtbetalingBeregningPrisPerHeleUkesverk,
-        is UtbetalingBeregningPrisPerManedsverk,
-        is UtbetalingBeregningPrisPerUkesverk,
-        is UtbetalingBeregningFri,
-        ->
-            beregning.output.deltakelser()
-    }
-
-    private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.deltakelsePerioder().map {
-        UtbetalingBeregningOutputDeltakelse(
-            it.deltakelseId,
-            setOf(
-                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                    it.periode,
-                    faktor = 0.0,
-                    sats = 0,
-                ),
-            ),
-        )
-    }.toSet()
-
     private fun getMonthsFraction(periode: Periode): BigDecimal {
         return if (periode.getLastInclusiveDate().isBefore(DELTAKELSE_MONTHS_FRACTION_VERSION_2_DATE)) {
             getMonthsFractionV1(periode)

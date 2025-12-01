@@ -142,7 +142,7 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakere),
+                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(personaliaById),
                         belop = belop,
                         satsDetaljer = beregningSatsPeriodeDetaljerUtenFaktor(
                             satser,
@@ -252,7 +252,7 @@ private fun getRegnestykkeUkesverk(
 
 private fun deltakelsePrisPerTimeOppfolgingTable(personalia: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns(),
-    rows = personalia.map { (personalia) ->
+    rows = personalia.map { (_, personalia) ->
         DataDrivenTableDto.Row(
             cells = deltakelsePersonaliaCells(personalia),
         )
