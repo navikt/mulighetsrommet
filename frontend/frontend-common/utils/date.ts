@@ -6,20 +6,18 @@ import {
   isValid,
   lightFormat,
   parse,
-  parseISO,
-  ParseISOOptions,
   sub,
   Duration,
   max,
   add,
-  format,
 } from "date-fns";
 import { tz } from "@date-fns/tz";
-import { utc, UTCDate } from "@date-fns/utc";
+import { toZonedTime } from "date-fns-tz";
+import { UTCDate } from "@date-fns/utc";
 
-const NORSK_TID = tz("Europe/Oslo");
-const norwegianParseContext = { in: NORSK_TID };
-const utcParseContext: ParseISOOptions<UTCDate> = { in: utc };
+const NORSK_TZ_STRING = "Europe/Oslo";
+const NORSK_TZ = tz(NORSK_TZ_STRING);
+const norwegianParseContext = { in: NORSK_TZ };
 
 type DateInput = Date | string;
 type UnparsedDate = string | Date | undefined | null;
@@ -73,7 +71,13 @@ export function formaterDatoTid(dato: UnparsedDate): string | undefined {
   if (!parsedDato) {
     return;
   }
-  return format(parsedDato, "dd.MM.yyyy HH:mm:ss");
+  return parsedDato
+    .toLocaleTimeString("no-NO", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+    .replace(",", " ");
 }
 
 type Periode = {
@@ -239,9 +243,9 @@ export function parseDate(date: UnparsedDate): Date | undefined {
     return undefined;
   }
 
-  const utcDate = parseISO(date, utcParseContext);
+  const utcDate = toZonedTime(date, NORSK_TZ_STRING);
   if (validateDate(utcDate)) {
-    return NORSK_TID(utcDate);
+    return NORSK_TZ(utcDate);
   }
 
   const localDate = parse(date, "dd.MM.yyyy HH:mm", new UTCDate(), norwegianParseContext);

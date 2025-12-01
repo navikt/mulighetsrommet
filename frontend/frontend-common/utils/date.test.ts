@@ -35,7 +35,7 @@ describe("date.ts", () => {
       expect(parseDate(new Date("2025-02-28"))?.toISOString()).toBe("2025-02-28T00:00:00.000Z");
     });
     test("valid date-string to date", () => {
-      expect(parseDate("2025-02-28")?.toISOString()).toBe("2025-02-28T01:00:00.000+01:00");
+      expect(parseDate("2025-02-28")?.toISOString()).toBe("2025-02-28T00:00:00.000+01:00");
     });
     test("valid norwegian date-string to date", () => {
       expect(parseDate("28.02.2025")?.toISOString()).toBe("2025-02-28T00:00:00.000+01:00");
@@ -46,6 +46,11 @@ describe("date.ts", () => {
     test("valid norwegian iso time to norwegian iso time", () => {
       // T00:00:000Z
       expect(parseDate("2025-02-28T01:00:00.000+01:00")?.toISOString()).toBe(
+        "2025-02-28T01:00:00.000+01:00",
+      );
+    });
+    test("assume norwegian time when no timezone info is given", () => {
+      expect(parseDate("2025-02-28T01:00:00.000")?.toISOString()).toBe(
         "2025-02-28T01:00:00.000+01:00",
       );
     });
