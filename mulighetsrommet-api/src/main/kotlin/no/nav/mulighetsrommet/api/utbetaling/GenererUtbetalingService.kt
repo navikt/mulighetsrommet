@@ -41,6 +41,7 @@ class GenererUtbetalingService(
     private data class UtbetalingContext(
         val gjennomforingId: UUID,
         val prismodell: PrismodellType,
+        val periode: Periode,
     )
 
     private val kontonummerCache: Cache<String, Kontonummer> = Caffeine.newBuilder()
@@ -51,9 +52,14 @@ class GenererUtbetalingService(
 
     suspend fun genererUtbetalingForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForGenereringAvUtbetalinger(periode)
-            .mapNotNull { (gjennomforingId, prismodell) ->
-                val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
-                generateUtbetalingForPrismodell(UUID.randomUUID(), prismodell, gjennomforing, periode)
+            .mapNotNull { context ->
+                val gjennomforing = queries.gjennomforing.getOrError(context.gjennomforingId)
+                generateUtbetalingForPrismodell(
+                    utbetalingId = UUID.randomUUID(),
+                    gjennomforing = gjennomforing,
+                    prismodell = context.prismodell,
+                    periode = context.periode,
+                )
             }
             .map { utbetaling ->
                 queries.utbetaling.upsert(utbetaling)
@@ -65,13 +71,13 @@ class GenererUtbetalingService(
 
     suspend fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForBeregningAvUtbetalinger(periode)
-            .mapNotNull { (gjennomforingId, prismodell) ->
-                val gjennomforing = queries.gjennomforing.getOrError(gjennomforingId)
+            .mapNotNull { context ->
+                val gjennomforing = queries.gjennomforing.getOrError(context.gjennomforingId)
                 val utbetaling = generateUtbetalingForPrismodell(
-                    UUID.randomUUID(),
-                    prismodell,
-                    gjennomforing,
-                    periode,
+                    utbetalingId = UUID.randomUUID(),
+                    gjennomforing = gjennomforing,
+                    prismodell = context.prismodell,
+                    periode = context.periode,
                 )
                 utbetaling?.let { UtbetalingMapper.toUtbetaling(it, gjennomforing) }
             }
@@ -132,6 +138,7 @@ class GenererUtbetalingService(
         periode: Periode,
     ): UtbetalingDbo? {
         if (!isValidUtbetalingPeriode(gjennomforing.tiltakstype.tiltakskode, periode)) {
+            log.info("Genererer ikke utbetaling for gjennomforing=${gjennomforing.id} fordi utbetalingsperioden ikke er tillatt tiltakskode=${gjennomforing.tiltakstype.tiltakskode}, periode=$periode")
             return null
         }
 
@@ -152,10 +159,6 @@ class GenererUtbetalingService(
             }
 
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> {
-                if (periode.start.dayOfMonth != 1 || periode.slutt.dayOfMonth != 1) {
-                    log.warn("For hele uker må man generere for hele måneder! Skipper")
-                    return null
-                }
                 val input = resolvePrisPerHeleUkesverkInput(gjennomforing, periode)
                 UtbetalingBeregningPrisPerHeleUkesverk.beregn(input)
             }
@@ -221,10 +224,9 @@ class GenererUtbetalingService(
         gjennomforing: Gjennomforing,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
-        val heleUkerPeriode = heleUkerPeriode(periode)
-        val satser = resolveAvtalteSatser(gjennomforing, heleUkerPeriode)
-        val stengtHosArrangor = resolveStengtHosArrangor(heleUkerPeriode, gjennomforing.stengt)
-        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, heleUkerPeriode)
+        val satser = resolveAvtalteSatser(gjennomforing, periode)
+        val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerHeleUkesverk.Input(
             satser = satser,
             stengt = stengtHosArrangor,
@@ -276,78 +278,62 @@ class GenererUtbetalingService(
         }
     }
 
-    private fun QueryContext.getContextForGenereringAvUtbetalinger(
-        periode: Periode,
-    ): List<UtbetalingContext> {
-        @Language("PostgreSQL")
-        val query = """
-            select gjennomforing.id, avtale.prismodell
-            from gjennomforing
-                join avtale on gjennomforing.avtale_id = avtale.id
-            where gjennomforing.status != 'AVLYST'
-                and (
-                    (
-                        avtale.prismodell = 'AVTALT_PRIS_PER_HELE_UKESVERK' and
-                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
-                            && :heleUkerPeriode::daterange
-                    ) or (
-                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
-                        && :periode::daterange
-                    )
-                )
-                and not exists (
-                    select 1
-                    from utbetaling
-                    where utbetaling.gjennomforing_id = gjennomforing.id
-                      and utbetaling.periode && :periode::daterange
-                      and utbetaling.tilskuddstype <> 'TILTAK_INVESTERINGER'
-                )
-        """.trimIndent()
+    private fun QueryContext.getContextForGenereringAvUtbetalinger(periode: Periode): List<UtbetalingContext> {
+        return getContextForUtbetalinger(periode, includeNotExists = true)
+    }
 
-        return session.list(
-            queryOf(
-                query,
-                mapOf(
-                    "periode" to periode.toDaterange(),
-                    "heleUkerPeriode" to heleUkerPeriode(periode).toDaterange(),
-                ),
-            ),
-        ) {
-            UtbetalingContext(it.uuid("id"), PrismodellType.valueOf(it.string("prismodell")))
+    private fun QueryContext.getContextForBeregningAvUtbetalinger(periode: Periode): List<UtbetalingContext> {
+        return getContextForUtbetalinger(periode, includeNotExists = false)
+    }
+
+    private fun QueryContext.getContextForUtbetalinger(
+        periode: Periode,
+        includeNotExists: Boolean,
+    ): List<UtbetalingContext> {
+        val prismodellPerioder = listOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to periode,
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK to periode,
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK to periode,
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK to heleUkerPeriode(periode),
+        )
+        return prismodellPerioder.flatMap { (prismodell, justertPeriode) ->
+            getContextForPrismodellCommon(prismodell, justertPeriode, includeNotExists)
         }
     }
 
-    private fun QueryContext.getContextForBeregningAvUtbetalinger(
+    private fun QueryContext.getContextForPrismodellCommon(
+        prismodell: PrismodellType,
         periode: Periode,
+        includeNotExists: Boolean,
     ): List<UtbetalingContext> {
+        val notExistsClause = """
+            and not exists (
+                select 1
+                from utbetaling
+                where utbetaling.gjennomforing_id = gjennomforing.id
+                  and utbetaling.periode && :periode::daterange
+                  and utbetaling.tilskuddstype = 'TILTAK_DRIFTSTILSKUDD'
+            )
+        """.takeIf { includeNotExists }.orEmpty()
+
         @Language("PostgreSQL")
         val query = """
-            select gjennomforing.id, avtale.prismodell
+            select gjennomforing.id
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
             where gjennomforing.status != 'AVLYST'
-                and (
-                    (
-                        avtale.prismodell = 'AVTALT_PRIS_PER_HELE_UKESVERK' and
-                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
-                            && :heleUkerPeriode::daterange
-                    ) or (
-                        daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]')
-                        && :periode::daterange
-                    )
-                )
+                and avtale.prismodell = :prismodell::prismodell
+                and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
+                $notExistsClause
         """.trimIndent()
 
-        return session.list(
-            queryOf(
-                query,
-                mapOf(
-                    "periode" to periode.toDaterange(),
-                    "heleUkerPeriode" to heleUkerPeriode(periode).toDaterange(),
-                ),
-            ),
-        ) {
-            UtbetalingContext(it.uuid("id"), PrismodellType.valueOf(it.string("prismodell")))
+        val params = mapOf(
+            "prismodell" to prismodell.name,
+            "periode" to periode.toDaterange(),
+        )
+
+        return session.list(queryOf(query, params)) {
+            UtbetalingContext(it.uuid("id"), prismodell, periode)
         }
     }
 
