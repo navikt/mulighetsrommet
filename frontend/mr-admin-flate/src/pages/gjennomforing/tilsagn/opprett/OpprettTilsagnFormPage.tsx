@@ -29,6 +29,7 @@ function useHentData(gjennomforingId: string) {
     },
     kostnadssted: kostnadssted || null,
     kommentar: null,
+    beskrivelse: null,
   });
 
   return { gjennomforing, defaults };
