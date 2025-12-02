@@ -3140,7 +3140,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "79443ba5db7a78834c8729616c45e6c066845f7560490b7f1984a6aa6a137567"
+        - "2219f22f8f14e3be4174f5217fc196b7f9e846315c21cebce0920ccb6aba60b8"
     TiltakstypeDto:
       type: object
       properties:
@@ -5224,10 +5224,15 @@ components:
           type:
           - "null"
           - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
       required:
       - belop
       - belopBrukt
       - belopGjenstaende
+      - beskrivelse
       - bestillingsnummer
       - id
       - kommentar
@@ -5540,6 +5545,10 @@ components:
           type:
           - "null"
           - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
         periodeStart:
           type:
           - "null"
@@ -5552,6 +5561,7 @@ components:
           format: date
       required:
       - beregning
+      - beskrivelse
       - gjennomforingId
       - id
       - kommentar

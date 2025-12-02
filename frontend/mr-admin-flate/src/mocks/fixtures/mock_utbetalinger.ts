@@ -245,6 +245,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       bestillingsnummer: "A-2024/123",
       kommentar: "Min kommentar",
+      beskrivelse: null,
     },
     status: {
       type: DelutbetalingStatus.TIL_ATTESTERING,
@@ -294,6 +295,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       bestillingsnummer: "A-2024/123",
       kommentar: "Min kommentar",
+      beskrivelse: null,
     },
     status: {
       type: DelutbetalingStatus.RETURNERT,
@@ -339,6 +341,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
+      beskrivelse: null,
     },
     status: {
       type: DelutbetalingStatus.RETURNERT,
@@ -385,6 +388,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
+      beskrivelse: null,
     },
 
     status: {
@@ -430,6 +434,7 @@ export const mockUtbetalingLinjer: UtbetalingLinje[] = [
       },
       bestillingsnummer: "A-2025/123",
       kommentar: null,
+      beskrivelse: null,
     },
     status: {
       type: DelutbetalingStatus.OVERFORT_TIL_UTBETALING,

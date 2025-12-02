@@ -46,6 +46,7 @@ class TilsagnQueries(private val session: Session) {
                 beregning_antall_timer_oppfolging_per_deltaker,
                 beregning_prisbetingelser,
                 kommentar,
+                beskrivelse,
                 datastream_periode_start,
                 datastream_periode_slutt
             ) values (
@@ -66,6 +67,7 @@ class TilsagnQueries(private val session: Session) {
                 :beregning_antall_timer_oppfolging_per_deltaker,
                 :beregning_prisbetingelser,
                 :kommentar,
+                :beskrivelse,
                 :datastream_periode_start,
                 :datastream_periode_slutt
             )
@@ -86,6 +88,7 @@ class TilsagnQueries(private val session: Session) {
                 beregning_antall_timer_oppfolging_per_deltaker = excluded.beregning_antall_timer_oppfolging_per_deltaker,
                 beregning_prisbetingelser                      = excluded.beregning_prisbetingelser,
                 kommentar                               = excluded.kommentar,
+                beskrivelse                             = excluded.beskrivelse,
                 datastream_periode_start                = excluded.datastream_periode_start,
                 datastream_periode_slutt                = excluded.datastream_periode_slutt
         """.trimIndent()
@@ -113,6 +116,7 @@ class TilsagnQueries(private val session: Session) {
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
             "kommentar" to dbo.kommentar,
+            "beskrivelse" to dbo.beskrivelse,
         )
         val beregningParams = when (dbo.beregning) {
             is TilsagnBeregningFri -> mapOf(
@@ -354,6 +358,7 @@ class TilsagnQueries(private val session: Session) {
             beregning = beregning,
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
+            beskrivelse = stringOrNull("beskrivelse"),
         )
     }
 

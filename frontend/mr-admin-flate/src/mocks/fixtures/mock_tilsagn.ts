@@ -27,6 +27,7 @@ export const mockTilsagn: TilsagnDto[] = [
       },
     },
     kommentar: null,
+    beskrivelse: null,
   },
   {
     type: TilsagnType.TILSAGN,
@@ -52,6 +53,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     bestillingsnummer: "A-2024/123",
     kommentar: null,
+    beskrivelse: null,
   },
   {
     type: TilsagnType.TILSAGN,
@@ -73,6 +75,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
+    beskrivelse: null,
   },
   {
     type: TilsagnType.TILSAGN,
@@ -98,6 +101,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
+    beskrivelse: null,
   },
   {
     type: TilsagnType.TILSAGN,
@@ -119,6 +123,7 @@ export const mockTilsagn: TilsagnDto[] = [
     },
     bestillingsnummer: "A-2024/123",
     kommentar: "min kommentar",
+    beskrivelse: null,
   },
 ];
 

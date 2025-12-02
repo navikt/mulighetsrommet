@@ -118,6 +118,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingsInformasjon = {
         ],
       },
       bestillingsnummer: "A-2025/12345-1",
+      beskrivelse: null,
     },
   ],
   datoVelger: { type: "DatoVelgerRange", maksSluttdato: yyyyMMddFormatting(new Date())! },
@@ -203,6 +204,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingsInformasjon = {
         ],
       },
       bestillingsnummer: "A-2025/82143-1",
+      beskrivelse: null,
     },
   ],
   datoVelger: {
@@ -309,6 +311,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingsInformasjon = {
         ],
       },
       bestillingsnummer: "A-2025/9123-1",
+      beskrivelse: null,
     },
   ],
   datoVelger: {

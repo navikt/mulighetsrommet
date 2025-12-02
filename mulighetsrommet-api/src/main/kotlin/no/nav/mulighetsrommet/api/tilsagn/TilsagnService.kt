@@ -100,6 +100,7 @@ class TilsagnService(
                     belopBrukt = 0,
                     beregning = validated.beregning,
                     kommentar = request.kommentar,
+                    beskrivelse = request.beskrivelse,
                 )
             }
             .map { dbo ->
