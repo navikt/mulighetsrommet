@@ -181,6 +181,7 @@ const avklaringManedsprisTilsagn: ArrangorflateTilsagnDto = {
   gjenstaendeBelop: 1200000,
   beregning: beregningManedspris,
   bestillingsnummer: "A-2025/12611-1",
+  beskrivelse: null,
 };
 
 const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
@@ -202,6 +203,7 @@ const arrUkesprisTilsagn: ArrangorflateTilsagnDto = {
   gjenstaendeBelop: 248400,
   beregning: beregningUkespris,
   bestillingsnummer: "A-2025/4123-1",
+  beskrivelse: null,
 };
 
 export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
@@ -227,6 +229,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-1",
+    beskrivelse: null,
   },
   {
     id: "d8ccb57f-b9db-48e1-97f1-cb38426a9389",
@@ -250,6 +253,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11073-2",
+    beskrivelse: null,
   },
   {
     id: "f8fbc0f7-3280-410b-8387-20ff63896926",
@@ -273,6 +277,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     arrangor: arrangorMock,
     status: TilsagnStatus.ANNULLERT,
     bestillingsnummer: "A-2025/11147-2",
+    beskrivelse: null,
   },
   {
     id: "17a7ff74-648b-4d43-a27d-d26cc2553b3b",
@@ -296,6 +301,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     arrangor: arrangorMock,
     status: TilsagnStatus.OPPGJORT,
     bestillingsnummer: "A-2025/11073-2",
+    beskrivelse: null,
   },
   {
     id: "27f81471-1c6a-4f68-921e-ba9da68d4e89",
@@ -316,6 +322,7 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
     arrangor: arrangorMock,
     status: TilsagnStatus.GODKJENT,
     bestillingsnummer: "A-2025/11398-1",
+    beskrivelse: null,
   },
   avklaringManedsprisTilsagn,
   arrUkesprisTilsagn,
