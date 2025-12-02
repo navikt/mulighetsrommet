@@ -392,26 +392,23 @@ val ApplicationConfigDev = AppConfig(
         channel = "#team-valp-monitorering-dev",
         enable = true,
     ),
-    okonomi = OkonomiConfig(
-        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
-            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
-        },
-        opprettKravPeriode = mapOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
-                LocalDate.of(2025, 1, 1),
-                LocalDate.of(2026, 1, 1),
+    okonomi = run {
+        var slutt = LocalDate.of(2027, 1, 1)
+        OkonomiConfig(
+            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+                Periode(LocalDate.of(2025, 1, 1), slutt)
+            },
+            opprettKravPeriode = mapOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), slutt),
+                PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 10, 1), slutt),
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
+                    LocalDate.of(2025, 10, 1),
+                    slutt,
+                ),
             ),
-            PrismodellType.ANNEN_AVTALT_PRIS to Periode(
-                LocalDate.of(2025, 10, 1),
-                LocalDate.of(2026, 1, 1),
-            ),
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
-                LocalDate.of(2025, 10, 1),
-                LocalDate.of(2026, 1, 1),
-            ),
-        ),
-        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
-    ),
+            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
+        )
+    },
     clamav = HttpClientConfig(
         url = "http://clamav.nais-system",
     ),
