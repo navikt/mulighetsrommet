@@ -18,6 +18,7 @@ data class TilsagnRequest(
     val kostnadssted: NavEnhetNummer? = null,
     val beregning: TilsagnBeregningRequest,
     val kommentar: String? = null,
+    val beskrivelse: String? = null,
     @Serializable(with = LocalDateSerializer::class)
     val periodeStart: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)

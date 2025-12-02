@@ -58,6 +58,7 @@ class TilsagnQueriesTest : FunSpec({
         belopBrukt = 0,
         beregning = beregningFri(),
         kommentar = "Kommentar",
+        beskrivelse = "Beskrivelse til arrangør",
     )
 
     context("CRUD") {
@@ -100,6 +101,7 @@ class TilsagnQueriesTest : FunSpec({
                     it.type shouldBe TilsagnType.TILSAGN
                     it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                     it.kommentar shouldBe "Kommentar"
+                    it.beskrivelse shouldBe "Beskrivelse til arrangør"
                 }
 
                 queries.delete(tilsagn.id)

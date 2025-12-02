@@ -80,6 +80,7 @@ object ArrangorflateTestUtils {
         belopBrukt = 0,
         bestillingStatus = BestillingStatusType.AKTIV,
         kommentar = null,
+        beskrivelse = null,
     )
 
     fun createTestUtbetalingForhandsgodkjent(deltakerId: UUID): UtbetalingDbo {

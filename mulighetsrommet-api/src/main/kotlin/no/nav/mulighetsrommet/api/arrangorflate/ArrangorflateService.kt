@@ -385,6 +385,7 @@ fun toArrangorflateTilsagn(
         ),
         status = tilsagn.status,
         bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+        beskrivelse = tilsagn.beskrivelse,
     )
 }
 

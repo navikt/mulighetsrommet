@@ -22,6 +22,7 @@ data class ArrangorflateTilsagnDto(
     val gjenstaendeBelop: Int,
     val beregning: DataDetails,
     val bestillingsnummer: String,
+    val beskrivelse: String?,
 )
 
 @Serializable
