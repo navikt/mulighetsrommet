@@ -111,7 +111,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     test("tom gjennomføringstabell hvis ingen prismodell er konfigurert") {
         var config = ArrangorflateTestUtils.appConfig(oauth).copy(
             okonomi = ApplicationConfigLocal.okonomi.copy(
-                opprettKravPeriode = emptyMap(),
+                opprettKravPrismodeller = emptyList(),
             ),
         )
         withTestApplication(config) {
@@ -133,7 +133,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
         var config = ArrangorflateTestUtils.appConfig(oauth).copy(
             okonomi = ApplicationConfigLocal.okonomi.copy(
-                opprettKravPeriode = emptyMap(),
+                opprettKravPrismodeller = emptyList(),
             ),
         )
         withTestApplication(config) {

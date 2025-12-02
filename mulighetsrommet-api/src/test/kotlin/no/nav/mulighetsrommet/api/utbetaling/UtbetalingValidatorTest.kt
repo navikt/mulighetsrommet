@@ -7,13 +7,18 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.date.before
 import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.ApplicationConfigLocal
+import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.OpprettDelutbetaling
@@ -22,8 +27,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.test.todo
 
 class UtbetalingValidatorTest : FunSpec({
     context("opprett utbetaling") {
@@ -144,17 +151,32 @@ class UtbetalingValidatorTest : FunSpec({
     }
 
     context("opprett krav") {
+        val today = LocalDate.now()
+        val kontonummer = Kontonummer("12345678910")
+        val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
+        val gjennomforing = mockk<Gjennomforing>(relaxed = true)
+        val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+
+        beforeEach {
+            clearMocks(okonomiConfig)
+            clearMocks(gjennomforing)
+            clearMocks(vedlegg)
+        }
 
         test("investering - gyldig investeringsperiode") {
-            val today = LocalDate.now()
-            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
             val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-            val opprettKravPeriode = mapOf(
-                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+
+            every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
+            every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
             every { vedlegg.size } returns 1
+            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
+
             val periodeStart = LocalDate.now().minusMonths(1).withDayOfMonth(1)
-            val kontonummer = Kontonummer("12345678910")
+
             val request = OpprettKravUtbetalingRequest(
                 tilsagnId = UUID.randomUUID(),
                 periodeStart = periodeStart.toString(),
@@ -165,20 +187,22 @@ class UtbetalingValidatorTest : FunSpec({
             )
             val result = UtbetalingValidator.validateOpprettKravArrangorflate(
                 request,
-                prismodell,
-                opprettKravPeriode,
+                gjennomforing,
+                okonomiConfig,
                 kontonummer,
             )
             result.shouldBeRight()
         }
         test("investering - ugyldig investeringsperiode") {
-            val today = LocalDate.now()
-            val kontonummer = Kontonummer("12345678910")
+            val tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
             val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-            val opprettKravPeriode = mapOf(
-                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+
+            every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
-            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 1
 
             val periodeStart = LocalDate.now().minusMonths(1).withDayOfMonth(1)
@@ -192,22 +216,26 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
+            val result =
+                UtbetalingValidator.validateOpprettKravArrangorflate(request, gjennomforing, okonomiConfig, kontonummer)
             result.shouldBeLeft()
         }
 
         test("gyldig annen avtalt pris") {
-            val today = LocalDate.now()
-            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val tiltakskode = Tiltakskode.AVKLARING
             val prismodell = PrismodellType.ANNEN_AVTALT_PRIS
-            val opprettKravPeriode = mapOf(
-                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+
+            every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
+            every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 0
 
             val periodeStart = LocalDate.now().minusDays(5)
             val periodeSlutt = periodeStart.plusDays(30)
-            val kontonummer = Kontonummer("12345678910")
+
             val request = OpprettKravUtbetalingRequest(
                 tilsagnId = UUID.randomUUID(),
                 periodeStart = periodeStart.toString(),
@@ -216,23 +244,26 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
+            val result =
+                UtbetalingValidator.validateOpprettKravArrangorflate(request, gjennomforing, okonomiConfig, kontonummer)
             result.shouldBeRight()
         }
 
         test("gyldig timespris") {
-            val today = LocalDate.now()
-            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val tiltakskode = Tiltakskode.OPPFOLGING
             val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-            val opprettKravPeriode = mapOf(
-                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+
+            every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
+            every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 1
 
             val periodeSlutt = today.withDayOfMonth(1)
             val periodeStart = periodeSlutt.minusMonths(1)
 
-            val kontonummer = Kontonummer("12345678910")
             val request = OpprettKravUtbetalingRequest(
                 tilsagnId = UUID.randomUUID(),
                 periodeStart = periodeStart.toString(),
@@ -241,24 +272,26 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
+            val result =
+                UtbetalingValidator.validateOpprettKravArrangorflate(request, gjennomforing, okonomiConfig, kontonummer)
             result.shouldBeRight()
         }
 
         test("ugyldig timespris") {
-            val today = LocalDate.now()
-            val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
+            val tiltakskode = Tiltakskode.OPPFOLGING
             val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-            val opprettKravPeriode = mapOf(
-                prismodell to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
-            )
 
+            every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
+            )
+            every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 1
 
             val periodeSlutt = today.withDayOfMonth(1)
             val periodeStart = periodeSlutt.minusMonths(1)
 
-            val kontonummer = Kontonummer("12345678910")
             val request = OpprettKravUtbetalingRequest(
                 tilsagnId = UUID.randomUUID(),
                 periodeStart = periodeStart.toString(),
@@ -267,65 +300,138 @@ class UtbetalingValidatorTest : FunSpec({
                 belop = 1234,
                 vedlegg = vedlegg,
             )
-            val result = UtbetalingValidator.validateOpprettKravArrangorflate(request, prismodell, opprettKravPeriode, kontonummer)
+            val result =
+                UtbetalingValidator.validateOpprettKravArrangorflate(request, gjennomforing, okonomiConfig, kontonummer)
             result.shouldBeLeft()
         }
 
-        context("maks utbetalings periode sluttdato") {
-            val opprettKravPeriode = mapOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(
-                    LocalDate.of(2025, 1, 1),
-                    LocalDate.of(2026, 1, 1),
-                ),
-                PrismodellType.ANNEN_AVTALT_PRIS to Periode(
-                    LocalDate.of(2025, 9, 1),
-                    LocalDate.of(2026, 1, 1),
-                ),
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
-                    LocalDate.of(2025, 9, 1),
-                    LocalDate.of(2026, 1, 1),
-                ),
-            )
+        context("maks sluttdato for opprett krav utbetalings periode") {
+            val localOkonomiConfig = ApplicationConfigLocal.okonomi
+            val gjennomforing = mockk<Gjennomforing>(relaxed = true)
+            val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
+
+            beforeEach {
+                clearMocks(gjennomforing)
+                clearMocks(okonomiConfig)
+            }
 
             test("skal tryne for prismodeller som ikke er støttet") {
                 forAll(
                     row(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
                     row(PrismodellType.AVTALT_PRIS_PER_UKESVERK),
-                    row(PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                    row(PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK),
                 ) {
+                    every { okonomiConfig.gyldigTilsagnPeriode } returns localOkonomiConfig.gyldigTilsagnPeriode
+                    every { okonomiConfig.opprettKravPrismodeller } returns localOkonomiConfig.opprettKravPrismodeller
+                    every { gjennomforing.avtalePrismodell } returns it
+                    every { gjennomforing.tiltakstype.tiltakskode } returns localOkonomiConfig.gyldigTilsagnPeriode.keys.first()
                     shouldThrow<IllegalArgumentException> {
-                        UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(it, opprettKravPeriode = opprettKravPeriode)
+                        UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                            gjennomforing,
+                            okonomiConfig,
+                            LocalDate.of(2025, 11, 1),
+                        )
                     }
                 }
             }
 
             context("investering") {
+                val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                val tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+                val sisteTilsagnsDato = LocalDate.of(2026, 1, 1)
+
+                beforeEach {
+                    every { gjennomforing.avtalePrismodell } returns prismodell
+                    every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
+                    every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+                    every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                        tiltakskode to Periode.of(
+                            LocalDate.of(2025, 10, 1),
+                            sisteTilsagnsDato,
+                        )!!,
+                    )
+                }
+
                 test("skal gi dagens dato som maks, hhvis innenfor opprett krav periode") {
+
                     val dato = LocalDate.of(2025, 11, 30)
-                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, opprettKravPeriode, dato) shouldBe dato
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                        gjennomforing,
+                        okonomiConfig,
+                        dato,
+                    ) shouldBe dato
                 }
                 test("skal gi siste dag i opprett krav konfigurasjonen, om dagens dato er etter den perioden") {
                     val dato = LocalDate.of(2026, 5, 17)
-                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, opprettKravPeriode, dato) shouldBe opprettKravPeriode[PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK]!!.slutt
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                        gjennomforing,
+                        okonomiConfig,
+                        dato,
+                    ) shouldBe sisteTilsagnsDato
                 }
             }
 
             context("annen avtalt pris") {
+                val prismodell = PrismodellType.ANNEN_AVTALT_PRIS
+                val tiltakskode = Tiltakskode.AVKLARING
+                val sisteTilsagnsDato = LocalDate.of(2026, 1, 1)
+
+                beforeEach {
+                    every { gjennomforing.avtalePrismodell } returns prismodell
+                    every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
+                    every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+                    every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                        tiltakskode to Periode.of(
+                            LocalDate.of(2025, 10, 1),
+                            sisteTilsagnsDato,
+                        )!!,
+                    )
+                }
+
                 test("skal kunne sende inn fremover i tid, opptil siste dag i opprett krav perioden") {
                     val dato = LocalDate.of(2026, 11, 1)
-                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.ANNEN_AVTALT_PRIS, opprettKravPeriode, dato) shouldBe opprettKravPeriode[PrismodellType.ANNEN_AVTALT_PRIS]!!.slutt
+                    val result = UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                        gjennomforing,
+                        okonomiConfig,
+                        dato,
+                    )
+                    result shouldBe sisteTilsagnsDato
                 }
             }
 
             context("timespris") {
+                val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+                val tiltakskode = Tiltakskode.OPPFOLGING
+                val sisteTilsagnsDato = LocalDate.of(2026, 1, 1)
+
+                beforeEach {
+                    every { gjennomforing.avtalePrismodell } returns prismodell
+                    every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
+                    every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
+                    every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
+                        tiltakskode to Periode.of(
+                            LocalDate.of(2025, 10, 1),
+                            sisteTilsagnsDato,
+                        )!!,
+                    )
+                }
+
                 test("skal være 1. dag i samme måned som dagens dato") {
                     val dato = LocalDate.of(2025, 11, 7)
-                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER, opprettKravPeriode, dato) shouldBe dato.withDayOfMonth(1)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                        gjennomforing,
+                        okonomiConfig,
+                        dato,
+                    ) shouldBe dato.withDayOfMonth(1)
                 }
 
                 test("skal være siste dag i opprett krav perioden, hhvis dagens dato har forbigått datoen") {
-                    val dato = LocalDate.of(2026, 1, 1)
-                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER, opprettKravPeriode, dato) shouldBe opprettKravPeriode[PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER]!!.slutt
+                    val dato = LocalDate.of(2026, 2, 1)
+                    UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                        gjennomforing,
+                        okonomiConfig,
+                        dato,
+                    ) shouldBe sisteTilsagnsDato
                 }
             }
         }
