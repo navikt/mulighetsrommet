@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.ArrangorflateTestUtils.hovedenhet
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import org.junit.jupiter.api.fail
 import java.time.LocalDate
@@ -188,7 +189,8 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     }
 
     test("Annen avtalt pris skal kunne velge fritt i datovelger") {
-        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+        val config = ArrangorflateTestUtils.appConfig(oauth)
+        withTestApplication(config) {
             val response =
                 client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${arrGjennomforing.id}/opprett-krav/innsendingsinformasjon") {
                     bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
@@ -202,7 +204,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
                 is DatoVelger.DatoRange ->
                     // skal være slutt dato for konfigurert tilsagnsperiode
-                    data.datoVelger.maksSluttdato shouldBe LocalDate.of(2030, 1, 1)
+                    data.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
             }
         }
     }
