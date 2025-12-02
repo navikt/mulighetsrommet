@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
@@ -170,38 +171,39 @@ object UtbetalingValidator {
     }
 
     fun maksUtbetalingsPeriodeSluttDato(
-        prismodell: PrismodellType,
-        opprettKravPeriode: Map<PrismodellType, Periode>,
+        gjennomforing: Gjennomforing,
+        okonomiConfig: OkonomiConfig,
         relativeDate: LocalDate = LocalDate.now(),
     ): LocalDate {
-        val opprettKravPeriodeSlutt = opprettKravPeriode[prismodell]
-            ?: invalidPrismodellOpprettKrav(prismodell)
+        val opprettKravPeriode = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]
+            ?: invalidGjennomforingOpprettKrav(gjennomforing)
 
-        return when (prismodell) {
+        return when (gjennomforing.avtalePrismodell) {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-                minOf(relativeDate, opprettKravPeriodeSlutt.slutt)
+                minOf(relativeDate, opprettKravPeriode.slutt)
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriodeSlutt.slutt)
+                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriode.slutt)
 
             PrismodellType.ANNEN_AVTALT_PRIS ->
-                opprettKravPeriodeSlutt.slutt
+                opprettKravPeriode.slutt
 
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            null,
             ->
-                invalidPrismodellOpprettKrav(prismodell)
+                invalidGjennomforingOpprettKrav(gjennomforing)
         }
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun invalidPrismodellOpprettKrav(prismodell: PrismodellType): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for prismodell: ${prismodell.navn}")
+    private fun invalidGjennomforingOpprettKrav(gjennomforing: Gjennomforing): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for ${gjennomforing.tiltakstype.navn} med ${gjennomforing.avtalePrismodell?.navn}")
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
-        prismodellType: PrismodellType,
-        opprettKravPeriode: Map<PrismodellType, Periode>,
+        gjennomforing: Gjennomforing,
+        okonomiConfig: OkonomiConfig,
         kontonummer: Kontonummer,
     ): Either<List<FieldError>, ValidertUtbetalingKrav> = validation {
         val start = try {
@@ -235,7 +237,7 @@ object UtbetalingValidator {
             )
         }
 
-        validate(!slutt.isAfter(maksUtbetalingsPeriodeSluttDato(prismodellType, opprettKravPeriode))) {
+        validate(!slutt.isAfter(maksUtbetalingsPeriodeSluttDato(gjennomforing, okonomiConfig))) {
             FieldError.of(
                 "Du kan ikke sende inn for valgt periode før perioden er passert",
                 OpprettKravUtbetalingRequest::periodeSlutt,
@@ -245,7 +247,7 @@ object UtbetalingValidator {
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
-        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(prismodellType)) {
+        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.avtalePrismodell)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {

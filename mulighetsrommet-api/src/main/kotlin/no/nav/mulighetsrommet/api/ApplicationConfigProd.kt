@@ -389,13 +389,10 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.JOBBKLUBB to Periode(LocalDate.of(2026, 1, 1), slutt),
             ),
-            opprettKravPeriode = mapOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 11, 1), slutt),
-                PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 11, 1), slutt),
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
-                    LocalDate.of(2025, 11, 1),
-                    slutt,
-                ),
+            opprettKravPrismodeller = listOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             ),
             tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
         )
