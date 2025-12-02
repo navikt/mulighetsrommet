@@ -175,18 +175,18 @@ object UtbetalingValidator {
         okonomiConfig: OkonomiConfig,
         relativeDate: LocalDate = LocalDate.now(),
     ): LocalDate {
-        val opprettKravPeriode = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]
+        val opprettKravPeriodeSluttDato = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.slutt
             ?: invalidGjennomforingOpprettKrav(gjennomforing)
 
         return when (gjennomforing.avtalePrismodell) {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-                minOf(relativeDate, opprettKravPeriode.slutt)
+                minOf(relativeDate, opprettKravPeriodeSluttDato)
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriode.slutt)
+                minOf(relativeDate.withDayOfMonth(1), opprettKravPeriodeSluttDato)
 
             PrismodellType.ANNEN_AVTALT_PRIS ->
-                opprettKravPeriode.slutt
+                opprettKravPeriodeSluttDato
 
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,

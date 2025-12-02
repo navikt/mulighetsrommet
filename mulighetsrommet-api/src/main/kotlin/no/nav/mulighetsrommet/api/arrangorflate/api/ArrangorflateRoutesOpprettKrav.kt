@@ -129,6 +129,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
                     )
                     .items
+                    .filter { kanOppretteKrav(okonomiConfig, it) }
             }
         }
         call.respond(
@@ -416,6 +417,9 @@ private fun hentTiltakstyperMedTilsagn(
     }
 }
 
+/**
+ * Skal kunne opprette krav en måned etter tilsagnsperioden er startet
+ */
 fun kanOppretteKrav(
     okonomiConfig: OkonomiConfig,
     gjennomforing: Gjennomforing,
