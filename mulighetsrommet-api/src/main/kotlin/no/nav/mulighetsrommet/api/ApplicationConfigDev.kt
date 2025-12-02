@@ -398,13 +398,10 @@ val ApplicationConfigDev = AppConfig(
             gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
                 Periode(LocalDate.of(2025, 1, 1), slutt)
             },
-            opprettKravPeriode = mapOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to Periode(LocalDate.of(2025, 1, 1), slutt),
-                PrismodellType.ANNEN_AVTALT_PRIS to Periode(LocalDate.of(2025, 10, 1), slutt),
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER to Periode(
-                    LocalDate.of(2025, 10, 1),
-                    slutt,
-                ),
+            opprettKravPrismodeller = listOf(
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             ),
             tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
         )

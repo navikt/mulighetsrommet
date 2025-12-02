@@ -116,7 +116,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
 
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
-            val opprettKravPrismodeller = hentOpprettKravPrismodeller(okonomiConfig)
+            val opprettKravPrismodeller = okonomiConfig.opprettKravPrismodeller
             val opprettKravTiltakstyperMedTilsagn = hentTiltakstyperMedTilsagn(okonomiConfig, aktiveTiltakstyper)
 
             if (opprettKravPrismodeller.isEmpty() || opprettKravTiltakstyperMedTilsagn.isEmpty()) {
@@ -129,6 +129,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                         tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
                     )
                     .items
+                    .filter { kanOppretteKrav(okonomiConfig, it) }
             }
         }
         call.respond(
@@ -376,7 +377,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
             }
 
-            if (gjennomforing.avtalePrismodell !in hentOpprettKravPrismodeller(okonomiConfig)) {
+            if (!kanOppretteKrav(okonomiConfig, gjennomforing)) {
                 throw StatusException(
                     HttpStatusCode.Forbidden,
                     "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
@@ -388,8 +389,8 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 .flatMap {
                     UtbetalingValidator.validateOpprettKravArrangorflate(
                         request,
-                        gjennomforing.avtalePrismodell!!,
-                        okonomiConfig.opprettKravPeriode,
+                        gjennomforing,
+                        okonomiConfig,
                         it,
                     )
                 }
@@ -402,31 +403,34 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     }
 }
 
-private fun hentOpprettKravPrismodeller(
-    okonomiConfig: OkonomiConfig,
-    relativeDate: LocalDate = LocalDate.now(),
-): List<PrismodellType> {
-    return okonomiConfig.opprettKravPeriode.entries.mapNotNull { entry ->
-        if (entry.value.start.isBefore(relativeDate) && entry.value.slutt.isAfter(relativeDate)) {
-            entry.key
-        } else {
-            null
-        }
-    }
-}
-
 private fun hentTiltakstyperMedTilsagn(
     okonomiConfig: OkonomiConfig,
     tiltakstyper: List<TiltakstypeDto>,
     relativeDate: LocalDate = LocalDate.now(),
 ): List<UUID> {
-    return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { tiltakstypeMedTilsagnPeriode ->
-        if (tiltakstypeMedTilsagnPeriode.value.contains(relativeDate)) {
-            tiltakstyper.find { it.tiltakskode == tiltakstypeMedTilsagnPeriode.key }?.id
-        } else {
+    return okonomiConfig.gyldigTilsagnPeriode.entries.mapNotNull { (tiltakskode: Tiltakskode, periode: Periode) ->
+        if (!periode.contains(relativeDate.minusMonths(1))) {
             null
+        } else {
+            tiltakstyper.find { it.tiltakskode == tiltakskode }?.id
         }
     }
+}
+
+/**
+ * Skal kunne opprette krav en måned etter tilsagnsperioden er startet
+ */
+fun kanOppretteKrav(
+    okonomiConfig: OkonomiConfig,
+    gjennomforing: Gjennomforing,
+    relativeDate: LocalDate = LocalDate.now(),
+): Boolean {
+    if (gjennomforing.avtalePrismodell !in okonomiConfig.opprettKravPrismodeller) {
+        return false
+    }
+    val gyldigTilsagnPeriode = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode] ?: return false
+    // Kan sende inn krav en måned etter tilsagns start
+    return gyldigTilsagnPeriode.contains(relativeDate.minusMonths(1))
 }
 
 @Serializable
@@ -629,8 +633,8 @@ data class OpprettKravInnsendingsInformasjon(
                     -> {
                         return DatoRange(
                             maksUtbetalingsPeriodeSluttDato(
-                                gjennomforing.avtalePrismodell,
-                                okonomiConfig.opprettKravPeriode,
+                                gjennomforing,
+                                okonomiConfig,
                             ),
                         )
                     }
@@ -723,7 +727,16 @@ data class OpprettKravDeltakere(
             satser: Set<SatsPeriode>,
             antallDeltakere: Int,
         ): List<DataDetails> {
-            return listOf(DataDetails(entries = listOf(LabeledDataElement.number("Antall deltakere", antallDeltakere)))) +
+            return listOf(
+                DataDetails(
+                    entries = listOf(
+                        LabeledDataElement.number(
+                            "Antall deltakere",
+                            antallDeltakere,
+                        ),
+                    ),
+                ),
+            ) +
                 beregningSatsPeriodeDetaljerUtenFaktor(satser.toList(), "Avtalt pris per time oppfølging")
         }
     }
