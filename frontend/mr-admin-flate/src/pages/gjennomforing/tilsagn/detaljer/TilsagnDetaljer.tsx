@@ -25,7 +25,6 @@ import {
   Button,
   Heading,
   HGrid,
-  Hide,
   HStack,
   Show,
   Spacer,
