@@ -70,6 +70,7 @@ export function TilsagnForm(props: Props) {
       ...data,
       id: data.id ?? window.crypto.randomUUID(),
       kommentar: data.kommentar ?? null,
+      beskrivelse: data.beskrivelse ?? null,
     };
 
     mutation.mutate(request, {
@@ -127,6 +128,13 @@ export function TilsagnForm(props: Props) {
                   label={tilsagnTekster.kommentar.label}
                   maxLength={500}
                   {...register("kommentar")}
+                />
+                <Textarea
+                  size="small"
+                  error={errors.beskrivelse?.message}
+                  label={tilsagnTekster.beskrivelse.label}
+                  maxLength={250}
+                  {...register("beskrivelse")}
                 />
               </VStack>
               <TilsagnBeregningPreview />

@@ -49,6 +49,9 @@ object TilsagnValidator {
         validate((next.kommentar?.length ?: 0) <= 500) {
             FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
         }
+        validate((next.beskrivelse?.length ?: 0) <= 250) {
+            FieldError.of("Beskrivelse kan ikke inneholde mer enn 250 tegn", TilsagnRequest::beskrivelse)
+        }
         validateNotNull(next.kostnadssted) {
             FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted)
         }

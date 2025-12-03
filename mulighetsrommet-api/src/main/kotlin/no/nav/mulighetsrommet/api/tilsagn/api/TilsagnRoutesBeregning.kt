@@ -187,6 +187,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
         kostnadssted = tilsagn.kostnadssted.enhetsnummer,
         beregning = beregning,
         kommentar = tilsagn.kommentar,
+        beskrivelse = tilsagn.beskrivelse,
         periodeStart = tilsagn.periode.start,
         periodeSlutt = tilsagn.periode.getLastInclusiveDate(),
     )

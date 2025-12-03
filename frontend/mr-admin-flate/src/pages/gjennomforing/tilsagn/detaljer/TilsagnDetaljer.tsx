@@ -190,7 +190,8 @@ export function TilsagnDetaljer() {
     </HStack>
   );
 
-  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
+  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
+    tilsagn;
 
   return (
     <>
@@ -288,7 +289,13 @@ export function TilsagnDetaljer() {
                     value={avtaletekster.tilsagn.type(type)}
                   />
                 </VStack>
-                <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
+                <VStack gap="4" className="flex-1">
+                  <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
+                  <MetadataFritekstfelt
+                    label={tilsagnTekster.beskrivelse.label}
+                    value={beskrivelse}
+                  />
+                </VStack>
               </HGrid>
               <Separator />
               <DataDetails {...beregning.prismodell} />
