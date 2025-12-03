@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.pdfgen.*
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -78,7 +79,7 @@ object UbetalingToPdfDocumentContentMapper {
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningPrisPerManedsverk,
             -> {
-                addDeltakerperioderSection(utbetaling.beregning.output.deltakelser(), personalia)
+                addDeltakerperioderSection(utbetaling.beregning.deltakelsePerioder(), personalia)
             }
         }
 
@@ -267,7 +268,7 @@ private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
-    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    deltakelser: Set<DeltakelsePeriode>,
     personalia: Map<UUID, DeltakerPersonalia>,
 ) {
     section("Deltakerperioder") {
@@ -288,10 +289,10 @@ private fun PdfDocumentContentBuilder.addDeltakerperioderSection(
                         if (erSkjermet) null else person?.norskIdent?.value,
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.periode().start.formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.periode.start.formaterDatoTilEuropeiskDatoformat(),
                     ),
                     TableBlock.Table.Cell(
-                        deltakelse.periode().getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
+                        deltakelse.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
                     ),
                 )
             }

@@ -128,7 +128,8 @@ class ArrangorflateService(
     }
 
     suspend fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
-        val personalia = getPersonalia(utbetaling.beregning.output.deltakelser().map { it.deltakelseId }.toSet())
+        val deltakelseIds = utbetaling.beregning.deltakelsePerioder().map { it.deltakelseId }.toSet()
+        val personalia = getPersonalia(deltakelseIds)
         val deltakere = queries.deltaker
             .getAll(gjennomforingId = utbetaling.gjennomforing.id)
             .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }

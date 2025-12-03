@@ -13,6 +13,14 @@ import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -129,8 +137,8 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
 
     getDifference(source, other).sortedWith(utbetalingComparator).forEach { utbetaling ->
         val otherUtbetaling = other.find { it.gjennomforing.id == utbetaling.gjennomforing.id }
-        val otherDeltakelser = otherUtbetaling?.beregning?.output?.deltakelser() ?: setOf()
-        val deltakelser = utbetaling.beregning.output.deltakelser().subtract(otherDeltakelser)
+        val otherDeltakelser = otherUtbetaling?.beregning?.let { getDeltakelser(it) } ?: setOf()
+        val deltakelser = getDeltakelser(utbetaling.beregning).subtract(otherDeltakelser)
         deltakelser.sortedBy { it.deltakelseId }.forEach { deltakelse ->
             row(
                 utbetaling.tiltakstype.tiltakskode,
@@ -146,6 +154,32 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
         }
     }
 }
+
+private fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregningOutputDeltakelse> = when (beregning) {
+    is UtbetalingBeregningPrisPerTimeOppfolging ->
+        getDeltakelseOutputPrisPerTimeOppfolging(beregning)
+
+    is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+    is UtbetalingBeregningPrisPerHeleUkesverk,
+    is UtbetalingBeregningPrisPerManedsverk,
+    is UtbetalingBeregningPrisPerUkesverk,
+    is UtbetalingBeregningFri,
+    ->
+        beregning.output.deltakelser()
+}
+
+private fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.deltakelsePerioder().map {
+    UtbetalingBeregningOutputDeltakelse(
+        it.deltakelseId,
+        setOf(
+            UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                it.periode,
+                faktor = 0.0,
+                sats = 0,
+            ),
+        ),
+    )
+}.toSet()
 
 private fun getDifference(
     source: List<Utbetaling>,

@@ -15,6 +15,9 @@ import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.UUID
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @Serializable
 data class UtbetalingBeregningDto(
@@ -27,7 +30,7 @@ data class UtbetalingBeregningDto(
     companion object {
         fun from(
             beregning: UtbetalingBeregning,
-            deltakere: List<UtbetalingBeregningDeltaker>,
+            personaliaById: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>,
             regioner: List<NavRegionDto>,
             utbetalingPeriode: Periode,
         ): UtbetalingBeregningDto {
@@ -41,7 +44,9 @@ data class UtbetalingBeregningDto(
                 )
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
+                    val belop =
+                        UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
@@ -63,7 +68,9 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerManedsverk -> {
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
+                    val belop =
+                        UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
@@ -84,7 +91,9 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerUkesverk -> {
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
+                    val belop =
+                        UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
@@ -105,7 +114,9 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningPrisPerHeleUkesverk -> {
-                    val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
+                    val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
+                    val belop =
+                        UtbetalingBeregningHelpers.calculateBelopForDeltakelser(deltakere.map { it.deltakelse }.toSet())
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
@@ -131,14 +142,25 @@ data class UtbetalingBeregningDto(
                     UtbetalingBeregningDto(
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
                         deltakerRegioner = regioner,
-                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(deltakere),
+                        deltakerTableData = deltakelsePrisPerTimeOppfolgingTable(personaliaById),
                         belop = belop,
-                        satsDetaljer = beregningSatsPeriodeDetaljerUtenFaktor(satser, "Avtalt pris per time oppfølging"),
+                        satsDetaljer = beregningSatsPeriodeDetaljerUtenFaktor(
+                            satser,
+                            "Avtalt pris per time oppfølging",
+                        ),
                     )
                 }
             }
         }
     }
+}
+
+private fun getUtbetalingBeregningDeltaker(
+    deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
+    personaliaById: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>,
+): List<UtbetalingBeregningDeltaker> = personaliaById.mapNotNull { (deltakelseId, personalia) ->
+    deltakelser.find { it.deltakelseId == deltakelseId }
+        ?.let { deltakelse -> UtbetalingBeregningDeltaker(personalia, deltakelse) }
 }
 
 private fun deltakelseFastSatsPerTiltaksplassPerManedTable(
@@ -228,11 +250,11 @@ private fun getRegnestykkeUkesverk(
     satsLabel = "per tiltaksplass per uke",
 )
 
-private fun deltakelsePrisPerTimeOppfolgingTable(deltakere: List<UtbetalingBeregningDeltaker>) = DataDrivenTableDto(
+private fun deltakelsePrisPerTimeOppfolgingTable(personalia: Map<UUID, DeltakerPersonaliaMedGeografiskEnhet>) = DataDrivenTableDto(
     columns = deltakelsePersonaliaColumns(),
-    rows = deltakere.map {
+    rows = personalia.map { (_, personalia) ->
         DataDrivenTableDto.Row(
-            cells = deltakelsePersonaliaCells(it.personalia),
+            cells = deltakelsePersonaliaCells(personalia),
         )
     },
 )
@@ -316,7 +338,9 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
             null
         } else {
             DataDetails(
-                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+                header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
+                    satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                }",
                 entries = listOf(
                     LabeledDataElement.nok(satsLabel, satsPeriode.sats),
                     LabeledDataElement.number(faktorLabel, faktor),
@@ -332,7 +356,9 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
 ): List<DataDetails> {
     return satser.map { satsPeriode ->
         DataDetails(
-            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}",
+            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
+                satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+            }",
             entries = listOf(
                 LabeledDataElement.nok(satsLabel, satsPeriode.sats),
             ),

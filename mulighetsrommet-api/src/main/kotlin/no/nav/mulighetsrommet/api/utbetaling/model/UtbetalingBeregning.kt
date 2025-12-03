@@ -19,6 +19,12 @@ sealed class UtbetalingBeregning {
     fun getDigest(): String {
         return (input.hashCode() + output.hashCode()).toHexString()
     }
+
+    open fun deltakelsePerioder(): Set<DeltakelsePeriode> {
+        return output.deltakelser().map {
+            DeltakelsePeriode(it.deltakelseId, it.periode())
+        }.toSet()
+    }
 }
 
 sealed class UtbetalingBeregningInput {
@@ -274,19 +280,6 @@ object UtbetalingBeregningHelpers {
             .toSet()
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
-
-    fun getDeltakelseOutputPrisPerTimeOppfolging(beregning: UtbetalingBeregningPrisPerTimeOppfolging): Set<UtbetalingBeregningOutputDeltakelse> = beregning.input.deltakelser().map {
-        UtbetalingBeregningOutputDeltakelse(
-            it.deltakelseId,
-            setOf(
-                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
-                    it.periode(),
-                    faktor = 0.0,
-                    sats = 0,
-                ),
-            ),
-        )
-    }.toSet()
 
     private fun getMonthsFraction(periode: Periode): BigDecimal {
         return if (periode.getLastInclusiveDate().isBefore(DELTAKELSE_MONTHS_FRACTION_VERSION_2_DATE)) {

@@ -11,7 +11,6 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
-import io.ktor.server.routing.delete
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
@@ -24,9 +23,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -44,8 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.model.*
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers.getDeltakelseOutputPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -244,12 +239,7 @@ fun Route.utbetalingRoutes() {
 
                 val beregning = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
-                    val deltakelser = when {
-                        utbetaling.beregning is UtbetalingBeregningPrisPerTimeOppfolging ->
-                            getDeltakelseOutputPrisPerTimeOppfolging(utbetaling.beregning)
-
-                        else -> utbetaling.beregning.output.deltakelser()
-                    }.associateBy { it.deltakelseId }
+                    val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
                     val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(deltakelser.keys)
 
@@ -262,10 +252,8 @@ fun Route.utbetalingRoutes() {
                     )
 
                     val deltakelsePersoner = personalia
-                        .map { personalia ->
-                            UtbetalingBeregningDeltaker(personalia, deltakelser.getValue(personalia.deltakerId))
-                        }
-                        .filter { filter.navEnheter.isEmpty() || it.personalia.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
+                        .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
+                        .associateBy { it.deltakerId }
 
                     UtbetalingBeregningDto.from(
                         utbetaling.beregning,
