@@ -54,7 +54,7 @@ export interface MetadataFritekstfeltProps {
 export function MetadataFritekstfelt({ label, value }: MetadataFritekstfeltProps) {
   return (
     <dl className={`flex flex-col gap-2`}>
-      <dt className="font-bold">{label}</dt>
+      <dt className="font-bold">{label}:</dt>
       <dd>
         <BodyLong className="whitespace-pre-wrap">{value ?? "-"}</BodyLong>
       </dd>

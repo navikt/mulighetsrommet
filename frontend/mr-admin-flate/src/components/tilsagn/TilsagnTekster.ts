@@ -2,7 +2,10 @@ import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
 
 export const tilsagnTekster = {
   kommentar: {
-    label: "Kommentar",
+    label: "Kommentarer (vises kun internt i Nav)",
+  },
+  beskrivelse: {
+    label: "Beskrivelse (Frivillig og vil vises til arrangøren)",
   },
   bestillingsnummer: {
     label: "Tilsagnsnummer",

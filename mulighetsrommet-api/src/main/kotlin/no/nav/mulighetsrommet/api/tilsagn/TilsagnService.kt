@@ -95,8 +95,8 @@ class TilsagnService(
                     bestillingStatus = null,
                     belopBrukt = 0,
                     beregning = validated.beregning,
-                    kommentar = request.kommentar,
-                    beskrivelse = request.beskrivelse,
+                    kommentar = request.kommentar?.trim(),
+                    beskrivelse = request.beskrivelse?.trim(),
                 )
             }
             .map { dbo ->

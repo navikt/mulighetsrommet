@@ -26,6 +26,7 @@ import {
   Heading,
   HGrid,
   HStack,
+  Show,
   Spacer,
   VStack,
 } from "@navikt/ds-react";
@@ -190,7 +191,8 @@ export function TilsagnDetaljer() {
     </HStack>
   );
 
-  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar } = tilsagn;
+  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
+    tilsagn;
 
   return (
     <>
@@ -288,12 +290,23 @@ export function TilsagnDetaljer() {
                     value={avtaletekster.tilsagn.type(type)}
                   />
                 </VStack>
-                <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
               </HGrid>
               <Separator />
-              <DataDetails {...beregning.prismodell} />
+              <VStack gap="4" className="flex-1">
+                <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
+
+                <MetadataFritekstfelt
+                  label={tilsagnTekster.beskrivelse.label}
+                  value={beskrivelse}
+                />
+              </VStack>
+              <Show below="lg">
+                <Separator />
+              </Show>
             </HGrid>
             <HGrid columns={1} gap="2" align="center">
+              <DataDetails {...beregning.prismodell} />
+              <Separator />
               <VStack gap="4">
                 <MetadataHGrid
                   label={tilsagnTekster.beregning.belop.label}
