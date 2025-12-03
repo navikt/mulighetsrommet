@@ -219,7 +219,7 @@ class ArrangorflateService(
                     id = delutbetaling.id,
                     belop = delutbetaling.belop,
                     status = delutbetaling.status,
-                    statusSistOppdatert = delutbetaling.fakturaStatusSistOppdatert,
+                    statusSistOppdatert = delutbetaling.faktura.statusSistOppdatert,
                     tilsagn = ArrangorflateTilsagnSummary(
                         id = tilsagn.id,
                         bestillingsnummer = tilsagn.bestillingsnummer,

@@ -1409,7 +1409,7 @@ class UtbetalingServiceTest : FunSpec({
                     queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
                 utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
                 endringshistorikk.entries.shouldBeEmpty()
-                val diff = Duration.between(delutbetaling.fakturaStatusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                val diff = Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
                 diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
             }
         }

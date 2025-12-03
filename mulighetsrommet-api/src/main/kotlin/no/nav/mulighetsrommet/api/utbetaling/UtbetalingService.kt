@@ -367,11 +367,9 @@ class UtbetalingService(
         fakturaStatusSistOppdatert: LocalDateTime?,
     ) = db.transaction {
         val originalDelutbetaling = queries.delutbetaling.getOrError(fakturanummer)
-        if (originalDelutbetaling.fakturaStatusSistOppdatert != null &&
+        if (originalDelutbetaling.faktura.statusSistOppdatert != null &&
             fakturaStatusSistOppdatert != null &&
-            originalDelutbetaling.fakturaStatusSistOppdatert.isAfter(
-                fakturaStatusSistOppdatert,
-            )
+            originalDelutbetaling.faktura.statusSistOppdatert.isAfter(fakturaStatusSistOppdatert)
         ) {
             return
         }
@@ -722,7 +720,7 @@ class UtbetalingService(
         queries.delutbetaling.setSendtTilOkonomi(
             delutbetaling.utbetalingId,
             delutbetaling.tilsagnId,
-            LocalDateTime.now(),
+            Instant.now(),
         )
 
         val tidspunktForUtbetaling = config.tidligstTidspunktForUtbetaling.calculate(
