@@ -80,7 +80,7 @@ class UtbetalingService(
         scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
 
         automatiskUtbetaling(utbetalingId)
-            .also { log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $it") }
+            .also { result -> log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result") }
             .right()
     }
 
