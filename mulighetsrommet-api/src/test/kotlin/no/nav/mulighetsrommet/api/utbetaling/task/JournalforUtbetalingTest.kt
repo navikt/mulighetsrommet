@@ -69,12 +69,7 @@ class JournalforUtbetalingTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT),
         avtaler = listOf(
-            AvtaleFixtures.AFT.copy(
-                arrangor = AvtaleFixtures.AFT.arrangor?.copy(
-                    hovedenhet = hovedenhet.id,
-                    underenheter = listOf(underenhet.id),
-                ),
-            ),
+            AvtaleFixtures.AFT,
         ),
         gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),
         deltakere = emptyList(),

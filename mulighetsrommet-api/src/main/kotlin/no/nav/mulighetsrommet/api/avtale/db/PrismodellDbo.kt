@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 
 data class PrismodellDbo(
-    val prismodell: PrismodellType,
+    val prismodellType: PrismodellType,
     val prisbetingelser: String?,
     val satser: List<AvtaltSats>,
 )

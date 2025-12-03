@@ -1,33 +1,12 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.model.*
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import java.time.LocalDate
+import PersonvernDbo
 import java.util.*
 
 data class AvtaleDbo(
     val id: UUID,
-    val navn: String,
-    val tiltakstypeId: UUID,
-    val sakarkivNummer: SakarkivNummer?,
-    val arrangor: ArrangorDbo?,
-    val startDato: LocalDate,
-    val sluttDato: LocalDate?,
-    val status: AvtaleStatusType,
-    val navEnheter: Set<NavEnhetNummer>,
-    val avtaletype: Avtaletype,
-    val administratorer: List<NavIdent>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
-    val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodell: Opsjonsmodell,
-    val utdanningslop: UtdanningslopDbo?,
-    val prismodell: PrismodellType,
-    val prisbetingelser: String?,
-    val satser: List<AvtaltSats>,
+    val detaljerDbo: DetaljerDbo,
+    val personvernDbo: PersonvernDbo,
+    val veilederinformasjonDbo: VeilederinformasjonDbo,
+    val prismodellDbo: PrismodellDbo,
 )

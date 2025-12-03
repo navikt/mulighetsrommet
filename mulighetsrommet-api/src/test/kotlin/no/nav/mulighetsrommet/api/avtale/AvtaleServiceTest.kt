@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtaleRequest
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.oppfolging
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -122,7 +123,7 @@ class AvtaleServiceTest : FunSpec({
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
-                status = AvtaleStatusType.AVSLUTTET,
+                detaljerDbo = AvtaleFixtures.detaljerDbo().copy(status = AvtaleStatusType.AVSLUTTET),
             )
 
             MulighetsrommetTestDomain(
@@ -261,13 +262,15 @@ class AvtaleServiceTest : FunSpec({
         val tomorrow = today.plusDays(1)
         val theDayAfterTomorrow = today.plusDays(2)
 
-        val avtale = AvtaleFixtures.oppfolging.copy(
-            startDato = yesterday,
-            sluttDato = yesterday,
-            status = AvtaleStatusType.AVSLUTTET,
-            opsjonsmodell = Opsjonsmodell(
-                type = OpsjonsmodellType.TO_PLUSS_EN,
-                opsjonMaksVarighet = theDayAfterTomorrow,
+        val avtale = oppfolging.copy(
+            detaljerDbo = oppfolging.detaljerDbo.copy(
+                startDato = yesterday,
+                sluttDato = yesterday,
+                status = AvtaleStatusType.AVSLUTTET,
+                opsjonsmodell = Opsjonsmodell(
+                    type = OpsjonsmodellType.TO_PLUSS_EN,
+                    opsjonMaksVarighet = theDayAfterTomorrow,
+                ),
             ),
         )
 
@@ -294,14 +297,16 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     avtale.copy(
-                        opsjonsmodell = Opsjonsmodell(
-                            type = OpsjonsmodellType.TO_PLUSS_EN,
-                            opsjonMaksVarighet = avtale.startDato.plusYears(10),
+                        detaljerDbo = avtale.detaljerDbo.copy(
+                            opsjonsmodell = Opsjonsmodell(
+                                type = OpsjonsmodellType.TO_PLUSS_EN,
+                                opsjonMaksVarighet = avtale.detaljerDbo.startDato.plusYears(10),
+                            ),
                         ),
                     ),
                 ),
             ).initialize(database.db)
-            val sluttDato = avtale.sluttDato!!
+            val sluttDato = avtale.detaljerDbo.sluttDato!!
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = null,

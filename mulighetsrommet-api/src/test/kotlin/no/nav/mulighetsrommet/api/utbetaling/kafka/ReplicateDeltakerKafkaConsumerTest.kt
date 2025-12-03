@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -170,7 +169,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
-            avtaler = listOf(AvtaleFixtures.AFT.copy(prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK)),
+            avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
         )
 
