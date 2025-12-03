@@ -245,6 +245,7 @@ class GenererUtbetalingService(
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
+            status = UtbetalingStatusType.GENERERT,
             beregning = beregning,
             kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
@@ -253,7 +254,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
-            status = UtbetalingStatusType.GENERERT,
+            utbetalesTidligstTidspunkt = null,
         )
     }
 

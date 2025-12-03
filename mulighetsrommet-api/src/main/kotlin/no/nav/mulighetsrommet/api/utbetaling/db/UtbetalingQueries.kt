@@ -38,6 +38,7 @@ class UtbetalingQueries(private val session: Session) {
                 tilskuddstype,
                 beskrivelse,
                 godkjent_av_arrangor_tidspunkt,
+                utbetales_tidligst_tidspunkt,
                 status,
                 datastream_periode_start,
                 datastream_periode_slutt
@@ -53,6 +54,7 @@ class UtbetalingQueries(private val session: Session) {
                 :tilskuddstype::tilskuddstype,
                 :beskrivelse,
                 :godkjent_av_arrangor_tidspunkt,
+                :utbetales_tidligst_tidspunkt,
                 :status::utbetaling_status,
                 :datastream_periode_start::date,
                 :datastream_periode_slutt::date
@@ -67,9 +69,10 @@ class UtbetalingQueries(private val session: Session) {
                 tilskuddstype = excluded.tilskuddstype,
                 beskrivelse = excluded.beskrivelse,
                 godkjent_av_arrangor_tidspunkt = excluded.godkjent_av_arrangor_tidspunkt,
+                utbetales_tidligst_tidspunkt = excluded.utbetales_tidligst_tidspunkt,
                 status = excluded.status,
-                datastream_periode_start      = excluded.datastream_periode_start,
-                datastream_periode_slutt      = excluded.datastream_periode_slutt
+                datastream_periode_start = excluded.datastream_periode_start,
+                datastream_periode_slutt = excluded.datastream_periode_slutt
         """.trimIndent()
 
         val params = mapOf(
@@ -91,6 +94,7 @@ class UtbetalingQueries(private val session: Session) {
             "beskrivelse" to dbo.beskrivelse,
             "tilskuddstype" to dbo.tilskuddstype.name,
             "godkjent_av_arrangor_tidspunkt" to dbo.godkjentAvArrangorTidspunkt,
+            "utbetales_tidligst_tidspunkt" to dbo.utbetalesTidligstTidspunkt,
             "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
@@ -498,7 +502,6 @@ class UtbetalingQueries(private val session: Session) {
         val innsender = stringOrNull("innsender")?.toAgent()
         return Utbetaling(
             id = id,
-            godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
@@ -514,6 +517,7 @@ class UtbetalingQueries(private val session: Session) {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             ),
+            status = UtbetalingStatusType.valueOf(string("status")),
             beregning = beregning,
             betalingsinformasjon = Utbetaling.Betalingsinformasjon(
                 kontonummer = stringOrNull("kontonummer")?.let { Kontonummer(it) },
@@ -526,7 +530,8 @@ class UtbetalingQueries(private val session: Session) {
             beskrivelse = stringOrNull("beskrivelse"),
             begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
-            status = UtbetalingStatusType.valueOf(string("status")),
+            godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
+            utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
         )
     }
 

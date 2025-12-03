@@ -143,14 +143,12 @@ class UtbetalingService(
         gjennomforing: Gjennomforing,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val periode = Periode(
-            utbetalingKrav.periodeStart,
-            utbetalingKrav.periodeSlutt,
-        )
+        val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
         val utbetalingInfo = resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(gjennomforing, periode)
         val dbo = UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = gjennomforing.id,
+            status = UtbetalingStatusType.INNSENDT,
             kontonummer = utbetalingKrav.kontonummer,
             kid = utbetalingKrav.kidNummer,
             beregning = UtbetalingBeregningPrisPerTimeOppfolging.beregn(
@@ -170,7 +168,7 @@ class UtbetalingService(
             } else {
                 null
             },
-            status = UtbetalingStatusType.INNSENDT,
+            utbetalesTidligstTidspunkt = null,
         )
         return opprettUtbetalingTransaction(dbo, utbetalingKrav.vedlegg, agent)
     }
@@ -195,6 +193,7 @@ class UtbetalingService(
         val dbo = UtbetalingDbo(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
+            status = UtbetalingStatusType.INNSENDT,
             kontonummer = request.kontonummer,
             kid = request.kidNummer,
             beregning = UtbetalingBeregningFri.beregn(
@@ -209,7 +208,7 @@ class UtbetalingService(
             } else {
                 null
             },
-            status = UtbetalingStatusType.INNSENDT,
+            utbetalesTidligstTidspunkt = null,
         )
 
         return opprettUtbetalingTransaction(dbo, request.vedlegg, agent)
@@ -402,7 +401,10 @@ class UtbetalingService(
         }
     }
 
-    private fun TransactionalQueryContext.logDelutbetalingUtbetalt(delutbetaling: Delutbetaling, fakturaStatusSistOppdatert: LocalDateTime?) {
+    private fun TransactionalQueryContext.logDelutbetalingUtbetalt(
+        delutbetaling: Delutbetaling,
+        fakturaStatusSistOppdatert: LocalDateTime?,
+    ) {
         val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId)
         val utbetaling = queries.utbetaling.getOrError(delutbetaling.utbetalingId)
 

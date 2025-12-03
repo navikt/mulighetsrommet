@@ -43,6 +43,7 @@ class JournalforUtbetalingTest : FunSpec({
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
+        status = UtbetalingStatusType.INNSENDT,
         beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
             input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                 satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2024, 8, 1)), 20205)),
@@ -61,7 +62,7 @@ class JournalforUtbetalingTest : FunSpec({
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = LocalDateTime.now(),
-        status = UtbetalingStatusType.INNSENDT,
+        utbetalesTidligstTidspunkt = null,
     )
 
     val domain = MulighetsrommetTestDomain(
