@@ -12,6 +12,7 @@ value class Kontonummer(val value: String) {
             "'Kontonummer' må være på formatet '${KONTONUMMER_REGEX}'"
         }
     }
+
     companion object {
         fun parse(value: String): Kontonummer? {
             return if (KONTONUMMER_REGEX.matches(value)) {
@@ -21,4 +22,6 @@ value class Kontonummer(val value: String) {
             }
         }
     }
+
+    override fun toString() = value
 }

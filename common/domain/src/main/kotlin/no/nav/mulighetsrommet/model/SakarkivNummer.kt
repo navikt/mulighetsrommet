@@ -12,4 +12,6 @@ value class SakarkivNummer(val value: String) {
             "The format of 'sakarkiv_nummer' is invalid. Expected '{year}/{id}'."
         }
     }
+
+    override fun toString() = value
 }

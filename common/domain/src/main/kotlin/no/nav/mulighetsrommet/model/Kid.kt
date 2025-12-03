@@ -7,6 +7,7 @@ private val KID_REGEX = "^\\d{2,24}\\d|-?$".toRegex()
 @Serializable
 @JvmInline
 value class Kid private constructor(val value: String) {
+
     companion object {
         fun parse(kid: String): Kid? {
             return if (
@@ -26,4 +27,6 @@ value class Kid private constructor(val value: String) {
             return parse(kid) ?: throw IllegalArgumentException("Ugyldig kid")
         }
     }
+
+    override fun toString() = value
 }
