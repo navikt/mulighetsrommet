@@ -16,38 +16,6 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
-val NAV_EGNE_ANSATTE_TIL_FYLKE_MAP = mapOf(
-    // Nav egne ansatte Vestfold og Telemark
-    "0883" to "0800",
-    // Nav egne ansatte Vestland
-    "1283" to "1200",
-    // Nav egne ansatte Troms og Finnmark
-    "1983" to "1900",
-    // Nav egne ansatte Oslo
-    "0383" to "0300",
-    // Nav egne ansatte Rogaland
-    "1183" to "1100",
-    // Nav egne ansatte Møre og Romsdal
-    "1583" to "1500",
-    // Nav egne ansatte Vest-Viken
-    "0683" to "0600",
-    // Nav egne ansatte Agder
-    "1083" to "1000",
-    // Nav egne ansatte Nordland
-    "1883" to "1800",
-    // Nav egne ansatte Øst-Viken
-    "0283" to "0200",
-    // Nav egne ansatte Innlandet
-    "0483" to "0400",
-    // Nav egne ansatte Trøndelag
-    "1683" to "5700",
-)
-
-val NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP = mapOf(
-    // Nav arbeid og helse Oslo
-    "0396" to "0300",
-)
-
 class NavEnheterSyncService(
     private val db: ApiDatabase,
     private val norg2Client: Norg2Client,
@@ -144,55 +112,7 @@ class NavEnheterSyncService(
             return null
         }
 
-        val spesialEnheterTilFylkeMap = mapOf(
-            // Vestland
-            "1291" to "1200",
-            // Øst-Viken
-            "0291" to "0200",
-            // Møre og Romsdal,
-            "1591" to "1500",
-            // Nordland
-            "1891" to "1800",
-            // Innlandet
-            "0491" to "0400",
-            // Vest-Viken,
-            "0691" to "0600",
-            // Vestfold og Telemark
-            "0891" to "0800",
-            // Agder,
-            "1091" to "1000",
-            // Troms og Finnmark
-            "1991" to "1900",
-            // Trøndelag,
-            "5772" to "5700",
-            // Oslo
-            "0391" to "0300",
-            // Rogaland
-            "1191" to "1100",
-            // Nav Tiltak Vestland
-            "1287" to "1200",
-            // Nav Tiltak Troms og Finnmark,
-            "1987" to "1900",
-            // Nav Tiltak Øst-Viken
-            "0287" to "0200",
-            // Nav Tiltak Oslo
-            "0387" to "0300",
-            // Nav Tiltak Innlandet,
-            "0587" to "0400",
-            // Nav Forvaltningstjenester Vest-Viken
-            "0687" to "0600",
-            // Nav Tiltak Agder
-            "1087" to "1000",
-            // Nav Tiltak Rogaland
-            "1187" to "1100",
-            // Nav Marked Sør-Rogaland
-            "1194" to "1100",
-            // Nav Marked Nord-Rogaland
-            "1193" to "1100",
-            // Nav Tiltak Trøndelag
-            "5771" to "5700",
-        ) + NAV_EGNE_ANSATTE_TIL_FYLKE_MAP + NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP
-
+        val spesialEnheterTilFylkeMap = TILTAKSENHETER_TIL_FYKLE_MAP + SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP
         val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr.value]
         if (fantFylke == null && enhet.type !in listOf(Norg2Type.KO, Norg2Type.ARK)) {
             slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: ${enhet.enhetNr}. En utvikler må sjekke om enheten skal mappe til et fylke.")

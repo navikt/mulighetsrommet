@@ -210,14 +210,16 @@ object GjennomforingValidator {
         }
 
         val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
-        validate(avtaleNavKontorer.intersect(veilederinfoRequest.navKontorer.toSet()).isNotEmpty()) {
+        val navKontorer = veilederinfoRequest.navKontorer.toSet()
+        val navAndreEnheter = veilederinfoRequest.navAndreEnheter.toSet()
+        validate(avtaleNavKontorer.intersect(navKontorer + navAndreEnheter).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
                 GjennomforingRequest::veilederinformasjon,
                 GjennomforingVeilederinfoRequest::navKontorer,
             )
         }
-        veilederinfoRequest.navKontorer.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
+        navKontorer.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
             validate(false) {
                 FieldError.of(
                     "Nav-enhet $enhetsnummer mangler i avtalen",
@@ -226,15 +228,16 @@ object GjennomforingValidator {
                 )
             }
         }
-        veilederinfoRequest.navAndreEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
-            validate(false) {
-                FieldError.of(
-                    "Nav-enhet $enhetsnummer mangler i avtalen",
-                    GjennomforingRequest::veilederinformasjon,
-                    GjennomforingVeilederinfoRequest::navAndreEnheter,
-                )
+        veilederinfoRequest.navAndreEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }
+            .forEach { enhetsnummer ->
+                validate(false) {
+                    FieldError.of(
+                        "Nav-enhet $enhetsnummer mangler i avtalen",
+                        GjennomforingRequest::veilederinformasjon,
+                        GjennomforingVeilederinfoRequest::navAndreEnheter,
+                    )
+                }
             }
-        }
     }
 
     private fun ValidationDsl.validateSlettetNavAnsatte(

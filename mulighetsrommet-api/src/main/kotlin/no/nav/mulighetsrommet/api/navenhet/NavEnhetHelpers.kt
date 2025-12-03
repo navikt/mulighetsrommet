@@ -34,6 +34,73 @@ object NavEnhetHelpers {
     }
 
     fun erSpesialenhetSomKanVelgesIModia(enhetsnummer: NavEnhetNummer): Boolean {
-        return enhetsnummer.value in NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys + NAV_ARBEID_OG_HELSE_TIL_FYLKE_MAP.keys
+        return enhetsnummer.value in SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP.keys
     }
 }
+
+/**
+ * Noen Nav-enheter (som ikke er av typen LOKAL) skal likevel være mulig å velge som tilgjengelighet til
+ * Tiltaksadministrasjon/Modia.
+ *
+ * "Foreløpig" løsning er at vi vedlikeholder en slik mapping med spesialenheter som skal kunne velges som tilhørlighet
+ * på avtaler/gjennomføringer. I tillegg er det også en begrensning til at disse må mappes til et fylke slik at de kan
+ * vises riktig i filter i frontend.
+ */
+val SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP = mapOf(
+    // Nasjonal oppfølgingsenhet
+    "4154" to "0300",
+    // Nav egne ansatte Vestfold og Telemark
+    "0883" to "0800",
+    // Nav egne ansatte Vestland
+    "1283" to "1200",
+    // Nav egne ansatte Troms og Finnmark
+    "1983" to "1900",
+    // Nav egne ansatte Oslo
+    "0383" to "0300",
+    // Nav egne ansatte Rogaland
+    "1183" to "1100",
+    // Nav egne ansatte Møre og Romsdal
+    "1583" to "1500",
+    // Nav egne ansatte Vest-Viken
+    "0683" to "0600",
+    // Nav egne ansatte Agder
+    "1083" to "1000",
+    // Nav egne ansatte Nordland
+    "1883" to "1800",
+    // Nav egne ansatte Øst-Viken
+    "0283" to "0200",
+    // Nav egne ansatte Innlandet
+    "0483" to "0400",
+    // Nav egne ansatte Trøndelag
+    "1683" to "5700",
+    // Nav arbeid og helse Oslo
+    "0396" to "0300",
+    // Nasjonal oppfølgingsenhet
+    "4154" to "0300",
+    // Nav arbeidslivssenter Møre og Romsdal
+    "1591" to "1500",
+    // Nav arbeidslivssenter Oslo
+    "0391" to "0300",
+)
+
+/**
+ * Tiltaksenheter er ikke koblet mot et fylke i Norg, men det vises under sitt respektive fylke i Tiltaksadministrasjon.
+ *
+ * "Foreløpig" løsning er at vi vedlikeholder en kobling her og lagrer dette som del av replikeringsjobben mot Norg.
+ */
+val TILTAKSENHETER_TIL_FYKLE_MAP = mapOf(
+    // Nav tiltak Vestland
+    "1287" to "1200",
+    // Nav tiltak Rogaland
+    "1187" to "1100",
+    // Nav tiltak Innlandet
+    "0587" to "0400",
+    // Nav tiltak Oslo
+    "0387" to "0300",
+    // Nav tiltak Øst-Viken
+    "0287" to "0200",
+    // Nav tiltak Troms og Finnmark
+    "1987" to "1900",
+    // Nav tiltak Agder
+    "1087" to "1000",
+)
