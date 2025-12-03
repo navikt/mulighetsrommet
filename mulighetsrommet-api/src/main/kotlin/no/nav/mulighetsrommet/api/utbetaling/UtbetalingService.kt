@@ -723,10 +723,8 @@ class UtbetalingService(
             Instant.now(),
         )
 
-        val tidspunktForUtbetaling = config.tidligstTidspunktForUtbetaling.calculate(
-            tilsagn.tiltakstype.tiltakskode,
-            faktura.periode,
-        )
+        val tidspunktForUtbetaling = delutbetaling.faktura.utbetalesTidligstTidspunkt
+            ?: config.tidligstTidspunktForUtbetaling.calculate(tilsagn.tiltakstype.tiltakskode, faktura.periode)
         val message = OkonomiBestillingMelding.Faktura(faktura)
         storeOkonomiMelding(faktura.bestillingsnummer, message, tidspunktForUtbetaling)
     }

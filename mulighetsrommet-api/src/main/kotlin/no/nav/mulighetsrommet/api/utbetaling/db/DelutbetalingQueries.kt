@@ -231,6 +231,7 @@ private fun Row.toDelutbetaling() = Delutbetaling(
     faktura = Delutbetaling.Faktura(
         fakturanummer = string("fakturanummer"),
         sendtTidspunkt = localDateTimeOrNull("sendt_til_okonomi_tidspunkt"),
+        utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
         statusSistOppdatert = localDateTimeOrNull("faktura_status_sist_oppdatert"),
         status = stringOrNull("faktura_status")?.let { FakturaStatusType.valueOf(it) },
     ),

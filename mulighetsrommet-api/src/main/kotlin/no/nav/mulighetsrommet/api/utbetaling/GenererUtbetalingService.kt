@@ -36,6 +36,7 @@ class GenererUtbetalingService(
 
     class Config(
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+        val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
 
     private data class UtbetalingContext(
@@ -242,6 +243,10 @@ class GenererUtbetalingService(
     ): UtbetalingDbo {
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforing.id)
         val kontonummer = getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
+            gjennomforing.tiltakstype.tiltakskode,
+            periode,
+        )
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
@@ -254,7 +259,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
-            utbetalesTidligstTidspunkt = null,
+            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         )
     }
 

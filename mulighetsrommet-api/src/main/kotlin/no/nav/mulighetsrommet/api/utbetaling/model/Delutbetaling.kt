@@ -30,6 +30,8 @@ data class Delutbetaling(
         val fakturanummer: String,
         @Serializable(with = LocalDateTimeSerializer::class)
         val sendtTidspunkt: LocalDateTime?,
+        @Serializable(with = InstantSerializer::class)
+        val utbetalesTidligstTidspunkt: Instant?,
         @Serializable(with = LocalDateTimeSerializer::class)
         val statusSistOppdatert: LocalDateTime?,
         val status: FakturaStatusType?,
