@@ -13,6 +13,8 @@ value class Organisasjonsnummer(val value: String) {
         }
     }
 
+    override fun toString(): String = value
+
     companion object {
         fun isValid(value: String): Boolean = ORGANISASJONSNUMMER_REGEX.matches(value)
 

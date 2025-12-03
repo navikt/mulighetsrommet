@@ -12,4 +12,6 @@ value class NorskIdent(val value: String) {
             "'NorskIdent' må være på formatet '$NORSK_IDENT_REGEX'"
         }
     }
+
+    override fun toString() = value
 }
