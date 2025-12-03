@@ -4,7 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @JvmInline
-value class PdlIdent(val value: String)
+value class PdlIdent(val value: String) {
+    override fun toString() = "******"
+}
 
 @Serializable
 data class IdentInformasjon(

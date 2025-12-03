@@ -10,4 +10,6 @@ value class NavIdent(val value: String) : Agent {
             "'NavIdent' should not be empty"
         }
     }
+
+    override fun toString() = value
 }

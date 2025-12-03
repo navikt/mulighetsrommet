@@ -24,4 +24,6 @@ value class Organisasjonsnummer(val value: String) {
             }
         }
     }
+
+    override fun toString() = value
 }
