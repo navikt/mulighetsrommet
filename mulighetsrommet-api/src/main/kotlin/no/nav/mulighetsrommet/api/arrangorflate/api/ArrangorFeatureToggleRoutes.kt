@@ -7,6 +7,7 @@ import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.featuretoggle.api.generateUnleashSessionId
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
@@ -20,14 +21,7 @@ import org.koin.ktor.ext.inject
 
 fun Route.arrangorFeatureToggleRoutes() {
     val features: FeatureToggleService by inject()
-
-    fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
-        return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
-    }
-
-    fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) = arrangorTilganger()
-        ?.find { it == organisasjonsnummer }
-        ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
+    val altinnRettigheterService: AltinnRettigheterService by inject()
 
     get("/{orgnr}/features", {
         tags = setOf("FeatureToggle")
@@ -53,7 +47,7 @@ fun Route.arrangorFeatureToggleRoutes() {
         }
     }) {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-        requireTilgangHosArrangor(orgnr)
+        requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
         val feature: FeatureToggle by call.parameters
         val tiltakskoder = call.parameters.getAll("tiltakskoder")

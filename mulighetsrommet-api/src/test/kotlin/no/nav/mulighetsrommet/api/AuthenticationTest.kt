@@ -227,17 +227,6 @@ class AuthenticationTest : FunSpec({
     }
 
     test("verify provider TOKEN_X_ARRANGOR_FLATE") {
-        val personMedRettighet = "11830348931"
-
-        database.run {
-            @Language("PostgreSQL")
-            val query = """
-                insert into altinn_person_rettighet (norsk_ident, organisasjonsnummer, rettighet, expiry)
-                values('$personMedRettighet', '123456789', 'TILTAK_ARRANGOR_BE_OM_UTBETALING', '3000-01-01') on conflict do nothing;
-            """.trimIndent()
-            it.execute(queryOf(query))
-        }
-
         val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
         val requestWithWrongAudience = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
@@ -250,12 +239,6 @@ class AuthenticationTest : FunSpec({
         }
         val requestWithoutAmr = { request: HttpRequestBuilder ->
             request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
-        }
-        val requestWithPidAmrWithoutRettighet = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
-        }
-        val requestWithPidAmrWithRettighet = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to personMedRettighet)).serialize())
         }
 
         val config = createTestApplicationConfig().copy(
@@ -273,9 +256,7 @@ class AuthenticationTest : FunSpec({
                 row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
                 row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
                 row(requestWithoutPid, HttpStatusCode.Unauthorized),
-                row(requestWithoutAmr, HttpStatusCode.Unauthorized),
-                row(requestWithPidAmrWithoutRettighet, HttpStatusCode.Unauthorized),
-                row(requestWithPidAmrWithRettighet, HttpStatusCode.OK),
+                row(requestWithoutAmr, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
                 val response = client.get("/TOKEN_X_ARRANGOR_FLATE") { buildRequest(this) }
 

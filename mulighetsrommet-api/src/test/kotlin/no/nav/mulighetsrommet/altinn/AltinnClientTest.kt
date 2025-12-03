@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.altinn
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -59,6 +60,6 @@ class AltinnClientTest : FunSpec({
         val norskIdent = NorskIdent("12345678901")
         val organisasjoner = altinnClient.hentRettigheter(norskIdent)
 
-        organisasjoner shouldHaveSize 2
+        organisasjoner.shouldBeRight() shouldHaveSize 2
     }
 })

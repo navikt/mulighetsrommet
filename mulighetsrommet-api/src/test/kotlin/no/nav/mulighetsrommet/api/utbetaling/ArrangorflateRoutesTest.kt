@@ -76,14 +76,13 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("200 OK og tom liste med pid uten tilgang") {
+    test("403 med pid uten tilgang") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response = client.get("/api/arrangorflate/tilgang-arrangor") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199922")).serialize())
             }
 
-            response.status shouldBe HttpStatusCode.OK
-            response.body<List<ArrangorDto>>().shouldHaveSize(0)
+            response.status shouldBe HttpStatusCode.Forbidden
         }
     }
 

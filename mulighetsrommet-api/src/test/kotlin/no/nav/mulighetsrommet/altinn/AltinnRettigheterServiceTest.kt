@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.altinn
 
+import arrow.core.right
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -52,31 +54,31 @@ class AltinnRettigheterServiceTest : FunSpec({
 
     test("henter rettigheter fra altinn med cache fra databasen") {
         val altinnClient = mockk<AltinnClient>()
-        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter1
+        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter1.right()
 
         val service = createService(expiry = Duration.ofMinutes(1), altinnClient)
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter1
+        service.getRettigheter(norskIdent).shouldBeRight() shouldBe rettigheter1
         coVerify(exactly = 1) { altinnClient.hentRettigheter(norskIdent) }
 
-        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter2
+        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter2.right()
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter1
+        service.getRettigheter(norskIdent).shouldBeRight() shouldBe rettigheter1
         coVerify(exactly = 1) { altinnClient.hentRettigheter(norskIdent) }
     }
 
     test("henter rettigheter på nytt fra altinn når expiry er utløpt") {
         val altinnClient = mockk<AltinnClient>()
-        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter1
+        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter1.right()
 
         val service = createService(expiry = Duration.ofSeconds(0), altinnClient)
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter1
+        service.getRettigheter(norskIdent).shouldBeRight() shouldBe rettigheter1
         coVerify(exactly = 1) { altinnClient.hentRettigheter(norskIdent) }
 
-        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter2
+        coEvery { altinnClient.hentRettigheter(norskIdent) } returns rettigheter2.right()
 
-        service.getRettigheter(norskIdent) shouldBe rettigheter2
+        service.getRettigheter(norskIdent).shouldBeRight() shouldBe rettigheter2
         coVerify(exactly = 2) { altinnClient.hentRettigheter(norskIdent) }
     }
 })
