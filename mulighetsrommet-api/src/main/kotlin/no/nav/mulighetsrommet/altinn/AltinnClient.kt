@@ -1,5 +1,10 @@
 package no.nav.mulighetsrommet.altinn
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.raise.context.bind
+import arrow.core.raise.context.either
+import arrow.core.right
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.cache.*
@@ -26,10 +31,9 @@ class AltinnClient(
         install(HttpCache)
     }
 
-    suspend fun hentRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
-        log.info("Henter organisasjoner fra Altinn")
-        val authorizedParties = hentAuthorizedParties(norskIdent)
-        return findAltinnRoller(authorizedParties)
+    suspend fun hentRettigheter(norskIdent: NorskIdent): Either<AltinnError, List<BedriftRettigheter>> {
+        return hentAuthorizedParties(norskIdent)
+            .map { findAltinnRoller(it) }
     }
 
     private fun findAltinnRoller(
@@ -54,7 +58,7 @@ class AltinnClient(
         }
         .filter { it.rettigheter.isNotEmpty() }
 
-    private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
+    private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): Either<AltinnError, List<AuthorizedParty>> = either {
         val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -68,14 +72,15 @@ class AltinnClient(
 
         if (response.status != HttpStatusCode.OK) {
             log.error("Klarte ikke hente organisasjoner for Altinn. response: ${response.status}, body=${response.bodyAsText()}")
-            throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}")
+            return AltinnError.Error.left()
         }
 
         if (!response.headers["X-Warning-LimitReached"].isNullOrEmpty()) {
             log.error("For mange tilganger. Klarte ikke hente tilganger for bruker. response: ${response.status}")
+            return AltinnError.ForMangeTilganger.left()
         }
 
-        return response.body()
+        response.body()
     }
 
     @Serializable
@@ -105,4 +110,9 @@ class AltinnClient(
         val type: String,
         val value: String,
     )
+}
+
+enum class AltinnError {
+    Error,
+    ForMangeTilganger,
 }

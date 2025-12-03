@@ -17,6 +17,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.altinn.AltinnError
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
+import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -30,8 +33,6 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -42,6 +43,7 @@ import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -54,12 +56,35 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
 
-fun RoutingContext.arrangorTilganger(): List<Organisasjonsnummer>? {
-    return call.principal<ArrangorflatePrincipal>()?.organisasjonsnummer
+suspend inline fun RoutingContext.orgnrTilganger(
+    altinnRettigheterService: AltinnRettigheterService,
+): List<Organisasjonsnummer> {
+    return call.principal<ArrangorflatePrincipal>()?.norskIdent?.let {
+        altinnRettigheterService.getRettigheter(it)
+            .getOrElse {
+                when (it) {
+                    AltinnError.Error ->
+                        call.respondWithProblemDetail(
+                            InternalServerError("Klarte ikke få kontakt med Altinn. Vennligst prøv igjen senere"),
+                        )
+
+                    AltinnError.ForMangeTilganger ->
+                        call.respondWithProblemDetail(
+                            InternalServerError("For mange Altinn tilganger. Vennligst ta kontakt med Nav"),
+                        )
+                }
+                emptyList()
+            }
+            .filter { AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING in it.rettigheter }
+            .map { it.organisasjonsnummer }
+    } ?: emptyList()
 }
 
-fun RoutingContext.requireTilgangHosArrangor(organisasjonsnummer: Organisasjonsnummer) = arrangorTilganger()
-    ?.find { it == organisasjonsnummer }
+suspend fun RoutingContext.requireTilgangHosArrangor(
+    altinnRettigheterService: AltinnRettigheterService,
+    organisasjonsnummer: Organisasjonsnummer,
+) = orgnrTilganger(altinnRettigheterService)
+    .find { it == organisasjonsnummer }
     ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
@@ -69,6 +94,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val pdfClient: PdfGenClient by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val altinnRettigheterService: AltinnRettigheterService by inject()
 
     suspend fun resolveArrangorer(organisasjonsnummer: List<Organisasjonsnummer>): List<ArrangorDto> {
         return arrangorService.getArrangorerOrSyncFromBrreg(organisasjonsnummer)
@@ -117,12 +143,22 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }
         }
     }) {
-        val tilganger = arrangorTilganger()
-            ?: throw StatusException(HttpStatusCode.Unauthorized, "Mangler altinn tilgang")
-
-        val arrangorer = resolveArrangorer(tilganger)
-
-        call.respond(arrangorer)
+        val tilganger = orgnrTilganger(altinnRettigheterService)
+        if (tilganger.isEmpty()) {
+            call.respondWithProblemDetail(
+                Forbidden(
+                    detail = """
+                        Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
+                        enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
+                        “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
+                        er delegert i Altinn kan du laste siden på nytt og få tilgang.
+                    """,
+                ),
+            )
+        } else {
+            val arrangorer = resolveArrangorer(tilganger)
+            call.respond(arrangorer)
+        }
     }
 
     route("/arrangor/{orgnr}") {
@@ -146,7 +182,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
-            requireTilgangHosArrangor(orgnr)
+            requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
             arrangorFlateService.getKontonummer(orgnr)
                 .onLeft {
@@ -187,7 +223,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }) {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                requireTilgangHosArrangor(orgnr)
+                requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
                 val prismodeller = call.parameters.getAll("prismodeller")
                     ?.map { PrismodellType.valueOf(it) }
@@ -224,7 +260,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }) {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-                requireTilgangHosArrangor(orgnr)
+                requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
                 val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
@@ -264,7 +300,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
-            requireTilgangHosArrangor(orgnr)
+            requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
             val utbetalinger = arrangorFlateService.getUtbetalinger(orgnr)
 
@@ -292,7 +328,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }) {
                 val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
-                requireTilgangHosArrangor(orgnr)
+                requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
                 val tilsagn = arrangorFlateService.getTilsagn(
                     orgnr,
@@ -325,7 +361,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val tilsagn = getTilsagnOrRespondNotFound()
 
-            requireTilgangHosArrangor(tilsagn.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
 
             call.respond(tilsagn)
         }
@@ -352,7 +388,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
 
-            requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val arrangorFlateUtbetaling = arrangorFlateService.toArrangorflateUtbetaling(utbetaling)
             call.respond(arrangorFlateUtbetaling)
@@ -378,7 +414,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
 
-            requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             call.respond(arrangorFlateService.getAdvarsler(utbetaling))
         }
@@ -407,7 +443,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
 
-            requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val request = call.receive<GodkjennUtbetaling>()
 
@@ -451,7 +487,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
 
-            requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val linjer = arrangorFlateService.getLinjer(utbetaling.id)
             val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(utbetaling, linjer)
@@ -489,7 +525,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
 
-            requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val tilsagn = arrangorFlateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
@@ -517,7 +553,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getUtbetalingOrRespondNotFound()
 
-            requireTilgangHosArrangor(utbetaling.arrangor.organisasjonsnummer)
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             arrangorFlateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->

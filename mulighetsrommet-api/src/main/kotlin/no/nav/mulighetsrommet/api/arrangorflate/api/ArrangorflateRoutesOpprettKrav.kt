@@ -20,10 +20,10 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
-import no.nav.mulighetsrommet.api.arrangorflate.api.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -63,6 +62,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val utbetalingService: UtbetalingService by inject()
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val altinnRettigheterService: AltinnRettigheterService by inject()
 
     fun requireGjennomforingTilArrangor(
         gjennomforing: Gjennomforing,
@@ -73,9 +73,9 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         Unit
     }
 
-    fun RoutingContext.requireGjennomforing(): Gjennomforing {
+    suspend fun RoutingContext.requireGjennomforing(): Gjennomforing {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-        requireTilgangHosArrangor(orgnr)
+        requireTilgangHosArrangor(altinnRettigheterService, orgnr)
         val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
         val gjennomforing = requireNotNull(db.session { queries.gjennomforing.get(id = gjennomforingId) })
@@ -113,7 +113,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }
     }) {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-        requireTilgangHosArrangor(orgnr)
+        requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))

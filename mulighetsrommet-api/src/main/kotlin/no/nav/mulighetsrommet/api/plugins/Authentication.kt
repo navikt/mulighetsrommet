@@ -169,14 +169,10 @@ fun Application.configureAuthentication(
                     .onFailure { application.log.warn("Failed to parse 'pid' claim as NorskIdent") }
                     .getOrElse { return@validate null }
 
-                val organisasjonsnummer = altinnRettigheterService.getRettigheter(norskIdent)
-                    .filter { AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING in it.rettigheter }
-                    .map { it.organisasjonsnummer }
-
-                ArrangorflatePrincipal(organisasjonsnummer, JWTPrincipal(credentials.payload))
+                ArrangorflatePrincipal(norskIdent, JWTPrincipal(credentials.payload))
             }
         }
     }
 }
 
-data class ArrangorflatePrincipal(val organisasjonsnummer: List<Organisasjonsnummer>, val principal: JWTPrincipal)
+data class ArrangorflatePrincipal(val norskIdent: NorskIdent, val principal: JWTPrincipal)
