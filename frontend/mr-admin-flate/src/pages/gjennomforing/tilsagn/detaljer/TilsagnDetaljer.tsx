@@ -289,18 +289,19 @@ export function TilsagnDetaljer() {
                     value={avtaletekster.tilsagn.type(type)}
                   />
                 </VStack>
-                <VStack gap="4" className="flex-1">
-                  <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
-                  <MetadataFritekstfelt
-                    label={tilsagnTekster.beskrivelse.label}
-                    value={beskrivelse}
-                  />
-                </VStack>
               </HGrid>
               <Separator />
-              <DataDetails {...beregning.prismodell} />
+              <VStack gap="4" className="flex-1">
+                <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
+
+                <MetadataFritekstfelt
+                  label={tilsagnTekster.beskrivelse.label}
+                  value={beskrivelse}
+                />
+              </VStack>
             </HGrid>
             <HGrid columns={1} gap="2" align="center">
+              <DataDetails {...beregning.prismodell} />
               <VStack gap="4">
                 <MetadataHGrid
                   label={tilsagnTekster.beregning.belop.label}
