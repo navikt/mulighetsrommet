@@ -25,7 +25,9 @@ import {
   Button,
   Heading,
   HGrid,
+  Hide,
   HStack,
+  Show,
   Spacer,
   VStack,
 } from "@navikt/ds-react";
@@ -299,9 +301,13 @@ export function TilsagnDetaljer() {
                   value={beskrivelse}
                 />
               </VStack>
+              <Show below="lg">
+                <Separator />
+              </Show>
             </HGrid>
             <HGrid columns={1} gap="2" align="center">
               <DataDetails {...beregning.prismodell} />
+              <Separator />
               <VStack gap="4">
                 <MetadataHGrid
                   label={tilsagnTekster.beregning.belop.label}
