@@ -17,7 +17,7 @@ interface Props {
 export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Props) {
   const status = tilsagnStatusElement(tilsagn.status);
   return (
-    <VStack gap="1" className="p-4 border-1 border-border-divider rounded-lg w-xl">
+    <VStack gap="1" className="p-4 border-1 border-border-divider rounded-lg size-min">
       <VStack gap="4" className="mb-2">
         <Heading size={headingLevel == "4" ? "small" : "medium"}>
           {`${tekster.bokmal.tilsagn.tilsagntype(tilsagn.type)} ${tilsagn.bestillingsnummer}`}
