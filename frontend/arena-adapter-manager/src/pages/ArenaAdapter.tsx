@@ -1,4 +1,3 @@
-import { Box, Heading, VStack } from "@chakra-ui/react";
 import ReplayEvents from "../sections/ReplayEvents";
 import TopicOverview from "../sections/TopicOverview";
 import ReplayEvent from "../sections/ReplayEvent";
@@ -7,14 +6,11 @@ import { ApiBase } from "../core/api.tsx";
 
 export function ArenaAdapter() {
   return (
-    <Box>
-      <Heading mb="10">arena-adapter</Heading>
-      <VStack spacing={8}>
-        <TopicOverview base={ApiBase.ARENA_ADAPTER} />
-        <ReplayEvents />
-        <ReplayEvent />
-        <DeleteEvents />
-      </VStack>
-    </Box>
+    <>
+      <TopicOverview base={ApiBase.ARENA_ADAPTER} />
+      <ReplayEvents />
+      <ReplayEvent />
+      <DeleteEvents />
+    </>
   );
 }

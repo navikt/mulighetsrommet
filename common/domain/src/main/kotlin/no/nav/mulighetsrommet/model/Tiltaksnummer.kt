@@ -18,4 +18,6 @@ value class Tiltaksnummer(val value: String) {
 
     val lopenummer: Int
         get() = value.split("/", "#").last().toInt()
+
+    override fun toString(): String = value
 }

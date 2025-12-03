@@ -1,15 +1,12 @@
-import { Button } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
 import { Section } from "../components/Section";
 import { ApiBase, MrApiTask, runTask } from "../core/api";
-import validator from "@rjsf/validator-ajv8";
-import { RJSFSchema } from "@rjsf/utils";
-import Form from "@rjsf/chakra-ui";
+import { Button, HStack } from "@navikt/ds-react";
 
 interface Props {
   base: ApiBase;
   task: MrApiTask;
-  input?: RJSFSchema;
+  form?: (props: { onSubmit: (data: any) => void; loading: boolean }) => ReactNode;
   children?: ReactNode;
 }
 
@@ -26,26 +23,15 @@ export function RunTask(props: Props) {
 
   return (
     <Section headerText={props.task} loadingText={"Laster"} isLoading={loading}>
-      {props.children && <div>{props.children}</div>}
-
-      {props.input ? (
-        <Form
-          schema={props.input}
-          validator={validator}
-          onSubmit={({ formData }) => {
-            executeTask(formData);
-          }}
-        >
-          <div>
-            <Button type="submit" disabled={loading}>
-              Run task 💥
-            </Button>
-          </div>
-        </Form>
+      {props.children}
+      {props.form ? (
+        props.form({ onSubmit: executeTask, loading })
       ) : (
-        <Button disabled={loading} onClick={() => executeTask()}>
-          Run task 💥
-        </Button>
+        <HStack align="start">
+          <Button disabled={loading} onClick={() => executeTask()}>
+            Run task 💥
+          </Button>
+        </HStack>
       )}
     </Section>
   );

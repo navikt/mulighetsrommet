@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
@@ -282,7 +283,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 queries.enkeltplass.setArenaData(
                     EnkeltplassArenaDataDbo(
                         id = EnkeltplassFixtures.EnkelAmo.id,
-                        tiltaksnummer = "2024#456",
+                        tiltaksnummer = Tiltaksnummer("2024#456"),
                         navn = "Arenanavn",
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 1),

@@ -62,7 +62,7 @@ object ExcelService {
             val row = sheet.createRow(index + 1)
             row.createCell(0).setCellValue(tiltak.navn)
             row.createCell(1).setCellValue(tiltak.tiltakstype.navn)
-            row.createCell(2).setCellValue(tiltak.tiltaksnummer ?: "")
+            row.createCell(2).setCellValue(tiltak.tiltaksnummer?.value ?: "")
             row.createCell(3).setCellValue(tiltak.arrangor.navn)
             row.createCell(4).setCellValue(tiltak.arrangor.organisasjonsnummer.value)
             row.createCell(5)

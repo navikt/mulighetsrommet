@@ -19,4 +19,5 @@ data class TilsagnDbo(
     val belopBrukt: Int,
     val beregning: TilsagnBeregning,
     val kommentar: String?,
+    val beskrivelse: String?,
 )

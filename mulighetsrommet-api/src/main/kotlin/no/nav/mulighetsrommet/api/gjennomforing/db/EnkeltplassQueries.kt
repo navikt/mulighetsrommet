@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -56,7 +57,7 @@ class EnkeltplassQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to dbo.id,
-            "arena_tiltaksnummer" to dbo.tiltaksnummer,
+            "arena_tiltaksnummer" to dbo.tiltaksnummer?.value,
             "arena_navn" to dbo.navn,
             "arena_start_dato" to dbo.startDato,
             "arena_slutt_dato" to dbo.sluttDato,
@@ -119,7 +120,7 @@ class EnkeltplassQueries(private val session: Session) {
 private fun Row.toEnkeltplass(): Enkeltplass {
     val arena = stringOrNull("arena_tiltaksnummer")?.let { tiltaksnummer ->
         Enkeltplass.ArenaData(
-            tiltaksnummer = tiltaksnummer,
+            tiltaksnummer = Tiltaksnummer(tiltaksnummer),
             navn = stringOrNull("arena_navn"),
             startDato = localDateOrNull("arena_start_dato"),
             sluttDato = localDateOrNull("arena_slutt_dato"),

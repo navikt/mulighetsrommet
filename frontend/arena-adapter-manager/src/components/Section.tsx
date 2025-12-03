@@ -1,4 +1,4 @@
-import { Box, Center, Heading, Spinner, VStack } from "@chakra-ui/react";
+import { Box, Heading, HStack, Loader, VStack } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 
 interface SectionProps extends PropsWithChildren {
@@ -9,22 +9,20 @@ interface SectionProps extends PropsWithChildren {
 
 export function Section({ children, headerText, isLoading, loadingText }: SectionProps) {
   return (
-    <Box w="100%">
-      <Box rounded={6} p="2" bg="pink" border="1px" borderColor="pink.300" mb="2" w="fit-content">
-        <Heading size="md">{headerText}</Heading>
-      </Box>
-      <Box boxShadow="sm" p="5" borderWidth="1px" rounded="md">
+    <Box width="100%">
+      <Heading size="medium" spacing>
+        {headerText}
+      </Heading>
+      <Box padding="5" borderWidth="1" borderRadius="medium">
         {isLoading ? (
-          <Box w="100%" minH="15rem">
-            <Center h="15rem">
-              <VStack>
-                <Spinner thickness="4px" color="pink.500" size="xl" my="2" />
-                <Heading size="sm">{loadingText}</Heading>
-              </VStack>
-            </Center>
-          </Box>
+          <HStack gap="4">
+            <Heading size="small">{loadingText}</Heading>
+            <Loader />
+          </HStack>
         ) : (
-          children
+          <>
+            <VStack gap="4">{children}</VStack>
+          </>
         )}
       </Box>
     </Box>

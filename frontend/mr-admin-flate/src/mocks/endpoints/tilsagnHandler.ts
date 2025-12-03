@@ -36,6 +36,7 @@ export const tilsagnHandlers = [
         },
         kostnadssted: null,
         kommentar: null,
+        beskrivelse: null,
       });
     },
   ),

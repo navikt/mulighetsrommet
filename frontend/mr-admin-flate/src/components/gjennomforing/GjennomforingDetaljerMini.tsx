@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { GjennomforingStatusTag } from "@/components/statuselementer/GjennomforingStatusTag";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 
 interface Props {
   gjennomforing: GjennomforingDto;
@@ -20,15 +21,27 @@ export function GjennomforingDetaljerMini({ gjennomforing, meny }: Props) {
         {meny}
       </HStack>
       <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
-        <MetadataVStack label="Tiltaksnavn" value={gjennomforing.navn} />
+        <MetadataVStack label={gjennomforingTekster.tiltaksnavnLabel} value={gjennomforing.navn} />
         <MetadataVStack
           label="Arrangør"
-          value={`${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer}`}
+          value={`${gjennomforing.arrangor.navn} (${gjennomforing.arrangor.organisasjonsnummer})`}
         />
-        <MetadataVStack label="Tiltaksnummer" value={gjennomforing.tiltaksnummer} />
-        <MetadataVStack label="Startdato" value={formaterDato(gjennomforing.startDato)} />
-        <MetadataVStack label="Sluttdato" value={formaterDato(gjennomforing.sluttDato) || "-"} />
-        <MetadataVStack label="Antall plasser" value={gjennomforing.antallPlasser} />
+        <MetadataVStack
+          label={gjennomforingTekster.lopenummerLabel}
+          value={gjennomforing.lopenummer}
+        />
+        <MetadataVStack
+          label={gjennomforingTekster.startdatoLabel}
+          value={formaterDato(gjennomforing.startDato)}
+        />
+        <MetadataVStack
+          label={gjennomforingTekster.sluttdatoLabel}
+          value={formaterDato(gjennomforing.sluttDato) || "-"}
+        />
+        <MetadataVStack
+          label={gjennomforingTekster.antallPlasserLabel}
+          value={gjennomforing.antallPlasser}
+        />
         <MetadataVStack
           label="Status"
           value={<GjennomforingStatusTag status={gjennomforing.status} />}

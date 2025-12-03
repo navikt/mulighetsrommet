@@ -64,7 +64,7 @@ data class AppConfig(
 
 data class OkonomiConfig(
     val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-    val opprettKravPeriode: Map<PrismodellType, Periode>,
+    val opprettKravPrismodeller: List<PrismodellType>,
     val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
 )
 

@@ -1,8 +1,8 @@
 import { Section } from "../components/Section";
-import { Button, Select } from "@chakra-ui/react";
 import { replayEvents } from "../core/api";
 import { useState } from "react";
 import { useArenaTables } from "../core/hooks";
+import { Select, Button, HStack } from "@navikt/ds-react";
 
 function ReplayEvents() {
   const { arenaTables, isArenaTablesLoading } = useArenaTables();
@@ -12,12 +12,14 @@ function ReplayEvents() {
   return (
     <Section headerText="Replay Events" loadingText={"Laster"} isLoading={isArenaTablesLoading}>
       <Select
-        placeholder="Velg tabell"
         value={table}
         onChange={({ currentTarget }) => {
           setTable(currentTarget.value);
         }}
+        label="tabell"
+        hideLabel
       >
+        <option value="">Velg tabell</option>
         {arenaTables.map((table) => (
           <option key={table} value={table}>
             {table}
@@ -26,7 +28,7 @@ function ReplayEvents() {
       </Select>
       <Select
         value={status}
-        placeholder={"Alle statuser"}
+        label={"Alle statuser"}
         onChange={({ currentTarget }) => {
           setStatus(currentTarget.value);
         }}
@@ -35,9 +37,11 @@ function ReplayEvents() {
         <option value="Ignored">Ignored</option>
         <option value="Unhandled">Unhandled</option>
       </Select>
-      <Button onClick={() => replayEvents(table, status !== "" ? status : null)}>
-        Replay Events
-      </Button>
+      <HStack align="start">
+        <Button onClick={() => replayEvents(table, status !== "" ? status : null)}>
+          Replay Events
+        </Button>
+      </HStack>
     </Section>
   );
 }

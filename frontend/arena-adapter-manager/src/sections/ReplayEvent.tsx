@@ -1,8 +1,8 @@
 import { Section } from "../components/Section";
-import { Button, Input, Select } from "@chakra-ui/react";
 import { replayEvent } from "../core/api";
 import { useState } from "react";
 import { useArenaTables } from "../core/hooks";
+import { Select, Button, TextField, HStack } from "@navikt/ds-react";
 
 function ReplayEvent() {
   const { arenaTables, isArenaTablesLoading } = useArenaTables();
@@ -25,28 +25,34 @@ function ReplayEvent() {
   return (
     <Section headerText="Replay Event" loadingText={"Laster"} isLoading={isArenaTablesLoading}>
       <Select
-        placeholder="Velg tabell"
+        label="tabell"
+        hideLabel
         value={table}
         onChange={({ currentTarget }) => {
           setTable(currentTarget.value);
         }}
       >
+        <option value="">Velg tabell</option>
         {arenaTables.map((table) => (
           <option key={table} value={table}>
             {table}
           </option>
         ))}
       </Select>
-      <Input
+      <TextField
         placeholder="Arena-id eller kommaseparert liste med Arena-id'er"
         value={arenaId}
         onChange={({ currentTarget }) => {
           setArenaId(currentTarget.value);
         }}
+        label="Arena ID"
+        hideLabel
       />
-      <Button disabled={loading} onClick={() => handleReplay(table, arenaId)}>
-        {loading ? "Replaying event" : "Replay Event"}
-      </Button>
+      <HStack align="start">
+        <Button disabled={loading} onClick={() => handleReplay(table, arenaId)}>
+          {loading ? "Replaying event" : "Replay Event"}
+        </Button>
+      </HStack>
     </Section>
   );
 }

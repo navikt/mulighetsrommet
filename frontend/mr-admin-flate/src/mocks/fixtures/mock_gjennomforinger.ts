@@ -30,7 +30,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
-    tiltaksnummer: "123456",
+    tiltaksnummer: "2023#123456",
+    lopenummer: "2023#123456",
     estimertVentetid: {
       verdi: 3,
       enhet: "maned",
@@ -128,7 +129,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
     navn: "Spillbasert kvalifisering",
-    tiltaksnummer: "123456",
+    tiltaksnummer: "2024#123456",
+    lopenummer: "2024#123456",
     deltidsprosent: 100,
     arrangor,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
@@ -166,7 +168,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
     navn: "Gruppe AMO",
-    tiltaksnummer: "654434",
+    tiltaksnummer: "2023#234234",
+    lopenummer: "2023#234234",
     deltidsprosent: 100,
     arrangor,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUPPEAMO),
@@ -214,7 +217,8 @@ export const mockGjennomforinger: GjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
     navn: "Tiltak hos Kulinarisk akademi",
-    tiltaksnummer: "654432",
+    tiltaksnummer: "2025#123456",
+    lopenummer: "2025#123456",
     deltidsprosent: 100,
     arrangor,
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),

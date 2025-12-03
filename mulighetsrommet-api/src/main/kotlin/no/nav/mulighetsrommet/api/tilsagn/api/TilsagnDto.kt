@@ -22,6 +22,7 @@ data class TilsagnDto(
     val bestillingsnummer: String,
     val status: TilsagnStatusDto,
     val kommentar: String?,
+    val beskrivelse: String?,
 ) {
     companion object {
         fun fromTilsagn(tilsagn: Tilsagn) = TilsagnDto(
@@ -35,6 +36,7 @@ data class TilsagnDto(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             status = TilsagnStatusDto(tilsagn.status),
             kommentar = tilsagn.kommentar,
+            beskrivelse = tilsagn.beskrivelse,
         )
     }
 }

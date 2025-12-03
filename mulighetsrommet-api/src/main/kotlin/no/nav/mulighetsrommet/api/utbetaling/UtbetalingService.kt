@@ -682,10 +682,6 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.publishOpprettFaktura(delutbetaling: Delutbetaling) {
-        check(delutbetaling.status == DelutbetalingStatus.GODKJENT) {
-            "Delutbetaling må være godkjent for "
-        }
-
         val opprettelse = queries.totrinnskontroll.getOrError(delutbetaling.id, Totrinnskontroll.Type.OPPRETT)
         check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == Besluttelse.GODKJENT) {
             "Delutbetaling id=${delutbetaling.id} må være besluttet godkjent for å sendes til økonomi"

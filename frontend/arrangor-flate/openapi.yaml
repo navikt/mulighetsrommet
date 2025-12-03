@@ -839,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "0175dae632d2cc6a2f2097e6d39fbc6c5938ab101a20b6f190abf778610b8405"
+        - "f74aecd4b956ea13caaf8e805154c6faea7e76c524b333ba23ba7c1da2f385bf"
     ArrangorDto:
       type: object
       properties:
@@ -1241,9 +1241,14 @@ components:
           $ref: "#/components/schemas/DataDetails"
         bestillingsnummer:
           type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
       required:
       - arrangor
       - beregning
+      - beskrivelse
       - bestillingsnummer
       - bruktBelop
       - gjennomforing

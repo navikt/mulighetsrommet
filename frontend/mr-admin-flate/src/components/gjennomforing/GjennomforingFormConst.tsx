@@ -52,7 +52,7 @@ function defaultNavEnheter(
 function defaultArrangor(
   avtale: AvtaleDto,
   gjennomforing?: Partial<GjennomforingDto>,
-): string | undefined {
+): string | null {
   if (gjennomforing?.arrangor?.id) {
     return gjennomforing.arrangor.id;
   }
@@ -61,7 +61,7 @@ function defaultArrangor(
     return avtale.arrangor.underenheter[0].id;
   }
 
-  return undefined;
+  return null;
 }
 
 export function defaultGjennomforingData(
@@ -79,13 +79,13 @@ export function defaultGjennomforingData(
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
       ansatt.navIdent,
     ],
-    antallPlasser: gjennomforing?.antallPlasser,
+    antallPlasser: gjennomforing?.antallPlasser ?? null,
     startDato: gjennomforing?.startDato
       ? gjennomforing.startDato
       : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
         ? avtale.startDato
         : null,
-    sluttDato: gjennomforing
+    sluttDato: gjennomforing?.sluttDato
       ? gjennomforing.sluttDato
       : defaultOppstartType(avtale) === GjennomforingOppstartstype.LOPENDE
         ? avtale.sluttDato
@@ -111,13 +111,13 @@ export function defaultGjennomforingData(
     amoKategorisering:
       gjennomforing?.amoKategorisering ??
       (avtale.amoKategorisering as AmoKategorisering | undefined) ??
-      undefined,
+      null,
     utdanningslop: gjennomforing?.utdanningslop
       ? toUtdanningslopDbo(gjennomforing.utdanningslop)
       : avtale.utdanningslop
         ? toUtdanningslopDbo(avtale.utdanningslop)
-        : undefined,
-    oppmoteSted: gjennomforing?.oppmoteSted,
+        : null,
+    oppmoteSted: gjennomforing?.oppmoteSted ?? null,
   };
 }
 

@@ -27,6 +27,7 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
       )}
       {tilsagn.beregning.entries.map((entry) => (
         <MetadataHGrid
+          key={entry.label}
           label={entry.label}
           value={entry.value ? getDataElement(entry.value) : null}
         />

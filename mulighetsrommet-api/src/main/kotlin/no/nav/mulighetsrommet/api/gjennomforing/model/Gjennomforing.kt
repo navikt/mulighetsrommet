@@ -110,7 +110,7 @@ data class Gjennomforing(
 
     @Serializable
     data class ArenaData(
-        val tiltaksnummer: String?,
+        val tiltaksnummer: Tiltaksnummer?,
         val ansvarligNavEnhet: ArenaNavEnhet?,
     )
 }

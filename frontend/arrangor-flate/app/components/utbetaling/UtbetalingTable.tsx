@@ -63,10 +63,11 @@ export function UtbetalingTable({ utbetalinger, belopColumn }: Props) {
       <Table.Header>
         <Table.Row>
           <Table.ColumnHeader scope="col">Navn</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
+          <Table.ColumnHeader scope="col">Løpenummer</Table.ColumnHeader>
           <Table.ColumnHeader scope="col" sortable sortKey={UtbetalingSortKey.PERIODE}>
             Periode
           </Table.ColumnHeader>
-          <Table.ColumnHeader scope="col">Tiltakstype</Table.ColumnHeader>
           <Table.ColumnHeader
             align="right"
             scope="col"
@@ -111,10 +112,11 @@ export function UtbetalingTable({ utbetalinger, belopColumn }: Props) {
             return (
               <Table.Row key={id}>
                 <Table.HeaderCell scope="row">{gjennomforing.navn}</Table.HeaderCell>
+                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
+                <Table.DataCell>{gjennomforing.lopenummer}</Table.DataCell>
                 <Table.DataCell className="whitespace-nowrap">
                   {formaterPeriode(periode)}
                 </Table.DataCell>
-                <Table.DataCell>{tiltakstype.navn}</Table.DataCell>
                 <Table.DataCell align="right" className="whitespace-nowrap">
                   {vistBelop ? formaterNOK(vistBelop) : "-"}
                 </Table.DataCell>

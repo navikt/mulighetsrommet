@@ -3140,7 +3140,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "98999960f21d9a63530667fac55f54a602603e6977a21958b5c4401fbe5efea8"
+        - "2219f22f8f14e3be4174f5217fc196b7f9e846315c21cebce0920ccb6aba60b8"
     TiltakstypeDto:
       type: object
       properties:
@@ -4697,6 +4697,8 @@ components:
           $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
         navn:
           type: string
+        lopenummer:
+          type: string
         tiltaksnummer:
           type:
           - "null"
@@ -4800,6 +4802,7 @@ components:
       - id
       - kontaktpersoner
       - kontorstruktur
+      - lopenummer
       - navn
       - opphav
       - oppmoteSted
@@ -5221,10 +5224,15 @@ components:
           type:
           - "null"
           - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
       required:
       - belop
       - belopBrukt
       - belopGjenstaende
+      - beskrivelse
       - bestillingsnummer
       - id
       - kommentar
@@ -5537,6 +5545,10 @@ components:
           type:
           - "null"
           - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
         periodeStart:
           type:
           - "null"
@@ -5549,6 +5561,7 @@ components:
           format: date
       required:
       - beregning
+      - beskrivelse
       - gjennomforingId
       - id
       - kommentar
