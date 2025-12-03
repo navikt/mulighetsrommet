@@ -533,7 +533,10 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 regioner = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI), NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100")))),
+                    roller = setOf(
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                        NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("0100"))),
+                    ),
                 ),
             )
             oppgaver shouldMatchAllOppgaver listOf(
@@ -580,16 +583,20 @@ class OppgaverServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(
                     AvtaleFixtures.AFT.copy(
-                        administratorer = listOf(),
-                        status = AvtaleStatusType.AKTIV,
+                        detaljerDbo = AvtaleFixtures.AFT.detaljerDbo.copy(
+                            administratorer = listOf(),
+                        ),
                     ),
                     AvtaleFixtures.gruppeAmo.copy(
-                        administratorer = listOf(),
-                        status = AvtaleStatusType.AVSLUTTET,
+                        detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
+                            administratorer = listOf(),
+                            status = AvtaleStatusType.AVSLUTTET,
+                        ),
                     ),
                     AvtaleFixtures.VTA.copy(
-                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                        status = AvtaleStatusType.AKTIV,
+                        detaljerDbo = AvtaleFixtures.VTA.detaljerDbo.copy(
+                            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                        ),
                     ),
                 ),
             ).initialize(database.db)

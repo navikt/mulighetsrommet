@@ -326,7 +326,7 @@ class GjennomforingValidatorTest : FunSpec({
     context("når gjennonmføring allerede eksisterer") {
         val gjennomforing = GjennomforingValidator.Ctx.Gjennomforing(
             arrangorId = ArrangorFixtures.underenhet1.id,
-            sluttDato = AvtaleFixtures.oppfolging.sluttDato,
+            sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
             status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.LOPENDE,
             avtaleId = avtale.id,
@@ -410,7 +410,7 @@ class GjennomforingValidatorTest : FunSpec({
     context("når gjennomføring har deltakere") {
         val gjennomforing = GjennomforingValidator.Ctx.Gjennomforing(
             arrangorId = ArrangorFixtures.underenhet1.id,
-            sluttDato = AvtaleFixtures.oppfolging.sluttDato,
+            sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
             status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.LOPENDE,
             avtaleId = avtale.id,

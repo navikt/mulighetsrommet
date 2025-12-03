@@ -670,13 +670,13 @@ class AvtaleValidatorTest : FunSpec({
                 avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(arrangor = null)),
                 ctx,
             ).shouldBeRight().should {
-                it.status shouldBe AvtaleStatusType.UTKAST
+                it.detaljerDbo.status shouldBe AvtaleStatusType.UTKAST
             }
         }
 
         test("status blir AKTIV når avtalen lagres med sluttdato i fremtiden") {
             AvtaleValidator.validateCreateAvtale(avtaleRequest, ctx).shouldBeRight().should {
-                it.status shouldBe AvtaleStatusType.AKTIV
+                it.detaljerDbo.status shouldBe AvtaleStatusType.AKTIV
             }
         }
 

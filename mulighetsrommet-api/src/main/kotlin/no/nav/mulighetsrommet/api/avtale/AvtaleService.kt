@@ -73,7 +73,12 @@ class AvtaleService(
         db.transaction {
             queries.avtale.upsert(dbo)
 
-            dispatchNotificationToNewAdministrators(dbo.id, dbo.navn, dbo.administratorer, navIdent)
+            dispatchNotificationToNewAdministrators(
+                dbo.id,
+                dbo.detaljerDbo.navn,
+                dbo.detaljerDbo.administratorer,
+                navIdent,
+            )
 
             val dto = getOrError(dbo.id)
 
@@ -105,7 +110,7 @@ class AvtaleService(
             queries.avtale.updateDetaljer(avtaleId, dbo)
             dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
             val dto = getOrError(avtaleId)
-            logEndring("Redigerte avtale", dto, navIdent)
+            logEndring("Detaljer oppdatert", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 
@@ -193,7 +198,7 @@ class AvtaleService(
             queries.avtale.updatePersonvern(previous.id, dbo)
 
             val dto = getOrError(previous.id)
-            logEndring("Redigerte avtale", dto, navIdent)
+            logEndring("Personvern oppdatert", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 
@@ -221,7 +226,7 @@ class AvtaleService(
             queries.avtale.updateVeilederinfo(previous.id, dbo)
 
             val dto = getOrError(previous.id)
-            logEndring("Redigerte avtale", dto, navIdent)
+            logEndring("Veilederinformasjon oppdatert", dto, navIdent)
 
             schedulePublishGjennomforingerForAvtale(dto)
 

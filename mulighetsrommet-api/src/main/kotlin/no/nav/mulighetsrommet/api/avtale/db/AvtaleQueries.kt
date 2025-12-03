@@ -92,13 +92,17 @@ class AvtaleQueries(private val session: Session) {
 
         execute(queryOf(query, avtale.toSqlParameters()))
 
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtale.id, avtale.amoKategorisering)
-        upsertArrangor(avtale.id, avtale.arrangor)
-        upsertNavEnheter(avtale.id, avtale.navEnheter)
-        upsertAdministratorer(avtale.id, avtale.administratorer)
-        upsertUtdanningslop(avtale.id, avtale.utdanningslop)
-        upsertPrismodell(avtale.id, avtale.prismodell, avtale.prisbetingelser, avtale.satser)
-        upsertPersonopplysninger(avtale.id, avtale.personopplysninger)
+        AmoKategoriseringQueries.upsert(
+            AmoKategoriseringQueries.Relation.AVTALE,
+            avtale.id,
+            avtale.detaljerDbo.amoKategorisering,
+        )
+        upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
+        upsertNavEnheter(avtale.id, avtale.veilederinformasjonDbo.navEnheter)
+        upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
+        upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
+        upsertPrismodell(avtale.id, avtale.prismodellDbo)
+        upsertPersonopplysninger(avtale.id, avtale.personvernDbo.personopplysninger)
     }
 
     fun updateDetaljer(
@@ -344,7 +348,7 @@ class AvtaleQueries(private val session: Session) {
     }
 
     fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
-        upsertPrismodell(id, prismodell = dbo.prismodell, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
+        upsertPrismodell(id, prismodell = dbo.prismodellType, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
     }
 
     private fun Session.upsertPrismodell(
@@ -623,22 +627,22 @@ class AvtaleQueries(private val session: Session) {
     private fun AvtaleDbo.toSqlParameters() = mapOf(
         "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
         "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "sakarkiv_nummer" to sakarkivNummer?.value,
-        "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "status" to status.name,
-        "avtaletype" to avtaletype.name,
-        "prisbetingelser" to prisbetingelser,
-        "beskrivelse" to beskrivelse,
-        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
-        "personvern_bekreftet" to personvernBekreftet,
-        "opsjonsmodell" to opsjonsmodell.type.name,
-        "opsjonMaksVarighet" to opsjonsmodell.opsjonMaksVarighet,
-        "opsjonCustomOpsjonsmodellNavn" to opsjonsmodell.customOpsjonsmodellNavn,
-        "prismodell" to prismodell.name,
+        "navn" to detaljerDbo.navn,
+        "tiltakstype_id" to detaljerDbo.tiltakstypeId,
+        "sakarkiv_nummer" to detaljerDbo.sakarkivNummer?.value,
+        "arrangor_hovedenhet_id" to detaljerDbo.arrangor?.hovedenhet,
+        "start_dato" to detaljerDbo.startDato,
+        "slutt_dato" to detaljerDbo.sluttDato,
+        "status" to detaljerDbo.status.name,
+        "avtaletype" to detaljerDbo.avtaletype.name,
+        "prisbetingelser" to prismodellDbo.prisbetingelser,
+        "beskrivelse" to veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
+        "faneinnhold" to veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold?.let { Json.encodeToString(it) },
+        "personvern_bekreftet" to personvernDbo.personvernBekreftet,
+        "opsjonsmodell" to detaljerDbo.opsjonsmodell.type.name,
+        "opsjonMaksVarighet" to detaljerDbo.opsjonsmodell.opsjonMaksVarighet,
+        "opsjonCustomOpsjonsmodellNavn" to detaljerDbo.opsjonsmodell.customOpsjonsmodellNavn,
+        "prismodell" to prismodellDbo.prismodellType.name,
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {

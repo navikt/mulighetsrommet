@@ -13,6 +13,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import no.nav.mulighetsrommet.api.*
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -122,8 +123,11 @@ class AvtaleRoutesTest : FunSpec({
                 avtaler = listOf(
                     AvtaleFixtures.AFT,
                     AvtaleFixtures.oppfolging.copy(
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                        prismodellDbo = PrismodellDbo(
+                            prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                            prisbetingelser = null,
+                            satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                        ),
                     ),
                 ),
             ).initialize(database.db)
@@ -145,9 +149,10 @@ class AvtaleRoutesTest : FunSpec({
                     ),
                 )
 
-                val response2 = client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
-                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                }
+                val response2 =
+                    client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    }
                 response2.status shouldBe HttpStatusCode.OK
                 response2.body<List<AvtaltSatsDto>>() shouldBe listOf(
                     AvtaltSatsDto(

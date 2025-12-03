@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.datavarehus.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.toTable
-import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -29,7 +28,6 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 import kotlin.reflect.full.memberProperties
 
@@ -68,7 +66,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 )
                 it.avtale.shouldNotBeNull().should { avtale ->
                     avtale.id shouldBe AvtaleFixtures.AFT.id
-                    avtale.navn shouldBe AvtaleFixtures.AFT.navn
+                    avtale.navn shouldBe AvtaleFixtures.AFT.detaljerDbo.navn
                     avtale.opprettetTidspunkt.shouldNotBeNull()
                     avtale.oppdatertTidspunkt.shouldNotBeNull()
                 }
