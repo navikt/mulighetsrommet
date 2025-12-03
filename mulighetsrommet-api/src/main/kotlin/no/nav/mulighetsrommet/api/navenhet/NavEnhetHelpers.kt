@@ -47,6 +47,8 @@ object NavEnhetHelpers {
  * vises riktig i filter i frontend.
  */
 val SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP = mapOf(
+    // Nasjonal oppfølgingsenhet
+    "4154" to "0300",
     // Nav egne ansatte Vestfold og Telemark
     "0883" to "0800",
     // Nav egne ansatte Vestland
