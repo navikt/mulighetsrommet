@@ -83,7 +83,7 @@ class NavEnhetQueries(private val session: Session) {
         session.execute(queryOf(delete, parameters))
     }
 
-    fun getKostnadssted(regioner: List<NavEnhetNummer>): List<NavEnhetDbo> {
+    fun getKostnadssted(regioner: List<NavEnhetNummer> = listOf()): List<NavEnhetDbo> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -98,7 +98,7 @@ class NavEnhetQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "regioner" to regioner.takeIf { it.isNotEmpty() }?.map { it.value }?.let { session.createTextArray(it) },
+            "regioner" to regioner.ifEmpty { null }?.map { it.value }?.let { session.createTextArray(it) },
         )
 
         return session.list(queryOf(query, params)) { it.toEnhetDbo() }
