@@ -60,6 +60,8 @@ export const tekster = {
         kvitteringTitle: "Kvittering for innsending",
         mottattAv: (tidspunkt: Date | string) => `Mottatt av Nav: ${formaterDato(tidspunkt)}`,
         orgnr: (orgnr: string) => `Organisasjonsnummer: ${orgnr}`,
+        utbetalesTidligstDato: (dato: Date | string) =>
+          `Utbetales tidligst dato: ${formaterDato(dato)}`,
         statusLenkeIntro: "Her kan du se",
         statusLenkeTekst: "Status på utbetalingen",
         pdfKvitteringLenke: "Innsendingskvittering (åpnes i ny fane)",

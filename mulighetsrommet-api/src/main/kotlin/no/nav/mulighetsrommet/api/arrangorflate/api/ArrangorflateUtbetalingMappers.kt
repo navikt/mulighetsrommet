@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 fun mapUtbetalingToArrangorflateUtbetaling(
@@ -38,6 +39,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         id = utbetaling.id,
         status = status,
         godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+        utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.atZone(ZoneId.systemDefault())?.toLocalDate(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
         tiltakstype = ArrangorflateTiltakstype(

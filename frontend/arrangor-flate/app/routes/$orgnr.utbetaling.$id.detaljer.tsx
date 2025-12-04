@@ -1,5 +1,5 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
@@ -106,6 +106,10 @@ export default function UtbetalingDetaljerSide() {
           {
             key: "Utbetalingsperiode",
             value: formaterPeriode(utbetaling.periode),
+          },
+          {
+            key: "Utbetales tidligst dato",
+            value: formaterDato(utbetaling.utbetalesTidligstDato) ?? "-",
           },
         ]}
       />

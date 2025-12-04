@@ -90,6 +90,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
   godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
+  utbetalesTidligstDato: "2025-04-01",
   createdAt: "2025-03-17T12:27:55.465944",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
@@ -133,6 +134,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
   kanViseBeregning: true,
+  utbetalesTidligstDato: "2025-12-01",
   createdAt: "2025-11-07T10:02:43.989186",
   tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
   gjennomforing: {
@@ -160,6 +162,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
   status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
   godkjentAvArrangorTidspunkt: null,
+  utbetalesTidligstDato: null,
   createdAt: "2025-06-17T13:58:12.405867",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
@@ -191,6 +194,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
   godkjentAvArrangorTidspunkt: "2025-06-05T09:36:11.510229",
+  utbetalesTidligstDato: null,
   createdAt: "2025-06-05T09:36:11.510957",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
@@ -222,6 +226,7 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
   godkjentAvArrangorTidspunkt: null,
+  utbetalesTidligstDato: "2025-05-01",
   createdAt: "2025-04-01T12:03:49.756508",
   tiltakstype: {
     navn: "Avklaring",
@@ -264,6 +269,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
+  utbetalesTidligstDato: null,
   createdAt: "2025-07-07T05:00:06.924181",
   tiltakstype: {
     navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
@@ -295,6 +301,7 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   godkjentAvArrangorTidspunkt: null,
+  utbetalesTidligstDato: "2025-12-01",
   kanViseBeregning: true,
   createdAt: "2025-10-31T14:41:03.835624",
   tiltakstype: {

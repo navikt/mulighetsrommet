@@ -839,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "2227848fd1624eb6ba6e639f6faf79b6331d91674bb5856ca18e9caca03a8ddf"
+        - "dab1bbb6889fdc44e7370954841e9e585f22259812d6a8ec3fc6bb489d0c7be0"
     ArrangorDto:
       type: object
       properties:
@@ -1829,6 +1829,11 @@ components:
           - "null"
           - string
           format: date-time
+        utbetalesTidligstDato:
+          type:
+          - "null"
+          - string
+          format: date
         kanViseBeregning:
           type: boolean
         createdAt:
@@ -1873,6 +1878,7 @@ components:
       - status
       - tiltakstype
       - type
+      - utbetalesTidligstDato
     GodkjennUtbetaling:
       type: object
       properties:

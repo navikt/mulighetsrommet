@@ -17,6 +17,7 @@ import { useEffect } from "react";
 
 type UtbetalingKvitteringData = {
   mottattTidspunkt: string;
+  utbetalesTidligstDato: string | null;
   kontonummer: string | null;
 };
 
@@ -50,11 +51,16 @@ export const loader: LoaderFunction = async ({
   const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt;
 
   if (!mottattTidspunkt) throw new Response("Ugyldig", { status: 400 });
-  return { mottattTidspunkt, kontonummer };
+  return {
+    mottattTidspunkt,
+    utbetalesTidligstDato: utbetaling.utbetalesTidligstDato,
+    kontonummer: utbetaling.betalingsinformasjon.kontonummer,
+  };
 };
 
 export default function UtbetalingKvittering() {
-  const { mottattTidspunkt, kontonummer } = useLoaderData<UtbetalingKvitteringData>();
+  const { mottattTidspunkt, utbetalesTidligstDato, kontonummer } =
+    useLoaderData<UtbetalingKvitteringData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
   const storage = useFileStorage();
@@ -84,6 +90,11 @@ export default function UtbetalingKvittering() {
             <BodyShort>
               {tekster.bokmal.utbetaling.kvittering.mottattAv(mottattTidspunkt)}
             </BodyShort>
+            {utbetalesTidligstDato && (
+              <BodyShort spacing>
+                {tekster.bokmal.utbetaling.kvittering.utbetalesTidligstDato(utbetalesTidligstDato)}
+              </BodyShort>
+            )}
             <BodyShort spacing>{tekster.bokmal.utbetaling.kvittering.orgnr(orgnr)}</BodyShort>
             {id && (
               <BodyLong>
