@@ -68,6 +68,10 @@ export const tekster = {
       },
       pdfNavn: (tidspunkt: Date | string) => `utbetaling-${formaterDato(tidspunkt)}.pdf`,
     },
+    arrangor: {
+      headingTitle: "Dine organisasjoner",
+      beskrivelse: "Her vises alle organisasjoner du har tilgang til via altinn",
+    },
     tilbakeTilOversikt: "Tilbake til oversikten",
   },
 };
