@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -386,6 +387,20 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.list(queryOf(query, organisasjonsnummer.value)) { it.toUtbetaling() }
+    }
+
+    fun getByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<Utbetaling> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling
+            where arrangor_organisasjonsnummer = any (?)
+            and status = any (?::utbetaling_status[])
+            order by arrangor_navn, tiltakskode desc
+        """.trimIndent()
+        val orgnrListe = session.createArrayOfValue(arrangorer) { it.value }
+        val statusListe = session.createTextArray(statuser)
+        return session.list(queryOf(query, orgnrListe, statusListe)) { it.toUtbetaling() }
     }
 
     fun getByGjennomforing(gjennomforingId: UUID): List<Utbetaling> = with(session) {

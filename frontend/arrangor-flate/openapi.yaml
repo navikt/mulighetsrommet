@@ -563,6 +563,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/utbetaling:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent utbetalinger for tilgjengelige
+      operationId: getArrangorflateUtbetalinger
+      parameters:
+      - name: type
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/UtbetalingOversiktType"
+      responses:
+        "200":
+          description: Utbetalinger i tabellformat
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateUtbetalingerOversikt"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/utbetaling/{id}:
     get:
       tags:
@@ -839,7 +869,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "f74aecd4b956ea13caaf8e805154c6faea7e76c524b333ba23ba7c1da2f385bf"
+        - "7355390b4419ec6007ef5707ac2ff3346dd64a5b06ea40c5640842ad2ca83559"
     ArrangorDto:
       type: object
       properties:
@@ -957,6 +987,7 @@ components:
       - content
     DataElement:
       anyOf:
+      - $ref: "#/components/schemas/DATA_ELEMENT_DUAL_TEXT"
       - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
       - $ref: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
       - $ref: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
@@ -966,12 +997,23 @@ components:
       discriminator:
         propertyName: type
         mapping:
+          DATA_ELEMENT_DUAL_TEXT: "#/components/schemas/DATA_ELEMENT_DUAL_TEXT"
           DATA_ELEMENT_LINK: "#/components/schemas/DATA_ELEMENT_LINK"
           DATA_ELEMENT_MATH_OPERATOR: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
           DATA_ELEMENT_MULTI_LINK_MODAL: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
           DATA_ELEMENT_PERIODE: "#/components/schemas/DATA_ELEMENT_PERIODE"
           DATA_ELEMENT_STATUS: "#/components/schemas/DATA_ELEMENT_STATUS"
           DATA_ELEMENT_TEXT: "#/components/schemas/DATA_ELEMENT_TEXT"
+    DATA_ELEMENT_DUAL_TEXT:
+      type: object
+      properties:
+        top:
+          type: string
+        bottom:
+          type: string
+      required:
+      - bottom
+      - top
     DATA_ELEMENT_LINK:
       type: object
       properties:
@@ -1705,6 +1747,20 @@ components:
       required:
       - aktive
       - historiske
+    UtbetalingOversiktType:
+      type: string
+      enum:
+      - AKTIVE
+      - HISTORISKE
+    ArrangorflateUtbetalingerOversikt:
+      type: object
+      properties:
+        tabell:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
+      required:
+      - tabell
     ArrangorflateBetalingsinformasjon:
       type: object
       properties:

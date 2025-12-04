@@ -7,6 +7,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.http.content.default
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.*
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -37,6 +39,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -48,6 +51,8 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.DataDrivenTableDto
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -95,6 +100,15 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
+
+    val manglerArrangorTilganger = Forbidden(
+        detail = """
+                        Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
+                        enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
+                        “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
+                        er delegert i Altinn kan du laste siden på nytt og få tilgang.
+                    """,
+    )
 
     suspend fun resolveArrangorer(organisasjonsnummer: List<Organisasjonsnummer>): List<ArrangorDto> {
         return arrangorService.getArrangorerOrSyncFromBrreg(organisasjonsnummer)
@@ -145,16 +159,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     }) {
         val tilganger = orgnrTilganger(altinnRettigheterService)
         if (tilganger.isEmpty()) {
-            call.respondWithProblemDetail(
-                Forbidden(
-                    detail = """
-                        Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
-                        enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
-                        “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
-                        er delegert i Altinn kan du laste siden på nytt og få tilgang.
-                    """,
-                ),
-            )
+            call.respondWithProblemDetail(manglerArrangorTilganger)
         } else {
             val arrangorer = resolveArrangorer(tilganger)
             call.respond(arrangorer)
@@ -364,6 +369,43 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
 
             call.respond(tilsagn)
+        }
+    }
+
+    get(
+        "/utbetaling",
+        {
+            description = "Hent utbetalinger for tilgjengelige"
+            tags = setOf("Arrangorflate")
+            operationId = "getArrangorflateUtbetalinger"
+            request {
+                queryParameter<UtbetalingOversiktType>("type")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetalinger i tabellformat"
+                    body<ArrangorflateUtbetalingerOversikt>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        },
+    ) {
+        val tilganger = orgnrTilganger(altinnRettigheterService)
+        if (tilganger.isEmpty()) {
+            call.respondWithProblemDetail(manglerArrangorTilganger)
+            return@get
+        }
+        val type = UtbetalingOversiktType.from(call.queryParameters["type"])
+        val utbetalinger =
+            arrangorFlateService.getUtbetalingerByArrangorerAndStatus(tilganger.toSet(), type.utbetalingStatuser())
+        if (utbetalinger.isEmpty()) {
+            call.respond(ArrangorflateUtbetalingerOversikt())
+        } else {
+            val tabell = utbetalingKompaktDataDrivenTable(type, utbetalinger)
+            call.respond(ArrangorflateUtbetalingerOversikt(tabell))
         }
     }
 
@@ -710,3 +752,146 @@ data class OpprettKravOmUtbetalingResponse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
 )
+
+@Serializable
+enum class UtbetalingOversiktType {
+    AKTIVE,
+    HISTORISKE,
+    ;
+
+    fun utbetalingStatuser(): Set<UtbetalingStatusType> = when (this) {
+        AKTIVE -> setOf(
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+        )
+
+        HISTORISKE -> setOf(
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+        )
+    }
+
+    companion object {
+        /**
+         * Defaulter til AKTIVE
+         */
+        fun from(type: String?): UtbetalingOversiktType = when (type) {
+            "AKTIVE" -> AKTIVE
+            "HISTORISKE" -> HISTORISKE
+            else -> AKTIVE
+        }
+    }
+}
+
+@Serializable
+data class ArrangorflateUtbetalingerOversikt(val tabell: DataDrivenTableDto? = null)
+
+fun utbetalingKompaktDataDrivenTable(
+    tabellType: UtbetalingOversiktType,
+    utbetalinger: List<ArrangorflateUtbetalingKompaktDto>,
+): DataDrivenTableDto {
+    return DataDrivenTableDto(
+        columns = listOf(
+            DataDrivenTableDto.Column("arrangor", "Arrangør"),
+            DataDrivenTableDto.Column("tiltak", "Tiltak"),
+            DataDrivenTableDto.Column("periode", "Periode"),
+            DataDrivenTableDto.Column(
+                "belop",
+                when (tabellType) {
+                    UtbetalingOversiktType.AKTIVE -> "Beløp"
+                    UtbetalingOversiktType.HISTORISKE -> "Godkjent beløp"
+                },
+                sortable = true,
+                align = DataDrivenTableDto.Column.Align.RIGHT,
+            ),
+            DataDrivenTableDto.Column("status", "Status"),
+            DataDrivenTableDto.Column(
+                "action",
+                "Handlinger",
+                sortable = false,
+            ),
+        ),
+        rows = utbetalinger.map { utbetaling ->
+            DataDrivenTableDto.Row(
+                cells = mapOf(
+                    "arrangor" to DataElement.DualText(
+                        top = utbetaling.arrangor.navn,
+                        bottom = utbetaling.arrangor.organisasjonsnummer.value,
+                    ),
+                    "tiltak" to DataElement.DualText(
+                        top = utbetaling.gjennomforing.navn,
+                        bottom = "${utbetaling.gjennomforing.lopenummer} - ${utbetaling.tiltakstype.navn}",
+                    ),
+                    "periode" to DataElement.periode(utbetaling.periode),
+                    "belop" to DataElement.nok(
+                        when (tabellType) {
+                            UtbetalingOversiktType.AKTIVE -> utbetaling.belop
+                            UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop!!
+                        },
+                    ),
+                    "status" to getUtbetalingStatus(utbetaling.status),
+                    "action" to getUtbetalingLinkByStatus(utbetaling),
+                ),
+            )
+        },
+    )
+}
+
+private fun getUtbetalingStatus(status: ArrangorflateUtbetalingStatus): DataElement = when (status) {
+    KLAR_FOR_GODKJENNING -> DataElement.Status(
+        "Klar for innsending",
+        variant = DataElement.Status.Variant.ALT_1,
+    )
+
+    KREVER_ENDRING -> DataElement.Status(
+        "Krever endring",
+        variant = DataElement.Status.Variant.WARNING,
+    )
+
+    BEHANDLES_AV_NAV -> DataElement.Status(
+        "Behandles av Nav",
+        variant = DataElement.Status.Variant.WARNING,
+    )
+
+    OVERFORT_TIL_UTBETALING -> DataElement.Status(
+        "Overført til utbetaling",
+        variant = DataElement.Status.Variant.SUCCESS,
+    )
+
+    DELVIS_UTBETALT -> DataElement.Status(
+        "Delvis utbetalt",
+        variant = DataElement.Status.Variant.SUCCESS,
+    )
+
+    UTBETALT -> DataElement.Status(
+        "Utbetalt",
+        variant = DataElement.Status.Variant.SUCCESS,
+    )
+}
+
+private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement = when (utbetaling.status) {
+    KLAR_FOR_GODKJENNING ->
+        DataElement.Link(
+            text = "Start innsending",
+            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/innsendingsinformasjon",
+        )
+
+    KREVER_ENDRING ->
+        DataElement.Link(
+            text = "Se innsending",
+            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/beregning",
+        )
+
+    BEHANDLES_AV_NAV,
+    OVERFORT_TIL_UTBETALING,
+    DELVIS_UTBETALT,
+    UTBETALT,
+    ->
+        DataElement.Link(
+            text = "Se detaljer",
+            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer",
+        )
+}

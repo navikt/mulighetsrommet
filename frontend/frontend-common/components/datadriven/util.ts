@@ -26,6 +26,8 @@ export function getComparableValue(element: DataElement) {
   switch (element.type) {
     case "DATA_ELEMENT_TEXT":
       return element.value;
+    case "DATA_ELEMENT_DUAL_TEXT":
+      return element.top;
     case "DATA_ELEMENT_STATUS":
       return element.value;
     case "DATA_ELEMENT_PERIODE":
@@ -36,6 +38,7 @@ export function getComparableValue(element: DataElement) {
       return element.operator;
     case "DATA_ELEMENT_MULTI_LINK_MODAL":
       return element.modalContent.links[0].digest;
+
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }

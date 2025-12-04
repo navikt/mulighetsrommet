@@ -3140,7 +3140,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "2219f22f8f14e3be4174f5217fc196b7f9e846315c21cebce0920ccb6aba60b8"
+        - "e75ea41fda0453ca5be1bac617b921604e9381264476d3505e00a575012656fa"
     TiltakstypeDto:
       type: object
       properties:
@@ -5022,6 +5022,7 @@ components:
       - content
     DataElement:
       anyOf:
+      - $ref: "#/components/schemas/DATA_ELEMENT_DUAL_TEXT"
       - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
       - $ref: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
       - $ref: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
@@ -5031,12 +5032,23 @@ components:
       discriminator:
         propertyName: type
         mapping:
+          DATA_ELEMENT_DUAL_TEXT: "#/components/schemas/DATA_ELEMENT_DUAL_TEXT"
           DATA_ELEMENT_LINK: "#/components/schemas/DATA_ELEMENT_LINK"
           DATA_ELEMENT_MATH_OPERATOR: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
           DATA_ELEMENT_MULTI_LINK_MODAL: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
           DATA_ELEMENT_PERIODE: "#/components/schemas/DATA_ELEMENT_PERIODE"
           DATA_ELEMENT_STATUS: "#/components/schemas/DATA_ELEMENT_STATUS"
           DATA_ELEMENT_TEXT: "#/components/schemas/DATA_ELEMENT_TEXT"
+    DATA_ELEMENT_DUAL_TEXT:
+      type: object
+      properties:
+        top:
+          type: string
+        bottom:
+          type: string
+      required:
+      - bottom
+      - top
     DATA_ELEMENT_LINK:
       type: object
       properties:

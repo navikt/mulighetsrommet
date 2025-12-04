@@ -1,3 +1,4 @@
+import { BodyShort, Detail, VStack } from "@navikt/ds-react";
 import { formaterDato } from "../../utils/date";
 import { Lenke } from "../lenke/Lenke";
 import { DataElementMathOperator } from "./DataElementMathOperator";
@@ -10,6 +11,13 @@ export function getDataElement(element: DataElement) {
   switch (element.type) {
     case "DATA_ELEMENT_TEXT":
       return element.value ? formatText(element.value, element.format) : null;
+    case "DATA_ELEMENT_DUAL_TEXT":
+      return (
+        <VStack gap="1">
+          <BodyShort>{element.top}</BodyShort>
+          <Detail textColor="subtle">{element.bottom}</Detail>
+        </VStack>
+      );
     case "DATA_ELEMENT_STATUS":
       return <DataElementStatusTag {...element} />;
     case "DATA_ELEMENT_PERIODE":

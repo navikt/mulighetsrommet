@@ -1,11 +1,6 @@
 import { OpprettKravVeiviserSteg } from "@api-client";
 import { Params, useParams } from "react-router";
-import { Tabs } from "~/routes/$orgnr_.oversikt";
 import { Environment } from "~/services/environment";
-
-export function getCurrentTab(request: Request): Tabs {
-  return new URL(request.url).searchParams.get("forside-tab") as Tabs;
-}
 
 export function requireOrgnr(orgnr?: string): string {
   if (orgnr) {
@@ -41,7 +36,7 @@ export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
 
 export const pathByOrgnr = (orgnr: string) => {
   return {
-    utbetalinger: `/${orgnr}/oversikt`,
+    utbetalinger: "/",
     opprettKrav: {
       oversikt: `/${orgnr}/opprett-krav/`,
       innsendingsinformasjon: (gjennomforingId: string) =>

@@ -52,7 +52,10 @@ export type DataElement =
     } & DataElementStatus)
   | ({
       type?: "DATA_ELEMENT_TEXT";
-    } & DataElementText);
+    } & DataElementText)
+  | ({
+      type?: "DATA_ELEMENT_DUAL_TEXT";
+    } & DataElementDualText);
 
 export type DataElementLink = {
   text: string;
@@ -119,6 +122,11 @@ export enum DataElementTextFormat {
   NOK = "nok",
   NUMBER = "number",
 }
+
+export type DataElementDualText = {
+  top: string;
+  bottom: string;
+};
 
 export type TimelineDto = {
   startDate: string;
