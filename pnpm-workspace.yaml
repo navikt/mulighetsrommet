@@ -3,6 +3,10 @@
 # Et sikkerhetstiltak i tilfelle en pakke blir komprimittert
 minimumReleaseAge: 5760 # 24 x 60 x 4
 
+minimumReleaseAgeExclude:
+  - react@19.0.1
+  - react-dom@19.0.1
+
 # Gjør at peer dependencies ikke blir installert automatisk og at vi i stedet må ta aktiv stilling
 # til hvilke peer dependencies vi ønsker å støtte
 autoInstallPeers: false
