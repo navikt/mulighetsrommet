@@ -106,7 +106,6 @@ class NavEnheterSyncService(
     }
 
     private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): NavEnhetNummer? {
-        val spesialEnheterTilFylkeMap = TILTAKSENHETER_TIL_FYKLE_MAP + SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP
-        return spesialEnheterTilFylkeMap[enhet.enhetNr.value]?.let { NavEnhetNummer(it) }
+        return SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP[enhet.enhetNr.value]?.let { NavEnhetNummer(it) }
     }
 }
