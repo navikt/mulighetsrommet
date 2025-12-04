@@ -363,11 +363,10 @@ class GjennomforingQueries(private val session: Session) {
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
-              and (:nav_enheter::text[] is null or (
+              and (:nav_enheter::text[] is null or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
-                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
-                   arena_nav_enhet_enhetsnummer = any (:nav_enheter)))
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
               and ((:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb) or (:koordinator_nav_ident::text is null or koordinator_json @> :koordinator_nav_ident::jsonb))
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (:statuser::text[] is null or status = any(:statuser))

@@ -632,39 +632,6 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
-        test("filtrer på nav_enhet") {
-            database.runAndRollback { session ->
-                val domain = MulighetsrommetTestDomain(
-                    navEnheter = listOf(Innlandet, Lillehammer, Gjovik),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(
-                            id = UUID.randomUUID(),
-                            navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
-                        ),
-                        Oppfolging1.copy(
-                            id = UUID.randomUUID(),
-                            navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
-                        ),
-                        Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = setOf()),
-                    ),
-                ).setup(session)
-
-                val queries = GjennomforingQueries(session)
-
-                queries.updateArenaData(
-                    id = domain.gjennomforinger[2].id,
-                    tiltaksnummer = "2024/1",
-                    arenaAnsvarligEnhet = Lillehammer.enhetsnummer.value,
-                )
-
-                queries.getAll(navEnheter = listOf(Lillehammer.enhetsnummer)).should {
-                    it.totalCount shouldBe 2
-                    it.items shouldContainExactlyIds listOf(domain.gjennomforinger[0].id, domain.gjennomforinger[2].id)
-                }
-            }
-        }
-
         test("administrator og koordinator filtrering") {
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
