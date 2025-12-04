@@ -106,19 +106,7 @@ class NavEnheterSyncService(
     }
 
     private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): NavEnhetNummer? {
-        if (!NavEnhetUtils.isRelevantEnhetStatus(enhet.status) ||
-            !listOf(Norg2Type.ALS, Norg2Type.TILTAK, Norg2Type.KO, Norg2Type.ARK).contains(enhet.type)
-        ) {
-            return null
-        }
-
         val spesialEnheterTilFylkeMap = TILTAKSENHETER_TIL_FYKLE_MAP + SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP
-        val fantFylke = spesialEnheterTilFylkeMap[enhet.enhetNr.value]
-        if (fantFylke == null && enhet.type !in listOf(Norg2Type.KO, Norg2Type.ARK)) {
-            slackNotifier.sendMessage("Fant ikke fylke for spesialenhet med enhetsnummer: ${enhet.enhetNr}. En utvikler må sjekke om enheten skal mappe til et fylke.")
-            return null
-        }
-
-        return fantFylke?.let { NavEnhetNummer(it) }
+        return spesialEnheterTilFylkeMap[enhet.enhetNr.value]?.let { NavEnhetNummer(it) }
     }
 }
