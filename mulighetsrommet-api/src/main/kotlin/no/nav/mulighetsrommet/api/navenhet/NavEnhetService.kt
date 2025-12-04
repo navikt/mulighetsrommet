@@ -49,7 +49,11 @@ class NavEnhetService(
 
     fun hentRegioner(): List<NavRegionDto> {
         val relevanteEnheter = EnhetFilter(
-            statuser = listOf(NavEnhetStatus.AKTIV),
+            statuser = listOf(
+                NavEnhetStatus.AKTIV,
+                NavEnhetStatus.UNDER_AVVIKLING,
+                NavEnhetStatus.UNDER_ETABLERING,
+            ),
             typer = listOf(NavEnhetType.KO, NavEnhetType.LOKAL, NavEnhetType.FYLKE, NavEnhetType.ARK),
         )
 
