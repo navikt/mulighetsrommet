@@ -1,11 +1,11 @@
-# Sørger for at installerte pakker må være 4 dager gamle før de kan installeres.
-# Målet er å ha samme cooldown som Dependabot - 7 dager, men det blir nok noen dager frem i tid.
+# Sørger for at installerte pakker må være 7 dager gamle før de kan installeres (likt som dependabot cooldown)
 # Et sikkerhetstiltak i tilfelle en pakke blir komprimittert
-minimumReleaseAge: 5760 # 24 x 60 x 4
+minimumReleaseAge: 10080 # 24 x 60 x 7
 
+# Unntak for manuelt oppdaterte pakker innenfor minimumReleaseAge
 minimumReleaseAgeExclude:
-  - react@19.0.1
-  - react-dom@19.0.1
+  - react@19.0.1 #CVE-2025-55182
+  - react-dom@19.0.1 #CVE-2025-55182
 
 # Gjør at peer dependencies ikke blir installert automatisk og at vi i stedet må ta aktiv stilling
 # til hvilke peer dependencies vi ønsker å støtte
