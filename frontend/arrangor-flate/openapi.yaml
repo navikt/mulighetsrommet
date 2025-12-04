@@ -839,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "f74aecd4b956ea13caaf8e805154c6faea7e76c524b333ba23ba7c1da2f385bf"
+        - "2227848fd1624eb6ba6e639f6faf79b6331d91674bb5856ca18e9caca03a8ddf"
     ArrangorDto:
       type: object
       properties:
@@ -1641,11 +1641,6 @@ components:
           $ref: "#/components/schemas/Periode"
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        godkjentAvArrangorTidspunkt:
-          type:
-          - "null"
-          - string
-          format: date-time
         belop:
           type: integer
           format: int32
@@ -1658,7 +1653,6 @@ components:
       - arrangor
       - belop
       - gjennomforing
-      - godkjentAvArrangorTidspunkt
       - godkjentBelop
       - id
       - periode

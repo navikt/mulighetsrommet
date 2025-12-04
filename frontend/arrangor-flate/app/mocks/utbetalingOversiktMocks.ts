@@ -9,7 +9,6 @@ import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-  godkjentAvArrangorTidspunkt: null,
   tiltakstype: {
     navn: "Arbeidsrettet rehabilitering",
     tiltakskode: Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -29,7 +28,6 @@ const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingKompaktDto = {
 const avklaringManedKlarTilInnsending: ArrangorflateUtbetalingKompaktDto = {
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-  godkjentAvArrangorTidspunkt: null,
   tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
   gjennomforing: {
     id: "70cdc182-8913-48c0-bad9-fa4e74f3288e",
@@ -47,7 +45,6 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
   {
     id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
     status: ArrangorflateUtbetalingStatus.UTBETALT,
-    godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
     godkjentBelop: 1000,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
@@ -69,7 +66,6 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
   {
     id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
     status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
-    godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -91,7 +87,6 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
   {
     id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
     status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-    godkjentAvArrangorTidspunkt: "2025-06-05T09:36:11.510229",
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -114,7 +109,6 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
     id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
     status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     godkjentBelop: 1200,
-    godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -135,7 +129,6 @@ export const mockArrangorflateUtbetalingKompakt: ArrangorflateUtbetalingKompaktD
   {
     id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
     status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-    godkjentAvArrangorTidspunkt: null,
     tiltakstype: {
       navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
