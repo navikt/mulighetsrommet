@@ -1,15 +1,5 @@
 import { UserNotification } from "@tiltaksadministrasjon/api-client";
-import {
-  Alert,
-  BodyLong,
-  BodyShort,
-  Box,
-  Heading,
-  HStack,
-  Link,
-  Tag,
-  VStack,
-} from "@navikt/ds-react";
+import { Alert, BodyLong, BodyShort, Box, Heading, HStack, Link, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { ReadNotificationButton } from "./ReadNotificationButton";
 import { PaperplaneIcon } from "@navikt/aksel-icons";
@@ -49,12 +39,6 @@ export function NotifikasjonerListItem({ notifikasjon, lest }: NotifikasjonerLis
                 {title}
               </Heading>
               <BodyLong size="small">{description}</BodyLong>
-
-              <HStack justify="start">
-                <Tag size="xsmall" variant="warning">
-                  Notifikasjon
-                </Tag>
-              </HStack>
               {metadata?.link && metadata.linkText ? (
                 <BodyShort size="small">
                   <Link href={metadata.link}>{metadata.linkText}</Link>
