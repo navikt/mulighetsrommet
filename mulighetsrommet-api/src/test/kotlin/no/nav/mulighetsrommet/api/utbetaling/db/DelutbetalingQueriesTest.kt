@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.FakturaStatusType
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -85,17 +86,17 @@ class DelutbetalingQueriesTest : FunSpec({
 
             queries.upsert(delutbetaling)
 
-            queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id).shouldHaveSize(1).first().should {
-                it.id shouldBe delutbetaling.id
-            }
+            queries.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBeNull()
 
             queries.setSendtTilOkonomi(
                 UtbetalingFixtures.utbetaling1.id,
                 TilsagnFixtures.Tilsagn1.id,
-                LocalDateTime.now(),
+                Instant.parse("2025-12-01T00:00:00.00Z"),
             )
 
-            queries.getSkalSendesTilOkonomi(TilsagnFixtures.Tilsagn1.id) shouldHaveSize 0
+            queries.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(
+                LocalDateTime.of(2025, 12, 1, 1, 0, 0),
+            )
         }
     }
 

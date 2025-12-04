@@ -12,6 +12,7 @@ object UtbetalingMapper {
             status = dbo.status,
             periode = dbo.periode,
             godkjentAvArrangorTidspunkt = null,
+            utbetalesTidligstTidspunkt = dbo.utbetalesTidligstTidspunkt,
             createdAt = LocalDateTime.now(),
             betalingsinformasjon = Utbetaling.Betalingsinformasjon(dbo.kontonummer, null),
             beskrivelse = dbo.beskrivelse,

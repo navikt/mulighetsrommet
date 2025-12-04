@@ -976,6 +976,51 @@ class UtbetalingServiceTest : FunSpec({
                 String(header.value()) shouldBe "2025-01-31T23:00:00Z"
             }
         }
+
+        test("utbetaling blir konfigurert til å bli behandlet på et senere tidspunkt") {
+            val februarNorskTid = LocalDate.of(2025, 2, 1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
+            val tilsagn1 = Tilsagn1.copy(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                bestillingsnummer = "A-2025/1-1",
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn1),
+                utbetalinger = listOf(
+                    utbetaling1.copy(
+                        status = UtbetalingStatusType.INNSENDT,
+                        utbetalesTidligstTidspunkt = februarNorskTid,
+                    ),
+                ),
+                delutbetalinger = listOf(delutbetaling1),
+            ) {
+                setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
+                setDelutbetalingStatus(delutbetaling1, DelutbetalingStatus.TIL_ATTESTERING)
+                setRoller(
+                    NavAnsattFixture.MikkeMus,
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+                )
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.besluttDelutbetaling(
+                id = delutbetaling1.id,
+                request = BesluttTotrinnskontrollRequest(Besluttelse.GODKJENT, emptyList(), null),
+                navIdent = NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeRight().status shouldBe DelutbetalingStatus.OVERFORT_TIL_UTBETALING
+
+            database.run {
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+
+                val header = KafkaUtils.jsonToHeaders(record.headersJson).shouldHaveSize(1).first()
+
+                header.key() shouldBe KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
+                String(header.value()) shouldBe "2025-01-31T23:00:00Z"
+            }
+        }
     }
 
     context("Automatisk utbetaling når arrangør godkjenner") {
@@ -1409,7 +1454,7 @@ class UtbetalingServiceTest : FunSpec({
                     queries.endringshistorikk.getEndringshistorikk(DocumentClass.UTBETALING, utbetaling1.id)
                 utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
                 endringshistorikk.entries.shouldBeEmpty()
-                val diff = Duration.between(delutbetaling.fakturaStatusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
+                val diff = Duration.between(delutbetaling.faktura.statusSistOppdatert!!, lagretFakturaStatusSistOppdatert)
                 diff shouldBeLessThanOrEqualTo Duration.ofMillis(1)
             }
         }

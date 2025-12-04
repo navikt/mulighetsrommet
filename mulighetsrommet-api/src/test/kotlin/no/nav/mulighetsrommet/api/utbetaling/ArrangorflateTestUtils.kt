@@ -88,6 +88,7 @@ object ArrangorflateTestUtils {
         return UtbetalingDbo(
             id = UUID.randomUUID(),
             gjennomforingId = GjennomforingFixtures.AFT1.id,
+            status = UtbetalingStatusType.GENERERT,
             beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
                 input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
                     satser = setOf(SatsPeriode(periode, 20205)),
@@ -118,13 +119,14 @@ object ArrangorflateTestUtils {
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
-            status = UtbetalingStatusType.GENERERT,
+            utbetalesTidligstTidspunkt = null,
         )
     }
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
+        status = UtbetalingStatusType.GENERERT,
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(5000),
             output = UtbetalingBeregningFri.Output(5000),
@@ -136,7 +138,7 @@ object ArrangorflateTestUtils {
         beskrivelse = "Test utbetaling",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
+        utbetalesTidligstTidspunkt = null,
     )
 
     fun createTestDomain(

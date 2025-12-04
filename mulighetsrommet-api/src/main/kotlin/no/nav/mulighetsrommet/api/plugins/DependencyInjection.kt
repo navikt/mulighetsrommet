@@ -396,7 +396,10 @@ private fun services(appConfig: AppConfig) = module {
     single { ArrangorService(get(), get()) }
     single {
         GenererUtbetalingService(
-            config = GenererUtbetalingService.Config(appConfig.okonomi.gyldigTilsagnPeriode),
+            config = GenererUtbetalingService.Config(
+                gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
+                tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
+            ),
             get(),
             get(),
         )

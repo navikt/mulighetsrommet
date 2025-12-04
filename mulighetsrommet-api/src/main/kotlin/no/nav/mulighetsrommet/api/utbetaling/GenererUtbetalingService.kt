@@ -36,6 +36,7 @@ class GenererUtbetalingService(
 
     class Config(
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+        val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
 
     private data class UtbetalingContext(
@@ -242,9 +243,14 @@ class GenererUtbetalingService(
     ): UtbetalingDbo {
         val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforing.id)
         val kontonummer = getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
+        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
+            gjennomforing.tiltakstype.tiltakskode,
+            periode,
+        )
         return UtbetalingDbo(
             id = utbetalingId,
             gjennomforingId = gjennomforing.id,
+            status = UtbetalingStatusType.GENERERT,
             beregning = beregning,
             kontonummer = kontonummer,
             kid = forrigeKrav?.betalingsinformasjon?.kid,
@@ -253,7 +259,7 @@ class GenererUtbetalingService(
             beskrivelse = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             godkjentAvArrangorTidspunkt = null,
-            status = UtbetalingStatusType.GENERERT,
+            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         )
     }
 
@@ -290,19 +296,24 @@ class GenererUtbetalingService(
         periode: Periode,
         includeNotExists: Boolean,
     ): List<UtbetalingContext> {
-        val prismodellPerioder = listOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK to periode,
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK to periode,
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK to periode,
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK to heleUkerPeriode(periode),
+        val systemgenerertePrismodeller = listOf(
+            Triple(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK, Tilskuddstype.TILTAK_DRIFTSTILSKUDD, periode),
+            Triple(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK, Tilskuddstype.TILTAK_DRIFTSTILSKUDD, periode),
+            Triple(PrismodellType.AVTALT_PRIS_PER_UKESVERK, Tilskuddstype.TILTAK_DRIFTSTILSKUDD, periode),
+            Triple(
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                heleUkerPeriode(periode),
+            ),
         )
-        return prismodellPerioder.flatMap { (prismodell, justertPeriode) ->
-            getContextForPrismodellCommon(prismodell, justertPeriode, includeNotExists)
+        return systemgenerertePrismodeller.flatMap { (prismodell, tilskuddstype, justertPeriode) ->
+            getContextForPrismodellCommon(prismodell, tilskuddstype, justertPeriode, includeNotExists)
         }
     }
 
     private fun QueryContext.getContextForPrismodellCommon(
         prismodell: PrismodellType,
+        tilskuddstype: Tilskuddstype,
         periode: Periode,
         includeNotExists: Boolean,
     ): List<UtbetalingContext> {
@@ -312,7 +323,7 @@ class GenererUtbetalingService(
                 from utbetaling
                 where utbetaling.gjennomforing_id = gjennomforing.id
                   and utbetaling.periode && :periode::daterange
-                  and utbetaling.tilskuddstype = 'TILTAK_DRIFTSTILSKUDD'
+                  and utbetaling.tilskuddstype = :tilskuddstype::tilskuddstype
             )
         """.takeIf { includeNotExists }.orEmpty()
 
@@ -330,6 +341,7 @@ class GenererUtbetalingService(
         val params = mapOf(
             "prismodell" to prismodell.name,
             "periode" to periode.toDaterange(),
+            "tilskuddstype" to tilskuddstype.name,
         )
 
         return session.list(queryOf(query, params)) {

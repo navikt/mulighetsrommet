@@ -21,8 +21,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 class UtbetalingQueriesTest : FunSpec({
@@ -44,9 +46,11 @@ class UtbetalingQueriesTest : FunSpec({
         output = UtbetalingBeregningFri.Output(belop = 137_077),
     )
 
+    val utbetalesTidligstTidspunkt = LocalDate.of(2025, 12, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
+        status = UtbetalingStatusType.GENERERT,
         beregning = friBeregning,
         kontonummer = Kontonummer("11111111111"),
         kid = Kid.parseOrThrow("006402710013"),
@@ -55,7 +59,7 @@ class UtbetalingQueriesTest : FunSpec({
         beskrivelse = "En beskrivelse",
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
+        utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
     )
 
     test("upsert and get utbetaling med fri beregning") {
@@ -88,6 +92,7 @@ class UtbetalingQueriesTest : FunSpec({
                 it.journalpostId shouldBe null
                 it.periode shouldBe periode
                 it.godkjentAvArrangorTidspunkt shouldBe null
+                it.utbetalesTidligstTidspunkt shouldBe utbetalesTidligstTidspunkt
                 it.innsender shouldBe NavIdent("Z123456")
                 it.beskrivelse shouldBe "En beskrivelse"
             }
