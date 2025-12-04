@@ -215,10 +215,7 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
             Fakturering skal skje i henhold til prisbilag i avtalen og eventuelle presiseringer.
             Dere må sikre at opplysningene dere oppgir er korrekte.
           </BodyShort>
-          <BodyShort spacing>
-            Det skal kun faktureres for faktisk medgått tid, eventuelt rundet av til nærmeste hele
-            kvarter.
-          </BodyShort>
+          <BodyShort spacing>Det skal kun faktureres for faktisk medgått tid.</BodyShort>
           <BodyShort spacing>
             Nav vil kunne gjennomføre kontroller og kreve innsyn for å verifisere at tjenesten og
             tilhørerende fakturering er i henhold til avtalen.
