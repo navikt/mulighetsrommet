@@ -54,7 +54,6 @@ import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
 
 type LoaderData = {
-  orgnr: string;
   gjennomforingId: string;
   innsendingsinformasjon: OpprettKravInnsendingsInformasjon;
   sessionTilsagnId?: string;
@@ -100,7 +99,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
 
   return {
-    orgnr,
     gjennomforingId,
     innsendingsinformasjon,
     sessionTilsagnId,
@@ -182,7 +180,7 @@ interface ActionData {
 }
 
 export default function OpprettKravInnsendingsinformasjon() {
-  const { orgnr, innsendingsinformasjon, sessionPeriodeStart, sessionPeriodeSlutt } =
+  const { innsendingsinformasjon, sessionPeriodeStart, sessionPeriodeSlutt } =
     useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);

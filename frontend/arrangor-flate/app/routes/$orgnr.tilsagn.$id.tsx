@@ -5,7 +5,7 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { tekster } from "~/tekster";
 import { VStack } from "@navikt/ds-react";
 import css from "../root.module.css";
-import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
 

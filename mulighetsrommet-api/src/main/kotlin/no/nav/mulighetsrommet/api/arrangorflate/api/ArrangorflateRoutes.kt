@@ -167,6 +167,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
     }
 
+    arrangorflateRoutesOpprettKrav(config.okonomi)
     route("/arrangor/{orgnr}") {
         get("/kontonummer", {
             description = "Hent kontonummer fra kontonummer-organisasjon for gitt organisasjonsnummer"
@@ -205,8 +206,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
 
         route("/gjennomforing") {
-            arrangorflateRoutesOpprettKrav(config.okonomi)
-
             get({
                 description = "Hent gjennomføringene til arrangør"
                 tags = setOf("Arrangorflate")

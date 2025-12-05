@@ -95,12 +95,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
     }
 
-    get("/opprett-krav", {
+    get("/arrangør/tiltaks-oversikt", {
         description = "Hent gjennomføringene til arrangør - tabell format"
         tags = setOf("Arrangorflate")
-        operationId = "getArrangørersTiltakTabell"
+        operationId = "getArrangorersTiltakTabell"
         request {
-            pathParameter<GjennomforingOversiktType>("type")
+            queryParameter<GjennomforingOversiktType>("type")
         }
         response {
             code(HttpStatusCode.OK) {
@@ -147,7 +147,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }
     }
 
-    route("/{gjennomforingId}/opprett-krav") {
+    route("/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav") {
         get({
             description = "Hent veiviser informasjon"
             tags = setOf("Arrangorflate")
@@ -478,7 +478,7 @@ private fun toGjennomforingDataTable(
     return DataDrivenTableDto(
         columns = listOf(
             DataDrivenTableDto.Column("tiltak", "Tiltak"),
-            DataDrivenTableDto.Column("arrangor", "Arrangor"),
+            DataDrivenTableDto.Column("arrangor", "Arrangør"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
             DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),

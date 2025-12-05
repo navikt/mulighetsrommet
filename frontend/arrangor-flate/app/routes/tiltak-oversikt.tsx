@@ -29,12 +29,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const gjennomforingType =
     tabState === "aktive" ? GjennomforingOversiktType.AKTIVE : GjennomforingOversiktType.HISTORISKE;
   const { data: gjennomforingerTabell, error: gjennomforingerError } =
-    await ArrangorflateService.getArrangørersTiltakTabell({
-      path: { type: gjennomforingType },
+    await ArrangorflateService.getArrangorersTiltakTabell({
+      query: { type: gjennomforingType },
       headers: await apiHeaders(request),
     });
-  // eslint-disable-next-line no-console
-  console.log(gjennomforingerTabell, gjennomforingerError);
+
   if (gjennomforingerError) {
     throw problemDetailResponse(gjennomforingerError);
   }
@@ -86,7 +85,10 @@ interface TabellVisningProps {
 }
 
 function TabellVisning({ data }: TabellVisningProps) {
-  if (!data?.table) {
+  if (!data) {
+    return null;
+  }
+  if (!data.table) {
     return (
       <HStack align="center" justify="center" padding="32">
         <Alert variant="info">
