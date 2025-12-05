@@ -117,7 +117,7 @@ export function UtbetalingPage() {
                     )}
                     <MetadataHGrid
                       label={utbetalingTekster.metadata.innsendtDato}
-                      value={formaterDato(utbetaling.godkjentAvArrangorTidspunkt)}
+                      value={formaterDato(utbetaling.innsendtAvArrangorDato)}
                     />
                     <MetadataHGrid
                       label={utbetalingTekster.metadata.innsendtAv}

@@ -3,9 +3,11 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -16,10 +18,8 @@ data class UtbetalingDto(
     val status: UtbetalingStatusDto,
     val periode: Periode,
     val belop: Int,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime,
+    @Serializable(with = LocalDateSerializer::class)
+    val innsendtAvArrangorDato: LocalDate?,
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
@@ -34,9 +34,8 @@ data class UtbetalingDto(
                 id = utbetaling.id,
                 status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status),
                 periode = utbetaling.periode,
-                godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+                innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
                 betalingsinformasjon = utbetaling.betalingsinformasjon,
-                createdAt = utbetaling.createdAt,
                 beskrivelse = utbetaling.beskrivelse,
                 begrunnelseMindreBetalt = utbetaling.begrunnelseMindreBetalt,
                 belop = utbetaling.beregning.output.belop,
