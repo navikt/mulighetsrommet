@@ -51,6 +51,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       },
     },
     innsendtAvArrangorDato: null,
+    utbetalesTidligstDato: "2024-08-07",
     belop: 15000,
     betalingsinformasjon: {
       kontonummer: "1234.56.78900",
@@ -78,6 +79,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       },
     },
     innsendtAvArrangorDato: "2024-07-02",
+    utbetalesTidligstDato: "2024-08-07",
     belop: 18000,
     betalingsinformasjon: {
       kontonummer: "9876.54.32100",
@@ -101,6 +103,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
     innsendtAvArrangorDato: null,
+    utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
@@ -128,6 +131,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       },
     },
     innsendtAvArrangorDato: null,
+    utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",

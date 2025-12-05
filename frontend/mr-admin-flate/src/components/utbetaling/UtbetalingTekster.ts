@@ -8,6 +8,7 @@ export const utbetalingTekster = {
     header: "Til utbetaling",
     status: "Status",
     periode: "Utbetalingsperiode",
+    utbetalesTidligstDato: "Utbetales tidligst dato",
     type: "Type",
     innsendtDato: "Dato innsendt",
     innsendtAv: "Innsendt av",

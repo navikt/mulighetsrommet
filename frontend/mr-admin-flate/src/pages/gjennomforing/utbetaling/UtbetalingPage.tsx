@@ -109,6 +109,10 @@ export function UtbetalingPage() {
                       label={utbetalingTekster.metadata.periode}
                       value={formaterPeriode(utbetaling.periode)}
                     />
+                    <MetadataHGrid
+                      label={utbetalingTekster.metadata.utbetalesTidligstDato}
+                      value={formaterPeriode(utbetaling.periode)}
+                    />
                     {utbetaling.type.tagName && (
                       <MetadataHGrid
                         label={utbetalingTekster.metadata.type}
