@@ -6,9 +6,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -21,8 +19,6 @@ data class ArrangorflateUtbetalingKompaktDto(
     val type: UtbetalingTypeDto,
     val periode: Periode,
     val status: ArrangorflateUtbetalingStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val belop: Int,
     val godkjentBelop: Int?,
 ) {
@@ -30,7 +26,6 @@ data class ArrangorflateUtbetalingKompaktDto(
         fun fromUtbetaling(utbetaling: Utbetaling, status: ArrangorflateUtbetalingStatus, godkjentBelop: Int?) = ArrangorflateUtbetalingKompaktDto(
             id = utbetaling.id,
             status = status,
-            godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
             tiltakstype = ArrangorflateTiltakstype(
                 navn = utbetaling.tiltakstype.navn,
                 tiltakskode = utbetaling.tiltakstype.tiltakskode,

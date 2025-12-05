@@ -839,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "f74aecd4b956ea13caaf8e805154c6faea7e76c524b333ba23ba7c1da2f385bf"
+        - "3405871b52c77e2bb3f38c9ce2164c7ec9a5eec237c6412f84022b320502d407"
     ArrangorDto:
       type: object
       properties:
@@ -1641,11 +1641,6 @@ components:
           $ref: "#/components/schemas/Periode"
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        godkjentAvArrangorTidspunkt:
-          type:
-          - "null"
-          - string
-          format: date-time
         belop:
           type: integer
           format: int32
@@ -1658,7 +1653,6 @@ components:
       - arrangor
       - belop
       - gjennomforing
-      - godkjentAvArrangorTidspunkt
       - godkjentBelop
       - id
       - periode
@@ -1830,11 +1824,16 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        godkjentAvArrangorTidspunkt:
+        innsendtAvArrangorDato:
           type:
           - "null"
           - string
-          format: date-time
+          format: date
+        utbetalesTidligstDato:
+          type:
+          - "null"
+          - string
+          format: date
         kanViseBeregning:
           type: boolean
         createdAt:
@@ -1871,14 +1870,15 @@ components:
       - betalingsinformasjon
       - createdAt
       - gjennomforing
-      - godkjentAvArrangorTidspunkt
       - id
+      - innsendtAvArrangorDato
       - kanViseBeregning
       - linjer
       - periode
       - status
       - tiltakstype
       - type
+      - utbetalesTidligstDato
     GodkjennUtbetaling:
       type: object
       properties:

@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.*
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -37,7 +38,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,
-        godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+        innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
+        utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
         tiltakstype = ArrangorflateTiltakstype(
