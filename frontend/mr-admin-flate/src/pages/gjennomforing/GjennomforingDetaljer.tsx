@@ -64,10 +64,7 @@ export function GjennomforingDetaljer() {
     },
     {
       key: "Avtaleperiode",
-      value:
-        avtale &&
-        `${formaterDato(avtale.startDato)} -
-                        ${formaterDato(avtale.sluttDato) ?? ""}`,
+      value: avtale ? `${formaterDato(avtale.startDato)} - ${formaterDato(avtale.sluttDato)}` : "",
     },
   ];
 
