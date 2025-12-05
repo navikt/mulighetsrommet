@@ -21,6 +21,7 @@ import { ErrorPage } from "./components/common/ErrorPage";
 import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
 import { getFaro } from "./utils/telemetri";
+import { Header } from "./components/header/Header";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
@@ -69,6 +70,7 @@ function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; chil
       </head>
       <body>
         <DekoratorHeader dekorator={dekorator} />
+        <Header />
         <main id="maincontent" className={css.main}>
           {children}
         </main>

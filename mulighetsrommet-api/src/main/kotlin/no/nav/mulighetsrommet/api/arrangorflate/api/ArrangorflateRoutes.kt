@@ -7,7 +7,6 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.http.content.default
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -61,6 +60,17 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
 
+suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respondWithProblemDetail(
+    Forbidden(
+        detail = """
+                        Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
+                        enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
+                        “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
+                        er delegert i Altinn kan du laste siden på nytt og få tilgang.
+                    """,
+    ),
+)
+
 suspend inline fun RoutingContext.orgnrTilganger(
     altinnRettigheterService: AltinnRettigheterService,
 ): List<Organisasjonsnummer> {
@@ -100,15 +110,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
-
-    val manglerArrangorTilganger = Forbidden(
-        detail = """
-                        Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
-                        enkeltrettighet av din arbeidsgiver. Det er enkeltrettigheten
-                        “Be om utbetaling - Nav Arbeidsmarkedstiltak” du må få via Altinn. Når enkeltrettigheten
-                        er delegert i Altinn kan du laste siden på nytt og få tilgang.
-                    """,
-    )
 
     suspend fun resolveArrangorer(organisasjonsnummer: List<Organisasjonsnummer>): List<ArrangorDto> {
         return arrangorService.getArrangorerOrSyncFromBrreg(organisasjonsnummer)
@@ -159,7 +160,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     }) {
         val tilganger = orgnrTilganger(altinnRettigheterService)
         if (tilganger.isEmpty()) {
-            call.respondWithProblemDetail(manglerArrangorTilganger)
+            respondWithManglerTilgangHosArrangor()
         } else {
             val arrangorer = resolveArrangorer(tilganger)
             call.respond(arrangorer)
@@ -331,7 +332,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             }) {
                 val arrangorer = orgnrTilganger(altinnRettigheterService).toSet()
                 if (arrangorer.isEmpty()) {
-                    call.respondWithProblemDetail(manglerArrangorTilganger)
+                    respondWithManglerTilgangHosArrangor()
                     return@get
                 }
 
@@ -395,7 +396,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     ) {
         val tilganger = orgnrTilganger(altinnRettigheterService)
         if (tilganger.isEmpty()) {
-            call.respondWithProblemDetail(manglerArrangorTilganger)
+            respondWithManglerTilgangHosArrangor()
             return@get
         }
         val type = UtbetalingOversiktType.from(call.queryParameters["type"])
@@ -818,10 +819,10 @@ fun utbetalingKompaktDataDrivenTable(
         rows = utbetalinger.map { utbetaling ->
             DataDrivenTableDto.Row(
                 cells = mapOf(
+                    "tiltak" to DataElement.text("${utbetaling.tiltakstype.navn} (${utbetaling.gjennomforing.lopenummer.value})"),
                     "arrangor" to DataElement.text(
                         "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer.value})",
                     ),
-                    "tiltak" to DataElement.text("${utbetaling.tiltakstype.navn} (${utbetaling.gjennomforing.lopenummer.value})"),
                     "periode" to DataElement.periode(utbetaling.periode),
                     "belop" to DataElement.nok(
                         when (tabellType) {

@@ -10,7 +10,7 @@ import {
 import { apiHeaders } from "~/auth/auth.server";
 import { tekster } from "../tekster";
 import { problemDetailResponse } from "~/utils/validering";
-import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { useEffect } from "react";
@@ -69,7 +69,7 @@ export default function UtbetalingKvittering() {
         title={tekster.bokmal.utbetaling.kvittering.headingTitle}
         tilbakeLenke={{
           navn: tekster.bokmal.tilbakeTilOversikt,
-          url: pathByOrgnr(orgnr).utbetalinger,
+          url: pathTo.utbetalinger,
         }}
       />
       <Alert variant="success">{tekster.bokmal.utbetaling.kvittering.successMelding}</Alert>
@@ -88,7 +88,7 @@ export default function UtbetalingKvittering() {
             {id && (
               <BodyLong>
                 {tekster.bokmal.utbetaling.kvittering.statusLenkeIntro}{" "}
-                <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).detaljer(id)}>
+                <Link as={ReactRouterLink} to={pathTo.detaljer(orgnr, id)}>
                   {tekster.bokmal.utbetaling.kvittering.statusLenkeTekst.toLowerCase()}
                 </Link>
               </BodyLong>

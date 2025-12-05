@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -97,9 +98,9 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     get("/opprett-krav", {
         description = "Hent gjennomføringene til arrangør - tabell format"
         tags = setOf("Arrangorflate")
-        operationId = "getArrangorflateGjennomforingerTabeller"
+        operationId = "getArrangørersTiltakTabell"
         request {
-            pathParameter<Organisasjonsnummer>("orgnr")
+            pathParameter<GjennomforingOversiktType>("type")
         }
         response {
             code(HttpStatusCode.OK) {
@@ -112,9 +113,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }
     }) {
-        val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-        requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-
+        val arrangorer = orgnrTilganger(altinnRettigheterService)
+        if (arrangorer.isEmpty()) {
+            respondWithManglerTilgangHosArrangor()
+            return@get
+        }
+        val type = GjennomforingOversiktType.from(call.queryParameters["type"])
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
             val opprettKravPrismodeller = okonomiConfig.opprettKravPrismodeller
@@ -125,17 +129,22 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             } else {
                 queries.gjennomforing
                     .getAll(
-                        arrangorOrgnr = listOf(orgnr),
+                        arrangorOrgnr = arrangorer,
                         prismodeller = opprettKravPrismodeller,
                         tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
+                        statuser = type.toGjennomforingStatuses(),
                     )
                     .items
                     .filter { kanOppretteKrav(okonomiConfig, it) }
             }
         }
-        call.respond(
-            toGjennomforingerTableResponse(orgnr, gjennomforinger),
-        )
+        if (gjennomforinger.isEmpty()) {
+            call.respond(GjennomforingerTableResponse())
+        } else {
+            call.respond(
+                GjennomforingerTableResponse(table = toGjennomforingDataTable(gjennomforinger)),
+            )
+        }
     }
 
     route("/{gjennomforingId}/opprett-krav") {
@@ -435,32 +444,41 @@ fun kanOppretteKrav(
 }
 
 @Serializable
-data class GjennomforingerTableResponse(
-    val aktive: DataDrivenTableDto,
-    val historiske: DataDrivenTableDto,
-)
+enum class GjennomforingOversiktType {
+    AKTIVE,
+    HISTORISKE,
+    ;
 
-private fun toGjennomforingerTableResponse(
-    orgNr: Organisasjonsnummer,
-    gjennomforinger: List<Gjennomforing>,
-): GjennomforingerTableResponse {
-    val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
-    val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
+    fun toGjennomforingStatuses(): List<GjennomforingStatusType> = when (this) {
+        AKTIVE -> listOf(GjennomforingStatusType.GJENNOMFORES)
+        HISTORISKE -> GjennomforingStatusType.entries.filter { it != GjennomforingStatusType.GJENNOMFORES }
+    }
 
-    return GjennomforingerTableResponse(
-        aktive = toGjennomforingDataTable(orgNr, aktive),
-        historiske = toGjennomforingDataTable(orgNr, historiske),
-    )
+    companion object {
+        /**
+         * Defaulter til AKTIVE
+         */
+
+        fun from(type: String?): GjennomforingOversiktType = when (type) {
+            "AKTIVE" -> AKTIVE
+            "HISTORISKE" -> HISTORISKE
+            else -> AKTIVE
+        }
+    }
 }
 
+@Serializable
+data class GjennomforingerTableResponse(
+    val table: DataDrivenTableDto? = null,
+)
+
 private fun toGjennomforingDataTable(
-    orgNr: Organisasjonsnummer,
     gjennomforinger: List<Gjennomforing>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
-            DataDrivenTableDto.Column("navn", "Navn"),
-            DataDrivenTableDto.Column("tiltaksType", "Type"),
+            DataDrivenTableDto.Column("tiltak", "Tiltak"),
+            DataDrivenTableDto.Column("arrangor", "Arrangor"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
             DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
@@ -468,14 +486,16 @@ private fun toGjennomforingDataTable(
         rows = gjennomforinger.map { gjennomforing ->
             DataDrivenTableDto.Row(
                 cells = mapOf(
-                    "navn" to DataElement.text(gjennomforing.navn),
-                    "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
+                    "tiltak" to DataElement.text("${gjennomforing.tiltakstype.navn} (${gjennomforing.lopenummer})"),
+                    "arrangor" to DataElement.text(
+                        "${gjennomforing.arrangor.navn} (${gjennomforing.arrangor.organisasjonsnummer})",
+                    ),
                     "startDato" to DataElement.date(gjennomforing.startDato),
                     "sluttDato" to DataElement.date(gjennomforing.sluttDato),
                     "action" to
                         DataElement.Link(
                             text = "Start innsending",
-                            href = hrefOpprettKravInnsendingsInformasjon(orgNr, gjennomforing.id),
+                            href = hrefOpprettKravInnsendingsInformasjon(gjennomforing.arrangor.organisasjonsnummer, gjennomforing.id),
                         ),
                 ),
             )

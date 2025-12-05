@@ -22,8 +22,7 @@ export const handlers = [
     "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/opprett-krav",
     () =>
       HttpResponse.json<GjennomforingerTableResponse>({
-        aktive: oversiktAktiveGjennomforinger,
-        historiske: { columns: [], rows: [] },
+        table: oversiktAktiveGjennomforinger,
       }),
   ),
   http.get<PathParams, GjennomforingerTableResponse[]>(

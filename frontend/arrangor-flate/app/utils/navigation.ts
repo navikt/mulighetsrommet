@@ -34,41 +34,42 @@ export function getOrgnrGjennomforingIdFrom(params: Params<string>): {
   return { orgnr: requireOrgnr(orgnr), gjennomforingId: requireGjennomforingId(gjennomforingid) };
 }
 
-export const pathByOrgnr = (orgnr: string) => {
-  return {
-    utbetalinger: "/",
-    opprettKrav: {
-      oversikt: `/${orgnr}/opprett-krav/`,
-      innsendingsinformasjon: (gjennomforingId: string) =>
-        `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
-      deltakere: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
-      utbetaling: (gjennomforingId: string) =>
-        `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
-      vedlegg: (gjennomforingId: string) => `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
-      oppsummering: (gjennomforingId: string) =>
-        `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
-    },
-    innsendingsinformasjon: (id: string) => `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
-    beregning: (id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
-    oppsummering: (id: string) => `/${orgnr}/utbetaling/${id}/oppsummering`,
-    kvittering: (id: string) => `/${orgnr}/utbetaling/${id}/kvittering`,
-    detaljer: (id: string) => `/${orgnr}/utbetaling/${id}/detaljer`,
-    tilsagn: (id: string) => `/${orgnr}/tilsagn/${id}`,
-  };
+export const pathTo = {
+  utbetalinger: "/",
+  tiltaksOversikt: "/tiltak-oversikt",
+  opprettKrav: {
+    innsendingsinformasjon: (orgnr: string, gjennomforingId: string) =>
+      `/${orgnr}/opprett-krav/${gjennomforingId}/innsendingsinformasjon`,
+    deltakere: (orgnr: string, gjennomforingId: string) =>
+      `/${orgnr}/opprett-krav/${gjennomforingId}/deltakere`,
+    utbetaling: (orgnr: string, gjennomforingId: string) =>
+      `/${orgnr}/opprett-krav/${gjennomforingId}/utbetaling`,
+    vedlegg: (orgnr: string, gjennomforingId: string) =>
+      `/${orgnr}/opprett-krav/${gjennomforingId}/vedlegg`,
+    oppsummering: (orgnr: string, gjennomforingId: string) =>
+      `/${orgnr}/opprett-krav/${gjennomforingId}/oppsummering`,
+  },
+  innsendingsinformasjon: (orgnr: string, id: string) =>
+    `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
+  beregning: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
+  oppsummering: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/oppsummering`,
+  kvittering: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/kvittering`,
+  detaljer: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/detaljer`,
+  tilsagn: (orgnr: string, id: string) => `/${orgnr}/tilsagn/${id}`,
 };
 
 export function pathBySteg(steg: OpprettKravVeiviserSteg, orgnr: string, gjennomforingId: string) {
   switch (steg) {
     case OpprettKravVeiviserSteg.INFORMASJON:
-      return pathByOrgnr(orgnr).opprettKrav.innsendingsinformasjon(gjennomforingId);
+      return pathTo.opprettKrav.innsendingsinformasjon(orgnr, gjennomforingId);
     case OpprettKravVeiviserSteg.DELTAKERLISTE:
-      return pathByOrgnr(orgnr).opprettKrav.deltakere(gjennomforingId);
+      return pathTo.opprettKrav.deltakere(orgnr, gjennomforingId);
     case OpprettKravVeiviserSteg.UTBETALING:
-      return pathByOrgnr(orgnr).opprettKrav.utbetaling(gjennomforingId);
+      return pathTo.opprettKrav.utbetaling(orgnr, gjennomforingId);
     case OpprettKravVeiviserSteg.VEDLEGG:
-      return pathByOrgnr(orgnr).opprettKrav.vedlegg(gjennomforingId);
+      return pathTo.opprettKrav.vedlegg(orgnr, gjennomforingId);
     case OpprettKravVeiviserSteg.OPPSUMMERING:
-      return pathByOrgnr(orgnr).opprettKrav.oppsummering(gjennomforingId);
+      return pathTo.opprettKrav.oppsummering(orgnr, gjennomforingId);
   }
 }
 

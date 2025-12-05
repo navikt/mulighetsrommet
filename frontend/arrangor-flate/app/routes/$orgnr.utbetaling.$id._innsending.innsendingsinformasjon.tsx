@@ -9,7 +9,7 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
@@ -102,18 +102,13 @@ export default function TilsagnDetaljerPage() {
         ))}
         {harTilsagn && (
           <HStack gap="4" className="mt-4">
-            <Button
-              as={ReactRouterLink}
-              type="button"
-              variant="tertiary"
-              to={pathByOrgnr(orgnr).utbetalinger}
-            >
+            <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.utbetalinger}>
               Avbryt
             </Button>
             <Button
               as={ReactRouterLink}
               aria-label="Neste"
-              to={pathByOrgnr(orgnr).beregning(utbetaling.id)}
+              to={pathTo.beregning(orgnr, utbetaling.id)}
             >
               Neste
             </Button>

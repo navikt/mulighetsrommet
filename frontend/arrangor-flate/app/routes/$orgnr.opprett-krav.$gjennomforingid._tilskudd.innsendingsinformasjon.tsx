@@ -47,7 +47,7 @@ import {
   subDuration,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathTo, pathBySteg } from "~/utils/navigation";
 import { LabeledDataElementList } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
@@ -119,7 +119,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
 
   if (intent === "cancel") {
-    return redirect(pathByOrgnr(orgnr).opprettKrav.oversikt, {
+    return redirect(pathTo.tiltaksOversikt, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },
@@ -218,7 +218,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           <Heading level="3" size="large">
             Innsendingsinformasjon
           </Heading>
-          <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanel} />
+          <GuidePanelInformation type={innsendingsinformasjon.guidePanel} />
           <VStack gap="6" className="max-w-2xl">
             <LabeledDataElementList entries={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
@@ -478,18 +478,17 @@ function PeriodeVelger({
 }
 
 interface GuidePanelInformationProps {
-  orgnr: string;
   type: OpprettKravInnsendingsInformasjonGuidePanelType | null;
 }
 
-function GuidePanelInformation({ orgnr, type }: GuidePanelInformationProps) {
+function GuidePanelInformation({ type }: GuidePanelInformationProps) {
   switch (type) {
     case OpprettKravInnsendingsInformasjonGuidePanelType.INVESTERING_VTA_AFT:
       return (
         <GuidePanel>
           I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre krav
           om utbetaling skal sendes inn via utbetalingene i{" "}
-          <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
+          <Link as={ReactRouterLink} to={pathTo.utbetalinger}>
             Utbetalingsoversikten.
           </Link>
         </GuidePanel>

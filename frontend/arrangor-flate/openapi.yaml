@@ -67,15 +67,15 @@ paths:
       tags:
       - Arrangorflate
       description: Hent gjennomføringene til arrangør - tabell format
-      operationId: getArrangorflateGjennomforingerTabeller
+      operationId: getArrangørersTiltakTabell
       parameters:
-      - name: orgnr
+      - name: type
         in: path
         required: true
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/GjennomforingOversiktType"
       responses:
         "200":
           description: Arrangør sine gjennomføringer (DataDrivenTable)
@@ -862,7 +862,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "016f9c6a871d2c07fcb099158b03872c7bf844823b449734f49d528355bb371d"
+        - "6e0a77a9f0abd3aef53248c3361906297770bdb822cf5ad35501a8ed172db945"
     ArrangorDto:
       type: object
       properties:
@@ -926,6 +926,11 @@ components:
           type: string
       required:
       - kontonummer
+    GjennomforingOversiktType:
+      type: string
+      enum:
+      - AKTIVE
+      - HISTORISKE
     DataDrivenTableDto:
       type: object
       properties:
@@ -1172,13 +1177,12 @@ components:
     GjennomforingerTableResponse:
       type: object
       properties:
-        aktive:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        historiske:
-          $ref: "#/components/schemas/DataDrivenTableDto"
+        table:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
       required:
-      - aktive
-      - historiske
+      - table
     OpprettKravVeiviserStegDto:
       type: object
       properties:

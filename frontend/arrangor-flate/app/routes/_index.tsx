@@ -1,7 +1,7 @@
-import { Box, Tabs as AkselTabs } from "@navikt/ds-react";
+import { Box, Tabs as AkselTabs, Button } from "@navikt/ds-react";
 import { ArrangorflateService, UtbetalingOversiktType } from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import { useLoaderData } from "react-router";
+import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { PageHeading } from "~/components/common/PageHeading";
 import { getTabStateOrDefault, useTabState, Tabs } from "~/hooks/useTabState";
@@ -10,6 +10,7 @@ import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { DataDrivenTable } from "@mr/frontend-common";
 import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
+import { pathTo } from "~/utils/navigation";
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,7 +27,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       await ArrangorflateService.getAllArrangorflateTilsagn({
         headers: await apiHeaders(request),
       });
-    console.log(tilsagn, tilsagnError);
     if (tilsagnError) {
       throw problemDetailResponse(tilsagnError);
     }
@@ -66,7 +66,7 @@ export default function Oversikt() {
     <Box className={css.side}>
       <div className="flex justify-between sm:flex-row sm:p-1">
         <PageHeading title={tekster.bokmal.utbetaling.headingTitle} />
-        {/*<OpprettManueltUtbetalingskrav orgnr={orgnr} />*/}
+        <OpprettManueltUtbetalingskrav />
       </div>
       <AkselTabs defaultValue={currentTab} onChange={(tab) => setTab(tab as Tabs)}>
         <AkselTabs.List>
@@ -91,5 +91,13 @@ export default function Oversikt() {
         </AkselTabs.Panel>
       </AkselTabs>
     </Box>
+  );
+}
+
+function OpprettManueltUtbetalingskrav() {
+  return (
+    <Button variant="secondary" as={ReactRouterLink} to={pathTo.tiltaksOversikt}>
+      {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
+    </Button>
   );
 }

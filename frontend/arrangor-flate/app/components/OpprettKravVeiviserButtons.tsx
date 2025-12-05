@@ -1,7 +1,7 @@
 import { OpprettKravVeiviserNavigering, OpprettKravVeiviserSteg } from "@api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { Button, HStack } from "@navikt/ds-react";
-import { pathByOrgnr, pathBySteg } from "~/utils/navigation";
+import { pathTo, pathBySteg } from "~/utils/navigation";
 
 export const nesteStegFieldName = "nesteSteg";
 
@@ -21,12 +21,7 @@ export function OpprettKravVeiviserButtons({
   if (!navigering.tilbake && !navigering.neste) {
     return (
       <HStack gap="4">
-        <Button
-          as={ReactRouterLink}
-          type="button"
-          variant="tertiary"
-          to={pathByOrgnr(orgnr).opprettKrav.oversikt}
-        >
+        <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.tiltaksOversikt}>
           Avbryt
         </Button>
       </HStack>
