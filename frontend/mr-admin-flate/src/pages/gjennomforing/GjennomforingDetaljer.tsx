@@ -89,11 +89,11 @@ export function GjennomforingDetaljer() {
                 Hva betyr feltet 'Løpenummer'?
               </Heading>
               <BodyShort>
-                Hver tiltaksgjennomføring har et unikt løpenummer. Hvert tilsagn og hver utbetaling
-                kan spores tilbake gjennomføringen basert på løpenummeret. I tillegg vises det i
+                Hver tiltaksgjennomføring har et unikt løpenummer. Alle tilsagn og utbetalinger kan
+                spores tilbake til gjennomføringen basert på løpenummeret. I tillegg vises det i
                 utbetalingsløsningen for tiltaksarrangører.
               </BodyShort>
-              <BodyShort>Løpenummeret vil på sikt erstatte "Tiltaksnummer fra Arena".</BodyShort>
+              <BodyShort>Løpenummeret vil på sikt erstatte "tiltaksnummeret" fra Arena.</BodyShort>
             </VStack>
           </HelpText>
         </HStack>
