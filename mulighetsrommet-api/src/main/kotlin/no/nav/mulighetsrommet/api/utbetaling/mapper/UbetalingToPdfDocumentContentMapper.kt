@@ -140,7 +140,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
     section("Utbetaling") {
         descriptionList {
             entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
-            entry("Utbetales tidligst dato", utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(), Format.DATE)
+            entry("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(), Format.DATE)
         }
 
         val satsDetaljer = beregningSatsDetaljer(utbetaling.beregning)

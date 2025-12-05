@@ -61,7 +61,7 @@ export const tekster = {
         mottattAv: (dato: Date | string) => `Mottatt av Nav: ${formaterDato(dato)}`,
         orgnr: (orgnr: string) => `Organisasjonsnummer: ${orgnr}`,
         utbetalesTidligstDato: (dato: Date | string) =>
-          `Utbetales tidligst dato: ${formaterDato(dato)}`,
+          `Utbetales tidligst: ${formaterDato(dato)}`,
         statusLenkeIntro: "Her kan du se",
         statusLenkeTekst: "Status på utbetalingen",
         pdfKvitteringLenke: "Innsendingskvittering (åpnes i ny fane)",

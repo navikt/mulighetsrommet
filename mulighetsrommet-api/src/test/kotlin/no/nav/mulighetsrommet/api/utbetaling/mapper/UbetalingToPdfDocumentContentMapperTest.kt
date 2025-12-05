@@ -344,7 +344,7 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Utbetales tidligst dato",
+              "label": "Utbetales tidligst",
               "value": null,
               "format": "DATE"
             }
@@ -537,7 +537,7 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
                   "value": "01.01.2025 - 31.01.2025"
                 },
                 {
-                  "label": "Utbetales tidligst dato",
+                  "label": "Utbetales tidligst",
                   "value": null,
                   "format": "DATE"
                 }
@@ -726,7 +726,7 @@ private val expectedJournalpostFastSatsContent = """
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Utbetales tidligst dato",
+              "label": "Utbetales tidligst",
               "value": null,
               "format": "DATE"
             }
@@ -1038,7 +1038,7 @@ private val expectedJournalpostTimesPrisContent = """
                   "value": "01.01.2025 - 31.01.2025"
                 },
                 {
-                  "label": "Utbetales tidligst dato",
+                  "label": "Utbetales tidligst",
                   "value": null,
                   "format": "DATE"
                 }

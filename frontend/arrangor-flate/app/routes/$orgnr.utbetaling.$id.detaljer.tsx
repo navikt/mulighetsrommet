@@ -106,7 +106,7 @@ export default function UtbetalingDetaljerSide() {
             value: formaterPeriode(utbetaling.periode),
           },
           {
-            key: "Utbetales tidligst dato",
+            key: "Utbetales tidligst",
             value: formaterDato(utbetaling.utbetalesTidligstDato) ?? "-",
           },
         ]}
