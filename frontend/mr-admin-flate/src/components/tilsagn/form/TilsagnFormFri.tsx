@@ -66,7 +66,7 @@ function BeregningInputSkjema() {
         >
           <Textarea
             size="small"
-            label="Beskrivelse"
+            label="Beskrivelse (vises kun internt i Nav)"
             className="flex-20"
             maxLength={100}
             error={errors.beregning?.linjer?.[index]?.beskrivelse?.message}
