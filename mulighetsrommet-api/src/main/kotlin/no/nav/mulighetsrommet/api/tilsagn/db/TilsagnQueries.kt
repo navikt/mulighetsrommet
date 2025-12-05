@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.Input
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri.Output
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
@@ -261,7 +262,7 @@ class TilsagnQueries(private val session: Session) {
     fun getAll(
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
-        arrangor: Organisasjonsnummer? = null,
+        arrangorer: Set<Organisasjonsnummer>? = null,
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
     ): List<Tilsagn> {
@@ -272,7 +273,7 @@ class TilsagnQueries(private val session: Session) {
             where
               (:typer::tilsagn_type[] is null or type = any(:typer::tilsagn_type[]))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
-              and (:arrangor::text is null or arrangor_organisasjonsnummer = :arrangor::text)
+              and (:arrangorer::text[] is null or arrangor_organisasjonsnummer = any(:arrangorer))
               and (:statuser::tilsagn_status[] is null or status::tilsagn_status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
             order by created_at desc
@@ -281,7 +282,7 @@ class TilsagnQueries(private val session: Session) {
         val params = mapOf(
             "typer" to typer?.let { session.createArrayOfTilsagnType(it) },
             "gjennomforing_id" to gjennomforingId,
-            "arrangor" to arrangor?.value,
+            "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
             "statuser" to statuser?.let { session.createArrayOfTilsagnStatus(it) },
             "periode" to periodeIntersectsWith?.toDaterange(),
         )

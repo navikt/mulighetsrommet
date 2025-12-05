@@ -339,7 +339,6 @@ private fun DataElement.Text.Format.toPdfDocumentContentFormat(): Format? = when
 
 private fun DataElement.toPdfDocumentValue(): String? = when (this) {
     is DataElement.Link -> this.text
-    is DataElement.DualText -> "${this.top} - ${this.bottom}"
     is DataElement.MathOperator -> this.operator.toString()
     is DataElement.MultiLinkModal -> this.buttonText
     is DataElement.Periode -> "${this.start} - ${this.slutt}"

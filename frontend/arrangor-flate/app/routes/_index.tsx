@@ -24,9 +24,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (tabState === "tilsagnsoversikt") {
     const { data: tilsagn, error: tilsagnError } =
       await ArrangorflateService.getAllArrangorflateTilsagn({
-        path: { orgnr: "12345678910" },
         headers: await apiHeaders(request),
       });
+    console.log(tilsagn, tilsagnError);
     if (tilsagnError) {
       throw problemDetailResponse(tilsagnError);
     }

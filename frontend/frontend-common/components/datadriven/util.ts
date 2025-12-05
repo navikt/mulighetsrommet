@@ -26,8 +26,6 @@ export function getComparableValue(element: DataElement) {
   switch (element.type) {
     case "DATA_ELEMENT_TEXT":
       return element.value;
-    case "DATA_ELEMENT_DUAL_TEXT":
-      return element.top;
     case "DATA_ELEMENT_STATUS":
       return element.value;
     case "DATA_ELEMENT_PERIODE":

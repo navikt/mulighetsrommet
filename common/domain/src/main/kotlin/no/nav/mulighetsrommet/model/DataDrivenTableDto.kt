@@ -115,10 +115,6 @@ sealed class DataElement {
         }
     }
 
-    @Serializable
-    @SerialName("DATA_ELEMENT_DUAL_TEXT")
-    data class DualText(val top: String, val bottom: String) : DataElement()
-
     @SerialName("DATA_ELEMENT_STATUS")
     @Serializable
     data class Status(

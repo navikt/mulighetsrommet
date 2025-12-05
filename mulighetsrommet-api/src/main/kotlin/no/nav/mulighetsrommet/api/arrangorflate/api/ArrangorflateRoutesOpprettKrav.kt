@@ -192,7 +192,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
                 }
             val tilsagn = arrangorFlateService.getTilsagn(
-                orgnr = gjennomforing.arrangor.organisasjonsnummer,
+                arrangorer = setOf(gjennomforing.arrangor.organisasjonsnummer),
                 typer = tilsagnsTyper,
                 statuser = listOf(TilsagnStatus.GODKJENT),
                 gjennomforingId = gjennomforing.id,

@@ -52,10 +52,7 @@ export type DataElement =
     } & DataElementStatus)
   | ({
       type?: "DATA_ELEMENT_TEXT";
-    } & DataElementText)
-  | ({
-      type?: "DATA_ELEMENT_DUAL_TEXT";
-    } & DataElementDualText);
+    } & DataElementText);
 
 export type DataElementLink = {
   text: string;

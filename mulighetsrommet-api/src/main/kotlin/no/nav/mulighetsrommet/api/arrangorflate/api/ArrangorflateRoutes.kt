@@ -317,12 +317,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 description = "Hent alle tilsagn til arrangør"
                 tags = setOf("Arrangorflate")
                 operationId = "getAllArrangorflateTilsagn"
-                request {
-                    pathParameter<Organisasjonsnummer>("orgnr")
-                }
+                request {}
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Alle tilsagn for gitt organisasjonsnummer"
+                        description = "Alle tilsagn for arrangørs tilgang"
                         body<List<ArrangorflateTilsagnDto>>()
                     }
                     default {
@@ -331,12 +329,14 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     }
                 }
             }) {
-                val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-
-                requireTilgangHosArrangor(altinnRettigheterService, orgnr)
+                val arrangorer = orgnrTilganger(altinnRettigheterService).toSet()
+                if (arrangorer.isEmpty()) {
+                    call.respondWithProblemDetail(manglerArrangorTilganger)
+                    return@get
+                }
 
                 val tilsagn = arrangorFlateService.getTilsagn(
-                    orgnr,
+                    arrangorer,
                     statuser = TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR,
                 )
 
@@ -795,8 +795,8 @@ fun utbetalingKompaktDataDrivenTable(
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
-            DataDrivenTableDto.Column("arrangor", "Arrangør"),
             DataDrivenTableDto.Column("tiltak", "Tiltak"),
+            DataDrivenTableDto.Column("arrangor", "Arrangør"),
             DataDrivenTableDto.Column("periode", "Periode"),
             DataDrivenTableDto.Column(
                 "belop",
@@ -818,14 +818,10 @@ fun utbetalingKompaktDataDrivenTable(
         rows = utbetalinger.map { utbetaling ->
             DataDrivenTableDto.Row(
                 cells = mapOf(
-                    "arrangor" to DataElement.DualText(
-                        top = utbetaling.arrangor.navn,
-                        bottom = utbetaling.arrangor.organisasjonsnummer.value,
+                    "arrangor" to DataElement.text(
+                        "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer.value})",
                     ),
-                    "tiltak" to DataElement.DualText(
-                        top = utbetaling.gjennomforing.navn,
-                        bottom = "${utbetaling.gjennomforing.lopenummer} - ${utbetaling.tiltakstype.navn}",
-                    ),
+                    "tiltak" to DataElement.text("${utbetaling.tiltakstype.navn} (${utbetaling.gjennomforing.lopenummer.value})"),
                     "periode" to DataElement.periode(utbetaling.periode),
                     "belop" to DataElement.nok(
                         when (tabellType) {

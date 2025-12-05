@@ -506,17 +506,10 @@ paths:
       - Arrangorflate
       description: Hent alle tilsagn til arrangør
       operationId: getAllArrangorflateTilsagn
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
+      parameters: []
       responses:
         "200":
-          description: Alle tilsagn for gitt organisasjonsnummer
+          description: Alle tilsagn for arrangørs tilgang
           headers: {}
           content:
             application/json:
@@ -869,7 +862,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "7355390b4419ec6007ef5707ac2ff3346dd64a5b06ea40c5640842ad2ca83559"
+        - "016f9c6a871d2c07fcb099158b03872c7bf844823b449734f49d528355bb371d"
     ArrangorDto:
       type: object
       properties:
@@ -987,7 +980,6 @@ components:
       - content
     DataElement:
       anyOf:
-      - $ref: "#/components/schemas/DATA_ELEMENT_DUAL_TEXT"
       - $ref: "#/components/schemas/DATA_ELEMENT_LINK"
       - $ref: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
       - $ref: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
@@ -997,23 +989,12 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          DATA_ELEMENT_DUAL_TEXT: "#/components/schemas/DATA_ELEMENT_DUAL_TEXT"
           DATA_ELEMENT_LINK: "#/components/schemas/DATA_ELEMENT_LINK"
           DATA_ELEMENT_MATH_OPERATOR: "#/components/schemas/DATA_ELEMENT_MATH_OPERATOR"
           DATA_ELEMENT_MULTI_LINK_MODAL: "#/components/schemas/DATA_ELEMENT_MULTI_LINK_MODAL"
           DATA_ELEMENT_PERIODE: "#/components/schemas/DATA_ELEMENT_PERIODE"
           DATA_ELEMENT_STATUS: "#/components/schemas/DATA_ELEMENT_STATUS"
           DATA_ELEMENT_TEXT: "#/components/schemas/DATA_ELEMENT_TEXT"
-    DATA_ELEMENT_DUAL_TEXT:
-      type: object
-      properties:
-        top:
-          type: string
-        bottom:
-          type: string
-      required:
-      - bottom
-      - top
     DATA_ELEMENT_LINK:
       type: object
       properties:

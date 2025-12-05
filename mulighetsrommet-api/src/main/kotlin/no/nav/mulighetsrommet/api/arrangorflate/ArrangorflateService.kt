@@ -100,14 +100,14 @@ class ArrangorflateService(
     }
 
     fun getTilsagn(
-        orgnr: Organisasjonsnummer,
+        arrangorer: Set<Organisasjonsnummer>,
         statuser: List<TilsagnStatus>? = null,
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
     ): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
-                arrangor = orgnr,
+                arrangorer = arrangorer,
                 statuser = statuser,
                 typer = typer,
                 gjennomforingId = gjennomforingId,
