@@ -38,7 +38,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,
-        godkjentAvArrangorTidspunkt = utbetaling.godkjentAvArrangorTidspunkt,
+        innsendtAvArrangorDato = utbetaling.godkjentAvArrangorTidspunkt?.toLocalDate(),
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.atZone(ZoneId.systemDefault())?.toLocalDate(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,

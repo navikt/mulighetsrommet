@@ -18,7 +18,7 @@ import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
-import { getTimestamp } from "~/utils/utbetaling";
+import { getUtbetalingsdato } from "~/utils/utbetaling";
 import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
@@ -63,8 +63,6 @@ export const loader: LoaderFunction = async ({
 export default function UtbetalingDetaljerSide() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
 
-  const innsendtTidspunkt = getTimestamp(utbetaling);
-
   const visNedlastingAvKvittering = [
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     ArrangorflateUtbetalingStatus.UTBETALT,
@@ -94,7 +92,7 @@ export default function UtbetalingDetaljerSide() {
       <UtbetalingHeader utbetalingType={utbetaling.type} />
       <Definisjonsliste
         definitions={[
-          innsendtTidspunkt,
+          getUtbetalingsdato(utbetaling),
           { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
           { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
           { key: "Løpenummer", value: utbetaling.gjennomforing.lopenummer },

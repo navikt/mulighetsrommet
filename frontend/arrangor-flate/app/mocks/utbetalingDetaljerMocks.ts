@@ -89,7 +89,7 @@ const satsDetaljerUkespris: DataDetails[] = [
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
-  godkjentAvArrangorTidspunkt: "2025-05-15T11:03:21.959059",
+  innsendtAvArrangorDato: "2025-05-15",
   utbetalesTidligstDato: "2025-04-01",
   createdAt: "2025-03-17T12:27:55.465944",
   tiltakstype: {
@@ -132,7 +132,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
 const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-  godkjentAvArrangorTidspunkt: null,
+  innsendtAvArrangorDato: null,
   kanViseBeregning: true,
   utbetalesTidligstDato: "2025-12-01",
   createdAt: "2025-11-07T10:02:43.989186",
@@ -161,7 +161,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
 const aftKreverEndring: ArrangorflateUtbetalingDto = {
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
   status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
-  godkjentAvArrangorTidspunkt: null,
+  innsendtAvArrangorDato: null,
   utbetalesTidligstDato: null,
   createdAt: "2025-06-17T13:58:12.405867",
   tiltakstype: {
@@ -193,7 +193,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
 const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-  godkjentAvArrangorTidspunkt: "2025-06-05T09:36:11.510229",
+  innsendtAvArrangorDato: "2025-06-05",
   utbetalesTidligstDato: null,
   createdAt: "2025-06-05T09:36:11.510957",
   tiltakstype: {
@@ -225,7 +225,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
 const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-  godkjentAvArrangorTidspunkt: null,
+  innsendtAvArrangorDato: null,
   utbetalesTidligstDato: "2025-05-01",
   createdAt: "2025-04-01T12:03:49.756508",
   tiltakstype: {
@@ -268,7 +268,7 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
 const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-  godkjentAvArrangorTidspunkt: null,
+  innsendtAvArrangorDato: null,
   utbetalesTidligstDato: null,
   createdAt: "2025-07-07T05:00:06.924181",
   tiltakstype: {
@@ -300,7 +300,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
 const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-  godkjentAvArrangorTidspunkt: null,
+  innsendtAvArrangorDato: null,
   utbetalesTidligstDato: "2025-12-01",
   kanViseBeregning: true,
   createdAt: "2025-10-31T14:41:03.835624",

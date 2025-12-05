@@ -58,7 +58,7 @@ export const tekster = {
         successMelding:
           "Vi har mottatt ditt krav om utbetaling, og utbetalingen er nå til behandling hos Nav. Vi vil ta kontakt med deg dersom vi trenger mer informasjon.",
         kvitteringTitle: "Kvittering for innsending",
-        mottattAv: (tidspunkt: Date | string) => `Mottatt av Nav: ${formaterDato(tidspunkt)}`,
+        mottattAv: (dato: Date | string) => `Mottatt av Nav: ${formaterDato(dato)}`,
         orgnr: (orgnr: string) => `Organisasjonsnummer: ${orgnr}`,
         utbetalesTidligstDato: (dato: Date | string) =>
           `Utbetales tidligst dato: ${formaterDato(dato)}`,

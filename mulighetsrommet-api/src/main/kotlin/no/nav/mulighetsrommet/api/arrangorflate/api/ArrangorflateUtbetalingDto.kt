@@ -17,8 +17,8 @@ data class ArrangorflateUtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: ArrangorflateUtbetalingStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    @Serializable(with = LocalDateSerializer::class)
+    val innsendtAvArrangorDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
     val kanViseBeregning: Boolean,

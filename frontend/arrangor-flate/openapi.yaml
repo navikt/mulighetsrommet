@@ -839,7 +839,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "dab1bbb6889fdc44e7370954841e9e585f22259812d6a8ec3fc6bb489d0c7be0"
+        - "3405871b52c77e2bb3f38c9ce2164c7ec9a5eec237c6412f84022b320502d407"
     ArrangorDto:
       type: object
       properties:
@@ -1824,11 +1824,11 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        godkjentAvArrangorTidspunkt:
+        innsendtAvArrangorDato:
           type:
           - "null"
           - string
-          format: date-time
+          format: date
         utbetalesTidligstDato:
           type:
           - "null"
@@ -1870,8 +1870,8 @@ components:
       - betalingsinformasjon
       - createdAt
       - gjennomforing
-      - godkjentAvArrangorTidspunkt
       - id
+      - innsendtAvArrangorDato
       - kanViseBeregning
       - linjer
       - periode
