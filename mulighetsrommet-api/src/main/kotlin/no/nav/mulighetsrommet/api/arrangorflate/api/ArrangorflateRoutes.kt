@@ -807,6 +807,7 @@ fun utbetalingKompaktDataDrivenTable(
                 sortable = true,
                 align = DataDrivenTableDto.Column.Align.RIGHT,
             ),
+            DataDrivenTableDto.Column("type", "Type"),
             DataDrivenTableDto.Column("status", "Status"),
             DataDrivenTableDto.Column(
                 "action",
@@ -832,12 +833,19 @@ fun utbetalingKompaktDataDrivenTable(
                             UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop!!
                         },
                     ),
+                    "type" to getUtbetalingType(utbetaling),
                     "status" to getUtbetalingStatus(utbetaling.status),
                     "action" to getUtbetalingLinkByStatus(utbetaling),
                 ),
             )
         },
     )
+}
+
+private fun getUtbetalingType(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement? {
+    return utbetaling.type.tagName?.let {
+        DataElement.Status(it, DataElement.Status.Variant.NEUTRAL)
+    }
 }
 
 private fun getUtbetalingStatus(status: ArrangorflateUtbetalingStatus): DataElement = when (status) {
