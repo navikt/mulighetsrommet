@@ -8,15 +8,11 @@ export function getTabStateOrDefault(url: URL): Tabs {
   return convertToTabOrDefault(val);
 }
 
-const mapper: Record<string, Tabs> = {
-  aktive: "aktive",
-  historiske: "historiske",
-  tilsagnsoversikt: "tilsagnsoversikt",
-};
-
 function convertToTabOrDefault(str: string | null): Tabs {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  return mapper[str || "aktive"] || "aktive";
+  if (str === "aktive" || str === "historiske" || str === "tilsagnsoversikt") {
+    return str;
+  }
+  return "aktive";
 }
 
 export function useTabState(
