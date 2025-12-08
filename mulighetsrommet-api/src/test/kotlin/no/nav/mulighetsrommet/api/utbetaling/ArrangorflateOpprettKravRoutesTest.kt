@@ -84,7 +84,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val tiltaksoversiktUrl = "/api/arrangorflate/arrangør/tiltaks-oversikt"
+    val tiltaksoversiktUrl = "/api/arrangorflate/arrangør/tiltaksoversikt"
 
     test("401 Unauthorized mangler pid i claims") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
