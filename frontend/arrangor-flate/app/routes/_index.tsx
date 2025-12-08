@@ -14,7 +14,7 @@ import { pathTo } from "~/utils/navigation";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Oversikt" },
+    { title: "Utbetalinger til tiltaksarrangør" },
     { name: "description", content: "Arrangørflate for krav om utbetalinger" },
   ];
 };
