@@ -836,10 +836,10 @@ paths:
       deprecated: false
 components:
   schemas:
-    OpenApiHash:
-      type: string
+    OpenApiVersion:
+      type: number
       enum:
-        - "3405871b52c77e2bb3f38c9ce2164c7ec9a5eec237c6412f84022b320502d407"
+        - 1
     ArrangorDto:
       type: object
       properties:

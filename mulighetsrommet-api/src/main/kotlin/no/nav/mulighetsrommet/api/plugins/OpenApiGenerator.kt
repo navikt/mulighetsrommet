@@ -16,7 +16,6 @@ import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.mergePropertyAttri
 import io.github.smiley4.schemakenerator.swagger.data.RefType
 import io.ktor.server.application.*
 import io.swagger.v3.oas.models.media.Schema
-import no.nav.mulighetsrommet.api.generateOpenApiHash
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattAuthorizationRouteSelector
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -45,15 +44,6 @@ fun RequestConfig.queryParameterUuid(name: String, block: RequestParameterConfig
  * ifm. generering av openapi-dokumentasjon:
  * - Noen steg har blitt fjernet da de uansett ikke er i bruk i dette prosjektet (f.eks. prosessering av noen annotasjoner, eller generering av titles)
  */
-fun Application.configureOpenApiHash() {
-    monitor.subscribe(ServerReady) {
-        OpenApiSpec.entries.forEach {
-            val hash = generateOpenApiHash(it.specName)
-            this.attributes.put(it.hashAttributeKey, hash)
-        }
-    }
-}
-
 fun Application.configureOpenApiGenerator() {
     install(OpenApi) {
         outputFormat = OutputFormat.YAML
