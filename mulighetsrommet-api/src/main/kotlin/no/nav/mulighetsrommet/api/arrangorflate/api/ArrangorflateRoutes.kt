@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.getOrElse
+import com.google.api.gax.rpc.InvalidArgumentException
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.*
@@ -34,6 +35,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -57,6 +59,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.security.InvalidParameterException
 import java.time.LocalDate
 import java.util.*
 
@@ -345,8 +348,40 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }
     }
 
-    route("/tilsagn/{id}") {
-        get({
+    route("/tilsagn") {
+        get(
+            {
+                description = "Hent oversikt over tilsagn for alle arrangører brukeren har tilgang til"
+                tags = setOf("Arrangorflate")
+                operationId = "getArrangorflateTilsagnOversikt"
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalinger i tabellformat"
+                        body<ArrangorflateTilsagnOversikt>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            },
+        ) {
+            val tilganger = orgnrTilganger(altinnRettigheterService)
+            if (tilganger.isEmpty()) {
+                respondWithManglerTilgangHosArrangor()
+                return@get
+            }
+            val tilsagn =
+                arrangorFlateService.getTilsagn(tilganger.toSet(), statuser = TILSAGN_STATUS_VISNING_ARRANGORFLATE)
+            if (tilsagn.isEmpty()) {
+                call.respond(ArrangorflateTilsagnOversikt())
+            } else {
+                val tabell = tilsagnOversiktDataDrivenTable(tilsagn)
+                call.respond(ArrangorflateTilsagnOversikt(tabell))
+            }
+        }
+g
+        get("/{id}", {
             description = "Hent tilsagn"
             tags = setOf("Arrangorflate")
             operationId = "getArrangorflateTilsagn"
@@ -787,6 +822,78 @@ enum class UtbetalingOversiktType {
 }
 
 @Serializable
+data class ArrangorflateTilsagnOversikt(val tabell: DataDrivenTableDto? = null)
+
+val TILSAGN_STATUS_VISNING_ARRANGORFLATE = listOf(
+    TilsagnStatus.GODKJENT,
+    TilsagnStatus.TIL_ANNULLERING,
+    TilsagnStatus.ANNULLERT,
+    TilsagnStatus.TIL_OPPGJOR,
+    TilsagnStatus.OPPGJORT,
+)
+
+fun tilsagnOversiktDataDrivenTable(
+    tilsagnListe: List<ArrangorflateTilsagnDto>,
+): DataDrivenTableDto {
+    return DataDrivenTableDto(
+        columns = listOf(
+            DataDrivenTableDto.Column("tiltak", "Tiltak"),
+            DataDrivenTableDto.Column("arrangor", "Arrangør"),
+            DataDrivenTableDto.Column("periode", "Periode"),
+            DataDrivenTableDto.Column(
+                "tilsagn", "Tilsagn"
+            ),
+            DataDrivenTableDto.Column("status", "Status"),
+            DataDrivenTableDto.Column(
+                "action",
+                "Handlinger",
+                sortable = false,
+            ),
+        ),
+        rows = tilsagnListe.map { tilsagn ->
+            DataDrivenTableDto.Row(
+                cells = mapOf(
+                    "tiltak" to DataElement.text("${tilsagn.tiltakstype.navn} (${tilsagn.gjennomforing.lopenummer.value})"),
+                    "arrangor" to DataElement.text(
+                        "${tilsagn.arrangor.navn} (${tilsagn.arrangor.organisasjonsnummer.value})",
+                    ),
+                    "periode" to DataElement.periode(tilsagn.periode),
+                    "tilsagn" to DataElement.text("${tilsagn.type.displayName()} (${tilsagn.bestillingsnummer})"),
+                    "status" to getTilsagnStatus(tilsagn.status),
+                    "action" to DataElement.Link(
+                        "Se detaljer",
+                        "/${tilsagn.arrangor.organisasjonsnummer}/tilsagn/${tilsagn.id}"
+                    ),
+                ),
+            )
+        },
+    )
+}
+
+fun getTilsagnStatus(tilsagnStatus: TilsagnStatus): DataElement =
+    when (tilsagnStatus) {
+        TilsagnStatus.RETURNERT,
+        TilsagnStatus.TIL_GODKJENNING ->
+            throw IllegalStateException("Skal ikke vise tilsagn som ikke har vært godkjent")
+
+        TilsagnStatus.GODKJENT ->
+            DataElement.Status("Godkjent", DataElement.Status.Variant.SUCCESS)
+
+        TilsagnStatus.TIL_ANNULLERING ->
+            DataElement.Status("Til annullering", DataElement.Status.Variant.WARNING)
+
+        TilsagnStatus.ANNULLERT ->
+            DataElement.Status("Annulert", DataElement.Status.Variant.ERROR_BORDER_STRIKETHROUGH)
+
+        TilsagnStatus.TIL_OPPGJOR ->
+            DataElement.Status("Til oppgjør", DataElement.Status.Variant.WARNING)
+
+        TilsagnStatus.OPPGJORT ->
+            DataElement.Status("Oppgjort", DataElement.Status.Variant.NEUTRAL)
+    }
+
+
+@Serializable
 data class ArrangorflateUtbetalingerOversikt(val tabell: DataDrivenTableDto? = null)
 
 fun utbetalingKompaktDataDrivenTable(
@@ -876,26 +983,27 @@ private fun getUtbetalingStatus(status: ArrangorflateUtbetalingStatus): DataElem
     )
 }
 
-private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement = when (utbetaling.status) {
-    KLAR_FOR_GODKJENNING ->
-        DataElement.Link(
-            text = "Start innsending",
-            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/innsendingsinformasjon",
-        )
+private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement =
+    when (utbetaling.status) {
+        KLAR_FOR_GODKJENNING ->
+            DataElement.Link(
+                text = "Start innsending",
+                href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/innsendingsinformasjon",
+            )
 
-    KREVER_ENDRING ->
-        DataElement.Link(
-            text = "Se innsending",
-            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/beregning",
-        )
+        KREVER_ENDRING ->
+            DataElement.Link(
+                text = "Se innsending",
+                href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/beregning",
+            )
 
-    BEHANDLES_AV_NAV,
-    OVERFORT_TIL_UTBETALING,
-    DELVIS_UTBETALT,
-    UTBETALT,
-    ->
-        DataElement.Link(
-            text = "Se detaljer",
-            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer",
-        )
-}
+        BEHANDLES_AV_NAV,
+        OVERFORT_TIL_UTBETALING,
+        DELVIS_UTBETALT,
+        UTBETALT,
+            ->
+            DataElement.Link(
+                text = "Se detaljer",
+                href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer",
+            )
+    }
