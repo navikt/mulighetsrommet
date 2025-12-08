@@ -56,6 +56,11 @@ private fun generateOpenApiSpec(spec: OpenApiSpec, outputPath: String) {
     println("   -> ✅ Saved '${spec.specName}' to '$outputPath'")
 }
 
+/*
+ * Vi inserter spec versjon som en enum i schemas for at den skal dukke opp i
+ * typescript biblioteket som heyapi genererer. Siden info block der versjon
+ * vanligvis skriver ikke eksponeres av heyapi.
+ */
 private fun insertVersionEnum(yaml: String, version: Int): String {
     val lines = yaml.lines().toMutableList()
 
