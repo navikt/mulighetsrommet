@@ -90,7 +90,7 @@ export default function OpprettKravLayout() {
   const { steps, activeStep } = useLoaderData<OpprettKravLoaderData>();
 
   const topNavigationLink = {
-    path: pathTo.tiltaksOversikt,
+    path: pathTo.tiltaksoversikt,
     text: "Tilbake til tiltaksoversikt",
   };
 

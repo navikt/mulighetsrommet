@@ -375,7 +375,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     get(
         "/utbetaling",
         {
-            description = "Hent utbetalinger for tilgjengelige"
+            description = "Hent oversikt over utbetalinger for alle arrangører brukeren har tilgang til"
             tags = setOf("Arrangorflate")
             operationId = "getArrangorflateUtbetalinger"
             request {

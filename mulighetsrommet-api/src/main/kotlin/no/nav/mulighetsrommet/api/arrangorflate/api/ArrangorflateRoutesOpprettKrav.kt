@@ -94,17 +94,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
     }
 
-    get("/arrangør/tiltaks-oversikt", {
+    get("/arrangor/tiltaksoversikt", {
         description = "Hent tiltakene for alle arrangører brukeren har tilgang til"
         tags = setOf("Arrangorflate")
-        operationId = "getArrangorersTiltaksOversikt"
+        operationId = "getArrangorTiltaksoversikt"
         request {
-            queryParameter<TiltaksOversiktType>("type")
+            queryParameter<TiltaksoversiktType>("type")
         }
         response {
             code(HttpStatusCode.OK) {
-                description = "Arrangør sine gjennomføringer (DataDrivenTable)"
-                body<TiltaksOversiktResponse>()
+                description = "Arrangører sine gjennomføringer (DataDrivenTable)"
+                body<TiltaksoversiktResponse>()
             }
             default {
                 description = "Problem details"
@@ -117,7 +117,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             respondWithManglerTilgangHosArrangor()
             return@get
         }
-        val type = TiltaksOversiktType.from(call.queryParameters["type"])
+        val type = TiltaksoversiktType.from(call.queryParameters["type"])
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
             val opprettKravPrismodeller = okonomiConfig.opprettKravPrismodeller
@@ -138,10 +138,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }
         if (gjennomforinger.isEmpty()) {
-            call.respond(TiltaksOversiktResponse())
+            call.respond(TiltaksoversiktResponse())
         } else {
             call.respond(
-                TiltaksOversiktResponse(table = toGjennomforingDataTable(gjennomforinger)),
+                TiltaksoversiktResponse(table = toGjennomforingDataTable(gjennomforinger)),
             )
         }
     }
@@ -443,7 +443,7 @@ fun kanOppretteKrav(
 }
 
 @Serializable
-enum class TiltaksOversiktType {
+enum class TiltaksoversiktType {
     AKTIVE,
     HISTORISKE,
     ;
@@ -458,7 +458,7 @@ enum class TiltaksOversiktType {
          * Defaulter til AKTIVE
          */
 
-        fun from(type: String?): TiltaksOversiktType = when (type) {
+        fun from(type: String?): TiltaksoversiktType = when (type) {
             "AKTIVE" -> AKTIVE
             "HISTORISKE" -> HISTORISKE
             else -> AKTIVE
@@ -467,7 +467,7 @@ enum class TiltaksOversiktType {
 }
 
 @Serializable
-data class TiltaksOversiktResponse(
+data class TiltaksoversiktResponse(
     val table: DataDrivenTableDto? = null,
 )
 

@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Heading, HStack, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, TiltaksOversiktResponse, TiltaksOversiktType } from "api-client";
+import { ArrangorflateService, TiltaksoversiktResponse, TiltaksoversiktType } from "api-client";
 import { LoaderFunctionArgs, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
@@ -23,17 +23,16 @@ export const meta: MetaFunction = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const tabState = getTabStateOrDefault(new URL(request.url));
   const tiltaksOversiktType =
-    tabState === "aktive" ? TiltaksOversiktType.AKTIVE : TiltaksOversiktType.HISTORISKE;
+    tabState === "aktive" ? TiltaksoversiktType.AKTIVE : TiltaksoversiktType.HISTORISKE;
   const { data: gjennomforingerTabell, error: gjennomforingerError } =
-    await ArrangorflateService.getArrangorersTiltaksOversikt({
+    await ArrangorflateService.getArrangorTiltaksoversikt({
       query: { type: tiltaksOversiktType },
       headers: await apiHeaders(request),
     });
-
   if (gjennomforingerError) {
     throw problemDetailResponse(gjennomforingerError);
   }
-  if (tiltaksOversiktType == TiltaksOversiktType.AKTIVE) {
+  if (tiltaksOversiktType == TiltaksoversiktType.AKTIVE) {
     return { aktive: gjennomforingerTabell };
   }
   return {
@@ -77,7 +76,7 @@ export default function OpprettKravTiltaksOversikt() {
 }
 
 interface TabellVisningProps {
-  data: TiltaksOversiktResponse | undefined;
+  data: TiltaksoversiktResponse | undefined;
 }
 
 function TabellVisning({ data }: TabellVisningProps) {

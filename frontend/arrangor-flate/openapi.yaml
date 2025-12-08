@@ -32,12 +32,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangør/tiltaks-oversikt:
+  /api/arrangorflate/arrangor/tiltaksoversikt:
     get:
       tags:
       - Arrangorflate
       description: Hent tiltakene for alle arrangører brukeren har tilgang til
-      operationId: getArrangorersTiltaksOversikt
+      operationId: getArrangorTiltaksoversikt
       parameters:
       - name: type
         in: query
@@ -45,15 +45,15 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/TiltaksOversiktType"
+          $ref: "#/components/schemas/TiltaksoversiktType"
       responses:
         "200":
-          description: Arrangør sine gjennomføringer (DataDrivenTable)
+          description: Arrangører sine gjennomføringer (DataDrivenTable)
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltaksOversiktResponse"
+                $ref: "#/components/schemas/TiltaksoversiktResponse"
         default:
           description: Problem details
           headers: {}
@@ -560,7 +560,8 @@ paths:
     get:
       tags:
       - Arrangorflate
-      description: Hent utbetalinger for tilgjengelige
+      description: Hent oversikt over utbetalinger for alle arrangører brukeren har
+        tilgang til
       operationId: getArrangorflateUtbetalinger
       parameters:
       - name: type
@@ -862,7 +863,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "02dbfc83c47688f3326f737cf145160eb2a16b71cfb78146e34dd9fd720ddd2b"
+        - "52a2847598f457ac067f6e8af0d4d6bd46d357958d54960a337146129ddf6d87"
     ArrangorDto:
       type: object
       properties:
@@ -919,7 +920,7 @@ components:
       - status
       - title
       - type
-    TiltaksOversiktType:
+    TiltaksoversiktType:
       type: string
       enum:
       - AKTIVE
@@ -1167,7 +1168,7 @@ components:
       - warning
       - danger
       - neutral
-    TiltaksOversiktResponse:
+    TiltaksoversiktResponse:
       type: object
       properties:
         table:

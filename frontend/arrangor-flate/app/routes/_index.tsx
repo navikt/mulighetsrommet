@@ -96,7 +96,7 @@ export default function Oversikt() {
 
 function OpprettManueltUtbetalingskrav() {
   return (
-    <Button variant="secondary" as={ReactRouterLink} to={pathTo.tiltaksOversikt}>
+    <Button variant="secondary" as={ReactRouterLink} to={pathTo.tiltaksoversikt}>
       {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
     </Button>
   );

@@ -21,7 +21,7 @@ export function OpprettKravVeiviserButtons({
   if (!navigering.tilbake && !navigering.neste) {
     return (
       <HStack gap="4">
-        <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.tiltaksOversikt}>
+        <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.tiltaksoversikt}>
           Avbryt
         </Button>
       </HStack>
