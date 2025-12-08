@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { client, OpenApiHash } from "@tiltaksadministrasjon/api-client";
+import { client, OpenApiVersion } from "@tiltaksadministrasjon/api-client";
 import "./index.css";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
@@ -44,10 +44,12 @@ function configureClient(client: ClientType) {
   });
 
   client.interceptors.response.use(async (response) => {
-    const requiredHash = response.headers.get("X-OpenAPI-Hash");
+    const apiVersion = response.headers.get("X-OpenAPI-Version");
 
-    const hash = Object.values(OpenApiHash)[0] as string;
-    if (requiredHash && requiredHash !== hash) {
+    const [clientVersion] = Object.values(OpenApiVersion).filter(
+      (v): v is number => typeof v === "number",
+    );
+    if (Number(apiVersion) > clientVersion) {
       window.dispatchEvent(new CustomEvent("openapi-version-mismatch"));
     }
 

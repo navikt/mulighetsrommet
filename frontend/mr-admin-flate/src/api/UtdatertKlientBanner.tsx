@@ -1,4 +1,3 @@
-import { Environment, environment } from "@/environment";
 import { Box, Button, HStack } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 
@@ -15,9 +14,6 @@ export function UtdatertKlientBanner() {
     return () => window.removeEventListener("openapi-version-mismatch", handler);
   }, []);
 
-  if (environment === Environment.PROD) {
-    return null;
-  }
   if (!visible || ignored) return null;
 
   return (

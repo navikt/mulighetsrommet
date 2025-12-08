@@ -36,6 +36,7 @@ fun Application.configureHTTP() {
         allowHeader(HttpHeaders.XRequestId)
         allowHeader(HttpHeaders.XCorrelationId)
         allowHeadersPrefixed("nav-")
+        exposeHeader("X-OpenAPI-Version")
     }
     install(DefaultHeaders) {
         header("X-Engine", "Ktor") // will send this header with each response
