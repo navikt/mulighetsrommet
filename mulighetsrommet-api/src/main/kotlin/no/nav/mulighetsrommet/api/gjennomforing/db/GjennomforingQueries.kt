@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavE
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
@@ -32,7 +33,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingQueries(private val session: Session) {
-    fun create(gjennomforing: GjennomforingDbo) {
+    fun upsert(gjennomforing: GjennomforingDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into gjennomforing (id, tiltakstype_id, arrangor_id)
@@ -51,8 +52,8 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {
-        create(gjennomforing)
+    fun upsertGruppetiltak(gjennomforing: GjennomforingGruppeDbo) = withTransaction(session) {
+        upsert(GjennomforingDbo(gjennomforing.id, gjennomforing.tiltakstypeId, gjennomforing.arrangorId))
 
         setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
 
@@ -289,29 +290,35 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun setArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) {
+    fun setArenaData(dbo: GjennomforingArenaDataDbo) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
             set arena_tiltaksnummer = :arena_tiltaksnummer,
-                arena_ansvarlig_enhet = :arena_ansvarlig_enhet
+                arena_ansvarlig_enhet = :arena_ansvarlig_enhet,
+                arena_navn = :arena_navn,
+                arena_start_dato = :arena_start_dato,
+                arena_slutt_dato = :arena_slutt_dato,
+                arena_status = :arena_status::gjennomforing_status
             where id = :id::uuid
         """.trimIndent()
-
         val params = mapOf(
-            "id" to id,
-            "arena_tiltaksnummer" to tiltaksnummer,
-            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+            "id" to dbo.id,
+            "arena_tiltaksnummer" to dbo.tiltaksnummer?.value,
+            "arena_ansvarlig_enhet" to dbo.arenaAnsvarligEnhet,
+            "arena_navn" to dbo.navn,
+            "arena_start_dato" to dbo.startDato,
+            "arena_slutt_dato" to dbo.sluttDato,
+            "arena_status" to dbo.status?.name,
         )
-
         session.execute(queryOf(query, params))
     }
 
-    fun getOrError(id: UUID): Gjennomforing {
-        return checkNotNull(get(id)) { "Gjennomføring med id $id finnes ikke" }
+    fun getGruppetiltakOrError(id: UUID): Gjennomforing {
+        return checkNotNull(getGruppetiltak(id)) { "Gjennomføring med id $id finnes ikke" }
     }
 
-    fun get(id: UUID): Gjennomforing? {
+    fun getGruppetiltak(id: UUID): Gjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -336,7 +343,7 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun getAll(
+    fun getAllGruppetiltak(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
         navEnheter: List<NavEnhetNummer> = emptyList(),
@@ -414,6 +421,44 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
+    fun getEnkeltplassOrError(id: UUID): Enkeltplass {
+        return checkNotNull(getEnkeltplass(id)) { "Enkeltplass med id=$id finnes ikke" }
+    }
+
+    fun getEnkeltplass(id: UUID): Enkeltplass? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_gjennomforing_enkeltplass
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toEnkeltplass() }
+    }
+
+    fun getAllEnkeltplass(
+        pagination: Pagination = Pagination.all(),
+        tiltakstyper: List<UUID> = emptyList(),
+    ): PaginatedResult<Enkeltplass> {
+        @Language("PostgreSQL")
+        val query = """
+            select *, count(*) over () as total_count
+            from view_gjennomforing_enkeltplass
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
+            order by id
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { session.createUuidArray(it) },
+        )
+
+        return queryOf(query, parameters + pagination.parameters)
+            .mapPaginated { it.toEnkeltplass() }
+            .runWithSession(session)
+    }
+
     fun setFreeTextSearch(id: UUID, content: List<String>) {
         @Language("PostgreSQL")
         val query = """
@@ -433,16 +478,6 @@ class GjennomforingQueries(private val session: Session) {
             "content" to content.joinToString(" "),
         )
         session.execute(queryOf(query, params))
-    }
-
-    fun delete(id: UUID): Int {
-        @Language("PostgreSQL")
-        val query = """
-            delete from gjennomforing
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.update(queryOf(query, id))
     }
 
     fun setPublisert(id: UUID, publisert: Boolean): Int {
@@ -580,104 +615,145 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    private fun Row.toGjennomforingDto(): Gjennomforing {
-        val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
-            ?: emptyList()
-        val navEnheter = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-            ?: emptyList()
-        val kontorstruktur = fromNavEnheter(navEnheter)
+    fun delete(id: UUID): Int {
+        @Language("PostgreSQL")
+        val query = """
+            delete from gjennomforing
+            where id = ?::uuid
+        """.trimIndent()
 
-        val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
-            ?: emptyList()
-        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<Gjennomforing.ArrangorKontaktperson>>(it) }
-            ?: emptyList()
-        val stengt = stringOrNull("stengt_perioder_json")
-            ?.let { Json.decodeFromString<List<Gjennomforing.StengtPeriode>>(it) }
-            ?: emptyList()
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
+        return session.update(queryOf(query, id))
+    }
+}
 
-        val utdanningslop = stringOrNull("utdanningslop_json")?.let {
-            Json.decodeFromString<UtdanningslopDto>(it)
-        }
+private fun Row.toGjennomforingDto(): Gjennomforing {
+    val administratorer = stringOrNull("administratorer_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
+        ?: emptyList()
+    val navEnheter = stringOrNull("nav_enheter_json")
+        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
+        ?: emptyList()
+    val kontorstruktur = fromNavEnheter(navEnheter)
 
-        val status = when (GjennomforingStatusType.valueOf(string("status"))) {
-            GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
+    val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
+        ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
+        ?: emptyList()
+    val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.ArrangorKontaktperson>>(it) }
+        ?: emptyList()
+    val stengt = stringOrNull("stengt_perioder_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.StengtPeriode>>(it) }
+        ?: emptyList()
+    val startDato = localDate("start_dato")
+    val sluttDato = localDateOrNull("slutt_dato")
 
-            GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
+    val utdanningslop = stringOrNull("utdanningslop_json")?.let {
+        Json.decodeFromString<UtdanningslopDto>(it)
+    }
 
-            GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-                tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-                stringOrNull("avbrutt_forklaring"),
-            )
+    val status = when (GjennomforingStatusType.valueOf(string("status"))) {
+        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
 
-            GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-                tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-                stringOrNull("avbrutt_forklaring"),
-            )
-        }
+        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
 
-        return Gjennomforing(
-            id = uuid("id"),
-            navn = string("navn"),
-            lopenummer = Tiltaksnummer(string("lopenummer")),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = status,
-            apentForPamelding = boolean("apent_for_pamelding"),
-            antallPlasser = int("antall_plasser"),
-            avtaleId = uuidOrNull("avtale_id"),
-            avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
-            oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
-            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            beskrivelse = stringOrNull("beskrivelse"),
-            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-            oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-            deltidsprosent = double("deltidsprosent"),
-            estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-                Gjennomforing.EstimertVentetid(
-                    verdi = int("estimert_ventetid_verdi"),
-                    enhet = string("estimert_ventetid_enhet"),
-                )
-            },
-            stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
-            publisert = boolean("publisert"),
-            kontorstruktur = kontorstruktur,
-            kontaktpersoner = kontaktpersoner,
-            administratorer = administratorer,
-            arrangor = Gjennomforing.ArrangorUnderenhet(
-                id = uuid("arrangor_id"),
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-                navn = string("arrangor_navn"),
-                slettet = boolean("arrangor_slettet"),
-                kontaktpersoner = arrangorKontaktpersoner,
-            ),
-            tiltakstype = Gjennomforing.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-            ),
-            tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
-            amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
-            utdanningslop = utdanningslop,
-            stengt = stengt,
-            oppmoteSted = stringOrNull("oppmote_sted"),
-            arena = Gjennomforing.ArenaData(
-                tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
-                ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
-                    ArenaNavEnhet(
-                        navn = stringOrNull("arena_nav_enhet_navn"),
-                        enhetsnummer = it,
-                    )
-                },
-            ),
+        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
+            tidspunkt = localDateTime("avsluttet_tidspunkt"),
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+            stringOrNull("avbrutt_forklaring"),
+        )
+
+        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
+            tidspunkt = localDateTime("avsluttet_tidspunkt"),
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+            stringOrNull("avbrutt_forklaring"),
         )
     }
+
+    return Gjennomforing(
+        id = uuid("id"),
+        navn = string("navn"),
+        lopenummer = Tiltaksnummer(string("lopenummer")),
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = status,
+        apentForPamelding = boolean("apent_for_pamelding"),
+        antallPlasser = int("antall_plasser"),
+        avtaleId = uuidOrNull("avtale_id"),
+        avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
+        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
+        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+        beskrivelse = stringOrNull("beskrivelse"),
+        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        deltidsprosent = double("deltidsprosent"),
+        estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
+            Gjennomforing.EstimertVentetid(
+                verdi = int("estimert_ventetid_verdi"),
+                enhet = string("estimert_ventetid_enhet"),
+            )
+        },
+        stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
+        publisert = boolean("publisert"),
+        kontorstruktur = kontorstruktur,
+        kontaktpersoner = kontaktpersoner,
+        administratorer = administratorer,
+        arrangor = Gjennomforing.ArrangorUnderenhet(
+            id = uuid("arrangor_id"),
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+            slettet = boolean("arrangor_slettet"),
+            kontaktpersoner = arrangorKontaktpersoner,
+        ),
+        tiltakstype = Gjennomforing.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
+        amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
+        utdanningslop = utdanningslop,
+        stengt = stengt,
+        oppmoteSted = stringOrNull("oppmote_sted"),
+        arena = Gjennomforing.ArenaData(
+            tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
+            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
+                ArenaNavEnhet(
+                    navn = stringOrNull("arena_nav_enhet_navn"),
+                    enhetsnummer = it,
+                )
+            },
+        ),
+    )
+}
+
+private fun Row.toEnkeltplass(): Enkeltplass {
+    val arena = stringOrNull("arena_tiltaksnummer")?.let { tiltaksnummer ->
+        Enkeltplass.ArenaData(
+            tiltaksnummer = Tiltaksnummer(tiltaksnummer),
+            navn = stringOrNull("arena_navn"),
+            startDato = localDateOrNull("arena_start_dato"),
+            sluttDato = localDateOrNull("arena_slutt_dato"),
+            status = stringOrNull("arena_status")?.let { GjennomforingStatusType.valueOf(it) },
+            ansvarligNavEnhet = stringOrNull("arena_ansvarlig_enhet"),
+        )
+    }
+
+    return Enkeltplass(
+        id = uuid("id"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
+        arrangor = Enkeltplass.Arrangor(
+            id = uuid("arrangor_id"),
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+            slettet = boolean("arrangor_slettet"),
+        ),
+        tiltakstype = Enkeltplass.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        arena = arena,
+    )
 }

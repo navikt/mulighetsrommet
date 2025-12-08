@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -153,7 +152,7 @@ class GenerateValidationReport(
     private suspend fun validateGjennomforinger(): Map<Gjennomforing, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
-                queries.gjennomforing.getAll(
+                queries.gjennomforing.getAllGruppetiltak(
                     pagination,
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items

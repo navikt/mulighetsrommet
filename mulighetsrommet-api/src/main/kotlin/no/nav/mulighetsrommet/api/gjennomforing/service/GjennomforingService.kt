@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppeDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
@@ -84,7 +84,7 @@ class GjennomforingService(
         }
 
         db.transaction {
-            queries.gjennomforing.upsert(dbo)
+            queries.gjennomforing.upsertGruppetiltak(dbo)
 
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
@@ -133,14 +133,14 @@ class GjennomforingService(
     }
 
     fun get(id: UUID): Gjennomforing? = db.session {
-        queries.gjennomforing.get(id)
+        queries.gjennomforing.getGruppetiltak(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingDto> = db.session {
-        queries.gjennomforing.getAll(
+        queries.gjennomforing.getAllGruppetiltak(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
@@ -351,11 +351,11 @@ class GjennomforingService(
     }
 
     private fun QueryContext.getOrError(id: UUID): Gjennomforing {
-        return queries.gjennomforing.getOrError(id)
+        return queries.gjennomforing.getGruppetiltakOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        dbo: GjennomforingDbo,
+        dbo: GjennomforingGruppeDbo,
         navIdent: NavIdent,
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet()

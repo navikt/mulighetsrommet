@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppeDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.util.*
 
 object GjennomforingFixtures {
-    val Oppfolging1 = GjennomforingDbo(
+    val Oppfolging1 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -71,7 +71,7 @@ object GjennomforingFixtures {
         oppmoteSted = null,
     )
 
-    val Oppfolging2 = GjennomforingDbo(
+    val Oppfolging2 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 2",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -98,7 +98,7 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val VTA1 = GjennomforingDbo(
+    val VTA1 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -125,7 +125,7 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val AFT1 = GjennomforingDbo(
+    val AFT1 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "AFT 1",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -152,7 +152,7 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val Jobbklubb1 = GjennomforingDbo(
+    val Jobbklubb1 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "Jobbklubb 1",
         tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
@@ -179,7 +179,7 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val GruppeAmo1 = GjennomforingDbo(
+    val GruppeAmo1 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
@@ -206,7 +206,7 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val GruppeFagYrke1 = GjennomforingDbo(
+    val GruppeFagYrke1 = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Fag- og yrkesopplæring 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
@@ -233,7 +233,7 @@ object GjennomforingFixtures {
         utdanningslop = null,
     )
 
-    val ArbeidsrettetRehabilitering = GjennomforingDbo(
+    val ArbeidsrettetRehabilitering = GjennomforingGruppeDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidsretter Rehabilitering 1",
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,

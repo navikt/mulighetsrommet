@@ -99,12 +99,12 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         test("skal filtrere på brukers enheter") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
                     ),
                 )
-                queries.gjennomforing.upsert(
+                queries.gjennomforing.upsertGruppetiltak(
                     AFT1.copy(
                         navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")),
                     ),
@@ -171,8 +171,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         test("skal filtrere basert på fritekst i navn") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsert(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
-                queries.gjennomforing.upsert(AFT1.copy(navn = "AFT hos Frank"))
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
+                queries.gjennomforing.upsertGruppetiltak(AFT1.copy(navn = "AFT hos Frank"))
 
                 val queries = VeilederflateTiltakQueries(session)
 
@@ -284,7 +284,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             gjennomforinger = listOf(Oppfolging1),
         ) {
             session.execute(Query("update tiltakstype set sanity_id = '${UUID.randomUUID()}' where id = '${TiltakstypeFixtures.Oppfolging.id}'"))
-            queries.gjennomforing.upsert(
+            queries.gjennomforing.upsertGruppetiltak(
                 Oppfolging1.copy(
                     navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
                     kontaktpersoner = listOf(
