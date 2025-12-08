@@ -43,6 +43,12 @@ create trigger set_timestamp
     for each row
 execute procedure trigger_set_timestamp();
 
+alter table gjennomforing
+    add arena_navn       text,
+    add arena_start_dato date,
+    add arena_slutt_dato date,
+    add arena_status     gjennomforing_status;
+
 insert into gjennomforing_gruppetiltak(gjennomforing_id,
                                        avtale_id,
                                        navn,
@@ -129,3 +135,31 @@ from gruppe
 where gjennomforing.id = gruppe.id;
 
 create index gjennomforing_fts_idx on gjennomforing using gin (fts);
+
+insert into gjennomforing (id,
+                           created_at,
+                           updated_at,
+                           tiltakstype_id,
+                           arrangor_id,
+                           opphav,
+                           arena_tiltaksnummer,
+                           arena_ansvarlig_enhet,
+                           arena_navn,
+                           arena_start_dato,
+                           arena_slutt_dato,
+                           arena_status)
+select id,
+       created_at,
+       updated_at,
+       tiltakstype_id,
+       arrangor_id,
+       'ARENA'::opphav,
+       arena_tiltaksnummer,
+       arena_ansvarlig_enhet,
+       arena_navn,
+       arena_start_dato,
+       arena_slutt_dato,
+       arena_status
+from enkeltplass;
+
+drop table enkeltplass;
