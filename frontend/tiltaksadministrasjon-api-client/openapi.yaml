@@ -3140,7 +3140,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "2219f22f8f14e3be4174f5217fc196b7f9e846315c21cebce0920ccb6aba60b8"
+        - "ba10526aa9f7cd8d59848a497a6452357515bf39333811bb04d7a72b04dcd517"
     TiltakstypeDto:
       type: object
       properties:
@@ -5766,14 +5766,16 @@ components:
         belop:
           type: integer
           format: int32
-        godkjentAvArrangorTidspunkt:
+        innsendtAvArrangorDato:
           type:
           - "null"
           - string
-          format: date-time
-        createdAt:
-          type: string
-          format: date-time
+          format: date
+        utbetalesTidligstDato:
+          type:
+          - "null"
+          - string
+          format: date
         betalingsinformasjon:
           $ref: "#/components/schemas/Utbetaling.Betalingsinformasjon"
         beskrivelse:
@@ -5801,15 +5803,15 @@ components:
       - belop
       - beskrivelse
       - betalingsinformasjon
-      - createdAt
-      - godkjentAvArrangorTidspunkt
       - id
       - innsendtAv
+      - innsendtAvArrangorDato
       - journalpostId
       - periode
       - status
       - tilskuddstype
       - type
+      - utbetalesTidligstDato
     Utbetaling.Betalingsinformasjon:
       type: object
       properties:

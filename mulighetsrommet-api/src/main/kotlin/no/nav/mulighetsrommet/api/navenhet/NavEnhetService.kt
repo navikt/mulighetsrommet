@@ -49,7 +49,11 @@ class NavEnhetService(
 
     fun hentRegioner(): List<NavRegionDto> {
         val relevanteEnheter = EnhetFilter(
-            statuser = listOf(NavEnhetStatus.AKTIV),
+            statuser = listOf(
+                NavEnhetStatus.AKTIV,
+                NavEnhetStatus.UNDER_AVVIKLING,
+                NavEnhetStatus.UNDER_ETABLERING,
+            ),
             typer = listOf(NavEnhetType.KO, NavEnhetType.LOKAL, NavEnhetType.FYLKE, NavEnhetType.ARK),
         )
 
@@ -65,7 +69,7 @@ class NavEnhetService(
 
     fun hentKostnadsstedFiltre(): List<NavRegionDto> = db.session {
         val regioner = hentAlleEnheter(EnhetFilter(statuser = listOf(NavEnhetStatus.AKTIV), typer = listOf(NavEnhetType.FYLKE)))
-        val kostnadssteder = queries.enhet.getKostnadssted(emptyList()).map { it.toDto() }
+        val kostnadssteder = queries.enhet.getKostnadssted().map { it.toDto() }
         return NavEnhetHelpers.buildNavRegioner(kostnadssteder + regioner)
     }
 

@@ -2,10 +2,7 @@ package no.nav.mulighetsrommet.api.navenhet
 
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.norg2.*
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.sanity.EnhetSlug
@@ -77,7 +74,14 @@ class NavEnheterSyncService(
     }
 
     private fun isRelevantEnhetForSanity(it: Norg2Response): Boolean {
-        return NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
+        return it.enhet.status in listOf(
+            Norg2EnhetStatus.UNDER_ETABLERING,
+            Norg2EnhetStatus.UNDER_AVVIKLING,
+            Norg2EnhetStatus.AKTIV,
+        ) && it.enhet.type in listOf(
+            Norg2Type.FYLKE,
+            Norg2Type.LOKAL,
+        )
     }
 
     private fun toSanityEnhet(enhet: Norg2EnhetDto, fylke: Norg2EnhetDto? = null): SanityEnhet {
@@ -106,7 +110,6 @@ class NavEnheterSyncService(
     }
 
     private fun tryResolveOverordnetEnhet(enhet: Norg2EnhetDto): NavEnhetNummer? {
-        val spesialEnheterTilFylkeMap = TILTAKSENHETER_TIL_FYKLE_MAP + SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP
-        return spesialEnheterTilFylkeMap[enhet.enhetNr.value]?.let { NavEnhetNummer(it) }
+        return SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP[enhet.enhetNr.value]?.let { NavEnhetNummer(it) }
     }
 }

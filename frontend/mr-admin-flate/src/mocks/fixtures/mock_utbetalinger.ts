@@ -50,8 +50,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
         description: null,
       },
     },
-    createdAt: "2024-01-01T10:00:00",
-    godkjentAvArrangorTidspunkt: null,
+    innsendtAvArrangorDato: null,
+    utbetalesTidligstDato: "2024-08-07",
     belop: 15000,
     betalingsinformasjon: {
       kontonummer: "1234.56.78900",
@@ -78,8 +78,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
         description: null,
       },
     },
-    createdAt: "2024-07-01T14:30:00",
-    godkjentAvArrangorTidspunkt: "2024-07-02T09:15:00",
+    innsendtAvArrangorDato: "2024-07-02",
+    utbetalesTidligstDato: "2024-08-07",
     belop: 18000,
     betalingsinformasjon: {
       kontonummer: "9876.54.32100",
@@ -102,8 +102,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       type: UtbetalingStatusDtoType.RETURNERT,
       status: { value: "Returnert", variant: DataElementStatusVariant.ERROR, description: null },
     },
-    createdAt: "2025-01-01T08:00:00",
-    godkjentAvArrangorTidspunkt: null,
+    innsendtAvArrangorDato: null,
+    utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",
@@ -130,8 +130,8 @@ export const mockUtbetalinger: UtbetalingDto[] = [
         description: null,
       },
     },
-    createdAt: "2025-01-01T08:00:00",
-    godkjentAvArrangorTidspunkt: null,
+    innsendtAvArrangorDato: null,
+    utbetalesTidligstDato: "2025-05-07",
     belop: 9000,
     betalingsinformasjon: {
       kontonummer: "1111.22.33333",

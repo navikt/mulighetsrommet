@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
 import java.util.UUID
 
@@ -139,6 +140,7 @@ private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetalin
     section("Utbetaling") {
         descriptionList {
             entry("Utbetalingsperiode", utbetaling.periode.formatPeriode())
+            entry("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(), Format.DATE)
         }
 
         val satsDetaljer = beregningSatsDetaljer(utbetaling.beregning)

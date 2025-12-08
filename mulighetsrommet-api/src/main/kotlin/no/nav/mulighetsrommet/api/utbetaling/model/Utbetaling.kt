@@ -3,9 +3,11 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.serializers.AgentSerializer
+import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -24,6 +26,8 @@ data class Utbetaling(
     val periode: Periode,
     @Serializable(with = LocalDateTimeSerializer::class)
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    @Serializable(with = InstantSerializer::class)
+    val utbetalesTidligstTidspunkt: Instant?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val beskrivelse: String?,

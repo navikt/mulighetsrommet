@@ -23,6 +23,7 @@ object UtbetalingFixtures {
     val utbetaling1 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
+        status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(1000),
@@ -34,7 +35,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
+        utbetalesTidligstTidspunkt = null,
     )
 
     val utbetalingDto1 = Utbetaling(
@@ -53,12 +54,13 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
+        utbetalesTidligstTidspunkt = null,
         status = UtbetalingStatusType.GENERERT,
         tiltakstype = Tiltakstype(
             navn = TiltakstypeFixtures.AFT.navn,
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
         ),
-        arrangor = Utbetaling.Arrangor(
+        arrangor = Arrangor(
             id = ArrangorFixtures.underenhet1.id,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             navn = ArrangorFixtures.underenhet1.navn,
@@ -76,6 +78,7 @@ object UtbetalingFixtures {
     val utbetaling2 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,
+        status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(500),
@@ -87,12 +90,13 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
+        utbetalesTidligstTidspunkt = null,
     )
 
     val utbetaling3 = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.VTA1.id,
+        status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         beregning = UtbetalingBeregningFri(
             input = UtbetalingBeregningFri.Input(500),
@@ -104,7 +108,7 @@ object UtbetalingFixtures {
         beskrivelse = null,
         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         godkjentAvArrangorTidspunkt = null,
-        status = UtbetalingStatusType.GENERERT,
+        utbetalesTidligstTidspunkt = null,
     )
 
     val delutbetaling1 = DelutbetalingDbo(

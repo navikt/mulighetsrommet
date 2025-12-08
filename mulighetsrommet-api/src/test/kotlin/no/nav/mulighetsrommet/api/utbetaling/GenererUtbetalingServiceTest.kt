@@ -26,8 +26,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class GenererUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -37,11 +39,13 @@ class GenererUtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
     fun createUtbetalingService(
-        config: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith { gyldigTilsagnPeriode },
+        gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith {
+            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
+        },
+        tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = TidligstTidspunktForUtbetalingCalculator { _, _ -> null },
     ) = GenererUtbetalingService(
-        config = GenererUtbetalingService.Config(config),
+        config = GenererUtbetalingService.Config(gyldigTilsagnPeriode, tidligstTidspunktForUtbetaling),
         db = database.db,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
@@ -64,6 +68,63 @@ class GenererUtbetalingServiceTest : FunSpec({
     val februar = Periode.forMonthOf(LocalDate.of(2025, 2, 1))
     val mars = Periode.forMonthOf(LocalDate.of(2025, 3, 1))
     val september = Periode.forMonthOf(LocalDate.of(2025, 9, 1))
+
+    context("konfigurasjon for generering av utbetalinger") {
+        test("genererer bare utbetaling når perioden er dekket av konfigurerte tilsagnsperioder") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService(
+                gyldigTilsagnPeriode = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar),
+            )
+
+            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
+
+            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1)
+        }
+
+        test("lagrer tidligste tidspunkt for utbetaling basert på konfigurert kalkulering") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+                        AFT1.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 2, 28),
+                        statusType = DeltakerStatusType.DELTAR,
+                        deltakelsesprosent = 100.0,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            var tidligstTidspunktForUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, periode ->
+                if (periode == januar) februar.start.atStartOfDay().toInstant(ZoneOffset.UTC) else null
+            }
+            val service = createUtbetalingService(
+                tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
+            )
+
+            service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).should { (utbetaling) ->
+                utbetaling.utbetalesTidligstTidspunkt shouldBe Instant.parse("2025-02-01T00:00:00.00Z")
+            }
+
+            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1).should { (utbetaling) ->
+                utbetaling.utbetalesTidligstTidspunkt.shouldBeNull()
+            }
+        }
+    }
 
     context("utbetalinger for forhåndsgodkjente tiltak") {
         val service = createUtbetalingService()
@@ -162,30 +223,6 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             )
-        }
-
-        test("genererer bare utbetaling når perioden er dekket av konfigurerte tilsagnsperioder") {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                deltakere = listOf(
-                    DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
-                        AFT1.id,
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = LocalDate.of(2025, 2, 28),
-                        statusType = DeltakerStatusType.DELTAR,
-                        deltakelsesprosent = 100.0,
-                    ),
-                ),
-            ).initialize(database.db)
-
-            val service = createUtbetalingService(
-                config = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar),
-            )
-
-            service.genererUtbetalingForPeriode(januar).shouldBeEmpty()
-
-            service.genererUtbetalingForPeriode(februar).shouldHaveSize(1)
         }
 
         test("genererer utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {

@@ -6,6 +6,7 @@ create view view_utbetaling as
 select utbetaling.id,
        utbetaling.beregning_type,
        utbetaling.godkjent_av_arrangor_tidspunkt,
+       utbetaling.utbetales_tidligst_tidspunkt,
        utbetaling.kontonummer,
        utbetaling.kid,
        utbetaling.journalpost_id,

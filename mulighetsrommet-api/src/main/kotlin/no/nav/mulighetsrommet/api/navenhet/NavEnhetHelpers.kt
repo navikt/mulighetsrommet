@@ -75,32 +75,4 @@ val SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP = mapOf(
     "1683" to "5700",
     // Nav arbeid og helse Oslo
     "0396" to "0300",
-    // Nasjonal oppfølgingsenhet
-    "4154" to "0300",
-    // Nav arbeidslivssenter Møre og Romsdal
-    "1591" to "1500",
-    // Nav arbeidslivssenter Oslo
-    "0391" to "0300",
-)
-
-/**
- * Tiltaksenheter er ikke koblet mot et fylke i Norg, men det vises under sitt respektive fylke i Tiltaksadministrasjon.
- *
- * "Foreløpig" løsning er at vi vedlikeholder en kobling her og lagrer dette som del av replikeringsjobben mot Norg.
- */
-val TILTAKSENHETER_TIL_FYKLE_MAP = mapOf(
-    // Nav tiltak Vestland
-    "1287" to "1200",
-    // Nav tiltak Rogaland
-    "1187" to "1100",
-    // Nav tiltak Innlandet
-    "0587" to "0400",
-    // Nav tiltak Oslo
-    "0387" to "0300",
-    // Nav tiltak Øst-Viken
-    "0287" to "0200",
-    // Nav tiltak Troms og Finnmark
-    "1987" to "1900",
-    // Nav tiltak Agder
-    "1087" to "1000",
 )

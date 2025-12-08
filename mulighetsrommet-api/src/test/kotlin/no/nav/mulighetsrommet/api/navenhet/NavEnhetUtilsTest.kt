@@ -8,13 +8,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 
 class NavEnhetUtilsTest : FunSpec({
     context("SanityUtils") {
-        test("Relevante statuser") {
-            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.AKTIV) shouldBe true
-            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.UNDER_AVVIKLING) shouldBe true
-            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.UNDER_ETABLERING) shouldBe true
-            NavEnhetUtils.isRelevantEnhetStatus(Norg2EnhetStatus.NEDLAGT) shouldBe false
-        }
-
         test("toType skal returnere typer med stor forbokstav") {
             NavEnhetUtils.toType("FYLKE") shouldBe "Fylke"
             NavEnhetUtils.toType("LOKAL") shouldBe "Lokal"

@@ -16,7 +16,7 @@ import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
 import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
@@ -64,10 +64,7 @@ export function GjennomforingDetaljer() {
     },
     {
       key: "Avtaleperiode",
-      value:
-        avtale &&
-        `${formaterDato(avtale.startDato)} -
-                        ${formaterDato(avtale.sluttDato) ?? ""}`,
+      value: avtale ? `${formaterDato(avtale.startDato)} - ${formaterDato(avtale.sluttDato)}` : "",
     },
   ];
 
@@ -83,7 +80,24 @@ export function GjennomforingDetaljer() {
     },
     {
       key: gjennomforingTekster.lopenummerLabel,
-      value: lopenummer,
+      value: (
+        <HStack gap="2">
+          {lopenummer}
+          <HelpText title="Hva betyr feltet 'Løpenummer'?">
+            <VStack gap="2">
+              <Heading level="3" size="xsmall">
+                Hva betyr feltet 'Løpenummer'?
+              </Heading>
+              <BodyShort>
+                Hver tiltaksgjennomføring har et unikt løpenummer. Alle tilsagn og utbetalinger kan
+                spores tilbake til gjennomføringen basert på løpenummeret. I tillegg vises det i
+                utbetalingsløsningen for tiltaksarrangører.
+              </BodyShort>
+              <BodyShort>Løpenummeret vil på sikt erstatte "tiltaksnummeret" fra Arena.</BodyShort>
+            </VStack>
+          </HelpText>
+        </HStack>
+      ),
     },
     {
       key: gjennomforingTekster.apentForPameldingLabel,

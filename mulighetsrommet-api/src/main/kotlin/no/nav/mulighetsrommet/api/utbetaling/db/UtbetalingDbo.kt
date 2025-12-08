@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -14,6 +15,7 @@ data class UtbetalingDbo(
     val id: UUID,
     val innsender: Agent?,
     val gjennomforingId: UUID,
+    val status: UtbetalingStatusType,
     val beregning: UtbetalingBeregning,
     val kontonummer: Kontonummer?,
     val kid: Kid?,
@@ -21,5 +23,5 @@ data class UtbetalingDbo(
     val beskrivelse: String?,
     val tilskuddstype: Tilskuddstype,
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
-    val status: UtbetalingStatusType,
+    val utbetalesTidligstTidspunkt: Instant?,
 )

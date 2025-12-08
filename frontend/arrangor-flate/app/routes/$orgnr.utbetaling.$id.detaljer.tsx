@@ -1,5 +1,5 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
@@ -20,6 +20,8 @@ import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { getTimestamp } from "~/utils/utbetaling";
 import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
+import { getUtbetalingsdato } from "~/utils/utbetaling";
+import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
@@ -63,8 +65,6 @@ export const loader: LoaderFunction = async ({
 export default function UtbetalingDetaljerSide() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
 
-  const innsendtTidspunkt = getTimestamp(utbetaling);
-
   const visNedlastingAvKvittering = [
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
     ArrangorflateUtbetalingStatus.UTBETALT,
@@ -94,7 +94,7 @@ export default function UtbetalingDetaljerSide() {
       <UtbetalingHeader utbetalingType={utbetaling.type} />
       <Definisjonsliste
         definitions={[
-          innsendtTidspunkt,
+          getUtbetalingsdato(utbetaling),
           { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
           { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
           { key: "Løpenummer", value: utbetaling.gjennomforing.lopenummer },
@@ -106,6 +106,10 @@ export default function UtbetalingDetaljerSide() {
           {
             key: "Utbetalingsperiode",
             value: formaterPeriode(utbetaling.periode),
+          },
+          {
+            key: "Utbetales tidligst",
+            value: formaterDato(utbetaling.utbetalesTidligstDato) ?? "-",
           },
         ]}
       />
