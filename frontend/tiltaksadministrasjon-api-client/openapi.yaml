@@ -3140,7 +3140,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 0
+        - 1
     TiltakstypeDto:
       type: object
       properties:
@@ -5766,14 +5766,16 @@ components:
         belop:
           type: integer
           format: int32
-        godkjentAvArrangorTidspunkt:
+        innsendtAvArrangorDato:
           type:
           - "null"
           - string
-          format: date-time
-        createdAt:
-          type: string
-          format: date-time
+          format: date
+        utbetalesTidligstDato:
+          type:
+          - "null"
+          - string
+          format: date
         betalingsinformasjon:
           $ref: "#/components/schemas/Utbetaling.Betalingsinformasjon"
         beskrivelse:
@@ -5801,15 +5803,15 @@ components:
       - belop
       - beskrivelse
       - betalingsinformasjon
-      - createdAt
-      - godkjentAvArrangorTidspunkt
       - id
       - innsendtAv
+      - innsendtAvArrangorDato
       - journalpostId
       - periode
       - status
       - tilskuddstype
       - type
+      - utbetalesTidligstDato
     Utbetaling.Betalingsinformasjon:
       type: object
       properties:

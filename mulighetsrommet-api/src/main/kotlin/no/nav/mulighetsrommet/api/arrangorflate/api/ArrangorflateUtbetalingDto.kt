@@ -1,15 +1,14 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,8 +17,10 @@ data class ArrangorflateUtbetalingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: ArrangorflateUtbetalingStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    @Serializable(with = LocalDateSerializer::class)
+    val innsendtAvArrangorDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val utbetalesTidligstDato: LocalDate?,
     val kanViseBeregning: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime?,

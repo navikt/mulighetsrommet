@@ -1,14 +1,14 @@
 import { Alert, BodyLong, BodyShort, ExpansionCard, Link, VStack } from "@navikt/ds-react";
 import { ArrangorflateService } from "api-client";
 import {
+  Link as ReactRouterLink,
   LoaderFunction,
   MetaFunction,
-  Link as ReactRouterLink,
   useLoaderData,
   useParams,
 } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
-import { tekster } from "../tekster";
+import { tekster } from "~/tekster";
 import { problemDetailResponse } from "~/utils/validering";
 import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -16,7 +16,8 @@ import { useFileStorage } from "~/hooks/useFileStorage";
 import { useEffect } from "react";
 
 type UtbetalingKvitteringData = {
-  mottattTidspunkt: string;
+  mottattDato: string;
+  utbetalesTidligstDato: string | null;
   kontonummer: string | null;
 };
 
@@ -46,15 +47,22 @@ export const loader: LoaderFunction = async ({
   if (utbetalingError) {
     throw problemDetailResponse(utbetalingError);
   }
-  const kontonummer = utbetaling.betalingsinformasjon.kontonummer;
-  const mottattTidspunkt = utbetaling.godkjentAvArrangorTidspunkt;
 
-  if (!mottattTidspunkt) throw new Response("Ugyldig", { status: 400 });
-  return { mottattTidspunkt, kontonummer };
+  const mottattDato = utbetaling.innsendtAvArrangorDato;
+  if (!mottattDato) {
+    throw new Response("Mangler dato for innsending", { status: 400 });
+  }
+
+  return {
+    mottattDato,
+    utbetalesTidligstDato: utbetaling.utbetalesTidligstDato,
+    kontonummer: utbetaling.betalingsinformasjon.kontonummer,
+  };
 };
 
 export default function UtbetalingKvittering() {
-  const { mottattTidspunkt, kontonummer } = useLoaderData<UtbetalingKvitteringData>();
+  const { mottattDato, utbetalesTidligstDato, kontonummer } =
+    useLoaderData<UtbetalingKvitteringData>();
   const { id } = useParams();
   const orgnr = useOrgnrFromUrl();
   const storage = useFileStorage();
@@ -81,9 +89,12 @@ export default function UtbetalingKvittering() {
         </ExpansionCard.Header>
         <ExpansionCard.Content>
           <VStack gap="2">
-            <BodyShort>
-              {tekster.bokmal.utbetaling.kvittering.mottattAv(mottattTidspunkt)}
-            </BodyShort>
+            <BodyShort>{tekster.bokmal.utbetaling.kvittering.mottattAv(mottattDato)}</BodyShort>
+            {utbetalesTidligstDato && (
+              <BodyShort spacing>
+                {tekster.bokmal.utbetaling.kvittering.utbetalesTidligstDato(utbetalesTidligstDato)}
+              </BodyShort>
+            )}
             <BodyShort spacing>{tekster.bokmal.utbetaling.kvittering.orgnr(orgnr)}</BodyShort>
             {id && (
               <BodyLong>

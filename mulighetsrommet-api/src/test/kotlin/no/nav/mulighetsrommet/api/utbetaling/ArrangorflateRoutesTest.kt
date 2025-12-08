@@ -222,7 +222,7 @@ class ArrangorflateRoutesTest : FunSpec({
         val clientEngine = createMockEngine {
             ArrangorflateTestUtils.mockAltinnAuthorizedParties(this)
 
-            post("/dokark/rest/journalpostapi/v1/journalpost") {
+            post("/dokark/rest/journalpostapi/v1/journalpost") { _ ->
                 respondError(HttpStatusCode.InternalServerError)
             }
         }

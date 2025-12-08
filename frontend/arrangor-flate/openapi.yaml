@@ -1641,11 +1641,6 @@ components:
           $ref: "#/components/schemas/Periode"
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        godkjentAvArrangorTidspunkt:
-          type:
-          - "null"
-          - string
-          format: date-time
         belop:
           type: integer
           format: int32
@@ -1658,7 +1653,6 @@ components:
       - arrangor
       - belop
       - gjennomforing
-      - godkjentAvArrangorTidspunkt
       - godkjentBelop
       - id
       - periode
@@ -1830,11 +1824,16 @@ components:
           format: uuid
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-        godkjentAvArrangorTidspunkt:
+        innsendtAvArrangorDato:
           type:
           - "null"
           - string
-          format: date-time
+          format: date
+        utbetalesTidligstDato:
+          type:
+          - "null"
+          - string
+          format: date
         kanViseBeregning:
           type: boolean
         createdAt:
@@ -1871,14 +1870,15 @@ components:
       - betalingsinformasjon
       - createdAt
       - gjennomforing
-      - godkjentAvArrangorTidspunkt
       - id
+      - innsendtAvArrangorDato
       - kanViseBeregning
       - linjer
       - periode
       - status
       - tiltakstype
       - type
+      - utbetalesTidligstDato
     GodkjennUtbetaling:
       type: object
       properties:
