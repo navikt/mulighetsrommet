@@ -1,5 +1,5 @@
 import {
-  GjennomforingerTableResponse,
+  TiltaksOversiktResponse,
   OpprettKravDeltakere,
   OpprettKravInnsendingsInformasjon,
   OpprettKravOppsummering,
@@ -18,14 +18,14 @@ import { oppsummering, utbetalingMap } from "./oppsummeringMocks";
 import { deltakere } from "./deltakelserMocks";
 
 export const handlers = [
-  http.get<PathParams, GjennomforingerTableResponse[]>(
+  http.get<PathParams, TiltaksOversiktResponse[]>(
     "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/opprett-krav",
     () =>
-      HttpResponse.json<GjennomforingerTableResponse>({
+      HttpResponse.json<TiltaksOversiktResponse>({
         table: oversiktAktiveGjennomforinger,
       }),
   ),
-  http.get<PathParams, GjennomforingerTableResponse[]>(
+  http.get<PathParams, TiltaksOversiktResponse[]>(
     "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
     ({ params }) => {
       const { gjennomforingId } = params;

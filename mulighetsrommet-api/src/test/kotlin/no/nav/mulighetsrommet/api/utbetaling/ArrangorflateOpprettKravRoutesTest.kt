@@ -5,7 +5,6 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -15,9 +14,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
-import no.nav.mulighetsrommet.api.arrangorflate.api.GjennomforingerTableResponse
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon.DatoVelger
+import no.nav.mulighetsrommet.api.arrangorflate.api.TiltaksOversiktResponse
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -127,7 +126,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<GjennomforingerTableResponse>()
+            val body = response.body<TiltaksOversiktResponse>()
             body.table.shouldBeNull()
         }
     }
@@ -139,7 +138,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<GjennomforingerTableResponse>()
+            val body = response.body<TiltaksOversiktResponse>()
             body.table.shouldNotBeNull()
             body.table.rows.size shouldBeGreaterThan 1
         }

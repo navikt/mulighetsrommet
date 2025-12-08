@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -96,16 +95,16 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     }
 
     get("/arrangør/tiltaks-oversikt", {
-        description = "Hent gjennomføringene til arrangør - tabell format"
+        description = "Hent tiltakene for alle arrangører brukeren har tilgang til"
         tags = setOf("Arrangorflate")
-        operationId = "getArrangorersTiltakTabell"
+        operationId = "getArrangorersTiltaksOversikt"
         request {
-            queryParameter<GjennomforingOversiktType>("type")
+            queryParameter<TiltaksOversiktType>("type")
         }
         response {
             code(HttpStatusCode.OK) {
                 description = "Arrangør sine gjennomføringer (DataDrivenTable)"
-                body<GjennomforingerTableResponse>()
+                body<TiltaksOversiktResponse>()
             }
             default {
                 description = "Problem details"
@@ -118,7 +117,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             respondWithManglerTilgangHosArrangor()
             return@get
         }
-        val type = GjennomforingOversiktType.from(call.queryParameters["type"])
+        val type = TiltaksOversiktType.from(call.queryParameters["type"])
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
             val opprettKravPrismodeller = okonomiConfig.opprettKravPrismodeller
@@ -139,10 +138,10 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }
         if (gjennomforinger.isEmpty()) {
-            call.respond(GjennomforingerTableResponse())
+            call.respond(TiltaksOversiktResponse())
         } else {
             call.respond(
-                GjennomforingerTableResponse(table = toGjennomforingDataTable(gjennomforinger)),
+                TiltaksOversiktResponse(table = toGjennomforingDataTable(gjennomforinger)),
             )
         }
     }
@@ -444,7 +443,7 @@ fun kanOppretteKrav(
 }
 
 @Serializable
-enum class GjennomforingOversiktType {
+enum class TiltaksOversiktType {
     AKTIVE,
     HISTORISKE,
     ;
@@ -459,7 +458,7 @@ enum class GjennomforingOversiktType {
          * Defaulter til AKTIVE
          */
 
-        fun from(type: String?): GjennomforingOversiktType = when (type) {
+        fun from(type: String?): TiltaksOversiktType = when (type) {
             "AKTIVE" -> AKTIVE
             "HISTORISKE" -> HISTORISKE
             else -> AKTIVE
@@ -468,7 +467,7 @@ enum class GjennomforingOversiktType {
 }
 
 @Serializable
-data class GjennomforingerTableResponse(
+data class TiltaksOversiktResponse(
     val table: DataDrivenTableDto? = null,
 )
 

@@ -36,8 +36,8 @@ paths:
     get:
       tags:
       - Arrangorflate
-      description: Hent gjennomføringene til arrangør - tabell format
-      operationId: getArrangorersTiltakTabell
+      description: Hent tiltakene for alle arrangører brukeren har tilgang til
+      operationId: getArrangorersTiltaksOversikt
       parameters:
       - name: type
         in: query
@@ -45,7 +45,7 @@ paths:
         deprecated: false
         explode: false
         schema:
-          $ref: "#/components/schemas/GjennomforingOversiktType"
+          $ref: "#/components/schemas/TiltaksOversiktType"
       responses:
         "200":
           description: Arrangør sine gjennomføringer (DataDrivenTable)
@@ -53,7 +53,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GjennomforingerTableResponse"
+                $ref: "#/components/schemas/TiltaksOversiktResponse"
         default:
           description: Problem details
           headers: {}
@@ -862,7 +862,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "ae566079ffc79235e6e12fa7c3d8862e4bc5c2f62dc4d57a226d2ba80c9d0ebf"
+        - "02dbfc83c47688f3326f737cf145160eb2a16b71cfb78146e34dd9fd720ddd2b"
     ArrangorDto:
       type: object
       properties:
@@ -919,7 +919,7 @@ components:
       - status
       - title
       - type
-    GjennomforingOversiktType:
+    TiltaksOversiktType:
       type: string
       enum:
       - AKTIVE
@@ -1167,7 +1167,7 @@ components:
       - warning
       - danger
       - neutral
-    GjennomforingerTableResponse:
+    TiltaksOversiktResponse:
       type: object
       properties:
         table:
