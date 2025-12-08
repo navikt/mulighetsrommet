@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -52,7 +52,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
         domain.initialize(database.db)
 
         database.run {
-            queries.enkeltplass.upsert(EnkeltplassFixtures.EnkelAmo)
+            queries.gjennomforing.upsert(EnkeltplassFixtures.EnkelAmo)
         }
     }
 
@@ -167,7 +167,9 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
         test("200 når tiltaksnummer finnes på guppetiltak") {
             database.run {
-                queries.gjennomforing.setArenaData(tiltakGruppeId, "2024#123", null)
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(tiltakGruppeId, tiltaksnummer = Tiltaksnummer("2024#123")),
+                )
             }
 
             withTestApplication(appConfig()) {
@@ -199,16 +201,8 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
         test("200 når tiltaksnummer finnes på enkeltplass") {
             database.run {
-                queries.enkeltplass.setArenaData(
-                    EnkeltplassArenaDataDbo(
-                        id = tiltakEnkeltplassId,
-                        tiltaksnummer = Tiltaksnummer("2025#1"),
-                        navn = null,
-                        startDato = null,
-                        sluttDato = null,
-                        status = null,
-                        arenaAnsvarligEnhet = null,
-                    ),
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(tiltakEnkeltplassId, tiltaksnummer = Tiltaksnummer("2025#1")),
                 )
             }
 

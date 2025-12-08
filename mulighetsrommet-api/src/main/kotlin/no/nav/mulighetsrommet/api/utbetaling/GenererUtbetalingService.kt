@@ -70,7 +70,7 @@ class GenererUtbetalingService(
     suspend fun genererUtbetalingForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForGenereringAvUtbetalinger(periode)
             .mapNotNull { context ->
-                val gjennomforing = queries.gjennomforing.getOrError(context.gjennomforingId)
+                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(context.gjennomforingId)
                 generateUtbetalingForPrismodell(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
@@ -89,7 +89,7 @@ class GenererUtbetalingService(
     suspend fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
         getContextForBeregningAvUtbetalinger(periode)
             .mapNotNull { context ->
-                val gjennomforing = queries.gjennomforing.getOrError(context.gjennomforingId)
+                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(context.gjennomforingId)
                 val utbetaling = generateUtbetalingForPrismodell(
                     utbetalingId = UUID.randomUUID(),
                     gjennomforing = gjennomforing,
@@ -101,7 +101,7 @@ class GenererUtbetalingService(
     }
 
     suspend fun oppdaterUtbetalingBeregningForGjennomforing(id: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getOrError(id)
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(id)
         val prismodell = queries.gjennomforing.getPrismodell(id)
 
         if (prismodell == null) {

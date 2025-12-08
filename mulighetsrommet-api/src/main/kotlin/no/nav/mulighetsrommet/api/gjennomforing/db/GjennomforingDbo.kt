@@ -7,11 +7,28 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
 
 data class GjennomforingDbo(
+    val id: UUID,
+    val tiltakstypeId: UUID,
+    val arrangorId: UUID,
+)
+
+data class GjennomforingArenaDataDbo(
+    val id: UUID,
+    val tiltaksnummer: Tiltaksnummer? = null,
+    val navn: String? = null,
+    val startDato: LocalDate? = null,
+    val sluttDato: LocalDate? = null,
+    val status: GjennomforingStatusType? = null,
+    val arenaAnsvarligEnhet: String? = null,
+)
+
+data class GjennomforingGruppeDbo(
     val id: UUID,
     val navn: String,
     val tiltakstypeId: UUID,

@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.reflect.full.memberProperties
 
 class DatavarehusTiltakQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -86,7 +85,9 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.setArenaData(AFT1.id, tiltaksnummer = "2020#1234", arenaAnsvarligEnhet = null)
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(AFT1.id, tiltaksnummer = Tiltaksnummer("2020#1234")),
+                )
 
                 val queries = DatavarehusTiltakQueries(session)
 
@@ -203,7 +204,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.gjennomforing.upsert(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
+                queries.gjennomforing.upsertGruppetiltak(GruppeFagYrke1.copy(utdanningslop = utdanningslop))
             }
 
             database.runAndRollback { session ->
@@ -282,8 +283,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
-                queries.enkeltplass.setArenaData(
-                    EnkeltplassArenaDataDbo(
+                queries.gjennomforing.setArenaData(
+                    GjennomforingArenaDataDbo(
                         id = EnkeltplassFixtures.EnkelAmo.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
                         navn = "Arenanavn",
@@ -313,21 +314,3 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
     }
 })
-
-// Extension function to compare data classes excluding specific properties
-inline fun <reified T : Any> T.equalsIgnoring(
-    other: T?,
-    vararg propertiesToExclude: String,
-): Boolean {
-    if (this === other) return true
-    if (other == null) return false
-
-    val properties = T::class.memberProperties
-        .filter { it.name !in propertiesToExclude }
-
-    return properties.all { prop ->
-        val thisValue = prop.get(this)
-        val otherValue = prop.get(other)
-        thisValue == otherValue
-    }
-}

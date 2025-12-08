@@ -40,11 +40,11 @@ private fun Route.getGjennomforingV2Route() {
 
     suspend fun QueryContext.getTiltaksgjennomforingV2(id: UUID): TiltaksgjennomforingV2Dto? = coroutineScope {
         val gruppe = async {
-            queries.gjennomforing.get(id)?.let(TiltaksgjennomforingV2Mapper::fromGruppe)
+            queries.gjennomforing.getGruppetiltak(id)?.let(TiltaksgjennomforingV2Mapper::fromGruppe)
         }
 
         val enkeltplass = async {
-            queries.enkeltplass.get(id)?.let(TiltaksgjennomforingV2Mapper::fromEnkeltplass)
+            queries.gjennomforing.getEnkeltplass(id)?.let(TiltaksgjennomforingV2Mapper::fromEnkeltplass)
         }
 
         listOf(gruppe, enkeltplass).awaitAll().firstOrNull { it != null }
@@ -157,8 +157,8 @@ private fun Route.getGjennomforingArenaDataRoute() {
         val id: UUID by call.parameters
 
         val tiltaksnummer = db.session {
-            val gjennomforing = queries.gjennomforing.get(id)
-            val enkeltplass = queries.enkeltplass.get(id)
+            val gjennomforing = queries.gjennomforing.getGruppetiltak(id)
+            val enkeltplass = queries.gjennomforing.getEnkeltplass(id)
 
             if (gjennomforing == null && enkeltplass == null) {
                 return@get call.respond(HttpStatusCode.NotFound)

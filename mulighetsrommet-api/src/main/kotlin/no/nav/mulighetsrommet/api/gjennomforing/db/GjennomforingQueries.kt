@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
@@ -42,7 +43,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingQueries(private val session: Session) {
-    fun create(gjennomforing: GjennomforingDbo) {
+    fun upsert(gjennomforing: GjennomforingDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into gjennomforing (id, tiltakstype_id, arrangor_id)
@@ -61,8 +62,8 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {
-        create(gjennomforing)
+    fun upsertGruppetiltak(gjennomforing: GjennomforingGruppeDbo) = withTransaction(session) {
+        upsert(GjennomforingDbo(gjennomforing.id, gjennomforing.tiltakstypeId, gjennomforing.arrangorId))
 
         setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
 
@@ -299,29 +300,35 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun setArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) {
+    fun setArenaData(dbo: GjennomforingArenaDataDbo) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
             set arena_tiltaksnummer = :arena_tiltaksnummer,
-                arena_ansvarlig_enhet = :arena_ansvarlig_enhet
+                arena_ansvarlig_enhet = :arena_ansvarlig_enhet,
+                arena_navn = :arena_navn,
+                arena_start_dato = :arena_start_dato,
+                arena_slutt_dato = :arena_slutt_dato,
+                arena_status = :arena_status::gjennomforing_status
             where id = :id::uuid
         """.trimIndent()
-
         val params = mapOf(
-            "id" to id,
-            "arena_tiltaksnummer" to tiltaksnummer,
-            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+            "id" to dbo.id,
+            "arena_tiltaksnummer" to dbo.tiltaksnummer?.value,
+            "arena_ansvarlig_enhet" to dbo.arenaAnsvarligEnhet,
+            "arena_navn" to dbo.navn,
+            "arena_start_dato" to dbo.startDato,
+            "arena_slutt_dato" to dbo.sluttDato,
+            "arena_status" to dbo.status?.name,
         )
-
         session.execute(queryOf(query, params))
     }
 
-    fun getOrError(id: UUID): Gjennomforing {
-        return checkNotNull(get(id)) { "Gjennomføring med id $id finnes ikke" }
+    fun getGruppetiltakOrError(id: UUID): Gjennomforing {
+        return checkNotNull(getGruppetiltak(id)) { "Gjennomføring med id $id finnes ikke" }
     }
 
-    fun get(id: UUID): Gjennomforing? {
+    fun getGruppetiltak(id: UUID): Gjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -346,7 +353,7 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun getAll(
+    fun getAllGruppetiltak(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
         navEnheter: List<NavEnhetNummer> = emptyList(),
@@ -453,6 +460,44 @@ class GjennomforingQueries(private val session: Session) {
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingDto() }
     }
 
+    fun getEnkeltplassOrError(id: UUID): Enkeltplass {
+        return checkNotNull(getEnkeltplass(id)) { "Enkeltplass med id=$id finnes ikke" }
+    }
+
+    fun getEnkeltplass(id: UUID): Enkeltplass? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_gjennomforing_enkeltplass
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toEnkeltplass() }
+    }
+
+    fun getAllEnkeltplass(
+        pagination: Pagination = Pagination.all(),
+        tiltakstyper: List<UUID> = emptyList(),
+    ): PaginatedResult<Enkeltplass> {
+        @Language("PostgreSQL")
+        val query = """
+            select *, count(*) over () as total_count
+            from view_gjennomforing_enkeltplass
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
+            order by id
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { session.createUuidArray(it) },
+        )
+
+        return queryOf(query, parameters + pagination.parameters)
+            .mapPaginated { it.toEnkeltplass() }
+            .runWithSession(session)
+    }
+
     fun setFreeTextSearch(id: UUID, content: List<String>) {
         @Language("PostgreSQL")
         val query = """
@@ -472,16 +517,6 @@ class GjennomforingQueries(private val session: Session) {
             "content" to content.joinToString(" "),
         )
         session.execute(queryOf(query, params))
-    }
-
-    fun delete(id: UUID): Int {
-        @Language("PostgreSQL")
-        val query = """
-            delete from gjennomforing
-            where id = ?::uuid
-        """.trimIndent()
-
-        return session.update(queryOf(query, id))
     }
 
     fun setPublisert(id: UUID, publisert: Boolean): Int {
@@ -617,6 +652,16 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         session.execute(queryOf(query, id))
+    }
+
+    fun delete(id: UUID): Int {
+        @Language("PostgreSQL")
+        val query = """
+            delete from gjennomforing
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.update(queryOf(query, id))
     }
 }
 
@@ -756,4 +801,35 @@ private fun Row.toGjennomforingStatus(): GjennomforingStatus {
             stringOrNull("avbrutt_forklaring"),
         )
     }
+}
+
+private fun Row.toEnkeltplass(): Enkeltplass {
+    val arena = stringOrNull("arena_tiltaksnummer")?.let { tiltaksnummer ->
+        Enkeltplass.ArenaData(
+            tiltaksnummer = Tiltaksnummer(tiltaksnummer),
+            navn = stringOrNull("arena_navn"),
+            startDato = localDateOrNull("arena_start_dato"),
+            sluttDato = localDateOrNull("arena_slutt_dato"),
+            status = stringOrNull("arena_status")?.let { GjennomforingStatusType.valueOf(it) },
+            ansvarligNavEnhet = stringOrNull("arena_ansvarlig_enhet"),
+        )
+    }
+
+    return Enkeltplass(
+        id = uuid("id"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
+        arrangor = Enkeltplass.Arrangor(
+            id = uuid("arrangor_id"),
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+            slettet = boolean("arrangor_slettet"),
+        ),
+        tiltakstype = Enkeltplass.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        arena = arena,
+    )
 }
