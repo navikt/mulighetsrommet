@@ -2,7 +2,7 @@ services:
   # Mock implementation of Oauth2/OIDC.
   # The service is referenced as part of the authentication between applications as part of local development.
   mock-oauth2-server:
-    image: ghcr.io/navikt/mock-oauth2-server:2.0.0
+    image: "ghcr.io/navikt/mock-oauth2-server:2.0.0"
     restart: always
     ports:
       - "8081:8081"
@@ -60,7 +60,7 @@ services:
         }
 
   mulighetsrommet-db:
-    image: "postgres:17-alpine"
+    image: "docker.io/library/postgres:17-alpine"
     restart: "always"
     volumes:
       - "mulighetsrommet-db:/var/lib/postgresql/data"
@@ -93,7 +93,7 @@ services:
 
   # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.3
+    image: "docker.io/confluentinc/cp-zookeeper:7.5.3"
     restart: always
     ports:
       - "22181:2181"
@@ -106,7 +106,7 @@ services:
 
   # Kafka broker.
   kafka:
-    image: confluentinc/cp-kafka:7.5.3
+    image: "docker.io/confluentinc/cp-kafka:7.5.3"
     restart: always
     depends_on:
       - zookeeper
@@ -125,7 +125,7 @@ services:
 
   # WireMock is a tool for creating mock APIs.
   wiremock:
-    image: wiremock/wiremock:2.32.0
+    image: "docker.io/wiremock/wiremock:2.32.0"
     restart: always
     ports:
       - "8090:8080"
