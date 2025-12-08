@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppeDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.*
 
 object GjennomforingDboMapper {
-    fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(
+    fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingGruppeDbo(
         id = gjennomforing.id,
         navn = gjennomforing.navn,
         tiltakstypeId = gjennomforing.tiltakstype.id,
@@ -54,7 +54,7 @@ object GjennomforingDboMapper {
         antallPlasser: Int,
         arrangorId: UUID,
         status: GjennomforingStatusType,
-    ) = GjennomforingDbo(
+    ) = GjennomforingGruppeDbo(
         id = request.id,
         navn = request.navn,
         tiltakstypeId = request.tiltakstypeId,

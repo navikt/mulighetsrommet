@@ -42,7 +42,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
     private suspend fun publishMigrertGjennomforing(id: UUID): Unit = db.session {
         val arenaGjennomforing = arenaAdapterClient.hentArenadata(id)
 
-        val gjennomforing = queries.gjennomforing.getOrError(id)
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(id)
 
         val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(
             gjennomforing,

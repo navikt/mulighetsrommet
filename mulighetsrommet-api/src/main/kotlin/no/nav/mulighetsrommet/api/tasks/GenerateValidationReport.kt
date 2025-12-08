@@ -158,12 +158,12 @@ class GenerateValidationReport(
     private suspend fun validateGjennomforinger(): Map<Gjennomforing, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
-                queries.gjennomforing.getAll(
+                queries.gjennomforing.getAllGruppetiltak(
                     pagination,
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                val gjennomforing = queries.gjennomforing.getOrError(it.id)
+                val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(it.id)
                 val request = GjennomforingDboMapper.toGjennomforingRequest(gjennomforing)
                 val ctx = gjennomforingService.getValidatorCtx(request, gjennomforing, LocalDate.now())
                 GjennomforingValidator.validate(request, ctx).onLeft { validationErrors ->
