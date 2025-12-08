@@ -16,26 +16,9 @@ class DatavarehusTiltakQueries(private val session: Session) {
     fun getGruppetiltak(id: UUID): DatavarehusTiltakV1 {
         @Language("PostgreSQL")
         val query = """
-            select gjennomforing.id,
-                   gjennomforing.navn,
-                   gjennomforing.start_dato,
-                   gjennomforing.slutt_dato,
-                   gjennomforing.status,
-                   gjennomforing.deltidsprosent,
-                   gjennomforing.arena_tiltaksnummer,
-                   gjennomforing.created_at     as opprettet_tidspunkt,
-                   gjennomforing.updated_at     as oppdatert_tidspunkt,
-                   tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
-                   avtale.id                    as avtale_id,
-                   avtale.navn                  as avtale_navn,
-                   avtale.created_at            as avtale_opprettet_tidspunkt,
-                   avtale.updated_at            as avtale_oppdatert_tidspunkt,
-                   arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
-            from gjennomforing
-                     join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-                     left join avtale on gjennomforing.avtale_id = avtale.id
-                     join arrangor on gjennomforing.arrangor_id = arrangor.id
-            where gjennomforing.id = ?
+            select *
+            from view_datavarehus_gruppetiltak
+            where id = ?
         """.trimIndent()
 
         val dto = session.requireSingle(queryOf(query, id)) { it.toDatavarehusTiltakDto() }
@@ -68,16 +51,9 @@ class DatavarehusTiltakQueries(private val session: Session) {
     fun getEnkeltplass(id: UUID): DatavarehusTiltakV1 {
         @Language("PostgreSQL")
         val query = """
-            select enkeltplass.id,
-                   enkeltplass.arena_tiltaksnummer,
-                   enkeltplass.created_at     as opprettet_tidspunkt,
-                   enkeltplass.updated_at     as oppdatert_tidspunkt,
-                   tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
-                   arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
-            from enkeltplass
-                     join tiltakstype on enkeltplass.tiltakstype_id = tiltakstype.id
-                     join arrangor on enkeltplass.arrangor_id = arrangor.id
-            where enkeltplass.id = ?
+            select *
+            from view_datavarehus_enkeltplass
+            where id = ?
         """.trimIndent()
 
         // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
