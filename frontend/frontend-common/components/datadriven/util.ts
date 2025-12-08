@@ -36,6 +36,7 @@ export function getComparableValue(element: DataElement) {
       return element.operator;
     case "DATA_ELEMENT_MULTI_LINK_MODAL":
       return element.modalContent.links[0].digest;
+
     case undefined:
       throw new Error(`Unrecognized data element: ${element}`);
   }

@@ -32,58 +32,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/kontonummer:
+  /api/arrangorflate/arrangor/tiltaksoversikt:
     get:
       tags:
       - Arrangorflate
-      description: Hent kontonummer fra kontonummer-organisasjon for gitt organisasjonsnummer
-      operationId: getKontonummer
+      description: Hent tiltakene for alle arrangører brukeren har tilgang til
+      operationId: getArrangorTiltaksoversikt
       parameters:
-      - name: orgnr
-        in: path
-        required: true
+      - name: type
+        in: query
+        required: false
         deprecated: false
         explode: false
         schema:
-          type: string
+          $ref: "#/components/schemas/TiltaksoversiktType"
       responses:
         "200":
-          description: Kontonummer til arrangør
+          description: Arrangører sine gjennomføringer (DataDrivenTable)
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/KontonummerResponse"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/opprett-krav:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent gjennomføringene til arrangør - tabell format
-      operationId: getArrangorflateGjennomforingerTabeller
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Arrangør sine gjennomføringer (DataDrivenTable)
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingerTableResponse"
+                $ref: "#/components/schemas/TiltaksoversiktResponse"
         default:
           description: Problem details
           headers: {}
@@ -470,6 +440,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/arrangor/{orgnr}/kontonummer:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent kontonummer fra kontonummer-organisasjon for gitt organisasjonsnummer
+      operationId: getKontonummer
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Kontonummer til arrangør
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KontonummerResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/arrangor/{orgnr}/utbetaling:
     get:
       tags:
@@ -506,17 +506,10 @@ paths:
       - Arrangorflate
       description: Hent alle tilsagn til arrangør
       operationId: getAllArrangorflateTilsagn
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
+      parameters: []
       responses:
         "200":
-          description: Alle tilsagn for gitt organisasjonsnummer
+          description: Alle tilsagn for arrangørs tilgang
           headers: {}
           content:
             application/json:
@@ -555,6 +548,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ArrangorflateTilsagnDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/arrangorflate/utbetaling:
+    get:
+      tags:
+      - Arrangorflate
+      description: Hent oversikt over utbetalinger for alle arrangører brukeren har
+        tilgang til
+      operationId: getArrangorflateUtbetalinger
+      parameters:
+      - name: type
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          $ref: "#/components/schemas/UtbetalingOversiktType"
+      responses:
+        "200":
+          description: Utbetalinger i tabellformat
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorflateUtbetalingerOversikt"
         default:
           description: Problem details
           headers: {}
@@ -896,13 +920,11 @@ components:
       - status
       - title
       - type
-    KontonummerResponse:
-      type: object
-      properties:
-        kontonummer:
-          type: string
-      required:
-      - kontonummer
+    TiltaksoversiktType:
+      type: string
+      enum:
+      - AKTIVE
+      - HISTORISKE
     DataDrivenTableDto:
       type: object
       properties:
@@ -1146,16 +1168,15 @@ components:
       - warning
       - danger
       - neutral
-    GjennomforingerTableResponse:
+    TiltaksoversiktResponse:
       type: object
       properties:
-        aktive:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        historiske:
-          $ref: "#/components/schemas/DataDrivenTableDto"
+        table:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
       required:
-      - aktive
-      - historiske
+      - table
     OpprettKravVeiviserStegDto:
       type: object
       properties:
@@ -1623,6 +1644,13 @@ components:
       - sluttDato
       - startDato
       - tiltakstype
+    KontonummerResponse:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+      required:
+      - kontonummer
     ArrangorflateUtbetalingKompaktDto:
       type: object
       properties:
@@ -1699,6 +1727,20 @@ components:
       required:
       - aktive
       - historiske
+    UtbetalingOversiktType:
+      type: string
+      enum:
+      - AKTIVE
+      - HISTORISKE
+    ArrangorflateUtbetalingerOversikt:
+      type: object
+      properties:
+        tabell:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
+      required:
+      - tabell
     ArrangorflateBetalingsinformasjon:
       type: object
       properties:

@@ -1,7 +1,7 @@
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { Box, Hide, Link, Stepper, VStack, VStackProps } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
-import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo } from "~/utils/navigation";
 
 interface StepperSteg {
   name: string;
@@ -29,9 +29,8 @@ export function InnsendingLayout({
   topNavigationLink,
   contentGap,
 }: InnsendingLayoutProps) {
-  const orgnr = useOrgnrFromUrl();
   const { path, text } = topNavigationLink || {
-    path: pathByOrgnr(orgnr).utbetalinger,
+    path: pathTo.utbetalinger,
     text: "Tilbake til oversikt",
   };
 

@@ -34,7 +34,7 @@ import { Separator } from "~/components/common/Separator";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
 import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
-import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
@@ -144,7 +144,7 @@ export const action: ActionFunction = async ({ params, request }) => {
       throw problemDetailResponse(error);
     }
   }
-  return redirect(pathByOrgnr(orgnr).kvittering(id));
+  return redirect(pathTo.kvittering(orgnr, id));
 };
 
 export default function BekreftUtbetaling() {
@@ -275,7 +275,7 @@ export default function BekreftUtbetaling() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).beregning(utbetaling.id)}
+                to={pathTo.beregning(orgnr, utbetaling.id)}
               >
                 Tilbake
               </Button>

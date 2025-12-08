@@ -13,7 +13,7 @@ import type { LoaderFunction, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { getEnvironment } from "~/services/environment";
-import { deltakerOversiktLenke, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { deltakerOversiktLenke, pathTo, useOrgnrFromUrl } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
@@ -107,14 +107,14 @@ export default function UtbetalingBeregning() {
             as={ReactRouterLink}
             type="button"
             variant="tertiary"
-            to={pathByOrgnr(orgnr).innsendingsinformasjon(utbetaling.id)}
+            to={pathTo.innsendingsinformasjon(orgnr, utbetaling.id)}
           >
             Tilbake
           </Button>
           <Button
             as={ReactRouterLink}
             className="justify-self-end"
-            to={pathByOrgnr(orgnr).oppsummering(utbetaling.id)}
+            to={pathTo.oppsummering(orgnr, utbetaling.id)}
           >
             Neste
           </Button>

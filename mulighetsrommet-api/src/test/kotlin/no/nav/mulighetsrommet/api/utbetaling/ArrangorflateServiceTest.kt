@@ -114,7 +114,7 @@ class ArrangorflateServiceTest : FunSpec({
         val arrangorflateService = createService()
 
         val result = arrangorflateService.getTilsagn(
-            orgnr = ArrangorflateTestUtils.underenhet.organisasjonsnummer,
+            arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
         )
 
         result shouldHaveSize 1

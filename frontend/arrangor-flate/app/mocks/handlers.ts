@@ -2,10 +2,15 @@ import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import {
   ArrangorflateArrangor,
   ArrangorflateUtbetalingDto,
+  ArrangorflateUtbetalingerOversikt,
   ArrangorflateUtbetalingKompaktDto,
   ArrangorflateUtbetalingStatus,
 } from "api-client";
-import { mockArrangorflateUtbetalingKompakt } from "./utbetalingOversiktMocks";
+import {
+  mockArrangorflateUtbetalingKompakt,
+  utbetalingTabellOversiktAktive,
+  utbetalingTabellOversiktHistoriske,
+} from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
@@ -36,6 +41,16 @@ export const handlers = [
         historiske: mockArrangorflateUtbetalingKompakt.filter((u) => !isAktiv(u)),
         kanOppretteManueltKrav: true,
       }),
+  ),
+  http.get<PathParams, ArrangorflateUtbetalingerOversikt>(
+    "*/api/arrangorflate/utbetaling",
+    ({ request }) => {
+      const type = new URL(request.url).searchParams.get("type");
+      if (type === "AKTIVE") {
+        return HttpResponse.json({ tabell: utbetalingTabellOversiktAktive });
+      }
+      return HttpResponse.json({ tabell: utbetalingTabellOversiktHistoriske });
+    },
   ),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/arrangor/:orgnr/kontonummer",

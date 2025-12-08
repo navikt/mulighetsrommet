@@ -1,20 +1,14 @@
 import { Alert, BodyShort, Heading, HStack, Tabs } from "@navikt/ds-react";
-import { ArrangorflateService, DataDrivenTableDto, GjennomforingerTableResponse } from "api-client";
-import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
+import { ArrangorflateService, TiltaksoversiktResponse, TiltaksoversiktType } from "api-client";
+import { LoaderFunctionArgs, MetaFunction, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { problemDetailResponse } from "~/utils/validering";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
 import { tekster } from "~/tekster";
-import { useTabState } from "~/hooks/useTabState";
+import { getTabStateOrDefault, useTabState } from "~/hooks/useTabState";
 import { useFileStorage } from "~/hooks/useFileStorage";
 import { useEffect } from "react";
 import { DataDrivenTable } from "@mr/frontend-common";
-
-type LoaderData = {
-  gjennomforingerTabeller: GjennomforingerTableResponse;
-  orgnr: string;
-  arrangor: string;
-};
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,46 +20,32 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  const { orgnr } = params;
-  if (!orgnr) {
-    throw new Error("Mangler orgnr");
-  }
-  const [
-    { data: gjennomforingerTabeller, error: gjennomforingerError },
-    { data: arrangortilganger, error: arrangorError },
-  ] = await Promise.all([
-    ArrangorflateService.getArrangorflateGjennomforingerTabeller({
-      path: { orgnr },
+export async function loader({ request }: LoaderFunctionArgs) {
+  const tabState = getTabStateOrDefault(new URL(request.url));
+  const tiltaksOversiktType =
+    tabState === "aktive" ? TiltaksoversiktType.AKTIVE : TiltaksoversiktType.HISTORISKE;
+  const { data: gjennomforingerTabell, error: gjennomforingerError } =
+    await ArrangorflateService.getArrangorTiltaksoversikt({
+      query: { type: tiltaksOversiktType },
       headers: await apiHeaders(request),
-    }),
-    ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
-      headers: await apiHeaders(request),
-    }),
-  ]);
+    });
   if (gjennomforingerError) {
     throw problemDetailResponse(gjennomforingerError);
   }
-  if (!arrangortilganger) {
-    throw problemDetailResponse(arrangorError);
+  if (tiltaksOversiktType == TiltaksoversiktType.AKTIVE) {
+    return { aktive: gjennomforingerTabell };
   }
-
-  const arrangor = arrangortilganger.find((a) => a.organisasjonsnummer === orgnr)?.navn;
-  if (!arrangor) throw new Error("Finner ikke arrangør");
-
   return {
-    orgnr,
-    arrangor,
-    gjennomforingerTabeller,
+    historiske: gjennomforingerTabell,
   };
-};
+}
 
 type Tabs = "aktive" | "historiske";
 
 export default function OpprettKravTiltaksOversikt() {
   const [currentTab, setTab] = useTabState("forside-tab", "aktive");
   const storage = useFileStorage();
-  const { gjennomforingerTabeller } = useLoaderData<LoaderData>();
+  const { aktive, historiske } = useLoaderData<typeof loader>();
 
   useEffect(() => {
     storage.clear();
@@ -85,10 +65,10 @@ export default function OpprettKravTiltaksOversikt() {
           />
         </Tabs.List>
         <Tabs.Panel value="aktive" className="w-full">
-          <TabellVisning tabell={gjennomforingerTabeller.aktive} />
+          <TabellVisning data={aktive} />
         </Tabs.Panel>
         <Tabs.Panel value="historiske" className="w-full">
-          <TabellVisning tabell={gjennomforingerTabeller.historiske} />
+          <TabellVisning data={historiske} />
         </Tabs.Panel>
       </Tabs>
     </InnsendingLayout>
@@ -96,11 +76,14 @@ export default function OpprettKravTiltaksOversikt() {
 }
 
 interface TabellVisningProps {
-  tabell: DataDrivenTableDto;
+  data: TiltaksoversiktResponse | undefined;
 }
 
-function TabellVisning({ tabell }: TabellVisningProps) {
-  if (tabell.rows.length == 0) {
+function TabellVisning({ data }: TabellVisningProps) {
+  if (!data) {
+    return null;
+  }
+  if (!data.table) {
     return (
       <HStack align="center" justify="center" padding="32">
         <Alert variant="info">
@@ -112,5 +95,5 @@ function TabellVisning({ tabell }: TabellVisningProps) {
       </HStack>
     );
   }
-  return <DataDrivenTable data={tabell} />;
+  return <DataDrivenTable data={data.table} />;
 }

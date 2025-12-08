@@ -18,8 +18,8 @@ import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
+import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
 import { getUtbetalingsdato } from "~/utils/utbetaling";
-import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
@@ -75,7 +75,7 @@ export default function UtbetalingDetaljerSide() {
           title="Detaljer"
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,
-            url: pathByOrgnr(utbetaling.arrangor.organisasjonsnummer).utbetalinger,
+            url: pathTo.utbetalinger,
           }}
         />
         <Spacer />

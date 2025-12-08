@@ -1,14 +1,8 @@
 import { Link, useNavigation } from "react-router";
-import { ArrangorflateArrangor } from "api-client";
 import { Heading, HStack, Loader } from "@navikt/ds-react";
 import { HeaderIcon } from "./HeaderIcon";
-import { Arrangorvelger } from "../arrangorvelger/Arrangorvelger";
 
-interface Props {
-  arrangorer: ArrangorflateArrangor[];
-}
-
-export function Header({ arrangorer }: Props) {
+export function Header() {
   const navigation = useNavigation();
 
   return (
@@ -23,7 +17,6 @@ export function Header({ arrangorer }: Props) {
           </Heading>
           {navigation.state === "loading" && <Loader />}
         </HStack>
-        <Arrangorvelger arrangorer={arrangorer} />
       </HStack>
     </header>
   );
