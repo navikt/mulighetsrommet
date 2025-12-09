@@ -715,6 +715,39 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/utbetaling/{id}/avbryt:
+    post:
+      tags:
+      - Arrangorflate
+      description: Avbryt en utbetaling på vegne av arrangør
+      operationId: avbrytUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvbrytUtbetaling"
+        required: false
+      responses:
+        "200":
+          description: Utbetaling ble avbrutt
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/utbetaling/{id}/pdf:
     get:
       tags:
@@ -1737,6 +1770,7 @@ components:
       - KREVER_ENDRING
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
+      - AVBRUTT
     ArrangorflateUtbetalinger:
       type: object
       properties:
@@ -1938,6 +1972,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerAdvarsel"
+        kanAvbrytes:
+          type: boolean
       required:
       - advarsler
       - arrangor
@@ -1947,6 +1983,7 @@ components:
       - gjennomforing
       - id
       - innsendtAvArrangorDato
+      - kanAvbrytes
       - kanViseBeregning
       - linjer
       - periode
@@ -2011,6 +2048,15 @@ components:
       - status
       - title
       - type
+    AvbrytUtbetaling:
+      type: object
+      properties:
+        begrunnelse:
+          type:
+          - "null"
+          - string
+      required:
+      - begrunnelse
     ScanVedleggRequest:
       type: object
       properties:

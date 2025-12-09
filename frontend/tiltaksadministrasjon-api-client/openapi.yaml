@@ -5691,6 +5691,7 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - UTBETALT
+      - AVBRUTT
     UtbetalingTypeDto:
       type: object
       properties:

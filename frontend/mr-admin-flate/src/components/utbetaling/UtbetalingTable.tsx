@@ -138,6 +138,7 @@ function utbetalingLenkeText(status: UtbetalingStatusDtoType) {
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
+    case UtbetalingStatusDtoType.AVBRUTT:
       return "Detaljer";
   }
 }

@@ -24,6 +24,7 @@ function isAktiv(utbetaling: ArrangorflateUtbetalingKompaktDto): boolean {
     case ArrangorflateUtbetalingStatus.KREVER_ENDRING:
       return true;
     case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
+    case ArrangorflateUtbetalingStatus.AVBRUTT:
     case ArrangorflateUtbetalingStatus.UTBETALT:
     case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
       return false;

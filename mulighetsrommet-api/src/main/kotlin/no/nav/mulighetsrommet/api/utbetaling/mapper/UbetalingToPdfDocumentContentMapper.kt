@@ -43,6 +43,7 @@ object UbetalingToPdfDocumentContentMapper {
             UtbetalingStatusType.INNSENDT,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.AVBRUTT,
             -> Unit
 
             UtbetalingStatusType.FERDIG_BEHANDLET,

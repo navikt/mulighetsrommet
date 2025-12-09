@@ -103,6 +103,7 @@ class GenererUtbetalingService(
                     UtbetalingStatusType.FERDIG_BEHANDLET,
                     UtbetalingStatusType.DELVIS_UTBETALT,
                     UtbetalingStatusType.UTBETALT,
+                    UtbetalingStatusType.AVBRUTT,
                     -> false
 
                     UtbetalingStatusType.GENERERT -> true

@@ -35,4 +35,9 @@ enum class UtbetalingStatusType {
      * Alle delutbetalinger har status UTBETALT
      */
     UTBETALT,
+
+    /**
+     * Avbrutt av arrangør
+     */
+    AVBRUTT,
 }

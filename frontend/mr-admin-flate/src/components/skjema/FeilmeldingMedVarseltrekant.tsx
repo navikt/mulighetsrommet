@@ -2,7 +2,12 @@ import { ReactNode } from "react";
 
 export function FeilmeldingMedVarselTrekant({ children }: { children: ReactNode }) {
   return (
-    <b className="flex items-center gap-2">
+    <b
+      style={{
+        color: "#C30000",
+      }}
+      className="flex items-center gap-2"
+    >
       <Varseltrekant /> {children}
     </b>
   );

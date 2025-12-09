@@ -33,6 +33,7 @@ data class ArrangorflateUtbetalingDto(
     val type: UtbetalingTypeDto,
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
+    val kanAvbrytes: Boolean,
 )
 
 @Serializable
