@@ -60,10 +60,10 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
 
             val result = task.getAllGjennomforingerSomNarmerSegSluttdato(today = LocalDate.of(2023, 5, 16))
 
-            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
-                Pair(domain.gjennomforinger[0].id, listOf(NavAnsattFixture.DonaldDuck.navIdent)),
-                Pair(domain.gjennomforinger[1].id, listOf(NavAnsattFixture.DonaldDuck.navIdent)),
-                Pair(domain.gjennomforinger[2].id, listOf(NavAnsattFixture.DonaldDuck.navIdent)),
+            result.map { it.id } shouldContainExactlyInAnyOrder listOf(
+                domain.gjennomforinger[0].id,
+                domain.gjennomforinger[1].id,
+                domain.gjennomforinger[2].id,
             )
         }
     }

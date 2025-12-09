@@ -20,68 +20,45 @@ import java.time.LocalDateTime
 import java.util.*
 
 class OppgaveQueries(private val session: Session) {
-    fun getGjennomforingOppgaveData(
+    fun getGjennomforingManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
-    ): List<GjennomforingOppgaveData> {
+        navEnheter: Set<NavEnhetNummer>,
+    ): List<GjennomforingManglerAdministratorOppgaveData> {
         @Language("PostgreSQL")
         val query = """
             select
-                gjennomforing.id,
-                gjennomforing.navn,
-                gjennomforing.updated_at,
-                tiltakstype.tiltakskode as tiltakstype_tiltakskode,
-                tiltakstype.navn as tiltakstype_navn,
-                (
-                    select jsonb_agg(
-                        jsonb_build_object(
-                            'enhetsnummer', nav_enhet.enhetsnummer,
-                            'navn', nav_enhet.navn,
-                            'type', nav_enhet.type,
-                            'overordnetEnhet', nav_enhet.overordnet_enhet
-                        )
-                    )
-                    from gjennomforing_nav_enhet
-                    join nav_enhet on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
-                    where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id
-                ) as nav_enheter_json,
-                case when nav_enhet_arena.enhetsnummer is null
-                    then null
-                    else jsonb_build_object(
-                        'enhetsnummer', nav_enhet_arena.enhetsnummer,
-                        'navn', nav_enhet_arena.navn,
-                        'type', nav_enhet_arena.type,
-                        'overordnetEnhet', nav_enhet_arena.overordnet_enhet
-                    )
-                end as arena_ansvarlig_enhet_json
-            from gjennomforing
-                inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-                left join gjennomforing_administrator on gjennomforing_administrator.gjennomforing_id = gjennomforing.id
-                left join nav_enhet nav_enhet_arena on nav_enhet_arena.enhetsnummer = gjennomforing.arena_ansvarlig_enhet
+                id,
+                navn,
+                oppdatert_tidspunkt,
+                tiltakstype_tiltakskode,
+                tiltakstype_navn,
+                nav_enheter_json
+            from view_gjennomforing
             where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
-                and gjennomforing.status = 'GJENNOMFORES'
-            group by gjennomforing.id, tiltakstype.tiltakskode, tiltakstype.navn, nav_enhet_arena.enhetsnummer
-            having count(gjennomforing_administrator.nav_ident) = 0
+                (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
+                and status = 'GJENNOMFORES'
+                and (:nav_enheter::text[] is null or
+                   exists(select true
+                          from jsonb_array_elements(nav_enheter_json) as nav_enhet
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
+                and jsonb_array_length(coalesce(administratorer_json, '[]')) = 0
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createArrayOfTiltakskode(it) },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { session.createArrayOfValue(it) { it.value } },
         )
 
         return session.list(queryOf(query, params)) {
-            val arenaAnsvarligEnhet = it.stringOrNull("arena_ansvarlig_enhet_json")
-                ?.let { json -> Json.decodeFromString<NavEnhetDto?>(json) }
             val navEnheter = it.stringOrNull("nav_enheter_json")
                 ?.let { json -> Json.decodeFromString<List<NavEnhetDto>>(json) }
-                ?.plus(arenaAnsvarligEnhet)
-                ?.filterNotNull()
                 ?: emptyList()
             val kontorstruktur = fromNavEnheter(navEnheter)
 
-            GjennomforingOppgaveData(
+            GjennomforingManglerAdministratorOppgaveData(
                 id = it.uuid("id"),
                 navn = it.string("navn"),
-                updatedAt = it.localDateTime("updated_at"),
+                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
                 kontorstruktur = kontorstruktur,
                 tiltakstype = OppgaveTiltakstype(
                     tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
@@ -273,10 +250,10 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getAvtaleOppgaveData(
+    fun getAvtaleManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
-        navRegioner: List<NavEnhetNummer> = emptyList(),
-    ): List<AvtaleOppgaveData> = with(session) {
+        navRegioner: Set<NavEnhetNummer>,
+    ): List<AvtaleManglerAdministratorOppgaveData> = with(session) {
         val statuser = listOf(AvtaleStatusType.UTKAST, AvtaleStatusType.AKTIV)
 
         val parameters = mapOf(
@@ -288,40 +265,21 @@ class OppgaveQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select
-                avtale.id,
-                avtale.created_at,
-                avtale.navn,
-                tiltakstype.navn                                 as tiltakstype_navn,
-                tiltakstype.tiltakskode                          as tiltakskode,
+                id,
+                oppdatert_tidspunkt,
+                navn,
+                tiltakstype_navn,
+                tiltakstype_tiltakskode,
                 nav_enheter_json
-            from avtale
-                join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
-                left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
-                left join nav_enhet arena_nav_enhet on avtale.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
-                left join avtale_administrator on avtale_administrator.avtale_id = avtale.id
-                left join lateral (select jsonb_agg(
-                    jsonb_build_object(
-                        'enhetsnummer', avtale_nav_enhet.enhetsnummer,
-                        'navn', nav_enhet.navn,
-                        'type', nav_enhet.type,
-                        'overordnetEnhet', nav_enhet.overordnet_enhet
-                    )
-                ) as nav_enheter_json from avtale_nav_enhet
-                    left join nav_enhet on nav_enhet.enhetsnummer = avtale_nav_enhet.enhetsnummer
-                    where avtale_nav_enhet.avtale_id = avtale.id) on true
+            from view_avtale
             where
-                (:tiltakskoder::tiltakskode[] is null or tiltakstype.tiltakskode = any(:tiltakskoder::tiltakskode[]))
-                and (:nav_enheter::text[] is null or (
+                (:tiltakskoder::tiltakskode[] is null or tiltakstype_tiltakskode = any(:tiltakskoder::tiltakskode[]))
+                and (:statuser::text[] is null or status = any(:statuser))
+                and (:nav_enheter::text[] is null or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
-                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
-                   avtale.arena_ansvarlig_enhet = any (:nav_enheter) or
-                   avtale.arena_ansvarlig_enhet in (select enhetsnummer
-                                                    from nav_enhet
-                                                    where overordnet_enhet = any (:nav_enheter))))
-                and (:statuser::text[] is null or avtale.status = any(:statuser))
-            group by avtale.id, tiltakstype.tiltakskode, tiltakstype.navn, nav_enheter_json
-            having count(avtale_administrator.nav_ident) = 0
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
+                and jsonb_array_length(coalesce(administratorer_json, '[]')) = 0
         """.trimIndent()
 
         return session.list(queryOf(query, parameters)) {
@@ -329,25 +287,25 @@ class OppgaveQueries(private val session: Session) {
                 ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
                 ?: emptyList()
 
-            AvtaleOppgaveData(
+            AvtaleManglerAdministratorOppgaveData(
                 id = it.uuid("id"),
                 navn = it.string("navn"),
                 kontorstruktur = fromNavEnheter(navEnheter),
                 tiltakstype = OppgaveTiltakstype(
                     navn = it.string("tiltakstype_navn"),
-                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+                    tiltakskode = Tiltakskode.valueOf(it.string("tiltakstype_tiltakskode")),
                 ),
-                createdAt = it.localDateTime("created_at"),
+                oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
             )
         }
     }
 }
 
-data class GjennomforingOppgaveData(
+data class GjennomforingManglerAdministratorOppgaveData(
     val id: UUID,
     val navn: String,
     val kontorstruktur: List<Kontorstruktur>,
-    val updatedAt: LocalDateTime,
+    val oppdatertTidspunkt: LocalDateTime,
     val tiltakstype: OppgaveTiltakstype,
 )
 
@@ -390,10 +348,10 @@ data class UtbetalingOppgaveData(
     val gjennomforing: OppgaveGjennomforing,
 )
 
-data class AvtaleOppgaveData(
+data class AvtaleManglerAdministratorOppgaveData(
     val id: UUID,
     val navn: String,
-    val createdAt: LocalDateTime,
+    val oppdatertTidspunkt: LocalDateTime,
     val kontorstruktur: List<Kontorstruktur>,
     val tiltakstype: OppgaveTiltakstype,
 )

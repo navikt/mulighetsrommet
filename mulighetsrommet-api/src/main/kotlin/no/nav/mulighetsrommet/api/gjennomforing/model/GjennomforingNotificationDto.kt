@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -14,6 +13,6 @@ data class GjennomforingNotificationDto(
     val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
-    val administratorer: List<NavIdent>,
+    val administratorer: List<Gjennomforing.Administrator>,
     val tiltaksnummer: String?,
 )
