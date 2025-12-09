@@ -2,15 +2,33 @@ import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/Utb
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
-import { Alert, Box, Button, Heading, HStack, Link, Modal, Spacer, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  Box,
+  Button,
+  Heading,
+  HStack,
+  Link,
+  Modal,
+  Spacer,
+  Textarea,
+  VStack,
+} from "@navikt/ds-react";
 import {
   ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
+  FieldError,
   UtbetalingTypeDto,
 } from "api-client";
-import { useRef } from "react";
-import { LoaderFunction, MetaFunction, useLoaderData } from "react-router";
+import { useEffect, useState } from "react";
+import {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+  useFetcher,
+  useLoaderData,
+} from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { PageHeading } from "~/components/common/PageHeading";
@@ -20,9 +38,10 @@ import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { getUtbetalingsdato } from "~/utils/utbetaling";
 import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
-import { problemDetailResponse } from "~/utils/validering";
+import { isValidationError, problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
+import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 
 type UtbetalingDetaljerSideData = {
   utbetaling: ArrangorflateUtbetalingDto;
@@ -60,8 +79,43 @@ export const loader: LoaderFunction = async ({
   return { utbetaling, deltakerlisteUrl };
 };
 
+interface ActionData {
+  errors?: FieldError[];
+  ok: boolean;
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const { id } = params;
+  if (!id) {
+    throw new Response("Mangler id", { status: 400 });
+  }
+
+  const formData = await request.formData();
+  const begrunnelse = formData.get("begrunnelse")?.toString();
+
+  const [{ error }] = await Promise.all([
+    ArrangorflateService.avbrytUtbetaling({
+      path: { id },
+      body: { begrunnelse: begrunnelse ?? null },
+      headers: await apiHeaders(request),
+    }),
+  ]);
+
+  if (error) {
+    if (isValidationError(error)) {
+      return { errors: error.errors };
+    } else {
+      throw problemDetailResponse(error);
+    }
+  }
+
+  return { ok: true };
+};
+
 export default function UtbetalingDetaljerSide() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const [deltakerModalOpen, setDeltakerModalOpen] = useState<boolean>(false);
 
   const visNedlastingAvKvittering = [
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -115,7 +169,13 @@ export default function UtbetalingDetaljerSide() {
         belop={utbetaling.beregning.belop}
         satsDetaljer={utbetaling.beregning.satsDetaljer}
       />
-      <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} />
+      {utbetaling.kanViseBeregning && (
+        <HStack gap="2">
+          <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
+            Se deltakelser
+          </Button>
+        </HStack>
+      )}
       <Definisjonsliste
         title="Betalingsinformasjon"
         definitions={[
@@ -141,6 +201,15 @@ export default function UtbetalingDetaljerSide() {
       >
         <UtbetalingStatusList utbetaling={utbetaling} />
       </Box>
+      {utbetaling.kanAvbrytes && (
+        <HStack justify="end">
+          <Button size="small" variant="danger" onClick={() => setAvbrytModalOpen(true)}>
+            Avbryt
+          </Button>
+        </HStack>
+      )}
+      <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
+      <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} open={deltakerModalOpen} setOpen={setDeltakerModalOpen} />
     </VStack>
   );
 }
@@ -160,54 +229,116 @@ function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingTypeDt
 interface DeltakerModalProps {
   utbetaling: ArrangorflateUtbetalingDto;
   deltakerlisteUrl: string;
+  open: boolean;
+  setOpen: (a: boolean) => void;
 }
 
-function DeltakerModal({ utbetaling, deltakerlisteUrl }: DeltakerModalProps) {
-  const modalRef = useRef<HTMLDialogElement>(null);
+function DeltakerModal({ utbetaling, deltakerlisteUrl, open, setOpen }: DeltakerModalProps) {
+  return (
+    <Modal
+      open={open}
+      size="medium"
+      header={{ heading: utbetaling.beregning.displayName }}
+      onClose={() => setOpen(false)}
+      width="80rem"
+      closeOnBackdropClick
+    >
+      <Modal.Body>
+        <VStack gap="2">
+          {utbetaling.beregning.stengt.length > 0 && (
+            <Alert variant={"info"}>
+              {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
+              <ul>
+                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
+                  <li key={periode.start + periode.slutt}>
+                    {formaterPeriode(periode)}: {beskrivelse}
+                  </li>
+                ))}
+              </ul>
+            </Alert>
+          )}
+          <DeltakelserTable
+            beregning={utbetaling.beregning}
+            advarsler={utbetaling.advarsler}
+            deltakerlisteUrl={deltakerlisteUrl}
+          />
+          <SatsPerioderOgBelop
+            belop={utbetaling.beregning.belop}
+            satsDetaljer={utbetaling.beregning.satsDetaljer}
+          />
+        </VStack>
+      </Modal.Body>
+    </Modal>
+  );
+}
 
-  if (!utbetaling.kanViseBeregning) {
-    return null;
+interface AvbrytModalProps {
+  open: boolean;
+  setOpen: (a: boolean) => void;
+}
+
+function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
+  const fetcher = useFetcher<ActionData>();
+  const errors = fetcher.data?.errors || [];
+  const rootError = errors.find((error) => error.pointer === "/")?.detail;
+
+
+  function onClose() {
+    setOpen(false);
   }
 
+  useEffect(() => {
+    if (fetcher.data?.ok) {
+      setOpen(false);
+    }
+  }, [fetcher.data, setOpen]);
+
   return (
-    <HStack gap="2">
-      <Button variant="secondary" size="small" onClick={() => modalRef.current?.showModal()}>
-        Se deltakelser
-      </Button>
-      <Modal
-        ref={modalRef}
-        size="medium"
-        header={{ heading: utbetaling.beregning.displayName }}
-        onClose={() => modalRef.current?.close()}
-        width="80rem"
-        closeOnBackdropClick
-      >
-        <Modal.Body>
+    <Modal
+      open={open}
+      size="medium"
+      header={{ heading: "Avbryt innsending" }}
+      onClose={onClose}
+      width="50rem"
+      closeOnBackdropClick
+    >
+      <Modal.Body>
+        <fetcher.Form method="post">
           <VStack gap="2">
-            {utbetaling.beregning.stengt.length > 0 && (
-              <Alert variant={"info"}>
-                {tekster.bokmal.utbetaling.beregning.stengtHosArrangor}
-                <ul>
-                  {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                    <li key={periode.start + periode.slutt}>
-                      {formaterPeriode(periode)}: {beskrivelse}
-                    </li>
-                  ))}
-                </ul>
-              </Alert>
+            <Alert variant={"info"}>
+              Hvis dere bekrefter at utbetalingskravet skal avbrytes, betyr det at utbetalingskravet
+              ikke vil behandles av Nav og at det ikke vil gjøres noen utbetaling. Det kan være
+              aktuelt hvis dere oppdager noe feil i innsendingen. Dere kan starte en ny innsending
+              på samme tiltak via knappen "Opprett krav om utbetaling". Vær oppmerksom på at et
+              avbryte krav fremdeles vil være arkivert hos Nav.
+            </Alert>
+            <Textarea
+              name="begrunnelse"
+              description="Oppgi årsaken til at behandlingen av kravet skal avbrytes. Begrunnelsen blir lagret hos Nav"
+              label="Begrunnelse"
+              error={errors.find((error) => error.pointer === "/begrunnelse")?.detail}
+            />
+            <HStack gap="4" justify="end">
+              <Button size="small" onClick={onClose}>
+                Nei, takk
+              </Button>
+              <Button
+                type="submit"
+                loading={fetcher.state !== "idle"}
+                size="small"
+                variant="danger"
+              >
+                Ja, jeg vil avbryte
+              </Button>
+            </HStack>
+            {rootError && (
+              <FeilmeldingMedVarselTrekant>
+                {rootError}
+              </FeilmeldingMedVarselTrekant>
             )}
-            <DeltakelserTable
-              beregning={utbetaling.beregning}
-              advarsler={utbetaling.advarsler}
-              deltakerlisteUrl={deltakerlisteUrl}
-            />
-            <SatsPerioderOgBelop
-              belop={utbetaling.beregning.belop}
-              satsDetaljer={utbetaling.beregning.satsDetaljer}
-            />
           </VStack>
-        </Modal.Body>
-      </Modal>
-    </HStack>
+        </fetcher.Form>
+      </Modal.Body>
+    </Modal>
   );
 }

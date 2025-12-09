@@ -101,6 +101,7 @@ fun Route.utbetalingRoutes() {
                     UtbetalingStatusType.INNSENDT,
                     UtbetalingStatusType.TIL_ATTESTERING,
                     UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.AVBRUTT,
                     -> (null to emptyList())
                 }
 

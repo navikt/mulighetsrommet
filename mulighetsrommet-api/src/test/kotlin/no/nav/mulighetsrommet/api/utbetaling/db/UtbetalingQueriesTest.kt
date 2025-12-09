@@ -623,4 +623,18 @@ class UtbetalingQueriesTest : FunSpec({
             }
         }
     }
+
+    test("avbryt utbetaling") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+            val queries = UtbetalingQueries(session)
+
+            queries.upsert(utbetaling)
+            queries.avbrytUtbetaling(utbetaling.id, "min begrunnelse", Instant.now())
+
+            queries.get(utbetaling.id).shouldNotBeNull().should {
+                it.status shouldBe UtbetalingStatusType.AVBRUTT
+            }
+        }
+    }
 })

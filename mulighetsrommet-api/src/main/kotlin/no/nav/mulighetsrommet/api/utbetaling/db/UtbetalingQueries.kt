@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
 
@@ -317,6 +318,28 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)))
     }
 
+    fun avbrytUtbetaling(id: UUID, begrunnelse: String, tidspunkt: Instant) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling set
+                avbrutt_tidspunkt = :tidspunkt,
+                avbrutt_begrunnelse = :begrunnelse,
+                status = 'AVBRUTT'
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "begrunnelse" to begrunnelse,
+                    "tidspunkt" to tidspunkt,
+                ),
+            ),
+        )
+    }
+
     fun setKontonummer(id: UUID, kontonummer: Kontonummer) {
         @Language("PostgreSQL")
         val query = """
@@ -532,6 +555,7 @@ class UtbetalingQueries(private val session: Session) {
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
             godkjentAvArrangorTidspunkt = localDateTimeOrNull("godkjent_av_arrangor_tidspunkt"),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
+            avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
         )
     }
 

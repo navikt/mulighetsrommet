@@ -667,6 +667,39 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/arrangorflate/utbetaling/{id}/avbryt:
+    post:
+      tags:
+      - Arrangorflate
+      description: Avbryt en utbetaling på vegne av arrangør
+      operationId: avbrytUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AvbrytUtbetaling"
+        required: false
+      responses:
+        "200":
+          description: Utbetaling ble avbrutt
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/arrangorflate/utbetaling/{id}/pdf:
     get:
       tags:
@@ -839,7 +872,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "3405871b52c77e2bb3f38c9ce2164c7ec9a5eec237c6412f84022b320502d407"
+        - "b13b47c4fae79061adc289607b80761b835ccc7e2df4a7242058353ed148e8e8"
     ArrangorDto:
       type: object
       properties:
@@ -1685,6 +1718,7 @@ components:
       - KREVER_ENDRING
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
+      - AVBRUTT
     ArrangorflateUtbetalinger:
       type: object
       properties:
@@ -1863,6 +1897,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerAdvarsel"
+        kanAvbrytes:
+          type: boolean
       required:
       - advarsler
       - arrangor
@@ -1872,6 +1908,7 @@ components:
       - gjennomforing
       - id
       - innsendtAvArrangorDato
+      - kanAvbrytes
       - kanViseBeregning
       - linjer
       - periode
@@ -1936,6 +1973,15 @@ components:
       - status
       - title
       - type
+    AvbrytUtbetaling:
+      type: object
+      properties:
+        begrunnelse:
+          type:
+          - "null"
+          - string
+      required:
+      - begrunnelse
     ScanVedleggRequest:
       type: object
       properties:

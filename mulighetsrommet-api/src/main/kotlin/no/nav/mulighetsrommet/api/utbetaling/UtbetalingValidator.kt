@@ -1,19 +1,30 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
+import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.arrangorflate.api.AvbrytUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
+import no.nav.mulighetsrommet.api.arrangorflate.kanAvbrytesAvArrangor
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
@@ -53,6 +64,7 @@ object UtbetalingValidator {
                 UtbetalingStatusType.FERDIG_BEHANDLET,
                 UtbetalingStatusType.DELVIS_UTBETALT,
                 UtbetalingStatusType.UTBETALT,
+                UtbetalingStatusType.AVBRUTT,
                 -> false
             },
         ) {
@@ -322,5 +334,21 @@ object UtbetalingValidator {
             FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
         }
         request.kid?.let { Kid.parseOrThrow(it) }
+    }
+
+    fun validerAvbrytUtbetaling(
+        request: AvbrytUtbetaling,
+        utbetaling: Utbetaling,
+    ): Either<List<FieldError>, String> = validation {
+        validate(kanAvbrytesAvArrangor(utbetaling)) {
+            FieldError.root("Utbetalingen kan ikke avbrytes")
+        }
+        requireValid(!request.begrunnelse.isNullOrBlank()) {
+            FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
+        }
+        validate(request.begrunnelse.length <= 501) {
+            FieldError.of("Begrunnelse ikke være lengre enn 500 tegn", AvbrytUtbetaling::begrunnelse)
+        }
+        request.begrunnelse
     }
 }

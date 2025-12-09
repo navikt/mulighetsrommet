@@ -3140,7 +3140,7 @@ components:
     OpenApiHash:
       type: string
       enum:
-        - "ba10526aa9f7cd8d59848a497a6452357515bf39333811bb04d7a72b04dcd517"
+        - "7b4be1683ad8a26df19f74a2e59ff02f451efae7b211cab7d473373a6b0cd558"
     TiltakstypeDto:
       type: object
       properties:
@@ -5691,6 +5691,7 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - UTBETALT
+      - AVBRUTT
     UtbetalingTypeDto:
       type: object
       properties:

@@ -9,6 +9,7 @@ enum class ArrangorflateUtbetalingStatus {
     KREVER_ENDRING,
     OVERFORT_TIL_UTBETALING,
     DELVIS_UTBETALT,
+    AVBRUTT,
     ;
 
     companion object {
@@ -34,6 +35,8 @@ enum class ArrangorflateUtbetalingStatus {
             UtbetalingStatusType.DELVIS_UTBETALT -> DELVIS_UTBETALT
 
             UtbetalingStatusType.UTBETALT -> UTBETALT
+
+            UtbetalingStatusType.AVBRUTT -> AVBRUTT
         }
 
         fun toReadableName(status: ArrangorflateUtbetalingStatus): String {
@@ -44,6 +47,7 @@ enum class ArrangorflateUtbetalingStatus {
                 KREVER_ENDRING -> "Krever endring"
                 OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
                 DELVIS_UTBETALT -> "Delvis utbetalt"
+                AVBRUTT -> "Avbrutt"
             }
         }
     }

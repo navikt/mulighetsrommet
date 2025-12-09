@@ -37,6 +37,13 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -48,12 +55,15 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 suspend inline fun RoutingContext.orgnrTilganger(
@@ -465,6 +475,39 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
         }
 
+        post("/avbryt", {
+            description = "Avbryt en utbetaling på vegne av arrangør"
+            tags = setOf("Arrangorflate")
+            operationId = "avbrytUtbetaling"
+            request {
+                pathParameterUuid("id")
+                body<AvbrytUtbetaling>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetaling ble avbrutt"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val utbetaling = getUtbetalingOrRespondNotFound()
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val request = call.receive<AvbrytUtbetaling>()
+
+            UtbetalingValidator
+                .validerAvbrytUtbetaling(request, utbetaling)
+                .onLeft {
+                    call.respondWithProblemDetail(ValidationError(errors = it))
+                }
+                .onRight {
+                    db.session { queries.utbetaling.avbrytUtbetaling(utbetaling.id, it, Instant.now()) }
+                    call.respond(HttpStatusCode.OK)
+                }
+        }
+
         get("/pdf", {
             description = "Hent pdf med status på utbetalingen"
             tags = setOf("Arrangorflate")
@@ -657,6 +700,11 @@ data class KontonummerResponse(
 data class GodkjennUtbetaling(
     val digest: String,
     val kid: String?,
+)
+
+@Serializable
+data class AvbrytUtbetaling(
+    val begrunnelse: String?,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
