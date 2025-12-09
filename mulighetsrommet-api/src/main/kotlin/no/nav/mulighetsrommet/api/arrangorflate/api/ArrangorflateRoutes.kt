@@ -380,7 +380,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 call.respond(ArrangorflateTilsagnOversikt(tabell))
             }
         }
-g
+
         get("/{id}", {
             description = "Hent tilsagn"
             tags = setOf("Arrangorflate")
