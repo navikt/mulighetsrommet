@@ -71,7 +71,6 @@ private fun insertVersionEnum(yaml: String, version: Int): String {
 
     val indent = lines[schemasIndex].takeWhile { it == ' ' || it == '\t' }
 
-    val vv = 7
     val schemaBlock = listOf(
         "$indent  OpenApiVersion:",
         "$indent    type: number",
