@@ -4,23 +4,14 @@ import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 
 object AvtalteSatser {
     fun findSats(avtalteSatser: List<AvtaltSats>, dato: LocalDate): Int? {
-        return avtalteSatser.lastOrNull { dato >= it.gjelderFra }?.sats
-    }
-
-    fun findSats(avtale: Avtale, periode: Periode): Int? {
-        val satser = getAvtalteSatser(avtale)
-        val startSats = findSats(satser, periode.start)
-        val sluttSats = findSats(satser, periode.getLastInclusiveDate())
-        if (startSats != sluttSats) {
-            return null
-        }
-        return startSats
+        return avtalteSatser
+            .sortedBy { it.gjelderFra }
+            .lastOrNull { dato >= it.gjelderFra }?.sats
     }
 
     fun getAvtalteSatser(avtale: Avtale): List<AvtaltSats> = when (avtale.prismodell) {
