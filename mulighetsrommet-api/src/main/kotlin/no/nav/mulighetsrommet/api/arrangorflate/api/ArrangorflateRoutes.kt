@@ -841,7 +841,8 @@ fun tilsagnOversiktDataDrivenTable(
             DataDrivenTableDto.Column("arrangor", "Arrangør"),
             DataDrivenTableDto.Column("periode", "Periode"),
             DataDrivenTableDto.Column(
-                "tilsagn", "Tilsagn"
+                "tilsagn",
+                "Tilsagn",
             ),
             DataDrivenTableDto.Column("status", "Status"),
             DataDrivenTableDto.Column(
@@ -862,7 +863,7 @@ fun tilsagnOversiktDataDrivenTable(
                     "status" to getTilsagnStatus(tilsagn.status),
                     "action" to DataElement.Link(
                         "Se detaljer",
-                        "/${tilsagn.arrangor.organisasjonsnummer}/tilsagn/${tilsagn.id}"
+                        "/${tilsagn.arrangor.organisasjonsnummer}/tilsagn/${tilsagn.id}",
                     ),
                 ),
             )
@@ -870,28 +871,27 @@ fun tilsagnOversiktDataDrivenTable(
     )
 }
 
-fun getTilsagnStatus(tilsagnStatus: TilsagnStatus): DataElement =
-    when (tilsagnStatus) {
-        TilsagnStatus.RETURNERT,
-        TilsagnStatus.TIL_GODKJENNING ->
-            throw IllegalStateException("Skal ikke vise tilsagn som ikke har vært godkjent")
+fun getTilsagnStatus(tilsagnStatus: TilsagnStatus): DataElement = when (tilsagnStatus) {
+    TilsagnStatus.RETURNERT,
+    TilsagnStatus.TIL_GODKJENNING,
+    ->
+        throw IllegalStateException("Skal ikke vise tilsagn som ikke har vært godkjent")
 
-        TilsagnStatus.GODKJENT ->
-            DataElement.Status("Godkjent", DataElement.Status.Variant.SUCCESS)
+    TilsagnStatus.GODKJENT ->
+        DataElement.Status("Godkjent", DataElement.Status.Variant.SUCCESS)
 
-        TilsagnStatus.TIL_ANNULLERING ->
-            DataElement.Status("Til annullering", DataElement.Status.Variant.WARNING)
+    TilsagnStatus.TIL_ANNULLERING ->
+        DataElement.Status("Til annullering", DataElement.Status.Variant.WARNING)
 
-        TilsagnStatus.ANNULLERT ->
-            DataElement.Status("Annulert", DataElement.Status.Variant.ERROR_BORDER_STRIKETHROUGH)
+    TilsagnStatus.ANNULLERT ->
+        DataElement.Status("Annulert", DataElement.Status.Variant.ERROR_BORDER_STRIKETHROUGH)
 
-        TilsagnStatus.TIL_OPPGJOR ->
-            DataElement.Status("Til oppgjør", DataElement.Status.Variant.WARNING)
+    TilsagnStatus.TIL_OPPGJOR ->
+        DataElement.Status("Til oppgjør", DataElement.Status.Variant.WARNING)
 
-        TilsagnStatus.OPPGJORT ->
-            DataElement.Status("Oppgjort", DataElement.Status.Variant.NEUTRAL)
-    }
-
+    TilsagnStatus.OPPGJORT ->
+        DataElement.Status("Oppgjort", DataElement.Status.Variant.NEUTRAL)
+}
 
 @Serializable
 data class ArrangorflateUtbetalingerOversikt(val tabell: DataDrivenTableDto? = null)
@@ -983,27 +983,26 @@ private fun getUtbetalingStatus(status: ArrangorflateUtbetalingStatus): DataElem
     )
 }
 
-private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement =
-    when (utbetaling.status) {
-        KLAR_FOR_GODKJENNING ->
-            DataElement.Link(
-                text = "Start innsending",
-                href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/innsendingsinformasjon",
-            )
+private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement = when (utbetaling.status) {
+    KLAR_FOR_GODKJENNING ->
+        DataElement.Link(
+            text = "Start innsending",
+            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/innsendingsinformasjon",
+        )
 
-        KREVER_ENDRING ->
-            DataElement.Link(
-                text = "Se innsending",
-                href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/beregning",
-            )
+    KREVER_ENDRING ->
+        DataElement.Link(
+            text = "Se innsending",
+            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/beregning",
+        )
 
-        BEHANDLES_AV_NAV,
-        OVERFORT_TIL_UTBETALING,
-        DELVIS_UTBETALT,
-        UTBETALT,
-            ->
-            DataElement.Link(
-                text = "Se detaljer",
-                href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer",
-            )
-    }
+    BEHANDLES_AV_NAV,
+    OVERFORT_TIL_UTBETALING,
+    DELVIS_UTBETALT,
+    UTBETALT,
+    ->
+        DataElement.Link(
+            text = "Se detaljer",
+            href = "${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer",
+        )
+}
