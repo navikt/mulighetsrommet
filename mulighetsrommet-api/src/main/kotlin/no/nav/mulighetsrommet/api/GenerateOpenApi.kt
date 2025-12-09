@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.github.smiley4.ktoropenapi.OpenApiPlugin
 import io.ktor.server.application.*
+import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.MessageDigest
@@ -25,7 +26,7 @@ fun main(args: Array<String>) {
 
         try {
             specs.forEach { (openApiSpecName, fileOutputPath) ->
-                generateOpenApiSpec(openApiSpecName, fileOutputPath)
+                generateOpenApiSpec(OpenApiSpec.fromSpecName(openApiSpecName), fileOutputPath)
             }
         } catch (e: Exception) {
             System.err.println("   -> ❌ Failed to generate specs: ${e.message}")
@@ -43,30 +44,25 @@ fun main(args: Array<String>) {
     server.start(wait = false)
 }
 
-private fun generateOpenApiSpec(openApiSpecName: String, outputPath: String) {
-    val spec = OpenApiPlugin.getOpenApiSpec(openApiSpecName)
-    val hash = sha256Of(spec)
+private fun generateOpenApiSpec(spec: OpenApiSpec, outputPath: String) {
+    val yaml = OpenApiPlugin.getOpenApiSpec(spec.specName)
 
-    val specWithHash = insertHashEnum(spec, hash)
+    val yamlWithVersion = insertVersionEnum(yaml, spec.version)
 
     val targetPath = Paths.get(outputPath)
     Files.createDirectories(targetPath.parent)
-    Files.writeString(targetPath, specWithHash)
+    Files.writeString(targetPath, yamlWithVersion)
 
-    println("   -> ✅ Saved '$openApiSpecName' to '$outputPath' with embedded hash")
+    println("   -> ✅ Saved '${spec.specName}' to '$outputPath'")
 }
 
-private fun sha256Of(spec: String): String = MessageDigest.getInstance("SHA-256")
-    .digest(spec.toByteArray())
-    .joinToString("") { "%02x".format(it) }
-
-fun generateOpenApiHash(openApiSpecName: String): String {
-    val spec = OpenApiPlugin.getOpenApiSpec(openApiSpecName)
-    return sha256Of(spec)
-}
-
-private fun insertHashEnum(spec: String, hash: String): String {
-    val lines = spec.lines().toMutableList()
+/*
+ * Vi inserter spec versjon som en enum i schemas for at den skal dukke opp i
+ * typescript biblioteket som heyapi genererer. Siden info block der versjon
+ * vanligvis skriver ikke eksponeres av heyapi.
+ */
+private fun insertVersionEnum(yaml: String, version: Int): String {
+    val lines = yaml.lines().toMutableList()
 
     val schemasIndex = lines.indexOfFirst { it.trim() == "schemas:" }
     if (schemasIndex == -1) {
@@ -76,10 +72,10 @@ private fun insertHashEnum(spec: String, hash: String): String {
     val indent = lines[schemasIndex].takeWhile { it == ' ' || it == '\t' }
 
     val schemaBlock = listOf(
-        "$indent  OpenApiHash:",
-        "$indent    type: string",
+        "$indent  OpenApiVersion:",
+        "$indent    type: number",
         "$indent    enum:",
-        "$indent      - \"$hash\"",
+        "$indent      - $version",
     )
 
     lines.addAll(schemasIndex + 1, schemaBlock)

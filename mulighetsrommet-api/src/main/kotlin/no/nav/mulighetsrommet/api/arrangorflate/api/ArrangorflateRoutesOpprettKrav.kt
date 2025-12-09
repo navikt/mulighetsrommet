@@ -94,17 +94,17 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
     }
 
-    get("/opprett-krav", {
-        description = "Hent gjennomføringene til arrangør - tabell format"
+    get("/arrangor/tiltaksoversikt", {
+        description = "Hent tiltakene for alle arrangører brukeren har tilgang til"
         tags = setOf("Arrangorflate")
-        operationId = "getArrangorflateGjennomforingerTabeller"
+        operationId = "getArrangorTiltaksoversikt"
         request {
-            pathParameter<Organisasjonsnummer>("orgnr")
+            queryParameter<TiltaksoversiktType>("type")
         }
         response {
             code(HttpStatusCode.OK) {
-                description = "Arrangør sine gjennomføringer (DataDrivenTable)"
-                body<GjennomforingerTableResponse>()
+                description = "Arrangører sine gjennomføringer (DataDrivenTable)"
+                body<TiltaksoversiktResponse>()
             }
             default {
                 description = "Problem details"
@@ -112,9 +112,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             }
         }
     }) {
-        val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-        requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-
+        val arrangorer = orgnrTilganger(altinnRettigheterService)
+        if (arrangorer.isEmpty()) {
+            respondWithManglerTilgangHosArrangor()
+            return@get
+        }
+        val type = TiltaksoversiktType.from(call.queryParameters["type"])
         val gjennomforinger = db.session {
             val aktiveTiltakstyper = queries.tiltakstype.getAll(statuser = listOf(TiltakstypeStatus.AKTIV))
             val opprettKravPrismodeller = okonomiConfig.opprettKravPrismodeller
@@ -125,20 +128,25 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             } else {
                 queries.gjennomforing
                     .getAll(
-                        arrangorOrgnr = listOf(orgnr),
+                        arrangorOrgnr = arrangorer,
                         prismodeller = opprettKravPrismodeller,
                         tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
+                        statuser = type.toGjennomforingStatuses(),
                     )
                     .items
                     .filter { kanOppretteKrav(okonomiConfig, it) }
             }
         }
-        call.respond(
-            toGjennomforingerTableResponse(orgnr, gjennomforinger),
-        )
+        if (gjennomforinger.isEmpty()) {
+            call.respond(TiltaksoversiktResponse())
+        } else {
+            call.respond(
+                TiltaksoversiktResponse(table = toGjennomforingDataTable(gjennomforinger)),
+            )
+        }
     }
 
-    route("/{gjennomforingId}/opprett-krav") {
+    route("/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav") {
         get({
             description = "Hent veiviser informasjon"
             tags = setOf("Arrangorflate")
@@ -192,7 +200,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                     listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
                 }
             val tilsagn = arrangorFlateService.getTilsagn(
-                orgnr = gjennomforing.arrangor.organisasjonsnummer,
+                arrangorer = setOf(gjennomforing.arrangor.organisasjonsnummer),
                 typer = tilsagnsTyper,
                 statuser = listOf(TilsagnStatus.GODKJENT),
                 gjennomforingId = gjennomforing.id,
@@ -435,32 +443,41 @@ fun kanOppretteKrav(
 }
 
 @Serializable
-data class GjennomforingerTableResponse(
-    val aktive: DataDrivenTableDto,
-    val historiske: DataDrivenTableDto,
-)
+enum class TiltaksoversiktType {
+    AKTIVE,
+    HISTORISKE,
+    ;
 
-private fun toGjennomforingerTableResponse(
-    orgNr: Organisasjonsnummer,
-    gjennomforinger: List<Gjennomforing>,
-): GjennomforingerTableResponse {
-    val aktive = gjennomforinger.filter { it.status.type == GjennomforingStatusType.GJENNOMFORES }
-    val historiske = gjennomforinger.filter { it.status.type != GjennomforingStatusType.GJENNOMFORES }
+    fun toGjennomforingStatuses(): List<GjennomforingStatusType> = when (this) {
+        AKTIVE -> listOf(GjennomforingStatusType.GJENNOMFORES)
+        HISTORISKE -> GjennomforingStatusType.entries.filter { it != GjennomforingStatusType.GJENNOMFORES }
+    }
 
-    return GjennomforingerTableResponse(
-        aktive = toGjennomforingDataTable(orgNr, aktive),
-        historiske = toGjennomforingDataTable(orgNr, historiske),
-    )
+    companion object {
+        /**
+         * Defaulter til AKTIVE
+         */
+
+        fun from(type: String?): TiltaksoversiktType = when (type) {
+            "AKTIVE" -> AKTIVE
+            "HISTORISKE" -> HISTORISKE
+            else -> AKTIVE
+        }
+    }
 }
 
+@Serializable
+data class TiltaksoversiktResponse(
+    val table: DataDrivenTableDto? = null,
+)
+
 private fun toGjennomforingDataTable(
-    orgNr: Organisasjonsnummer,
     gjennomforinger: List<Gjennomforing>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
-            DataDrivenTableDto.Column("navn", "Navn"),
-            DataDrivenTableDto.Column("tiltaksType", "Type"),
+            DataDrivenTableDto.Column("tiltak", "Tiltak"),
+            DataDrivenTableDto.Column("arrangor", "Arrangør"),
             DataDrivenTableDto.Column("startDato", "Startdato"),
             DataDrivenTableDto.Column("sluttDato", "Sluttdato"),
             DataDrivenTableDto.Column("action", null, sortable = false, align = DataDrivenTableDto.Column.Align.CENTER),
@@ -468,14 +485,16 @@ private fun toGjennomforingDataTable(
         rows = gjennomforinger.map { gjennomforing ->
             DataDrivenTableDto.Row(
                 cells = mapOf(
-                    "navn" to DataElement.text(gjennomforing.navn),
-                    "tiltaksType" to DataElement.text(gjennomforing.tiltakstype.navn),
+                    "tiltak" to DataElement.text("${gjennomforing.tiltakstype.navn} (${gjennomforing.lopenummer})"),
+                    "arrangor" to DataElement.text(
+                        "${gjennomforing.arrangor.navn} (${gjennomforing.arrangor.organisasjonsnummer})",
+                    ),
                     "startDato" to DataElement.date(gjennomforing.startDato),
                     "sluttDato" to DataElement.date(gjennomforing.sluttDato),
                     "action" to
                         DataElement.Link(
                             text = "Start innsending",
-                            href = hrefOpprettKravInnsendingsInformasjon(orgNr, gjennomforing.id),
+                            href = hrefOpprettKravInnsendingsInformasjon(gjennomforing.arrangor.organisasjonsnummer, gjennomforing.id),
                         ),
                 ),
             )

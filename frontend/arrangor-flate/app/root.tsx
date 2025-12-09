@@ -1,4 +1,3 @@
-import { ArrangorflateArrangor, ArrangorflateService } from "api-client";
 import {
   isRouteErrorResponse,
   Links,
@@ -17,27 +16,16 @@ import { ReactNode, useEffect } from "react";
 import { DekoratorElements, fetchSsrDekorator } from "~/services/dekorator/dekorator.server";
 import useInjectDecoratorScript from "~/services/dekorator/useInjectScript";
 import "./tailwind.css";
-import { apiHeaders } from "./auth/auth.server";
 import css from "./root.module.css";
 import { ErrorPage } from "./components/common/ErrorPage";
-import { problemDetailResponse } from "./utils/validering";
-import { Header } from "./components/header/Header";
 import { isDemo } from "./services/environment";
 import { Alert, Heading, Link } from "@navikt/ds-react";
 import { getFaro } from "./utils/telemetri";
+import { Header } from "./components/header/Header";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const { data: arrangortilganger, error } =
-    await ArrangorflateService.getArrangorerInnloggetBrukerHarTilgangTil({
-      headers: await apiHeaders(request),
-    });
-
-  if (!arrangortilganger) {
-    throw problemDetailResponse(error);
-  }
-
+export const loader: LoaderFunction = async () => {
   let dekorator = null;
   if (process.env.DISABLE_DEKORATOR !== "true") {
     dekorator = await fetchSsrDekorator();
@@ -46,40 +34,30 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   return {
     dekorator,
-    arrangortilganger,
     telemetryUrl,
   };
 };
 
 export type LoaderData = {
   dekorator: DekoratorElements | null;
-  arrangortilganger: ArrangorflateArrangor[];
   telemetryUrl: string;
 };
 
 function App() {
-  const { dekorator, arrangortilganger, telemetryUrl } = useLoaderData<LoaderData>();
+  const { dekorator, telemetryUrl } = useLoaderData<LoaderData>();
 
   useEffect(() => {
     getFaro(telemetryUrl);
   });
 
   return (
-    <Dokument dekorator={dekorator || undefined} arrangorer={arrangortilganger}>
+    <Dokument dekorator={dekorator || undefined}>
       <Outlet />
     </Dokument>
   );
 }
 
-function Dokument({
-  dekorator,
-  children,
-  arrangorer,
-}: {
-  dekorator?: DekoratorElements;
-  children: ReactNode;
-  arrangorer: ArrangorflateArrangor[];
-}) {
+function Dokument({ dekorator, children }: { dekorator?: DekoratorElements; children: ReactNode }) {
   useInjectDecoratorScript(dekorator?.scripts);
   return (
     <html lang="no">
@@ -92,7 +70,7 @@ function Dokument({
       </head>
       <body>
         <DekoratorHeader dekorator={dekorator} />
-        <Header arrangorer={arrangorer} />
+        <Header />
         <main id="maincontent" className={css.main}>
           {children}
         </main>
@@ -158,7 +136,7 @@ export const ErrorBoundary = () => {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <Dokument arrangorer={[]}>
+      <Dokument>
         <ErrorPage
           heading={error.status === 404 ? "Siden ble ikke funnet" : `Feil ${error.status}`}
           body={[error.data.title, error.data.detail]}
@@ -176,7 +154,7 @@ export const ErrorBoundary = () => {
     }
 
     return (
-      <Dokument arrangorer={[]}>
+      <Dokument>
         <ErrorPage
           heading="Ojsann! Noe gikk galt"
           body={[

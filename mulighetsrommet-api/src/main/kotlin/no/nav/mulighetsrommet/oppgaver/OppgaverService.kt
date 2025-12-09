@@ -130,10 +130,7 @@ class OppgaverService(val db: ApiDatabase) {
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getAvtaleOppgaveData(
-                tiltakskoder = tiltakskoder,
-                navRegioner = regioner.toList(),
-            )
+            .getAvtaleManglerAdministratorOppgaveData(tiltakskoder, regioner)
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
@@ -143,10 +140,7 @@ class OppgaverService(val db: ApiDatabase) {
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getGjennomforingOppgaveData(tiltakskoder = tiltakskoder)
-            .filter {
-                navEnheter.isEmpty() || it.kontorstruktur.flatMap { it.kontorer }.any { it.enhetsnummer in navEnheter }
-            }
+            .getGjennomforingManglerAdministratorOppgaveData(tiltakskoder, navEnheter)
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
@@ -366,7 +360,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
     }
 }
 
-private fun AvtaleOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
+private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = id,
     type = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.AVTALE_MANGLER_ADMINISTRATOR.navn,
@@ -383,12 +377,12 @@ private fun AvtaleOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
         linkText = "Se avtale",
         link = "/avtaler/$id",
     ),
-    createdAt = createdAt,
+    createdAt = oppdatertTidspunkt,
 ).takeIf {
     AvtaleService.tilgangTilHandling(AvtaleHandling.REDIGER, ansatt)
 }
 
-private fun GjennomforingOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
+private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = id,
     type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
@@ -405,7 +399,7 @@ private fun GjennomforingOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
         linkText = "Se gjennomføring",
         link = "/gjennomforinger/$id",
     ),
-    createdAt = updatedAt,
+    createdAt = oppdatertTidspunkt,
 ).takeIf {
     GjennomforingService.tilgangTilHandling(GjennomforingHandling.REDIGER, ansatt)
 }

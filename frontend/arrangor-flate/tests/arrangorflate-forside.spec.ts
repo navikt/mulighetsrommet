@@ -17,7 +17,7 @@ const sjekkUU = async (page: Page) => {
 
 test("Kan navigere til forsiden", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Oversikt");
+  await expect(page).toHaveTitle("Utbetalinger til tiltaksarrangør");
   await expect(page.getByRole("heading", { name: "Oversikt over innsendinger" })).toBeVisible();
 
   await sjekkUU(page);

@@ -1,6 +1,6 @@
 import { LoaderFunction, Outlet, useLoaderData } from "react-router";
 import { InnsendingLayout } from "~/components/common/InnsendingLayout";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathTo } from "~/utils/navigation";
 import {
   ArrangorflateService,
   OpprettKravVeiviserSteg,
@@ -88,10 +88,9 @@ function getActiveStep(steps: Step[], path: string) {
 
 export default function OpprettKravLayout() {
   const { steps, activeStep } = useLoaderData<OpprettKravLoaderData>();
-  const orgnr = useOrgnrFromUrl();
 
   const topNavigationLink = {
-    path: pathByOrgnr(orgnr).opprettKrav.oversikt,
+    path: pathTo.tiltaksoversikt,
     text: "Tilbake til tiltaksoversikt",
   };
 

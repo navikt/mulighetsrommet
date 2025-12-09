@@ -1,23 +1,18 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import io.ktor.server.application.*
-import io.ktor.util.AttributeKey
-import org.slf4j.LoggerFactory
+import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 
-class OpenApiHashHeaderConfig {
-    lateinit var hashAttributeKey: AttributeKey<String>
+class OpenApiVersionHeaderConfig {
+    lateinit var spec: OpenApiSpec
 }
 
-val OpenApiHashHeader =
+val OpenApiVersionHeader =
     createRouteScopedPlugin(
-        name = "OpenApiHash",
-        createConfiguration = ::OpenApiHashHeaderConfig,
+        name = "OpenApiVersion",
+        createConfiguration = ::OpenApiVersionHeaderConfig,
     ) {
-        val log = LoggerFactory.getLogger("OpenApiHashHeader")
-
         onCall { call ->
-            call.application.attributes.getOrNull(pluginConfig.hashAttributeKey)?.let {
-                call.response.headers.append("X-OpenAPI-Hash", it)
-            } ?: log.error("\"${pluginConfig.hashAttributeKey}\" var ikke satt. Ikke ok i prod")
+            call.response.headers.append("X-OpenAPI-Version", pluginConfig.spec.version.toString())
         }
     }

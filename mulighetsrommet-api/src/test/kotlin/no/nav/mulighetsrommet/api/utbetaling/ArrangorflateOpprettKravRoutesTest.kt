@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.comparables.shouldBeGreaterThan
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -11,9 +14,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
-import no.nav.mulighetsrommet.api.arrangorflate.api.GjennomforingerTableResponse
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravInnsendingsInformasjon.DatoVelger
+import no.nav.mulighetsrommet.api.arrangorflate.api.TiltaksoversiktResponse
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -81,9 +84,11 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
+    val tiltaksoversiktUrl = "/api/arrangorflate/arrangor/tiltaksoversikt"
+
     test("401 Unauthorized mangler pid i claims") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/opprett-krav") {
+            val response = client.get(tiltaksoversiktUrl) {
                 bearerAuth(oauth.issueToken().serialize())
             }
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -92,7 +97,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("403 Forbidden feil pid i claims") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/opprett-krav") {
+            val response = client.get(tiltaksoversiktUrl) {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to "01010199989")).serialize())
             }
             response.status shouldBe HttpStatusCode.Forbidden
@@ -101,7 +106,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("200 Ok med rett pid") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response = client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/opprett-krav") {
+            val response = client.get(tiltaksoversiktUrl) {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
             }
 
@@ -116,14 +121,26 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             ),
         )
         withTestApplication(config) {
-            val response = client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/opprett-krav") {
+            val response = client.get(tiltaksoversiktUrl) {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<GjennomforingerTableResponse>()
-            body.aktive.rows.size shouldBe 0
-            body.historiske.rows.size shouldBe 0
+            val body = response.body<TiltaksoversiktResponse>()
+            body.table.shouldBeNull()
+        }
+    }
+
+    test("skal kunne få gjennomføringstabellen med litt data") {
+        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val response = client.get(tiltaksoversiktUrl) {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+            val body = response.body<TiltaksoversiktResponse>()
+            body.table.shouldNotBeNull()
+            body.table.rows.size shouldBeGreaterThan 1
         }
     }
 

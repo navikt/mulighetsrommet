@@ -812,10 +812,10 @@ paths:
       deprecated: false
 components:
   schemas:
-    OpenApiHash:
-      type: string
+    OpenApiVersion:
+      type: number
       enum:
-        - "90339ed950d1ffa7c517b5a2de4048108da6c4473c8fcf5ca20547af59574dcf"
+        - 1
     LagretFilterType:
       type: string
       enum:

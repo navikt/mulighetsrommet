@@ -14,51 +14,57 @@ export const gjennomforingIdOppfolging = "54d0d2af-f329-480d-a427-30de446fea12";
 
 const today: Date = new Date();
 
+type Lopenummer = {
+  lopenummer: string;
+};
 export const arrangorMock: ArrangorflateArrangor = {
   id: "cc04c391-d733-4762-8208-b0dd4387a126",
   navn: "Arrangørens navn",
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT: ArrangorflateGjennomforing = {
+export const gjennomforingAFT: ArrangorflateGjennomforing & Lopenummer = {
   id: gjennomforingIdAFT,
   navn: "Et AFT-tiltak Investering",
   tiltakstype: {
     navn: "Arbeidsforberedende trening",
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
   },
-  startDato: new Date(today.getFullYear() - 5, 7, 1).toISOString().slice(0, 8),
+  startDato: new Date(today.getFullYear() - 5, 7, 1).toISOString().slice(0, 10),
   sluttDato: null,
+  lopenummer: "2024/12345",
 };
 
-export const gjennomforingAvklaring: ArrangorflateGjennomforing = {
+export const gjennomforingAvklaring: ArrangorflateGjennomforing & Lopenummer = {
   id: gjennomforingIdAvklaring,
   navn: "Et avklaringstiltak med annen avtalt pris",
   tiltakstype: {
     navn: "Avklaring",
     tiltakskode: Tiltakskode.AVKLARING,
   },
-  startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 8),
-  sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 8),
+  startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
+  sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
+  lopenummer: "2025/54321",
 };
 
-export const gjennomforingOppfolging: ArrangorflateGjennomforing = {
+export const gjennomforingOppfolging: ArrangorflateGjennomforing & Lopenummer = {
   id: gjennomforingIdOppfolging,
   navn: "Et oppfølgingstiltak med avtalt timespris",
   tiltakstype: {
     navn: "Oppfølging",
     tiltakskode: Tiltakskode.OPPFOLGING,
   },
-  startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 8),
-  sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 8),
+  startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
+  sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
+  lopenummer: "2025/12354",
 };
 
 export const oversiktAktiveGjennomforinger: DataDrivenTableDto = {
   columns: [
-    { key: "navn", label: "Navn", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
+    { key: "tiltak", label: "Tiltak", sortable: true, align: DataDrivenTableDtoColumnAlign.LEFT },
     {
-      key: "tiltaksType",
-      label: "Type",
+      key: "arrangor",
+      label: "Arrangør",
       sortable: true,
       align: DataDrivenTableDtoColumnAlign.LEFT,
     },
@@ -79,8 +85,8 @@ export const oversiktAktiveGjennomforinger: DataDrivenTableDto = {
   rows: [gjennomforingAFT, gjennomforingAvklaring, gjennomforingOppfolging].map(
     (gjennomforing) => ({
       cells: {
-        navn: dataElementText(gjennomforing.navn),
-        tiltaksType: dataElementText(gjennomforing.tiltakstype.navn),
+        tiltak: dataElementText(`${gjennomforing.tiltakstype.navn} (${gjennomforing.lopenummer})`),
+        arrangor: dataElementText(`${arrangorMock.navn} (${arrangorMock.organisasjonsnummer})`),
         startDato: dataElementText(gjennomforing.startDato, DataElementTextFormat.DATE),
         sluttDato: dataElementText(gjennomforing.sluttDato ?? "", DataElementTextFormat.DATE),
         action: dataElementLink(

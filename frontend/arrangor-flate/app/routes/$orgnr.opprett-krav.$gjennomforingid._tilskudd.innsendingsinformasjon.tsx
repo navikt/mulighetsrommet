@@ -47,14 +47,13 @@ import {
   subDuration,
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr, pathBySteg } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathTo, pathBySteg } from "~/utils/navigation";
 import { LabeledDataElementList } from "~/components/common/Definisjonsliste";
 import { getStepTitle } from "./$orgnr.opprett-krav.$gjennomforingid._tilskudd";
 import { nesteStegFieldName } from "~/components/OpprettKravVeiviserButtons";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
 
 type LoaderData = {
-  orgnr: string;
   gjennomforingId: string;
   innsendingsinformasjon: OpprettKravInnsendingsInformasjon;
   sessionTilsagnId?: string;
@@ -100,7 +99,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   }
 
   return {
-    orgnr,
     gjennomforingId,
     innsendingsinformasjon,
     sessionTilsagnId,
@@ -119,7 +117,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const nesteSteg = formData.get(nesteStegFieldName) as OpprettKravVeiviserSteg;
 
   if (intent === "cancel") {
-    return redirect(pathByOrgnr(orgnr).opprettKrav.oversikt, {
+    return redirect(pathTo.tiltaksoversikt, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },
@@ -182,7 +180,7 @@ interface ActionData {
 }
 
 export default function OpprettKravInnsendingsinformasjon() {
-  const { orgnr, innsendingsinformasjon, sessionPeriodeStart, sessionPeriodeSlutt } =
+  const { innsendingsinformasjon, sessionPeriodeStart, sessionPeriodeSlutt } =
     useLoaderData<LoaderData>();
   const data = useActionData<ActionData>();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -218,7 +216,7 @@ export default function OpprettKravInnsendingsinformasjon() {
           <Heading level="3" size="large">
             Innsendingsinformasjon
           </Heading>
-          <GuidePanelInformation orgnr={orgnr} type={innsendingsinformasjon.guidePanel} />
+          <GuidePanelInformation type={innsendingsinformasjon.guidePanel} />
           <VStack gap="6" className="max-w-2xl">
             <LabeledDataElementList entries={innsendingsinformasjon.definisjonsListe} />
             <VStack gap="1">
@@ -478,18 +476,17 @@ function PeriodeVelger({
 }
 
 interface GuidePanelInformationProps {
-  orgnr: string;
   type: OpprettKravInnsendingsInformasjonGuidePanelType | null;
 }
 
-function GuidePanelInformation({ orgnr, type }: GuidePanelInformationProps) {
+function GuidePanelInformation({ type }: GuidePanelInformationProps) {
   switch (type) {
     case OpprettKravInnsendingsInformasjonGuidePanelType.INVESTERING_VTA_AFT:
       return (
         <GuidePanel>
           I dette skjemaet kan du sende inn krav som gjelder tilsagn for investeringer. Andre krav
           om utbetaling skal sendes inn via utbetalingene i{" "}
-          <Link as={ReactRouterLink} to={pathByOrgnr(orgnr).utbetalinger}>
+          <Link as={ReactRouterLink} to={pathTo.utbetalinger}>
             Utbetalingsoversikten.
           </Link>
         </GuidePanel>

@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.*
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
@@ -45,32 +44,7 @@ class ArrangorflateService(
     fun getUtbetalinger(orgnr: Organisasjonsnummer): ArrangorflateUtbetalinger = db.session {
         val (aktive, historiske) = queries.utbetaling.getByArrangorIds(orgnr)
             .map { utbetaling ->
-                val harAdvarsler = when (utbetaling.status) {
-                    UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
-
-                    UtbetalingStatusType.INNSENDT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-                }
-                val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
-                val godkjentBelop = when (status) {
-                    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
-                    ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
-                    ArrangorflateUtbetalingStatus.UTBETALT,
-                    -> getGodkjentBelopForUtbetaling(utbetaling.id)
-
-                    ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-                    ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-                    ArrangorflateUtbetalingStatus.KREVER_ENDRING,
-                    ArrangorflateUtbetalingStatus.AVBRUTT,
-                    -> null
-                }
-                ArrangorflateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+                tilArrangorflateUtbetalingKompakt(utbetaling)
             }
             .partition { dto ->
                 when (dto.status) {
@@ -92,6 +66,39 @@ class ArrangorflateService(
         )
     }
 
+    private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompaktDto {
+        val harAdvarsler = when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
+
+            UtbetalingStatusType.INNSENDT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> false
+        }
+        val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
+        val godkjentBelop = when (status) {
+            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+            ArrangorflateUtbetalingStatus.UTBETALT,
+            -> getGodkjentBelopForUtbetaling(utbetaling.id)
+
+            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+            ArrangorflateUtbetalingStatus.KREVER_ENDRING,
+            ArrangorflateUtbetalingStatus.AVBRUTT,
+            -> null
+        }
+        return ArrangorflateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
+    }
+
+    fun getUtbetalingerByArrangorerAndStatus(arrangorer: Set<Organisasjonsnummer>, statuser: Set<UtbetalingStatusType>): List<ArrangorflateUtbetalingKompaktDto> = db.session {
+        queries.utbetaling.getByArrangorerAndStatus(arrangorer, statuser).map { tilArrangorflateUtbetalingKompakt(it) }
+    }
+
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
     }
@@ -103,14 +110,14 @@ class ArrangorflateService(
     }
 
     fun getTilsagn(
-        orgnr: Organisasjonsnummer,
+        arrangorer: Set<Organisasjonsnummer>,
         statuser: List<TilsagnStatus>? = null,
         typer: List<TilsagnType>? = null,
         gjennomforingId: UUID? = null,
     ): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
-                arrangor = orgnr,
+                arrangorer = arrangorer,
                 statuser = statuser,
                 typer = typer,
                 gjennomforingId = gjennomforingId,

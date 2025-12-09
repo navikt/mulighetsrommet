@@ -6,12 +6,13 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -58,7 +59,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
 
                 val notification = ScheduledNotification(
                     title = title,
-                    targets = administratorer,
+                    targets = administratorer.map { it.navIdent },
                     createdAt = Instant.now(),
                     metadata = NotificationMetadata(
                         linkText = "Gå til gjennomføringen",
@@ -76,17 +77,15 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
     ): List<GjennomforingNotificationDto> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select gjennomforing.id::uuid,
-                   gjennomforing.navn,
-                   gjennomforing.slutt_dato,
-                   array_agg(distinct nav_ident) as administratorer,
-                   gjennomforing.arena_tiltaksnummer
-            from gjennomforing
-                     join gjennomforing_administrator on gjennomforing_id = gjennomforing.id
-            where (:today::timestamp + interval '14' day) = gjennomforing.slutt_dato
-               or (:today::timestamp + interval '7' day) = gjennomforing.slutt_dato
-               or (:today::timestamp + interval '1' day) = gjennomforing.slutt_dato
-            group by gjennomforing.id
+            select id::uuid,
+                   arena_tiltaksnummer,
+                   navn,
+                   slutt_dato,
+                   administratorer_json
+            from view_gjennomforing
+            where (:today::timestamp + interval '14' day) = slutt_dato
+               or (:today::timestamp + interval '7' day) = slutt_dato
+               or (:today::timestamp + interval '1' day) = slutt_dato
         """.trimIndent()
 
         session.list(queryOf(query, mapOf("today" to today))) { it.toTiltaksgjennomforingNotificationDto() }
@@ -94,7 +93,9 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
 }
 
 private fun Row.toTiltaksgjennomforingNotificationDto(): GjennomforingNotificationDto {
-    val administratorer = array<String>("administratorer").asList().map { NavIdent(it) }
+    val administratorer = stringOrNull("administratorer_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
+        ?: emptyList()
     return GjennomforingNotificationDto(
         id = uuid("id"),
         navn = string("navn"),

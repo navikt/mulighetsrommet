@@ -4,6 +4,8 @@ drop view if exists view_gjennomforing;
 
 create view view_gjennomforing as
 select gjennomforing.id,
+       gjennomforing.created_at            as opprettet_tidspunkt,
+       gjennomforing.updated_at            as oppdatert_tidspunkt,
        gjennomforing.fts,
        gjennomforing.navn,
        gjennomforing.start_dato,
@@ -15,8 +17,6 @@ select gjennomforing.id,
        gjennomforing.opphav,
        gjennomforing.beskrivelse,
        gjennomforing.faneinnhold,
-       gjennomforing.created_at                                       as opprettet_tidspunkt,
-       gjennomforing.updated_at                                       as oppdatert_tidspunkt,
        gjennomforing.deltidsprosent,
        gjennomforing.estimert_ventetid_verdi,
        gjennomforing.estimert_ventetid_enhet,

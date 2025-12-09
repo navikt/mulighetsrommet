@@ -120,6 +120,11 @@ export enum DataElementTextFormat {
   NUMBER = "number",
 }
 
+export type DataElementDualText = {
+  top: string;
+  bottom: string;
+};
+
 export type TimelineDto = {
   startDate: string;
   endDate: string;

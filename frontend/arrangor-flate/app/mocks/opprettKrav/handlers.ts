@@ -1,5 +1,6 @@
 import {
-  GjennomforingerTableResponse,
+  TiltaksoversiktResponse,
+  TiltaksoversiktType,
   OpprettKravDeltakere,
   OpprettKravInnsendingsInformasjon,
   OpprettKravOppsummering,
@@ -18,15 +19,21 @@ import { oppsummering, utbetalingMap } from "./oppsummeringMocks";
 import { deltakere } from "./deltakelserMocks";
 
 export const handlers = [
-  http.get<PathParams, GjennomforingerTableResponse[]>(
-    "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/opprett-krav",
-    () =>
-      HttpResponse.json<GjennomforingerTableResponse>({
-        aktive: oversiktAktiveGjennomforinger,
-        historiske: { columns: [], rows: [] },
-      }),
+  http.get<PathParams, TiltaksoversiktResponse[]>(
+    "*/api/arrangorflate/arrangor/tiltaksoversikt",
+    ({ request }) => {
+      const type = new URL(request.url).searchParams.get("type");
+      if (type === TiltaksoversiktType.AKTIVE) {
+        return HttpResponse.json<TiltaksoversiktResponse>({
+          table: oversiktAktiveGjennomforinger,
+        });
+      }
+      return HttpResponse.json<TiltaksoversiktResponse>({
+        table: null,
+      });
+    },
   ),
-  http.get<PathParams, GjennomforingerTableResponse[]>(
+  http.get<PathParams, OpprettKravVeiviserMeta>(
     "*/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav",
     ({ params }) => {
       const { gjennomforingId } = params;

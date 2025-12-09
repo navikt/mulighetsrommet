@@ -28,7 +28,7 @@ import { tekster } from "~/tekster";
 import { FileUpload, FileUploadHandler, parseFormData } from "@mjackson/form-data-parser";
 import { addFilesTo } from "~/components/fileUploader/FileUploader";
 import { errorAt, isValidationError, problemDetailResponse } from "~/utils/validering";
-import { getOrgnrGjennomforingIdFrom, pathByOrgnr } from "~/utils/navigation";
+import { getOrgnrGjennomforingIdFrom, pathTo } from "~/utils/navigation";
 import { Separator } from "~/components/common/Separator";
 import { VedleggUtlisting } from "~/components/VedleggUtlisting";
 import { useFileStorage } from "~/hooks/useFileStorage";
@@ -170,7 +170,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       throw problemDetailResponse(error);
     }
   } else {
-    return redirect(`${pathByOrgnr(orgnr!).kvittering(data.id)}`, {
+    return redirect(`${pathTo.kvittering(orgnr, data.id)}`, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },
@@ -272,7 +272,7 @@ export default function OpprettKrav() {
                 as={ReactRouterLink}
                 type="button"
                 variant="tertiary"
-                to={pathByOrgnr(orgnr).opprettKrav.vedlegg(gjennomforingId)}
+                to={pathTo.opprettKrav.vedlegg(orgnr, gjennomforingId)}
               >
                 Tilbake
               </Button>

@@ -1,6 +1,19 @@
 import { useSearchParams } from "react-router";
 import { useEffect } from "react";
-import { Tabs } from "~/routes/$orgnr_.oversikt";
+
+export type Tabs = "aktive" | "historiske" | "tilsagnsoversikt";
+
+export function getTabStateOrDefault(url: URL): Tabs {
+  const val = url.searchParams.get("forside-tab") || "";
+  return convertToTabOrDefault(val);
+}
+
+function convertToTabOrDefault(str: string | null): Tabs {
+  if (str === "aktive" || str === "historiske" || str === "tilsagnsoversikt") {
+    return str;
+  }
+  return "aktive";
+}
 
 export function useTabState(
   key: "forside-tab" = "forside-tab",
@@ -8,7 +21,7 @@ export function useTabState(
 ): [string, (tab: Tabs) => void] {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const currentTab = searchParams.get(key) || defaultValue;
+  const currentTab = convertToTabOrDefault(searchParams.get(key));
 
   const setTab = (newTab: Tabs) => {
     setSearchParams({ [key]: newTab });

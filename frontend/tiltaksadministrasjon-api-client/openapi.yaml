@@ -3137,10 +3137,10 @@ paths:
       deprecated: false
 components:
   schemas:
-    OpenApiHash:
-      type: string
+    OpenApiVersion:
+      type: number
       enum:
-        - "7b4be1683ad8a26df19f74a2e59ff02f451efae7b211cab7d473373a6b0cd558"
+        - 1
     TiltakstypeDto:
       type: object
       properties:

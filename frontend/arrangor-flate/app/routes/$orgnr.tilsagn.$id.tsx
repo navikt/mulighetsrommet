@@ -5,7 +5,7 @@ import { TilsagnDetaljer } from "~/components/tilsagn/TilsagnDetaljer";
 import { tekster } from "~/tekster";
 import { VStack } from "@navikt/ds-react";
 import css from "../root.module.css";
-import { pathByOrgnr, useOrgnrFromUrl } from "~/utils/navigation";
+import { pathTo } from "~/utils/navigation";
 import { problemDetailResponse } from "~/utils/validering";
 import { PageHeading } from "~/components/common/PageHeading";
 
@@ -31,7 +31,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 
 export default function TilsagnDetaljerPage() {
   const { tilsagn } = useLoaderData<LoaderData>();
-  const orgnr = useOrgnrFromUrl();
 
   return (
     <VStack gap="4" className={css.side}>
@@ -39,7 +38,7 @@ export default function TilsagnDetaljerPage() {
         title={tekster.bokmal.tilsagn.detaljer.headingTitle}
         tilbakeLenke={{
           navn: tekster.bokmal.tilsagn.detaljer.tilbakeLenke,
-          url: pathByOrgnr(orgnr).utbetalinger,
+          url: pathTo.utbetalinger,
         }}
       />
       <TilsagnDetaljer tilsagn={tilsagn} />

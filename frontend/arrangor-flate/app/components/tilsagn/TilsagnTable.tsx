@@ -1,7 +1,7 @@
 import { ArrangorflateTilsagnDto, TilsagnType } from "api-client";
 import { Alert, Table } from "@navikt/ds-react";
 import { LinkWithTabState } from "../common/LinkWithTabState";
-import { useOrgnrFromUrl, pathByOrgnr } from "~/utils/navigation";
+import { pathTo } from "~/utils/navigation";
 import { sortBy, SortBySelector } from "~/utils/sort-by";
 import { useSortState } from "~/hooks/useSortState";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -32,7 +32,6 @@ function getTilsagnSelector(sortKey: TilsagnSortKey): SortBySelector<Arrangorfla
 }
 
 export function TilsagnTable({ tilsagn }: Props) {
-  const orgnr = useOrgnrFromUrl();
   const { sort, handleSort } = useSortState<TilsagnSortKey>();
 
   if (tilsagn.length === 0) {
@@ -88,7 +87,7 @@ export function TilsagnTable({ tilsagn }: Props) {
               <Table.DataCell>
                 <LinkWithTabState
                   aria-label={`Se detaljer for tilsagn for ${tilsagn.gjennomforing.navn}`}
-                  to={pathByOrgnr(orgnr).tilsagn(tilsagn.id)}
+                  to={pathTo.tilsagn(tilsagn.arrangor.organisasjonsnummer, tilsagn.id)}
                 >
                   Se detaljer
                 </LinkWithTabState>

@@ -4,6 +4,8 @@ drop view if exists view_avtale;
 
 create view view_avtale as
 select avtale.id,
+       avtale.created_at                                as opprettet_tidspunkt,
+       avtale.updated_at                                as oppdatert_tidspunkt,
        avtale.fts,
        avtale.navn,
        coalesce(avtale.avtalenummer, avtale.lopenummer) as avtalenummer,

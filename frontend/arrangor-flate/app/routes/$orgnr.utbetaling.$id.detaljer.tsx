@@ -36,8 +36,8 @@ import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
+import { deltakerOversiktLenke, pathTo } from "~/utils/navigation";
 import { getUtbetalingsdato } from "~/utils/utbetaling";
-import { deltakerOversiktLenke, pathByOrgnr } from "~/utils/navigation";
 import { isValidationError, problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
@@ -129,7 +129,7 @@ export default function UtbetalingDetaljerSide() {
           title="Detaljer"
           tilbakeLenke={{
             navn: tekster.bokmal.tilbakeTilOversikt,
-            url: pathByOrgnr(utbetaling.arrangor.organisasjonsnummer).utbetalinger,
+            url: pathTo.utbetalinger,
           }}
         />
         <Spacer />
@@ -209,7 +209,12 @@ export default function UtbetalingDetaljerSide() {
         </HStack>
       )}
       <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
-      <DeltakerModal utbetaling={utbetaling} deltakerlisteUrl={deltakerlisteUrl} open={deltakerModalOpen} setOpen={setDeltakerModalOpen} />
+      <DeltakerModal
+        utbetaling={utbetaling}
+        deltakerlisteUrl={deltakerlisteUrl}
+        open={deltakerModalOpen}
+        setOpen={setDeltakerModalOpen}
+      />
     </VStack>
   );
 }
@@ -282,7 +287,6 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
   const errors = fetcher.data?.errors || [];
   const rootError = errors.find((error) => error.pointer === "/")?.detail;
 
-
   function onClose() {
     setOpen(false);
   }
@@ -331,11 +335,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
                 Ja, jeg vil avbryte
               </Button>
             </HStack>
-            {rootError && (
-              <FeilmeldingMedVarselTrekant>
-                {rootError}
-              </FeilmeldingMedVarselTrekant>
-            )}
+            {rootError && <FeilmeldingMedVarselTrekant>{rootError}</FeilmeldingMedVarselTrekant>}
           </VStack>
         </fetcher.Form>
       </Modal.Body>
