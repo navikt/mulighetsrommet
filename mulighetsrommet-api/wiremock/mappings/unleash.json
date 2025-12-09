@@ -12,50 +12,6 @@
           "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
           "enabled": true,
           "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.tiltakstype.migrering.okonomi",
-          "enabled": true,
-          "strategies": [
-            {
-              "name": "by-tiltakskode",
-              "parameters": {
-                "tiltakskoder": "AVKLARING,OPPFOLGING,DIGITALT_OPPFOLGINGSTILTAK,ARBEIDSFORBEREDENDE_TRENING,ARBEIDSRETTET_REHABILITERING,VARIG_TILRETTELAGT_ARBEID_SKJERMET"
-              }
-            }
-          ]
-        },
-        {
-          "name": "mulighetsrommet.tiltakstype.migrering.tilsagn",
-          "enabled": true,
-          "strategies": [
-            {
-              "name": "by-tiltakskode",
-              "parameters": {
-                "tiltakskoder": "AVKLARING,OPPFOLGING,DIGITALT_OPPFOLGINGSTILTAK,ARBEIDSFORBEREDENDE_TRENING,ARBEIDSRETTET_REHABILITERING,VARIG_TILRETTELAGT_ARBEID_SKJERMET"
-              }
-            }
-          ]
-        },
-        {
-          "name": "mulighetsrommet.okonomi.prismodell.hele-uker",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "arrangorflate.utbetaling.opprett-utbetaling-knapp",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "arrangorflate.utbetaling.opprett-utbetaling.annen-avtalt-ppris",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.migrering.okonomi.avbryt-utbetaling",
-          "enabled": true,
-          "strategies": []
         }
       ]
     },

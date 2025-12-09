@@ -5,8 +5,7 @@ import { PrismodellValues } from "@/schemas/avtale";
 import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import PrismodellForm from "./PrismodellForm";
 import { yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { FeatureToggle, PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { PrismodellType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   tiltakskode: Tiltakskode;
@@ -20,9 +19,6 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     watch,
   } = useFormContext<PrismodellValues>();
   const { data: prismodeller = [] } = usePrismodeller(tiltakskode);
-  const { data: enabledHeleUker } = useFeatureToggle(
-    FeatureToggle.MULIGHETSROMMET_PRISMODELL_HELE_UKER,
-  );
 
   const prismodell = watch("prismodell");
   const satser = watch("satser");
@@ -64,16 +60,11 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           }}
         >
           <option key={undefined} value={undefined}></option>
-          {prismodeller
-            .filter(
-              ({ type }) =>
-                type !== PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK || enabledHeleUker,
-            )
-            .map(({ type, navn }) => (
-              <option key={type} value={type}>
-                {navn}
-              </option>
-            ))}
+          {prismodeller.map(({ type, navn }) => (
+            <option key={type} value={type}>
+              {navn}
+            </option>
+          ))}
         </Select>
         {beskrivelse && beskrivelse.map((tekst) => <BodyShort>{tekst}</BodyShort>)}
         <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
