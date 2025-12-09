@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.avtale
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.put
@@ -11,18 +10,19 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
 import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
@@ -141,13 +141,7 @@ class AvtaleRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
                 response1.status shouldBe HttpStatusCode.OK
-                response1.body<List<AvtaltSatsDto>>() shouldBe listOf(
-                    AvtaltSatsDto(
-                        gjelderFra = LocalDate.of(2025, 1, 1),
-                        pris = 20_975,
-                        valuta = "NOK",
-                    ),
-                )
+                response1.body<List<AvtaltSatsDto>>() shouldBe AvtalteSatser.AFT.satser.toDto()
 
                 val response2 =
                     client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
