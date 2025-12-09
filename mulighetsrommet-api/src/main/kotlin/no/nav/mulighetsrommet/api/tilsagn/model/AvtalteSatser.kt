@@ -31,6 +31,10 @@ object AvtalteSatser {
                 gjelderFra = LocalDate.of(2025, 1, 1),
                 sats = 16_848,
             ),
+            AvtaltSats(
+                gjelderFra = LocalDate.of(2026, 1, 1),
+                sats = 17_455,
+            ),
         )
     }
 
@@ -39,6 +43,10 @@ object AvtalteSatser {
             AvtaltSats(
                 gjelderFra = LocalDate.of(2025, 1, 1),
                 sats = 20_975,
+            ),
+            AvtaltSats(
+                gjelderFra = LocalDate.of(2026, 1, 1),
+                sats = 21_730,
             ),
         )
     }
