@@ -38,17 +38,5 @@ enum class ArrangorflateUtbetalingStatus {
 
             UtbetalingStatusType.AVBRUTT -> AVBRUTT
         }
-
-        fun toReadableName(status: ArrangorflateUtbetalingStatus): String {
-            return when (status) {
-                KLAR_FOR_GODKJENNING -> "Klar for godkjenning"
-                BEHANDLES_AV_NAV -> "Behandles av NAV"
-                UTBETALT -> "Utbetalt"
-                KREVER_ENDRING -> "Krever endring"
-                OVERFORT_TIL_UTBETALING -> "Overført til utbetaling"
-                DELVIS_UTBETALT -> "Delvis utbetalt"
-                AVBRUTT -> "Avbrutt"
-            }
-        }
     }
 }

@@ -46,5 +46,11 @@ export function UtbetalingStatusTag({ status, size }: Props): ReactNode {
           Krever endring
         </Tag>
       );
+    case ArrangorflateUtbetalingStatus.AVBRUTT:
+      return (
+        <Tag variant="error" size={tagSize}>
+          Avbrutt av arrangør
+        </Tag>
+      );
   }
 }

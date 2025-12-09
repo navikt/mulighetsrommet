@@ -87,6 +87,7 @@ const satsDetaljerUkespris: DataDetails[] = [
 ];
 
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
   innsendtAvArrangorDato: "2025-05-15",
@@ -130,6 +131,7 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
 };
 
 const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
@@ -159,6 +161,7 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
 };
 
 const aftKreverEndring: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
   status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
   innsendtAvArrangorDato: null,
@@ -191,6 +194,7 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
 };
 
 const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
   innsendtAvArrangorDato: "2025-06-05",
@@ -223,6 +227,7 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
 };
 
 const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
   innsendtAvArrangorDato: null,
@@ -266,6 +271,7 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
 };
 
 const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
@@ -298,6 +304,7 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
 };
 
 const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+  kanAvbrytes: false,
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,

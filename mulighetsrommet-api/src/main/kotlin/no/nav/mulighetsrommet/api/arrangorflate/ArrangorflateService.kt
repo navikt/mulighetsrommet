@@ -468,6 +468,7 @@ fun kanAvbrytesAvArrangor(utbetaling: Utbetaling): Boolean {
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
         -> return false
+
         UtbetalingStatusType.INNSENDT,
         UtbetalingStatusType.RETURNERT,
         -> Unit

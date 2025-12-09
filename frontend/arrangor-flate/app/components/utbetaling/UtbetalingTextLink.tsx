@@ -41,6 +41,7 @@ export function UtbetalingTextLink({
     }
     case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
     case ArrangorflateUtbetalingStatus.UTBETALT:
+    case ArrangorflateUtbetalingStatus.AVBRUTT:
     case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
     case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING: {
       return (

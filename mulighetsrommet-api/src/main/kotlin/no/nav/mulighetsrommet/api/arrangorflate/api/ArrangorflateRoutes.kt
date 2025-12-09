@@ -810,6 +810,7 @@ enum class UtbetalingOversiktType {
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
         )
     }
 
@@ -865,7 +866,7 @@ fun utbetalingKompaktDataDrivenTable(
                     "belop" to DataElement.nok(
                         when (tabellType) {
                             UtbetalingOversiktType.AKTIVE -> utbetaling.belop
-                            UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop!!
+                            UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop
                         },
                     ),
                     "type" to getUtbetalingType(utbetaling),
@@ -915,8 +916,8 @@ private fun getUtbetalingStatus(status: ArrangorflateUtbetalingStatus): DataElem
     )
 
     AVBRUTT -> DataElement.Status(
-        "Avbrutt",
-        variant = DataElement.Status.Variant.ERROR_BORDER,
+        "Avbrutt av arrangør",
+        variant = DataElement.Status.Variant.ERROR,
     )
 }
 

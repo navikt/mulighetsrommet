@@ -34,6 +34,6 @@ data class UtbetalingStatusDto(
         OVERFORT_TIL_UTBETALING("Overført til utbetaling", DataElement.Status.Variant.SUCCESS),
         DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),
         UTBETALT("Utbetalt", DataElement.Status.Variant.SUCCESS),
-        AVBRUTT("Avbrutt", DataElement.Status.Variant.ERROR_BORDER),
+        AVBRUTT("Avbrutt av arrangør", DataElement.Status.Variant.ERROR),
     }
 }
