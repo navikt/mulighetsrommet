@@ -1,5 +1,9 @@
-import { Box, Tabs as AkselTabs, Button } from "@navikt/ds-react";
-import { ArrangorflateService, UtbetalingOversiktType } from "api-client";
+import { Box, Tabs as AkselTabs, Button, Alert } from "@navikt/ds-react";
+import {
+  ArrangorflateService,
+  ArrangorflateTilsagnOversikt,
+  UtbetalingOversiktType,
+} from "api-client";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { Link as ReactRouterLink, useLoaderData } from "react-router";
 import { apiHeaders } from "~/auth/auth.server";
@@ -9,7 +13,6 @@ import { tekster } from "~/tekster";
 import { problemDetailResponse } from "~/utils/validering";
 import css from "../root.module.css";
 import { DataDrivenTable } from "@mr/frontend-common";
-import { TilsagnTable } from "~/components/tilsagn/TilsagnTable";
 import { pathTo } from "~/utils/navigation";
 
 export const meta: MetaFunction = () => {
@@ -24,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (tabState === "tilsagnsoversikt") {
     const { data: tilsagn, error: tilsagnError } =
-      await ArrangorflateService.getAllArrangorflateTilsagn({
+      await ArrangorflateService.getArrangorflateTilsagnOversikt({
         headers: await apiHeaders(request),
       });
     if (tilsagnError) {
@@ -87,7 +90,7 @@ export default function Oversikt() {
           {historiske?.tabell && <DataDrivenTable data={historiske.tabell} zebraStripes />}
         </AkselTabs.Panel>
         <AkselTabs.Panel value="tilsagnsoversikt" className="w-full">
-          {tilsagn && <TilsagnTable tilsagn={tilsagn} />}
+          {tilsagn && <TilsagnTabell tilsagnOversikt={tilsagn} />}
         </AkselTabs.Panel>
       </AkselTabs>
     </Box>
@@ -100,4 +103,19 @@ function OpprettManueltUtbetalingskrav() {
       {tekster.bokmal.utbetaling.opprettUtbetaling.actionLabel}
     </Button>
   );
+}
+
+interface TilsagnTabellProps {
+  tilsagnOversikt: ArrangorflateTilsagnOversikt;
+}
+
+function TilsagnTabell({ tilsagnOversikt }: TilsagnTabellProps) {
+  if (!tilsagnOversikt.tabell) {
+    return (
+      <Alert className="my-10" variant="info">
+        Det finnes ingen tilsagn her
+      </Alert>
+    );
+  }
+  return <DataDrivenTable data={tilsagnOversikt.tabell} zebraStripes />;
 }
