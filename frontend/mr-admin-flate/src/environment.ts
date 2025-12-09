@@ -21,3 +21,11 @@ function getEnvironment() {
 
   return Environment.LOCAL;
 }
+
+export function isAnsattDomene(): boolean {
+  if (typeof window === "undefined") return false;
+
+  const host = window.location.hostname;
+
+  return host.endsWith(".ansatt.dev.nav.no");
+}
