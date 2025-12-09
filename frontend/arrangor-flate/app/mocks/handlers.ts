@@ -148,7 +148,7 @@ export const handlers = [
     return HttpResponse.json(gjennomforinger);
   }),
   http.get<PathParams, ArrangorflateTilsagnOversikt>("*/api/arrangorflate/tilsagn", () => {
-    return HttpResponse.json({tabell: tilsagnOversikt });
+    return HttpResponse.json({ tabell: tilsagnOversikt });
   }),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api/arrangorflate/tilsagn/:id",

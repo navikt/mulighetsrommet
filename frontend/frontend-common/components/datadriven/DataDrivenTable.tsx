@@ -56,10 +56,11 @@ export function DataDrivenTable({ data, className, size, ...rest }: Props) {
               </Table.ExpandableRow>
             );
           } else {
-            return (<Table.Row
-            key={index}>
+            return (
+              <Table.Row key={index}>
                 <RowContent columns={data.columns} row={row} />
-            </Table.Row>)
+              </Table.Row>
+            );
           }
         })}
       </Table.Body>
