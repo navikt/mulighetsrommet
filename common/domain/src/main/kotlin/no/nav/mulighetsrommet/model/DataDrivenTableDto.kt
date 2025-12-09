@@ -219,7 +219,7 @@ sealed class DataElement {
     companion object {
         fun text(value: String?) = Text(value, null)
 
-        fun nok(value: Number) = Text(value.toString(), Format.NOK)
+        fun nok(value: Number?) = Text(value?.toString(), Format.NOK)
 
         fun date(value: LocalDate?) = Text(value?.toString(), Format.DATE)
 

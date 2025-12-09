@@ -34,6 +34,7 @@ data class Utbetaling(
     val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatusType,
+    val avbruttBegrunnelse: String?,
 ) {
     @Serializable
     data class Gjennomforing(

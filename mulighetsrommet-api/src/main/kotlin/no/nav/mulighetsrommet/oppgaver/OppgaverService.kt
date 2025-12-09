@@ -339,6 +339,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
+        UtbetalingStatusType.AVBRUTT,
         -> null
 
         UtbetalingStatusType.INNSENDT ->

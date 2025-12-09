@@ -23,6 +23,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
+    kanAvbrytes: Boolean,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
         belop = utbetaling.beregning.output.belop,
@@ -65,6 +66,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         type = UtbetalingType.from(utbetaling).toDto(),
         linjer = linjer,
         advarsler = advarsler,
+        kanAvbrytes = kanAvbrytes,
     )
 }
 

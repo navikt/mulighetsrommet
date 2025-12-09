@@ -59,7 +59,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
-import java.security.InvalidParameterException
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
@@ -542,6 +542,39 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
         }
 
+        post("/avbryt", {
+            description = "Avbryt en utbetaling på vegne av arrangør"
+            tags = setOf("Arrangorflate")
+            operationId = "avbrytUtbetaling"
+            request {
+                pathParameterUuid("id")
+                body<AvbrytUtbetaling>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetaling ble avbrutt"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val utbetaling = getUtbetalingOrRespondNotFound()
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val request = call.receive<AvbrytUtbetaling>()
+
+            UtbetalingValidator
+                .validerAvbrytUtbetaling(request, utbetaling)
+                .onLeft {
+                    call.respondWithProblemDetail(ValidationError(errors = it))
+                }
+                .onRight {
+                    db.session { queries.utbetaling.avbrytUtbetaling(utbetaling.id, it, Instant.now()) }
+                    call.respond(HttpStatusCode.OK)
+                }
+        }
+
         get("/pdf", {
             description = "Hent pdf med status på utbetalingen"
             tags = setOf("Arrangorflate")
@@ -736,6 +769,11 @@ data class GodkjennUtbetaling(
     val kid: String?,
 )
 
+@Serializable
+data class AvbrytUtbetaling(
+    val begrunnelse: String?,
+)
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("type")
@@ -806,6 +844,7 @@ enum class UtbetalingOversiktType {
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
         )
     }
 
@@ -933,7 +972,7 @@ fun utbetalingKompaktDataDrivenTable(
                     "belop" to DataElement.nok(
                         when (tabellType) {
                             UtbetalingOversiktType.AKTIVE -> utbetaling.belop
-                            UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop!!
+                            UtbetalingOversiktType.HISTORISKE -> utbetaling.godkjentBelop
                         },
                     ),
                     "type" to getUtbetalingType(utbetaling),
@@ -981,6 +1020,11 @@ private fun getUtbetalingStatus(status: ArrangorflateUtbetalingStatus): DataElem
         "Utbetalt",
         variant = DataElement.Status.Variant.SUCCESS,
     )
+
+    AVBRUTT -> DataElement.Status(
+        "Avbrutt av arrangør",
+        variant = DataElement.Status.Variant.ERROR,
+    )
 }
 
 private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompaktDto): DataElement = when (utbetaling.status) {
@@ -1000,6 +1044,7 @@ private fun getUtbetalingLinkByStatus(utbetaling: ArrangorflateUtbetalingKompakt
     OVERFORT_TIL_UTBETALING,
     DELVIS_UTBETALT,
     UTBETALT,
+    AVBRUTT,
     ->
         DataElement.Link(
             text = "Se detaljer",

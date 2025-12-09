@@ -17,6 +17,7 @@ object UtbetalingMapper {
             betalingsinformasjon = Utbetaling.Betalingsinformasjon(dbo.kontonummer, null),
             beskrivelse = dbo.beskrivelse,
             begrunnelseMindreBetalt = null,
+            avbruttBegrunnelse = null,
             journalpostId = null,
             tilskuddstype = dbo.tilskuddstype,
             innsender = null,

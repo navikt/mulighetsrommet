@@ -15,6 +15,12 @@ import no.nav.mulighetsrommet.api.tilsagn.model.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
@@ -50,6 +56,7 @@ class ArrangorflateService(
                     ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
                     ArrangorflateUtbetalingStatus.UTBETALT,
                     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    ArrangorflateUtbetalingStatus.AVBRUTT,
                     -> false
                 }
             }
@@ -58,6 +65,7 @@ class ArrangorflateService(
             historiske = historiske,
         )
     }
+
     private fun tilArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompaktDto {
         val harAdvarsler = when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> harAdvarsler(utbetaling)
@@ -68,6 +76,7 @@ class ArrangorflateService(
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
             -> false
         }
         val status = getArrangorflateUtbetalingStatus(utbetaling, harAdvarsler)
@@ -80,6 +89,7 @@ class ArrangorflateService(
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
             ArrangorflateUtbetalingStatus.KREVER_ENDRING,
+            ArrangorflateUtbetalingStatus.AVBRUTT,
             -> null
         }
         return ArrangorflateUtbetalingKompaktDto.fromUtbetaling(utbetaling, status, godkjentBelop)
@@ -212,6 +222,7 @@ class ArrangorflateService(
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
+            kanAvbrytes = kanAvbrytesAvArrangor(utbetaling),
         )
     }
 
@@ -446,4 +457,33 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
         )
     }
     return DataDetails(entries = entries)
+}
+
+fun kanAvbrytesAvArrangor(utbetaling: Utbetaling): Boolean {
+    when (utbetaling.status) {
+        UtbetalingStatusType.GENERERT,
+        UtbetalingStatusType.FERDIG_BEHANDLET,
+        UtbetalingStatusType.DELVIS_UTBETALT,
+        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.UTBETALT,
+        UtbetalingStatusType.AVBRUTT,
+        -> return false
+
+        UtbetalingStatusType.INNSENDT,
+        UtbetalingStatusType.RETURNERT,
+        -> Unit
+    }
+    when (utbetaling.beregning) {
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+        is UtbetalingBeregningPrisPerHeleUkesverk,
+        is UtbetalingBeregningPrisPerManedsverk,
+        is UtbetalingBeregningPrisPerUkesverk,
+        -> return false
+
+        is UtbetalingBeregningFri,
+        is UtbetalingBeregningPrisPerTimeOppfolging,
+        -> Unit
+    }
+
+    return utbetaling.innsender == Arrangor
 }

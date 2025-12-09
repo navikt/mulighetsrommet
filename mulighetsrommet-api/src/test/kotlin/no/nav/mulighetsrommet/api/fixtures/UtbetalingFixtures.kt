@@ -73,6 +73,7 @@ object UtbetalingFixtures {
         journalpostId = null,
         begrunnelseMindreBetalt = null,
         createdAt = LocalDateTime.now(),
+        avbruttBegrunnelse = null,
     )
 
     val utbetaling2 = UtbetalingDbo(

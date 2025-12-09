@@ -5681,6 +5681,7 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - UTBETALT
+      - AVBRUTT
     UtbetalingTypeDto:
       type: object
       properties:
@@ -6166,10 +6167,6 @@ components:
     FeatureToggle:
       type: string
       enum:
-      - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_TILSAGN
-      - MULIGHETSROMMET_PRISMODELL_HELE_UKER
-      - MULIGHETSROMMET_TILTAKSTYPE_MIGRERING_UTBETALING
-      - ARRANGORFLATE_OPPRETT_UTBETALING_ANNEN_AVTALT_PPRIS
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
     LagretFilterType:
       type: string
