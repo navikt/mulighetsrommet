@@ -86,7 +86,6 @@ class GjennomforingQueriesTest : FunSpec({
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                     it.kontaktpersoner shouldBe listOf()
-                    it.stedForGjennomforing shouldBe "Oslo"
                     it.oppmoteSted shouldBe "Munch museet"
                     it.faneinnhold shouldBe null
                     it.beskrivelse shouldBe null

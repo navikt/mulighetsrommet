@@ -20,7 +20,6 @@ data class GjennomforingDbo(
     val navEnheter: Set<NavEnhetNummer>,
     val oppstart: GjennomforingOppstartstype,
     val kontaktpersoner: List<GjennomforingKontaktpersonDbo>,
-    val stedForGjennomforing: String?,
     val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,

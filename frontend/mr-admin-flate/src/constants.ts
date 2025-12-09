@@ -6,7 +6,6 @@ export const PAGE_SIZE = 50;
 export const AVTALE_PAGE_SIZE = 50;
 export const ARRANGORER_PAGE_SIZE = 50;
 
-export const STED_FOR_GJENNOMFORING_MAX_LENGTH = 100;
 export const OPPMOTE_STED_MAX_LENGTH = 500;
 
 export const MIN_START_DATO_FOR_AVTALER = new Date(2020, 0, 1);

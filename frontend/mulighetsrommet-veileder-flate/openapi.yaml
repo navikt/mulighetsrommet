@@ -1610,10 +1610,6 @@ components:
           $ref: "#/components/schemas/VeilederflateKontaktinfo"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
-        stedForGjennomforing:
-          type:
-          - "null"
-          - string
         oppmoteSted:
           type:
           - "null"
@@ -1642,7 +1638,6 @@ components:
       - oppmoteSted
       - oppstart
       - sanityId
-      - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype
     VeilederflateKontaktinfo:
@@ -1717,10 +1712,6 @@ components:
           $ref: "#/components/schemas/VeilederflateKontaktinfo"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
-        stedForGjennomforing:
-          type:
-          - "null"
-          - string
         oppmoteSted:
           type:
           - "null"
@@ -1745,7 +1736,6 @@ components:
       - oppmoteSted
       - oppstart
       - sanityId
-      - stedForGjennomforing
       - tiltakstype
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
@@ -1766,10 +1756,6 @@ components:
           $ref: "#/components/schemas/VeilederflateKontaktinfo"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
-        stedForGjennomforing:
-          type:
-          - "null"
-          - string
         oppmoteSted:
           type:
           - "null"
@@ -1801,7 +1787,6 @@ components:
       - oppmoteSted
       - oppstart
       - sanityId
-      - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype
     VeilederflateArrangor:
@@ -1866,10 +1851,6 @@ components:
           $ref: "#/components/schemas/VeilederflateKontaktinfo"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
-        stedForGjennomforing:
-          type:
-          - "null"
-          - string
         oppmoteSted:
           type:
           - "null"
@@ -1931,7 +1912,6 @@ components:
       - personvernBekreftet
       - sluttdato
       - status
-      - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype
     VeilederflateTiltakGruppeStatus:

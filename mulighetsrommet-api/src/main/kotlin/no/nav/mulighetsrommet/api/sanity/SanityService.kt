@@ -80,7 +80,6 @@ class SanityService(
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
               beskrivelse,
-              stedForGjennomforing,
               redaktor[]->,
               kontaktpersoner[]{navKontaktperson->, "enheter": coalesce(enheter[]->nummer.current, [])},
               "fylke": fylke->nummer.current,
@@ -167,7 +166,6 @@ class SanityService(
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
-              stedForGjennomforing,
               "fylke": fylke->nummer.current,
               "enheter": coalesce(enheter[]->nummer.current, []),
               arrangor -> {

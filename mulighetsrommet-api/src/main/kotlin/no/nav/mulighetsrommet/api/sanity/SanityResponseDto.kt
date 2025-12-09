@@ -39,7 +39,6 @@ data class SanityTiltaksgjennomforing(
     val tiltaksgjennomforingNavn: String? = null,
     val tiltaksnummer: String? = null,
     val beskrivelse: String? = null,
-    val stedForGjennomforing: String? = null,
     val fylke: NavEnhetNummer? = null,
     val enheter: List<NavEnhetNummer?>? = null,
     val arrangor: SanityArrangor? = null,

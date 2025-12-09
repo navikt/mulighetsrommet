@@ -102,13 +102,6 @@ export const tiltaksgjennomforing = defineType({
       validation: (rule: Rule) => rule.max(500),
     }),
     defineField({
-      name: "stedForGjennomforing",
-      title: "Sted for gjennomføring",
-      description:
-        "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon kan du la feltet stå tomt.",
-      type: "string",
-    }),
-    defineField({
       name: "fylke",
       title: "Fylke",
       description: "Hvilket fylke gjelder tiltaket for.",

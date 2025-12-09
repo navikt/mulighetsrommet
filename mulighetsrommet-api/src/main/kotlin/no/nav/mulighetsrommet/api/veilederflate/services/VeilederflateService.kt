@@ -211,7 +211,6 @@ class VeilederflateService(
         val tiltaksnummer = gjennomforing.tiltaksnummer
         val beskrivelse = gjennomforing.beskrivelse
         val sanityId = gjennomforing._id
-        val stedForGjennomforing = gjennomforing.stedForGjennomforing
 
         return when {
             Tiltakskoder.isEgenRegiTiltak(tiltakstypeDto.arenaKode) -> {
@@ -224,7 +223,6 @@ class VeilederflateService(
                     sanityId = sanityId,
                     tiltakstype = tiltakstype,
                     navn = navn,
-                    stedForGjennomforing = stedForGjennomforing,
                     fylker = fylker,
                     enheter = enheter,
                     oppmoteSted = null,
@@ -240,7 +238,6 @@ class VeilederflateService(
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
                 navn = navn,
-                stedForGjennomforing = stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
                 arrangor = arrangor,
@@ -255,7 +252,6 @@ class VeilederflateService(
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
                 navn = navn,
-                stedForGjennomforing = stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
                 oppmoteSted = null,

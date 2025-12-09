@@ -95,7 +95,6 @@ export function GjennomforingFormContainer(props: Props) {
           navIdent: kontakt.navIdent,
           beskrivelse: kontakt.beskrivelse ?? null,
         })),
-      stedForGjennomforing: data.stedForGjennomforing,
       oppmoteSted: data.oppmoteSted,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       deltidsprosent: data.deltidsprosent,

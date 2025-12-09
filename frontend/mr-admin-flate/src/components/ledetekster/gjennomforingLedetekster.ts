@@ -34,7 +34,6 @@ export const gjennomforingTekster = {
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenhetLabel: "Tiltaksarrangør underenhet",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
-  stedForGjennomforingLabel: "Sted for gjennomføring (skal fjernes, bruk oppmøtested i stedet)",
   oppmoteStedLabel: "Oppmøtested",
   kurstypeLabel: "Kurstype",
   forerkortLabel: "Førerkort",

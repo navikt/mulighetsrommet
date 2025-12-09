@@ -539,7 +539,6 @@ class GjennomforingQueries(private val session: Session) {
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
-        "sted_for_gjennomforing" to stedForGjennomforing,
         "oppmote_sted" to oppmoteSted,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "beskrivelse" to beskrivelse,
@@ -616,7 +615,6 @@ class GjennomforingQueries(private val session: Session) {
                     enhet = string("estimert_ventetid_enhet"),
                 )
             },
-            stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             publisert = boolean("publisert"),
             kontorstruktur = kontorstruktur,
             kontaktpersoner = kontaktpersoner,
