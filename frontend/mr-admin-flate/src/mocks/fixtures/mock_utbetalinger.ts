@@ -37,6 +37,7 @@ const utbetalingType: Record<"KORRIGERING" | "INVESTERING" | "INNSENDING", Utbet
 
 export const mockUtbetalinger: UtbetalingDto[] = [
   {
+    avbruttBegrunnelse: null,
     id: "123e4567-e89b-12d3-a456-426614174000",
     periode: {
       start: "2024-01-01",
@@ -91,8 +92,10 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
     begrunnelseMindreBetalt: null,
+    avbruttBegrunnelse: null,
   },
   {
+    avbruttBegrunnelse: null,
     id: "123e4567-e89b-12d3-a456-426614174002",
     periode: {
       start: "2025-01-01",
@@ -117,6 +120,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     begrunnelseMindreBetalt: null,
   },
   {
+    avbruttBegrunnelse: null,
     id: "129e4567-e89b-12d3-a456-426614174002",
     periode: {
       start: "2025-03-01",

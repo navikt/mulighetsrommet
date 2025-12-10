@@ -10,16 +10,10 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
-import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
-import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
-import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.api.*
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
@@ -30,21 +24,13 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.AvtaleStatusType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.collections.flatMap
-import kotlin.collections.mapNotNull
-import kotlin.collections.plus
 
 class AvtaleService(
     private val db: ApiDatabase,
@@ -80,12 +66,8 @@ class AvtaleService(
                 navIdent,
             )
 
-            val dto = getOrError(dbo.id)
-
-            logEndring("Opprettet avtale", dto, navIdent)
-
+            val dto = logEndring("Opprettet avtale", dbo.id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
-
             dto
         }
     }
@@ -109,11 +91,9 @@ class AvtaleService(
         db.transaction {
             queries.avtale.updateDetaljer(avtaleId, dbo)
             dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
-            val dto = getOrError(avtaleId)
-            logEndring("Detaljer oppdatert", dto, navIdent)
 
+            val dto = logEndring("Detaljer oppdatert", avtaleId, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
-
             dto
         }
     }
@@ -197,11 +177,8 @@ class AvtaleService(
         db.transaction {
             queries.avtale.updatePersonvern(previous.id, dbo)
 
-            val dto = getOrError(previous.id)
-            logEndring("Personvern oppdatert", dto, navIdent)
-
+            val dto = logEndring("Personvern oppdatert", previous.id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
-
             dto
         }
     }
@@ -225,11 +202,8 @@ class AvtaleService(
         db.transaction {
             queries.avtale.updateVeilederinfo(previous.id, dbo)
 
-            val dto = getOrError(previous.id)
-            logEndring("Veilederinformasjon oppdatert", dto, navIdent)
-
+            val dto = logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
-
             dto
         }
     }
@@ -249,11 +223,8 @@ class AvtaleService(
         db.transaction {
             queries.avtale.upsertPrismodell(id, dbo)
 
-            val dto = getOrError(id)
-            logEndring("Prismodell oppdatert", dto, navIdent)
-
+            val dto = logEndring("Prismodell oppdatert", id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
-
             dto
         }
     }
@@ -276,8 +247,7 @@ class AvtaleService(
 
         queries.avtale.setStatus(id, AvtaleStatusType.AVSLUTTET, null, null, null)
 
-        val dto = getOrError(id)
-        logEndring("Avtalen ble avsluttet", dto, endretAv)
+        logEndring("Avtalen ble avsluttet", id, endretAv)
     }
 
     fun avbrytAvtale(
@@ -321,10 +291,7 @@ class AvtaleService(
             forklaring = aarsakerOgForklaring.forklaring,
         )
 
-        val dto = getOrError(id)
-        logEndring("Avtalen ble avbrutt", dto, avbruttAv)
-
-        dto.right()
+        logEndring("Avtalen ble avbrutt", id, avbruttAv).right()
     }
 
     fun registrerOpsjon(
@@ -358,7 +325,7 @@ class AvtaleService(
 
                 OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> "Registrert at opsjon ikke skal utløses for avtalen"
             }
-            logEndring(operation, getOrError(avtaleId), navIdent)
+            logEndring(operation, avtaleId, navIdent)
         }
     }
 
@@ -382,9 +349,7 @@ class AvtaleService(
 
         queries.opsjoner.delete(opsjonId)
 
-        val avtale = getOrError(avtaleId)
-        logEndring("Opsjon slettet", avtale, slettesAv)
-        avtale.right()
+        logEndring("Opsjon slettet", avtaleId, slettesAv).right()
     }
 
     fun frikobleKontaktpersonFraAvtale(
@@ -394,12 +359,7 @@ class AvtaleService(
     ): Unit = db.transaction {
         queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
-        val avtale = getOrError(avtaleId)
-        logEndring(
-            "Kontaktperson ble fjernet fra avtalen via arrangørsidene",
-            avtale,
-            navIdent,
-        )
+        logEndring("Kontaktperson ble fjernet fra avtalen", avtaleId, navIdent)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = db.session {
@@ -433,8 +393,7 @@ class AvtaleService(
     }
 
     private fun QueryContext.getOrError(id: UUID): Avtale {
-        val dto = queries.avtale.get(id)
-        return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
+        return queries.avtale.getOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
@@ -458,14 +417,15 @@ class AvtaleService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: Avtale,
+        avtaleId: UUID,
         endretAv: Agent,
     ): Avtale {
+        val dto = queries.avtale.getOrError(avtaleId)
         queries.endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation,
             endretAv,
-            dto.id,
+            avtaleId,
             LocalDateTime.now(),
         ) {
             Json.encodeToJsonElement(dto)

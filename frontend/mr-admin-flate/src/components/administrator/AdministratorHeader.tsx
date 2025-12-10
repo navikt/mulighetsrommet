@@ -28,7 +28,7 @@ export function AdministratorHeader() {
         </Link>
       </InternalHeader.Title>
       <Spacer />
-      <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt/notifikasjoner")}>
+      <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt/oppgaver")}>
         {harUlesteNotifikasjoner ? (
           <OppgaveoversiktIkon color="white" className="w-5" />
         ) : (

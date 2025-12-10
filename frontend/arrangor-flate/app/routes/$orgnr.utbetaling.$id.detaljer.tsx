@@ -123,99 +123,100 @@ export default function UtbetalingDetaljerSide() {
   ].includes(utbetaling.status);
 
   return (
-    <VStack gap="4" className={css.side}>
-      <HStack gap="2" className="max-w-[1250px]" align="end" justify="space-between">
-        <PageHeading
-          title="Detaljer"
-          tilbakeLenke={{
-            navn: tekster.bokmal.tilbakeTilOversikt,
-            url: pathTo.utbetalinger,
-          }}
+    <div className={css.side}>
+      <VStack gap="4" className="max-w-[1250px]">
+        <HStack gap="2" align="end" justify="space-between">
+          <PageHeading
+            title="Detaljer"
+            tilbakeLenke={{
+              navn: tekster.bokmal.tilbakeTilOversikt,
+              url: pathTo.utbetalinger,
+            }}
+          />
+          <Spacer />
+          {visNedlastingAvKvittering && (
+            <Link
+              href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=${tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start)}`}
+              target="_blank"
+            >
+              <FilePdfIcon />
+              Last ned som PDF (Åpner i ny fane)
+            </Link>
+          )}
+        </HStack>
+        <UtbetalingHeader utbetalingType={utbetaling.type} />
+        <Definisjonsliste
+          definitions={[
+            getUtbetalingsdato(utbetaling),
+            { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
+            { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
+            { key: "Løpenummer", value: utbetaling.gjennomforing.lopenummer },
+          ]}
         />
-        <Spacer />
-        {visNedlastingAvKvittering && (
-          <Link
-            href={`/${utbetaling.arrangor.organisasjonsnummer}/utbetaling/${utbetaling.id}/detaljer/lastned?filename=${tekster.bokmal.utbetaling.pdfNavn(utbetaling.periode.start)}`}
-            target="_blank"
-          >
-            <FilePdfIcon />
-            Last ned som PDF (Åpner i ny fane)
-          </Link>
+        <Definisjonsliste
+          title={"Utbetaling"}
+          definitions={[
+            {
+              key: "Utbetalingsperiode",
+              value: formaterPeriode(utbetaling.periode),
+            },
+            {
+              key: "Utbetales tidligst",
+              value: formaterDato(utbetaling.utbetalesTidligstDato) ?? "-",
+            },
+          ]}
+        />
+        <SatsPerioderOgBelop
+          belop={utbetaling.beregning.belop}
+          satsDetaljer={utbetaling.beregning.satsDetaljer}
+        />
+        {utbetaling.kanViseBeregning && (
+          <HStack gap="2">
+            <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
+              Se deltakelser
+            </Button>
+          </HStack>
         )}
-      </HStack>
-      <UtbetalingHeader utbetalingType={utbetaling.type} />
-      <Definisjonsliste
-        definitions={[
-          getUtbetalingsdato(utbetaling),
-          { key: "Tiltaksnavn", value: utbetaling.gjennomforing.navn },
-          { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-          { key: "Løpenummer", value: utbetaling.gjennomforing.lopenummer },
-        ]}
-      />
-      <Definisjonsliste
-        title={"Utbetaling"}
-        definitions={[
-          {
-            key: "Utbetalingsperiode",
-            value: formaterPeriode(utbetaling.periode),
-          },
-          {
-            key: "Utbetales tidligst",
-            value: formaterDato(utbetaling.utbetalesTidligstDato) ?? "-",
-          },
-        ]}
-      />
-      <SatsPerioderOgBelop
-        belop={utbetaling.beregning.belop}
-        satsDetaljer={utbetaling.beregning.satsDetaljer}
-      />
-      {utbetaling.kanViseBeregning && (
-        <HStack gap="2">
-          <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
-            Se deltakelser
-          </Button>
-        </HStack>
-      )}
-      <Definisjonsliste
-        title="Betalingsinformasjon"
-        definitions={[
-          {
-            key: "Kontonummer",
-            value: utbetaling.betalingsinformasjon.kontonummer
-              ? formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer)
-              : "-",
-          },
-          {
-            key: "KID-nummer",
-            value: utbetaling.betalingsinformasjon.kid || "-",
-          },
-        ]}
-      />
-      <Box
-        background="bg-subtle"
-        padding="6"
-        borderRadius="medium"
-        borderColor="border-subtle"
-        borderWidth={"1 1 1 1"}
-        className="max-w-[1250px]"
-      >
-        <UtbetalingStatusList utbetaling={utbetaling} />
-      </Box>
-      {utbetaling.kanAvbrytes && (
-        <HStack justify="end">
-          <Button size="small" variant="danger" onClick={() => setAvbrytModalOpen(true)}>
-            Avbryt
-          </Button>
-        </HStack>
-      )}
-      <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
-      <DeltakerModal
-        utbetaling={utbetaling}
-        deltakerlisteUrl={deltakerlisteUrl}
-        open={deltakerModalOpen}
-        setOpen={setDeltakerModalOpen}
-      />
-    </VStack>
+        <Definisjonsliste
+          title="Betalingsinformasjon"
+          definitions={[
+            {
+              key: "Kontonummer",
+              value: utbetaling.betalingsinformasjon.kontonummer
+                ? formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer)
+                : "-",
+            },
+            {
+              key: "KID-nummer",
+              value: utbetaling.betalingsinformasjon.kid || "-",
+            },
+          ]}
+        />
+        <Box
+          background="bg-subtle"
+          padding="6"
+          borderRadius="medium"
+          borderColor="border-subtle"
+          borderWidth={"1 1 1 1"}
+        >
+          <UtbetalingStatusList utbetaling={utbetaling} />
+        </Box>
+        {utbetaling.kanAvbrytes && (
+          <HStack justify="end">
+            <Button size="small" variant="danger" onClick={() => setAvbrytModalOpen(true)}>
+              Avbryt
+            </Button>
+          </HStack>
+        )}
+        <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
+        <DeltakerModal
+          utbetaling={utbetaling}
+          deltakerlisteUrl={deltakerlisteUrl}
+          open={deltakerModalOpen}
+          setOpen={setDeltakerModalOpen}
+        />
+      </VStack>
+    </div>
   );
 }
 
@@ -310,11 +311,12 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
         <fetcher.Form method="post">
           <VStack gap="2">
             <Alert variant={"info"}>
-              Hvis dere bekrefter at utbetalingskravet skal avbrytes, betyr det at utbetalingskravet
-              ikke vil behandles av Nav og at det ikke vil gjøres noen utbetaling. Det kan være
-              aktuelt hvis dere oppdager noe feil i innsendingen. Dere kan starte en ny innsending
-              på samme tiltak via knappen "Opprett krav om utbetaling". Vær oppmerksom på at et
-              avbryte krav fremdeles vil være arkivert hos Nav.
+              Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det
+              kan være aktuelt hvis dere oppdager noe feil i innsendingen.
+              <br />
+              <br />
+              Dere kan starte en ny innsending på samme tiltak via knappen “Opprett krav om
+              utbetaling”. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
             </Alert>
             <Textarea
               name="begrunnelse"

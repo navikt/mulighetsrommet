@@ -34,8 +34,7 @@ class NavAnsattService(
             val ansatt = getNavAnsattFromAzure(navIdent, accessType)
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
             queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
-
-            checkNotNull(queries.ansatt.getByNavIdent(navIdent))
+            queries.ansatt.getByNavIdentOrError(navIdent)
         }
     }
 

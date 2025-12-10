@@ -104,7 +104,12 @@ export function UtbetalingPage() {
                       label={utbetalingTekster.metadata.status}
                       value={<UtbetalingStatusTag status={utbetaling.status} />}
                     />
-
+                    {utbetaling.avbruttBegrunnelse && (
+                      <MetadataFritekstfelt
+                        label={utbetalingTekster.metadata.avbruttBegrunnelse}
+                        value={utbetaling.avbruttBegrunnelse}
+                      />
+                    )}
                     <MetadataHGrid
                       label={utbetalingTekster.metadata.periode}
                       value={formaterPeriode(utbetaling.periode)}

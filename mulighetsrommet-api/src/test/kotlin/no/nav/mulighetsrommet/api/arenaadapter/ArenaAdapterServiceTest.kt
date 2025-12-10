@@ -194,10 +194,10 @@ class ArenaAdapterServiceTest : FunSpec({
                 deltidsprosent = 100.0,
             )
 
-            val exception = assertThrows<IllegalArgumentException> {
+            val exception = assertThrows<IllegalStateException> {
                 service.upsertTiltaksgjennomforing(arenaGjennomforing)
             }
-            exception.message shouldBe "Alle gruppetiltak har blitt migrert. Forventet å finne gjennomføring i databasen."
+            exception.message shouldBe "Gjennomføring med id ${arenaGjennomforing.id} finnes ikke"
         }
 
         test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {

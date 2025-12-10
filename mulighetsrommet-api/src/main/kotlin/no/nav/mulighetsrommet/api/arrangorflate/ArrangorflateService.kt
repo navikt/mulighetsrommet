@@ -229,7 +229,7 @@ class ArrangorflateService(
     fun getLinjer(utbetalingId: UUID): List<ArrangforflateUtbetalingLinje> = db.session {
         queries.delutbetaling.getByUtbetalingId(utbetalingId)
             .map { delutbetaling ->
-                val tilsagn = checkNotNull(queries.tilsagn.get(delutbetaling.tilsagnId)).let {
+                val tilsagn = queries.tilsagn.getOrError(delutbetaling.tilsagnId).let {
                     TilsagnDto.fromTilsagn(it)
                 }
 
