@@ -38,18 +38,12 @@ class TilsagnService(
     )
 
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
-        val gjennomforing = requireNotNull(queries.gjennomforing.get(request.gjennomforingId)) {
-            "Gjennomforingen finnes ikke"
-        }
-        requireNotNull(gjennomforing.avtaleId) {
-            "Gjennomforingen mangler avtale"
-        }
-        val avtale = requireNotNull(queries.avtale.get(gjennomforing.avtaleId)) {
-            "Avtalen finnes ikke"
-        }
-        requireNotNull(request.id) {
-            "id mangler"
-        }
+        requireNotNull(request.id) { "id mangler" }
+
+        val gjennomforing = queries.gjennomforing.getOrError(request.gjennomforingId)
+        requireNotNull(gjennomforing.avtaleId) { "Gjennomforingen mangler avtale" }
+
+        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId)
         val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
 
         val totrinnskontroll = Totrinnskontroll(
@@ -274,7 +268,7 @@ class TilsagnService(
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getOrError(id)
 
-        val ansatt = requireNotNull(queries.ansatt.getByNavIdent(navIdent))
+        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
         if (!ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
             return FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
                 .nel()
@@ -674,9 +668,7 @@ class TilsagnService(
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
-        val gjennomforing = checkNotNull(queries.gjennomforing.get(tilsagn.gjennomforing.id)) {
-            "Fant ikke gjennomforing for tilsagn"
-        }
+        val gjennomforing = queries.gjennomforing.getOrError(tilsagn.gjennomforing.id)
 
         val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
             "Gjennomføring ${gjennomforing.id} mangler avtale"

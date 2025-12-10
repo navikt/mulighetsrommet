@@ -53,10 +53,8 @@ class ArenaAdapterService(
 
         queries.avtale.upsertArenaAvtale(avtale)
 
-        val next = requireNotNull(queries.avtale.get(avtale.id))
-
+        val next = queries.avtale.getOrError(avtale.id)
         logUpdateAvtale(next)
-
         next
     }
 
@@ -107,10 +105,7 @@ class ArenaAdapterService(
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = requireNotNull(queries.gjennomforing.get(arenaGjennomforing.id)) {
-            "Alle gruppetiltak har blitt migrert. Forventet å finne gjennomføring i databasen."
-        }
-
+        val previous = queries.gjennomforing.getOrError(arenaGjennomforing.id)
         if (!hasRelevantChanges(arenaGjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction

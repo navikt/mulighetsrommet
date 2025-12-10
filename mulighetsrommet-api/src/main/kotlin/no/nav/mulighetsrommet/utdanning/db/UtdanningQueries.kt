@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.utdanning.db
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
@@ -118,8 +119,7 @@ class UtdanningQueries(private val session: Session) {
             select id from utdanningsprogram where programomradekode = ?
         """.trimIndent()
 
-        return single(queryOf(query, programomradekode)) { it.uuid("id") }
-            .let { requireNotNull(it) { "Fant ingen utdanningsprogram med kode=$programomradekode" } }
+        return requireSingle(queryOf(query, programomradekode)) { it.uuid("id") }
     }
 
     fun getIdForUtdanning(utdanningId: String): UUID = with(session) {
@@ -128,7 +128,6 @@ class UtdanningQueries(private val session: Session) {
             select id from utdanning where utdanning_id = ?
         """.trimIndent()
 
-        return single(queryOf(query, utdanningId)) { it.uuid("id") }
-            .let { requireNotNull(it) { "Fant ingen utdanning med id=$utdanningId" } }
+        return requireSingle(queryOf(query, utdanningId)) { it.uuid("id") }
     }
 }
