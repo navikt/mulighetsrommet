@@ -58,18 +58,14 @@ object Prismodeller {
         Tiltakskode.OPPFOLGING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
         Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         -> listOf(
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            PrismodellType.ANNEN_AVTALT_PRIS,
-        )
-
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        -> listOf(
             PrismodellType.ANNEN_AVTALT_PRIS,
         )
 
