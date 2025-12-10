@@ -56,26 +56,26 @@ object GjennomforingValidator {
         validate(ctx.avtale.tiltakstype.id == next.tiltakstypeId) {
             FieldError.of(
                 "Tiltakstypen må være den samme som for avtalen",
-                GjennomforingDbo::tiltakstypeId,
+                GjennomforingRequest::tiltakstypeId,
             )
         }
         validate(next.administratorer.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én administrator",
-                GjennomforingDbo::administratorer,
+                GjennomforingRequest::administratorer,
             )
         }
         validate(ctx.avtale.avtaletype == Avtaletype.FORHANDSGODKJENT || next.sluttDato != null) {
             FieldError.of(
                 "Du må legge inn sluttdato for gjennomføringen",
-                GjennomforingDbo::sluttDato,
+                GjennomforingRequest::sluttDato,
             )
         }
         validate(next.startDato != null) {
-            FieldError.of("Du må sette en startdato", GjennomforingDbo::startDato)
+            FieldError.of("Du må sette en startdato", GjennomforingRequest::startDato)
         }
         validate(next.sluttDato == null || (next.startDato != null && !next.startDato.isAfter(next.sluttDato))) {
-            FieldError.of("Startdato må være før sluttdato", GjennomforingDbo::startDato)
+            FieldError.of("Startdato må være før sluttdato", GjennomforingRequest::startDato)
         }
         validate(next.antallPlasser != null && next.antallPlasser > 0) {
             FieldError.of(
@@ -103,13 +103,13 @@ object GjennomforingValidator {
             validate(next.oppstart != GjennomforingOppstartstype.FELLES) {
                 FieldError.of(
                     "Tiltaket må ha løpende oppstartstype",
-                    GjennomforingDbo::oppstart,
+                    GjennomforingRequest::oppstart,
                 )
             }
         }
 
         validate(ctx.avtale.arrangor?.underenheter?.any { it.id == next.arrangorId } ?: false) {
-            FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingDbo::arrangorId)
+            FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingRequest::arrangorId)
         }
 
         if (ctx.avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
@@ -119,12 +119,12 @@ object GjennomforingValidator {
             validateGruppeFagOgYrke(next.utdanningslop, ctx.avtale)
         }
         validateNavEnheter(next.veilederinformasjon, ctx.avtale)
-        validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingDbo::kontaktpersoner)
-        validateSlettetNavAnsatte(ctx.administratorer, GjennomforingDbo::administratorer)
+        validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingRequest::kontaktpersoner)
+        validateSlettetNavAnsatte(ctx.administratorer, GjennomforingRequest::administratorer)
         validateNotNull(ctx.arrangor) {
             FieldError.of(
                 "Du må velge en arrangør",
-                GjennomforingDbo::arrangorId,
+                GjennomforingRequest::arrangorId,
             )
         }
         requireValid(next.startDato != null && ctx.arrangor != null)
@@ -160,7 +160,7 @@ object GjennomforingValidator {
         validate(amoKategorisering != null) {
             FieldError.of(
                 "Du må velge et kurselement for gjennomføringen",
-                GjennomforingDbo::amoKategorisering,
+                GjennomforingRequest::amoKategorisering,
             )
         }
     }
@@ -172,26 +172,26 @@ object GjennomforingValidator {
         requireValid(utdanningslop != null) {
             FieldError.of(
                 "Du må velge utdanningsprogram og lærefag på avtalen",
-                GjennomforingDbo::utdanningslop,
+                GjennomforingRequest::utdanningslop,
             )
         }
         validate(utdanningslop.utdanninger.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst ett lærefag",
-                GjennomforingDbo::utdanningslop,
+                GjennomforingRequest::utdanningslop,
             )
         }
         validate(utdanningslop.utdanningsprogram == avtale.utdanningslop?.utdanningsprogram?.id) {
             FieldError.of(
                 "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
-                GjennomforingDbo::utdanningslop,
+                GjennomforingRequest::utdanningslop,
             )
         }
         val avtalensUtdanninger = avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
         validate(avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
             FieldError.of(
                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
-                GjennomforingDbo::utdanningslop,
+                GjennomforingRequest::utdanningslop,
             )
         }
     }
@@ -279,14 +279,14 @@ object GjennomforingValidator {
                 add(
                     FieldError.of(
                         "Du må velge en dato som er etter dagens dato",
-                        GjennomforingDbo::tilgjengeligForArrangorDato,
+                        GjennomforingRequest::tilgjengeligForArrangorDato,
                     ),
                 )
             } else if (tilgjengeligForArrangorDato < startDato.minusMonths(2)) {
                 add(
                     FieldError.of(
                         "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
-                        GjennomforingDbo::tilgjengeligForArrangorDato,
+                        GjennomforingRequest::tilgjengeligForArrangorDato,
                     ),
                 )
             }
@@ -295,7 +295,7 @@ object GjennomforingValidator {
                 add(
                     FieldError.of(
                         "Du må velge en dato som er før gjennomføringens oppstartsdato",
-                        GjennomforingDbo::tilgjengeligForArrangorDato,
+                        GjennomforingRequest::tilgjengeligForArrangorDato,
                     ),
                 )
             }
@@ -313,37 +313,37 @@ object GjennomforingValidator {
         validate(arrangor.slettetDato == null) {
             FieldError.of(
                 "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter",
-                GjennomforingDbo::arrangorId,
+                GjennomforingRequest::arrangorId,
             )
         }
         validate(gjennomforing.startDato != null && !gjennomforing.startDato.isBefore(avtale.startDato)) {
             FieldError.of(
                 "Du må legge inn en startdato som er etter avtalens startdato",
-                GjennomforingDbo::startDato,
+                GjennomforingRequest::startDato,
             )
         }
         validate(gjennomforing.stedForGjennomforing == null || gjennomforing.stedForGjennomforing.length <= MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING) {
             FieldError.of(
                 "Du kan bare skrive $MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING tegn i \"Sted for gjennomføring\"",
-                GjennomforingDbo::stedForGjennomforing,
+                GjennomforingRequest::stedForGjennomforing,
             )
         }
         validate(gjennomforing.oppmoteSted == null || gjennomforing.oppmoteSted.length <= MAKS_ANTALL_TEGN_OPPMOTE_STED) {
             FieldError.of(
                 "Du kan bare skrive $MAKS_ANTALL_TEGN_OPPMOTE_STED tegn i \"Oppmøtested\"",
-                GjennomforingDbo::oppmoteSted,
+                GjennomforingRequest::oppmoteSted,
             )
         }
         validate(avtale.status == AvtaleStatus.Aktiv) {
             FieldError.of(
                 "Avtalen må være aktiv for å kunne opprette tiltak",
-                GjennomforingDbo::avtaleId,
+                GjennomforingRequest::avtaleId,
             )
         }
         validate(status == GjennomforingStatusType.GJENNOMFORES) {
             FieldError.of(
                 "Du kan ikke opprette en gjennomføring som er ${status.name.lowercase()}",
-                GjennomforingDbo::navn,
+                GjennomforingRequest::navn,
             )
         }
     }
@@ -357,26 +357,26 @@ object GjennomforingValidator {
         validate(previous.status == GjennomforingStatusType.GJENNOMFORES) {
             FieldError.of(
                 "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.name.lowercase()}",
-                GjennomforingDbo::navn,
+                GjennomforingRequest::navn,
             )
         }
         validate(gjennomforing.arrangorId == previous.arrangorId) {
             FieldError.of(
                 "Du kan ikke endre arrangør når gjennomføringen er aktiv",
-                GjennomforingDbo::arrangorId,
+                GjennomforingRequest::arrangorId,
             )
         }
         if (previous.status == GjennomforingStatusType.GJENNOMFORES) {
             validate(gjennomforing.avtaleId == previous.avtaleId) {
                 FieldError.of(
                     "Du kan ikke endre avtalen når gjennomføringen er aktiv",
-                    GjennomforingDbo::avtaleId,
+                    GjennomforingRequest::avtaleId,
                 )
             }
             validate(gjennomforing.startDato != null && !gjennomforing.startDato.isBefore(avtale.startDato)) {
                 FieldError.of(
                     "Du må legge inn en startdato som er etter avtalens startdato",
-                    GjennomforingDbo::startDato,
+                    GjennomforingRequest::startDato,
                 )
             }
             validate(
@@ -386,14 +386,14 @@ object GjennomforingValidator {
             ) {
                 FieldError.of(
                     "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
-                    GjennomforingDbo::sluttDato,
+                    GjennomforingRequest::sluttDato,
                 )
             }
         }
         validate(antallDeltakere <= 0 || gjennomforing.oppstart == previous.oppstart) {
             FieldError.of(
                 "Oppstartstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
-                GjennomforingDbo::oppstart,
+                GjennomforingRequest::oppstart,
             )
         }
     }
@@ -402,7 +402,7 @@ object GjennomforingValidator {
         validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
             FieldError.of(
                 "Du må velge en deltidsprosent mellom 0 og 100",
-                GjennomforingDbo::deltidsprosent,
+                GjennomforingRequest::deltidsprosent,
             )
         }
     }
