@@ -7,6 +7,7 @@ import AvtalePrismodellForm from "./AvtalePrismodellForm";
 import { useUpsertPrismodell } from "@/api/avtaler/useUpsertPrismodell";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import { safeParseDate } from "@mr/frontend-common/utils/date";
+import { toPrismodellRequest } from "@/pages/avtaler/avtaleFormUtils";
 
 interface Props {
   open: boolean;
@@ -22,30 +23,22 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   });
 
   const postData: SubmitHandler<PrismodellValues> = async (data): Promise<void> => {
-    const request = {
-      ...data,
-    };
+    const request = toPrismodellRequest({ data });
 
-    mutation.mutate(
-      {
-        type: request.prismodell,
-        ...request,
+    mutation.mutate(request, {
+      onSuccess: () => {
+        closeAndResetForm();
       },
-      {
-        onSuccess: () => {
-          closeAndResetForm();
-        },
-        onValidationError: (validation: ValidationError) => {
-          validation.errors.forEach((error) => {
-            const name = jsonPointerToFieldPath(error.pointer);
-            form.setError(name as keyof PrismodellValues, {
-              type: "custom",
-              message: error.detail,
-            });
+      onValidationError: (validation: ValidationError) => {
+        validation.errors.forEach((error) => {
+          const name = jsonPointerToFieldPath(error.pointer);
+          form.setError(name as keyof PrismodellValues, {
+            type: "custom",
+            message: error.detail,
           });
-        },
+        });
       },
-    );
+    });
   };
 
   function closeAndResetForm() {
@@ -86,8 +79,11 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
 
 function defaultValues(prismodell: AvtaleDtoPrismodell): PrismodellValues {
   return {
-    prismodell: prismodell.type,
-    prisbetingelser: prismodell.prisbetingelser,
-    satser: prismodell.satser ?? [],
+    prismodell: {
+      id: prismodell.id,
+      type: prismodell.type,
+      prisbetingelser: prismodell.prisbetingelser,
+      satser: prismodell.satser ?? [],
+    },
   };
 }
