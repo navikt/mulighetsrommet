@@ -45,7 +45,6 @@ export function GjennomforingDetaljer() {
     administratorer,
     arenaAnsvarligEnhet,
     arrangor,
-    stedForGjennomforing,
     oppmoteSted,
     amoKategorisering,
     utdanningslop,
@@ -192,7 +191,6 @@ export function GjennomforingDetaljer() {
   ];
 
   const stedMeta: Definition[] = [
-    { key: gjennomforingTekster.stedForGjennomforingLabel, value: stedForGjennomforing ?? "-" },
     { key: gjennomforingTekster.oppmoteStedLabel, value: oppmoteSted ?? "-" },
   ];
 
@@ -213,7 +211,7 @@ export function GjennomforingDetaljer() {
             <Definisjonsliste title="Administratorer" definitions={administratorMeta} />
             <Separator />
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-            {(stedForGjennomforing || oppmoteSted) && (
+            {oppmoteSted && (
               <>
                 <Separator />
                 <Definisjonsliste title="Sted" definitions={stedMeta} columns={1} />

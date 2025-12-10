@@ -37,7 +37,6 @@ object GjennomforingDboMapper {
                 beskrivelse = it.beskrivelse,
             )
         },
-        stedForGjennomforing = gjennomforing.stedForGjennomforing,
         oppmoteSted = gjennomforing.oppmoteSted,
         faneinnhold = gjennomforing.faneinnhold,
         beskrivelse = gjennomforing.beskrivelse,
@@ -76,7 +75,6 @@ object GjennomforingDboMapper {
                 beskrivelse = it.beskrivelse,
             )
         },
-        stedForGjennomforing = request.stedForGjennomforing,
         oppmoteSted = request.oppmoteSted?.ifBlank { null },
         faneinnhold = request.veilederinformasjon.faneinnhold,
         beskrivelse = request.veilederinformasjon.beskrivelse,
@@ -117,7 +115,6 @@ object GjennomforingDboMapper {
                 beskrivelse = it.beskrivelse,
             )
         },
-        stedForGjennomforing = gjennomforing.stedForGjennomforing,
         deltidsprosent = gjennomforing.deltidsprosent,
         estimertVentetid = gjennomforing.estimertVentetid?.verdi?.let {
             EstimertVentetid(

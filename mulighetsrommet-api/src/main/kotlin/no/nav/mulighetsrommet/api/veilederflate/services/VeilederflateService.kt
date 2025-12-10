@@ -224,10 +224,9 @@ class VeilederflateService(
                     sanityId = sanityId,
                     tiltakstype = tiltakstype,
                     navn = navn,
-                    stedForGjennomforing = stedForGjennomforing,
+                    oppmoteSted = stedForGjennomforing,
                     fylker = fylker,
                     enheter = enheter,
-                    oppmoteSted = null,
                 )
             }
 
@@ -240,11 +239,10 @@ class VeilederflateService(
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
                 navn = navn,
-                stedForGjennomforing = stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
                 arrangor = arrangor,
-                oppmoteSted = null,
+                oppmoteSted = stedForGjennomforing,
             )
 
             else -> VeilederflateTiltakEnkeltplass(
@@ -255,10 +253,9 @@ class VeilederflateService(
                 sanityId = sanityId,
                 tiltakstype = tiltakstype,
                 navn = navn,
-                stedForGjennomforing = stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
-                oppmoteSted = null,
+                oppmoteSted = stedForGjennomforing,
             )
         }
     }

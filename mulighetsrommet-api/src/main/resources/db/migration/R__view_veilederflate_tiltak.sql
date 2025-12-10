@@ -6,7 +6,6 @@ create view view_veilederflate_tiltak as
 select gjennomforing.id,
        gjennomforing.fts,
        gjennomforing.navn,
-       gjennomforing.sted_for_gjennomforing,
        gjennomforing.oppmote_sted,
        gjennomforing.apent_for_pamelding,
        gjennomforing.arena_tiltaksnummer,

@@ -93,7 +93,6 @@ export function defaultGjennomforingData(
     arrangorId: defaultArrangor(avtale, gjennomforing),
     oppstart: gjennomforing?.oppstart || defaultOppstartType(avtale),
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
-    stedForGjennomforing: gjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
       gjennomforing?.arrangor?.kontaktpersoner.map(
         (p: GjennomforingArrangorKontaktperson) => p.id,

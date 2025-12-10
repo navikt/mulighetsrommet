@@ -26,7 +26,6 @@ import kotlin.reflect.KProperty1
 
 @OptIn(ExperimentalContracts::class)
 object GjennomforingValidator {
-    private const val MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING = 100
     private const val MAKS_ANTALL_TEGN_OPPMOTE_STED = 500
 
     data class Ctx(
@@ -320,12 +319,6 @@ object GjennomforingValidator {
             FieldError.of(
                 "Du må legge inn en startdato som er etter avtalens startdato",
                 GjennomforingRequest::startDato,
-            )
-        }
-        validate(gjennomforing.stedForGjennomforing == null || gjennomforing.stedForGjennomforing.length <= MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING) {
-            FieldError.of(
-                "Du kan bare skrive $MAKS_ANTALL_TEGN_STED_FOR_GJENNOMFORING tegn i \"Sted for gjennomføring\"",
-                GjennomforingRequest::stedForGjennomforing,
             )
         }
         validate(gjennomforing.oppmoteSted == null || gjennomforing.oppmoteSted.length <= MAKS_ANTALL_TEGN_OPPMOTE_STED) {

@@ -35,7 +35,6 @@ data class GjennomforingDto(
     val oppstart: GjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
-    val stedForGjennomforing: String?,
     val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,

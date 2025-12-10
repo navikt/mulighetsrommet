@@ -34,7 +34,6 @@ class SanityServiceTest : FunSpec({
                 "tiltaksgjennomforingNavn": "Enkel AMO",
                 "oppstart": null,
                 "oppstartsdato": null,
-                "stedForGjennomforing": null,
                 "tiltaksnummer": "2023#176408",
                 "tiltakstype": {
                     "_id": "$enkelAmoSanityId",
@@ -62,7 +61,6 @@ class SanityServiceTest : FunSpec({
                 "_id": "f21d1e35-d63b-4de7-a0a5-589e57111527",
                 "tiltaksgjennomforingNavn": "Arbeidstrening Innlandet",
                 "tiltaksnummer": null,
-                "stedForGjennomforing": "Innlandet",
                 "tiltakstype": {
                     "_id": "$arbeidstreningSanityId",
                     "tiltakstypeNavn": "Arbeidstrening",
@@ -77,7 +75,6 @@ class SanityServiceTest : FunSpec({
                 "_id": "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6",
                 "tiltaksgjennomforingNavn": "Arbeidstrening",
                 "oppstart": "dato",
-                "stedForGjennomforing": null,
                 "oppstartsdato": "2020-11-02",
                 "tiltaksnummer": null,
                 "fylke": "0400",
