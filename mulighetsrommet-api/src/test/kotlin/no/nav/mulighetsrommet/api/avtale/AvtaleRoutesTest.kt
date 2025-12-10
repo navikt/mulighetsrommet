@@ -124,6 +124,7 @@ class AvtaleRoutesTest : FunSpec({
                     AvtaleFixtures.AFT,
                     AvtaleFixtures.oppfolging.copy(
                         prismodellDbo = PrismodellDbo(
+                            id = UUID.randomUUID(),
                             prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                             prisbetingelser = null,
                             satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),

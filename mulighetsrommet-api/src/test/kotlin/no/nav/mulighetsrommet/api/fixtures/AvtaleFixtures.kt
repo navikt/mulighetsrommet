@@ -58,6 +58,7 @@ object AvtaleFixtures {
         prisbetingelser: String = "Alt er dyrt",
         satser: List<AvtaltSats> = emptyList(),
     ): PrismodellDbo = PrismodellDbo(
+        id = UUID.randomUUID(),
         prismodellType = prismodellType,
         prisbetingelser = prisbetingelser,
         satser = satser,
@@ -200,6 +201,7 @@ object AvtaleFixtures {
             personvernBekreftet = false,
         ),
         prismodell = PrismodellRequest(
+            UUID.randomUUID(),
             type = PrismodellType.ANNEN_AVTALT_PRIS,
             prisbetingelser = null,
             satser = listOf(),

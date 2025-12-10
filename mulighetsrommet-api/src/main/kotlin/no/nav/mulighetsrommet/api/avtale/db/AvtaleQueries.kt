@@ -347,22 +347,38 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    fun upsertPrismodell(id: UUID, dbo: PrismodellDbo) = withTransaction(session) {
-        upsertPrismodell(id, prismodell = dbo.prismodellType, prisbetingelser = dbo.prisbetingelser, satser = dbo.satser)
+    fun upsertPrismodell(avtaleId: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+        upsertPrismodell(
+            avtaleId = avtaleId,
+            id = dbo.id,
+            prismodell = dbo.prismodellType,
+            prisbetingelser = dbo.prisbetingelser,
+            satser = dbo.satser,
+        )
     }
 
     private fun Session.upsertPrismodell(
         id: UUID,
+        avtaleId: UUID,
         prismodell: PrismodellType,
         prisbetingelser: String?,
         satser: List<AvtaltSats>,
     ) {
         @Language("PostgreSQL")
         val query = """
-            update avtale set
-                prisbetingelser = :prisbetingelser,
-                prismodell = :prismodell::prismodell
-            where id = :id::uuid
+            insert into avtale_prismodell(
+                id,
+                avtale_id,
+                prisbetingelser,
+                prismodell_type
+                ) values (
+                :id::uuid,
+                :avtale_id::uuid,
+                :prisbetingelser,
+                :prismodell::prismodell
+                ) on conflict (id) do update set
+                prisbetingelser = excluded.prisbetingelser,
+                prismodell_type = excluded.prismodell_type
         """.trimIndent()
 
         execute(
@@ -370,6 +386,7 @@ class AvtaleQueries(private val session: Session) {
                 query,
                 mapOf(
                     "id" to id,
+                    "avtale_id" to avtaleId,
                     "prismodell" to prismodell.name,
                     "prisbetingelser" to prisbetingelser,
                 ),
@@ -381,21 +398,22 @@ class AvtaleQueries(private val session: Session) {
             delete from avtale_sats
             where avtale_id = ?::uuid
         """.trimIndent()
-        execute(queryOf(deleteSatser, id))
+        execute(queryOf(deleteSatser, avtaleId))
 
         @Language("PostgreSQL")
         val insertSats = """
-            insert into avtale_sats (avtale_id, gjelder_fra, sats)
-            values (:avtale_id::uuid, :gjelder_fra::date, :sats)
+            insert into avtale_sats (avtale_id, gjelder_fra, sats, prismodell_id)
+            values (:avtale_id::uuid, :gjelder_fra::date, :sats,:prismodell_id:uuid)
         """.trimIndent()
 
         batchPreparedNamedStatement(
             insertSats,
             satser.map {
                 mapOf(
-                    "avtale_id" to id,
+                    "avtale_id" to avtaleId,
                     "gjelder_fra" to it.gjelderFra,
                     "sats" to it.sats,
+                    "prismodell_id" to id,
                 )
             },
         )
@@ -734,27 +752,34 @@ class AvtaleQueries(private val session: Session) {
 
         val prismodell = when (PrismodellType.valueOf(string("prismodell"))) {
             PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
+                id = uuid("id"),
                 prisbetingelser = stringOrNull("prisbetingelser"),
             )
 
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
+                id = uuid("id"),
+            )
 
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
+                id = uuid("id"),
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
 
             PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
+                id = uuid("id"),
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
 
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
+                id = uuid("id"),
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                id = uuid("id"),
                 prisbetingelser = stringOrNull("prisbetingelser"),
                 satser = satser.toDto(),
             )
