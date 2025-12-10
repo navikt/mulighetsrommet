@@ -24,6 +24,7 @@ data class UtbetalingDto(
     val betalingsinformasjon: Utbetaling.Betalingsinformasjon,
     val beskrivelse: String?,
     val begrunnelseMindreBetalt: String?,
+    val avbruttBegrunnelse: String?,
     val innsendtAv: String?,
     val journalpostId: String?,
     val tilskuddstype: Tilskuddstype,
@@ -45,6 +46,7 @@ data class UtbetalingDto(
                 journalpostId = utbetaling.journalpostId,
                 tilskuddstype = utbetaling.tilskuddstype,
                 type = UtbetalingType.from(utbetaling).toDto(),
+                avbruttBegrunnelse = utbetaling.avbruttBegrunnelse,
             )
         }
 

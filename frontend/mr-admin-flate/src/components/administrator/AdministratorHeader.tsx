@@ -1,9 +1,9 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
   ENDRINGSMELDINGER_URL,
-  PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
-  SANITY_STUDIO_URL,
-  SELECT_ACCOUNT_URL,
+  previewArbeidsmarkedstiltakUrl,
+  sanityStudioUrl,
+  selectAccountUrl,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { BellIcon, MenuGridIcon } from "@navikt/aksel-icons";
@@ -28,7 +28,7 @@ export function AdministratorHeader() {
         </Link>
       </InternalHeader.Title>
       <Spacer />
-      <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt")}>
+      <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt/oppgaver")}>
         {harUlesteNotifikasjoner ? (
           <OppgaveoversiktIkon color="white" className="w-5" />
         ) : (
@@ -67,12 +67,12 @@ export function AdministratorHeader() {
               Notifikasjoner
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
-            <Dropdown.Menu.GroupedList.Item as="a" href={SANITY_STUDIO_URL} target="_blank">
+            <Dropdown.Menu.GroupedList.Item as="a" href={sanityStudioUrl()} target="_blank">
               Individuelle tiltaksgjennomføringer
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
               as="a"
-              href={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
+              href={previewArbeidsmarkedstiltakUrl()}
               target="_blank"
             >
               Veilederflate forhåndsvisning
@@ -84,7 +84,7 @@ export function AdministratorHeader() {
           </Dropdown.Menu.GroupedList>
           <Dropdown.Menu.Divider />
           <Dropdown.Menu.List>
-            <Dropdown.Menu.List.Item as="a" href={SELECT_ACCOUNT_URL}>
+            <Dropdown.Menu.List.Item as="a" href={selectAccountUrl()}>
               Logg ut
             </Dropdown.Menu.List.Item>
           </Dropdown.Menu.List>

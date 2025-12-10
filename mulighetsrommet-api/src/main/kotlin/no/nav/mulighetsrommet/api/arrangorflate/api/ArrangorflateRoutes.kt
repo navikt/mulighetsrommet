@@ -272,14 +272,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
 
                 val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-                val gjennomforing = requireNotNull(
-                    db.session {
-                        queries.gjennomforing
-                            .get(
-                                id = gjennomforingId,
-                            )
-                    },
-                )
+                val gjennomforing = db.session { queries.gjennomforing.getOrError(gjennomforingId) }
                 if (gjennomforing.arrangor.organisasjonsnummer != orgnr) {
                     throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
                 }

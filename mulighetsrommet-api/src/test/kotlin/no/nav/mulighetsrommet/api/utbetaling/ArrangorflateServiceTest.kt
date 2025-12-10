@@ -51,8 +51,8 @@ class ArrangorflateServiceTest : FunSpec({
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
     coEvery { amtDeltakerClient.hentPersonalia(any()) } returns setOf<DeltakerPersonalia>().right()
 
-    fun getUtbetalingDto(id: UUID): Utbetaling = database.db.session {
-        return requireNotNull(queries.utbetaling.get(id))
+    fun getUtbetaling(id: UUID): Utbetaling = database.db.session {
+        queries.utbetaling.getOrError(id)
     }
 
     beforeEach {
@@ -137,7 +137,7 @@ class ArrangorflateServiceTest : FunSpec({
     test("getAdvarsler should return empty list when no advarsler exists") {
         val arrangorflateService = createService()
 
-        val utbetalingDto = getUtbetalingDto(utbetaling.id)
+        val utbetalingDto = getUtbetaling(utbetaling.id)
         val result = arrangorflateService.getAdvarsler(utbetalingDto)
         result shouldHaveSize 0
     }
@@ -167,7 +167,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         val date = LocalDateTime.now()
         val godkjentAvArrangorUtbetaling =
-            getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
+            getUtbetaling(utbetaling.id).copy(godkjentAvArrangorTidspunkt = date.minusDays(1))
         val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = date)
 
         result.shouldNotBeNull()
@@ -183,7 +183,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         val now = LocalDateTime.now()
         val godkjentAvArrangorUtbetaling =
-            getUtbetalingDto(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
+            getUtbetaling(utbetaling.id).copy(godkjentAvArrangorTidspunkt = now.minusWeeks(12))
         val result = arrangorflateService.toArrangorflateUtbetaling(godkjentAvArrangorUtbetaling, relativeDate = now)
 
         result.shouldNotBeNull()

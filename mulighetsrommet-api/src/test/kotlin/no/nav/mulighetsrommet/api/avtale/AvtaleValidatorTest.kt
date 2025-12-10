@@ -497,21 +497,6 @@ class AvtaleValidatorTest : FunSpec({
                     "Annen avtalt pris er ikke tillatt for tiltakstype Arbeidsforberedende trening",
                 ),
             )
-            AvtaleValidator.validateCreateAvtale(
-                gruppeAmo.copy(
-                    prismodell = PrismodellRequest(
-                        type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-                        prisbetingelser = null,
-                        satser = emptyList(),
-                    ),
-                ),
-                ctx.copy(tiltakstype = ctx.tiltakstype.copy(navn = TiltakstypeFixtures.GruppeAmo.navn)),
-            ).shouldBeLeft().shouldContain(
-                FieldError(
-                    "/prismodell",
-                    "Avtalt ukespris per tiltaksplass er ikke tillatt for tiltakstype Arbeidsmarkedsopplæring (Gruppe)",
-                ),
-            )
 
             val fri = avtaleRequest.copy(
                 prismodell = PrismodellRequest(

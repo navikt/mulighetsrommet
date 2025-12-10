@@ -12,6 +12,7 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-sanity-studio.intern.nav.no
+    - https://mulighetsrommet-sanity-studio.ansatt.nav.no
   replicas:
     min: 2
     max: 4
