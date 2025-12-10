@@ -135,6 +135,10 @@ class NavAnsattQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toNavAnsatt() }
     }
 
+    fun getByNavIdentOrError(navIdent: NavIdent): NavAnsatt {
+        return checkNotNull(getByNavIdent(navIdent)) { "NavAnsatt ikke funnet" }
+    }
+
     fun getByNavIdent(navIdent: NavIdent): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """

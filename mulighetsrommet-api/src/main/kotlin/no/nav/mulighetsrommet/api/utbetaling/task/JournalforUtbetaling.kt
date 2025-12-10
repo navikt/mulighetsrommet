@@ -59,11 +59,8 @@ class JournalforUtbetaling(
     suspend fun journalfor(id: UUID, vedlegg: List<Vedlegg>): Either<String, DokarkResponse> = db.session {
         logger.info("Journalfører utbetaling med id: $id")
 
-        val utbetaling = requireNotNull(queries.utbetaling.get(id)) { "Fant ikke utbetaling med id=$id" }
-
-        val gjennomforing = queries.gjennomforing.get(utbetaling.gjennomforing.id)
-        requireNotNull(gjennomforing) { "Fant ikke gjennomforing til utbetaling med id=$id" }
-
+        val utbetaling = queries.utbetaling.getOrError(id)
+        val gjennomforing = queries.gjennomforing.getOrError(utbetaling.gjennomforing.id)
         val fagsakId = gjennomforing.arena?.tiltaksnummer?.value ?: gjennomforing.lopenummer.value
 
         generatePdf(utbetaling)

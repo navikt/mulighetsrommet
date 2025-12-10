@@ -76,10 +76,11 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     suspend fun RoutingContext.requireGjennomforing(): Gjennomforing {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
         requireTilgangHosArrangor(altinnRettigheterService, orgnr)
-        val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
 
-        val gjennomforing = requireNotNull(db.session { queries.gjennomforing.get(id = gjennomforingId) })
+        val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
+        val gjennomforing = db.session { queries.gjennomforing.getOrError(gjennomforingId) }
         requireGjennomforingTilArrangor(gjennomforing, orgnr)
+
         return gjennomforing
     }
 
@@ -494,7 +495,10 @@ private fun toGjennomforingDataTable(
                     "action" to
                         DataElement.Link(
                             text = "Start innsending",
-                            href = hrefOpprettKravInnsendingsInformasjon(gjennomforing.arrangor.organisasjonsnummer, gjennomforing.id),
+                            href = hrefOpprettKravInnsendingsInformasjon(
+                                gjennomforing.arrangor.organisasjonsnummer,
+                                gjennomforing.id,
+                            ),
                         ),
                 ),
             )
