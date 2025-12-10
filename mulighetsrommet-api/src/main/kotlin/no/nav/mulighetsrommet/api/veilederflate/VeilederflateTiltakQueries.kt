@@ -97,6 +97,7 @@ private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe
             tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
         ),
         navn = string("navn"),
+        stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
         apentForPamelding = boolean("apent_for_pamelding"),
         tiltaksnummer = stringOrNull("arena_tiltaksnummer"),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),

@@ -28,6 +28,7 @@ sealed class VeilederflateTiltak {
     abstract val faneinnhold: Faneinnhold?
     abstract val kontaktinfo: VeilederflateKontaktinfo
     abstract val oppstart: GjennomforingOppstartstype
+    abstract val stedForGjennomforing: String?
     abstract val oppmoteSted: String?
     abstract val fylker: List<NavEnhetNummer>
     abstract val enheter: List<NavEnhetNummer>
@@ -41,6 +42,7 @@ data class VeilederflateTiltakGruppe(
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
     override val oppmoteSted: String?,
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
@@ -73,6 +75,7 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
     override val oppmoteSted: String?,
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
@@ -89,6 +92,7 @@ data class VeilederflateTiltakEgenRegi(
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
     override val oppmoteSted: String?,
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
@@ -104,6 +108,7 @@ data class VeilederflateTiltakEnkeltplass(
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: GjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
     override val oppmoteSted: String?,
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
