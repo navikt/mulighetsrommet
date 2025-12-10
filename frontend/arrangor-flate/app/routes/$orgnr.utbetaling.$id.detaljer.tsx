@@ -311,11 +311,12 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
         <fetcher.Form method="post">
           <VStack gap="2">
             <Alert variant={"info"}>
-              Hvis dere bekrefter at utbetalingskravet skal avbrytes, betyr det at utbetalingskravet
-              ikke vil behandles av Nav og at det ikke vil gjøres noen utbetaling. Det kan være
-              aktuelt hvis dere oppdager noe feil i innsendingen. Dere kan starte en ny innsending
-              på samme tiltak via knappen "Opprett krav om utbetaling". Vær oppmerksom på at et
-              avbryte krav fremdeles vil være arkivert hos Nav.
+              Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det
+              kan være aktuelt hvis dere oppdager noe feil i innsendingen.
+              <br />
+              <br />
+              Dere kan starte en ny innsending på samme tiltak via knappen “Opprett krav om
+              utbetaling”. Vær oppmerksom på at et avbrutt krav fremdeles vil være arkivert hos Nav.
             </Alert>
             <Textarea
               name="begrunnelse"
