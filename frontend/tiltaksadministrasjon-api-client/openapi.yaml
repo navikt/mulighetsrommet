@@ -5787,6 +5787,10 @@ components:
           type:
           - "null"
           - string
+        avbruttBegrunnelse:
+          type:
+          - "null"
+          - string
         innsendtAv:
           type:
           - "null"
@@ -5800,6 +5804,7 @@ components:
         type:
           $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
+      - avbruttBegrunnelse
       - begrunnelseMindreBetalt
       - belop
       - beskrivelse
