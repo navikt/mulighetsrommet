@@ -40,6 +40,12 @@ class TiltakstypeService(
         .recordStats()
         .build()
 
+    private val cacheByArenakode: Cache<String, List<TiltakstypeDto>> = Caffeine.newBuilder()
+        .expireAfterWrite(12, TimeUnit.HOURS)
+        .maximumSize(20)
+        .recordStats()
+        .build()
+
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
     fun getAllGruppetiltak(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
@@ -75,8 +81,8 @@ class TiltakstypeService(
         }
     }
 
-    fun getByArenaTiltakskode(arenaKode: String): TiltakstypeDto? {
-        return CacheUtils.tryCacheFirstNullable(cacheByTiltakskode, arenaKode) {
+    fun getByArenaTiltakskode(arenaKode: String): List<TiltakstypeDto> {
+        return CacheUtils.tryCacheFirstNotNull(cacheByArenakode, arenaKode) {
             db.session { queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
         }
     }

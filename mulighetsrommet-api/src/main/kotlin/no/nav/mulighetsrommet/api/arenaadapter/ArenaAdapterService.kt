@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Map
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
@@ -86,10 +85,9 @@ class ArenaAdapterService(
         }
 
         val tiltakstype = db.session {
-            // TODO: Vil endres til å returnere flere (grunnet AMO -> nye tiltakstyper)
-            // Kanskje kaste om vi får flere enn en, siden egenregi fortsatt skal ligge i arena i nær fremtid
-            queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
-        } ?: throw IllegalArgumentException("Fant ikke tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+            val tiltakskoder = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
+            tiltakskoder.singleOrNull()
+        } ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
         val sluttDato = arenaGjennomforing.sluttDato
         return if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
@@ -133,10 +131,19 @@ class ArenaAdapterService(
             "Enkeltplasser er ikke støttet for tiltakstype ${arenaGjennomforing.arenaKode}"
         }
 
-        val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
-            ?: throw IllegalArgumentException("Fant ikke tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+        val tiltakstyper = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
+        if (tiltakstyper.isEmpty()) {
+            throw IllegalArgumentException("Fant ikke tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+        }
         val previous = queries.enkeltplass.get(arenaGjennomforing.id)
         if (previous == null) {
+            val arenaTiltakstyper = tiltakstyper.filter { tiltaksTypeDto ->
+                tiltaksTypeDto.tiltakskode?.let {
+                    Tiltakskoder.erStottetIArena(it)
+                } ?: false
+            }.toSet()
+            val tiltakstype = tiltakstyper.singleOrNull()
+                ?: throw IllegalArgumentException("Flere tiltakstyper for arenaKode=${arenaGjennomforing.arenaKode} har ulik tiltakskode: $arenaTiltakstyper. Kan ikke bestemme hvilken som skal brukes for enkeltplass.")
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,
