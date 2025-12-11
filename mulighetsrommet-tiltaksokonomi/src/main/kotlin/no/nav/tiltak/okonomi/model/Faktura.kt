@@ -27,6 +27,10 @@ data class Faktura(
     val linjer: List<Linje>,
     val beskrivelse: String?,
 ) {
+    fun erGjorOppFaktura(): Boolean {
+        return fakturanummer == gjorOppFakturanummer(bestillingsnummer)
+    }
+
     data class Linje(
         val linjenummer: Int,
         val periode: Periode,
