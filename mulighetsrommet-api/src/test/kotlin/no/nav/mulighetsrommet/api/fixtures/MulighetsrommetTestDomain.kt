@@ -66,7 +66,7 @@ data class MulighetsrommetTestDomain(
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
             avtaler.forEach { queries.avtale.upsert(it) }
-            gjennomforinger.forEach { queries.gjennomforing.upsertGruppetiltak(it) }
+            gjennomforinger.forEach { queries.gruppetiltak.upsert(it) }
             enkeltplasser.forEach { queries.gjennomforing.upsert(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }

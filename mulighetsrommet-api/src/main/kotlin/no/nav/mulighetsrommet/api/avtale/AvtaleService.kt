@@ -129,9 +129,9 @@ class AvtaleService(
                 arrangor.copy(underenheter = underenheter)
             }
 
-            val gjennomforinger =
-                db.session { queries.gjennomforing.getAllGruppetiltak(pagination = Pagination.of(1, 1), avtaleId = avtaleId) }
-                    .items
+            val (_, gjennomforinger) = db.session {
+                queries.gruppetiltak.getAll(pagination = Pagination.of(1, 1), avtaleId = avtaleId)
+            }
 
             AvtaleValidator.Ctx(
                 previous = previous?.let {
@@ -265,7 +265,7 @@ class AvtaleService(
                 is AvtaleStatus.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
             }
 
-            val (_, gjennomforinger) = queries.gjennomforing.getAllGruppetiltak(
+            val (_, gjennomforinger) = queries.gruppetiltak.getAll(
                 avtaleId = id,
                 statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
             )

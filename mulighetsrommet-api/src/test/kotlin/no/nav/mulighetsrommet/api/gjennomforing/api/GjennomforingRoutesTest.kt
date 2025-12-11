@@ -224,7 +224,7 @@ class GjennomforingRoutesTest : FunSpec({
                 ),
             ),
         ) {
-            queries.gjennomforing.setStatus(
+            queries.gruppetiltak.setStatus(
                 id = avbruttGjennomforingId,
                 status = GjennomforingStatusType.AVBRUTT,
                 tidspunkt = LocalDateTime.now(),
@@ -318,7 +318,7 @@ class GjennomforingRoutesTest : FunSpec({
                 response.bodyAsText().shouldBeEmpty()
 
                 database.run {
-                    queries.gjennomforing.getGruppetiltak(aktivGjennomforingId).shouldNotBeNull().should {
+                    queries.gruppetiltak.get(aktivGjennomforingId).shouldNotBeNull().should {
                         it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>().should {
                             it.type shouldBe GjennomforingStatusType.AVBRUTT
                             it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING

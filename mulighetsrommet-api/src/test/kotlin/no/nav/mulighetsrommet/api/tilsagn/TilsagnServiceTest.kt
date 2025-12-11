@@ -187,7 +187,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                val aft1 = queries.gjennomforing.getGruppetiltak(domain2.gjennomforinger[0].id).shouldNotBeNull()
+                val aft1 = queries.gruppetiltak.get(domain2.gjennomforinger[0].id).shouldNotBeNull()
                 queries.tilsagn.get(requestId).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
                 }
@@ -197,7 +197,7 @@ class TilsagnServiceTest : FunSpec({
                     it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer.value}-2"
                 }
 
-                val aft2 = queries.gjennomforing.getGruppetiltak(domain2.gjennomforinger[1].id).shouldNotBeNull()
+                val aft2 = queries.gruppetiltak.get(domain2.gjennomforinger[1].id).shouldNotBeNull()
                 queries.tilsagn.get(tilsagn3).shouldNotBeNull().should {
                     it.lopenummer shouldBe 1
                     it.bestilling.bestillingsnummer shouldBe "A-${aft2.lopenummer.value}-1"
@@ -460,7 +460,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("løpenummer beholdes når tilsagn blir returnert") {
-            val aft1 = database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
+            val aft1 = database.run { queries.gruppetiltak.get(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -486,7 +486,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("returnere eget tilsagn") {
-            val aft1 = database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
+            val aft1 = database.run { queries.gruppetiltak.get(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1

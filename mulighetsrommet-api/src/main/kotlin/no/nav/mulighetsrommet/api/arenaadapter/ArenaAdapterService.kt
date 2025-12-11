@@ -105,7 +105,7 @@ class ArenaAdapterService(
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = queries.gjennomforing.getGruppetiltakOrError(gjennomforing.id)
+        val previous = queries.gruppetiltak.getOrError(gjennomforing.id)
         if (!hasRelevantChanges(gjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction
@@ -120,7 +120,7 @@ class ArenaAdapterService(
         )
         queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
 
-        val next = queries.gjennomforing.getGruppetiltakOrError(gjennomforing.id)
+        val next = queries.gruppetiltak.getOrError(gjennomforing.id)
         if (previous.arena?.tiltaksnummer == null) {
             logTiltaksnummerHentetFraArena(next)
         } else {
@@ -140,7 +140,7 @@ class ArenaAdapterService(
             "Enkeltplasser er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id)
+        val previous = queries.enkeltplass.get(arenaGjennomforing.id)
         if (previous == null) {
             queries.gjennomforing.upsert(
                 GjennomforingDbo(
@@ -168,7 +168,7 @@ class ArenaAdapterService(
         if (previous == null || hasRelevantChanges(arenadata, previous)) {
             queries.gjennomforing.setArenaData(arenadata)
 
-            val next = queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id)
+            val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
             publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
         }
     }

@@ -78,7 +78,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
         val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-        val gjennomforing = db.session { queries.gjennomforing.getGruppetiltakOrError(gjennomforingId) }
+        val gjennomforing = db.session { queries.gruppetiltak.getOrError(gjennomforingId) }
         requireGjennomforingTilArrangor(gjennomforing, orgnr)
 
         return gjennomforing
@@ -127,8 +127,8 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             if (opprettKravPrismodeller.isEmpty() || opprettKravTiltakstyperMedTilsagn.isEmpty()) {
                 return@session emptyList()
             } else {
-                queries.gjennomforing
-                    .getAllGruppetiltak(
+                queries.gruppetiltak
+                    .getAll(
                         arrangorOrgnr = arrangorer,
                         prismodeller = opprettKravPrismodeller,
                         tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,

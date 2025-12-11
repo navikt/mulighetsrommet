@@ -241,7 +241,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES
@@ -277,7 +277,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
             ) {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     id = gjennomforing.id,
                     status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
@@ -308,7 +308,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing.id).shouldNotBeNull().status.shouldBe(
+                queries.gruppetiltak.get(gjennomforing.id).shouldNotBeNull().status.shouldBe(
                     GjennomforingStatus.Avbrutt(
                         tidspunkt = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
                         aarsaker = listOf(AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR),
@@ -408,7 +408,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id).shouldNotBeNull().should {
+                queries.enkeltplass.get(arenaGjennomforing.id).shouldNotBeNull().should {
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.arena.shouldNotBeNull().navn shouldBe "En enkeltplass"
@@ -424,7 +424,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             database.run {
-                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).arena.shouldNotBeNull().should {
+                queries.enkeltplass.getOrError(arenaGjennomforing.id).arena.shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
                     it.ansvarligNavEnhet shouldBe "1000"
                 }

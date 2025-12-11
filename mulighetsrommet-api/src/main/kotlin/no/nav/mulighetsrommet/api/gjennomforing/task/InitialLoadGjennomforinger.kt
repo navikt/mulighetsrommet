@@ -90,7 +90,7 @@ class InitialLoadGjennomforinger(
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter gjennomføringer pagination=$pagination")
-                val result = queries.gjennomforing.getAllGruppetiltak(
+                val result = queries.gruppetiltak.getAll(
                     pagination = pagination,
                     tiltakstypeIder = listOf(tiltakstypeId),
                 )
@@ -111,7 +111,7 @@ class InitialLoadGjennomforinger(
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter enkeltplasser pagination=$pagination")
-                val result = queries.gjennomforing.getAllEnkeltplass(
+                val result = queries.enkeltplass.getAll(
                     pagination = pagination,
                     tiltakstyper = listOf(tiltakstypeId),
                 )
@@ -126,13 +126,13 @@ class InitialLoadGjennomforinger(
 
     private fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
         ids.forEach { id ->
-            val gruppetiltak = queries.gjennomforing.getGruppetiltak(id)
+            val gruppetiltak = queries.gruppetiltak.get(id)
             if (gruppetiltak != null) {
                 publish(gruppetiltak)
                 return@forEach
             }
 
-            val enkeltplass = queries.gjennomforing.getEnkeltplass(id)
+            val enkeltplass = queries.enkeltplass.get(id)
             if (enkeltplass != null) {
                 publish(enkeltplass)
                 return@forEach
@@ -143,7 +143,7 @@ class InitialLoadGjennomforinger(
     }
 
     private fun initialLoadByAvtale(avtaleId: UUID) = db.session {
-        queries.gjennomforing.getAllGruppetiltak(avtaleId = avtaleId).items.forEach {
+        queries.gruppetiltak.getAll(avtaleId = avtaleId).items.forEach {
             publish(it)
         }
     }

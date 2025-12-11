@@ -152,7 +152,7 @@ class GenerateValidationReport(
     private suspend fun validateGjennomforinger(): Map<Gjennomforing, List<FieldError>> = db.session {
         buildMap {
             paginateFanOut({ pagination ->
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gruppetiltak.getAll(
                     pagination,
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items

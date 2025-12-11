@@ -79,13 +79,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2023, 1, 31, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
 
@@ -99,13 +99,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
             }
@@ -117,13 +117,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2023, 3, 1, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Gjennomfores
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status shouldBe GjennomforingStatus.Avsluttet
                 }
             }
@@ -131,7 +131,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
         test("forsøker ikke å avslutte gjennomføringer som allerede er avsluttet, avlyst eller avbrutt") {
             database.run {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     id = gjennomforing1.id,
                     status = AVSLUTTET,
                     tidspunkt = LocalDate.of(2024, 1, 1).atStartOfDay(),
@@ -139,7 +139,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     forklaring = null,
                 )
 
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     id = gjennomforing2.id,
                     status = AVLYST,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
@@ -147,7 +147,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
                     forklaring = null,
                 )
 
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     id = gjennomforing3.id,
                     status = AVBRUTT,
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
@@ -161,14 +161,14 @@ class UpdateGjennomforingStatusTest : FunSpec({
             task.execute(now = LocalDateTime.of(2024, 1, 2, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing1.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatus.Avsluttet>()
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing2.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing2.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatus.Avlyst>()
                         .aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
                 }
-                queries.gjennomforing.getGruppetiltak(gjennomforing3.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing3.id).shouldNotBeNull().should {
                     it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>()
                         .aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
                 }
@@ -201,14 +201,14 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
         test("avpubliserer og stenger gjennomføring for påmelding") {
             database.run {
-                queries.gjennomforing.setPublisert(gjennomforing.id, true)
-                queries.gjennomforing.setApentForPamelding(gjennomforing.id, true)
+                queries.gruppetiltak.setPublisert(gjennomforing.id, true)
+                queries.gruppetiltak.setApentForPamelding(gjennomforing.id, true)
             }
 
             createTask().execute(now = LocalDateTime.of(2023, 2, 1, 0, 0))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(gjennomforing.id).shouldNotBeNull().should {
                     it.status.shouldBe(GjennomforingStatus.Avsluttet)
                     it.publisert.shouldBe(false)
                     it.apentForPamelding.shouldBe(false)

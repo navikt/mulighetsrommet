@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppeDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
@@ -84,7 +85,7 @@ class GjennomforingService(
         }
 
         db.transaction {
-            queries.gjennomforing.upsertGruppetiltak(dbo)
+            queries.gruppetiltak.upsert(dbo)
 
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
@@ -133,14 +134,14 @@ class GjennomforingService(
     }
 
     fun get(id: UUID): Gjennomforing? = db.session {
-        queries.gjennomforing.getGruppetiltak(id)
+        queries.gruppetiltak.get(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingDto> = db.session {
-        queries.gjennomforing.getAllGruppetiltak(
+        queries.gruppetiltak.getAll(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
@@ -160,7 +161,7 @@ class GjennomforingService(
     }
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
-        queries.gjennomforing.setPublisert(id, publisert)
+        queries.gruppetiltak.setPublisert(id, publisert)
         val operation = if (publisert) {
             "Tiltak publisert"
         } else {
@@ -182,7 +183,7 @@ class GjennomforingService(
                 gjennomforing.startDato,
             )
             .map {
-                queries.gjennomforing.setTilgjengeligForArrangorDato(id, it)
+                queries.gruppetiltak.setTilgjengeligForArrangorDato(id, it)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 val dto = logEndring(operation, id, navIdent)
                 publishToKafka(dto)
@@ -205,15 +206,15 @@ class GjennomforingService(
             "Gjennomføringen kan ikke avsluttes før sluttdato"
         }
 
-        queries.gjennomforing.setStatus(
+        queries.gruppetiltak.setStatus(
             id = id,
             status = GjennomforingStatusType.AVSLUTTET,
             tidspunkt = avsluttetTidspunkt,
             aarsaker = null,
             forklaring = null,
         )
-        queries.gjennomforing.setPublisert(id, false)
-        queries.gjennomforing.setApentForPamelding(id, false)
+        queries.gruppetiltak.setPublisert(id, false)
+        queries.gruppetiltak.setApentForPamelding(id, false)
 
         val dto = logEndring("Gjennomføringen ble avsluttet", id, endretAv)
         publishToKafka(dto)
@@ -253,15 +254,15 @@ class GjennomforingService(
             throw Exception("Gjennomføring allerede avsluttet")
         }
 
-        queries.gjennomforing.setStatus(
+        queries.gruppetiltak.setStatus(
             id = id,
             status = status,
             tidspunkt = tidspunkt,
             aarsaker = aarsakerOgForklaring.aarsaker,
             forklaring = aarsakerOgForklaring.forklaring,
         )
-        queries.gjennomforing.setPublisert(id, false)
-        queries.gjennomforing.setApentForPamelding(id, false)
+        queries.gruppetiltak.setPublisert(id, false)
+        queries.gruppetiltak.setApentForPamelding(id, false)
 
         val dto = logEndring("Gjennomføringen ble avbrutt", id, avbruttAv)
         publishToKafka(dto)
@@ -269,7 +270,7 @@ class GjennomforingService(
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {
-        queries.gjennomforing.setApentForPamelding(id, apentForPamelding)
+        queries.gruppetiltak.setApentForPamelding(id, apentForPamelding)
 
         val operation = if (apentForPamelding) {
             "Åpnet for påmelding"
@@ -351,7 +352,7 @@ class GjennomforingService(
     }
 
     private fun QueryContext.getOrError(id: UUID): Gjennomforing {
-        return queries.gjennomforing.getGruppetiltakOrError(id)
+        return queries.gruppetiltak.getOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(

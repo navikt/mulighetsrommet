@@ -45,7 +45,7 @@ class ReplicateDeltakerKafkaConsumer(
 
             else -> {
                 gjennomforingId = deltaker.gjennomforingId
-                val prismodell = queries.gjennomforing.getPrismodell(deltaker.gjennomforingId)
+                val prismodell = queries.gruppetiltak.getPrismodell(deltaker.gjennomforingId)
 
                 logger.info("Lagrer deltaker deltakerId=$key")
                 queries.deltaker.upsert(toDeltakerDbo(deltaker, prismodell))

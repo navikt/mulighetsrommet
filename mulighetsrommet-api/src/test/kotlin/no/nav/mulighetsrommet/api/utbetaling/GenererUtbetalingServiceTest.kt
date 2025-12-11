@@ -481,7 +481,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVSLUTTET,
                     tidspunkt = LocalDate.of(2025, 1, 16).atStartOfDay(),
@@ -526,7 +526,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
@@ -658,7 +658,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
@@ -687,7 +687,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVSLUTTET,
                     tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),
@@ -717,7 +717,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-                queries.gjennomforing.setStatus(
+                queries.gruppetiltak.setStatus(
                     AFT1.id,
                     status = GjennomforingStatusType.AVLYST,
                     tidspunkt = LocalDate.of(2024, 12, 31).atStartOfDay(),

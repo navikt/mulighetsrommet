@@ -39,7 +39,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         ).initialize(database.db)
 
         val gjennomforing = database.run {
-            queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            queries.gruppetiltak.get(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
         }
 
         fun createConsumer(

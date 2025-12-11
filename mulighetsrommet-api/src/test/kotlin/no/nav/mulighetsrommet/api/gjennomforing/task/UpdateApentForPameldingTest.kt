@@ -40,8 +40,8 @@ class UpdateApentForPameldingTest : FunSpec({
                 ),
             ),
         ) {
-            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.Jobbklubb1.id, true)
-            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
+            queries.gruppetiltak.setApentForPamelding(GjennomforingFixtures.Jobbklubb1.id, true)
+            queries.gruppetiltak.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
         }
 
         val service = GjennomforingService(
@@ -64,10 +64,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -77,10 +77,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -90,10 +90,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(GjennomforingFixtures.Jobbklubb1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gruppetiltak.get(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
                     it.apentForPamelding shouldBe true
                 }
             }
