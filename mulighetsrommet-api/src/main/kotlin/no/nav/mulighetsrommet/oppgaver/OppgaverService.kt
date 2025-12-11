@@ -177,7 +177,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
     val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.ANNULLER)
     val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.GJOR_OPP)
 
-    var title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
+    val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
             Oppgave(

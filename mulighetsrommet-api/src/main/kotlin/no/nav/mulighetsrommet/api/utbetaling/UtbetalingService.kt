@@ -26,11 +26,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingInputHelper.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.toAnnenAvtaltPris
-import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettDelutbetalingerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
+import no.nav.mulighetsrommet.api.utbetaling.api.*
 import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.*
@@ -38,11 +34,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.FakturaStatusType
-import no.nav.tiltak.okonomi.OkonomiBestillingMelding
-import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.toOkonomiPart
+import no.nav.tiltak.okonomi.*
 import org.apache.kafka.common.header.internals.RecordHeaders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -301,7 +293,7 @@ class UtbetalingService(
         }
 
         val kostnadssted = queries.tilsagn.getOrError(delutbetaling.tilsagnId).kostnadssted
-        val ansatt = checkNotNull(queries.ansatt.getByNavIdent(navIdent))
+        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
         if (!ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
             return listOf(FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")).left()
         }

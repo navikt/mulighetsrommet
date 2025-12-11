@@ -2,7 +2,6 @@ import { Header } from "@/components/detaljside/Header";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
@@ -14,6 +13,7 @@ import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { GjennomforingStatusType } from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@mr/frontend-common";
+import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 
 function getCurrentTab(pathname: string) {
   if (pathname.includes("tilsagn")) {
@@ -67,7 +67,7 @@ export function GjennomforingPage() {
             size="small"
             isExternal={true}
             variant="secondary"
-            to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${gjennomforing.id}`}
+            to={`${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`}
           >
             Forhåndsvis i Modia
           </Lenkeknapp>

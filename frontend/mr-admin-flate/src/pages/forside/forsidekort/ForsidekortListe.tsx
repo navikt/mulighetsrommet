@@ -1,4 +1,3 @@
-import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL, SANITY_STUDIO_URL } from "@/constants";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { ForhandsvisningIkon } from "@/components/ikoner/ForhandsvisningIkon";
 import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
@@ -6,6 +5,7 @@ import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
 import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
+import { previewArbeidsmarkedstiltakUrl, sanityStudioUrl } from "@/constants";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -33,14 +33,14 @@ const forsidekortData: ForsideKortProps[] = [
   {
     navn: "Individuelle gjennomføringer",
     ikon: <img className="h-16 w-16 rounded-full" src="./sanity_logo.png" alt="Sanity-logo" />,
-    url: SANITY_STUDIO_URL,
+    url: sanityStudioUrl(),
     apneINyTab: true,
     tekst: "Her administrerer du individuelle gjennomføringer",
   },
   {
     navn: "Veilederflate forhåndsvisning",
     ikon: <ForhandsvisningIkon inkluderBakgrunn aria-label="Preview" />,
-    url: PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
+    url: previewArbeidsmarkedstiltakUrl(),
     tekst: "Her kan du se hvordan tiltakene vises for veileder i Modia",
   },
   {

@@ -286,7 +286,9 @@ class OkonomiService(
             )
         }
 
-        publishFaktura(faktura.fakturanummer).right()
+        if (!faktura.erGjorOppFaktura()) {
+            publishFaktura(faktura.fakturanummer).right()
+        }
     }
 
     fun logKvittering(kvitteringJson: String) = db.session {

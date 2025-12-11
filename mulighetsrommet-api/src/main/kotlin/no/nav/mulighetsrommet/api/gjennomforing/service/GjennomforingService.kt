@@ -88,15 +88,13 @@ class GjennomforingService(
 
             dispatchNotificationToNewAdministrators(dbo, navIdent)
 
-            val dto = getOrError(dbo.id)
             val operation = if (ctx.previous == null) {
                 "Opprettet gjennomføring"
             } else {
                 "Redigerte gjennomføring"
             }
-            logEndring(operation, dto, navIdent)
+            val dto = logEndring(operation, dbo.id, navIdent)
             publishToKafka(dto)
-
             dto
         }
     }
@@ -106,22 +104,15 @@ class GjennomforingService(
         previous: Gjennomforing?,
         today: LocalDate,
     ): GjennomforingValidator.Ctx = db.session {
-        val avtale = requireNotNull(db.session { queries.avtale.get(request.avtaleId) }) {
-            "Gjennomføringen manglet avtale"
-        }
+        val avtale = queries.avtale.getOrError(request.avtaleId)
+        val kontaktpersoner = request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
+        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
+        val antallDeltakere = queries.deltaker
+            .getAll(pagination = Pagination.of(1, 1), gjennomforingId = request.id)
+            .size
 
-        val kontaktpersoner = db.session {
-            request.kontaktpersoner.mapNotNull { queries.ansatt.getByNavIdent(it.navIdent) }
-        }
-        val administratorer = db.session {
-            request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-        }
-        val arrangor = request.arrangorId?.let { db.session { queries.arrangor.getById(it) } }
-        val antallDeltakere = db.session {
-            queries.deltaker.getAll(pagination = Pagination.of(1, 1), gjennomforingId = request.id).size
-        }
         val status = resolveStatus(previous?.status?.type, request, today)
-
         return GjennomforingValidator.Ctx(
             previous = previous?.let {
                 GjennomforingValidator.Ctx.Gjennomforing(
@@ -170,13 +161,12 @@ class GjennomforingService(
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
         queries.gjennomforing.setPublisert(id, publisert)
-        val dto = getOrError(id)
         val operation = if (publisert) {
             "Tiltak publisert"
         } else {
             "Tiltak avpublisert"
         }
-        logEndring(operation, dto, navIdent)
+        logEndring(operation, id, navIdent)
     }
 
     fun setTilgjengeligForArrangorDato(
@@ -193,9 +183,8 @@ class GjennomforingService(
             )
             .map {
                 queries.gjennomforing.setTilgjengeligForArrangorDato(id, it)
-                val dto = getOrError(id)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
-                logEndring(operation, dto, navIdent)
+                val dto = logEndring(operation, id, navIdent)
                 publishToKafka(dto)
             }
     }
@@ -226,8 +215,7 @@ class GjennomforingService(
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
-        val dto = getOrError(id)
-        logEndring("Gjennomføringen ble avsluttet", dto, endretAv)
+        val dto = logEndring("Gjennomføringen ble avsluttet", id, endretAv)
         publishToKafka(dto)
         dto
     }
@@ -275,23 +263,20 @@ class GjennomforingService(
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
-        val dto = getOrError(id)
-        logEndring("Gjennomføringen ble avbrutt", dto, avbruttAv)
+        val dto = logEndring("Gjennomføringen ble avbrutt", id, avbruttAv)
         publishToKafka(dto)
-
         dto.right()
     }
 
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean, agent: Agent): Unit = db.transaction {
         queries.gjennomforing.setApentForPamelding(id, apentForPamelding)
 
-        val dto = getOrError(id)
         val operation = if (apentForPamelding) {
             "Åpnet for påmelding"
         } else {
             "Stengte for påmelding"
         }
-        logEndring(operation, dto, agent)
+        val dto = logEndring(operation, id, agent)
         publishToKafka(dto)
     }
 
@@ -313,14 +298,13 @@ class GjennomforingService(
                 throw it.error
             }
         }.map {
-            val dto = getOrError(id)
             val operation = listOf(
                 "Registrerte stengt hos arrangør i perioden",
                 periode.start.formaterDatoTilEuropeiskDatoformat(),
                 "-",
                 periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat(),
             ).joinToString(separator = " ")
-            logEndring(operation, dto, navIdent)
+            val dto = logEndring(operation, id, navIdent)
             publishToKafka(dto)
             dto
         }
@@ -329,9 +313,7 @@ class GjennomforingService(
     fun deleteStengtHosArrangor(id: UUID, periodeId: Int, navIdent: NavIdent) = db.transaction {
         queries.gjennomforing.deleteStengtHosArrangor(periodeId)
 
-        val dto = getOrError(id)
-        val operation = "Fjernet periode med stengt hos arrangør"
-        logEndring(operation, dto, navIdent)
+        val dto = logEndring("Fjernet periode med stengt hos arrangør", id, navIdent)
         publishToKafka(dto)
     }
 
@@ -349,12 +331,7 @@ class GjennomforingService(
             gjennomforingId = gjennomforingId,
         )
 
-        val gjennomforing = getOrError(gjennomforingId)
-        logEndring(
-            "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
-            gjennomforing,
-            navIdent,
-        )
+        logEndring("Kontaktperson ble fjernet fra gjennomføringen", gjennomforingId, navIdent)
     }
 
     private fun resolveStatus(
@@ -374,8 +351,7 @@ class GjennomforingService(
     }
 
     private fun QueryContext.getOrError(id: UUID): Gjennomforing {
-        val gjennomforing = queries.gjennomforing.get(id)
-        return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
+        return queries.gjennomforing.getOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
@@ -398,18 +374,20 @@ class GjennomforingService(
 
     private fun QueryContext.logEndring(
         operation: String,
-        dto: Gjennomforing,
+        gjennomforingId: UUID,
         endretAv: Agent,
-    ) {
+    ): Gjennomforing {
+        val gjennomforing = getOrError(gjennomforingId)
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             operation,
             endretAv,
-            dto.id,
+            gjennomforingId,
             LocalDateTime.now(),
         ) {
-            Json.encodeToJsonElement(dto)
+            Json.encodeToJsonElement(gjennomforing)
         }
+        return gjennomforing
     }
 
     private fun QueryContext.publishToKafka(gjennomforing: Gjennomforing) {

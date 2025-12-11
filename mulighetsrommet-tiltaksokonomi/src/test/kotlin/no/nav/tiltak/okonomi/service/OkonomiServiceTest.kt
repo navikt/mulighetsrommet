@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -14,6 +15,7 @@ import io.ktor.client.engine.mock.respondOk
 import io.ktor.http.HttpStatusCode
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
@@ -25,6 +27,8 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.model.*
 import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering.StatusBetalt
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
@@ -36,6 +40,7 @@ import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.String
 
 class OkonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -660,6 +665,44 @@ class OkonomiServiceTest : FunSpec({
             service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
                 it.message shouldBe "Bestilling B5 kan ikke gjøres opp fordi vi venter på kvittering"
             }
+        }
+
+        test("kvittering for gjorOppBestilling faktura publiseres ikke på kafka") {
+            val bestillingNummer = "Z7"
+            val bestilling = createBestilling(bestillingNummer, status = BestillingStatusType.AKTIV)
+            db.session { queries.bestilling.insertBestilling(bestilling) }
+
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.FAKTURA_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
+
+                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
+
+            val gjorOppBestilling = createGjorOppBestilling(bestillingNummer)
+            service.gjorOppBestilling(gjorOppBestilling).shouldBeRight()
+
+            val faktura = db.session { queries.faktura.getByBestillingsnummer(bestillingNummer) }.first()
+            service.mottaFakturaKvittering(
+                faktura = faktura,
+                kvittering = OebsFakturaKvittering(
+                    fakturaNummer = faktura.fakturanummer,
+                    opprettelsesTidspunkt = LocalDateTime.now(),
+                    statusBetalt = StatusBetalt.IkkeBetalt,
+                ),
+            )
+            db.session { queries.kafkaProducerRecord.getRecords(10) }
+                .filter { it.topic == "faktura-status" }
+                .map {
+                    Json.decodeFromString<FakturaStatus>(it.value.toString(Charsets.UTF_8))
+                }
+                .filter { it.fakturanummer == faktura.fakturanummer }
+                .shouldHaveSize(0)
         }
     }
 })

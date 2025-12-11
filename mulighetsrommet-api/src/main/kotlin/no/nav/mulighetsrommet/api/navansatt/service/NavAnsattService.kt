@@ -34,8 +34,7 @@ class NavAnsattService(
             val ansatt = getNavAnsattFromAzure(navIdent, accessType)
             queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
             queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
-
-            checkNotNull(queries.ansatt.getByNavIdent(navIdent))
+            queries.ansatt.getByNavIdentOrError(navIdent)
         }
     }
 
@@ -111,7 +110,7 @@ class NavAnsattService(
             .groupBy { it.rolle }
             .map { (rolle, mappings) ->
                 val generell = mappings.any { it.enheter.isEmpty() }
-                val enheter = mappings.flatMap { it.enheter }.flatMapTo(mutableSetOf()) { withUnderenheter(it) }
+                val enheter = mappings.flatMap { it.enheter }.flatMapTo(mutableSetOf()) { withKostnadssteder(it) }
                 NavAnsattRolle(rolle, generell, enheter)
             }.toSet()
     }
@@ -121,8 +120,8 @@ class NavAnsattService(
         return ansatt.toNavAnsatt(roles)
     }
 
-    private fun withUnderenheter(enhetsnummer: NavEnhetNummer): Set<NavEnhetNummer> = db.session {
-        queries.enhet.getAll(overordnetEnhet = enhetsnummer)
+    private fun withKostnadssteder(enhetsnummer: NavEnhetNummer): Set<NavEnhetNummer> = db.session {
+        queries.enhet.getKostnadssted(regioner = listOf(enhetsnummer))
             .mapTo(mutableSetOf()) { it.enhetsnummer }
             .plus(enhetsnummer)
     }

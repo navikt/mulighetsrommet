@@ -531,7 +531,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     AFT1.id,
                     status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
-                    aarsaker = listOf(element = AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 )
             }.initialize(database.db)

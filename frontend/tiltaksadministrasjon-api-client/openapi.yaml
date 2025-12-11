@@ -4503,10 +4503,6 @@ components:
             type: string
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
-        stedForGjennomforing:
-          type:
-          - "null"
-          - string
         oppmoteSted:
           type:
           - "null"
@@ -4547,7 +4543,6 @@ components:
       - oppstart
       - sluttDato
       - startDato
-      - stedForGjennomforing
       - tilgjengeligForArrangorDato
       - tiltakstypeId
       - utdanningslop
@@ -4753,10 +4748,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingKontaktperson"
-        stedForGjennomforing:
-          type:
-          - "null"
-          - string
         oppmoteSted:
           type:
           - "null"
@@ -4819,7 +4810,6 @@ components:
       - sluttDato
       - startDato
       - status
-      - stedForGjennomforing
       - stengt
       - tilgjengeligForArrangorDato
       - tiltaksnummer
@@ -5795,6 +5785,10 @@ components:
           type:
           - "null"
           - string
+        avbruttBegrunnelse:
+          type:
+          - "null"
+          - string
         innsendtAv:
           type:
           - "null"
@@ -5808,6 +5802,7 @@ components:
         type:
           $ref: "#/components/schemas/UtbetalingTypeDto"
       required:
+      - avbruttBegrunnelse
       - begrunnelseMindreBetalt
       - belop
       - beskrivelse

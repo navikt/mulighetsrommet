@@ -74,7 +74,6 @@ class VeilederflateServiceTest : FunSpec({
         SanityTiltaksgjennomforing(
             _id = "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e",
             tiltaksgjennomforingNavn = "Enkel AMO",
-            stedForGjennomforing = null,
             tiltaksnummer = "2023#176408",
             tiltakstype = SanityTiltakstype(
                 _id = "$enkelAmoSanityId",
@@ -107,7 +106,6 @@ class VeilederflateServiceTest : FunSpec({
             _id = "f21d1e35-d63b-4de7-a0a5-589e57111527",
             tiltaksgjennomforingNavn = "Arbeidstrening Innlandet",
             tiltaksnummer = null,
-            stedForGjennomforing = "Innlandet",
             tiltakstype = SanityTiltakstype(
                 _id = "$arbeidstreningSanityId",
                 tiltakstypeNavn = "Arbeidstrening",
@@ -124,7 +122,6 @@ class VeilederflateServiceTest : FunSpec({
         SanityTiltaksgjennomforing(
             _id = "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6",
             tiltaksgjennomforingNavn = "Arbeidstrening",
-            stedForGjennomforing = null,
             tiltaksnummer = null,
             fylke = NavEnhetNummer("0400"),
             tiltakstype = SanityTiltakstype(

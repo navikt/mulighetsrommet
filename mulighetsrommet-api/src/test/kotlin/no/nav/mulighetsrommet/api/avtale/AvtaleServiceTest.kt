@@ -17,15 +17,13 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.model.*
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.avtaleRequest
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.oppfolging
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.brreg.BrregClient
@@ -93,8 +91,8 @@ class AvtaleServiceTest : FunSpec({
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
             avtaleService.upsert(
-                avtaleRequest.copy(
-                    detaljer = avtaleRequest.detaljer.copy(
+                AvtaleFixtures.avtaleRequest.copy(
+                    detaljer = AvtaleFixtures.avtaleRequest.detaljer.copy(
                         arrangor = DetaljerRequest.Arrangor(
                             hovedenhet = Organisasjonsnummer("223442332"),
                             underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
@@ -118,7 +116,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = createAvtaleService()
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
-            val avbruttAvtale = oppfolging.copy(
+            val avbruttAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
@@ -166,18 +164,18 @@ class AvtaleServiceTest : FunSpec({
 
         test("Man skal ikke få avbryte, men få en melding dersom det finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging
-            val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
-            val oppfolging2 = GjennomforingFixtures.Oppfolging2.copy(
+            val gjennomforing2 = GjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
 
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-                gjennomforinger = listOf(oppfolging1, oppfolging2),
+                gjennomforinger = listOf(gjennomforing1, gjennomforing2),
             ).initialize(database.db)
 
             avtaleService.avbrytAvtale(
@@ -195,15 +193,20 @@ class AvtaleServiceTest : FunSpec({
 
         test("Man skal få avbryte dersom det ikke finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging
-            val oppfolging1 = GjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtale.id,
-                status = GjennomforingStatusType.AVBRUTT,
-            )
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
 
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-                gjennomforinger = listOf(oppfolging1),
-            ).initialize(database.db)
+                gjennomforinger = listOf(gjennomforing),
+            ) {
+                queries.gjennomforing.setStatus(
+                    gjennomforing.id,
+                    status = GjennomforingStatusType.AVBRUTT,
+                    tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
+                )
+            }.initialize(database.db)
 
             avtaleService.avbrytAvtale(
                 avtale.id,
@@ -225,7 +228,7 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
-            val avtale = avtaleRequest
+            val avtale = AvtaleFixtures.avtaleRequest
             avtaleService.upsert(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
@@ -242,10 +245,9 @@ class AvtaleServiceTest : FunSpec({
                 avtaler = listOf(avtale),
             ).initialize(database.db)
 
-            val detaljerReq = avtaleRequest.detaljer
-                .copy(
-                    administratorer = listOf(identAnsatt2),
-                )
+            val detaljerReq = AvtaleFixtures.avtaleRequest.detaljer.copy(
+                administratorer = listOf(identAnsatt2),
+            )
             avtaleService.upsertDetaljer(avtale.id, detaljerReq, identAnsatt1).shouldBeRight()
 
             database.run {
@@ -264,8 +266,8 @@ class AvtaleServiceTest : FunSpec({
         val tomorrow = today.plusDays(1)
         val theDayAfterTomorrow = today.plusDays(2)
 
-        val avtale = oppfolging.copy(
-            detaljerDbo = oppfolging.detaljerDbo.copy(
+        val avtale = AvtaleFixtures.oppfolging.copy(
+            detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
                 startDato = yesterday,
                 sluttDato = yesterday,
                 status = AvtaleStatusType.AVSLUTTET,

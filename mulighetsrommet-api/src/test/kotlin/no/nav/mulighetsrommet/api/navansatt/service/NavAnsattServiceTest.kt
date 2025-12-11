@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
@@ -147,7 +148,7 @@ class NavAnsattServiceTest : FunSpec({
             )
         }
 
-        test("should resolve Nav-enhet with underliggende Nav-enheter from multiple groups") {
+        test("should resolve Nav-enhet with kostnadssteder Nav-enheter from multiple groups") {
             MulighetsrommetTestDomain(
                 navEnheter = listOf(
                     NavEnhetFixtures.Innlandet,
@@ -156,7 +157,19 @@ class NavAnsattServiceTest : FunSpec({
                     NavEnhetFixtures.Oslo,
                     NavEnhetFixtures.TiltakOslo,
                 ),
-            ).initialize(database.db)
+            ) {
+                session.execute(
+                    queryOf(
+                        """
+                            insert into kostnadssted (enhetsnummer, region) values
+                                ('0501', '0400'),
+                                ('0502', '0400'),
+                                ('0387', '0300')
+                            on conflict (enhetsnummer, region) do nothing;
+                        """,
+                    ),
+                )
+            }.initialize(database.db)
 
             val adGruppeBeslutterInnlandet = UUID.randomUUID()
             val rolleBeslutterInnlandet = EntraGroupNavAnsattRolleMapping(

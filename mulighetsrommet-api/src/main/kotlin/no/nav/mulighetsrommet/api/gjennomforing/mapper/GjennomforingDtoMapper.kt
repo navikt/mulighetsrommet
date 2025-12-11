@@ -25,7 +25,6 @@ object GjennomforingDtoMapper {
         oppstart = gjennomforing.oppstart,
         opphav = gjennomforing.opphav,
         kontaktpersoner = gjennomforing.kontaktpersoner,
-        stedForGjennomforing = gjennomforing.stedForGjennomforing,
         faneinnhold = gjennomforing.faneinnhold,
         beskrivelse = gjennomforing.beskrivelse,
         publisert = gjennomforing.publisert,
