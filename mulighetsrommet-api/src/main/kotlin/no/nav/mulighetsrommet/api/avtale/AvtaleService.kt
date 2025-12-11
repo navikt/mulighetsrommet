@@ -16,13 +16,13 @@ import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.*
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.*
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -105,21 +105,9 @@ class AvtaleService(
         previous: Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
         db.session {
-            val tiltakstype = db.session { queries.tiltakstype.getByTiltakskode(request.tiltakskode) }
-            val administratorer =
-                db.session {
-                    request.administratorer.mapNotNull {
-                        queries.ansatt.getByNavIdent(it)
-                    }
-                }
-            val navEnheter =
-                db.session {
-                    navEnheter?.let {
-                        it.mapNotNull {
-                            queries.enhet.get(it)?.toDto()
-                        }
-                    }
-                } ?: emptyList()
+            val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
+            val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+            val navEnheter = (navEnheter ?: emptyList()).mapNotNull { queries.enhet.get(it)?.toDto() }
 
             val arrangor = request.arrangor?.let {
                 val (arrangor, underenheter) = syncArrangorerFromBrreg(
@@ -129,9 +117,7 @@ class AvtaleService(
                 arrangor.copy(underenheter = underenheter)
             }
 
-            val gjennomforinger =
-                db.session { queries.gjennomforing.getAll(pagination = Pagination.of(1, 1), avtaleId = avtaleId) }
-                    .items
+            val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
 
             AvtaleValidator.Ctx(
                 previous = previous?.let {
@@ -265,15 +251,14 @@ class AvtaleService(
                 is AvtaleStatus.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
             }
 
-            val (_, gjennomforinger) = queries.gjennomforing.getAll(
-                avtaleId = id,
-                statuser = listOf(GjennomforingStatusType.GJENNOMFORES),
-            )
-            if (gjennomforinger.isNotEmpty()) {
+            val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
+                it.status.type == GjennomforingStatusType.GJENNOMFORES
+            }
+            if (antallAktiveGjennomforinger > 0) {
                 val message = listOf(
                     "Avtalen har",
-                    gjennomforinger.size,
-                    if (gjennomforinger.size > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
+                    antallAktiveGjennomforinger,
+                    if (antallAktiveGjennomforinger > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
                     "og kan derfor ikke avbrytes",
                 ).joinToString(" ")
                 add(FieldError.root(message))

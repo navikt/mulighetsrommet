@@ -597,11 +597,15 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val queries = GjennomforingQueries(session)
 
-                queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id)
-                    .items.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id).items
+                    .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                queries.getByAvtale(AvtaleFixtures.oppfolging.id)
+                    .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
-                queries.getAll(avtaleId = AvtaleFixtures.AFT.id)
-                    .items.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                queries.getAll(avtaleId = AvtaleFixtures.AFT.id).items
+                    .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                queries.getByAvtale(AvtaleFixtures.AFT.id)
+                    .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
             }
         }
 

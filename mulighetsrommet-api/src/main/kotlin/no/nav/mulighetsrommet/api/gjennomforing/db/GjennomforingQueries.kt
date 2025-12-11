@@ -5,7 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
+import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -379,6 +379,17 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
+    fun getByAvtale(avtaleId: UUID): List<Gjennomforing> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_gjennomforing
+            where avtale_id = ?
+        """.trimIndent()
+
+        return session.list(queryOf(query, avtaleId)) { it.toGjennomforingDto() }
+    }
+
     fun delete(id: UUID): Int {
         @Language("PostgreSQL")
         val query = """
@@ -552,7 +563,6 @@ class GjennomforingQueries(private val session: Session) {
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
             ?: emptyList()
-        val kontorstruktur = fromNavEnheter(navEnheter)
 
         val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
@@ -613,7 +623,7 @@ class GjennomforingQueries(private val session: Session) {
                 )
             },
             publisert = boolean("publisert"),
-            kontorstruktur = kontorstruktur,
+            kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
             kontaktpersoner = kontaktpersoner,
             administratorer = administratorer,
             arrangor = Gjennomforing.ArrangorUnderenhet(
