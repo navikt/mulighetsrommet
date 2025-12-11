@@ -13,8 +13,7 @@ data class ArenaGjennomforingDbo(
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val navn: String,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID,
+    val arenaKode: String,
     val tiltaksnummer: String,
     val arrangorOrganisasjonsnummer: String,
     @Serializable(with = LocalDateSerializer::class)

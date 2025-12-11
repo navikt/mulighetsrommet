@@ -13,13 +13,14 @@ enum class Tiltakskode(val arenakode: String) {
     JOBBKLUBB("JOBBK"),
     OPPFOLGING("INDOPPFAG"),
     VARIG_TILRETTELAGT_ARBEID_SKJERMET("VASV"),
+
     // Nye tiltakskoder 2025: §7-2 a-f
     ARBEIDSMARKEDSOPPLAERING("GRUPPEAMO"),
     NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV("GRUPPEAMO"),
     STUDIESPESIALISERING("GRUPPEAMO"),
     FAG_OG_YRKESOPPLAERING("GRUFAGYRKE"),
     HOYERE_YRKESFAGLIG_UTDANNING("GRUFAGYRKE"),
-    //HOYERE_UTDANNING("HOYEREUTD") // eksisterer allerede
+    // HOYERE_UTDANNING("HOYEREUTD") // eksisterer allerede
 }
 
 object Tiltakskoder {
@@ -37,6 +38,16 @@ object Tiltakskoder {
         Tiltakskode.OPPFOLGING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    )
+
+    // Nye tiltakskoder 2025: §7-2 a-f
+    private val Opplaering2025 = listOf(
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.STUDIESPESIALISERING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+        Tiltakskode.HOYERE_UTDANNING,
     )
 
     /**
