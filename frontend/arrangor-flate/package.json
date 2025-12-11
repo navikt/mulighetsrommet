@@ -61,7 +61,7 @@
   "devDependencies": {
     "@eslint/js": "9.39.1",
     "@hey-api/openapi-ts": "0.88.0",
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.57.0",
     "@react-router/dev": "7.9.6",
     "@react-router/fs-routes": "7.9.6",
     "@tailwindcss/typography": "0.5.19",
@@ -80,7 +80,7 @@
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.0.1",
     "globals": "16.5.0",
-    "playwright": "1.56.1",
+    "playwright": "1.57.0",
     "postcss": "8.5.6",
     "postcss-import": "16.1.1",
     "tailwindcss": "4.1.17",
