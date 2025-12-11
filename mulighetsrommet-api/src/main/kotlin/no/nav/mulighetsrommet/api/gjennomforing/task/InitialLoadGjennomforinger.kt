@@ -143,7 +143,7 @@ class InitialLoadGjennomforinger(
     }
 
     private fun initialLoadByAvtale(avtaleId: UUID) = db.session {
-        queries.gjennomforing.getAll(avtaleId = avtaleId).items.forEach {
+        queries.gjennomforing.getByAvtale(avtaleId).forEach {
             publish(it)
         }
     }
