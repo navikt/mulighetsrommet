@@ -54,11 +54,12 @@ object AvtaleFixtures {
     )
 
     fun prismodellDbo(
+        id: UUID = UUID.randomUUID(),
         prismodellType: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
         prisbetingelser: String = "Alt er dyrt",
         satser: List<AvtaltSats> = emptyList(),
     ): PrismodellDbo = PrismodellDbo(
-        id = UUID.randomUUID(),
+        id = id,
         prismodellType = prismodellType,
         prisbetingelser = prisbetingelser,
         satser = satser,

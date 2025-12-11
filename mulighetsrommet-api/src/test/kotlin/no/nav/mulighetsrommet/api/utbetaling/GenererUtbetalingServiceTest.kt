@@ -30,6 +30,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 class GenererUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -1204,8 +1205,9 @@ class GenererUtbetalingServiceTest : FunSpec({
         test("ikke for deltakelse 29. sep fordi uken skal med i oktober") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
-                    prisbetingelser = null,
+                    id = UUID.randomUUID(),
                     prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                    prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                     ),
@@ -1232,11 +1234,12 @@ class GenererUtbetalingServiceTest : FunSpec({
         test("genererer utbetalinger for sammenhengende perioder splittet opp per hele uker") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
+                    id = UUID.randomUUID(),
                     prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                    prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2024, 1, 1), 100),
                     ),
-                    prisbetingelser = null,
                 ),
             )
 
@@ -1281,8 +1284,9 @@ class GenererUtbetalingServiceTest : FunSpec({
         test("finner sats hvis gjennomføringen og satsen begynner midt i perioden") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
-                    prisbetingelser = null,
+                    id = UUID.randomUUID(),
                     prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2025, 1, 15), 100),
                     ),
@@ -1315,8 +1319,9 @@ class GenererUtbetalingServiceTest : FunSpec({
         test("finner alle relevante satser innenfor utbetalingsperioden") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
-                    prisbetingelser = null,
+                    id = UUID.randomUUID(),
                     prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2024, 1, 1), 1),
                         AvtaltSats(LocalDate.of(2025, 1, 2), 2),

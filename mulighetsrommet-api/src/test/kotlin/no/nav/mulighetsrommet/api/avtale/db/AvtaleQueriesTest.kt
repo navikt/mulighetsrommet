@@ -92,17 +92,20 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                val avtale1Id = AvtaleFixtures.oppfolging.id
-                val avtale2Id = UUID.randomUUID()
+                val avtale1 = AvtaleFixtures.oppfolging
+                val avtale2 = AvtaleFixtures.oppfolging.copy(
+                    id = UUID.randomUUID(),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
+                )
 
-                queries.upsert(AvtaleFixtures.oppfolging)
-                queries.upsert(AvtaleFixtures.oppfolging.copy(id = avtale2Id))
+                queries.upsert(avtale1)
+                queries.upsert(avtale2)
 
-                val avtale1Avtalenummer = queries.get(avtale1Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
+                val avtale1Avtalenummer = queries.get(avtale1.id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
                 avtale1Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeGreaterThanOrEqual 10_000
 
-                val avtale2Avtalenummer = queries.get(avtale2Id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
+                val avtale2Avtalenummer = queries.get(avtale2.id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
                 avtale2Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeLessThan avtale2Avtalenummer.substring(5).toInt()
             }
@@ -543,14 +546,14 @@ class AvtaleQueriesTest : FunSpec({
                 val queries = AvtaleQueries(session)
                 val sats2 = AvtaltSats(LocalDate.of(2025, 7, 1), 2000)
 
-                queries.upsert(
-                    AvtaleFixtures.oppfolging.copy(
-                        prismodellDbo = AvtaleFixtures.prismodellDbo(
-                            prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                            satser = listOf(sats2),
-                        ),
+                val avtale = AvtaleFixtures.oppfolging.copy(
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(
+                        prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                        satser = listOf(sats2),
                     ),
                 )
+
+                queries.upsert(avtale)
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
                     avtale.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>() should {
@@ -564,11 +567,10 @@ class AvtaleQueriesTest : FunSpec({
                     }
                 }
 
-                queries.upsert(
-                    AvtaleFixtures.oppfolging.copy(
-                        prismodellDbo = AvtaleFixtures.prismodellDbo(
-                            prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                        ),
+                queries.upsertPrismodell(
+                    avtale.id,
+                    avtale.prismodellDbo.copy(
+                        prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                     ),
                 )
 
@@ -576,11 +578,10 @@ class AvtaleQueriesTest : FunSpec({
                     it.prismodell.shouldBeTypeOf<Prismodell.ForhandsgodkjentPrisPerManedsverk>()
                 }
 
-                queries.upsert(
-                    AvtaleFixtures.oppfolging.copy(
-                        prismodellDbo = AvtaleFixtures.prismodellDbo(
-                            prismodellType = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                        ),
+                queries.upsertPrismodell(
+                    avtale.id,
+                    avtale.prismodellDbo.copy(
+                        prismodellType = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                     ),
                 )
 
@@ -598,7 +599,11 @@ class AvtaleQueriesTest : FunSpec({
                 ArrangorFixtures.underenhet1,
                 ArrangorFixtures.underenhet2,
             ),
-            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+            tiltakstyper = listOf(
+                TiltakstypeFixtures.Oppfolging,
+                TiltakstypeFixtures.AFT,
+                TiltakstypeFixtures.GruppeAmo,
+            ),
             avtaler = listOf(),
         )
 
@@ -633,6 +638,7 @@ class AvtaleQueriesTest : FunSpec({
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
                         navn = "Avtale om opplæring av blinde krokodiller",
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
 
                 val avtale2 = avtale1.copy(
@@ -640,6 +646,7 @@ class AvtaleQueriesTest : FunSpec({
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
                         navn = "Avtale om undervisning av underlige ulver",
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
 
                 queries.upsert(avtale1)
@@ -691,6 +698,7 @@ class AvtaleQueriesTest : FunSpec({
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
                         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
                 val a2 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -700,6 +708,7 @@ class AvtaleQueriesTest : FunSpec({
                             NavAnsattFixture.MikkeMus.navIdent,
                         ),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
 
                 queries.upsert(a1)
@@ -729,15 +738,16 @@ class AvtaleQueriesTest : FunSpec({
                 )
                 queries.upsert(avtaleAktiv)
 
-                val avtaleAvsluttet = AvtaleFixtures.oppfolging.copy(
+                val avtaleAvsluttet = AvtaleFixtures.AFT.copy(
                     id = UUID.randomUUID(),
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
                         status = AvtaleStatusType.AVSLUTTET,
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
                 queries.upsert(avtaleAvsluttet)
 
-                val avtaleAvbrutt = AvtaleFixtures.oppfolging.copy(
+                val avtaleAvbrutt = AvtaleFixtures.gruppeAmo.copy(
                     id = UUID.randomUUID(),
                 )
                 queries.upsert(avtaleAvbrutt)
@@ -754,6 +764,7 @@ class AvtaleQueriesTest : FunSpec({
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
                         status = AvtaleStatusType.UTKAST,
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
                 queries.upsert(avtaleUtkast)
 
@@ -874,18 +885,24 @@ class AvtaleQueriesTest : FunSpec({
                 detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
                     avtaletype = Avtaletype.AVTALE,
                 ),
+                prismodellDbo = AvtaleFixtures.prismodellDbo(),
+
             )
             val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
                 detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
                     avtaletype = Avtaletype.RAMMEAVTALE,
                 ),
+                prismodellDbo = AvtaleFixtures.prismodellDbo(),
+
             )
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
                 detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
                     avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                 ),
+                prismodellDbo = AvtaleFixtures.prismodellDbo(),
+
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -919,7 +936,10 @@ class AvtaleQueriesTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.AFT),
                 avtaler = listOf(
                     AvtaleFixtures.oppfolging,
-                    AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID()),
+                    AvtaleFixtures.oppfolging.copy(
+                        id = UUID.randomUUID(),
+                        prismodellDbo = AvtaleFixtures.prismodellDbo(),
+                    ),
                     AvtaleFixtures.AFT,
                 ),
             )
@@ -966,7 +986,7 @@ class AvtaleQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    AvtaleFixtures.oppfolging.copy(
+                    AvtaleFixtures.AFT.copy(
                         id = UUID.randomUUID(),
                         detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
                             arrangor = AvtaleFixtures.oppfolging.detaljerDbo.arrangor?.copy(
@@ -974,7 +994,7 @@ class AvtaleQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    AvtaleFixtures.oppfolging.copy(
+                    AvtaleFixtures.gruppeAmo.copy(
                         id = UUID.randomUUID(),
                         detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
                             arrangor = AvtaleFixtures.oppfolging.detaljerDbo.arrangor?.copy(
@@ -999,8 +1019,14 @@ class AvtaleQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 avtaler = listOf(
                     AvtaleFixtures.oppfolging.copy(personvernDbo = AvtaleFixtures.personvernDbo(personvernBekreftet = true)),
-                    AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID(), personvernDbo = AvtaleFixtures.personvernDbo(personvernBekreftet = true)),
-                    AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID(), personvernDbo = AvtaleFixtures.personvernDbo(personvernBekreftet = false)),
+                    AvtaleFixtures.AFT.copy(
+                        id = UUID.randomUUID(),
+                        personvernDbo = AvtaleFixtures.personvernDbo(personvernBekreftet = true),
+                    ),
+                    AvtaleFixtures.gruppeAmo.copy(
+                        id = UUID.randomUUID(),
+                        personvernDbo = AvtaleFixtures.personvernDbo(personvernBekreftet = false),
+                    ),
                 ),
             )
 
@@ -1046,6 +1072,7 @@ class AvtaleQueriesTest : FunSpec({
                         arrangor = arrangorFromHovedenhet(arrangorA.id),
                         sluttDato = LocalDate.of(2010, 1, 31),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -1054,6 +1081,8 @@ class AvtaleQueriesTest : FunSpec({
                         arrangor = arrangorFromHovedenhet(arrangorA.id),
                         sluttDato = LocalDate.of(2009, 1, 1),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
+
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -1062,6 +1091,8 @@ class AvtaleQueriesTest : FunSpec({
                         arrangor = arrangorFromHovedenhet(arrangorB.id),
                         sluttDato = LocalDate.of(2010, 1, 1),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
+
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -1070,6 +1101,8 @@ class AvtaleQueriesTest : FunSpec({
                         arrangor = arrangorFromHovedenhet(arrangorC.id),
                         sluttDato = LocalDate.of(2011, 1, 1),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
+
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -1078,6 +1111,7 @@ class AvtaleQueriesTest : FunSpec({
                         arrangor = arrangorFromHovedenhet(arrangorB.id),
                         sluttDato = LocalDate.of(2023, 1, 1),
                     ),
+                    prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 ),
             ),
         )

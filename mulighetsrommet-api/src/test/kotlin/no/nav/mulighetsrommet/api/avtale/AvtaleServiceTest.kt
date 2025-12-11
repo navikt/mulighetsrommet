@@ -118,7 +118,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = createAvtaleService()
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
-            val avbruttAvtale = AvtaleFixtures.oppfolging.copy(
+            val avbruttAvtale = oppfolging.copy(
                 id = UUID.randomUUID(),
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
@@ -129,6 +129,8 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(avbruttAvtale, avsluttetAvtale),
             ) {
+                queries.avtale.upsertPrismodell(avbruttAvtale.id, AvtaleFixtures.prismodellDbo())
+                queries.avtale.upsertPrismodell(avsluttetAvtale.id, AvtaleFixtures.prismodellDbo())
                 queries.avtale.setStatus(
                     avbruttAvtale.id,
                     AvtaleStatusType.AVBRUTT,

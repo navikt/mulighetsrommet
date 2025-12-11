@@ -403,7 +403,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val insertSats = """
             insert into avtale_sats (avtale_id, gjelder_fra, sats, prismodell_id)
-            values (:avtale_id::uuid, :gjelder_fra::date, :sats,:prismodell_id:uuid)
+            values (:avtale_id::uuid, :gjelder_fra::date, :sats, :prismodell_id::uuid)
         """.trimIndent()
 
         batchPreparedNamedStatement(
@@ -486,6 +486,16 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
+        upsertPrismodell(
+            id = UUID.randomUUID(),
+            avtaleId = avtale.id,
+            prismodell = when (avtale.avtaletype) {
+                Avtaletype.FORHANDSGODKJENT -> PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                else -> PrismodellType.ANNEN_AVTALT_PRIS
+            },
+            prisbetingelser = avtale.prisbetingelser,
+            satser = emptyList(),
+        )
     }
 
     fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
@@ -750,40 +760,53 @@ class AvtaleQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
             ?: emptyList()
 
-        val prismodell = when (PrismodellType.valueOf(string("prismodell"))) {
-            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
-                id = uuid("id"),
-                prisbetingelser = stringOrNull("prisbetingelser"),
-            )
+        val prismodeller = stringOrNull("prismodeller_json")
+            ?.let { Json.decodeFromString<List<PrismodellDto>>(it) }
+            ?: emptyList()
+        prismodeller.firstOrNull()
+            ?: error("Prismodell missing for avtale ${uuid("id")}")
+        val prismodell = prismodeller.map { p ->
+            when (p.prismodellType) {
+                PrismodellType.ANNEN_AVTALT_PRIS ->
+                    Prismodell.AnnenAvtaltPris(
+                        id = p.id,
+                        prisbetingelser = p.prisbetingelser,
+                    )
 
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
-                id = uuid("id"),
-            )
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                    Prismodell.ForhandsgodkjentPrisPerManedsverk(
+                        id = p.id,
+                    )
 
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
-                id = uuid("id"),
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK ->
+                    Prismodell.AvtaltPrisPerManedsverk(
+                        id = p.id,
+                        prisbetingelser = p.prisbetingelser,
+                        satser = satser.toDto(),
+                    )
 
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
-                id = uuid("id"),
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
+                    Prismodell.AvtaltPrisPerUkesverk(
+                        id = p.id,
+                        prisbetingelser = p.prisbetingelser,
+                        satser = satser.toDto(),
+                    )
 
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
-                id = uuid("id"),
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
+                    Prismodell.AvtaltPrisPerHeleUkesverk(
+                        id = p.id,
+                        prisbetingelser = p.prisbetingelser,
+                        satser = satser.toDto(),
+                    )
 
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-                id = uuid("id"),
-                prisbetingelser = stringOrNull("prisbetingelser"),
-                satser = satser.toDto(),
-            )
-        }
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                    Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                        id = p.id,
+                        prisbetingelser = p.prisbetingelser,
+                        satser = satser.toDto(),
+                    )
+            }
+        }.first()
 
         val status = when (AvtaleStatusType.valueOf(string("status"))) {
             AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv

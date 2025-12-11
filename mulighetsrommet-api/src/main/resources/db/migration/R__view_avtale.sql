@@ -19,14 +19,12 @@ select avtale.id,
        avtale.avbrutt_aarsaker,
        avtale.avbrutt_forklaring,
        avtale.status,
-       avtale.prisbetingelser,
        avtale.beskrivelse,
        avtale.faneinnhold,
        avtale.opsjonsmodell,
        avtale.opsjon_custom_opsjonsmodell_navn,
        avtale.personvern_bekreftet,
        avtale.arena_ansvarlig_enhet                     as arena_nav_enhet_enhetsnummer,
-       avtale.prismodell,
        arena_nav_enhet.navn                             as arena_nav_enhet_navn,
        tiltakstype.id                                   as tiltakstype_id,
        tiltakstype.navn                                 as tiltakstype_navn,
@@ -44,11 +42,24 @@ select avtale.id,
        arrangor_underenheter_json,
        arrangor_kontaktpersoner_json,
        utdanningslop_json,
-       satser_json
+       satser_json,
+       prismodeller_json
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
          left join nav_enhet arena_nav_enhet on avtale.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
+         left join lateral (
+                select jsonb_agg(
+                               jsonb_build_object(
+                                       'id', id,
+                                       'prismodellType', prismodell_type,
+                                       'prisbetingelser', prisbetingelser
+                               )
+                               order by id
+                       ) as prismodeller_json
+                from avtale_prismodell
+                where avtale_id = avtale.id
+    ) on true
          left join lateral (select jsonb_agg(personopplysning) as personopplysninger_json
                             from avtale_personopplysning
                             where avtale_id = avtale.id) on true
