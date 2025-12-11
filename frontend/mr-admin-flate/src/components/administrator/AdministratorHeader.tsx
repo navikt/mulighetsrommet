@@ -14,6 +14,7 @@ import { Bolk } from "../detaljside/Bolk";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 import { OppgaveoversiktIkon } from "../ikoner/OppgaveoversiktIkon";
+import { Adventslys } from "../hoytid/jul/Adventslys";
 
 export function AdministratorHeader() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export function AdministratorHeader() {
         </Link>
       </InternalHeader.Title>
       <Spacer />
+      <Adventslys />
       <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt/oppgaver")}>
         {harUlesteNotifikasjoner ? (
           <OppgaveoversiktIkon color="white" className="w-5" />
