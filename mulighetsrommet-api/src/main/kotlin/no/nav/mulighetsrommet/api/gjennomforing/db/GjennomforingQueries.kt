@@ -8,10 +8,7 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.*
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -316,7 +313,7 @@ class GjennomforingQueries(private val session: Session) {
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
         prismodeller: List<PrismodellType> = emptyList(),
-    ): PaginatedResult<Gjennomforing> = with(session) {
+    ): PaginatedResult<GjennomforingKompakt> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -353,7 +350,25 @@ class GjennomforingQueries(private val session: Session) {
 
         @Language("PostgreSQL")
         val query = """
-            select *, count(*) over () as total_count
+            select id,
+                   lopenummer,
+                   navn,
+                   start_dato,
+                   slutt_dato,
+                   status,
+                   avsluttet_tidspunkt,
+                   avbrutt_aarsaker,
+                   avbrutt_forklaring,
+                   publisert,
+                   prismodell,
+                   nav_enheter_json,
+                   tiltakstype_id,
+                   tiltakstype_tiltakskode,
+                   tiltakstype_navn,
+                   arrangor_id,
+                   arrangor_organisasjonsnummer,
+                   arrangor_navn,
+                   count(*) over () as total_count
             from view_gjennomforing
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
@@ -375,7 +390,7 @@ class GjennomforingQueries(private val session: Session) {
         """.trimIndent()
 
         return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toGjennomforingDto() }
+            .mapPaginated { it.toGjennomforingKompakt() }
             .runWithSession(this)
     }
 
@@ -654,4 +669,50 @@ class GjennomforingQueries(private val session: Session) {
             ),
         )
     }
+}
+
+private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
+    val status = when (GjennomforingStatusType.valueOf(string("status"))) {
+        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
+
+        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
+
+        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
+            tidspunkt = localDateTime("avsluttet_tidspunkt"),
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+            stringOrNull("avbrutt_forklaring"),
+        )
+
+        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
+            tidspunkt = localDateTime("avsluttet_tidspunkt"),
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
+            stringOrNull("avbrutt_forklaring"),
+        )
+    }
+
+    val navEnheter = stringOrNull("nav_enheter_json")
+        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
+        ?: emptyList()
+
+    return GjennomforingKompakt(
+        id = uuid("id"),
+        navn = string("navn"),
+        lopenummer = Tiltaksnummer(string("lopenummer")),
+        startDato = localDate("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        status = status,
+        publisert = boolean("publisert"),
+        prismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
+        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
+        arrangor = GjennomforingKompakt.ArrangorUnderenhet(
+            id = uuid("arrangor_id"),
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+        ),
+        tiltakstype = Gjennomforing.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+    )
 }

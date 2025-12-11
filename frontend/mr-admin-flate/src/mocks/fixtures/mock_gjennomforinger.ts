@@ -11,8 +11,8 @@ import {
   GjennomforingOppstartstype,
   GjennomforingStatusType,
   GjennomforingTiltakstype,
-  PaginatedResponseGjennomforingDto,
   TiltakstypeDto,
+  PaginatedResponseGjennomforingKompaktDto,
 } from "@tiltaksadministrasjon/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
@@ -251,7 +251,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
   },
 ];
 
-export const paginertMockGjennomforinger: PaginatedResponseGjennomforingDto = {
+export const paginertMockGjennomforinger: PaginatedResponseGjennomforingKompaktDto = {
   pagination: {
     totalCount: 18,
     pageSize: 50,

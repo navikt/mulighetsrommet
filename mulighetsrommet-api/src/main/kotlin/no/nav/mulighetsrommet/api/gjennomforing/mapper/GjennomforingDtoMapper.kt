@@ -37,7 +37,7 @@ object GjennomforingDtoMapper {
         oppmoteSted = gjennomforing.oppmoteSted,
     )
 
-    private fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
+    fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
         val variant = when (status) {
             GjennomforingStatus.Gjennomfores -> DataElement.Status.Variant.SUCCESS
             GjennomforingStatus.Avsluttet -> DataElement.Status.Variant.NEUTRAL

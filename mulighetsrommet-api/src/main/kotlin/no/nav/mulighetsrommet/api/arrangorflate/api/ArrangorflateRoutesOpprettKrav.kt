@@ -4,18 +4,13 @@ import arrow.core.flatMap
 import arrow.core.nel
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveMultipart
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.RoutingContext
-import io.ktor.server.routing.route
-import io.ktor.server.util.getOrFail
-import io.ktor.utils.io.toByteArray
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
+import io.ktor.utils.io.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -26,6 +21,7 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -36,11 +32,7 @@ import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.maksUtbetalingsPeriodeSluttDato
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.minAntallVedleggVedOpprettKrav
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.*
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
@@ -387,7 +379,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
             }
 
-            if (!kanOppretteKrav(okonomiConfig, gjennomforing)) {
+            if (!kanOppretteKrav(okonomiConfig, gjennomforing.toGjennomforingKompakt())) {
                 throw StatusException(
                     HttpStatusCode.Forbidden,
                     "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
@@ -432,10 +424,10 @@ private fun hentTiltakstyperMedTilsagn(
  */
 fun kanOppretteKrav(
     okonomiConfig: OkonomiConfig,
-    gjennomforing: Gjennomforing,
+    gjennomforing: GjennomforingKompakt,
     relativeDate: LocalDate = LocalDate.now(),
 ): Boolean {
-    if (gjennomforing.avtalePrismodell !in okonomiConfig.opprettKravPrismodeller) {
+    if (gjennomforing.prismodell !in okonomiConfig.opprettKravPrismodeller) {
         return false
     }
     val gyldigTilsagnPeriode = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode] ?: return false
@@ -473,7 +465,7 @@ data class TiltaksoversiktResponse(
 )
 
 private fun toGjennomforingDataTable(
-    gjennomforinger: List<Gjennomforing>,
+    gjennomforinger: List<GjennomforingKompakt>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
