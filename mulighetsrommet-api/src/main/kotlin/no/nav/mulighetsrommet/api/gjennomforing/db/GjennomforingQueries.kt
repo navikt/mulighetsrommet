@@ -570,126 +570,9 @@ class GjennomforingQueries(private val session: Session) {
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
     )
-
-    private fun Row.toGjennomforingDto(): Gjennomforing {
-        val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
-            ?: emptyList()
-        val navEnheter = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-            ?: emptyList()
-
-        val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
-            ?: emptyList()
-        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<Gjennomforing.ArrangorKontaktperson>>(it) }
-            ?: emptyList()
-        val stengt = stringOrNull("stengt_perioder_json")
-            ?.let { Json.decodeFromString<List<Gjennomforing.StengtPeriode>>(it) }
-            ?: emptyList()
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-
-        val utdanningslop = stringOrNull("utdanningslop_json")?.let {
-            Json.decodeFromString<UtdanningslopDto>(it)
-        }
-
-        val status = when (GjennomforingStatusType.valueOf(string("status"))) {
-            GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
-
-            GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
-
-            GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-                tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-                stringOrNull("avbrutt_forklaring"),
-            )
-
-            GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-                tidspunkt = localDateTime("avsluttet_tidspunkt"),
-                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-                stringOrNull("avbrutt_forklaring"),
-            )
-        }
-
-        return Gjennomforing(
-            id = uuid("id"),
-            navn = string("navn"),
-            lopenummer = Tiltaksnummer(string("lopenummer")),
-            startDato = startDato,
-            sluttDato = sluttDato,
-            status = status,
-            apentForPamelding = boolean("apent_for_pamelding"),
-            antallPlasser = int("antall_plasser"),
-            avtaleId = uuidOrNull("avtale_id"),
-            avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
-            oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
-            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            beskrivelse = stringOrNull("beskrivelse"),
-            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-            oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-            deltidsprosent = double("deltidsprosent"),
-            estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-                Gjennomforing.EstimertVentetid(
-                    verdi = int("estimert_ventetid_verdi"),
-                    enhet = string("estimert_ventetid_enhet"),
-                )
-            },
-            publisert = boolean("publisert"),
-            kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
-            kontaktpersoner = kontaktpersoner,
-            administratorer = administratorer,
-            arrangor = Gjennomforing.ArrangorUnderenhet(
-                id = uuid("arrangor_id"),
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-                navn = string("arrangor_navn"),
-                slettet = boolean("arrangor_slettet"),
-                kontaktpersoner = arrangorKontaktpersoner,
-            ),
-            tiltakstype = Gjennomforing.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-            ),
-            tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
-            amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
-            utdanningslop = utdanningslop,
-            stengt = stengt,
-            oppmoteSted = stringOrNull("oppmote_sted"),
-            arena = Gjennomforing.ArenaData(
-                tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
-                ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
-                    ArenaNavEnhet(
-                        navn = stringOrNull("arena_nav_enhet_navn"),
-                        enhetsnummer = it,
-                    )
-                },
-            ),
-        )
-    }
 }
 
 private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
-    val status = when (GjennomforingStatusType.valueOf(string("status"))) {
-        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
-
-        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
-
-        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
-            tidspunkt = localDateTime("avsluttet_tidspunkt"),
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-
-        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
-            tidspunkt = localDateTime("avsluttet_tidspunkt"),
-            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-            stringOrNull("avbrutt_forklaring"),
-        )
-    }
-
     val navEnheter = stringOrNull("nav_enheter_json")
         ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
         ?: emptyList()
@@ -700,7 +583,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         lopenummer = Tiltaksnummer(string("lopenummer")),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = status,
+        status = toGjennomforingStatus(),
         publisert = boolean("publisert"),
         prismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
@@ -715,4 +598,113 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
             tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         ),
     )
+}
+
+private fun Row.toGjennomforingDto(): Gjennomforing {
+    val administratorer = stringOrNull("administratorer_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
+        ?: emptyList()
+    val navEnheter = stringOrNull("nav_enheter_json")
+        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
+        ?: emptyList()
+
+    val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
+        ?.let { Json.decodeFromString<List<GjennomforingKontaktperson>>(it) }
+        ?: emptyList()
+    val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.ArrangorKontaktperson>>(it) }
+        ?: emptyList()
+    val stengt = stringOrNull("stengt_perioder_json")
+        ?.let { Json.decodeFromString<List<Gjennomforing.StengtPeriode>>(it) }
+        ?: emptyList()
+    val startDato = localDate("start_dato")
+    val sluttDato = localDateOrNull("slutt_dato")
+
+    val utdanningslop = stringOrNull("utdanningslop_json")?.let {
+        Json.decodeFromString<UtdanningslopDto>(it)
+    }
+
+    return Gjennomforing(
+        id = uuid("id"),
+        navn = string("navn"),
+        lopenummer = Tiltaksnummer(string("lopenummer")),
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = toGjennomforingStatus(),
+        apentForPamelding = boolean("apent_for_pamelding"),
+        antallPlasser = int("antall_plasser"),
+        avtaleId = uuidOrNull("avtale_id"),
+        avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
+        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
+        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+        beskrivelse = stringOrNull("beskrivelse"),
+        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        deltidsprosent = double("deltidsprosent"),
+        estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
+            Gjennomforing.EstimertVentetid(
+                verdi = int("estimert_ventetid_verdi"),
+                enhet = string("estimert_ventetid_enhet"),
+            )
+        },
+        publisert = boolean("publisert"),
+        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
+        kontaktpersoner = kontaktpersoner,
+        administratorer = administratorer,
+        arrangor = Gjennomforing.ArrangorUnderenhet(
+            id = uuid("arrangor_id"),
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+            slettet = boolean("arrangor_slettet"),
+            kontaktpersoner = arrangorKontaktpersoner,
+        ),
+        tiltakstype = Gjennomforing.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
+        amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
+        utdanningslop = utdanningslop,
+        stengt = stengt,
+        oppmoteSted = stringOrNull("oppmote_sted"),
+        arena = Gjennomforing.ArenaData(
+            tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
+            ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
+                ArenaNavEnhet(
+                    navn = stringOrNull("arena_nav_enhet_navn"),
+                    enhetsnummer = it,
+                )
+            },
+        ),
+    )
+}
+
+private fun Row.toGjennomforingStatus(): GjennomforingStatus {
+    return when (GjennomforingStatusType.valueOf(string("status"))) {
+        GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
+
+        GjennomforingStatusType.AVSLUTTET -> GjennomforingStatus.Avsluttet
+
+        GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
+            tidspunkt = localDateTime("avsluttet_tidspunkt"),
+            array<String>("avbrutt_aarsaker").map<String, AvbrytGjennomforingAarsak> {
+                AvbrytGjennomforingAarsak.valueOf(
+                    it,
+                )
+            },
+            stringOrNull("avbrutt_forklaring"),
+        )
+
+        GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
+            tidspunkt = localDateTime("avsluttet_tidspunkt"),
+            array<String>("avbrutt_aarsaker").map<String, AvbrytGjennomforingAarsak> {
+                AvbrytGjennomforingAarsak.valueOf(
+                    it,
+                )
+            },
+            stringOrNull("avbrutt_forklaring"),
+        )
+    }
 }
