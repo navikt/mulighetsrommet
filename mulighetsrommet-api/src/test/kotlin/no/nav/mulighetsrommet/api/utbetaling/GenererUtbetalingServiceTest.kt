@@ -1033,13 +1033,14 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("innsendt fri utbetaling blir ikke slettet hvis avtalens prismodell endres") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                prismodellDbo = AvtaleFixtures.prismodellDbo(
-                    prismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
-                    satser = listOf(
-                        AvtaltSats(LocalDate.of(2025, 1, 1), 100),
-                    ),
+            val prismodellDbo = AvtaleFixtures.prismodellDbo(
+                prismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
+            )
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodellDbo = prismodellDbo,
             )
 
             val domain = MulighetsrommetTestDomain(
@@ -1068,7 +1069,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             database.run {
-                queries.avtale.upsert(avtale.copy(prismodellDbo = AvtaleFixtures.prismodellDbo(prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK)))
+                queries.avtale.upsertPrismodell(
+                    avtale.id,
+                    prismodellDbo.copy(prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
+                )
             }
 
             service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldHaveSize(0)
@@ -1079,13 +1083,14 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("utbetalinger slettes når prismodell ikke lengre kan genereres av systemet") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                prismodellDbo = AvtaleFixtures.prismodellDbo(
-                    prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                    satser = listOf(
-                        AvtaltSats(LocalDate.of(2025, 1, 1), 100),
-                    ),
+            val prismodellDbo = AvtaleFixtures.prismodellDbo(
+                prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(
+                    AvtaltSats(LocalDate.of(2025, 1, 1), 100),
                 ),
+            )
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                prismodellDbo = prismodellDbo,
             )
 
             MulighetsrommetTestDomain(
@@ -1106,11 +1111,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.avtale.upsert(
-                    avtale.copy(
-                        prismodellDbo = AvtaleFixtures.prismodellDbo(
-                            prismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
-                        ),
+                queries.avtale.upsertPrismodell(
+                    avtale.id,
+                    prismodellDbo.copy(
+                        prismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
                     ),
                 )
             }

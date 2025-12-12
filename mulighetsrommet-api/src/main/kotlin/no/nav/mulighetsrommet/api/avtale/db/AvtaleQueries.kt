@@ -46,13 +46,11 @@ class AvtaleQueries(private val session: Session) {
                 status,
                 opsjon_maks_varighet,
                 avtaletype,
-                prisbetingelser,
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
                 opsjonsmodell,
-                opsjon_custom_opsjonsmodell_navn,
-                prismodell
+                opsjon_custom_opsjonsmodell_navn
             ) values (
                 :id::uuid,
                 :navn,
@@ -64,13 +62,11 @@ class AvtaleQueries(private val session: Session) {
                 :status::avtale_status,
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
-                :prisbetingelser,
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
                 :opsjonsmodell::opsjonsmodell,
-                :opsjonCustomOpsjonsmodellNavn,
-                :prismodell::prismodell
+                :opsjonCustomOpsjonsmodellNavn
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
@@ -81,13 +77,11 @@ class AvtaleQueries(private val session: Session) {
                 status                      = excluded.status,
                 opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
-                prisbetingelser             = excluded.prisbetingelser,
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
                 opsjonsmodell               = excluded.opsjonsmodell,
-                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn,
-                prismodell                  = excluded.prismodell
+                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
         """.trimIndent()
 
         execute(queryOf(query, avtale.toSqlParameters()))
@@ -365,6 +359,20 @@ class AvtaleQueries(private val session: Session) {
         satser: List<AvtaltSats>,
     ) {
         @Language("PostgreSQL")
+        val deleteSatser = """
+            delete from avtale_sats
+            where prismodell_id = ?::uuid
+        """.trimIndent()
+        execute(queryOf(deleteSatser, id))
+
+        @Language("PostgreSQL")
+        val deletePrismodeller = """
+            delete from avtale_prismodell
+            where id = ?::uuid
+        """.trimIndent()
+        execute(queryOf(deletePrismodeller, id))
+
+        @Language("PostgreSQL")
         val query = """
             insert into avtale_prismodell(
                 id,
@@ -376,9 +384,7 @@ class AvtaleQueries(private val session: Session) {
                 :avtale_id::uuid,
                 :prisbetingelser,
                 :prismodell::prismodell
-                ) on conflict (id) do update set
-                prisbetingelser = excluded.prisbetingelser,
-                prismodell_type = excluded.prismodell_type
+                )
         """.trimIndent()
 
         execute(
@@ -392,13 +398,6 @@ class AvtaleQueries(private val session: Session) {
                 ),
             ),
         )
-
-        @Language("PostgreSQL")
-        val deleteSatser = """
-            delete from avtale_sats
-            where avtale_id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deleteSatser, avtaleId))
 
         @Language("PostgreSQL")
         val insertSats = """
@@ -453,8 +452,6 @@ class AvtaleQueries(private val session: Session) {
                                opsjonsmodell,
                                arena_ansvarlig_enhet,
                                avtaletype,
-                               prismodell,
-                               prisbetingelser,
                                opphav)
             values (:id::uuid,
                     :navn,
@@ -467,8 +464,6 @@ class AvtaleQueries(private val session: Session) {
                     :opsjonsmodell::opsjonsmodell,
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
-                    :prismodell::prismodell,
-                    :prisbetingelser,
                     :opphav::opphav)
             on conflict (id) do update set navn                     = excluded.navn,
                                            tiltakstype_id           = excluded.tiltakstype_id,
@@ -480,8 +475,6 @@ class AvtaleQueries(private val session: Session) {
                                            opsjonsmodell            = coalesce(avtale.opsjonsmodell, excluded.opsjonsmodell),
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
-                                           prismodell               = coalesce(avtale.prismodell, excluded.prismodell),
-                                           prisbetingelser          = excluded.prisbetingelser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
         """.trimIndent()
 

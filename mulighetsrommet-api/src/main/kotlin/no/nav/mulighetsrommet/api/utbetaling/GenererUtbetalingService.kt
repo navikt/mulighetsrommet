@@ -333,8 +333,9 @@ class GenererUtbetalingService(
             select gjennomforing.id
             from gjennomforing
                 join avtale on gjennomforing.avtale_id = avtale.id
+                join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
             where gjennomforing.status != 'AVLYST'
-                and avtale.prismodell = :prismodell::prismodell
+                and avtale_prismodell.prismodell_type = :prismodell::prismodell
                 and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()
