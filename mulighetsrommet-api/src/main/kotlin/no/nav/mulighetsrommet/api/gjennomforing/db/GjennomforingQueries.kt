@@ -29,21 +29,41 @@ import java.time.LocalDateTime
 import java.util.*
 
 class GjennomforingQueries(private val session: Session) {
-    fun upsert(gjennomforing: GjennomforingDbo) = withTransaction(session) {
+    fun upsert(gjennomforing: GjennomforingDbo) {
         @Language("PostgreSQL")
         val query = """
-            insert into gjennomforing (
-                id,
+            insert into gjennomforing (id, tiltakstype_id, arrangor_id)
+            values (:id::uuid, :tiltakstype_id::uuid, :arrangor_id::uuid)
+            on conflict (id) do update set
+                tiltakstype_id = excluded.tiltakstype_id,
+                arrangor_id = excluded.arrangor_id
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to gjennomforing.id,
+            "tiltakstype_id" to gjennomforing.tiltakstypeId,
+            "arrangor_id" to gjennomforing.arrangorId,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun upsertGruppetiltak(gjennomforing: GjennomforingGruppeDbo) = withTransaction(session) {
+        upsert(GjennomforingDbo(gjennomforing.id, gjennomforing.tiltakstypeId, gjennomforing.arrangorId))
+
+        setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into gjennomforing_gruppetiltak (
+                gjennomforing_id,
                 navn,
-                tiltakstype_id,
-                arrangor_id,
                 start_dato,
                 slutt_dato,
                 status,
                 antall_plasser,
                 avtale_id,
                 oppstart,
-                opphav,
                 oppmote_sted,
                 faneinnhold,
                 beskrivelse,
@@ -53,17 +73,14 @@ class GjennomforingQueries(private val session: Session) {
                 tilgjengelig_for_arrangor_dato
             )
             values (
-                :id::uuid,
+                :gjennomforing_id::uuid,
                 :navn,
-                :tiltakstype_id::uuid,
-                :arrangor_id,
                 :start_dato,
                 :slutt_dato,
                 :status::gjennomforing_status,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::gjennomforing_oppstartstype,
-                :opphav::opphav,
                 :oppmote_sted,
                 :faneinnhold::jsonb,
                 :beskrivelse,
@@ -72,24 +89,21 @@ class GjennomforingQueries(private val session: Session) {
                 :estimert_ventetid_enhet,
                 :tilgjengelig_for_arrangor_fra_dato
             )
-            on conflict (id) do update set
+            on conflict (gjennomforing_id) do update set
                 navn                               = excluded.navn,
-                tiltakstype_id                     = excluded.tiltakstype_id,
-                arrangor_id                        = excluded.arrangor_id,
                 start_dato                         = excluded.start_dato,
                 slutt_dato                         = excluded.slutt_dato,
                 status                             = excluded.status,
                 antall_plasser                     = excluded.antall_plasser,
                 avtale_id                          = excluded.avtale_id,
                 oppstart                           = excluded.oppstart,
-                opphav                             = coalesce(gjennomforing.opphav, excluded.opphav),
                 oppmote_sted                       = excluded.oppmote_sted,
                 faneinnhold                        = excluded.faneinnhold,
                 beskrivelse                        = excluded.beskrivelse,
                 deltidsprosent                     = excluded.deltidsprosent,
                 estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                 estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_dato = excluded.tilgjengelig_for_arrangor_dato
+                tilgjengelig_for_arrangor_dato     = excluded.tilgjengelig_for_arrangor_dato
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -168,7 +182,24 @@ class GjennomforingQueries(private val session: Session) {
             values(:gjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
-        execute(queryOf(query, gjennomforing.toSqlParameters()))
+        val params = mapOf(
+            "gjennomforing_id" to gjennomforing.id,
+            "navn" to gjennomforing.navn,
+            "start_dato" to gjennomforing.startDato,
+            "slutt_dato" to gjennomforing.sluttDato,
+            "status" to gjennomforing.status.name,
+            "antall_plasser" to gjennomforing.antallPlasser,
+            "avtale_id" to gjennomforing.avtaleId,
+            "oppstart" to gjennomforing.oppstart.name,
+            "oppmote_sted" to gjennomforing.oppmoteSted,
+            "faneinnhold" to gjennomforing.faneinnhold?.let { Json.encodeToString<Faneinnhold>(it) },
+            "beskrivelse" to gjennomforing.beskrivelse,
+            "deltidsprosent" to gjennomforing.deltidsprosent,
+            "estimert_ventetid_verdi" to gjennomforing.estimertVentetidVerdi,
+            "estimert_ventetid_enhet" to gjennomforing.estimertVentetidEnhet,
+            "tilgjengelig_for_arrangor_fra_dato" to gjennomforing.tilgjengeligForArrangorDato,
+        )
+        execute(queryOf(query, params))
 
         batchPreparedNamedStatement(
             upsertAdministrator,
@@ -251,33 +282,39 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?) {
+    fun setArenaData(dbo: GjennomforingArenaDataDbo) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
             set arena_tiltaksnummer = :arena_tiltaksnummer,
-                arena_ansvarlig_enhet = :arena_ansvarlig_enhet
+                arena_ansvarlig_enhet = :arena_ansvarlig_enhet,
+                arena_navn = :arena_navn,
+                arena_start_dato = :arena_start_dato,
+                arena_slutt_dato = :arena_slutt_dato,
+                arena_status = :arena_status::gjennomforing_status
             where id = :id::uuid
         """.trimIndent()
-
         val params = mapOf(
-            "id" to id,
-            "arena_tiltaksnummer" to tiltaksnummer,
-            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+            "id" to dbo.id,
+            "arena_tiltaksnummer" to dbo.tiltaksnummer?.value,
+            "arena_ansvarlig_enhet" to dbo.arenaAnsvarligEnhet,
+            "arena_navn" to dbo.navn,
+            "arena_start_dato" to dbo.startDato,
+            "arena_slutt_dato" to dbo.sluttDato,
+            "arena_status" to dbo.status?.name,
         )
-
         session.execute(queryOf(query, params))
     }
 
-    fun getOrError(id: UUID): Gjennomforing {
-        return checkNotNull(get(id)) { "Gjennomføring med id $id finnes ikke" }
+    fun getGruppetiltakOrError(id: UUID): Gjennomforing {
+        return checkNotNull(getGruppetiltak(id)) { "Gjennomføring med id $id finnes ikke" }
     }
 
-    fun get(id: UUID): Gjennomforing? {
+    fun getGruppetiltak(id: UUID): Gjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing
+            from view_gjennomforing_gruppetiltak
             where id = ?::uuid
         """.trimIndent()
 
@@ -288,9 +325,9 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select avtale.prismodell
-            from gjennomforing
-            join avtale on gjennomforing.avtale_id = avtale.id
-            where gjennomforing.id = ?::uuid
+            from gjennomforing_gruppetiltak
+                join avtale on avtale_id = avtale.id
+            where gjennomforing_id = ?::uuid
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { row ->
@@ -298,7 +335,7 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun getAll(
+    fun getAllGruppetiltak(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
         navEnheter: List<NavEnhetNummer> = emptyList(),
@@ -369,7 +406,7 @@ class GjennomforingQueries(private val session: Session) {
                    arrangor_organisasjonsnummer,
                    arrangor_navn,
                    count(*) over () as total_count
-            from view_gjennomforing
+            from view_gjennomforing_gruppetiltak
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
@@ -398,29 +435,78 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_gjennomforing
+            from view_gjennomforing_gruppetiltak
             where avtale_id = ?
         """.trimIndent()
 
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingDto() }
     }
 
-    fun delete(id: UUID): Int {
+    fun getEnkeltplassOrError(id: UUID): Enkeltplass {
+        return checkNotNull(getEnkeltplass(id)) { "Enkeltplass med id=$id finnes ikke" }
+    }
+
+    fun getEnkeltplass(id: UUID): Enkeltplass? {
         @Language("PostgreSQL")
         val query = """
-            delete from gjennomforing
+            select *
+            from view_gjennomforing_enkeltplass
             where id = ?::uuid
         """.trimIndent()
 
-        return session.update(queryOf(query, id))
+        return session.single(queryOf(query, id)) { it.toEnkeltplass() }
+    }
+
+    fun getAllEnkeltplass(
+        pagination: Pagination = Pagination.all(),
+        tiltakstyper: List<UUID> = emptyList(),
+    ): PaginatedResult<Enkeltplass> {
+        @Language("PostgreSQL")
+        val query = """
+            select *, count(*) over () as total_count
+            from view_gjennomforing_enkeltplass
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
+            order by id
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { session.createUuidArray(it) },
+        )
+
+        return queryOf(query, parameters + pagination.parameters)
+            .mapPaginated { it.toEnkeltplass() }
+            .runWithSession(session)
+    }
+
+    fun setFreeTextSearch(id: UUID, content: List<String>) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set fts = to_tsvector('norwegian',
+                                  concat_ws(' ',
+                                            lopenummer,
+                                            regexp_replace(lopenummer, '/', ' '),
+                                            coalesce(arena_tiltaksnummer, ''),
+                                            :content
+                                  )
+                      )
+            where id = :id
+        """.trimIndent()
+        val params = mapOf(
+            "id" to id,
+            "content" to content.joinToString(" "),
+        )
+        session.execute(queryOf(query, params))
     }
 
     fun setPublisert(id: UUID, publisert: Boolean): Int {
         @Language("PostgreSQL")
         val query = """
-           update gjennomforing
+           update gjennomforing_gruppetiltak
            set publisert = ?
-           where id = ?::uuid
+           where gjennomforing_id = ?::uuid
         """.trimIndent()
 
         return session.update(queryOf(query, publisert, id))
@@ -429,9 +515,9 @@ class GjennomforingQueries(private val session: Session) {
     fun setApentForPamelding(id: UUID, apentForPamelding: Boolean): Int {
         @Language("PostgreSQL")
         val query = """
-           update gjennomforing
+           update gjennomforing_gruppetiltak
            set apent_for_pamelding = ?
-           where id = ?::uuid
+           where gjennomforing_id = ?::uuid
         """.trimIndent()
 
         return session.update(queryOf(query, apentForPamelding, id))
@@ -440,9 +526,9 @@ class GjennomforingQueries(private val session: Session) {
     fun setTilgjengeligForArrangorDato(id: UUID, date: LocalDate): Int {
         @Language("PostgreSQL")
         val query = """
-            update gjennomforing
+            update gjennomforing_gruppetiltak
             set tilgjengelig_for_arrangor_dato = ?
-            where id = ?::uuid
+            where gjennomforing_id = ?::uuid
         """.trimIndent()
 
         return session.update(queryOf(query, date, id))
@@ -457,12 +543,12 @@ class GjennomforingQueries(private val session: Session) {
     ): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
-            update gjennomforing set
-                status = :status::gjennomforing_status,
+            update gjennomforing_gruppetiltak
+            set status = :status::gjennomforing_status,
                 avsluttet_tidspunkt = :tidspunkt,
                 avbrutt_aarsaker = :aarsaker,
                 avbrutt_forklaring = :forklaring
-            where id = :id::uuid
+            where gjennomforing_id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
@@ -550,26 +636,15 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    private fun GjennomforingDbo.toSqlParameters() = mapOf(
-        "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
-        "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "arrangor_id" to arrangorId,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "status" to status.name,
-        "antall_plasser" to antallPlasser,
-        "avtale_id" to avtaleId,
-        "oppstart" to oppstart.name,
-        "oppmote_sted" to oppmoteSted,
-        "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
-        "beskrivelse" to beskrivelse,
-        "deltidsprosent" to deltidsprosent,
-        "estimert_ventetid_verdi" to estimertVentetidVerdi,
-        "estimert_ventetid_enhet" to estimertVentetidEnhet,
-        "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
-    )
+    fun delete(id: UUID): Int {
+        @Language("PostgreSQL")
+        val query = """
+            delete from gjennomforing
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.update(queryOf(query, id))
+    }
 }
 
 private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
@@ -707,4 +782,35 @@ private fun Row.toGjennomforingStatus(): GjennomforingStatus {
             stringOrNull("avbrutt_forklaring"),
         )
     }
+}
+
+private fun Row.toEnkeltplass(): Enkeltplass {
+    val arena = stringOrNull("arena_tiltaksnummer")?.let { tiltaksnummer ->
+        Enkeltplass.ArenaData(
+            tiltaksnummer = Tiltaksnummer(tiltaksnummer),
+            navn = stringOrNull("arena_navn"),
+            startDato = localDateOrNull("arena_start_dato"),
+            sluttDato = localDateOrNull("arena_slutt_dato"),
+            status = stringOrNull("arena_status")?.let { GjennomforingStatusType.valueOf(it) },
+            ansvarligNavEnhet = stringOrNull("arena_ansvarlig_enhet"),
+        )
+    }
+
+    return Enkeltplass(
+        id = uuid("id"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
+        arrangor = Enkeltplass.Arrangor(
+            id = uuid("arrangor_id"),
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            navn = string("arrangor_navn"),
+            slettet = boolean("arrangor_slettet"),
+        ),
+        tiltakstype = Enkeltplass.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        arena = arena,
+    )
 }

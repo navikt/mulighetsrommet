@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
@@ -99,25 +99,28 @@ class ArenaAdapterService(
 
     private fun upsertGruppetiltak(
         tiltakstype: TiltakstypeDto,
-        arenaGjennomforing: ArenaGjennomforingDbo,
+        gjennomforing: ArenaGjennomforingDbo,
     ): Unit = db.transaction {
         require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
             "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = queries.gjennomforing.getOrError(arenaGjennomforing.id)
-        if (!hasRelevantChanges(arenaGjennomforing, previous)) {
+        val previous = queries.gjennomforing.getGruppetiltakOrError(gjennomforing.id)
+        if (!hasRelevantChanges(gjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
             return@transaction
         }
 
-        queries.gjennomforing.updateArenaData(
-            arenaGjennomforing.id,
-            arenaGjennomforing.tiltaksnummer,
-            arenaGjennomforing.arenaAnsvarligEnhet,
+        queries.gjennomforing.setArenaData(
+            GjennomforingArenaDataDbo(
+                id = gjennomforing.id,
+                tiltaksnummer = Tiltaksnummer(gjennomforing.tiltaksnummer),
+                arenaAnsvarligEnhet = gjennomforing.arenaAnsvarligEnhet,
+            ),
         )
+        queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
 
-        val next = queries.gjennomforing.getOrError(arenaGjennomforing.id)
+        val next = queries.gjennomforing.getGruppetiltakOrError(gjennomforing.id)
         if (previous.arena?.tiltaksnummer == null) {
             logTiltaksnummerHentetFraArena(next)
         } else {
@@ -137,10 +140,10 @@ class ArenaAdapterService(
             "Enkeltplasser er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
         }
 
-        val previous = queries.enkeltplass.get(arenaGjennomforing.id)
+        val previous = queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id)
         if (previous == null) {
-            queries.enkeltplass.upsert(
-                EnkeltplassDbo(
+            queries.gjennomforing.upsert(
+                GjennomforingDbo(
                     id = arenaGjennomforing.id,
                     tiltakstypeId = tiltakstype.id,
                     arrangorId = arrangor.id,
@@ -148,7 +151,7 @@ class ArenaAdapterService(
             )
         }
 
-        val arenadata = EnkeltplassArenaDataDbo(
+        val arenadata = GjennomforingArenaDataDbo(
             id = arenaGjennomforing.id,
             tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
             navn = arenaGjennomforing.navn,
@@ -163,9 +166,9 @@ class ArenaAdapterService(
             arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
         )
         if (previous == null || hasRelevantChanges(arenadata, previous)) {
-            queries.enkeltplass.setArenaData(arenadata)
+            queries.gjennomforing.setArenaData(arenadata)
 
-            val next = queries.enkeltplass.getOrError(arenaGjennomforing.id)
+            val next = queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id)
             publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
         }
     }
@@ -187,10 +190,10 @@ class ArenaAdapterService(
     }
 
     private fun hasRelevantChanges(
-        arenadata: EnkeltplassArenaDataDbo,
+        arenadata: GjennomforingArenaDataDbo,
         current: Enkeltplass,
     ): Boolean {
-        return arenadata != EnkeltplassArenaDataDbo(
+        return arenadata != GjennomforingArenaDataDbo(
             id = current.id,
             tiltaksnummer = current.arena?.tiltaksnummer,
             navn = current.arena?.navn,
