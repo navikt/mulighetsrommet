@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.TILSAGN_STATUS_RELEVANT_FOR_ARRA
 import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.*
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -235,7 +234,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                             prismodeller = prismodeller,
                         )
                         .items
-                        .map { it.toArrangorflateGjennomforing() }
+                        .map { ArrangorflateGjennomforing.fromGjennomforingKompakt(it) }
                 }
                 call.respond(gjennomforinger)
             }
@@ -269,7 +268,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
                 }
 
-                call.respond(gjennomforing.toGjennomforingKompakt().toArrangorflateGjennomforing())
+                call.respond(ArrangorflateGjennomforing.fromGjennomforing(gjennomforing))
             }
         }
 
@@ -786,17 +785,6 @@ sealed class DeltakerAdvarsel {
 @Serializable
 data class ScanVedleggRequest(
     val vedlegg: List<Vedlegg>,
-)
-
-private fun GjennomforingKompakt.toArrangorflateGjennomforing() = ArrangorflateGjennomforing(
-    id = id,
-    navn = navn,
-    tiltakstype = ArrangorflateTiltakstype(
-        navn = tiltakstype.navn,
-        tiltakskode = tiltakstype.tiltakskode,
-    ),
-    startDato = startDato,
-    sluttDato = sluttDato,
 )
 
 @Serializable
