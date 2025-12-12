@@ -60,16 +60,18 @@ class ArenaAdapterService(
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? = db.session {
         val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
-        if (Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode)) {
-            return upsertEgenRegiTiltak(arenaGjennomforing)
-        }
+        when {
+            Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode) ->
+                return upsertEgenRegiTiltak(arenaGjennomforing)
 
-        if (Tiltakskoder.isEnkeltplassTiltak(arenaGjennomforing.arenaKode)) {
-            upsertEnkeltplass(arenaGjennomforing, arrangor)
-        } else {
-            upsertGruppetiltak(arenaGjennomforing)
-        }
+            Tiltakskoder.isEnkeltplassTiltak(arenaGjennomforing.arenaKode) ->
+                upsertEnkeltplass(arenaGjennomforing, arrangor)
 
+            Tiltakskoder.isGruppetiltak(arenaGjennomforing.arenaKode) ->
+                upsertGruppetiltak(arenaGjennomforing)
+
+            else -> Unit
+        }
         return null
     }
 
