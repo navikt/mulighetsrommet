@@ -38,7 +38,7 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
   } = useFormContext<AvtaleFormValues>();
 
   const { fields, append, remove } = useFieldArray({
-    name: "satser",
+    name: "prismodell.satser",
     control,
   });
 
@@ -68,8 +68,8 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
               label={avtaletekster.prismodell.pris.label}
               size="small"
               type="number"
-              error={errors.satser?.[index]?.pris?.message}
-              {...register(`satser.${index}.pris`, {
+              error={errors.prismodell?.satser?.[index]?.pris?.message}
+              {...register(`prismodell.satser.${index}.pris`, {
                 valueAsNumber: true,
               })}
             />
@@ -77,9 +77,9 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={fromDate}
               toDate={toDate}
-              onChange={(val) => setValue(`satser.${index}.gjelderFra`, val)}
-              error={errors.satser?.[index]?.gjelderFra?.message}
-              defaultSelected={getValues(`satser.${index}.gjelderFra`)}
+              onChange={(val) => setValue(`prismodell.satser.${index}.gjelderFra`, val)}
+              error={errors.prismodell?.satser?.[index]?.gjelderFra?.message}
+              defaultSelected={getValues(`prismodell.satser.${index}.gjelderFra`)}
             />
           </HStack>
           <Spacer />
@@ -119,9 +119,9 @@ function PrisbetingelserTextArea() {
   return (
     <Textarea
       size="small"
-      error={errors.prisbetingelser?.message}
+      error={errors.prismodell?.prisbetingelser?.message}
       label={avtaletekster.prisOgBetalingLabel}
-      {...register("prisbetingelser")}
+      {...register("prismodell.prisbetingelser")}
     />
   );
 }

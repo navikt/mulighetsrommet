@@ -46,10 +46,11 @@ select gjennomforing.id,
        arrangor_kontaktpersoner_json,
        utdanningslop_json,
        stengt_perioder_json,
-       avtale.prismodell
+       avtale_prismodell.prismodell_type   as prismodell
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join avtale on avtale.id = gjennomforing.avtale_id
+        left join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(

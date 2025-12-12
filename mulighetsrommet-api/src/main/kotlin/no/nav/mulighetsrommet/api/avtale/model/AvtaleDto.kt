@@ -46,6 +46,8 @@ data class AvtaleDto(
 
     @Serializable
     data class Prismodell(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
         val type: PrismodellType,
         val satser: List<AvtaltSatsDto>?,
         val prisbetingelser: String?,

@@ -1,9 +1,15 @@
-import { AvtaleFormValues } from "@/schemas/avtale";
-import { getUtdanningslop } from "@/schemas/avtaledetaljer";
+import {
+  AvtaleFormValues,
+  PersonvernValues,
+  PrismodellValues,
+  VeilederinformasjonValues,
+} from "@/schemas/avtale";
+import { AvtaleDetaljerValues, getUtdanningslop } from "@/schemas/avtaledetaljer";
 import {
   AvtaleRequest,
   DetaljerRequest,
   PersonvernRequest,
+  PrismodellRequest,
   VeilederinfoRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
@@ -13,27 +19,36 @@ export interface RequestValues {
   id?: string;
 }
 
-export function toAvtaleRequest({ data, id }: RequestValues): AvtaleRequest {
+export function toAvtaleRequest({
+  data,
+  id,
+}: {
+  data: AvtaleFormValues;
+  id?: string;
+}): AvtaleRequest {
   return {
     id: id ?? v4(),
     detaljer: toDetaljerRequest({ data: data }),
     veilederinformasjon: toVeilederinfoRequest({ data: data }),
     personvern: toPersonvernRequest({ data: data }),
-    prismodell: {
-      type: data.prismodell,
-      prisbetingelser: data.prisbetingelser || null,
-      satser: data.satser,
-    },
+    prismodell: toPrismodellRequest({ data: data }),
   };
 }
 
-export function toPersonvernRequest({ data }: RequestValues): PersonvernRequest {
+export function toPrismodellRequest({ data }: { data: PrismodellValues }): PrismodellRequest {
+  return {
+    ...data.prismodell,
+    id: data.prismodell.id ?? v4(),
+  };
+}
+
+export function toPersonvernRequest({ data }: { data: PersonvernValues }): PersonvernRequest {
   return {
     ...data.personvern,
   };
 }
 
-export function toDetaljerRequest({ data }: RequestValues): DetaljerRequest {
+export function toDetaljerRequest({ data }: { data: AvtaleDetaljerValues }): DetaljerRequest {
   const detaljer = data.detaljer;
   return {
     ...detaljer,
@@ -50,7 +65,11 @@ export function toDetaljerRequest({ data }: RequestValues): DetaljerRequest {
   };
 }
 
-export function toVeilederinfoRequest({ data }: RequestValues): VeilederinfoRequest {
+export function toVeilederinfoRequest({
+  data,
+}: {
+  data: VeilederinformasjonValues;
+}): VeilederinfoRequest {
   const veilederinformasjon = data.veilederinformasjon;
   return {
     beskrivelse: veilederinformasjon.beskrivelse,

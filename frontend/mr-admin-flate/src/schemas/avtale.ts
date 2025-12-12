@@ -13,16 +13,19 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
-  prisbetingelser: z.string().nullable(),
-  prismodell: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
-  satser: z.array(
-    z.object({
-      gjelderFra: z.string().nullable(),
-      gjelderTil: z.string().nullable(),
-      pris: z.number().nullable(),
-      valuta: z.string(),
-    }),
-  ),
+  prismodell: z.object({
+    id: z.uuid().optional(),
+    prisbetingelser: z.string().nullable(),
+    type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
+    satser: z.array(
+      z.object({
+        gjelderFra: z.string().nullable(),
+        gjelderTil: z.string().nullable(),
+        pris: z.number().nullable(),
+        valuta: z.string(),
+      }),
+    ),
+  }),
 });
 
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
@@ -47,6 +50,8 @@ export const PersonopplysningerSchema = z.object({
     personopplysninger: z.enum(Personopplysning).array(),
   }),
 });
+
+export type PersonvernValues = z.infer<typeof PersonopplysningerSchema>;
 
 export const avtaleFormSchema = avtaleDetaljerSchema
   .extend(PrismodellSchema.shape)
@@ -104,12 +109,14 @@ export function defaultAvtaleData(
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger ?? [],
     },
-    // TODO: fiks typer
-    prismodell: avtale?.prismodell?.type as PrismodellType | undefined,
-    satser: avtale?.prismodell?.satser ?? [],
-    prisbetingelser:
-      avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-        ? (avtale.prismodell.prisbetingelser ?? null)
-        : null,
+    prismodell: {
+      id: avtale?.prismodell?.id,
+      type: avtale?.prismodell?.type as PrismodellType | undefined,
+      satser: avtale?.prismodell?.satser ?? [],
+      prisbetingelser:
+        avtale?.prismodell && "prisbetingelser" in avtale.prismodell
+          ? (avtale.prismodell.prisbetingelser ?? null)
+          : null,
+    },
   };
 }

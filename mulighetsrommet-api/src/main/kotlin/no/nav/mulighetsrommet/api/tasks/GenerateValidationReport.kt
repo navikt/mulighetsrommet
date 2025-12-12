@@ -123,13 +123,12 @@ class GenerateValidationReport(
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
                 val request = dto.toAvtaleRequest()
 
-                val ctx = avtaleService
-                    .getValidatorCtx(
-                        request.id,
-                        request.detaljer,
-                        request.veilederinformasjon.navEnheter,
-                        dto,
-                    )
+                val ctx = avtaleService.getValidatorCtx(
+                    request.id,
+                    request.detaljer,
+                    request.veilederinformasjon.navEnheter,
+                    dto,
+                )
                     .getOrElse {
                         throw Exception("Klarte ikke hente ctx for validering: $it")
                     }
@@ -248,6 +247,7 @@ fun Avtale.toAvtaleRequest() = AvtaleRequest(
         personvernBekreftet = personvernBekreftet,
     ),
     prismodell = PrismodellRequest(
+        id = prismodell.id,
         type = prismodell.type,
         satser = prismodell.satser().map {
             AvtaltSatsRequest(

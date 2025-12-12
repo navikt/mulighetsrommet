@@ -65,6 +65,7 @@ class GjennomforingValidatorTest : FunSpec({
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
         prismodell = Prismodell.AnnenAvtaltPris(
+            id = UUID.randomUUID(),
             prisbetingelser = null,
         ),
         arenaAnsvarligEnhet = null,

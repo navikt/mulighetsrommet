@@ -9,6 +9,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -80,7 +81,11 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
                 .value("avtaletype").isEqualTo(avtale.avtaletype.name)
-                .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
+
+            database.assertTable("avtale_prismodell").row().value("avtale_id").isEqualTo(avtale.id)
+                .value("prismodell_type").isEqualTo(
+                    PrismodellType.ANNEN_AVTALT_PRIS.name,
+                ).value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
         }
     }
 

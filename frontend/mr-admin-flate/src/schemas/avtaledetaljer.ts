@@ -1,6 +1,5 @@
 import { AmoKategoriseringSchema } from "@/components/redaksjoneltInnhold/AmoKategoriseringSchema";
 import z from "zod";
-import { AvtaleFormValues } from "./avtale";
 import {
   Tiltakskode,
   Avtaletype,
@@ -119,7 +118,7 @@ export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
 /**
  * Så lenge det mangler validering av utdanningsløp i frontend så trenger vi litt ekstra sanitering av data
  */
-export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | null {
+export function getUtdanningslop(data: AvtaleDetaljerValues): UtdanningslopDbo | null {
   if (data.detaljer.tiltakskode !== Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
     return null;
   }
@@ -130,3 +129,5 @@ export function getUtdanningslop(data: AvtaleFormValues): UtdanningslopDbo | nul
 
   return data.detaljer.utdanningslop;
 }
+
+export type AvtaleDetaljerValues = z.infer<typeof avtaleDetaljerFormSchema>;

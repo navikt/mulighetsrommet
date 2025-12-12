@@ -2,13 +2,18 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.util.UUID
 
 @Serializable
 sealed class Prismodell {
+    abstract val id: UUID
     abstract val type: PrismodellType
 
     @Serializable
     data class AnnenAvtaltPris(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         val prisbetingelser: String?,
     ) : Prismodell() {
         @Transient
@@ -16,13 +21,18 @@ sealed class Prismodell {
     }
 
     @Serializable
-    data object ForhandsgodkjentPrisPerManedsverk : Prismodell() {
+    data class ForhandsgodkjentPrisPerManedsverk(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+    ) : Prismodell() {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
     }
 
     @Serializable
     data class AvtaltPrisPerManedsverk(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -32,6 +42,8 @@ sealed class Prismodell {
 
     @Serializable
     data class AvtaltPrisPerUkesverk(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -41,6 +53,8 @@ sealed class Prismodell {
 
     @Serializable
     data class AvtaltPrisPerHeleUkesverk(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {
@@ -50,6 +64,8 @@ sealed class Prismodell {
 
     @Serializable
     data class AvtaltPrisPerTimeOppfolgingPerDeltaker(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
     ) : Prismodell() {

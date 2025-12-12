@@ -55,7 +55,8 @@ object AvtaleDboMapper {
         ),
         prismodellDbo =
         PrismodellDbo(
-            prismodellType = avtale.prismodell.type,
+            id = avtale.prismodell.id,
+            type = avtale.prismodell.type,
             prisbetingelser = avtale.prismodell.prisbetingelser(),
             satser = avtale.prismodell.satser(),
         ),
@@ -101,7 +102,8 @@ object AvtaleDboMapper {
             personvernBekreftet = dbo.personvernDbo.personvernBekreftet,
         ),
         prismodell = PrismodellRequest(
-            type = dbo.prismodellDbo.prismodellType,
+            id = dbo.prismodellDbo.id,
+            type = dbo.prismodellDbo.type,
             prisbetingelser = dbo.prismodellDbo.prisbetingelser,
             satser = dbo.prismodellDbo.satser.map {
                 AvtaltSatsRequest(
@@ -120,7 +122,7 @@ fun Prismodell.prisbetingelser(): String? = when (this) {
     is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
     is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-    Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
+    is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
 }
 
 fun Prismodell.satser(): List<AvtaltSats> = when (this) {
