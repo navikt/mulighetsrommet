@@ -80,7 +80,6 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
-        val tiltakstypeMapping = entities.getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode).bind()
         val avtaleMapping = tiltaksgjennomforing.avtaleId?.let {
             entities.getMapping(ArenaTable.AvtaleInfo, it.toString()).bind()
         }
@@ -96,7 +95,6 @@ class TiltakgjennomforingEventProcessor(
 
         if (erTiltakRelevantForTiltaksadministrasjon(data)) {
             val dbo = tiltaksgjennomforing.toDbo(
-                tiltakstypeId = tiltakstypeMapping.entityId,
                 sak = sak,
                 virksomhetsnummer = virksomhetsnummer,
                 avtaleId = avtaleMapping?.entityId,
@@ -213,11 +211,11 @@ class TiltakgjennomforingEventProcessor(
             )
         }.mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 
-    private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) = ArenaGjennomforingDbo(
+    private fun Tiltaksgjennomforing.toDbo(sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) = ArenaGjennomforingDbo(
         id = id,
         sanityId = sanityId,
         navn = navn,
-        tiltakstypeId = tiltakstypeId,
+        arenaKode = tiltakskode,
         tiltaksnummer = "${sak.aar}#${sak.lopenummer}",
         arrangorOrganisasjonsnummer = virksomhetsnummer,
         startDato = fraDato.toLocalDate(),

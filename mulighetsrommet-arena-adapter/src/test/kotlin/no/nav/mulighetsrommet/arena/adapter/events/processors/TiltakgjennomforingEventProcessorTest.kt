@@ -364,7 +364,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
                     decodeRequestBody<ArenaGjennomforingDbo>().apply {
                         id shouldBe mapping.entityId
-                        tiltakstypeId shouldBe tiltakstype.id
+                        arenaKode shouldBe tiltakstype.tiltakskode
                         tiltaksnummer shouldBe "2022#123"
                         arrangorOrganisasjonsnummer shouldBe "123456"
                         startDato shouldBe LocalDate.of(2022, 11, 11)

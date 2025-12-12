@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Map
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
@@ -59,21 +58,20 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? = db.session {
-        val tiltakstype = queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
-            ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
-
         val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
-        if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
-            return upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
-        }
+        when {
+            Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode) ->
+                return upsertEgenRegiTiltak(arenaGjennomforing)
 
-        if (Tiltakskoder.isEnkeltplassTiltak(tiltakstype.arenaKode)) {
-            upsertEnkeltplass(tiltakstype, arenaGjennomforing, arrangor)
-        } else {
-            upsertGruppetiltak(tiltakstype, arenaGjennomforing)
-        }
+            Tiltakskoder.isEnkeltplassTiltak(arenaGjennomforing.arenaKode) ->
+                upsertEnkeltplass(arenaGjennomforing, arrangor)
 
+            Tiltakskoder.isGruppetiltak(arenaGjennomforing.arenaKode) ->
+                upsertGruppetiltak(arenaGjennomforing)
+
+            else -> Unit
+        }
         return null
     }
 
@@ -82,12 +80,16 @@ class ArenaAdapterService(
     }
 
     private suspend fun upsertEgenRegiTiltak(
-        tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaGjennomforingDbo,
     ): UUID? {
-        require(Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
-            "Gjennomføring for tiltakstype ${tiltakstype.arenaKode} skal ikke skrives til Sanity"
+        require(Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode)) {
+            "Gjennomføring for tiltakstype ${arenaGjennomforing.arenaKode} skal ikke skrives til Sanity"
         }
+
+        val tiltakstype = db.session {
+            val tiltakskoder = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
+            tiltakskoder.singleOrNull()
+        } ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
         val sluttDato = arenaGjennomforing.sluttDato
         return if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
@@ -98,13 +100,8 @@ class ArenaAdapterService(
     }
 
     private fun upsertGruppetiltak(
-        tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaGjennomforingDbo,
     ): Unit = db.transaction {
-        require(Tiltakskoder.isGruppetiltak(tiltakstype.arenaKode)) {
-            "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
-        }
-
         val previous = queries.gjennomforing.getOrError(arenaGjennomforing.id)
         if (!hasRelevantChanges(arenaGjennomforing, previous)) {
             logger.info("Gjennomføring hadde ingen endringer")
@@ -129,16 +126,26 @@ class ArenaAdapterService(
     }
 
     private fun upsertEnkeltplass(
-        tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaGjennomforingDbo,
         arrangor: ArrangorDto,
     ): Unit = db.transaction {
-        require(Tiltakskoder.isEnkeltplassTiltak(tiltakstype.arenaKode)) {
-            "Enkeltplasser er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
+        require(Tiltakskoder.isEnkeltplassTiltak(arenaGjennomforing.arenaKode)) {
+            "Enkeltplasser er ikke støttet for tiltakstype ${arenaGjennomforing.arenaKode}"
         }
 
+        val tiltakstyper = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
+        if (tiltakstyper.isEmpty()) {
+            throw IllegalArgumentException("Fant ikke tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+        }
         val previous = queries.enkeltplass.get(arenaGjennomforing.id)
         if (previous == null) {
+            val arenaTiltakstyper = tiltakstyper.filter { tiltaksTypeDto ->
+                tiltaksTypeDto.tiltakskode?.let {
+                    Tiltakskoder.erStottetIArena(it)
+                } ?: false
+            }.toSet()
+            val tiltakstype = tiltakstyper.singleOrNull()
+                ?: throw IllegalArgumentException("Flere tiltakstyper for arenaKode=${arenaGjennomforing.arenaKode} har ulik tiltakskode: $arenaTiltakstyper. Kan ikke bestemme hvilken som skal brukes for enkeltplass.")
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,

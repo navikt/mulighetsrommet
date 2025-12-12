@@ -81,7 +81,7 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto? = with(session) {
+    fun getByArenaTiltakskode(arenaTiltakskode: String): List<TiltakstypeDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -89,7 +89,7 @@ class TiltakstypeQueries(private val session: Session) {
             where arena_kode = ?
         """.trimIndent()
 
-        return single(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
+        return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstypeDto() }
     }
 
     fun getBySanityId(sanityId: UUID): TiltakstypeDto = with(session) {

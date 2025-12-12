@@ -31,6 +31,10 @@ object Avtaletyper {
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.STUDIESPESIALISERING,
         -> listOf(
             Avtaletype.RAMMEAVTALE,
             Avtaletype.AVTALE,
@@ -40,6 +44,7 @@ object Avtaletyper {
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.HOYERE_UTDANNING,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         -> listOf()
     }
 }

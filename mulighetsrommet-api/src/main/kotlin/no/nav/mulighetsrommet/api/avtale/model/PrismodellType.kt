@@ -61,6 +61,9 @@ object Prismodeller {
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.STUDIESPESIALISERING,
         -> listOf(
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
@@ -72,6 +75,8 @@ object Prismodeller {
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.HOYERE_UTDANNING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         -> listOf()
     }
 }
