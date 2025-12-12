@@ -56,7 +56,7 @@ object AvtaleDboMapper {
         prismodellDbo =
         PrismodellDbo(
             id = avtale.prismodell.id,
-            prismodellType = avtale.prismodell.type,
+            type = avtale.prismodell.type,
             prisbetingelser = avtale.prismodell.prisbetingelser(),
             satser = avtale.prismodell.satser(),
         ),
@@ -103,7 +103,7 @@ object AvtaleDboMapper {
         ),
         prismodell = PrismodellRequest(
             id = dbo.prismodellDbo.id,
-            type = dbo.prismodellDbo.prismodellType,
+            type = dbo.prismodellDbo.type,
             prisbetingelser = dbo.prismodellDbo.prisbetingelser,
             satser = dbo.prismodellDbo.satser.map {
                 AvtaltSatsRequest(

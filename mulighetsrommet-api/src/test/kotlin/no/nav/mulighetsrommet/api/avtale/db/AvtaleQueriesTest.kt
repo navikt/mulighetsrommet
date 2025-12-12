@@ -570,23 +570,12 @@ class AvtaleQueriesTest : FunSpec({
                 queries.upsertPrismodell(
                     avtale.id,
                     avtale.prismodellDbo.copy(
-                        prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                        type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                     ),
                 )
 
                 queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<Prismodell.ForhandsgodkjentPrisPerManedsverk>()
-                }
-
-                queries.upsertPrismodell(
-                    avtale.id,
-                    avtale.prismodellDbo.copy(
-                        prismodellType = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                    ),
-                )
-
-                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
-                    it.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker>()
+                    it.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerHeleUkesverk>()
                 }
             }
         }

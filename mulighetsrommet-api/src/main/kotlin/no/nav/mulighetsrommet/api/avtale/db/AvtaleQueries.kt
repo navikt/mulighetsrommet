@@ -342,80 +342,32 @@ class AvtaleQueries(private val session: Session) {
     }
 
     fun upsertPrismodell(avtaleId: UUID, dbo: PrismodellDbo) = withTransaction(session) {
-        upsertPrismodell(
-            avtaleId = avtaleId,
-            id = dbo.id,
-            prismodell = dbo.prismodellType,
-            prisbetingelser = dbo.prisbetingelser,
-            satser = dbo.satser,
-        )
-    }
-
-    private fun Session.upsertPrismodell(
-        id: UUID,
-        avtaleId: UUID,
-        prismodell: PrismodellType,
-        prisbetingelser: String?,
-        satser: List<AvtaltSats>,
-    ) {
-        @Language("PostgreSQL")
-        val deleteSatser = """
-            delete from avtale_sats
-            where prismodell_id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deleteSatser, id))
-
-        @Language("PostgreSQL")
-        val deletePrismodeller = """
-            delete from avtale_prismodell
-            where id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deletePrismodeller, id))
-
         @Language("PostgreSQL")
         val query = """
-            insert into avtale_prismodell(
-                id,
-                avtale_id,
-                prisbetingelser,
-                prismodell_type
-                ) values (
-                :id::uuid,
-                :avtale_id::uuid,
-                :prisbetingelser,
-                :prismodell::prismodell
-                )
+            insert into avtale_prismodell(id,
+                                          avtale_id,
+                                          prisbetingelser,
+                                          prismodell_type,
+                                          satser)
+            values (:id::uuid,
+                    :avtale_id::uuid,
+                    :prisbetingelser,
+                    :prismodell::prismodell,
+                    :satser::jsonb)
+            on conflict (id) do update set avtale_id       = excluded.avtale_id,
+                                           prisbetingelser = excluded.prisbetingelser,
+                                           prismodell_type = excluded.prismodell_type,
+                                           satser          = excluded.satser
         """.trimIndent()
 
-        execute(
-            queryOf(
-                query,
-                mapOf(
-                    "id" to id,
-                    "avtale_id" to avtaleId,
-                    "prismodell" to prismodell.name,
-                    "prisbetingelser" to prisbetingelser,
-                ),
-            ),
+        val params = mapOf(
+            "avtale_id" to avtaleId,
+            "id" to dbo.id,
+            "prismodell" to dbo.type.name,
+            "prisbetingelser" to dbo.prisbetingelser,
+            "satser" to Json.encodeToString(dbo.satser),
         )
-
-        @Language("PostgreSQL")
-        val insertSats = """
-            insert into avtale_sats (avtale_id, gjelder_fra, sats, prismodell_id)
-            values (:avtale_id::uuid, :gjelder_fra::date, :sats, :prismodell_id::uuid)
-        """.trimIndent()
-
-        batchPreparedNamedStatement(
-            insertSats,
-            satser.map {
-                mapOf(
-                    "avtale_id" to avtaleId,
-                    "gjelder_fra" to it.gjelderFra,
-                    "sats" to it.sats,
-                    "prismodell_id" to id,
-                )
-            },
-        )
+        execute(queryOf(query, params))
     }
 
     fun upsertAvtalenummer(id: UUID, avtalenummer: String) = withTransaction(session) {
@@ -480,14 +432,16 @@ class AvtaleQueries(private val session: Session) {
 
         execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
         upsertPrismodell(
-            id = UUID.randomUUID(),
             avtaleId = avtale.id,
-            prismodell = when (avtale.avtaletype) {
-                Avtaletype.FORHANDSGODKJENT -> PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-                else -> PrismodellType.ANNEN_AVTALT_PRIS
-            },
-            prisbetingelser = avtale.prisbetingelser,
-            satser = emptyList(),
+            PrismodellDbo(
+                id = UUID.randomUUID(),
+                type = when (avtale.avtaletype) {
+                    Avtaletype.FORHANDSGODKJENT -> PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                    else -> PrismodellType.ANNEN_AVTALT_PRIS
+                },
+                prisbetingelser = avtale.prisbetingelser,
+                satser = emptyList(),
+            ),
         )
     }
 
@@ -656,14 +610,12 @@ class AvtaleQueries(private val session: Session) {
         "slutt_dato" to detaljerDbo.sluttDato,
         "status" to detaljerDbo.status.name,
         "avtaletype" to detaljerDbo.avtaletype.name,
-        "prisbetingelser" to prismodellDbo.prisbetingelser,
         "beskrivelse" to veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
         "faneinnhold" to veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernDbo.personvernBekreftet,
         "opsjonsmodell" to detaljerDbo.opsjonsmodell.type.name,
         "opsjonMaksVarighet" to detaljerDbo.opsjonsmodell.opsjonMaksVarighet,
         "opsjonCustomOpsjonsmodellNavn" to detaljerDbo.opsjonsmodell.customOpsjonsmodellNavn,
-        "prismodell" to prismodellDbo.prismodellType.name,
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
@@ -749,17 +701,10 @@ class AvtaleQueries(private val session: Session) {
             )
         }
 
-        val satser = stringOrNull("satser_json")
-            ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
-            ?: emptyList()
-
-        val prismodeller = stringOrNull("prismodeller_json")
-            ?.let { Json.decodeFromString<List<PrismodellDto>>(it) }
-            ?: emptyList()
-        prismodeller.firstOrNull()
-            ?: error("Prismodell missing for avtale ${uuid("id")}")
+        val prismodeller = string("prismodeller_json")
+            .let { Json.decodeFromString<List<PrismodellDbo>>(it) }
         val prismodell = prismodeller.map { p ->
-            when (p.prismodellType) {
+            when (p.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS ->
                     Prismodell.AnnenAvtaltPris(
                         id = p.id,
@@ -775,28 +720,28 @@ class AvtaleQueries(private val session: Session) {
                     Prismodell.AvtaltPrisPerManedsverk(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = satser.toDto(),
+                        satser = p.satser.toDto(),
                     )
 
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
                     Prismodell.AvtaltPrisPerUkesverk(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = satser.toDto(),
+                        satser = p.satser.toDto(),
                     )
 
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
                     Prismodell.AvtaltPrisPerHeleUkesverk(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = satser.toDto(),
+                        satser = p.satser.toDto(),
                     )
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
                     Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = satser.toDto(),
+                        satser = p.satser.toDto(),
                     )
             }
         }.first()

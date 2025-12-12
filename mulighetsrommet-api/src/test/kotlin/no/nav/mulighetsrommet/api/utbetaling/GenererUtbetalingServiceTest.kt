@@ -1023,7 +1023,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.avtale.upsert(avtale.copy(prismodellDbo = avtale.prismodellDbo.copy(prismodellType = PrismodellType.AVTALT_PRIS_PER_UKESVERK)))
+                queries.avtale.upsert(avtale.copy(prismodellDbo = avtale.prismodellDbo.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)))
             }
 
             val oppdatertUtbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id)
@@ -1071,7 +1071,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodellDbo.copy(prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
+                    prismodellDbo.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
                 )
             }
 
@@ -1114,7 +1114,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.avtale.upsertPrismodell(
                     avtale.id,
                     prismodellDbo.copy(
-                        prismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
+                        type = PrismodellType.ANNEN_AVTALT_PRIS,
                     ),
                 )
             }
@@ -1210,7 +1210,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
                     id = UUID.randomUUID(),
-                    prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                    type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                     prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2025, 1, 1), 100),
@@ -1239,7 +1239,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
                     id = UUID.randomUUID(),
-                    prismodellType = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                    type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                     prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2024, 1, 1), 100),
@@ -1289,7 +1289,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
                     id = UUID.randomUUID(),
-                    prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                     prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2025, 1, 15), 100),
@@ -1324,7 +1324,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 prismodellDbo = PrismodellDbo(
                     id = UUID.randomUUID(),
-                    prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                     prisbetingelser = null,
                     satser = listOf(
                         AvtaltSats(LocalDate.of(2024, 1, 1), 1),

@@ -341,7 +341,7 @@ object AvtaleValidator {
 
         return PrismodellDbo(
             id = request.id,
-            prismodellType = request.type,
+            type = request.type,
             prisbetingelser = request.prisbetingelser,
             satser = request.satser.map {
                 AvtaltSats(gjelderFra = it.gjelderFra!!, sats = it.pris!!)

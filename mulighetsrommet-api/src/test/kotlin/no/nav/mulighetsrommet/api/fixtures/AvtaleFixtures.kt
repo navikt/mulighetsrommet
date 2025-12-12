@@ -60,7 +60,7 @@ object AvtaleFixtures {
         satser: List<AvtaltSats> = emptyList(),
     ): PrismodellDbo = PrismodellDbo(
         id = id,
-        prismodellType = prismodellType,
+        type = prismodellType,
         prisbetingelser = prisbetingelser,
         satser = satser,
     )
@@ -74,7 +74,6 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-
     )
 
     val oppfolgingMedAvtale: AvtaleDbo = AvtaleDbo(
