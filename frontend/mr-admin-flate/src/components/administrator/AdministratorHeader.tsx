@@ -19,6 +19,7 @@ import { Adventslys } from "../hoytid/jul/Adventslys";
 export function AdministratorHeader() {
   const navigate = useNavigate();
   const { data: summary } = useNotificationSummary();
+  const date = new Date();
 
   const harUlesteNotifikasjoner = summary.unreadCount > 0;
   return (
@@ -29,7 +30,7 @@ export function AdministratorHeader() {
         </Link>
       </InternalHeader.Title>
       <Spacer />
-      <Adventslys />
+      {date.getMonth() === 11 && <Adventslys />}
       <InternalHeader.Button onClick={() => navigate("/oppgaveoversikt/oppgaver")}>
         {harUlesteNotifikasjoner ? (
           <OppgaveoversiktIkon color="white" className="w-5" />
