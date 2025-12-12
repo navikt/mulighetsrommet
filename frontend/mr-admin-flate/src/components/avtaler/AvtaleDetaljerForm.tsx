@@ -46,10 +46,10 @@ export function AvtaleDetaljerForm() {
 
   const avtaletypeOptions = isTiltakskode(tiltakskode)
     ? getAvtaletypeOptions(tiltakskode).map((type) => (
-        <option key={type.value} value={type.value}>
-          {type.label}
-        </option>
-      ))
+      <option key={type.value} value={type.value}>
+        {type.label}
+      </option>
+    ))
     : [];
 
   function avtaletypeOnChange(avtaletype: Avtaletype) {
@@ -199,6 +199,7 @@ export function AvtaleDetaljerForm() {
   );
 }
 
+// TODO: Hent dette fra backend, siden vi allerede har en tiltakskode -> avtaletype mapping
 function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
   const forhandsgodkjent = {
     value: Avtaletype.FORHANDSGODKJENT,
@@ -230,11 +231,16 @@ function getAvtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; la
 
     case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
     case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
+    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.STUDIESPESIALISERING:
       return [avtale, offentligOffentlig, rammeavtale];
 
     case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
     case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
     case Tiltakskode.HOYERE_UTDANNING:
+    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
       return [];
   }
 }
