@@ -346,8 +346,8 @@ object UtbetalingValidator {
         requireValid(!request.begrunnelse.isNullOrBlank()) {
             FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
         }
-        validate(request.begrunnelse.length <= 501) {
-            FieldError.of("Begrunnelse ikke være lengre enn 500 tegn", AvbrytUtbetaling::begrunnelse)
+        validate(request.begrunnelse.length <= 100) {
+            FieldError.of("Begrunnelse ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
         }
         request.begrunnelse
     }
