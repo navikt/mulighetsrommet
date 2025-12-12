@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Heading,
+  HelpText,
   HStack,
   Link,
   Modal,
@@ -201,13 +202,20 @@ export default function UtbetalingDetaljerSide() {
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
-        {utbetaling.kanAvbrytes && (
-          <HStack justify="end">
-            <Button size="small" variant="danger" onClick={() => setAvbrytModalOpen(true)}>
-              Avbryt
-            </Button>
-          </HStack>
-        )}
+        <HStack gap="2" justify="start" align="center">
+          <Button
+            disabled={!utbetaling.kanAvbrytes}
+            size="small"
+            variant="danger"
+            onClick={() => setAvbrytModalOpen(true)}
+          >
+            Avbryt
+          </Button>
+          <HelpText>
+            Du kan avbryte en innsending frem til Nav har startet behandling av kravet. Om det ikke
+            er mulig å avbryte innsendingen må du ta kontakt direkte med Nav.
+          </HelpText>
+        </HStack>
         <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
         <DeltakerModal
           utbetaling={utbetaling}
@@ -323,6 +331,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
               description="Oppgi årsaken til at behandlingen av kravet skal avbrytes. Begrunnelsen blir lagret hos Nav"
               label="Begrunnelse"
               error={errors.find((error) => error.pointer === "/begrunnelse")?.detail}
+              maxLength={100}
             />
             <HStack gap="4" justify="end">
               <Button size="small" onClick={onClose}>

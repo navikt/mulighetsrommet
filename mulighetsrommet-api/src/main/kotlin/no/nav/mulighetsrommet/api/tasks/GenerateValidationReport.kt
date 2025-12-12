@@ -162,10 +162,11 @@ class GenerateValidationReport(
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                val request = GjennomforingDboMapper.toGjennomforingRequest(it)
-                val ctx = gjennomforingService.getValidatorCtx(request, it, LocalDate.now())
+                val gjennomforing = queries.gjennomforing.getOrError(it.id)
+                val request = GjennomforingDboMapper.toGjennomforingRequest(gjennomforing)
+                val ctx = gjennomforingService.getValidatorCtx(request, gjennomforing, LocalDate.now())
                 GjennomforingValidator.validate(request, ctx).onLeft { validationErrors ->
-                    put(it, validationErrors)
+                    put(gjennomforing, validationErrors)
                 }
             }
         }
