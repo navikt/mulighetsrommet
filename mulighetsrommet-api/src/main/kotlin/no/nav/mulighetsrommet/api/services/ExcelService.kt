@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
@@ -46,7 +46,7 @@ object ExcelService {
         }
     }
 
-    fun createExcelFileForTiltaksgjennomforing(result: List<GjennomforingDto>): File = createExcelFile {
+    fun createExcelFileForTiltaksgjennomforing(result: List<GjennomforingKompaktDto>): File = createExcelFile {
         val sheet = this.createSheet()
 
         val headerRow = sheet.createRow(0)

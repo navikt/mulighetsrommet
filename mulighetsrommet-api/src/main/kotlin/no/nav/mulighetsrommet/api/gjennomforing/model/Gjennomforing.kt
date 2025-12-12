@@ -56,6 +56,19 @@ data class Gjennomforing(
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
 ) {
+    fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
+        id = id,
+        navn = navn,
+        lopenummer = lopenummer,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = status,
+        publisert = publisert,
+        prismodell = avtalePrismodell,
+        kontorstruktur = kontorstruktur,
+        tiltakstype = Tiltakstype(tiltakstype.id, tiltakstype.navn, tiltakstype.tiltakskode),
+        arrangor = GjennomforingKompakt.ArrangorUnderenhet(arrangor.id, arrangor.organisasjonsnummer, arrangor.navn),
+    )
 
     @Serializable
     data class Tiltakstype(

@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Map
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -139,7 +139,7 @@ class GjennomforingService(
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<GjennomforingDto> = db.session {
+    ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
         queries.gjennomforing.getAll(
             pagination,
             search = filter.search,
@@ -154,7 +154,20 @@ class GjennomforingService(
             publisert = filter.publisert,
             sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
         ).let { (totalCount, items) ->
-            val data = items.map { GjennomforingDtoMapper.fromGjennomforing(it) }
+            val data = items.map {
+                GjennomforingKompaktDto(
+                    id = it.id,
+                    navn = it.navn,
+                    lopenummer = it.lopenummer,
+                    startDato = it.startDato,
+                    sluttDato = it.sluttDato,
+                    status = GjennomforingDtoMapper.fromGjennomforingStatus(it.status),
+                    publisert = it.publisert,
+                    kontorstruktur = it.kontorstruktur,
+                    arrangor = it.arrangor,
+                    tiltakstype = it.tiltakstype,
+                )
+            }
             PaginatedResponse.of(pagination, totalCount, data)
         }
     }

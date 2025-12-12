@@ -97,7 +97,7 @@ class InitialLoadGjennomforinger(
                 result.items
             },
         ) {
-            publish(it)
+            publish(queries.gjennomforing.getOrError(it.id))
         }
 
         logger.info("Antall gruppetiltak relastet på topic: $total")
