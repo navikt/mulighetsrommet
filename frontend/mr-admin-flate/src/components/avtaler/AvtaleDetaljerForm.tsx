@@ -46,10 +46,10 @@ export function AvtaleDetaljerForm() {
 
   const avtaletypeOptions = isTiltakskode(tiltakskode)
     ? getAvtaletypeOptions(tiltakskode).map((type) => (
-      <option key={type.value} value={type.value}>
-        {type.label}
-      </option>
-    ))
+        <option key={type.value} value={type.value}>
+          {type.label}
+        </option>
+      ))
     : [];
 
   function avtaletypeOnChange(avtaletype: Avtaletype) {
