@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tiltakstype
 
-import io.github.smiley4.ktoropenapi.config.descriptors.empty
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.origin
@@ -57,7 +56,7 @@ fun Route.tiltakstypeRoutes() {
                     remoteAddress = call.request.origin.remoteAddress,
                     tiltakskoder = emptyList(),
                     orgnr = emptyList(),
-                )
+                ),
             )
 
             val tiltakstyper = tiltakstypeService.getAllGruppetiltak(filter, opplaeringTiltakEnabled)

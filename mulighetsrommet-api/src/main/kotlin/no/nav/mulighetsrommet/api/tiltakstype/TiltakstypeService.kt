@@ -49,35 +49,31 @@ class TiltakstypeService(
 
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
-    fun getAllGruppetiltak(filter: TiltakstypeFilter, inkluderOpplareing2025: Boolean? = false): List<TiltakstypeDto> =
-        db.session {
-            val standardGruppetiltak = setOf(
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-                Tiltakskode.AVKLARING,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-                Tiltakskode.OPPFOLGING,
-                Tiltakskode.JOBBKLUBB,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            )
-            val tiltakskoder = if (inkluderOpplareing2025 == true) {
-                standardGruppetiltak + OpplaeringsTiltak2025
-            } else standardGruppetiltak
-
-            val result = queries.tiltakstype.getAll(
-                tiltakskoder = tiltakskoder,
-                sortering = filter.sortering,
-            )
-
-            return result.filter {
-                if (it.tiltakskode in OpplaeringsTiltak2025) {
-                    it.sanityId != null
-                }
-                true
-            }
+    fun getAllGruppetiltak(filter: TiltakstypeFilter, inkluderOpplareing2025: Boolean? = false): List<TiltakstypeDto> = db.session {
+        val standardGruppetiltak = setOf(
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        )
+        val tiltakskoder = if (inkluderOpplareing2025 == true) {
+            standardGruppetiltak + OpplaeringsTiltak2025
+        } else {
+            standardGruppetiltak
         }
+
+        val result = queries.tiltakstype.getAll(
+            tiltakskoder = tiltakskoder,
+            sortering = filter.sortering,
+        )
+
+        return result
+    }
 
     fun getById(id: UUID): TiltakstypeDto? = db.session {
         queries.tiltakstype.get(id)
