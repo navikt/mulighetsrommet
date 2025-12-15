@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 
@@ -60,7 +60,7 @@ class TiltakshistorikkEventProcessor(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
-        if (isGruppetiltak(tiltakstype.tiltakskode)) {
+        if (Tiltakskoder.isGruppetiltak(tiltakstype.tiltakskode) || Tiltakskoder.isEnkeltplassTiltak(tiltakstype.tiltakskode)) {
             return@either ProcessingResult(Handled)
         }
 
