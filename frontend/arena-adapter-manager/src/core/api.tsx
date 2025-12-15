@@ -109,7 +109,6 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
 };
 
 export type MrApiTask =
-  | "generate-validation-report"
   | "initial-load-tiltakstyper"
   | "initial-load-gjennomforinger"
   | "republish-opprett-bestilling"
