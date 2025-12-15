@@ -4,7 +4,15 @@ import arrow.core.Either
 import arrow.core.NonEmptySet
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.Adressebeskyttelse
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.PdlNavn
+import no.nav.mulighetsrommet.api.clients.pdl.tilGradering
+import no.nav.mulighetsrommet.api.clients.pdl.tilNavn
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory

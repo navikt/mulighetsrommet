@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
 import org.intellij.lang.annotations.Language
 import java.sql.Array
-import java.util.*
+import java.util.UUID
 
 object AmoKategoriseringQueries {
 

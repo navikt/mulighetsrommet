@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 object GjennomforingDboMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(

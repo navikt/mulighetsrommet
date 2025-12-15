@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import java.sql.Array
 import java.sql.SQLException
-import java.util.*
+import java.util.UUID
 
 /**
  * Kjører [block] i kontekst av en [TransactionalSession], utledet fra [session] (som allerede kan være en [Session]

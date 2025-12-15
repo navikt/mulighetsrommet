@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
     val sats = 100

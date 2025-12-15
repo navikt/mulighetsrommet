@@ -12,7 +12,7 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class DelutbetalingQueries(private val session: Session) {
     fun upsert(delutbetaling: DelutbetalingDbo) {

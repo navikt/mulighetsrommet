@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 object GjennomforingFixtures {
     val Oppfolging1 = GjennomforingDbo(

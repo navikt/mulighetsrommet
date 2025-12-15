@@ -6,11 +6,15 @@ import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.metrics.micrometer.MicrometerMetricsTrackerFactory
 import kotliquery.Session
 import kotliquery.TransactionalSession
-import kotliquery.action.*
+import kotliquery.action.ExecuteQueryAction
+import kotliquery.action.ListResultQueryAction
+import kotliquery.action.NullableResultQueryAction
+import kotliquery.action.UpdateAndReturnGeneratedKeyQueryAction
+import kotliquery.action.UpdateQueryAction
 import kotliquery.sessionOf
 import java.io.Closeable
 import java.sql.Array
-import java.util.*
+import java.util.Properties
 import javax.sql.DataSource
 
 class Database(val config: DatabaseConfig) : Closeable {

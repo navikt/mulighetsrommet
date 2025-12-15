@@ -12,7 +12,7 @@ import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.GjennomforingDbo
 import no.nav.tiltak.historikk.db.queries.GjennomforingType
 import no.nav.tiltak.historikk.service.VirksomhetService
-import java.util.*
+import java.util.UUID
 
 class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
     private val db: TiltakshistorikkDatabase,

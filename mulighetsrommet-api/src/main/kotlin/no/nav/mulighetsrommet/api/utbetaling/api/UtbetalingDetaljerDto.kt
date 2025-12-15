@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class UtbetalingDetaljerDto(

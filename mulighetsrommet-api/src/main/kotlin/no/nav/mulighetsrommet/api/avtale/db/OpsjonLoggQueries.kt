@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class OpsjonLoggQueries(private val session: Session) {
     fun insert(entry: OpsjonLoggDbo) = with(session) {

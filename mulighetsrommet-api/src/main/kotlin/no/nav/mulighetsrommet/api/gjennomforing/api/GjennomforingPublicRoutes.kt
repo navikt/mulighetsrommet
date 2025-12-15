@@ -1,10 +1,11 @@
 package no.nav.mulighetsrommet.api.gjennomforing.api
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -15,9 +16,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Map
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 fun Route.gjennomforingPublicRoutes() {
     route("/v2/tiltaksgjennomforinger") {

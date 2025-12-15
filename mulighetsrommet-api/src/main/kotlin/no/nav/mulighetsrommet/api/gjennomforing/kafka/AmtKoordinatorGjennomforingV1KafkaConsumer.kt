@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class AmtKoordinatorGjennomforingV1KafkaConsumer(
     private val db: ApiDatabase,

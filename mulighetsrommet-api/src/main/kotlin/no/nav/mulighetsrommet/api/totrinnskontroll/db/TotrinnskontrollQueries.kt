@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.model.toAgent
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class TotrinnskontrollQueries(private val session: Session) {
     fun upsert(totrinnskontroll: Totrinnskontroll) {

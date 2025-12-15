@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class NavAnsattDto(

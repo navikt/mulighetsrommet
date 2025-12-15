@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 enum class ArrangorKobling {
     AVTALE,

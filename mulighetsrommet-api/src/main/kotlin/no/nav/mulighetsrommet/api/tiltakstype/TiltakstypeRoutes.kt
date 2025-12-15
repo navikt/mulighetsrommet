@@ -1,17 +1,21 @@
 package no.nav.mulighetsrommet.api.tiltakstype
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
+import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 fun Route.tiltakstypeRoutes() {
     val tiltakstypeService: TiltakstypeService by inject()

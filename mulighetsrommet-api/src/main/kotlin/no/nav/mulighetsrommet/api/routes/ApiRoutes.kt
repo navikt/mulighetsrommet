@@ -27,7 +27,11 @@ import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
-import no.nav.mulighetsrommet.api.veilederflate.routes.*
+import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
+import no.nav.mulighetsrommet.api.veilederflate.routes.brukerRoutes
+import no.nav.mulighetsrommet.api.veilederflate.routes.delMedBrukerRoutes
+import no.nav.mulighetsrommet.api.veilederflate.routes.regionRoutes
+import no.nav.mulighetsrommet.api.veilederflate.routes.veilederRoutes
 import no.nav.mulighetsrommet.featuretoggle.api.featureTogglesRoute
 import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes

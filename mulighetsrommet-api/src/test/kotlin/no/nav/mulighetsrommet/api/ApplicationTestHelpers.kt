@@ -1,9 +1,10 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.client.request.*
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.bearerAuth
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import java.util.*
+import java.util.UUID
 
 fun MockOAuth2Server.createRequestWithAnsattClaims(
     ansatt: NavAnsattDbo,

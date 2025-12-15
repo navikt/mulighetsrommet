@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class NavAnsattQueries(private val session: Session) {
 

@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import java.util.*
+import java.util.UUID
 
 class SanityServiceTest : FunSpec({
     val sanityClient: SanityClient = mockk(relaxed = true)

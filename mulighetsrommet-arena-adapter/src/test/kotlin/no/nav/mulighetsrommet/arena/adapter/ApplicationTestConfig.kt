@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import io.ktor.server.testing.*
+import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.server.testing.testApplication
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.security.mock.oauth2.MockOAuth2Server

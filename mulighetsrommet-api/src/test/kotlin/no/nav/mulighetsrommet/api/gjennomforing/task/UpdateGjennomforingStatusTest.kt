@@ -19,10 +19,13 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.GjennomforingStatusType.*
+import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVBRUTT
+import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVLYST
+import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVSLUTTET
+import no.nav.mulighetsrommet.model.GjennomforingStatusType.GJENNOMFORES
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class UpdateGjennomforingStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

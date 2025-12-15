@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Avtalestatuskode
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Avtale(
     val id: UUID,

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
-import java.util.*
+import java.util.UUID
 
 data class ArenaEntityMapping(
     val arenaTable: ArenaTable,

@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class TiltakstypeRepository(private val db: Database) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
@@ -25,7 +25,7 @@ class TiltakstypeRepository(private val db: Database) {
            insert into tiltakstype (id,
                          navn,
                          tiltakskode,
-                         registrert_dato_i_arena,                          
+                         registrert_dato_i_arena,
                          sist_endret_dato_i_arena,
                          fra_dato,
                          til_dato,
@@ -56,7 +56,7 @@ class TiltakstypeRepository(private val db: Database) {
 values (:id::uuid,
         :navn,
         :tiltakskode,
-        :registrert_dato_i_arena,                          
+        :registrert_dato_i_arena,
         :sist_endret_dato_i_arena,
         :fra_dato,
         :til_dato,
@@ -87,7 +87,7 @@ values (:id::uuid,
 on conflict (id)
     do update set navn                                                   = excluded.navn,
                   tiltakskode                                            = excluded.tiltakskode,
-                  registrert_dato_i_arena                                = excluded.registrert_dato_i_arena,                          
+                  registrert_dato_i_arena                                = excluded.registrert_dato_i_arena,
                   sist_endret_dato_i_arena                               = excluded.sist_endret_dato_i_arena,
                   fra_dato                                               = excluded.fra_dato,
                   til_dato                                               = excluded.til_dato,

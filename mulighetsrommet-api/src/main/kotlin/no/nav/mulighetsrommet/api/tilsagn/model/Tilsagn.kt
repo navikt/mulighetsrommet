@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.BestillingStatusType
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class Tilsagn(

@@ -1,8 +1,13 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.arrangorflate.api.*
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangforflateUtbetalingLinje
+import no.nav.mulighetsrommet.api.arrangorflate.api.beregningSatsDetaljer
+import no.nav.mulighetsrommet.api.arrangorflate.api.beregningStengt
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
-import no.nav.mulighetsrommet.api.pdfgen.*
+import no.nav.mulighetsrommet.api.pdfgen.Format
+import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
+import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
+import no.nav.mulighetsrommet.api.pdfgen.TableBlock
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode

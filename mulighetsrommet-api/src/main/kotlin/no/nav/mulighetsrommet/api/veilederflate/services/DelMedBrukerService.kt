@@ -6,14 +6,18 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.veilederflate.models.*
+import no.nav.mulighetsrommet.api.veilederflate.models.DelingMedBruker
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltMedBrukerDto
+import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBruker
+import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBrukerDto
+import no.nav.mulighetsrommet.api.veilederflate.models.TiltakstypeDeltMedBruker
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class DelMedBrukerService(
     private val db: ApiDatabase,

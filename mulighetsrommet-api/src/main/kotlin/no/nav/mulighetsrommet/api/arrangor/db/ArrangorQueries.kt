@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
-import java.util.*
+import java.util.UUID
 
 class ArrangorQueries(private val session: Session) {
 

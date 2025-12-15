@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
-import java.util.*
+import java.util.UUID
 
 class ReplikerSisteTiltakstyperV3KafkaConsumer(
     private val db: TiltakshistorikkDatabase,

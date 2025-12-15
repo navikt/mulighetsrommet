@@ -18,9 +18,14 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
-import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import java.util.*
+import java.util.UUID
 
 class ArenaEventServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

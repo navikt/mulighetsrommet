@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.ktor.exception
 
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.model.ProblemDetail
 
 /**
