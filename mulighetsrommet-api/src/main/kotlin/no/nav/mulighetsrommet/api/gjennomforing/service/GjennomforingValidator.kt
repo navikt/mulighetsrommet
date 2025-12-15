@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
@@ -48,6 +49,7 @@ object GjennomforingValidator {
             val status: GjennomforingStatusType,
             val sluttDato: LocalDate?,
             val oppstart: GjennomforingOppstartstype,
+            val pameldingType: GjennomforingPameldingType,
         )
     }
 
@@ -394,6 +396,12 @@ object GjennomforingValidator {
                 GjennomforingRequest::oppstart,
             )
         }
+        validate(antallDeltakere <= 0 || gjennomforing.pameldingType == previous.pameldingType) {
+            FieldError.of(
+                "Påmeldingstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
+                GjennomforingRequest::pameldingType,
+            )
+        }
     }
 
     private fun ValidationDsl.validateKursTiltak(request: GjennomforingRequest) {
@@ -402,6 +410,14 @@ object GjennomforingValidator {
                 "Du må velge en deltidsprosent mellom 0 og 100",
                 GjennomforingRequest::deltidsprosent,
             )
+        }
+        if (request.oppstart == GjennomforingOppstartstype.FELLES) {
+            validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
+                FieldError.of(
+                    "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
+                    GjennomforingRequest::pameldingType,
+                )
+            }
         }
     }
 }

@@ -149,13 +149,6 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               label="Oppstartstype"
               placeholder="Velg oppstart"
               name="oppstart"
-              onChange={(e) => {
-                if (e.target.value === GjennomforingOppstartstype.FELLES) {
-                  setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
-                } else {
-                  setValue("pameldingType", GjennomforingPameldingType.DIREKTE_VEDTAK);
-                }
-              }}
               readOnly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
               options={[
                 {
@@ -173,7 +166,8 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               label="Påmeldingstype"
               placeholder="Velg påmeldingstype"
               name="pameldingType"
-              readOnly
+              // TODO: Må endres ved nye tiltakstyper
+              readOnly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
               options={[
                 {
                   label: "Veileder fatter vedtaket direkte etter påmelding",
