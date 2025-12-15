@@ -38,12 +38,12 @@
     "@portabletext/react": "5.0.0",
     "@tailwindcss/postcss": "4.1.17",
     "@tailwindcss/vite": "4.1.17",
-    "@tanstack/react-query": "5.90.10",
-    "@tanstack/react-query-devtools": "5.91.0",
+    "@tanstack/react-query": "5.90.12",
+    "@tanstack/react-query-devtools": "5.91.1",
     "axe-core": "4.11.0",
     "classnames": "2.5.1",
     "dequal": "2.0.3",
-    "jotai": "2.15.1",
+    "jotai": "2.15.2",
     "jotai-location": "0.6.2",
     "react": "19.0.1",
     "react-dom": "19.0.1",
@@ -53,7 +53,7 @@
     "react-router": "7.10.1",
     "tailwindcss": "4.1.17",
     "uuid": "13.0.0",
-    "zod": "4.1.12"
+    "zod": "4.1.13"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.0",
@@ -68,13 +68,13 @@
     "cross-env": "10.1.0",
     "dotenv": "17.2.3",
     "eslint": "9.39.1",
-    "msw": "2.12.2",
+    "msw": "2.12.4",
     "playwright": "1.57.0",
     "postcss-import": "16.1.1",
     "rollup-plugin-visualizer": "6.0.5",
     "sass-embedded": "1.93.3",
     "typescript": "5.9.3",
-    "vite": "7.2.4",
+    "vite": "7.2.7",
     "vite-tsconfig-paths": "5.1.4"
   },
   "msw": {
