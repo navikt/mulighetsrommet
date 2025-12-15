@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskoder.OpplaeringsTiltak2025
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -48,9 +49,9 @@ class TiltakstypeService(
 
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
-    fun getAllGruppetiltak(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
-        queries.tiltakstype.getAll(
-            tiltakskoder = setOf(
+    fun getAllGruppetiltak(filter: TiltakstypeFilter, inkluderOpplareing2025: Boolean? = false): List<TiltakstypeDto> =
+        db.session {
+            val standardGruppetiltak = setOf(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 Tiltakskode.ARBEIDSRETTET_REHABILITERING,
                 Tiltakskode.AVKLARING,
@@ -60,10 +61,23 @@ class TiltakstypeService(
                 Tiltakskode.OPPFOLGING,
                 Tiltakskode.JOBBKLUBB,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            ),
-            sortering = filter.sortering,
-        )
-    }
+            )
+            val tiltakskoder = if (inkluderOpplareing2025 == true) {
+                standardGruppetiltak + OpplaeringsTiltak2025
+            } else standardGruppetiltak
+
+            val result = queries.tiltakstype.getAll(
+                tiltakskoder = tiltakskoder,
+                sortering = filter.sortering,
+            )
+
+            return result.filter {
+                if (it.tiltakskode in OpplaeringsTiltak2025) {
+                    it.sanityId != null
+                }
+                true
+            }
+        }
 
     fun getById(id: UUID): TiltakstypeDto? = db.session {
         queries.tiltakstype.get(id)

@@ -79,6 +79,19 @@ object Tiltakskoder {
 
     fun erStottetIArena(tiltakskode: Tiltakskode): Boolean = tiltakskode == tilArenaStottetType(tiltakskode)
 
+
+    /**
+     * Nye tiltakskoder 2025 §7-2 a-f:
+     */
+    val OpplaeringsTiltak2025 = setOf(
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING, // a
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV, // b
+        Tiltakskode.STUDIESPESIALISERING, // c
+        Tiltakskode.FAG_OG_YRKESOPPLAERING, // d
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING, // e
+        Tiltakskode.HOYERE_UTDANNING, // f
+    )
+
     /**
      * Tiltakskoder for tiltak i egen regi (regi av Nav), og som foreløpig administreres i Sanity ikke i admin-flate.
      */

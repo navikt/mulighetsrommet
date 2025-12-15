@@ -2076,5 +2076,6 @@ components:
       type: string
       enum:
       - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
+      - TILTAKSKODER_OPPLAERING_2025
   examples: {}
 webhooks: {}

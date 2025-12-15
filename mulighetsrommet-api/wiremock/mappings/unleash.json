@@ -12,6 +12,11 @@
           "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "tiltakskoder.opplaering2025",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },
