@@ -4,7 +4,6 @@ import {
   DeltakelseEierskap,
   DeltakelseTilstand,
   DeltakerStatusType,
-  Tiltakskode,
 } from "@api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
@@ -13,7 +12,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstype: {
       navn: "Oppfølging",
-      tiltakskode: Tiltakskode.OPPFOLGING,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -38,7 +36,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Mentor hos Fretex AS",
     tiltakstype: {
       navn: "Mentor",
-      tiltakskode: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -56,7 +53,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstype: {
       navn: "Oppfølging",
-      tiltakskode: Tiltakskode.OPPFOLGING,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -78,7 +74,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstype: {
       navn: "Oppfølging",
-      tiltakskode: Tiltakskode.OPPFOLGING,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -102,7 +97,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Avklaring med Anne",
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARING,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -126,7 +120,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Avklaring med Anne",
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARING,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -146,7 +139,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Avklaring med Anne",
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARING,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -171,7 +163,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tittel: "Gammel Avklaring med Anne",
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARING,
     },
     id: window.crypto.randomUUID(),
     status: {

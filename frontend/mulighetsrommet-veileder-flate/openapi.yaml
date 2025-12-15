@@ -1073,33 +1073,8 @@ components:
       properties:
         navn:
           type: string
-        tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
       required:
       - navn
-      - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSFORBEREDENDE_TRENING
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - JOBBKLUBB
-      - OPPFOLGING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - HOYERE_YRKESFAGLIG_UTDANNING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
     DeltakelsePeriode:
       type: object
       properties:
@@ -1342,6 +1317,26 @@ components:
       - arenakode
       - navn
       - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSFORBEREDENDE_TRENING
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - JOBBKLUBB
+      - OPPFOLGING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - HOYERE_YRKESFAGLIG_UTDANNING
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - STUDIESPESIALISERING
     NavVeilederHovedenhet:
       type: object
       properties:
