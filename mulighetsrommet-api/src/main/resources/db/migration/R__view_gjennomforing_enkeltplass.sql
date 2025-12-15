@@ -6,10 +6,12 @@ select gjennomforing.id,
        gjennomforing.updated_at          as oppdatert_tidspunkt,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.arena_ansvarlig_enhet,
-       gjennomforing.arena_navn,
-       gjennomforing.arena_start_dato,
-       gjennomforing.arena_slutt_dato,
-       gjennomforing.arena_status,
+       gjennomforing.navn,
+       gjennomforing.start_dato,
+       gjennomforing.slutt_dato,
+       gjennomforing.status,
+       gjennomforing.deltidsprosent,
+       gjennomforing.antall_plasser,
        tiltakstype.id                    as tiltakstype_id,
        tiltakstype.navn                  as tiltakstype_navn,
        tiltakstype.tiltakskode           as tiltakstype_tiltakskode,
@@ -20,3 +22,4 @@ select gjennomforing.id,
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
+where gjennomforing.gjennomforing_type = 'ARENA_ENKELTPLASS'

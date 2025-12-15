@@ -22,7 +22,7 @@ data class Enkeltplass(
     val oppdatertTidspunkt: Instant,
     val tiltakstype: Tiltakstype,
     val arrangor: Arrangor,
-    val arena: ArenaData?,
+    val arena: ArenaData,
 ) {
 
     @Serializable
@@ -45,12 +45,14 @@ data class Enkeltplass(
     @Serializable
     data class ArenaData(
         val tiltaksnummer: Tiltaksnummer?,
-        val navn: String?,
+        val ansvarligNavEnhet: String?,
+        val navn: String,
         @Serializable(with = LocalDateSerializer::class)
-        val startDato: LocalDate?,
+        val startDato: LocalDate,
         @Serializable(with = LocalDateSerializer::class)
         val sluttDato: LocalDate?,
-        val status: GjennomforingStatusType?,
-        val ansvarligNavEnhet: String?,
+        val status: GjennomforingStatusType,
+        val deltidsprosent: Double,
+        val antallPlasser: Int,
     )
 }

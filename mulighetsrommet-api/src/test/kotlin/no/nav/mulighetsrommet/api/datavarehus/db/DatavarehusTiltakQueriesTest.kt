@@ -287,10 +287,6 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     GjennomforingArenaDataDbo(
                         id = EnkeltplassFixtures.EnkelAmo.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
-                        navn = "Arenanavn",
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = LocalDate.of(2025, 1, 1),
-                        status = GjennomforingStatusType.AVSLUTTET,
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )

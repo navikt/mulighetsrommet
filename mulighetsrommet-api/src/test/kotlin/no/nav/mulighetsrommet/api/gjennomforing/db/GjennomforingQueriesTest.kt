@@ -142,7 +142,8 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer, Sel.enhetsnummer)),
                 )
-                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first()
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1)
+                    .first()
                     .should {
                         it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                         it.kontorer.should { (first, second) ->
@@ -156,7 +157,8 @@ class GjennomforingQueriesTest : FunSpec({
                         navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer),
                     ),
                 )
-                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first()
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1)
+                    .first()
                     .should {
                         it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                         it.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Lillehammer.enhetsnummer
@@ -165,7 +167,8 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(navEnheter = setOf(Oslo.enhetsnummer)),
                 )
-                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first()
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1)
+                    .first()
                     .should {
                         it.region.enhetsnummer shouldBe Oslo.enhetsnummer
                         it.kontorer.shouldBeEmpty()
@@ -369,7 +372,8 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.gjennomforing.getGruppetiltak(id).shouldNotBeNull().status shouldBe GjennomforingStatus.Gjennomfores
+                queries.gjennomforing.getGruppetiltak(id)
+                    .shouldNotBeNull().status shouldBe GjennomforingStatus.Gjennomfores
             }
         }
 
@@ -450,7 +454,8 @@ class GjennomforingQueriesTest : FunSpec({
                     "Forrige juleferie",
                 )
 
-                queries.gjennomforing.getGruppetiltak(Oppfolging1.id).shouldNotBeNull().stengt shouldContainExactly listOf(
+                queries.gjennomforing.getGruppetiltak(Oppfolging1.id)
+                    .shouldNotBeNull().stengt shouldContainExactly listOf(
                     Gjennomforing.StengtPeriode(
                         3,
                         LocalDate.of(2024, 12, 1),
@@ -501,7 +506,12 @@ class GjennomforingQueriesTest : FunSpec({
             avtaler = listOf(),
         )
 
-        val enkelAmo1 = EnkeltplassFixtures.EnkelAmo
+        val enkelAmo1 = EnkeltplassFixtures.EnkelAmo.copy(
+            navn = "Arena-navn",
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = null,
+            status = GjennomforingStatusType.GJENNOMFORES,
+        )
         val enkelAmo2 = EnkeltplassFixtures.EnkelAmo2
 
         test("lagre enkeltplass") {
@@ -523,28 +533,29 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = ArrangorFixtures.underenhet1.navn,
                         slettet = false,
                     )
-                    it.arena.shouldBeNull()
+                    it.arena.tiltaksnummer.shouldBeNull()
+                    it.arena.ansvarligNavEnhet.shouldBeNull()
+                    it.arena.navn shouldBe "Arena-navn"
+                    it.arena.startDato shouldBe LocalDate.of(2025, 1, 1)
+                    it.arena.sluttDato.shouldBeNull()
+                    it.arena.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
 
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
                         id = enkelAmo1.id,
                         tiltaksnummer = Tiltaksnummer("2025#1"),
-                        navn = "Arena-navn",
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = null,
-                        status = GjennomforingStatusType.GJENNOMFORES,
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                queries.gjennomforing.getEnkeltplass(enkelAmo1.id).shouldNotBeNull().arena.shouldNotBeNull().should {
+                queries.gjennomforing.getEnkeltplass(enkelAmo1.id).shouldNotBeNull().arena.should {
                     it.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
+                    it.ansvarligNavEnhet shouldBe "0400"
                     it.navn shouldBe "Arena-navn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
                     it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.ansvarligNavEnhet shouldBe "0400"
                 }
 
                 queries.gjennomforing.delete(enkelAmo1.id)
@@ -770,7 +781,12 @@ class GjennomforingQueriesTest : FunSpec({
                         gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id)
                     }
 
-                queries.gjennomforing.getAllGruppetiltak(navEnheter = listOf(Lillehammer.enhetsnummer, Sel.enhetsnummer))
+                queries.gjennomforing.getAllGruppetiltak(
+                    navEnheter = listOf(
+                        Lillehammer.enhetsnummer,
+                        Sel.enhetsnummer,
+                    ),
+                )
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 2
                         gjennomforinger shouldContainExactlyIds listOf(VTA1.id, AFT1.id)

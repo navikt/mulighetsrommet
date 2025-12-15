@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
@@ -126,19 +127,12 @@ class ArenaAdapterService(
         val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
         val previous = queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id)
-        if (previous == null) {
-            queries.gjennomforing.upsert(
-                GjennomforingDbo(
-                    id = arenaGjennomforing.id,
-                    tiltakstypeId = tiltakstype.id,
-                    arrangorId = arrangor.id,
-                ),
-            )
-        }
 
-        val arenadata = GjennomforingArenaDataDbo(
+        val enkeltplass = GjennomforingDbo(
             id = arenaGjennomforing.id,
-            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
+            tiltakstypeId = tiltakstype.id,
+            arrangorId = arrangor.id,
+            type = GjennomforingType.ARENA_ENKELTPLASS,
             navn = arenaGjennomforing.navn,
             startDato = arenaGjennomforing.startDato,
             sluttDato = arenaGjennomforing.sluttDato,
@@ -148,9 +142,16 @@ class ArenaAdapterService(
                 Avslutningsstatus.AVLYST -> GjennomforingStatusType.AVLYST
                 Avslutningsstatus.AVSLUTTET -> GjennomforingStatusType.AVSLUTTET
             },
+            deltidsprosent = arenaGjennomforing.deltidsprosent,
+            antallPlasser = arenaGjennomforing.antallPlasser ?: 1,
+        )
+        val arenadata = GjennomforingArenaDataDbo(
+            id = arenaGjennomforing.id,
+            tiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
             arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
         )
-        if (previous == null || hasRelevantChanges(arenadata, previous)) {
+        if (previous == null || hasRelevantChanges(enkeltplass, previous) || hasRelevantChanges(arenadata, previous)) {
+            queries.gjennomforing.upsert(enkeltplass)
             queries.gjennomforing.setArenaData(arenadata)
 
             val next = queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id)
@@ -175,17 +176,31 @@ class ArenaAdapterService(
     }
 
     private fun hasRelevantChanges(
+        enkeltplass: GjennomforingDbo,
+        current: Enkeltplass,
+    ): Boolean {
+        return enkeltplass != GjennomforingDbo(
+            id = current.id,
+            tiltakstypeId = current.tiltakstype.id,
+            arrangorId = current.arrangor.id,
+            type = GjennomforingType.ARENA_ENKELTPLASS,
+            navn = current.arena.navn,
+            startDato = current.arena.startDato,
+            sluttDato = current.arena.sluttDato,
+            status = current.arena.status,
+            deltidsprosent = current.arena.deltidsprosent,
+            antallPlasser = current.arena.antallPlasser,
+        )
+    }
+
+    private fun hasRelevantChanges(
         arenadata: GjennomforingArenaDataDbo,
         current: Enkeltplass,
     ): Boolean {
         return arenadata != GjennomforingArenaDataDbo(
             id = current.id,
-            tiltaksnummer = current.arena?.tiltaksnummer,
-            navn = current.arena?.navn,
-            startDato = current.arena?.startDato,
-            sluttDato = current.arena?.sluttDato,
-            status = current.arena?.status,
-            arenaAnsvarligEnhet = current.arena?.ansvarligNavEnhet,
+            tiltaksnummer = current.arena.tiltaksnummer,
+            arenaAnsvarligEnhet = current.arena.ansvarligNavEnhet,
         )
     }
 

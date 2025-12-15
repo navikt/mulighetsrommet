@@ -108,10 +108,10 @@ class DelMedBrukerService(
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                    tiltakstype.arena_kode as tiltakstype_arena_kode,
-                   gruppe.navn as gjennomforing_navn
+                   gjennomforing.navn as gjennomforing_navn
             from del_med_bruker
                 join tiltakstype on del_med_bruker.tiltakstype_id = tiltakstype.id
-                left join gjennomforing_gruppetiltak gruppe on del_med_bruker.gjennomforing_id = gruppe.gjennomforing_id
+                left join gjennomforing on del_med_bruker.gjennomforing_id = gjennomforing.id
             where norsk_ident = ?
         """.trimIndent()
 

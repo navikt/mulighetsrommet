@@ -348,11 +348,12 @@ class GenererUtbetalingService(
         val query = """
             select gruppe.gjennomforing_id
             from gjennomforing_gruppetiltak gruppe
+                join gjennomforing on gruppe.gjennomforing_id = gjennomforing.id
                 join avtale on gruppe.avtale_id = avtale.id
                 join avtale_prismodell on avtale_prismodell.avtale_id = gruppe.avtale_id
-            where gruppe.status != 'AVLYST'
+            where gjennomforing.status != 'AVLYST'
                 and avtale_prismodell.prismodell_type = :prismodell::prismodell
-                and daterange(gruppe.start_dato, coalesce(gruppe.avsluttet_tidspunkt::date, gruppe.slutt_dato), '[]') && :periode::daterange
+                and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()
 

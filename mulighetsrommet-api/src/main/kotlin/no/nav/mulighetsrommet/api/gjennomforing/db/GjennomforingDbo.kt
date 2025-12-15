@@ -12,32 +12,42 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
 
+enum class GjennomforingType {
+    GRUPPETILTAK,
+    ARENA_GRUPPETILTAK,
+    ARENA_ENKELTPLASS,
+}
+
 data class GjennomforingDbo(
     val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
+    val type: GjennomforingType,
+    val navn: String,
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
 )
 
 data class GjennomforingArenaDataDbo(
     val id: UUID,
     val tiltaksnummer: Tiltaksnummer? = null,
-    val navn: String? = null,
-    val startDato: LocalDate? = null,
-    val sluttDato: LocalDate? = null,
-    val status: GjennomforingStatusType? = null,
     val arenaAnsvarligEnhet: String? = null,
 )
 
 data class GjennomforingGruppeDbo(
     val id: UUID,
-    val navn: String,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
-    val arrangorKontaktpersoner: List<UUID>,
+    val navn: String,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
     val antallPlasser: Int,
+    val arrangorKontaktpersoner: List<UUID>,
     val avtaleId: UUID,
     val administratorer: List<NavIdent>,
     val navEnheter: Set<NavEnhetNummer>,
@@ -46,7 +56,6 @@ data class GjennomforingGruppeDbo(
     val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
-    val deltidsprosent: Double,
     val estimertVentetidVerdi: Int?,
     val estimertVentetidEnhet: String?,
     val tilgjengeligForArrangorDato: LocalDate?,
