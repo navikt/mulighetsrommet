@@ -19,7 +19,10 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
-import { GjennomforingOppstartstype, PameldingType } from "@tiltaksadministrasjon/api-client";
+import {
+  GjennomforingOppstartstype,
+  GjennomforingPameldingType,
+} from "@tiltaksadministrasjon/api-client";
 import {
   Definisjonsliste,
   Definition,
@@ -115,7 +118,7 @@ export function GjennomforingDetaljer() {
     {
       key: gjennomforingTekster.pameldingTypeLabel,
       value:
-        pameldingType === PameldingType.DIREKTE_VEDTAK
+        pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
           ? "Veileder fatter vedtaket direkte etter påmelding"
           : "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
     },

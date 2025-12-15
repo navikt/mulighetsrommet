@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -61,7 +62,7 @@ data class Gjennomforing(
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
-    val pameldingType: PameldingType,
+    val pameldingType: GjennomforingPameldingType,
 ) {
     fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
         id = id,

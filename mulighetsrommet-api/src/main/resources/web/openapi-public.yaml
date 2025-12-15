@@ -190,6 +190,8 @@ components:
           $ref: "#/components/schemas/GjennomforingStatusType"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         tilgjengeligForArrangorFraOgMedDato:
           type:
           - "null"
@@ -218,6 +220,7 @@ components:
       - oppmoteSted
       - opprettetTidspunkt
       - oppstart
+      - pameldingType
       - sluttDato
       - startDato
       - status
@@ -235,6 +238,11 @@ components:
       enum:
       - LOPENDE
       - FELLES
+    GjennomforingPameldingType:
+      type: string
+      enum:
+      - DIREKTE_VEDTAK
+      - TRENGER_GODKJENNING
     TiltaksgjennomforingV2Dto:
       anyOf:
       - $ref: "#/components/schemas/TiltaksgjennomforingV2.Enkeltplass"

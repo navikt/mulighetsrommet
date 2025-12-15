@@ -9,8 +9,8 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  GjennomforingPameldingType,
   GjennomforingRequest,
-  PameldingType,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import {
@@ -151,9 +151,9 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               name="oppstart"
               onChange={(e) => {
                 if (e.target.value === GjennomforingOppstartstype.FELLES) {
-                  setValue("pameldingType", PameldingType.TRENGER_GODKJENNING);
+                  setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
                 } else {
-                  setValue("pameldingType", PameldingType.DIREKTE_VEDTAK);
+                  setValue("pameldingType", GjennomforingPameldingType.DIREKTE_VEDTAK);
                 }
               }}
               readOnly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
@@ -177,11 +177,11 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               options={[
                 {
                   label: "Veileder fatter vedtaket direkte etter påmelding",
-                  value: PameldingType.DIREKTE_VEDTAK,
+                  value: GjennomforingPameldingType.DIREKTE_VEDTAK,
                 },
                 {
                   label: "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
-                  value: PameldingType.TRENGER_GODKJENNING,
+                  value: GjennomforingPameldingType.TRENGER_GODKJENNING,
                 },
               ]}
             />

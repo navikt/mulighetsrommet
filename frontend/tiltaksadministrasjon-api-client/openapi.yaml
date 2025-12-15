@@ -4444,7 +4444,7 @@ components:
       required:
       - enhet
       - verdi
-    PameldingType:
+    GjennomforingPameldingType:
       type: string
       enum:
       - DIREKTE_VEDTAK
@@ -4525,7 +4525,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDbo"
         pameldingType:
-          $ref: "#/components/schemas/PameldingType"
+          $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
       - administratorer
       - amoKategorisering
@@ -4787,7 +4787,7 @@ components:
           items:
             $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
         pameldingType:
-          $ref: "#/components/schemas/PameldingType"
+          $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
       - administratorer
       - amoKategorisering

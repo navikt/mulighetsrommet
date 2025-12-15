@@ -13,7 +13,7 @@ import {
   GjennomforingTiltakstype,
   TiltakstypeDto,
   PaginatedResponseGjennomforingKompaktDto,
-  PameldingType,
+  GjennomforingPameldingType,
 } from "@tiltaksadministrasjon/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
@@ -125,10 +125,10 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     amoKategorisering: null,
     stengt: [],
     utdanningslop: null,
-    pameldingType: PameldingType.DIREKTE_VEDTAK,
+    pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
   },
   {
-    pameldingType: PameldingType.DIREKTE_VEDTAK,
+    pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
     navn: "Spillbasert kvalifisering",
     tiltaksnummer: "2024#123456",
@@ -213,7 +213,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     beskrivelse: null,
     estimertVentetid: null,
     utdanningslop: null,
-    pameldingType: PameldingType.DIREKTE_VEDTAK,
+    pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -252,7 +252,7 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     beskrivelse: null,
     estimertVentetid: null,
     utdanningslop: null,
-    pameldingType: PameldingType.DIREKTE_VEDTAK,
+    pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
   },
 ];
 
