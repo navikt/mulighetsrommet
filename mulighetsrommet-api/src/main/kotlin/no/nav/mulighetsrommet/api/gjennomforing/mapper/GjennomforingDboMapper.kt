@@ -46,6 +46,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
+        pameldingType = gjennomforing.pameldingType,
     )
 
     fun fromGjennomforingRequest(
@@ -84,6 +85,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato,
         amoKategorisering = request.amoKategorisering,
         utdanningslop = request.utdanningslop,
+        pameldingType = request.pameldingType,
     )
 
     fun toGjennomforingRequest(gjennomforing: Gjennomforing) = GjennomforingRequest(
@@ -126,5 +128,6 @@ object GjennomforingDboMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
         oppmoteSted = gjennomforing.oppmoteSted,
+        pameldingType = gjennomforing.pameldingType,
     )
 }

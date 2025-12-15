@@ -61,6 +61,7 @@ data class Gjennomforing(
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
+    val pameldingType: PameldingType,
 ) {
     fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
         id = id,

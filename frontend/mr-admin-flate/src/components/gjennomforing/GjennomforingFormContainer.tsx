@@ -105,6 +105,7 @@ export function GjennomforingFormContainer(props: Props) {
         avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
           ? (data.utdanningslop ?? null)
           : null,
+      pameldingType: data.pameldingType,
     };
 
     mutation.mutate(body, {

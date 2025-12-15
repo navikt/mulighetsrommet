@@ -8,6 +8,7 @@ import {
   GjennomforingOppstartstype,
   GjennomforingRequest,
   NavAnsattDto,
+  PameldingType,
   UtdanningslopDbo,
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -22,6 +23,18 @@ export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartst
   return isKursTiltak(tiltakskode)
     ? GjennomforingOppstartstype.FELLES
     : GjennomforingOppstartstype.LOPENDE;
+}
+
+export function defaultPameldingType(avtale?: AvtaleDto): PameldingType {
+  if (!avtale) {
+    return PameldingType.DIREKTE_VEDTAK;
+  }
+
+  // TODO: Trenger modifisering ved de nye tiltakstypene
+  const tiltakskode = avtale.tiltakstype.tiltakskode;
+  return isKursTiltak(tiltakskode)
+    ? PameldingType.TRENGER_GODKJENNING
+    : PameldingType.DIREKTE_VEDTAK;
 }
 
 function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {
@@ -117,6 +130,7 @@ export function defaultGjennomforingData(
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : null,
     oppmoteSted: gjennomforing?.oppmoteSted ?? null,
+    pameldingType: gjennomforing?.pameldingType || defaultPameldingType(avtale),
   };
 }
 

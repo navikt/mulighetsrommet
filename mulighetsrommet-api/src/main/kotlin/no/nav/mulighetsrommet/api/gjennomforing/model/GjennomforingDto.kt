@@ -51,6 +51,7 @@ data class GjennomforingDto(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<Gjennomforing.StengtPeriode>,
+    val pameldingType: PameldingType,
 ) {
     @Serializable
     data class Status(

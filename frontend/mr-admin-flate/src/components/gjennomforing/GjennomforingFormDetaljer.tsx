@@ -10,6 +10,7 @@ import {
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingRequest,
+  PameldingType,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import {
@@ -31,13 +32,13 @@ import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModa
 import { AdministratorOptions } from "@/components/skjema/AdministratorOptions";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
-import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 
 interface Props {
   avtale: AvtaleDto;
@@ -143,9 +144,46 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
           </FormGroup>
 
           <FormGroup>
-            <SelectOppstartstype
+            <ControlledSokeSelect
+              size="small"
+              label="Oppstartstype"
+              placeholder="Velg oppstart"
               name="oppstart"
-              readonly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
+              onChange={(e) => {
+                if (e.target.value === GjennomforingOppstartstype.FELLES) {
+                  setValue("pameldingType", PameldingType.TRENGER_GODKJENNING);
+                } else {
+                  setValue("pameldingType", PameldingType.DIREKTE_VEDTAK);
+                }
+              }}
+              readOnly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
+              options={[
+                {
+                  label: "Felles oppstartsdato",
+                  value: GjennomforingOppstartstype.FELLES,
+                },
+                {
+                  label: "Løpende oppstart",
+                  value: GjennomforingOppstartstype.LOPENDE,
+                },
+              ]}
+            />
+            <ControlledSokeSelect
+              size="small"
+              label="Påmeldingstype"
+              placeholder="Velg påmeldingstype"
+              name="pameldingType"
+              readOnly
+              options={[
+                {
+                  label: "Veileder fatter vedtaket direkte etter påmelding",
+                  value: PameldingType.DIREKTE_VEDTAK,
+                },
+                {
+                  label: "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
+                  value: PameldingType.TRENGER_GODKJENNING,
+                },
+              ]}
             />
             <HGrid columns={2}>
               <DatePicker>

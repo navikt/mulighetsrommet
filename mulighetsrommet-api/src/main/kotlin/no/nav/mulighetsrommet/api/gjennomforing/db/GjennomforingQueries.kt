@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.PameldingType
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -61,7 +62,8 @@ class GjennomforingQueries(private val session: Session) {
                 deltidsprosent,
                 estimert_ventetid_verdi,
                 estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_dato
+                tilgjengelig_for_arrangor_dato,
+                pamelding_type
             )
             values (
                 :id::uuid,
@@ -81,7 +83,8 @@ class GjennomforingQueries(private val session: Session) {
                 :deltidsprosent,
                 :estimert_ventetid_verdi,
                 :estimert_ventetid_enhet,
-                :tilgjengelig_for_arrangor_fra_dato
+                :tilgjengelig_for_arrangor_fra_dato,
+                :pamelding_type::pamelding_type
             )
             on conflict (id) do update set
                 navn                               = excluded.navn,
@@ -100,7 +103,8 @@ class GjennomforingQueries(private val session: Session) {
                 deltidsprosent                     = excluded.deltidsprosent,
                 estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                 estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_dato = excluded.tilgjengelig_for_arrangor_dato
+                tilgjengelig_for_arrangor_dato     = excluded.tilgjengelig_for_arrangor_dato,
+                pamelding_type                     = excluded.pamelding_type
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -580,6 +584,7 @@ class GjennomforingQueries(private val session: Session) {
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
+        "pamelding_type" to pameldingType.name,
     )
 }
 
@@ -689,6 +694,7 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
                 )
             },
         ),
+        pameldingType = string("pamelding_type").let { PameldingType.valueOf(it) },
     )
 }
 

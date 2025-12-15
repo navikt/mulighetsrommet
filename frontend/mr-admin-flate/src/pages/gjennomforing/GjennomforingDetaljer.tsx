@@ -19,7 +19,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
-import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingOppstartstype, PameldingType } from "@tiltaksadministrasjon/api-client";
 import {
   Definisjonsliste,
   Definition,
@@ -39,6 +39,7 @@ export function GjennomforingDetaljer() {
     startDato,
     sluttDato,
     oppstart,
+    pameldingType,
     antallPlasser,
     deltidsprosent,
     apentForPamelding,
@@ -110,6 +111,13 @@ export function GjennomforingDetaljer() {
     {
       key: gjennomforingTekster.oppstartstypeLabel,
       value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
+    },
+    {
+      key: gjennomforingTekster.pameldingTypeLabel,
+      value:
+        pameldingType === PameldingType.DIREKTE_VEDTAK
+          ? "Veileder fatter vedtaket direkte etter påmelding"
+          : "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
     },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.model.PameldingType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -36,6 +37,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val Oppfolging1Request = GjennomforingRequest(
@@ -67,6 +69,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         oppmoteSted = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val Oppfolging2 = GjennomforingDbo(
@@ -93,6 +96,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val VTA1 = GjennomforingDbo(
@@ -119,6 +123,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val AFT1 = GjennomforingDbo(
@@ -145,6 +150,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val Jobbklubb1 = GjennomforingDbo(
@@ -171,6 +177,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val GruppeAmo1 = GjennomforingDbo(
@@ -197,6 +204,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val GruppeFagYrke1 = GjennomforingDbo(
@@ -223,6 +231,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 
     val ArbeidsrettetRehabilitering = GjennomforingDbo(
@@ -249,5 +258,6 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = PameldingType.DIREKTE_VEDTAK,
     )
 }

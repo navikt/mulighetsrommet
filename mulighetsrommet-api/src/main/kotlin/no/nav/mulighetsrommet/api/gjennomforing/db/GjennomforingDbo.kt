@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.db
 
+import no.nav.mulighetsrommet.api.gjennomforing.model.PameldingType
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -34,6 +35,7 @@ data class GjennomforingDbo(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
+    val pameldingType: PameldingType,
 )
 
 data class GjennomforingKontaktpersonDbo(
