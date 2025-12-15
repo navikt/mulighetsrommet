@@ -11,17 +11,6 @@ export function MrApi() {
     <>
       <TopicOverview base={ApiBase.MR_API} />
 
-      <RunTask base={ApiBase.MR_API} task="generate-validation-report">
-        <BodyShort>
-          Genererer en rapport med alle valideringsfeil på gjennomføringer og laster rapporten opp
-          til en <Link href="https://console.cloud.google.com/storage/browser">bucket i GCP.</Link>
-        </BodyShort>
-        <BodyShort>
-          Rapporten kan benyttes til å få en oversikt over tilstanden til gjennomføringene vi skal
-          migrere.
-        </BodyShort>
-      </RunTask>
-
       <RunTask base={ApiBase.MR_API} task="initial-load-tiltakstyper">
         <BodyShort>Starter en initial load av alle relevante tiltakstyper.</BodyShort>
       </RunTask>

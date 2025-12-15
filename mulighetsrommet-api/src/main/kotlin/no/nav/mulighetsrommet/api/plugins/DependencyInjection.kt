@@ -56,7 +56,6 @@ import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplicateBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
@@ -442,7 +441,6 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: AppConfig) = module {
     val tasks = config.tasks
-    single { GenerateValidationReport(tasks.generateValidationReport, get(), get(), get()) }
     single {
         InitialLoadGjennomforinger(
             InitialLoadGjennomforinger.Config(
@@ -490,7 +488,6 @@ private fun tasks(config: AppConfig) = module {
         )
         val updateApentForPamelding = UpdateApentForPamelding(tasks.updateApentForPamelding, get(), get())
         val notificationTask: NotificationTask by inject()
-        val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
@@ -506,7 +503,6 @@ private fun tasks(config: AppConfig) = module {
             .create(
                 db.getDatasource(),
                 notificationTask.task,
-                generateValidationReport.task,
                 initialLoadGjennomforinger.task,
                 initialLoadTiltakstyper.task,
                 journalforUtbetaling.task,

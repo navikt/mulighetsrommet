@@ -77,9 +77,6 @@ object Tiltakskoder {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
     }
 
-    fun erStottetIArena(tiltakskode: Tiltakskode): Boolean = tiltakskode == tilArenaStottetType(tiltakskode)
-
-
     /**
      * Nye tiltakskoder 2025 §7-2 a-f:
      */

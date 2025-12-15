@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
@@ -118,10 +119,10 @@ class TiltakshistorikkService(
         // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
         //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
         //  som feature toggle er definert for
-        val tiltakstyper = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            .map { tiltaksTypeDto -> tiltaksTypeDto.tiltakskode?.let { Tiltakskoder.tilArenaStottetType(it) } }.toSet()
-        val tiltakstype = if (tiltakstyper.isNotEmpty()) {
-            val type = tiltakstyper.firstOrNull()
+        val tiltakskoder = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
+            .mapNotNull { tiltaksTypeDto -> tiltaksTypeDto.tiltakskode?.let { Tiltakskoder.tilArenaStottetType(it) } }.toSet()
+        val tiltakstype = if (tiltakskoder.isNotEmpty()) {
+            val type = tiltakskoder.firstOrNull()
                 ?: throw IllegalStateException("Klarte ikke å utlede tiltakstype for deltakerens tiltakskode=${deltakelse.tiltakstype.tiltakskode}")
             DeltakelseTiltakstype(deltakelse.tiltakstype.navn, type)
         } else {
@@ -194,13 +195,18 @@ class TiltakshistorikkService(
         // TODO: ideelt sett hadde vi fått tiltakskode i stedet for arenakode fra komet
         //  (og enda mer ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
         //  `tiltakshistorikk`-appen som kilde)
-        val arenaTiltakstyper = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            .filter { it.tiltakskode?.let { tiltakskode -> Tiltakskoder.erStottetIArena(tiltakskode) } ?: false }
-            .toSet()
-        val tiltakstype = arenaTiltakstyper.singleOrNull()?.let {
-            DeltakelseTiltakstype(it.navn, it.tiltakskode)
-        } ?: throw IllegalStateException("Finner ikke én Arena-støttet tiltakskode av typen ${deltakelse.tiltakstype.tiltakskode}")
-
+        val tiltakstype = try {
+            tiltakstypeService.getByTiltakskode(Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode))
+                .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+        } catch (_: Throwable) {
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
+                .mapNotNull {
+                    it.tiltakskode?.let { tiltakskode -> (it.navn to Tiltakskoder.tilArenaStottetType(tiltakskode)) }
+                }
+                .singleOrNull()
+                ?.let { (navn, tiltakskode) -> DeltakelseTiltakstype(navn, tiltakskode) }
+                ?: throw IllegalStateException("Fant ikke én tiltakskode i db med arenakode=${deltakelse.tiltakstype.tiltakskode}")
+        }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
