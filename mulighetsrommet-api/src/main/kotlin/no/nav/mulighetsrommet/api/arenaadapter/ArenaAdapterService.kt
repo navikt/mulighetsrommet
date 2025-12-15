@@ -140,19 +140,9 @@ class ArenaAdapterService(
             "Enkeltplasser er ikke støttet for tiltakstype ${arenaGjennomforing.arenaKode}"
         }
 
-        val tiltakstyper = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
-        if (tiltakstyper.isEmpty()) {
-            throw IllegalArgumentException("Fant ikke tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
-        }
+        val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull() ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
         val previous = queries.enkeltplass.get(arenaGjennomforing.id)
         if (previous == null) {
-            val arenaTiltakstyper = tiltakstyper.filter { tiltaksTypeDto ->
-                tiltaksTypeDto.tiltakskode?.let {
-                    Tiltakskoder.erStottetIArena(it)
-                } ?: false
-            }.toSet()
-            val tiltakstype = tiltakstyper.singleOrNull()
-                ?: throw IllegalArgumentException("Flere tiltakstyper for arenaKode=${arenaGjennomforing.arenaKode} har ulik tiltakskode: $arenaTiltakstyper. Kan ikke bestemme hvilken som skal brukes for enkeltplass.")
             queries.enkeltplass.upsert(
                 EnkeltplassDbo(
                     id = arenaGjennomforing.id,
