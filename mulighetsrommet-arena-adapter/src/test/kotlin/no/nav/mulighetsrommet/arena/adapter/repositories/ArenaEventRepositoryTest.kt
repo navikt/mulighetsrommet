@@ -50,7 +50,7 @@ class ArenaEventRepositoryTest : FunSpec({
             (6..10).forEach {
                 val event = events.upsert(
                     ArenaEvent(
-                        arenaTable = ArenaTable.AvtaleInfo,
+                        arenaTable = ArenaTable.Tiltaksgjennomforing,
                         arenaId = it.toString(),
                         operation = ArenaEvent.Operation.Insert,
                         payload = Json.parseToJsonElement("{}"),
@@ -74,7 +74,7 @@ class ArenaEventRepositoryTest : FunSpec({
 
         test("should get events specified by table") {
             events.getAll(table = ArenaTable.Tiltakstype) shouldHaveSize 5
-            events.getAll(table = ArenaTable.AvtaleInfo) shouldHaveSize 5
+            events.getAll(table = ArenaTable.Tiltaksgjennomforing) shouldHaveSize 5
         }
 
         test("should get events specified by status") {
@@ -96,7 +96,7 @@ class ArenaEventRepositoryTest : FunSpec({
             )
 
             events.updateProcessingStatusFromEntityStatus(
-                table = ArenaTable.AvtaleInfo,
+                table = ArenaTable.Tiltaksgjennomforing,
                 entityStatus = Handled,
                 processingStatus = Replay,
             )

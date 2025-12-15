@@ -74,12 +74,6 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "teamarenanais.aapen-arena-avtaleinfoendret-v1-p",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
               "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
