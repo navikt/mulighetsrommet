@@ -94,8 +94,7 @@ class ArenaAdapterService(
         }
 
         val tiltakstype = db.session {
-            val tiltakskoder = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode)
-            tiltakskoder.singleOrNull()
+            queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
         } ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
         val sluttDato = arenaGjennomforing.sluttDato
@@ -140,7 +139,8 @@ class ArenaAdapterService(
             "Enkeltplasser er ikke støttet for tiltakstype ${arenaGjennomforing.arenaKode}"
         }
 
-        val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull() ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+        val tiltakstype = queries.tiltakstype.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
+            ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
         val previous = queries.enkeltplass.get(arenaGjennomforing.id)
         if (previous == null) {
             queries.enkeltplass.upsert(
