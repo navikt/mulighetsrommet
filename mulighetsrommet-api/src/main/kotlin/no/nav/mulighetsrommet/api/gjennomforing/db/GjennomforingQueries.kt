@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
@@ -368,7 +368,7 @@ class GjennomforingQueries(private val session: Session) {
         }
     }
 
-    fun getAllGruppetiltak(
+    fun getAllGruppetiltakKompakt(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
         navEnheter: List<NavEnhetNummer> = emptyList(),
@@ -383,7 +383,7 @@ class GjennomforingQueries(private val session: Session) {
         publisert: Boolean? = null,
         koordinatorNavIdent: NavIdent? = null,
         prismodeller: List<PrismodellType> = emptyList(),
-    ): PaginatedResult<GjennomforingKompakt> = with(session) {
+    ): PaginatedResult<GjennomforingGruppetiltakKompakt> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -680,12 +680,12 @@ class GjennomforingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
+private fun Row.toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt {
     val navEnheter = stringOrNull("nav_enheter_json")
         ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
         ?: emptyList()
 
-    return GjennomforingKompakt(
+    return GjennomforingGruppetiltakKompakt(
         id = uuid("id"),
         navn = string("navn"),
         lopenummer = Tiltaksnummer(string("lopenummer")),
@@ -695,12 +695,12 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         publisert = boolean("publisert"),
         prismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
-        arrangor = GjennomforingKompakt.ArrangorUnderenhet(
+        arrangor = GjennomforingGruppetiltakKompakt.ArrangorUnderenhet(
             id = uuid("arrangor_id"),
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
             navn = string("arrangor_navn"),
         ),
-        tiltakstype = GjennomforingKompakt.Tiltakstype(
+        tiltakstype = GjennomforingGruppetiltakKompakt.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),

@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-data class GjennomforingKompakt(
+data class GjennomforingGruppetiltakKompakt(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,

@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -591,14 +591,14 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
                 ).should {
                     it.items.size shouldBe 1
                     it.items[0].id shouldBe Oppfolging1.id
                 }
 
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
                 ).should {
                     it.items.size shouldBe 1
@@ -622,12 +622,12 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(search = "bergen").should {
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = "bergen").should {
                     it.items.size shouldBe 1
                     it.items[0].arrangor.navn shouldBe "Underenhet Bergen"
                 }
 
-                queries.gjennomforing.getAllGruppetiltak(search = "under").should {
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = "under").should {
                     it.items.size shouldBe 2
                 }
             }
@@ -648,13 +648,13 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val lopenummer = queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).lopenummer
 
-                queries.gjennomforing.getAllGruppetiltak(search = lopenummer.value)
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.value)
                     .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
 
-                queries.gjennomforing.getAllGruppetiltak(search = lopenummer.aar.toString())
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.aar.toString())
                     .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
 
-                queries.gjennomforing.getAllGruppetiltak(search = lopenummer.lopenummer.toString())
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.lopenummer.toString())
                     .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
             }
         }
@@ -666,12 +666,12 @@ class GjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, AFT1),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(avtaleId = AvtaleFixtures.oppfolging.id).items
+                queries.gjennomforing.getAllGruppetiltakKompakt(avtaleId = AvtaleFixtures.oppfolging.id).items
                     .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 queries.gjennomforing.getByAvtale(AvtaleFixtures.oppfolging.id)
                     .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
-                queries.gjennomforing.getAllGruppetiltak(avtaleId = AvtaleFixtures.AFT.id).items
+                queries.gjennomforing.getAllGruppetiltakKompakt(avtaleId = AvtaleFixtures.AFT.id).items
                     .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 queries.gjennomforing.getByAvtale(AvtaleFixtures.AFT.id)
                     .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
@@ -690,7 +690,7 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
+                queries.gjennomforing.getAllGruppetiltakKompakt(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 3
                         gjennomforinger.map { it.sluttDato } shouldContainExactlyInAnyOrder listOf(
@@ -721,13 +721,13 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
                     koordinatorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
                 )
                     .totalCount shouldBe 2
 
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
                     koordinatorNavIdent = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -745,13 +745,13 @@ class GjennomforingQueriesTest : FunSpec({
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
+                queries.gjennomforing.getAllGruppetiltakKompakt(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 1
                         gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id)
                     }
 
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     tiltakstypeIder = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.VTA.id),
                 ).should { (totalCount, gjennomforinger) ->
                     totalCount shouldBe 2
@@ -772,13 +772,13 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 ).setup(session)
 
-                queries.gjennomforing.getAllGruppetiltak(navEnheter = listOf(Gjovik.enhetsnummer))
+                queries.gjennomforing.getAllGruppetiltakKompakt(navEnheter = listOf(Gjovik.enhetsnummer))
                     .should { (totalCount, gjennomforinger) ->
                         totalCount shouldBe 2
                         gjennomforinger shouldContainExactlyIds listOf(Oppfolging1.id, AFT1.id)
                     }
 
-                queries.gjennomforing.getAllGruppetiltak(
+                queries.gjennomforing.getAllGruppetiltakKompakt(
                     navEnheter = listOf(
                         Lillehammer.enhetsnummer,
                         Sel.enhetsnummer,
@@ -789,7 +789,7 @@ class GjennomforingQueriesTest : FunSpec({
                         gjennomforinger shouldContainExactlyIds listOf(VTA1.id, AFT1.id)
                     }
 
-                queries.gjennomforing.getAllGruppetiltak(navEnheter = listOf(Innlandet.enhetsnummer))
+                queries.gjennomforing.getAllGruppetiltakKompakt(navEnheter = listOf(Innlandet.enhetsnummer))
                     .should { (totalCount) ->
                         totalCount shouldBe 3
                     }
@@ -817,7 +817,7 @@ class GjennomforingQueriesTest : FunSpec({
                 row(Pagination.of(page = 3, size = 4), 2, "09", "10", 10),
                 row(Pagination.of(page = 2, size = 20), 0, null, null, 0),
             ) { pagination, expectedSize, expectedFirst, expectedLast, expectedTotalCount ->
-                val (totalCount, items) = queries.gjennomforing.getAllGruppetiltak(pagination)
+                val (totalCount, items) = queries.gjennomforing.getAllGruppetiltakKompakt(pagination)
 
                 items.size shouldBe expectedSize
                 items.firstOrNull()?.navn shouldBe expectedFirst
@@ -891,6 +891,6 @@ private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktp
     epost = kontaktperson.epost,
 )
 
-private infix fun Collection<GjennomforingKompakt>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<GjennomforingGruppetiltakKompakt>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }

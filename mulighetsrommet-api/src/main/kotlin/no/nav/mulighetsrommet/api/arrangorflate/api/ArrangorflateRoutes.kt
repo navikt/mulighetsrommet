@@ -251,7 +251,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     ?: emptyList()
                 val gjennomforinger = db.session {
                     queries.gjennomforing
-                        .getAllGruppetiltak(
+                        .getAllGruppetiltakKompakt(
                             arrangorOrgnr = listOf(orgnr),
                             prismodeller = prismodeller,
                         )

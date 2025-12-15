@@ -106,7 +106,7 @@ data class GjennomforingGruppetiltak(
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
 ) : Gjennomforing() {
-    fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
+    fun toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt = GjennomforingGruppetiltakKompakt(
         id = id,
         navn = navn,
         lopenummer = lopenummer,
@@ -116,8 +116,16 @@ data class GjennomforingGruppetiltak(
         publisert = publisert,
         prismodell = avtalePrismodell,
         kontorstruktur = kontorstruktur,
-        tiltakstype = GjennomforingKompakt.Tiltakstype(tiltakstype.id, tiltakstype.navn, tiltakstype.tiltakskode),
-        arrangor = GjennomforingKompakt.ArrangorUnderenhet(arrangor.id, arrangor.organisasjonsnummer, arrangor.navn),
+        tiltakstype = GjennomforingGruppetiltakKompakt.Tiltakstype(
+            tiltakstype.id,
+            tiltakstype.navn,
+            tiltakstype.tiltakskode,
+        ),
+        arrangor = GjennomforingGruppetiltakKompakt.ArrangorUnderenhet(
+            arrangor.id,
+            arrangor.organisasjonsnummer,
+            arrangor.navn,
+        ),
     )
 
     @Serializable

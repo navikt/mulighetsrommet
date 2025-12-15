@@ -152,7 +152,7 @@ class GjennomforingService(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
-        queries.gjennomforing.getAllGruppetiltak(
+        queries.gjennomforing.getAllGruppetiltakKompakt(
             pagination,
             search = filter.search,
             navEnheter = filter.navEnheter,
