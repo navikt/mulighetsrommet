@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class UpdateAvtaleStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

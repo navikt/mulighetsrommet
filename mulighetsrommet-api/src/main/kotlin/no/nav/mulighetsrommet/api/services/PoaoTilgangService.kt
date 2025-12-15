@@ -2,13 +2,17 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.utils.CacheUtils
-import no.nav.poao_tilgang.client.*
-import java.util.*
+import no.nav.poao_tilgang.client.Decision
+import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
+import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
+import no.nav.poao_tilgang.client.PoaoTilgangClient
+import no.nav.poao_tilgang.client.TilgangType
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class PoaoTilgangService(

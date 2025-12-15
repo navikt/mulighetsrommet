@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

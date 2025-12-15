@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

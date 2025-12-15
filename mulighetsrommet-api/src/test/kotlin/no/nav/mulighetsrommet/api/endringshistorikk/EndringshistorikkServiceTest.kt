@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class EndringshistorikkServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

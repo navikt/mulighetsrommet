@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import java.util.*
+import java.util.UUID
 
 object ArrangorFixtures {
     object Fretex {

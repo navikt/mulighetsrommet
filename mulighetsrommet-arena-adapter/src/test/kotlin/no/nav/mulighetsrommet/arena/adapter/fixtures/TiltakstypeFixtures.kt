@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.arena.adapter.fixtures
 
 import no.nav.mulighetsrommet.arena.JaNeiStatus
-import no.nav.mulighetsrommet.arena.adapter.models.arena.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
+import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 object TiltakstypeFixtures {
     val ArenaGruppetiltak = ArenaTiltak(

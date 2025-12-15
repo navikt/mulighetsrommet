@@ -12,7 +12,7 @@ import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.TilgangType
 import no.nav.poao_tilgang.client.api.ApiResult
-import java.util.*
+import java.util.UUID
 
 class PoaoTilgangServiceTest : FunSpec(
     {

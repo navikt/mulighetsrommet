@@ -10,9 +10,11 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
-import io.ktor.client.engine.*
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.respondOk
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.ArenaTimestampFormatter
@@ -28,13 +30,21 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomfor
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Unhandled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Update
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
-import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -46,7 +56,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkClient
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
-import java.util.*
+import java.util.UUID
 
 class TiltakgjennomforingEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

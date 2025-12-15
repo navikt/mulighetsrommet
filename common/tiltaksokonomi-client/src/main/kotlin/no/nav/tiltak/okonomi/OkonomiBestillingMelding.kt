@@ -2,7 +2,17 @@ package no.nav.tiltak.okonomi
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 

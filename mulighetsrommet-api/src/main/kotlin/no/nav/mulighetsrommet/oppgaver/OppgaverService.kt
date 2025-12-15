@@ -156,9 +156,12 @@ class OppgaverService(val db: ApiDatabase) {
     }
 
     private fun QueryContext.getNavEnheterForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> {
-        return regioner.flatMapTo(mutableSetOf()) { region ->
-            queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
-        }
+        return queries.enhet.getKostnadssted(regioner.toList())
+            .map { it.enhetsnummer }
+            .toSet() +
+            regioner.flatMapTo(mutableSetOf()) { region ->
+                queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
+            }
     }
 }
 

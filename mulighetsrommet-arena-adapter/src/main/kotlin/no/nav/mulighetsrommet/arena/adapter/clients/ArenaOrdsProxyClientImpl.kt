@@ -1,13 +1,14 @@
 package no.nav.mulighetsrommet.arena.adapter.clients
 
 import arrow.core.Either
-import io.ktor.client.call.*
-import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.cache.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient

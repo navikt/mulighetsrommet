@@ -2,13 +2,18 @@ package no.nav.tiltak.historikk
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Serializable
 sealed class TiltakshistorikkV1Dto {

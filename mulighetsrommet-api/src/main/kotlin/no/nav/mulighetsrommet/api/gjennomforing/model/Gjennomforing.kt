@@ -7,7 +7,13 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -56,6 +62,19 @@ data class Gjennomforing(
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
 ) {
+    fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
+        id = id,
+        navn = navn,
+        lopenummer = lopenummer,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = status,
+        publisert = publisert,
+        prismodell = avtalePrismodell,
+        kontorstruktur = kontorstruktur,
+        tiltakstype = Tiltakstype(tiltakstype.id, tiltakstype.navn, tiltakstype.tiltakskode),
+        arrangor = GjennomforingKompakt.ArrangorUnderenhet(arrangor.id, arrangor.organisasjonsnummer, arrangor.navn),
+    )
 
     @Serializable
     data class Tiltakstype(

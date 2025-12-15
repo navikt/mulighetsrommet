@@ -112,7 +112,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 
-mockk = "io.mockk:mockk:1.14.6"
+mockk = "io.mockk:mockk:1.14.7"
 
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
@@ -120,7 +120,7 @@ nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:3.0.1"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598be"
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.56.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.57.0"
 
 postgresql = "org.postgresql:postgresql:42.7.8"
 

@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsak
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class DeltakerQueries(private val session: Session) {
     fun upsert(deltaker: DeltakerDbo) = withTransaction(session) {

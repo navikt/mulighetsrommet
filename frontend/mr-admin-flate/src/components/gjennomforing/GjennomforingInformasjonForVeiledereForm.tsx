@@ -4,6 +4,7 @@ import {
   GjennomforingDto,
   GjennomforingKontaktperson,
   GjennomforingRequest,
+  GjennomforingService,
 } from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
@@ -34,6 +35,12 @@ export function GjennomforingInformasjonForVeiledereForm({
     // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
     setKey(key + 1);
   }
+
+  async function kopierRedaksjoneltInnholdFraGjennomforing(id: string) {
+    const { data: gjennomforing } = await GjennomforingService.getGjennomforing({ path: { id } });
+    kopierRedaksjoneltInnhold(gjennomforing);
+  }
+
   const navRegioner = watch("veilederinformasjon.navRegioner");
 
   const regionerOptions = avtale.kontorstruktur
@@ -116,8 +123,8 @@ export function GjennomforingInformasjonForVeiledereForm({
                 size="small"
                 variant="tertiary"
                 type="button"
-                onClick={() => {
-                  kopierRedaksjoneltInnhold(gjennomforing);
+                onClick={async () => {
+                  await kopierRedaksjoneltInnholdFraGjennomforing(gjennomforing.id);
                   setModalOpen(false);
                 }}
               >

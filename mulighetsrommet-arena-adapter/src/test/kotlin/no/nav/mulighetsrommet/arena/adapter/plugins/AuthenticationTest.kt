@@ -2,8 +2,9 @@ package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.arena.adapter.withTestApplication
 import no.nav.security.mock.oauth2.MockOAuth2Server
 

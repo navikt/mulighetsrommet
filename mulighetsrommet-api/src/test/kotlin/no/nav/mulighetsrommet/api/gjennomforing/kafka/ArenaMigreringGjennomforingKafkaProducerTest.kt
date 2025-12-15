@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.util.*
+import java.util.UUID
 
 class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

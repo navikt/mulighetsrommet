@@ -10,14 +10,18 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.api.sanity.*
+import no.nav.mulighetsrommet.api.sanity.SanityNavKontaktperson
+import no.nav.mulighetsrommet.api.sanity.SanityRedaktor
+import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.sanity.Slug
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationTask
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class NavAnsattSyncService(
     private val config: Config,

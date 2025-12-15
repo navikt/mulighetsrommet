@@ -4,7 +4,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.tiltak.historikk.TiltakshistorikkArenaGjennomforing
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class ArenaGjennomforingQueries(private val session: Session) {
 

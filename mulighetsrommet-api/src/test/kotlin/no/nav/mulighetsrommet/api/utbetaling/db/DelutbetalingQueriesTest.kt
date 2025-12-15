@@ -6,8 +6,12 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -18,7 +22,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class DelutbetalingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

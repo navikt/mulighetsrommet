@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.navenhet
 
-import io.ktor.server.plugins.*
+import io.ktor.server.plugins.BadRequestException
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 
 object NavEnhetUtils {

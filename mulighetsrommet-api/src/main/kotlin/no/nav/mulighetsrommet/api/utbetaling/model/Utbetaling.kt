@@ -1,7 +1,13 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -9,7 +15,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class Utbetaling(

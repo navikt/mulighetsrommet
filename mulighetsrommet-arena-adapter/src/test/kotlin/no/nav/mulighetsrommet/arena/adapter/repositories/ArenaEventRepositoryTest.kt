@@ -10,9 +10,11 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Pending
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Processed
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Replay
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import java.util.*
+import java.util.UUID
 
 class ArenaEventRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

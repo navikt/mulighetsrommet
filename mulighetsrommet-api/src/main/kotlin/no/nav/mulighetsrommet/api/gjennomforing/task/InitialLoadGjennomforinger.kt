@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class InitialLoadGjennomforinger(
     private val config: Config,
@@ -97,7 +97,7 @@ class InitialLoadGjennomforinger(
                 result.items
             },
         ) {
-            publish(it)
+            publish(queries.gjennomforing.getOrError(it.id))
         }
 
         logger.info("Antall gruppetiltak relastet på topic: $total")
@@ -143,7 +143,7 @@ class InitialLoadGjennomforinger(
     }
 
     private fun initialLoadByAvtale(avtaleId: UUID) = db.session {
-        queries.gjennomforing.getAll(avtaleId = avtaleId).items.forEach {
+        queries.gjennomforing.getByAvtale(avtaleId).forEach {
             publish(it)
         }
     }

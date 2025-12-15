@@ -3,7 +3,11 @@ package no.nav.mulighetsrommet.api.avtale.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
@@ -14,22 +18,37 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.*
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Personopplysning
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class AvtaleQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

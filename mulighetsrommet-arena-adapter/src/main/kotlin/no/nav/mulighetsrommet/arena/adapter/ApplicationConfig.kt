@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents

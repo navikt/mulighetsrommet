@@ -9,7 +9,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.time.temporal.WeekFields
-import java.util.*
+import java.util.UUID
 
 @Serializable
 sealed class UtbetalingBeregning {

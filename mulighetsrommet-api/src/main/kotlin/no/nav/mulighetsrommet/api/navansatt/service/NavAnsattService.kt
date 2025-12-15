@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class NavAnsattService(
     private val roles: Set<EntraGroupNavAnsattRolleMapping>,

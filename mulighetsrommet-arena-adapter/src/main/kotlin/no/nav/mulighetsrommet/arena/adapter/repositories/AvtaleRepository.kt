@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class AvtaleRepository(private val db: Database) {
     fun upsert(avtale: Avtale) = query {

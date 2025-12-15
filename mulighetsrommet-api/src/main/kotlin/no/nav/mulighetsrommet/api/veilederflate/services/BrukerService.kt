@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.veilederflate.services
 
 import arrow.core.getOrElse
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient

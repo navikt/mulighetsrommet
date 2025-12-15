@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -49,13 +50,24 @@ import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.DataDetails
+import no.nav.mulighetsrommet.model.DataDrivenTableDto
+import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.LabeledDataElement
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
 
 fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
@@ -387,7 +399,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
             }
 
-            if (!kanOppretteKrav(okonomiConfig, gjennomforing)) {
+            if (!kanOppretteKrav(okonomiConfig, gjennomforing.toGjennomforingKompakt())) {
                 throw StatusException(
                     HttpStatusCode.Forbidden,
                     "Du kan ikke opprette utbetalingskrav for denne tiltaksgjennomføringen",
@@ -432,10 +444,10 @@ private fun hentTiltakstyperMedTilsagn(
  */
 fun kanOppretteKrav(
     okonomiConfig: OkonomiConfig,
-    gjennomforing: Gjennomforing,
+    gjennomforing: GjennomforingKompakt,
     relativeDate: LocalDate = LocalDate.now(),
 ): Boolean {
-    if (gjennomforing.avtalePrismodell !in okonomiConfig.opprettKravPrismodeller) {
+    if (gjennomforing.prismodell !in okonomiConfig.opprettKravPrismodeller) {
         return false
     }
     val gyldigTilsagnPeriode = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode] ?: return false
@@ -473,7 +485,7 @@ data class TiltaksoversiktResponse(
 )
 
 private fun toGjennomforingDataTable(
-    gjennomforinger: List<Gjennomforing>,
+    gjennomforinger: List<GjennomforingKompakt>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(

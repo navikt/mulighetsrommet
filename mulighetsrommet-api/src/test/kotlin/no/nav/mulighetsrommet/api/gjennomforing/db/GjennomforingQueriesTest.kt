@@ -15,18 +15,23 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -34,9 +39,16 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class GjennomforingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -597,11 +609,15 @@ class GjennomforingQueriesTest : FunSpec({
 
                 val queries = GjennomforingQueries(session)
 
-                queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id)
-                    .items.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                queries.getAll(avtaleId = AvtaleFixtures.oppfolging.id).items
+                    .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
+                queries.getByAvtale(AvtaleFixtures.oppfolging.id)
+                    .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
-                queries.getAll(avtaleId = AvtaleFixtures.AFT.id)
-                    .items.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                queries.getAll(avtaleId = AvtaleFixtures.AFT.id).items
+                    .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
+                queries.getByAvtale(AvtaleFixtures.AFT.id)
+                    .shouldHaveSize(1).first().id.shouldBe(AFT1.id)
             }
         }
 
@@ -825,6 +841,6 @@ private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktp
     epost = kontaktperson.epost,
 )
 
-private infix fun Collection<Gjennomforing>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<GjennomforingKompakt>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }

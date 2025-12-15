@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.arrangor.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class ArrangorKontaktperson(

@@ -7,7 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class NotificationQueries(private val session: Session) {
 

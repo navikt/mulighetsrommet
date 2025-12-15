@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class EnkeltplassQueries(private val session: Session) {
     fun upsert(dbo: EnkeltplassDbo) {

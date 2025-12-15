@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class Totrinnskontroll(

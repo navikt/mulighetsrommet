@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 object TiltakstypeFixtures {
     val AFT = TiltakstypeDbo(

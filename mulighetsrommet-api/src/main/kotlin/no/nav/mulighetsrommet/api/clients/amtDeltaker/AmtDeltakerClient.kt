@@ -28,7 +28,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class AmtDeltakerClient(
     private val baseUrl: String,

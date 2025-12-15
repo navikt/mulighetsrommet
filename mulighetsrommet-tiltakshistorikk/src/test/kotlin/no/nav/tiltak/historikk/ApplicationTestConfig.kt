@@ -1,9 +1,10 @@
 package no.nav.tiltak.historikk
 
-import io.ktor.client.engine.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.testing.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.testing.ApplicationTestBuilder
+import io.ktor.server.testing.testApplication
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine

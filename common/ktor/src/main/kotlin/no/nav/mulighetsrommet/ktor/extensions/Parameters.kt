@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.ktor.extensions
 
-import io.ktor.http.*
-import io.ktor.server.plugins.*
+import io.ktor.http.Parameters
+import io.ktor.server.plugins.BadRequestException
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject

@@ -2,9 +2,19 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.tilsagn.model.*
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DataDetails
+import no.nav.mulighetsrommet.model.DataDrivenTableDto
+import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.LabeledDataElementType
+import no.nav.mulighetsrommet.model.Periode
 
 @Serializable
 data class TilsagnBeregningDto(

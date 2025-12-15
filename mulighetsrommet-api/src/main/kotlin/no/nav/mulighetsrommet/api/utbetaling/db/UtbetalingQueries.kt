@@ -9,7 +9,22 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.AdminInnsendingerFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -17,12 +32,19 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.textRepr
+import no.nav.mulighetsrommet.model.toAgent
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class UtbetalingQueries(private val session: Session) {
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {

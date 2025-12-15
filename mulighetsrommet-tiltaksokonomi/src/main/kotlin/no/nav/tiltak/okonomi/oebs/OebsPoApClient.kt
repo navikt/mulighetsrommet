@@ -1,13 +1,19 @@
 package no.nav.tiltak.okonomi.oebs
 
 import arrow.core.Either
-import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.cache.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.cache.HttpCache
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpMethod
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType

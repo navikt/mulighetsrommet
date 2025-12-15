@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import java.util.*
+import java.util.UUID
 
 class TiltakEventProcessor(
     private val entities: ArenaEntityService,

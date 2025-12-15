@@ -6,7 +6,7 @@ import {
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingHandling,
-  PaginatedResponseGjennomforingDto,
+  PaginatedResponseGjennomforingKompaktDto,
 } from "@tiltaksadministrasjon/api-client";
 
 export const gjennomforingHandlers = [
@@ -28,7 +28,7 @@ export const gjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, PaginatedResponseGjennomforingDto>(
+  http.get<PathParams, undefined, PaginatedResponseGjennomforingKompaktDto>(
     "*/api/tiltaksadministrasjon/gjennomforinger",
     () => {
       return HttpResponse.json(paginertMockGjennomforinger);

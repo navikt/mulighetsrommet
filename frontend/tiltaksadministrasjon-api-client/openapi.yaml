@@ -906,7 +906,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedResponse_GjennomforingDto"
+                $ref: "#/components/schemas/PaginatedResponse_GjennomforingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -4880,7 +4880,62 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    PaginatedResponse_GjennomforingDto:
+    GjennomforingKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingDto.Status"
+        publisert:
+          type: boolean
+        kontorstruktur:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur"
+        arrangor:
+          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
+        tiltakstype:
+          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
+      required:
+      - arrangor
+      - id
+      - kontorstruktur
+      - lopenummer
+      - navn
+      - publisert
+      - sluttDato
+      - startDato
+      - status
+      - tiltakstype
+    GjennomforingKompakt.ArrangorUnderenhet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    PaginatedResponse_GjennomforingKompaktDto:
       type: object
       properties:
         pagination:
@@ -4888,7 +4943,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto"
+            $ref: "#/components/schemas/GjennomforingKompaktDto"
       required:
       - data
       - pagination

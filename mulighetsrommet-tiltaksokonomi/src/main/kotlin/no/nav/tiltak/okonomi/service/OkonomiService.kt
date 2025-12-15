@@ -6,9 +6,23 @@ import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
-import no.nav.mulighetsrommet.brreg.*
+import no.nav.mulighetsrommet.brreg.BrregAdresse
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.tiltak.okonomi.*
+import no.nav.tiltak.okonomi.AnnullerBestilling
+import no.nav.tiltak.okonomi.BestillingStatus
+import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.FakturaConfig
+import no.nav.tiltak.okonomi.FakturaStatus
+import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.GjorOppBestilling
+import no.nav.tiltak.okonomi.KafkaTopics
+import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.api.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
@@ -286,7 +300,9 @@ class OkonomiService(
             )
         }
 
-        publishFaktura(faktura.fakturanummer).right()
+        if (!faktura.erGjorOppFaktura()) {
+            publishFaktura(faktura.fakturanummer).right()
+        }
     }
 
     fun logKvittering(kvitteringJson: String) = db.session {

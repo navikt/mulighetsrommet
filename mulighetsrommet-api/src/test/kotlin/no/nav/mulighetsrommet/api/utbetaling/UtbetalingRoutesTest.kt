@@ -3,20 +3,22 @@ package no.nav.mulighetsrommet.api.utbetaling
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
-import no.nav.mulighetsrommet.api.*
+import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.createAuthConfig
+import no.nav.mulighetsrommet.api.createTestApplicationConfig
+import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -24,11 +26,12 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
+import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class UtbetalingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

@@ -5,7 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import java.util.*
+import java.util.UUID
 
 data class ArenaEvent(
     val arenaTable: ArenaTable,

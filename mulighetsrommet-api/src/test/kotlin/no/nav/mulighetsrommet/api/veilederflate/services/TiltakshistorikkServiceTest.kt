@@ -13,15 +13,32 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.models.*
+import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
@@ -30,7 +47,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkV1Dto.Gjennomforing
 import no.nav.tiltak.historikk.TiltakshistorikkV1Response
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class TiltakshistorikkServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

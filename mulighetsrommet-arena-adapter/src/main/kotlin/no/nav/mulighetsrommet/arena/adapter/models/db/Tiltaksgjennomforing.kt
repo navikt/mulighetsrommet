@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.models.db
 
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Tiltaksgjennomforing(
     val id: UUID,

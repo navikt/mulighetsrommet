@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
-import java.util.*
+import java.util.UUID
 
 object EnkeltplassFixtures {
     val EnkelAmo = EnkeltplassDbo(

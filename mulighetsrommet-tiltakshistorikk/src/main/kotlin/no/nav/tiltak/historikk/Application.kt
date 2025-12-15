@@ -1,10 +1,16 @@
 package no.nav.tiltak.historikk
 
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.routing.*
-import io.ktor.util.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStarted
+import io.ktor.server.application.ApplicationStopPreparing
+import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.application.log
+import io.ktor.server.engine.connector
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.routing.routing
+import io.ktor.util.AttributeKey
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager

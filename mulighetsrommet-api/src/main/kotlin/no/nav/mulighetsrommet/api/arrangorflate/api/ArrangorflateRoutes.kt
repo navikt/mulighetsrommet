@@ -1,19 +1,27 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.getOrElse
-import com.google.api.gax.rpc.InvalidArgumentException
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.http.*
-import io.ktor.http.content.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.plugins.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
-import io.ktor.utils.io.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.server.application.log
+import io.ktor.server.auth.principal
+import io.ktor.server.plugins.NotFoundException
+import io.ktor.server.request.receive
+import io.ktor.server.request.receiveMultipart
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.application
+import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
+import io.ktor.server.util.getValue
+import io.ktor.utils.io.toByteArray
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -27,10 +35,15 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR
-import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.*
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.AVBRUTT
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.DELVIS_UTBETALT
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.KREVER_ENDRING
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING
+import no.nav.mulighetsrommet.api.arrangorflate.api.ArrangorflateUtbetalingStatus.UTBETALT
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -61,7 +74,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respondWithProblemDetail(
     Forbidden(
@@ -236,16 +249,16 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 val prismodeller = call.parameters.getAll("prismodeller")
                     ?.map { PrismodellType.valueOf(it) }
                     ?: emptyList()
-                val gjeonnomforinger = db.session {
+                val gjennomforinger = db.session {
                     queries.gjennomforing
                         .getAll(
                             arrangorOrgnr = listOf(orgnr),
                             prismodeller = prismodeller,
                         )
                         .items
-                        .map { toArrangorflateGjennomforing(it) }
+                        .map { ArrangorflateGjennomforing.fromGjennomforingKompakt(it) }
                 }
-                call.respond(gjeonnomforinger)
+                call.respond(gjennomforinger)
             }
 
             get("{gjennomforingId}", {
@@ -277,7 +290,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                     throw StatusException(HttpStatusCode.Forbidden, "Ikke gjennomføring til bedrift")
                 }
 
-                call.respond(toArrangorflateGjennomforing(gjennomforing))
+                call.respond(ArrangorflateGjennomforing.fromGjennomforing(gjennomforing))
             }
         }
 
@@ -794,17 +807,6 @@ sealed class DeltakerAdvarsel {
 @Serializable
 data class ScanVedleggRequest(
     val vedlegg: List<Vedlegg>,
-)
-
-private fun toArrangorflateGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
-    id = gjennomforing.id,
-    navn = gjennomforing.navn,
-    tiltakstype = ArrangorflateTiltakstype(
-        navn = gjennomforing.tiltakstype.navn,
-        tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-    ),
-    startDato = gjennomforing.startDato,
-    sluttDato = gjennomforing.sluttDato,
 )
 
 @Serializable

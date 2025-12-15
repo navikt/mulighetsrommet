@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

@@ -5,13 +5,26 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.veilederflate.models.*
+import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateNavEnhet
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppeStatus
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Personopplysning
+import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class VeilederflateTiltakQueries(private val session: Session) {
 

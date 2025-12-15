@@ -16,7 +16,13 @@ import no.nav.mulighetsrommet.api.clients.dokark.DokarkClient
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkError
 import no.nav.mulighetsrommet.api.clients.dokark.DokarkResponse
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -32,7 +38,7 @@ import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class JournalforUtbetalingTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

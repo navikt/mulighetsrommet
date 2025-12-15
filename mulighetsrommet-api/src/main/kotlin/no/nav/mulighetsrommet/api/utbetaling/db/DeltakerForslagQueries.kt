@@ -8,7 +8,7 @@ import kotliquery.queryOf
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class DeltakerForslagQueries(private val session: Session) {
 

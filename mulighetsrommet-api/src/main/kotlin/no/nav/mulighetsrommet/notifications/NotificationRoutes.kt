@@ -2,10 +2,12 @@ package no.nav.mulighetsrommet.notifications
 
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
+import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -14,7 +16,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 fun Route.notificationRoutes() {
     val db: ApiDatabase by inject()

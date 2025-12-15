@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

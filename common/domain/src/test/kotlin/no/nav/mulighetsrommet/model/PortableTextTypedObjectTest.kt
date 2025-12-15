@@ -1,20 +1,12 @@
 package no.nav.mulighetsrommet.model
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldHave
-import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.string.shouldNotContain
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
-import no.nav.common.utils.AssertUtils.assertNotNull
 import org.intellij.lang.annotations.Language
 
 class PortableTextTypedObjectTest : FunSpec({

@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class OppdaterUtbetalingBeregning(
     private val utbetalinger: GenererUtbetalingService,

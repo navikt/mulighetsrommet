@@ -1,12 +1,14 @@
 package no.nav.mulighetsrommet.featuretoggle.api
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.Cookie
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.plugins.origin
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggleContext
@@ -15,10 +17,16 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 import java.lang.Long
-import java.util.*
+import java.util.UUID
 import kotlin.Boolean
 import kotlin.String
+import kotlin.collections.List
+import kotlin.collections.emptyList
+import kotlin.collections.filter
+import kotlin.collections.map
+import kotlin.collections.setOf
 import kotlin.getValue
+import kotlin.text.isNotBlank
 
 fun Route.featureTogglesRoute() {
     val features: FeatureToggleService by inject()

@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -46,14 +47,21 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
@@ -342,7 +350,7 @@ fun Route.gjennomforingRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Gjennomføringer filtrert på query parameters"
-                    body<PaginatedResponse<GjennomforingDto>>()
+                    body<PaginatedResponse<GjennomforingKompaktDto>>()
                 }
                 default {
                     description = "Problem details"

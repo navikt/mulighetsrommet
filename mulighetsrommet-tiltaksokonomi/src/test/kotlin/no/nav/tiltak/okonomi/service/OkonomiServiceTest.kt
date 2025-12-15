@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -17,14 +18,38 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
-import no.nav.mulighetsrommet.brreg.*
+import no.nav.mulighetsrommet.brreg.BrregAdresse
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.kafka.toStoredProducerRecord
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
-import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.*
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.AnnullerBestilling
+import no.nav.tiltak.okonomi.BestillingStatus
+import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.FakturaConfig
+import no.nav.tiltak.okonomi.FakturaStatus
+import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.GjorOppBestilling
+import no.nav.tiltak.okonomi.KafkaTopics
+import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.OkonomiSystem
+import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
+import no.nav.tiltak.okonomi.api.OebsFakturaKvittering.StatusBetalt
+import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
@@ -660,6 +685,44 @@ class OkonomiServiceTest : FunSpec({
             service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
                 it.message shouldBe "Bestilling B5 kan ikke gjøres opp fordi vi venter på kvittering"
             }
+        }
+
+        test("kvittering for gjorOppBestilling faktura publiseres ikke på kafka") {
+            val bestillingNummer = "Z7"
+            val bestilling = createBestilling(bestillingNummer, status = BestillingStatusType.AKTIV)
+            db.session { queries.bestilling.insertBestilling(bestilling) }
+
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.FAKTURA_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsFakturaMelding>()
+
+                    melding.fakturaLinjer.last().erSisteFaktura shouldBe true
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
+
+            val gjorOppBestilling = createGjorOppBestilling(bestillingNummer)
+            service.gjorOppBestilling(gjorOppBestilling).shouldBeRight()
+
+            val faktura = db.session { queries.faktura.getByBestillingsnummer(bestillingNummer) }.first()
+            service.mottaFakturaKvittering(
+                faktura = faktura,
+                kvittering = OebsFakturaKvittering(
+                    fakturaNummer = faktura.fakturanummer,
+                    opprettelsesTidspunkt = LocalDateTime.now(),
+                    statusBetalt = StatusBetalt.IkkeBetalt,
+                ),
+            )
+            db.session { queries.kafkaProducerRecord.getRecords(10) }
+                .filter { it.topic == "faktura-status" }
+                .map {
+                    Json.decodeFromString<FakturaStatus>(it.value.toString(Charsets.UTF_8))
+                }
+                .filter { it.fakturanummer == faktura.fakturanummer }
+                .shouldHaveSize(0)
         }
     }
 })

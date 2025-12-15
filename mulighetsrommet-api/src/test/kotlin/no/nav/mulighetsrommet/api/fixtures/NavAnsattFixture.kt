@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import java.util.*
+import java.util.UUID
 
 object NavAnsattFixture {
     val DonaldDuck: NavAnsattDbo = NavAnsattDbo(

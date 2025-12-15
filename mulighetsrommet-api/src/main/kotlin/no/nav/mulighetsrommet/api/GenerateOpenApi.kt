@@ -1,11 +1,10 @@
 package no.nav.mulighetsrommet.api
 
 import io.github.smiley4.ktoropenapi.OpenApiPlugin
-import io.ktor.server.application.*
+import io.ktor.server.application.ServerReady
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.security.MessageDigest
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.seconds
 

@@ -5,10 +5,15 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
+import no.nav.mulighetsrommet.model.Innholdselement
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeStatus
+import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import org.intellij.lang.annotations.Language
 import java.sql.Array
-import java.util.*
+import java.util.UUID
 
 class TiltakstypeQueries(private val session: Session) {
 

@@ -3,17 +3,18 @@ package no.nav.mulighetsrommet.api.lagretfilter
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
+import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 fun Route.lagretFilterRoutes() {
     val lagretFilterService: LagretFilterService by inject()

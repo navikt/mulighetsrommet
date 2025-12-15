@@ -5,8 +5,8 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
-import io.ktor.client.call.*
-import io.ktor.http.*
+import io.ktor.client.call.body
+import io.ktor.http.HttpMethod
 import kotlinx.coroutines.delay
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -31,7 +31,7 @@ import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.tiltak.historikk.TiltakshistorikkArenaGjennomforing
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class TiltakgjennomforingEventProcessor(
     private val config: Config,

@@ -4,9 +4,19 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.arena.adapter.fixtures.*
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.*
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.AvtaleInfo
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.Deltaker
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.Sak
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.Tiltakstype
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Update
 
 class ArenaEventConsumerTest : FunSpec({
     test("decode ArenaEvent") {

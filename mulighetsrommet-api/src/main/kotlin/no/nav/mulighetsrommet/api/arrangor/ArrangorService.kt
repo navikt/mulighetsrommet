@@ -10,12 +10,21 @@ import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.responses.StatusResponse
-import no.nav.mulighetsrommet.brreg.*
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregEnhet
+import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.brreg.BrregHovedenhet
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhet
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class ArrangorService(
     private val db: ApiDatabase,

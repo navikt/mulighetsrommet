@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class ReplicateDeltakerKafkaConsumer(
     private val db: ApiDatabase,

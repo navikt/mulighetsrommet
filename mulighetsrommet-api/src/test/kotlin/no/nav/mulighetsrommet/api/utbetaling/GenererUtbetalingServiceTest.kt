@@ -17,14 +17,36 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
@@ -530,7 +552,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     AFT1.id,
                     status = GjennomforingStatusType.AVBRUTT,
                     tidspunkt = LocalDate.of(2025, 1, 15).atStartOfDay(),
-                    aarsaker = listOf(element = AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 )
             }.initialize(database.db)

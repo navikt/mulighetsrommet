@@ -1,16 +1,17 @@
 package no.nav.mulighetsrommet.utdanning
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 fun Route.utdanningRoutes() {
     val db: ApiDatabase by inject()

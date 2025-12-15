@@ -2,15 +2,14 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import arrow.core.flatMap
 import arrow.core.right
-import io.github.smiley4.ktoropenapi.config.RequestConfig
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
-import io.ktor.http.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -27,7 +26,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()

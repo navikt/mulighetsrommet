@@ -7,25 +7,40 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import no.nav.mulighetsrommet.api.*
+import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.createAuthConfig
+import no.nav.mulighetsrommet.api.createTestApplicationConfig
+import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class GjennomforingRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

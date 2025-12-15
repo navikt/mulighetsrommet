@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltaksansva
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import java.util.*
+import java.util.UUID
 
 class VeilederflateTiltakQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

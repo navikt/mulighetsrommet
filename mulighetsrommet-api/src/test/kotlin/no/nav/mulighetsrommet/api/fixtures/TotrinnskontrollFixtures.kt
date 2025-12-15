@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 fun QueryContext.setTilGodkjenning(
     uuid: UUID,

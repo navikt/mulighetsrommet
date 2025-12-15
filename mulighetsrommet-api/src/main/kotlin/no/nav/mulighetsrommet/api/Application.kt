@@ -12,7 +12,13 @@ import io.ktor.server.netty.NettyApplicationEngine
 import io.ktor.server.routing.routing
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
-import no.nav.mulighetsrommet.api.plugins.*
+import no.nav.mulighetsrommet.api.plugins.configureAuthentication
+import no.nav.mulighetsrommet.api.plugins.configureDependencyInjection
+import no.nav.mulighetsrommet.api.plugins.configureHTTP
+import no.nav.mulighetsrommet.api.plugins.configureOpenApiGenerator
+import no.nav.mulighetsrommet.api.plugins.configureRouting
+import no.nav.mulighetsrommet.api.plugins.configureSecurity
+import no.nav.mulighetsrommet.api.plugins.configureSerialization
 import no.nav.mulighetsrommet.api.routes.apiRoutes
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager

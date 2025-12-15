@@ -13,9 +13,25 @@ import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
-import no.nav.mulighetsrommet.api.utbetaling.model.*
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
@@ -24,7 +40,7 @@ import org.slf4j.LoggerFactory
 import java.time.DayOfWeek
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(

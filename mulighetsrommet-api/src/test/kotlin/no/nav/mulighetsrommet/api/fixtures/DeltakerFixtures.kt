@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 object DeltakerFixtures {
     fun createDeltakerMedDeltakelsesmengderDbo(

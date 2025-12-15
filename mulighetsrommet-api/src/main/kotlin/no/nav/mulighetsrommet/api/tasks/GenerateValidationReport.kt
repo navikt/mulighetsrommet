@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -37,7 +36,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
 
@@ -124,7 +123,13 @@ class GenerateValidationReport(
             paginateFanOut({ pagination -> queries.avtale.getAll(pagination).items }) { dto ->
                 val request = dto.toAvtaleRequest()
 
-                val ctx = avtaleService.getValidatorCtx(request.id, request.detaljer, request.veilederinformasjon.navEnheter, dto)
+                val ctx = avtaleService
+                    .getValidatorCtx(
+                        request.id,
+                        request.detaljer,
+                        request.veilederinformasjon.navEnheter,
+                        dto,
+                    )
                     .getOrElse {
                         throw Exception("Klarte ikke hente ctx for validering: $it")
                     }
@@ -158,10 +163,11 @@ class GenerateValidationReport(
                     sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
                 ).items
             }) {
-                val request = GjennomforingDboMapper.toGjennomforingRequest(it)
-                val ctx = gjennomforingService.getValidatorCtx(request, it, LocalDate.now())
+                val gjennomforing = queries.gjennomforing.getOrError(it.id)
+                val request = GjennomforingDboMapper.toGjennomforingRequest(gjennomforing)
+                val ctx = gjennomforingService.getValidatorCtx(request, gjennomforing, LocalDate.now())
                 GjennomforingValidator.validate(request, ctx).onLeft { validationErrors ->
-                    put(it, validationErrors)
+                    put(gjennomforing, validationErrors)
                 }
             }
         }

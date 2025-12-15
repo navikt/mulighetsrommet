@@ -14,7 +14,8 @@ import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.generateSwaggerSch
 import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.handleSchemaAnnotations
 import io.github.smiley4.schemakenerator.swagger.SwaggerSteps.mergePropertyAttributesIntoType
 import io.github.smiley4.schemakenerator.swagger.data.RefType
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.swagger.v3.oas.models.media.Schema
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattAuthorizationRouteSelector
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec

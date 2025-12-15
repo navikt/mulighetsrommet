@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import java.util.*
+import java.util.UUID
 
 class NavAnsattQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
