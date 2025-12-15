@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
@@ -188,10 +189,14 @@ class TiltakshistorikkService(
         // TODO: ideelt sett hadde vi fått tiltakskode i stedet for arenakode fra komet
         //  (og enda mer ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
         //  `tiltakshistorikk`-appen som kilde)
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
-            ?: throw IllegalStateException("Arena-tiltakskode finnes ikke i db=${deltakelse.tiltakstype.tiltakskode}")
-
+        val tiltakstype = try {
+            tiltakstypeService.getByTiltakskode(Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode))
+                .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+        } catch (_: Throwable) {
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
+                ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+                ?: throw IllegalStateException("Arena-tiltakskode finnes ikke i db=${deltakelse.tiltakstype.tiltakskode}")
+        }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
