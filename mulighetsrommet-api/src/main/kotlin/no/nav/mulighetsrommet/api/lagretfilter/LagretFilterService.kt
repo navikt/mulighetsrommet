@@ -9,7 +9,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class LagretFilterService(private val db: ApiDatabase) {
 

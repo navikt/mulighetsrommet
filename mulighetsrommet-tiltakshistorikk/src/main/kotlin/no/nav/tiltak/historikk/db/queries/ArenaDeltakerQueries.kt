@@ -11,7 +11,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class ArenaDeltakerQueries(private val session: Session) {
 

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api
 
-import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -25,7 +25,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
-import java.util.*
+import java.util.Properties
+import java.util.UUID
 
 data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),

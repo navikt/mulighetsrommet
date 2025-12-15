@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class DeltakerForslagQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

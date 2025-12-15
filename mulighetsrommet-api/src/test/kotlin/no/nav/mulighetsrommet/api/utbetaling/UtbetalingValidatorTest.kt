@@ -7,7 +7,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.date.before
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.every
@@ -30,7 +29,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.test.todo
 
 class UtbetalingValidatorTest : FunSpec({
     context("opprett utbetaling") {

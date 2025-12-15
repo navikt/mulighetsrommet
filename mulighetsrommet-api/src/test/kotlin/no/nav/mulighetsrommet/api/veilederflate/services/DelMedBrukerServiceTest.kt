@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
-import java.util.*
+import java.util.UUID
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

@@ -1,17 +1,15 @@
 package no.nav.mulighetsrommet.api.navansatt.ktor
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.response.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.createRouteScopedPlugin
+import io.ktor.server.auth.AuthenticationChecked
+import io.ktor.server.auth.principal
+import io.ktor.server.response.respond
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipal
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.serializers.ProblemDetailSerializer
 
 class NavAnsattAuthorizationPluginConfiguration {
     var requiredRoles: RequiredRoles = RequiredRoles(emptyList())

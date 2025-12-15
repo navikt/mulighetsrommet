@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class JournalforUtbetaling(
     private val db: ApiDatabase,

@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 internal data class ArbeidsmarkedstiltakFilter(
     val enheter: NonEmptyList<NavEnhetNummer>,

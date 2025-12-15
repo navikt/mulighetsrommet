@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class TiltaksgjennomforingRepository(private val db: Database) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)

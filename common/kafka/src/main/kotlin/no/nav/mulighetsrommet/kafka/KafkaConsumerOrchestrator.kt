@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.metrics.Metrics
 import org.slf4j.LoggerFactory
 import java.time.Duration
-import java.util.*
+import java.util.Properties
 
 class KafkaConsumerOrchestrator(
     config: Config = Config(),

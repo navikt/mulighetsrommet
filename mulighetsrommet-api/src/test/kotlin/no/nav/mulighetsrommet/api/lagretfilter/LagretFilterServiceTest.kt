@@ -10,7 +10,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import java.util.*
+import java.util.UUID
 
 class LagretFilterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

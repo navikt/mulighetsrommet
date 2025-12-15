@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Deltaker(
     val id: UUID,

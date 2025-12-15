@@ -1,22 +1,31 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.application.log
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.AuthenticationConfig
+import io.ktor.server.auth.AuthenticationStrategy
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTAuthenticationProvider
+import io.ktor.server.auth.jwt.JWTCredential
+import io.ktor.server.auth.jwt.JWTPayloadHolder
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.jwt.jwt
+import io.ktor.server.auth.principal
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
-import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import org.koin.ktor.ext.inject
 import java.net.URI
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 enum class AuthProvider {

@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class DelutbetalingDbo(
     val id: UUID,

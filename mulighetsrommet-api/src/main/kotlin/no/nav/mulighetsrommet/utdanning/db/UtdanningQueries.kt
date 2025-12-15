@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class UtdanningQueries(private val session: Session) {
 

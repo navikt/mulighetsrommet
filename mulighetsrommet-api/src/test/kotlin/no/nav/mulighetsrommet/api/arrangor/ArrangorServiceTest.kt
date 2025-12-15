@@ -15,11 +15,16 @@ import io.mockk.mockk
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.brreg.*
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class ArrangorServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

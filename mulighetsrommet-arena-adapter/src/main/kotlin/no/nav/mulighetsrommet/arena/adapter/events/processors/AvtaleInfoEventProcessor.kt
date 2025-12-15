@@ -5,7 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
-import io.ktor.http.*
+import io.ktor.http.HttpMethod
 import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.ArenaAvtaleCutoffDateTime
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class AvtaleInfoEventProcessor(
     private val entities: ArenaEntityService,

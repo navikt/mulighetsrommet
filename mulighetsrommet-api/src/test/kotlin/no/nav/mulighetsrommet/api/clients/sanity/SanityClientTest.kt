@@ -3,14 +3,14 @@ package no.nav.mulighetsrommet.api.clients.sanity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import java.util.*
+import java.util.UUID
 
 class SanityClientTest : FunSpec({
 

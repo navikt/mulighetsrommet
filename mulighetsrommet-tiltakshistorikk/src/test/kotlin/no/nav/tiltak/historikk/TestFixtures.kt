@@ -1,13 +1,19 @@
 package no.nav.tiltak.historikk
 
 import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 object TestFixtures {
     object Tiltakstype {

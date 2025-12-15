@@ -15,7 +15,12 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.sanity.*
+import no.nav.mulighetsrommet.api.sanity.CacheUsage
+import no.nav.mulighetsrommet.api.sanity.SanityArrangor
+import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
+import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.routes.ApentForPamelding
@@ -23,7 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import java.util.*
+import java.util.UUID
 
 class VeilederflateServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))

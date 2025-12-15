@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.featuretoggle.strategies
 
 import io.getunleash.UnleashContext
 import io.getunleash.strategy.Strategy
-import java.util.*
+import java.util.Optional
 
 class ByNavIdentStrategy : Strategy {
     companion object {

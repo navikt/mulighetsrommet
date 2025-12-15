@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.Deserializer
 import org.apache.kafka.common.serialization.Serde
 import java.time.Instant
-import java.util.*
+import java.util.Properties
 
 abstract class KafkaTopicConsumer<K, V>(
     val keyDeserializer: Deserializer<K>,

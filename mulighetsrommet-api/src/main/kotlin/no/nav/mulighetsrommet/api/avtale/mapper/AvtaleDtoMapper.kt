@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
@@ -8,9 +7,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.util.UUID
 
 object AvtaleDtoMapper {
     fun fromAvtale(avtale: Avtale) = AvtaleDto(

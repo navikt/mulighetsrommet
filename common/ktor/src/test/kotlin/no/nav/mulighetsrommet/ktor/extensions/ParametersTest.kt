@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.ktor.extensions
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.http.*
+import io.ktor.http.ParametersBuilder
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 

@@ -4,7 +4,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 data class GjennomforingDbo(
     val id: UUID,

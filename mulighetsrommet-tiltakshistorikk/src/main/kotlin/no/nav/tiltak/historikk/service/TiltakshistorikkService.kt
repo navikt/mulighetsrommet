@@ -1,6 +1,10 @@
 package no.nav.tiltak.historikk.service
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.NonEmptySet
+import arrow.core.flatten
+import arrow.core.mapOrAccumulate
+import arrow.core.nonEmptySetOf
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus

@@ -6,14 +6,14 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import io.ktor.server.plugins.*
+import io.ktor.server.plugins.BadRequestException
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
-import java.util.*
+import java.util.UUID
 
 class SynchronizeNavAnsatte(
     config: Config,

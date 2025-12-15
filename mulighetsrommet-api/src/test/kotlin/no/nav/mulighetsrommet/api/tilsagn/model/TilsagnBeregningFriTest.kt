@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import java.util.*
+import java.util.UUID
 
 class TilsagnBeregningFriTest : FunSpec({
     test("overflow kaster exception") {

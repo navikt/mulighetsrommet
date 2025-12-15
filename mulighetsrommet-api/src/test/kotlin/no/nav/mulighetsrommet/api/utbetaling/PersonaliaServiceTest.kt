@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGe
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
-import java.util.*
+import java.util.UUID
 
 class PersonaliaServiceTest : FunSpec({
     val deltakelseId = UUID.randomUUID()

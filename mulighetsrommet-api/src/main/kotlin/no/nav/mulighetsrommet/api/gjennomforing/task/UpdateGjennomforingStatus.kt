@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
+import java.util.UUID
 
 class UpdateGjennomforingStatus(
     private val db: ApiDatabase,

@@ -1,9 +1,10 @@
 package no.nav.mulighetsrommet.api.avtale.api
 
 import io.github.smiley4.ktoropenapi.get
-import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.PersonopplysningData
 import no.nav.mulighetsrommet.model.ProblemDetail

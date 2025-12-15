@@ -7,7 +7,10 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DelutbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.*
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Arrangor
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Gjennomforing
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling.Tiltakstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -17,7 +20,7 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 object UtbetalingFixtures {
     val utbetaling1 = UtbetalingDbo(

@@ -25,10 +25,17 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class ArenaAdapterService(
     private val config: Config,

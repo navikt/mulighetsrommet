@@ -1,10 +1,14 @@
 package no.nav.tiltak.okonomi.plugins
 
 import com.auth0.jwk.JwkProviderBuilder
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.AuthenticationConfig
+import io.ktor.server.auth.jwt.JWTAuthenticationProvider
+import io.ktor.server.auth.jwt.JWTCredential
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.jwt.jwt
 import no.nav.tiltak.okonomi.AuthConfig
 import java.net.URI
 import java.util.concurrent.TimeUnit

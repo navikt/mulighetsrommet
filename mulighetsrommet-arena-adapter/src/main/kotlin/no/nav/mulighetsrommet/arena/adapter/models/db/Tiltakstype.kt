@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.Administrasjonskode
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Handlingsplan
 import no.nav.mulighetsrommet.arena.adapter.models.arena.Rammeavtale
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 data class Tiltakstype(
     val id: UUID,

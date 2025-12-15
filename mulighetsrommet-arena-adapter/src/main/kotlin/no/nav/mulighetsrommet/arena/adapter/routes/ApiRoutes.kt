@@ -1,16 +1,16 @@
 package no.nav.mulighetsrommet.arena.adapter.routes
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
 import org.koin.ktor.ext.inject
-import java.util.*
+import java.util.UUID
 
 fun Route.apiRoutes() {
     val arenaEntityService: ArenaEntityService by inject()
