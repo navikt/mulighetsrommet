@@ -38,12 +38,12 @@ class DatavarehusTiltakV1KafkaProducer(
     }
 
     private fun publishGruppetiltak(id: UUID) = db.session {
-        val tiltak = queries.dvh.getGruppetiltak(id)
+        val tiltak = queries.dvh.getDatavarehusTiltak(id)
         publish(tiltak)
     }
 
     private fun publishEnkeltplass(id: UUID) = db.session {
-        val tiltak = queries.dvh.getEnkeltplass(id)
+        val tiltak = queries.dvh.getDatavarehusTiltak(id)
         publish(tiltak)
     }
 

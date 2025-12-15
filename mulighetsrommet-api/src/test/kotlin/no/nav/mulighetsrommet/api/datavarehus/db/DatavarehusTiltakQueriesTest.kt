@@ -31,14 +31,12 @@ import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
-import java.time.LocalDate
 import java.util.UUID
 
 class DatavarehusTiltakQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("gruppetiltak") {
-
         test("henter relevante data om tiltakstype, avtale, og gjennomføring") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -51,7 +49,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                queries.getGruppetiltak(AFT1.id)
+                queries.getDatavarehusTiltak(AFT1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
@@ -91,7 +89,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                queries.getGruppetiltak(AFT1.id)
+                queries.getDatavarehusTiltak(AFT1.id)
             }
 
             tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
@@ -147,7 +145,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 val queries = DatavarehusTiltakQueries(session)
 
                 table.forAll { id, expectedAmoKategorisering ->
-                    val tiltak = queries.getGruppetiltak(id)
+                    val tiltak = queries.getDatavarehusTiltak(id)
 
                     tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
                         expectedAmoKategorisering,
@@ -215,7 +213,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
                     it.utdanningsprogram shouldBe idForUtdanningsprogram
@@ -236,7 +234,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val queries = DatavarehusTiltakQueries(session)
 
-                val gjennomforing = queries.getGruppetiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldBeNull()
             }
@@ -254,7 +252,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
 
-                DatavarehusTiltakQueries(session).getEnkeltplass(EnkeltplassFixtures.EnkelAmo.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
@@ -291,7 +289,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     ),
                 )
 
-                DatavarehusTiltakQueries(session).getEnkeltplass(EnkeltplassFixtures.EnkelAmo.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
