@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -94,7 +94,7 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
 
 private fun Row.toTiltaksgjennomforingNotificationDto(): GjennomforingNotificationDto {
     val administratorer = stringOrNull("administratorer_json")
-        ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
+        ?.let { Json.decodeFromString<List<GjennomforingGruppetiltak.Administrator>>(it) }
         ?: emptyList()
     return GjennomforingNotificationDto(
         id = uuid("id"),

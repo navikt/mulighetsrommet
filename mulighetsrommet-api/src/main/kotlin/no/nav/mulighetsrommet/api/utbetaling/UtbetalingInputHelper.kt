@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -14,7 +15,7 @@ import java.time.LocalDate
 
 object UtbetalingInputHelper {
     fun QueryContext.resolveAvtaltPrisPerTimeOppfolgingPerDeltaker(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): AvtaltPrisPerTimeOppfolgingPerDeltaker {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
@@ -36,7 +37,10 @@ object UtbetalingInputHelper {
         val deltakelsePerioder: Set<DeltakelsePeriode>,
     )
 
-    private fun QueryContext.resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
+    private fun QueryContext.resolveAvtalteSatser(
+        gjennomforing: GjennomforingGruppetiltak,
+        periode: Periode,
+    ): Set<SatsPeriode> {
         val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
         return resolveAvtalteSatser(gjennomforing, avtale, periode)
     }
@@ -118,7 +122,7 @@ object UtbetalingInputHelper {
 
     fun resolveStengtHosArrangor(
         periode: Periode,
-        stengtPerioder: List<Gjennomforing.StengtPeriode>,
+        stengtPerioder: List<GjennomforingGruppetiltak.StengtPeriode>,
     ): Set<StengtPeriode> {
         return stengtPerioder
             .mapNotNull { stengt ->

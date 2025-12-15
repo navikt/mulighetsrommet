@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator.OpprettDelutbetaling
@@ -152,7 +152,7 @@ class UtbetalingValidatorTest : FunSpec({
         val today = LocalDate.now()
         val kontonummer = Kontonummer("12345678910")
         val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
-        val gjennomforing = mockk<Gjennomforing>(relaxed = true)
+        val gjennomforing = mockk<GjennomforingGruppetiltak>(relaxed = true)
         val vedlegg = mockk<List<Vedlegg>>(relaxed = true)
 
         beforeEach {
@@ -305,7 +305,7 @@ class UtbetalingValidatorTest : FunSpec({
 
         context("maks sluttdato for opprett krav utbetalings periode") {
             val localOkonomiConfig = ApplicationConfigLocal.okonomi
-            val gjennomforing = mockk<Gjennomforing>(relaxed = true)
+            val gjennomforing = mockk<GjennomforingGruppetiltak>(relaxed = true)
             val okonomiConfig = mockk<OkonomiConfig>(relaxed = true)
 
             beforeEach {

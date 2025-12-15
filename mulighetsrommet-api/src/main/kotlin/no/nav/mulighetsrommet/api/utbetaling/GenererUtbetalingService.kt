@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -152,7 +153,7 @@ class GenererUtbetalingService(
     private suspend fun QueryContext.generateUtbetalingForPrismodell(
         utbetalingId: UUID,
         prismodell: PrismodellType,
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingDbo? {
         if (!isValidUtbetalingPeriode(gjennomforing.tiltakstype.tiltakskode, periode)) {
@@ -197,7 +198,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolveFastSatsPerTiltaksplassPerManedInput(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
@@ -211,7 +212,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolvePrisPerManedsverkInput(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk.Input {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
@@ -225,7 +226,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolvePrisPerUkesverkInput(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk.Input {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
@@ -239,7 +240,7 @@ class GenererUtbetalingService(
     }
 
     private fun QueryContext.resolvePrisPerHeleUkesverkInput(
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
         val satser = resolveAvtalteSatser(gjennomforing, periode)
@@ -280,7 +281,10 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
+    private fun QueryContext.resolveAvtalteSatser(
+        gjennomforing: GjennomforingGruppetiltak,
+        periode: Periode,
+    ): Set<SatsPeriode> {
         val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
         return UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, avtale, periode)
     }
@@ -338,7 +342,7 @@ class GenererUtbetalingService(
             and not exists (
                 select 1
                 from utbetaling
-                where utbetaling.gjennomforing_id = gruppe.gjennomforing_id
+                where utbetaling.gjennomforing_id = gjennomforing.id
                   and utbetaling.periode && :periode::daterange
                   and utbetaling.tilskuddstype = :tilskuddstype::tilskuddstype
             )
@@ -346,11 +350,9 @@ class GenererUtbetalingService(
 
         @Language("PostgreSQL")
         val query = """
-            select gruppe.gjennomforing_id
-            from gjennomforing_gruppetiltak gruppe
-                join gjennomforing on gruppe.gjennomforing_id = gjennomforing.id
-                join avtale on gruppe.avtale_id = avtale.id
-                join avtale_prismodell on avtale_prismodell.avtale_id = gruppe.avtale_id
+            select gjennomforing.id
+            from gjennomforing
+                join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
             where gjennomforing.status != 'AVLYST'
                 and avtale_prismodell.prismodell_type = :prismodell::prismodell
                 and daterange(gjennomforing.start_dato, coalesce(gjennomforing.avsluttet_tidspunkt::date, gjennomforing.slutt_dato), '[]') && :periode::daterange
@@ -364,7 +366,7 @@ class GenererUtbetalingService(
         )
 
         return session.list(queryOf(query, params)) {
-            UtbetalingContext(it.uuid("gjennomforing_id"), prismodell, periode)
+            UtbetalingContext(it.uuid("id"), prismodell, periode)
         }
     }
 
@@ -374,7 +376,7 @@ class GenererUtbetalingService(
 
     private fun resolveStengtHosArrangor(
         periode: Periode,
-        stengtPerioder: List<Gjennomforing.StengtPeriode>,
+        stengtPerioder: List<GjennomforingGruppetiltak.StengtPeriode>,
     ): Set<StengtPeriode> {
         return stengtPerioder
             .mapNotNull { stengt ->

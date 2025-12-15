@@ -373,11 +373,11 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
 
             database.run {
-                queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id).shouldNotBeNull().should {
+                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
-                    it.arena.shouldNotBeNull().navn shouldBe "En enkeltplass"
-                    it.arena.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.navn shouldBe "En enkeltplass"
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
             }
 
@@ -389,9 +389,9 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             database.run {
-                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).arena.shouldNotBeNull().should {
+                queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id).should {
                     it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.ansvarligNavEnhet shouldBe "1000"
+                    it.arena?.ansvarligNavEnhet?.enhetsnummer shouldBe "1000"
                 }
             }
         }

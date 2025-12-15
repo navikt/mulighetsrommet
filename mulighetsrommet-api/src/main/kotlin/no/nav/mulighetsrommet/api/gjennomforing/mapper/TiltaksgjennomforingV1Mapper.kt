@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
 
 object TiltaksgjennomforingV1Mapper {
-    fun fromGjennomforing(gjennomforing: Gjennomforing) = TiltaksgjennomforingV1Dto(
+    fun fromGjennomforing(gjennomforing: GjennomforingGruppetiltak) = TiltaksgjennomforingV1Dto(
         id = gjennomforing.id,
         tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
             id = gjennomforing.tiltakstype.id,

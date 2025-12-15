@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
@@ -121,7 +121,7 @@ private fun expectKafkaMessage(
 
 private suspend fun consumeGjennomforing(
     consumer: ArenaMigreringGjennomforingKafkaProducer,
-    gjennomforing: Gjennomforing,
+    gjennomforing: GjennomforingGruppetiltak,
 ) {
     val message: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
     consumer.consume(gjennomforing.id.toString(), Json.encodeToJsonElement(message))

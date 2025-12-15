@@ -2,8 +2,10 @@ drop view if exists view_gjennomforing_enkeltplass;
 
 create view view_gjennomforing_enkeltplass as
 select gjennomforing.id,
+       gjennomforing.opphav,
        gjennomforing.created_at          as opprettet_tidspunkt,
        gjennomforing.updated_at          as oppdatert_tidspunkt,
+       gjennomforing.lopenummer,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.arena_ansvarlig_enhet,
        gjennomforing.navn,
@@ -22,4 +24,4 @@ select gjennomforing.id,
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
-where gjennomforing.gjennomforing_type = 'ARENA_ENKELTPLASS'
+where gjennomforing.gjennomforing_type = 'ENKELTPLASS'

@@ -1,4 +1,4 @@
-drop view if exists view_datavarehus_gruppetiltak;
+drop view if exists view_datavarehus_tiltak;
 
 create view view_datavarehus_tiltak as
 select gjennomforing.id,
@@ -20,5 +20,4 @@ select gjennomforing.id,
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on gjennomforing.arrangor_id = arrangor.id
-         left join gjennomforing_gruppetiltak gruppe on gjennomforing.id = gruppe.gjennomforing_id
-         left join avtale on gruppe.avtale_id = avtale.id
+         left join avtale on gjennomforing.avtale_id = avtale.id

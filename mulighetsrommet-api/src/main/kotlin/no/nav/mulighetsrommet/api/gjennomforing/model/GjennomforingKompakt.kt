@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -25,8 +26,16 @@ data class GjennomforingKompakt(
     val prismodell: PrismodellType?,
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: ArrangorUnderenhet,
-    val tiltakstype: Gjennomforing.Tiltakstype,
+    val tiltakstype: Tiltakstype,
 ) {
+    @Serializable
+    data class Tiltakstype(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val tiltakskode: Tiltakskode,
+    )
+
     @Serializable
     data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)

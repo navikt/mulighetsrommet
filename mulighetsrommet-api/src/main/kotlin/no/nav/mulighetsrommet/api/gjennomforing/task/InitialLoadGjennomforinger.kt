@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -148,7 +148,7 @@ class InitialLoadGjennomforinger(
         }
     }
 
-    private fun publish(gjennomforing: Gjennomforing) {
+    private fun publish(gjennomforing: GjennomforingGruppetiltak) {
         val gjennomforingV1 = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
         val recordV1: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV1Topic,

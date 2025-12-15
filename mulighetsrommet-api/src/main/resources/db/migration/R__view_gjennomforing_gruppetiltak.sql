@@ -8,6 +8,7 @@ select gjennomforing.id,
        gjennomforing.lopenummer,
        gjennomforing.arena_tiltaksnummer,
        gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
+       arena_nav_enhet.navn                as arena_nav_enhet_navn,
        gjennomforing.navn,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
@@ -18,20 +19,19 @@ select gjennomforing.id,
        gjennomforing.deltidsprosent,
        gjennomforing.antall_plasser,
        gjennomforing.fts,
-       arena_nav_enhet.navn                as arena_nav_enhet_navn,
-       gruppe.created_at                   as opprettet_tidspunkt,
-       gruppe.updated_at                   as oppdatert_tidspunkt,
-       gruppe.apent_for_pamelding,
-       gruppe.oppstart,
-       gruppe.pamelding_type,
-       gruppe.beskrivelse,
-       gruppe.faneinnhold,
-       gruppe.estimert_ventetid_verdi,
-       gruppe.estimert_ventetid_enhet,
-       gruppe.oppmote_sted,
-       gruppe.publisert,
-       gruppe.tilgjengelig_for_arrangor_dato,
-       avtale.id                           as avtale_id,
+       gjennomforing.created_at            as opprettet_tidspunkt,
+       gjennomforing.updated_at            as oppdatert_tidspunkt,
+       gjennomforing.apent_for_pamelding,
+       gjennomforing.oppstart,
+       gjennomforing.pamelding_type,
+       gjennomforing.beskrivelse,
+       gjennomforing.faneinnhold,
+       gjennomforing.estimert_ventetid_verdi,
+       gjennomforing.estimert_ventetid_enhet,
+       gjennomforing.oppmote_sted,
+       gjennomforing.publisert,
+       gjennomforing.tilgjengelig_for_arrangor_dato,
+       gjennomforing.avtale_id,
        avtale_prismodell.prismodell_type   as prismodell,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
@@ -48,12 +48,10 @@ select gjennomforing.id,
        amo_kategorisering_json,
        utdanningslop_json,
        stengt_perioder_json
-from gjennomforing_gruppetiltak gruppe
-         join gjennomforing on gruppe.gjennomforing_id = gjennomforing.id
-         join avtale on avtale.id = gruppe.avtale_id
-         left join avtale_prismodell on avtale_prismodell.avtale_id = gruppe.avtale_id
+from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
+         left join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
@@ -156,5 +154,6 @@ from gjennomforing_gruppetiltak gruppe
                                            ) order by periode
                                    ) as stengt_perioder_json
                             from gjennomforing_stengt_hos_arrangor
-                            where gjennomforing_id = gjennomforing.id) on true;
+                            where gjennomforing_id = gjennomforing.id) on true
+where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'
 

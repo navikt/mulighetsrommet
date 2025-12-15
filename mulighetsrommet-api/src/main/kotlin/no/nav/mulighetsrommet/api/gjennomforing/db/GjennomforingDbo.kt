@@ -14,30 +14,10 @@ import java.util.UUID
 
 enum class GjennomforingType {
     GRUPPETILTAK,
-    ARENA_GRUPPETILTAK,
-    ARENA_ENKELTPLASS,
+    ENKELTPLASS,
 }
 
-data class GjennomforingDbo(
-    val id: UUID,
-    val tiltakstypeId: UUID,
-    val arrangorId: UUID,
-    val type: GjennomforingType,
-    val navn: String,
-    val startDato: LocalDate,
-    val sluttDato: LocalDate?,
-    val status: GjennomforingStatusType,
-    val deltidsprosent: Double,
-    val antallPlasser: Int,
-)
-
-data class GjennomforingArenaDataDbo(
-    val id: UUID,
-    val tiltaksnummer: Tiltaksnummer? = null,
-    val arenaAnsvarligEnhet: String? = null,
-)
-
-data class GjennomforingGruppeDbo(
+data class GjennomforingGruppetiltakDbo(
     val id: UUID,
     val tiltakstypeId: UUID,
     val arrangorId: UUID,
@@ -52,6 +32,7 @@ data class GjennomforingGruppeDbo(
     val administratorer: List<NavIdent>,
     val navEnheter: Set<NavEnhetNummer>,
     val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
     val kontaktpersoner: List<GjennomforingKontaktpersonDbo>,
     val oppmoteSted: String?,
     val faneinnhold: Faneinnhold?,
@@ -61,7 +42,39 @@ data class GjennomforingGruppeDbo(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
+)
+
+data class GjennomforingEnkeltplassDbo(
+    val id: UUID,
+    val tiltakstypeId: UUID,
+    val arrangorId: UUID,
+    val navn: String,
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
+)
+
+data class GjennomforingDbo(
+    val id: UUID,
+    val tiltakstypeId: UUID,
+    val arrangorId: UUID,
+    val type: GjennomforingType,
+    val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
+    val navn: String,
+    val startDato: LocalDate,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
+)
+
+data class GjennomforingArenaDataDbo(
+    val id: UUID,
+    val tiltaksnummer: Tiltaksnummer? = null,
+    val arenaAnsvarligEnhet: String? = null,
 )
 
 data class GjennomforingKontaktpersonDbo(

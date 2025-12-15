@@ -52,7 +52,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
         domain.initialize(database.db)
 
         database.run {
-            queries.gjennomforing.upsert(EnkeltplassFixtures.EnkelAmo)
+            queries.gjennomforing.upsertEnkeltplass(EnkeltplassFixtures.EnkelAmo)
         }
     }
 

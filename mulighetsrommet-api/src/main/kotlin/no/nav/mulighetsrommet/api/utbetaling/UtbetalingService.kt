@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -103,7 +103,7 @@ class UtbetalingService(
 
     fun opprettUtbetaling(
         utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
@@ -157,7 +157,7 @@ class UtbetalingService(
 
     fun opprettAvtaltPrisPerTimeOppfolging(
         utbetalingKrav: UtbetalingValidator.ValidertUtbetalingKrav,
-        gjennomforing: Gjennomforing,
+        gjennomforing: GjennomforingGruppetiltak,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)

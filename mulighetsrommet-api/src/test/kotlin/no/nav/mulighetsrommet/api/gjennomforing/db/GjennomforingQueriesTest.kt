@@ -32,8 +32,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
@@ -91,7 +91,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.administratorer shouldBe listOf(
-                        Gjennomforing.Administrator(
+                        GjennomforingGruppetiltak.Administrator(
                             navIdent = NavIdent("DD1"),
                             navn = "Donald Duck",
                         ),
@@ -123,7 +123,7 @@ class GjennomforingQueriesTest : FunSpec({
                 queries.gjennomforing.upsertGruppetiltak(gjennomforing)
 
                 queries.gjennomforing.getGruppetiltak(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                    Gjennomforing.Administrator(
+                    GjennomforingGruppetiltak.Administrator(
                         navIdent = NavAnsattFixture.DonaldDuck.navIdent,
                         navn = "Donald Duck",
                     ),
@@ -456,19 +456,19 @@ class GjennomforingQueriesTest : FunSpec({
 
                 queries.gjennomforing.getGruppetiltak(Oppfolging1.id)
                     .shouldNotBeNull().stengt shouldContainExactly listOf(
-                    Gjennomforing.StengtPeriode(
+                    GjennomforingGruppetiltak.StengtPeriode(
                         3,
                         LocalDate.of(2024, 12, 1),
                         LocalDate.of(2024, 12, 31),
                         "Forrige juleferie",
                     ),
-                    Gjennomforing.StengtPeriode(
+                    GjennomforingGruppetiltak.StengtPeriode(
                         1,
                         LocalDate.of(2025, 1, 1),
                         LocalDate.of(2025, 1, 31),
                         "Januarferie",
                     ),
-                    Gjennomforing.StengtPeriode(
+                    GjennomforingGruppetiltak.StengtPeriode(
                         2,
                         LocalDate.of(2025, 7, 1),
                         LocalDate.of(2025, 7, 31),
@@ -518,27 +518,28 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.upsert(enkelAmo1)
+                queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
 
                 queries.gjennomforing.getEnkeltplass(enkelAmo1.id).shouldNotBeNull().should {
                     it.id shouldBe enkelAmo1.id
-                    it.tiltakstype shouldBe Enkeltplass.Tiltakstype(
+                    it.tiltakstype shouldBe Gjennomforing.Tiltakstype(
                         id = TiltakstypeFixtures.EnkelAmo.id,
                         navn = TiltakstypeFixtures.EnkelAmo.navn,
                         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                     )
-                    it.arrangor shouldBe Enkeltplass.Arrangor(
+                    it.arrangor shouldBe Gjennomforing.ArrangorUnderenhet(
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
                         slettet = false,
+                        kontaktpersoner = listOf(),
                     )
-                    it.arena.tiltaksnummer.shouldBeNull()
-                    it.arena.ansvarligNavEnhet.shouldBeNull()
-                    it.arena.navn shouldBe "Arena-navn"
-                    it.arena.startDato shouldBe LocalDate.of(2025, 1, 1)
-                    it.arena.sluttDato.shouldBeNull()
-                    it.arena.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.arena?.tiltaksnummer.shouldBeNull()
+                    it.arena?.ansvarligNavEnhet.shouldBeNull()
+                    it.navn shouldBe "Arena-navn"
+                    it.startDato shouldBe LocalDate.of(2025, 1, 1)
+                    it.sluttDato.shouldBeNull()
+                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 }
 
                 queries.gjennomforing.setArenaData(
@@ -549,13 +550,9 @@ class GjennomforingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.gjennomforing.getEnkeltplass(enkelAmo1.id).shouldNotBeNull().arena.should {
-                    it.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
-                    it.ansvarligNavEnhet shouldBe "0400"
-                    it.navn shouldBe "Arena-navn"
-                    it.startDato shouldBe LocalDate.of(2025, 1, 1)
-                    it.sluttDato.shouldBeNull()
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                queries.gjennomforing.getEnkeltplass(enkelAmo1.id).shouldNotBeNull().should {
+                    it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
+                    it.arena?.ansvarligNavEnhet?.enhetsnummer shouldBe "0400"
                 }
 
                 queries.gjennomforing.delete(enkelAmo1.id)
@@ -568,8 +565,8 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                queries.gjennomforing.upsert(enkelAmo1)
-                queries.gjennomforing.upsert(enkelAmo2)
+                queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
+                queries.gjennomforing.upsertEnkeltplass(enkelAmo2)
 
                 queries.gjennomforing.getAllEnkeltplass().totalCount shouldBe 2
                 queries.gjennomforing.getAllEnkeltplass(tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo.id)).totalCount shouldBe 2
@@ -886,7 +883,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 })
 
-private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = Gjennomforing.ArrangorKontaktperson(
+private fun toGjennomforingArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) = GjennomforingGruppetiltak.ArrangorKontaktperson(
     id = kontaktperson.id,
     navn = kontaktperson.navn,
     beskrivelse = kontaktperson.beskrivelse,

@@ -22,5 +22,5 @@ data class GjennomforingKompaktDto(
     val publisert: Boolean,
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: GjennomforingKompakt.ArrangorUnderenhet,
-    val tiltakstype: Gjennomforing.Tiltakstype,
+    val tiltakstype: GjennomforingKompakt.Tiltakstype,
 )

@@ -15,14 +15,14 @@ select gjennomforing.id,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
        gjennomforing.status,
-       gruppe.oppmote_sted,
-       gruppe.apent_for_pamelding,
-       gruppe.oppstart,
-       gruppe.estimert_ventetid_verdi,
-       gruppe.estimert_ventetid_enhet,
-       gruppe.beskrivelse,
-       gruppe.faneinnhold,
-       gruppe.publisert,
+       gjennomforing.oppmote_sted,
+       gjennomforing.apent_for_pamelding,
+       gjennomforing.oppstart,
+       gjennomforing.estimert_ventetid_verdi,
+       gjennomforing.estimert_ventetid_enhet,
+       gjennomforing.beskrivelse,
+       gjennomforing.faneinnhold,
+       gjennomforing.publisert,
        avtale.personvern_bekreftet,
        personopplysninger_som_kan_behandles,
        nav_enheter_json,
@@ -33,8 +33,7 @@ select gjennomforing.id,
        arrangor_kontaktpersoner_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         left join gjennomforing_gruppetiltak gruppe on gruppe.gjennomforing_id = gjennomforing.id
-         left join avtale on avtale.id = gruppe.avtale_id
+         left join avtale on avtale.id = gjennomforing.avtale_id
          left join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
                             from avtale_personopplysning
@@ -78,3 +77,4 @@ from gjennomforing
                             from gjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
                             where gjennomforing_id = gjennomforing.id) on true
+where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'

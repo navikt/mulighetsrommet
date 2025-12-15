@@ -4,89 +4,24 @@ drop view if exists view_gjennomforing_enkeltplass;
 drop view if exists view_tilsagn;
 drop view if exists view_utbetaling;
 drop view if exists view_veilederflate_tiltak;
+drop view if exists view_datavarehus_gruppetiltak;
+drop view if exists view_datavarehus_enkeltplass;
 
-create table gjennomforing_gruppetiltak
-(
-    gjennomforing_id               uuid                                   not null primary key references gjennomforing on delete cascade,
-    created_at                     timestamp with time zone default now() not null,
-    updated_at                     timestamp with time zone default now() not null,
-    avtale_id                      uuid                                   not null references avtale,
-    oppstart                       gjennomforing_oppstartstype            not null,
-    pamelding_type                 pamelding_type                         not null,
-    faneinnhold                    jsonb,
-    beskrivelse                    text,
-    publisert                      boolean                  default false not null,
-    apent_for_pamelding            boolean                  default true  not null,
-    tilgjengelig_for_arrangor_dato date,
-    oppmote_sted                   text,
-    estimert_ventetid_verdi        integer,
-    estimert_ventetid_enhet        text
-);
-
-create index gjennomforing_gruppetiltak_avtale_id_idx on gjennomforing_gruppetiltak (avtale_id);
-
-create trigger set_timestamp
-    before update
-    on gjennomforing_gruppetiltak
-    for each row
-execute procedure trigger_set_timestamp();
-
-create type gjennomforing_type as enum ('GRUPPETILTAK', 'ARENA_GRUPPETILTAK', 'ARENA_ENKELTPLASS');
+create type gjennomforing_type as enum ('GRUPPETILTAK', 'ENKELTPLASS');
 
 alter table gjennomforing
     add gjennomforing_type gjennomforing_type;
 
 update gjennomforing
-set gjennomforing_type = 'GRUPPETILTAK'
-where avtale_id is not null;
-
-update gjennomforing
-set gjennomforing_type = 'ARENA_GRUPPETILTAK'
-where avtale_id is null;
+set gjennomforing_type = 'GRUPPETILTAK';
 
 alter table gjennomforing
     alter gjennomforing_type set not null;
 
-insert into gjennomforing_gruppetiltak(gjennomforing_id,
-                                       avtale_id,
-                                       oppstart,
-                                       pamelding_type,
-                                       faneinnhold,
-                                       beskrivelse,
-                                       publisert,
-                                       apent_for_pamelding,
-                                       tilgjengelig_for_arrangor_dato,
-                                       oppmote_sted,
-                                       estimert_ventetid_verdi,
-                                       estimert_ventetid_enhet)
-select id,
-       avtale_id,
-       oppstart,
-       pamelding_type,
-       faneinnhold,
-       beskrivelse,
-       publisert,
-       apent_for_pamelding,
-       tilgjengelig_for_arrangor_dato,
-       oppmote_sted,
-       estimert_ventetid_verdi,
-       estimert_ventetid_enhet
-from gjennomforing
-where avtale_id is not null;
+create index idx_gjennomforing_type_status on gjennomforing (gjennomforing_type, status);
 
 alter table gjennomforing
-    drop fts,
-    drop avtale_id,
-    drop oppstart,
-    drop pamelding_type,
-    drop faneinnhold,
-    drop beskrivelse,
-    drop publisert,
-    drop apent_for_pamelding,
-    drop tilgjengelig_for_arrangor_dato,
-    drop oppmote_sted,
-    drop estimert_ventetid_verdi,
-    drop estimert_ventetid_enhet;
+    drop fts;
 
 alter table gjennomforing
     add fts tsvector;
@@ -110,6 +45,8 @@ insert into gjennomforing (id,
                            arrangor_id,
                            opphav,
                            gjennomforing_type,
+                           oppstart,
+                           pamelding_type,
                            arena_tiltaksnummer,
                            arena_ansvarlig_enhet,
                            navn,
@@ -124,7 +61,9 @@ select id,
        tiltakstype_id,
        arrangor_id,
        'ARENA'::opphav,
-       'ARENA_ENKELTPLASS',
+       'ENKELTPLASS',
+       'LOPENDE',
+       'TRENGER_GODKJENNING',
        arena_tiltaksnummer,
        arena_ansvarlig_enhet,
        arena_navn,

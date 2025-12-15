@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import java.time.ZoneId
 
 object TiltaksgjennomforingV2Mapper {
-    fun fromGruppe(gruppe: Gjennomforing) = TiltaksgjennomforingV2Dto.Gruppe(
+    fun fromGruppe(gruppe: GjennomforingGruppetiltak) = TiltaksgjennomforingV2Dto.Gruppe(
         id = gruppe.id,
         opprettetTidspunkt = gruppe.opprettetTidspunkt.atZone(ZoneId.systemDefault()).toInstant(),
         oppdatertTidspunkt = gruppe.oppdatertTidspunkt.atZone(ZoneId.systemDefault()).toInstant(),

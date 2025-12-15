@@ -10,12 +10,12 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
@@ -128,11 +128,10 @@ class ArenaAdapterService(
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
         val previous = queries.gjennomforing.getEnkeltplass(arenaGjennomforing.id)
 
-        val enkeltplass = GjennomforingDbo(
+        val enkeltplass = GjennomforingEnkeltplassDbo(
             id = arenaGjennomforing.id,
             tiltakstypeId = tiltakstype.id,
             arrangorId = arrangor.id,
-            type = GjennomforingType.ARENA_ENKELTPLASS,
             navn = arenaGjennomforing.navn,
             startDato = arenaGjennomforing.startDato,
             sluttDato = arenaGjennomforing.sluttDato,
@@ -151,7 +150,7 @@ class ArenaAdapterService(
             arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
         )
         if (previous == null || hasRelevantChanges(enkeltplass, previous) || hasRelevantChanges(arenadata, previous)) {
-            queries.gjennomforing.upsert(enkeltplass)
+            queries.gjennomforing.upsertEnkeltplass(enkeltplass)
             queries.gjennomforing.setArenaData(arenadata)
 
             val next = queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id)
@@ -172,24 +171,23 @@ class ArenaAdapterService(
         arenaGjennomforing: ArenaGjennomforingDbo,
         current: Gjennomforing,
     ): Boolean {
-        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer?.value || arenaGjennomforing.arenaAnsvarligEnhet != current.arena.ansvarligNavEnhet?.enhetsnummer
+        return arenaGjennomforing.tiltaksnummer != current.arena?.tiltaksnummer?.value || arenaGjennomforing.arenaAnsvarligEnhet != current.arena?.ansvarligNavEnhet?.enhetsnummer
     }
 
     private fun hasRelevantChanges(
-        enkeltplass: GjennomforingDbo,
+        enkeltplass: GjennomforingEnkeltplassDbo,
         current: Enkeltplass,
     ): Boolean {
-        return enkeltplass != GjennomforingDbo(
+        return enkeltplass != GjennomforingEnkeltplassDbo(
             id = current.id,
             tiltakstypeId = current.tiltakstype.id,
             arrangorId = current.arrangor.id,
-            type = GjennomforingType.ARENA_ENKELTPLASS,
-            navn = current.arena.navn,
-            startDato = current.arena.startDato,
-            sluttDato = current.arena.sluttDato,
-            status = current.arena.status,
-            deltidsprosent = current.arena.deltidsprosent,
-            antallPlasser = current.arena.antallPlasser,
+            navn = current.navn,
+            startDato = current.startDato,
+            sluttDato = current.sluttDato,
+            status = current.status,
+            deltidsprosent = current.deltidsprosent,
+            antallPlasser = current.antallPlasser,
         )
     }
 
@@ -199,12 +197,12 @@ class ArenaAdapterService(
     ): Boolean {
         return arenadata != GjennomforingArenaDataDbo(
             id = current.id,
-            tiltaksnummer = current.arena.tiltaksnummer,
-            arenaAnsvarligEnhet = current.arena.ansvarligNavEnhet,
+            tiltaksnummer = current.arena?.tiltaksnummer,
+            arenaAnsvarligEnhet = current.arena?.ansvarligNavEnhet?.enhetsnummer,
         )
     }
 
-    private fun QueryContext.logUpdateGjennomforing(gjennomforing: Gjennomforing) {
+    private fun QueryContext.logUpdateGjennomforing(gjennomforing: GjennomforingGruppetiltak) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Endret i Arena",
@@ -214,7 +212,7 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(gjennomforing) }
     }
 
-    private fun QueryContext.logTiltaksnummerHentetFraArena(gjennomforing: Gjennomforing) {
+    private fun QueryContext.logTiltaksnummerHentetFraArena(gjennomforing: GjennomforingGruppetiltak) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
             "Oppdatert med tiltaksnummer fra Arena",
