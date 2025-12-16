@@ -7,12 +7,10 @@ import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
@@ -23,7 +21,6 @@ class ArenaEntityService(
     private val tiltakstyper: TiltakstypeRepository,
     private val saker: SakRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val avtaler: AvtaleRepository,
 ) {
     fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
         return mappings.get(event.arenaTable, event.arenaId)
@@ -113,15 +110,5 @@ class ArenaEntityService(
     fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
         return getMapping(arenaTable, arenaId)
             .map { it.status == ArenaEntityMapping.Status.Ignored }
-    }
-
-    fun upsertAvtale(avtale: Avtale): Either<ProcessingError, Avtale> {
-        return avtaler.upsert(avtale)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
-
-    fun deleteAvtale(id: UUID): Either<ProcessingError, Unit> {
-        return avtaler.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 }

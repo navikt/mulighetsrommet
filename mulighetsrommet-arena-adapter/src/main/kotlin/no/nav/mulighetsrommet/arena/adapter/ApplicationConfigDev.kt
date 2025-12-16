@@ -79,11 +79,6 @@ val ApplicationConfigDev = AppConfig(
                 topic = "teamarenanais.aapen-arena-sakendret-v1-q2",
                 consumerProperties = arenaAdapterConsumerProperties,
             ),
-            arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
-                id = "arena-avtaleinfo-endret",
-                topic = "teamarenanais.aapen-arena-avtaleinfoendret-v1-q2",
-                consumerProperties = arenaAdapterConsumerProperties,
-            ),
         ),
     ),
     auth = AuthConfig(
