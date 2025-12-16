@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
@@ -638,28 +637,28 @@ class AvtaleQueries(private val session: Session) {
                     Prismodell.AvtaltPrisPerManedsverk(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = p.satser.toDto(),
+                        satser = p.satser?.toDto() ?: listOf(),
                     )
 
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
                     Prismodell.AvtaltPrisPerUkesverk(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = p.satser.toDto(),
+                        satser = p.satser?.toDto() ?: listOf(),
                     )
 
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
                     Prismodell.AvtaltPrisPerHeleUkesverk(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = p.satser.toDto(),
+                        satser = p.satser?.toDto() ?: listOf(),
                     )
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
                     Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
                         id = p.id,
                         prisbetingelser = p.prisbetingelser,
-                        satser = p.satser.toDto(),
+                        satser = p.satser?.toDto() ?: listOf(),
                     )
             }
         }.first()

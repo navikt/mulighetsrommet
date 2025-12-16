@@ -12,5 +12,5 @@ data class PrismodellDbo(
     val id: UUID,
     val type: PrismodellType,
     val prisbetingelser: String?,
-    val satser: List<AvtaltSats>,
+    val satser: List<AvtaltSats>?,
 )

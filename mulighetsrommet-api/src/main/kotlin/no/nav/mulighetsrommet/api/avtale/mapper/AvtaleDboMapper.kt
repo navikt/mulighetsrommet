@@ -110,7 +110,7 @@ object AvtaleDboMapper {
             id = dbo.prismodellDbo.id,
             type = dbo.prismodellDbo.type,
             prisbetingelser = dbo.prismodellDbo.prisbetingelser,
-            satser = dbo.prismodellDbo.satser.map {
+            satser = (dbo.prismodellDbo.satser ?: listOf()).map {
                 AvtaltSatsRequest(
                     pris = it.sats,
                     valuta = "NOK",
