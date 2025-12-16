@@ -111,6 +111,18 @@ object GjennomforingValidator {
                 )
             }
         }
+        validateNotNull(request.oppstart) {
+            FieldError.of(
+                "Oppstartstype må være satt",
+                GjennomforingRequest::oppstart,
+            )
+        }
+        validateNotNull(request.pameldingType) {
+            FieldError.of(
+                "Påmeldingstype må være satt",
+                GjennomforingRequest::pameldingType,
+            )
+        }
         if (Tiltakskoder.kanEndreOppstartOgPamelding(ctx.avtale.tiltakstype.tiltakskode)) {
             if (request.oppstart == GjennomforingOppstartstype.FELLES) {
                 validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
@@ -158,13 +170,15 @@ object GjennomforingValidator {
             validateUpdateGjennomforing(next, ctx.previous, ctx.avtale, ctx.antallDeltakere)
         }
 
-        requireValid(next.antallPlasser != null && next.startDato != null)
+        requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
             next,
             startDato = next.startDato,
             antallPlasser = next.antallPlasser,
             arrangorId = ctx.arrangor.id,
             ctx.status,
+            oppstartstype = request.oppstart,
+            pameldingType = request.pameldingType,
         )
     }
 

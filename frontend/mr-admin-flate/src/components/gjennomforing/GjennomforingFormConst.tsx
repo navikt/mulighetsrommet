@@ -14,16 +14,16 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 
-export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype | undefined {
+export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype | null {
   if (!avtale) {
     return GjennomforingOppstartstype.LOPENDE;
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return !kanEndreOppstartOgPamelding(tiltakskode) ? GjennomforingOppstartstype.LOPENDE : undefined;
+  return !kanEndreOppstartOgPamelding(tiltakskode) ? GjennomforingOppstartstype.LOPENDE : null;
 }
 
-export function defaultPameldingType(avtale?: AvtaleDto): GjennomforingPameldingType | undefined {
+export function defaultPameldingType(avtale?: AvtaleDto): GjennomforingPameldingType | null {
   if (!avtale) {
     return GjennomforingPameldingType.DIREKTE_VEDTAK;
   }
@@ -31,7 +31,7 @@ export function defaultPameldingType(avtale?: AvtaleDto): GjennomforingPamelding
   const tiltakskode = avtale.tiltakstype.tiltakskode;
   return !kanEndreOppstartOgPamelding(tiltakskode)
     ? GjennomforingPameldingType.DIREKTE_VEDTAK
-    : undefined;
+    : null;
 }
 
 function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {

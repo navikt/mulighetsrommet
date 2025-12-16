@@ -645,7 +645,7 @@ data class GjennomforingRequest(
     val veilederinformasjon: GjennomforingVeilederinfoRequest,
     val kontaktpersoner: List<GjennomforingKontaktpersonDto>,
     val administratorer: List<NavIdent>,
-    val oppstart: GjennomforingOppstartstype,
+    val oppstart: GjennomforingOppstartstype?,
     val oppmoteSted: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
@@ -653,7 +653,7 @@ data class GjennomforingRequest(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
-    val pameldingType: GjennomforingPameldingType,
+    val pameldingType: GjennomforingPameldingType?,
 )
 
 @Serializable

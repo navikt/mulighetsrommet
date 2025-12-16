@@ -4504,7 +4504,9 @@ components:
           items:
             type: string
         oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingOppstartstype"
         oppmoteSted:
           type:
           - "null"
@@ -4530,7 +4532,9 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDbo"
         pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
       - administratorer
       - amoKategorisering
