@@ -1,0 +1,1 @@
+alter table tiltakstype drop constraint tiltakstype_tiltakskode_unik;

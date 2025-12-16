@@ -53,7 +53,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
     }
 
     private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV2Dto): Boolean {
-        return tiltakstyper.isEnabled(gjennomforing.tiltakskode)
+        return tiltakstyper.erMigrert(gjennomforing.tiltakskode)
     }
 
     private fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {

@@ -37,6 +37,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
+    val arenaMigrering: ArenaMigreringConfig,
     val navAnsattSync: NavAnsattSyncService.Config,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
@@ -60,6 +61,10 @@ data class AppConfig(
     val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,
+)
+
+data class ArenaMigreringConfig(
+    val migrerteTiltakskoder: Set<Tiltakskode> = emptySet(),
 )
 
 data class OkonomiConfig(

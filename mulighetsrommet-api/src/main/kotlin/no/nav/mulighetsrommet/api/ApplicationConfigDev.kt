@@ -276,6 +276,27 @@ val ApplicationConfigDev = AppConfig(
             ),
         ),
     ),
+    arenaMigrering = ArenaMigreringConfig(
+        migrerteTiltakskoder = setOf(
+            Tiltakskode.AVKLARING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+
+            // Opplæring
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.STUDIESPESIALISERING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            Tiltakskode.HOYERE_UTDANNING,
+        ),
+    ),
     navAnsattSync = NavAnsattSyncService.Config(
         ansattGroupsToSync = setOf(
             teamMulighetsrommetAdGruppeId,

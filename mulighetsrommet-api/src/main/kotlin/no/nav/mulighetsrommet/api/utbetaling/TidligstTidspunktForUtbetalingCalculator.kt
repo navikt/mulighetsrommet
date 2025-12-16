@@ -32,6 +32,11 @@ val tidligstTidspunktForUtbetalingProd = TidligstTidspunktForUtbetalingCalculato
         Tiltakskode.HOYERE_UTDANNING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.STUDIESPESIALISERING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         -> null
     }
 }
@@ -52,6 +57,11 @@ val tidligstTidspunktForUtbetalingDev = TidligstTidspunktForUtbetalingCalculator
         Tiltakskode.HOYERE_UTDANNING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.STUDIESPESIALISERING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         -> null
     }
 }

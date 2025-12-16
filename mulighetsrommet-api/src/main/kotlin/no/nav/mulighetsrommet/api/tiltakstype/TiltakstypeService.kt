@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tiltakstype
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.ArenaMigreringConfig
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -11,21 +12,7 @@ import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(
     private val db: ApiDatabase,
-    /**
-     * Alle kjent gruppetiltak har foreløpig blitt migrert.
-     * Denne står fortsatt åpen for konfigurasjon for fremtidige tiltak (bl.a. IPS/AMS).
-     */
-    private val enabledTiltakskoder: List<Tiltakskode> = listOf(
-        Tiltakskode.AVKLARING,
-        Tiltakskode.OPPFOLGING,
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ),
+    private val migreringConfig: ArenaMigreringConfig,
 ) {
 
     private val cacheBySanityId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
@@ -40,23 +27,21 @@ class TiltakstypeService(
         .recordStats()
         .build()
 
-    fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
+    private val cacheByArenakode: Cache<String, List<TiltakstypeDto>> = Caffeine.newBuilder()
+        .expireAfterWrite(12, TimeUnit.HOURS)
+        .maximumSize(20)
+        .recordStats()
+        .build()
+
+    fun erMigrert(tiltakskode: Tiltakskode?) = migreringConfig.migrerteTiltakskoder.contains(tiltakskode)
 
     fun getAllGruppetiltak(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
-        queries.tiltakstype.getAll(
-            tiltakskoder = setOf(
-                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-                Tiltakskode.AVKLARING,
-                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-                Tiltakskode.OPPFOLGING,
-                Tiltakskode.JOBBKLUBB,
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            ),
+        val result = queries.tiltakstype.getAll(
+            tiltakskoder = migreringConfig.migrerteTiltakskoder,
             sortering = filter.sortering,
         )
+
+        return result
     }
 
     fun getById(id: UUID): TiltakstypeDto? = db.session {
@@ -75,8 +60,8 @@ class TiltakstypeService(
         }
     }
 
-    fun getByArenaTiltakskode(arenaKode: String): TiltakstypeDto? {
-        return CacheUtils.tryCacheFirstNullable(cacheByTiltakskode, arenaKode) {
+    fun getByArenaTiltakskode(arenaKode: String): List<TiltakstypeDto> {
+        return CacheUtils.tryCacheFirstNotNull(cacheByArenakode, arenaKode) {
             db.session { queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
         }
     }

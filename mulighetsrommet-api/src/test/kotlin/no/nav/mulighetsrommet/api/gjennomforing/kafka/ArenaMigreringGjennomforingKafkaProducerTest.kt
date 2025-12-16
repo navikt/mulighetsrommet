@@ -9,6 +9,7 @@ import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.KafkaProducerClient
+import no.nav.mulighetsrommet.api.ArenaMigreringConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -63,7 +64,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(database.db, enabledTiltakskoder = emptyList())
+            val tiltakstyper = TiltakstypeService(database.db, ArenaMigreringConfig())
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gjennomforing)
@@ -75,7 +76,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
+            val tiltakstyper = TiltakstypeService(database.db, ArenaMigreringConfig(setOf(Tiltakskode.OPPFOLGING)))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gjennomforing)
@@ -95,7 +96,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
                 status = "AVSLU",
             )
 
-            val tiltakstyper = TiltakstypeService(database.db, listOf(Tiltakskode.OPPFOLGING))
+            val tiltakstyper = TiltakstypeService(database.db, ArenaMigreringConfig(setOf(Tiltakskode.OPPFOLGING)))
 
             val consumer = createConsumer(tiltakstyper, arenaAdapterClient)
             consumeGjennomforing(consumer, gjennomforing)
