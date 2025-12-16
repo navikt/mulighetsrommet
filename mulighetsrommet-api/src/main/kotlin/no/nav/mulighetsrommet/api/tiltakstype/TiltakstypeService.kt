@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.ArenaMigreringConfig
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltakskoder.OpplaeringsTiltak2025
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -36,26 +35,9 @@ class TiltakstypeService(
 
     fun erMigrert(tiltakskode: Tiltakskode?) = migreringConfig.migrerteTiltakskoder.contains(tiltakskode)
 
-    fun getAllGruppetiltak(filter: TiltakstypeFilter, inkluderOpplareing2025: Boolean? = false): List<TiltakstypeDto> = db.session {
-        val standardGruppetiltak = setOf(
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        )
-        val tiltakskoder = if (inkluderOpplareing2025 == true) {
-            standardGruppetiltak + OpplaeringsTiltak2025
-        } else {
-            standardGruppetiltak
-        }
-
+    fun getAllGruppetiltak(filter: TiltakstypeFilter): List<TiltakstypeDto> = db.session {
         val result = queries.tiltakstype.getAll(
-            tiltakskoder = tiltakskoder,
+            tiltakskoder = migreringConfig.migrerteTiltakskoder,
             sortering = filter.sortering,
         )
 
