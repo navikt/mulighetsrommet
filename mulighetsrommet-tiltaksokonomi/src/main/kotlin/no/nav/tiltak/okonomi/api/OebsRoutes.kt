@@ -1,12 +1,12 @@
 package no.nav.tiltak.okonomi.api
 
-import io.ktor.http.*
-import io.ktor.resources.*
-import io.ktor.server.auth.*
-import io.ktor.server.request.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.resources.Resource
+import io.ktor.server.auth.authenticate
+import io.ktor.server.request.receive
 import io.ktor.server.resources.post
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.FakturaStatusType

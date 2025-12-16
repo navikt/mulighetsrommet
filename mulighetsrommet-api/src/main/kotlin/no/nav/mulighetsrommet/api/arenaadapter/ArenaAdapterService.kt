@@ -8,9 +8,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
@@ -20,15 +17,21 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltakskoder
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class ArenaAdapterService(
     private val config: Config,
@@ -42,21 +45,6 @@ class ArenaAdapterService(
         val gjennomforingV1Topic: String,
         val gjennomforingV2Topic: String,
     )
-
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): Avtale = db.transaction {
-        syncArrangorFromBrreg(Organisasjonsnummer(avtale.arrangorOrganisasjonsnummer))
-
-        val previous = queries.avtale.get(avtale.id)
-        if (previous?.toArenaAvtaleDbo() == avtale) {
-            return@transaction previous
-        }
-
-        queries.avtale.upsertArenaAvtale(avtale)
-
-        val next = queries.avtale.getOrError(avtale.id)
-        logUpdateAvtale(next)
-        next
-    }
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? = db.session {
         val tiltakstype = queries.tiltakstype.get(arenaGjennomforing.tiltakstypeId)
@@ -201,16 +189,6 @@ class ArenaAdapterService(
         )
     }
 
-    private fun QueryContext.logUpdateAvtale(avtale: Avtale) {
-        queries.endringshistorikk.logEndring(
-            DocumentClass.AVTALE,
-            "Endret i Arena",
-            Arena,
-            avtale.id,
-            LocalDateTime.now(),
-        ) { Json.encodeToJsonElement(avtale) }
-    }
-
     private fun QueryContext.logUpdateGjennomforing(gjennomforing: Gjennomforing) {
         queries.endringshistorikk.logEndring(
             DocumentClass.GJENNOMFORING,
@@ -249,28 +227,5 @@ class ArenaAdapterService(
             null,
         )
         queries.kafkaProducerRecord.storeRecord(record)
-    }
-}
-
-private fun Avtale.toArenaAvtaleDbo(): ArenaAvtaleDbo? {
-    return arrangor?.organisasjonsnummer?.value?.let {
-        ArenaAvtaleDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            avtalenummer = avtalenummer,
-            arrangorOrganisasjonsnummer = it,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-            avtaletype = avtaletype,
-            avslutningsstatus = when (status) {
-                is AvtaleStatus.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
-                is AvtaleStatus.Avbrutt -> Avslutningsstatus.AVBRUTT
-                is AvtaleStatus.Avsluttet -> Avslutningsstatus.AVSLUTTET
-                is AvtaleStatus.Utkast -> Avslutningsstatus.IKKE_AVSLUTTET
-            },
-            prisbetingelser = prismodell.prisbetingelser(),
-        )
     }
 }

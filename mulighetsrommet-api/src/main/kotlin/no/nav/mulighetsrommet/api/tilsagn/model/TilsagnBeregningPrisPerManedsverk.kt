@@ -4,8 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 @Serializable
 @SerialName("PRIS_PER_MANEDSVERK")

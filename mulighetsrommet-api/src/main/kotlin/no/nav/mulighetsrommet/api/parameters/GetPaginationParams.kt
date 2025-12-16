@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.parameters
 
-import io.ktor.server.routing.*
+import io.ktor.server.routing.RoutingContext
 import no.nav.mulighetsrommet.database.utils.Pagination
 
 const val FIRST_PAGE = 1

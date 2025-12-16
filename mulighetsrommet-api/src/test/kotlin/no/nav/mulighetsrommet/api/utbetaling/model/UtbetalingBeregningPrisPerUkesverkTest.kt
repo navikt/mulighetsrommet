@@ -6,7 +6,7 @@ import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
     context("beregning for pris per ukesverk") {

@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GEN
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import java.util.*
+import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class NavAnsattServiceTest : FunSpec({

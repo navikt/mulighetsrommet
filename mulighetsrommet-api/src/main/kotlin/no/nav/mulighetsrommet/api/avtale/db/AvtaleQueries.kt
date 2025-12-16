@@ -6,13 +6,20 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.avtale.model.*
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur.Companion.fromNavEnheter
+import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -21,14 +28,22 @@ import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Personopplysning
+import no.nav.mulighetsrommet.model.SakarkivNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class AvtaleQueries(private val session: Session) {
 
@@ -386,65 +401,6 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    fun upsertArenaAvtale(avtale: ArenaAvtaleDbo) = withTransaction(session) {
-        val arrangorId = single(
-            queryOf("select id from arrangor where organisasjonsnummer = ?", avtale.arrangorOrganisasjonsnummer),
-        ) { it.uuid("id") }.let { requireNotNull(it) }
-
-        @Language("PostgreSQL")
-        val query = """
-            insert into avtale(id,
-                               navn,
-                               tiltakstype_id,
-                               avtalenummer,
-                               arrangor_hovedenhet_id,
-                               start_dato,
-                               slutt_dato,
-                               status,
-                               opsjonsmodell,
-                               arena_ansvarlig_enhet,
-                               avtaletype,
-                               opphav)
-            values (:id::uuid,
-                    :navn,
-                    :tiltakstype_id::uuid,
-                    :avtalenummer,
-                    :arrangor_hovedenhet_id,
-                    :start_dato,
-                    :slutt_dato,
-                    :status::avtale_status,
-                    :opsjonsmodell::opsjonsmodell,
-                    :arena_ansvarlig_enhet,
-                    :avtaletype::avtaletype,
-                    :opphav::opphav)
-            on conflict (id) do update set navn                     = excluded.navn,
-                                           tiltakstype_id           = excluded.tiltakstype_id,
-                                           avtalenummer             = excluded.avtalenummer,
-                                           arrangor_hovedenhet_id   = excluded.arrangor_hovedenhet_id,
-                                           start_dato               = excluded.start_dato,
-                                           slutt_dato               = excluded.slutt_dato,
-                                           status                   = excluded.status,
-                                           opsjonsmodell            = coalesce(avtale.opsjonsmodell, excluded.opsjonsmodell),
-                                           arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
-                                           avtaletype               = excluded.avtaletype,
-                                           opphav                   = coalesce(avtale.opphav, excluded.opphav)
-        """.trimIndent()
-
-        execute(queryOf(query, avtale.toSqlParameters(arrangorId)))
-        upsertPrismodell(
-            avtaleId = avtale.id,
-            PrismodellDbo(
-                id = UUID.randomUUID(),
-                type = when (avtale.avtaletype) {
-                    Avtaletype.FORHANDSGODKJENT -> PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-                    else -> PrismodellType.ANNEN_AVTALT_PRIS
-                },
-                prisbetingelser = avtale.prisbetingelser,
-                satser = emptyList(),
-            ),
-        )
-    }
-
     fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
 
     fun get(id: UUID): Avtale? = with(session) {
@@ -617,44 +573,6 @@ class AvtaleQueries(private val session: Session) {
         "opsjonMaksVarighet" to detaljerDbo.opsjonsmodell.opsjonMaksVarighet,
         "opsjonCustomOpsjonsmodellNavn" to detaljerDbo.opsjonsmodell.customOpsjonsmodellNavn,
     )
-
-    private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
-        val avbruttTidspunkt = when (avslutningsstatus) {
-            Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
-            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
-            Avslutningsstatus.AVSLUTTET -> null
-            Avslutningsstatus.IKKE_AVSLUTTET -> null
-        }
-        return mapOf(
-            "opphav" to ArenaMigrering.Opphav.ARENA.name,
-            "id" to id,
-            "navn" to navn,
-            "tiltakstype_id" to tiltakstypeId,
-            "avtalenummer" to avtalenummer,
-            "arrangor_hovedenhet_id" to arrangorId,
-            "start_dato" to startDato,
-            "slutt_dato" to sluttDato,
-            "status" to when (avslutningsstatus) {
-                Avslutningsstatus.IKKE_AVSLUTTET -> AvtaleStatusType.AKTIV
-                Avslutningsstatus.AVSLUTTET -> AvtaleStatusType.AVSLUTTET
-                Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvtaleStatusType.AVBRUTT
-            }.name,
-            "opsjonsmodell" to when (avtaletype) {
-                Avtaletype.FORHANDSGODKJENT, Avtaletype.OFFENTLIG_OFFENTLIG -> OpsjonsmodellType.VALGFRI_SLUTTDATO
-                else -> OpsjonsmodellType.INGEN_OPSJONSMULIGHET
-            }.name,
-            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
-            "avtaletype" to avtaletype.name,
-            "avbrutt_tidspunkt" to avbruttTidspunkt,
-            "avbrutt_aarsaker" to if (avbruttTidspunkt != null) session.createTextArray(listOf("AVBRUTT_I_ARENA")) else null,
-            "avbrutt_forklaring" to null,
-            "prismodell" to when (avtaletype) {
-                Avtaletype.FORHANDSGODKJENT -> PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-                else -> PrismodellType.ANNEN_AVTALT_PRIS
-            }.name,
-            "prisbetingelser" to prisbetingelser,
-        )
-    }
 
     private fun Row.toAvtale(): Avtale {
         val startDato = localDate("start_dato")

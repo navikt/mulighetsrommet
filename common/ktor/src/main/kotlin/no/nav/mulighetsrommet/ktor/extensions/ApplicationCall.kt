@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.ktor.extensions
 
-import io.ktor.http.*
-import io.ktor.http.auth.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.auth.HttpAuthHeader
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.auth.parseAuthorizationHeader
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 /**

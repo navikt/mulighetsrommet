@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(

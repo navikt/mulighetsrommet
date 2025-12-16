@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class UtdanningslopDto(

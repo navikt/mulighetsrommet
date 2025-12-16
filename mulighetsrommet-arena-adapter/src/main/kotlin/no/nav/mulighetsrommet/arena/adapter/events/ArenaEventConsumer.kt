@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import org.slf4j.MDC
-import java.util.*
 
 class ArenaEventConsumer(
     private val arenaEventService: ArenaEventService,

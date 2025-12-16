@@ -1,13 +1,25 @@
 package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import io.ktor.server.application.*
-import no.nav.mulighetsrommet.arena.adapter.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import no.nav.mulighetsrommet.arena.adapter.AppConfig
+import no.nav.mulighetsrommet.arena.adapter.KafkaConfig
+import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
+import no.nav.mulighetsrommet.arena.adapter.SlackConfig
+import no.nav.mulighetsrommet.arena.adapter.TaskConfig
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
-import no.nav.mulighetsrommet.arena.adapter.events.processors.*
-import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.events.processors.SakEventProcessor
+import no.nav.mulighetsrommet.arena.adapter.events.processors.TiltakEventProcessor
+import no.nav.mulighetsrommet.arena.adapter.events.processors.TiltakgjennomforingEventProcessor
+import no.nav.mulighetsrommet.arena.adapter.events.processors.TiltakshistorikkEventProcessor
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
@@ -90,7 +102,6 @@ private fun kafka(config: KafkaConfig) = module {
             config.consumers.arenaTiltakdeltakerEndret to ArenaEventConsumer(get()),
             config.consumers.arenaHistTiltakdeltakerEndret to ArenaEventConsumer(get()),
             config.consumers.arenaSakEndret to ArenaEventConsumer(get()),
-            config.consumers.arenaAvtaleInfoEndret to ArenaEventConsumer(get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),
@@ -105,7 +116,6 @@ private fun repositories() = module {
     single { SakRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { ArenaEntityMappingRepository(get()) }
-    single { AvtaleRepository(get()) }
 }
 
 private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Module = module {
@@ -138,7 +148,6 @@ private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Mo
         val processors = listOf(
             SakEventProcessor(get()),
             TiltakEventProcessor(get()),
-            AvtaleInfoEventProcessor(get(), get(), get()),
             TiltakgjennomforingEventProcessor(
                 config = TiltakgjennomforingEventProcessor.Config(
                     retryUpsertTimes = 10,
@@ -157,5 +166,5 @@ private fun services(tokenProvider: AzureAdTokenProvider, config: AppConfig): Mo
             entities = get(),
         )
     }
-    single { ArenaEntityService(get(), get(), get(), get(), get()) }
+    single { ArenaEntityService(get(), get(), get(), get()) }
 }

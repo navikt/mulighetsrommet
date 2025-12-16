@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class ReplikerAmtDeltakerV1KafkaConsumer(
     private val db: TiltakshistorikkDatabase,

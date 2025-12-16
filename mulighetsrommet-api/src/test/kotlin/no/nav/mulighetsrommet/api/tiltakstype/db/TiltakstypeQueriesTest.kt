@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 class TiltakstypeQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))

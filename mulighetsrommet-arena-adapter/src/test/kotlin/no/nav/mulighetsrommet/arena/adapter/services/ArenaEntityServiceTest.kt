@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import java.util.*
+import java.util.UUID
 
 class ArenaEntityServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -26,7 +26,6 @@ class ArenaEntityServiceTest : FunSpec({
             tiltakstyper = mockk(),
             saker = mockk(),
             tiltaksgjennomforinger = mockk(),
-            avtaler = mockk(),
         )
 
         test("should return mapping if status is Handled") {

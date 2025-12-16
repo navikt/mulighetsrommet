@@ -1,8 +1,11 @@
 package no.nav.mulighetsrommet.api.validation
 
-import arrow.core.*
-import arrow.core.raise.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.raise.Raise
 import arrow.core.raise.either
+import arrow.core.right
+import arrow.core.toNonEmptyListOrNull
 import no.nav.mulighetsrommet.api.responses.FieldError
 import kotlin.contracts.contract
 

@@ -3,7 +3,11 @@ package no.nav.mulighetsrommet.api.avtale.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
@@ -14,41 +18,39 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.avtale.model.*
+import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
-import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Personopplysning
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class AvtaleQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
-        val arenaAvtale = ArenaAvtaleDbo(
-            id = UUID.randomUUID(),
-            navn = "Arena-avtale",
-            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            avtalenummer = "2023#1",
-            arrangorOrganisasjonsnummer = "123456789",
-            startDato = LocalDate.now(),
-            sluttDato = LocalDate.now().plusMonths(3),
-            arenaAnsvarligEnhet = "9999",
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            prisbetingelser = "Alt er dyrt",
-        )
-
         val domain = MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             arrangorer = listOf(
@@ -59,32 +61,6 @@ class AvtaleQueriesTest : FunSpec({
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(),
         )
-
-        test("Upsert av Arena-avtaler") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                val queries = AvtaleQueries(session)
-
-                queries.upsertArenaAvtale(arenaAvtale)
-
-                queries.get(arenaAvtale.id).shouldNotBeNull().should {
-                    it.id shouldBe arenaAvtale.id
-                    it.tiltakstype.id shouldBe arenaAvtale.tiltakstypeId
-                    it.navn shouldBe arenaAvtale.navn
-                    it.avtalenummer shouldBe arenaAvtale.avtalenummer
-                    it.arrangor?.id shouldBe ArrangorFixtures.hovedenhet.id
-                    it.arrangor?.organisasjonsnummer?.value shouldBe arenaAvtale.arrangorOrganisasjonsnummer
-
-                    it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = null, enhetsnummer = "9999")
-                    it.startDato shouldBe arenaAvtale.startDato
-                    it.sluttDato shouldBe arenaAvtale.sluttDato
-                    it.avtaletype shouldBe arenaAvtale.avtaletype
-                    it.status.type shouldBe AvtaleStatusType.AKTIV
-                    it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-                }
-            }
-        }
 
         test("upsert genererer nye løpenummer") {
             database.runAndRollback { session ->
@@ -135,17 +111,9 @@ class AvtaleQueriesTest : FunSpec({
 
                 val queries = AvtaleQueries(session)
 
-                val id1 = UUID.randomUUID()
-                queries.upsertArenaAvtale(arenaAvtale.copy(id = id1))
-                queries.upsert(AvtaleFixtures.oppfolging.copy(id = id1))
-                queries.get(id1).shouldNotBeNull().should {
-                    it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-                }
-
-                val id2 = UUID.randomUUID()
-                queries.upsert(AvtaleFixtures.oppfolging.copy(id = id2))
-                queries.upsertArenaAvtale(arenaAvtale.copy(id = id2))
-                queries.get(id2).shouldNotBeNull().should {
+                val id = UUID.randomUUID()
+                queries.upsert(AvtaleFixtures.oppfolging.copy(id = id))
+                queries.get(id).shouldNotBeNull().should {
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                 }
             }

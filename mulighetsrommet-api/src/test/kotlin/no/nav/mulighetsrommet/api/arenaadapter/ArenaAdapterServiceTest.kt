@@ -9,25 +9,33 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TOPIC
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -40,54 +48,6 @@ class ArenaAdapterServiceTest : FunSpec({
         sanityService = sanityService,
         arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
     )
-
-    context("avtaler") {
-        val avtale = ArenaAvtaleDbo(
-            id = UUID.randomUUID(),
-            navn = "Oppfølgingsavtale",
-            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            avtalenummer = "2023#1000",
-            arrangorOrganisasjonsnummer = "123456789",
-            startDato = LocalDate.now(),
-            sluttDato = LocalDate.now().plusYears(1),
-            arenaAnsvarligEnhet = null,
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            prisbetingelser = "💸",
-        )
-
-        afterEach {
-            database.truncateAll()
-        }
-
-        test("CRUD") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet),
-                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(),
-                gjennomforinger = listOf(),
-            ).initialize(database.db)
-
-            val service = createArenaAdapterService()
-            service.upsertAvtale(avtale)
-
-            database.assertTable("avtale").row()
-                .value("id").isEqualTo(avtale.id)
-                .value("navn").isEqualTo(avtale.navn)
-                .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
-                .value("avtalenummer").isEqualTo(avtale.avtalenummer)
-                .value("arrangor_hovedenhet_id").isEqualTo(ArrangorFixtures.hovedenhet.id)
-                .value("start_dato").isEqualTo(avtale.startDato)
-                .value("slutt_dato").isEqualTo(avtale.sluttDato)
-                .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
-                .value("avtaletype").isEqualTo(avtale.avtaletype.name)
-
-            database.assertTable("avtale_prismodell").row().value("avtale_id").isEqualTo(avtale.id)
-                .value("prismodell_type").isEqualTo(
-                    PrismodellType.ANNEN_AVTALT_PRIS.name,
-                ).value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
-        }
-    }
 
     context("tiltak i egen regi") {
         val gjennomforing = ArenaGjennomforingDbo(

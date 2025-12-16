@@ -3,8 +3,7 @@ package no.nav.mulighetsrommet.api.navenhet
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.server.plugins.*
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
+import io.ktor.server.plugins.BadRequestException
 
 class NavEnhetUtilsTest : FunSpec({
     context("SanityUtils") {

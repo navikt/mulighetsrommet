@@ -3,8 +3,16 @@ package no.nav.tiltak.okonomi.model
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.model.*
-import no.nav.tiltak.okonomi.*
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.OkonomiSystem
+import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 
 class BestillingTest : FunSpec({

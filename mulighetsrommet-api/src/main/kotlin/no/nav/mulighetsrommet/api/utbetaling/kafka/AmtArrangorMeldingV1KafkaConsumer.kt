@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class AmtArrangorMeldingV1KafkaConsumer(
     private val db: ApiDatabase,

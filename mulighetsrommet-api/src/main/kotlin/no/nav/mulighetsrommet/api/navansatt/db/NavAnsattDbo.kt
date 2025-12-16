@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 data class NavAnsattDbo(
     val navIdent: NavIdent,

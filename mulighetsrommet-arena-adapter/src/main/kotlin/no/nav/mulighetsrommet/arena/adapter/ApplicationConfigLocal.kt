@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.arena.adapter
 
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
@@ -86,11 +89,6 @@ val ApplicationConfigLocal = AppConfig(
             arenaSakEndret = KafkaTopicConsumer.Config(
                 id = "arena-sakendret-endret",
                 topic = "sakendret",
-                consumerProperties = arenaAdapterConsumerProperties,
-            ),
-            arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
-                id = "arena-avtaleinfo-endret",
-                topic = "avtaleinfo-endret",
                 consumerProperties = arenaAdapterConsumerProperties,
             ),
         ),

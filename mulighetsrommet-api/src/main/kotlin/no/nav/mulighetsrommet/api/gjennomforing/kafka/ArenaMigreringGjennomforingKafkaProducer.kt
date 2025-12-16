@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.util.*
+import java.util.UUID
 
 class ArenaMigreringGjennomforingKafkaProducer(
     private val config: Config,

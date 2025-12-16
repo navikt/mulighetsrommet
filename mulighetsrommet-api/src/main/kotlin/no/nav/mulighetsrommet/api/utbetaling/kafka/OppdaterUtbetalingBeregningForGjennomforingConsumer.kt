@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class OppdaterUtbetalingBeregningForGjennomforingConsumer(
     private val db: ApiDatabase,

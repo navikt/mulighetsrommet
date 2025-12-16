@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.db
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 data class EnkeltplassDbo(
     val id: UUID,

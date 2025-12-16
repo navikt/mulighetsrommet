@@ -1,9 +1,21 @@
 package no.nav.mulighetsrommet.api.utbetaling.pdl
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.mapValuesNotNull
+import arrow.core.right
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.pdl.tilGradering
+import no.nav.mulighetsrommet.api.clients.pdl.tilNavn
+import no.nav.mulighetsrommet.api.clients.pdl.toGeografiskTilknytning
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory

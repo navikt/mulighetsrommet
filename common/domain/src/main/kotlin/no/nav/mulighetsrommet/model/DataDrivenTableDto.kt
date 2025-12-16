@@ -4,11 +4,9 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.model.DataElement.Text
 import no.nav.mulighetsrommet.model.DataElement.Text.Format
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import javax.xml.crypto.Data
 
 @Serializable
 class DataDrivenTableDto(

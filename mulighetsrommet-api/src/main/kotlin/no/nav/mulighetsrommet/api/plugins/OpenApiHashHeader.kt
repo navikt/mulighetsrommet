@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.plugins
 
-import io.ktor.server.application.*
+import io.ktor.server.application.createRouteScopedPlugin
 import no.nav.mulighetsrommet.api.routes.OpenApiSpec
 
 class OpenApiVersionHeaderConfig {

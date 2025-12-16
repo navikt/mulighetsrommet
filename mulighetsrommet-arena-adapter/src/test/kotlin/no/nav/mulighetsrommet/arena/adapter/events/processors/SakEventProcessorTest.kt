@@ -10,7 +10,10 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
-import no.nav.mulighetsrommet.arena.adapter.repositories.*
+import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 
@@ -27,7 +30,6 @@ class SakEventProcessorTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             saker = SakRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
         )
 
         context("when sakskode is not TILT") {

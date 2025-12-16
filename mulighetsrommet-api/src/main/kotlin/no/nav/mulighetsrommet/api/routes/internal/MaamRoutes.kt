@@ -1,15 +1,18 @@
 package no.nav.mulighetsrommet.api.routes.internal
 
-import io.ktor.http.*
-import io.ktor.server.plugins.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.plugins.BadRequestException
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.put
+import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -26,14 +29,13 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 fun Route.maamRoutes() {
     val arrangor: ArrangorService by inject()
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
 
-    val generateValidationReport: GenerateValidationReport by inject()
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
@@ -43,12 +45,6 @@ fun Route.maamRoutes() {
 
     route("/api/intern/maam") {
         route("/tasks") {
-            post("generate-validation-report") {
-                val taskId = generateValidationReport.schedule()
-
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
-
             post("initial-load-gjennomforinger") {
                 val request = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
 

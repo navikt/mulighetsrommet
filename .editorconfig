@@ -12,7 +12,8 @@ indent_style = space
 
 # Custom config to override `ktlint` defaults
 ktlint_code_style = intellij_idea
-ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_no-wildcard-imports = enabled
+ktlint_standard_no-unused-imports = enabled
 ktlint_standard_function-expression-body = disabled
 ktlint_standard_class-signature = disabled
 

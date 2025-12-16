@@ -5,11 +5,16 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.createArrayOfValue
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusAarsak
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.intellij.lang.annotations.Language
-import java.util.*
+import java.util.UUID
 
 class KometDeltakerQueries(private val session: Session) {
 

@@ -2,23 +2,13 @@ package no.nav.mulighetsrommet.arena.adapter.fixtures
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.arena.adapter.models.arena.*
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaHistTiltakdeltaker
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaSak
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltak
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-
-fun createArenaAvtaleInfoEvent(
-    operation: ArenaEvent.Operation,
-    avtale: ArenaAvtaleInfo = AvtaleFixtures.ArenaAvtaleInfo,
-    status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
-    modify: (avtale: ArenaAvtaleInfo) -> ArenaAvtaleInfo = { it },
-): ArenaEvent = modify(avtale).let {
-    createArenaEvent(
-        ArenaTable.AvtaleInfo,
-        it.AVTALE_ID.toString(),
-        operation,
-        Json.encodeToJsonElement(it).toString(),
-        status,
-    )
-}
 
 fun createArenaSakEvent(
     operation: ArenaEvent.Operation,

@@ -3,10 +3,12 @@ package no.nav.mulighetsrommet.api.endringshistorikk
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.textRepr
+import no.nav.mulighetsrommet.model.toAgent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
-import java.util.*
+import java.util.UUID
 
 class EndringshistorikkQueries(private val session: Session) {
     fun getEndringshistorikk(documentClass: DocumentClass, id: UUID): EndringshistorikkDto {

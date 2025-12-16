@@ -12,11 +12,22 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.tiltakstype.TiltakstypeService
-import no.nav.mulighetsrommet.api.veilederflate.models.*
+import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
+import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
-import no.nav.mulighetsrommet.model.*
+import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 import no.nav.tiltak.historikk.TiltakshistorikkMelding
@@ -178,10 +189,14 @@ class TiltakshistorikkService(
         // TODO: ideelt sett hadde vi fått tiltakskode i stedet for arenakode fra komet
         //  (og enda mer ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
         //  `tiltakshistorikk`-appen som kilde)
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
-            ?: throw IllegalStateException("Arena-tiltakskode finnes ikke i db=${deltakelse.tiltakstype.tiltakskode}")
-
+        val tiltakstype = try {
+            tiltakstypeService.getByTiltakskode(Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode))
+                .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+        } catch (_: Throwable) {
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
+                ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+                ?: throw IllegalStateException("Arena-tiltakskode finnes ikke i db=${deltakelse.tiltakstype.tiltakskode}")
+        }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)

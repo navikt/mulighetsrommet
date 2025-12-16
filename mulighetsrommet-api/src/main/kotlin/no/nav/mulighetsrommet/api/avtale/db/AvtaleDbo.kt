@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
 import PersonvernDbo
-import java.util.*
+import java.util.UUID
 
 data class AvtaleDbo(
     val id: UUID,

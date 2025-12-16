@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import java.util.*
+import java.util.UUID
 
 @Serializable
 internal data class AddMemberRequest(

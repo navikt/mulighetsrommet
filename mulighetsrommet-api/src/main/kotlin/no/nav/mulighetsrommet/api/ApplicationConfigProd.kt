@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingProd
@@ -355,9 +354,6 @@ val ApplicationConfigProd = AppConfig(
         ),
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(
             cronPattern = "0 0 6 * * *",
-        ),
-        generateValidationReport = GenerateValidationReport.Config(
-            bucketName = "mulighetsrommet-api-uploads-prod",
         ),
         updateApentForPamelding = UpdateApentForPamelding.Config(
             disabled = false,
