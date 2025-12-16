@@ -192,21 +192,10 @@ class TiltakshistorikkService(
     }
 
     private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
-        // TODO: ideelt sett hadde vi fått tiltakskode i stedet for arenakode fra komet
-        //  (og enda mer ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
-        //  `tiltakshistorikk`-appen som kilde)
-        val tiltakstype = try {
-            tiltakstypeService.getByTiltakskode(Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode))
-                .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
-        } catch (_: Throwable) {
-            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-                .mapNotNull {
-                    it.tiltakskode?.let { tiltakskode -> (it.navn to Tiltakskoder.tilArenaStottetType(tiltakskode)) }
-                }
-                .singleOrNull()
-                ?.let { (navn, tiltakskode) -> DeltakelseTiltakstype(navn, tiltakskode) }
-                ?: throw IllegalStateException("Fant ikke én tiltakskode i db med arenakode=${deltakelse.tiltakstype.tiltakskode}")
-        }
+        // TODO: ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
+        //  `tiltakshistorikk`-appen som kilde
+        val tiltakstype = tiltakstypeService.getByTiltakskode(Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode))
+            .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
