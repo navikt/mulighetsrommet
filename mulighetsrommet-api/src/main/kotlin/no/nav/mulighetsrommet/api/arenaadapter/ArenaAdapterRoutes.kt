@@ -8,7 +8,6 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
@@ -18,12 +17,6 @@ fun Route.arenaAdapterRoutes() {
     val arenaAdapterService: ArenaAdapterService by inject()
 
     route("/api/v1/intern/arena/") {
-        put("avtale") {
-            val dbo = call.receive<ArenaAvtaleDbo>()
-
-            call.respond(arenaAdapterService.upsertAvtale(dbo))
-        }
-
         put("tiltaksgjennomforing") {
             val gjennomforing = call.receive<ArenaGjennomforingDbo>()
 

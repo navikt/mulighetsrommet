@@ -26,7 +26,6 @@ class ArenaEntityServiceTest : FunSpec({
             tiltakstyper = mockk(),
             saker = mockk(),
             tiltaksgjennomforinger = mockk(),
-            avtaler = mockk(),
         )
 
         test("should return mapping if status is Handled") {

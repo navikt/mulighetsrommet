@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
@@ -55,7 +54,6 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             saker = SakRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
         )
 
         fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakshistorikkEventProcessor {

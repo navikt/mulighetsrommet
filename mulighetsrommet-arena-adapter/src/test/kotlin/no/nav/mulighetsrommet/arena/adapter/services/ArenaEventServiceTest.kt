@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
@@ -78,7 +77,6 @@ class ArenaEventServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(db = database.db),
             saker = SakRepository(db = database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(db = database.db),
-            avtaler = AvtaleRepository(db = database.db),
         )
     }
 
