@@ -358,7 +358,8 @@ object AvtaleValidator {
         }
 
         return PrismodellDbo(
-            prismodellType = request.type,
+            id = request.id,
+            type = request.type,
             prisbetingelser = request.prisbetingelser,
             satser = request.satser.map {
                 AvtaltSats(gjelderFra = it.gjelderFra!!, sats = it.pris!!)
@@ -427,14 +428,14 @@ object AvtaleValidator {
         }
         satser.forEachIndexed { index, sats ->
             validate(sats.pris != null && sats.pris > 0) {
-                FieldError.ofPointer("/satser/$index/pris", "Pris må være positiv")
+                FieldError.ofPointer("prismodell/satser/$index/pris", "Pris må være positiv")
             }
         }
         for (i in satser.indices) {
             val a = satser[i]
             if (a.gjelderFra == null) {
                 validate(false) {
-                    FieldError.ofPointer("/satser/$i/gjelderFra", "Gjelder fra må være satt")
+                    FieldError.ofPointer("prismodell/satser/$i/gjelderFra", "Gjelder fra må være satt")
                 }
                 continue
             }
@@ -442,7 +443,7 @@ object AvtaleValidator {
                 val b = satser[j]
                 if (!a.gjelderFra.isBefore(b.gjelderFra)) {
                     validate(false) {
-                        FieldError.ofPointer("/satser/$j/gjelderFra", "Ny pris må gjelde etter forrige pris")
+                        FieldError.ofPointer("prismodell/satser/$j/gjelderFra", "Ny pris må gjelde etter forrige pris")
                     }
                     continue
                 }

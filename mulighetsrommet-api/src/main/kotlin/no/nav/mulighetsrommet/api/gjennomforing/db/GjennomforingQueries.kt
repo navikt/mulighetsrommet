@@ -298,14 +298,14 @@ class GjennomforingQueries(private val session: Session) {
     fun getPrismodell(id: UUID): PrismodellType? {
         @Language("PostgreSQL")
         val query = """
-            select avtale.prismodell
+            select avtale_prismodell.prismodell_type
             from gjennomforing
-            join avtale on gjennomforing.avtale_id = avtale.id
+            join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
             where gjennomforing.id = ?::uuid
         """.trimIndent()
 
         return session.single(queryOf(query, id)) { row ->
-            PrismodellType.valueOf(row.string("prismodell"))
+            PrismodellType.valueOf(row.string("prismodell_type"))
         }
     }
 

@@ -75,6 +75,7 @@ class AvtaleValidatorTest : FunSpec({
             personvernBekreftet = false,
         ),
         prismodell = PrismodellRequest(
+            id = UUID.randomUUID(),
             type = PrismodellType.ANNEN_AVTALT_PRIS,
             prisbetingelser = null,
             satser = listOf(),
@@ -121,7 +122,7 @@ class AvtaleValidatorTest : FunSpec({
         avtaletype = Avtaletype.AVTALE,
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         gjennomforinger = emptyList(),
-        prismodell = Prismodell.AnnenAvtaltPris(""),
+        prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = ""),
     )
 
     test("should accumulate errors when request has multiple issues") {
@@ -486,6 +487,7 @@ class AvtaleValidatorTest : FunSpec({
                         tiltakskode = Tiltakskode.OPPFOLGING,
                     ),
                     prismodell = PrismodellRequest(
+                        id = UUID.randomUUID(),
                         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
                         prisbetingelser = null,
                         satser = emptyList(),
@@ -501,6 +503,7 @@ class AvtaleValidatorTest : FunSpec({
             AvtaleValidator.validateCreateAvtale(
                 forhaandsgodkjent.copy(
                     prismodell = PrismodellRequest(
+                        id = UUID.randomUUID(),
                         type = PrismodellType.ANNEN_AVTALT_PRIS,
                         prisbetingelser = null,
                         satser = emptyList(),
@@ -516,6 +519,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val fri = avtaleRequest.copy(
                 prismodell = PrismodellRequest(
+                    id = UUID.randomUUID(),
                     type = PrismodellType.ANNEN_AVTALT_PRIS,
                     prisbetingelser = null,
                     satser = emptyList(),

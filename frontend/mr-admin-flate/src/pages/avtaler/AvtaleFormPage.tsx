@@ -93,13 +93,13 @@ export function AvtaleFormPage() {
 
     if (pathname.includes("veilederinformasjon")) {
       mutation = veilederinfoMutation;
-      request = toVeilederinfoRequest({ data, id: avtaleId });
+      request = toVeilederinfoRequest({ data });
     } else if (pathname.includes("personvern")) {
       mutation = personvernMutation;
-      request = toPersonvernRequest({ data, id: avtaleId });
+      request = toPersonvernRequest({ data });
     } else {
       mutation = detaljerMutation;
-      request = toDetaljerRequest({ data, id: avtaleId });
+      request = toDetaljerRequest({ data });
     }
 
     (mutation as { mutate: (request: unknown, options: any) => void }).mutate(request, {

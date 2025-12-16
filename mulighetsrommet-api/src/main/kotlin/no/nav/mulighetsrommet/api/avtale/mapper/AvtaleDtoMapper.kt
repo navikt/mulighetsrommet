@@ -67,7 +67,7 @@ object AvtaleDtoMapper {
             is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser
         }
         val prisbetingelser = when (prismodell) {
-            Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            is Prismodell.ForhandsgodkjentPrisPerManedsverk,
             -> null
 
             is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
@@ -81,6 +81,7 @@ object AvtaleDtoMapper {
             is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
         }
         return AvtaleDto.Prismodell(
+            id = prismodell.id,
             type = prismodell.type,
             satser = satser,
             prisbetingelser = prisbetingelser,

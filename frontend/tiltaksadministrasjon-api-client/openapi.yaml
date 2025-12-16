@@ -3654,6 +3654,9 @@ components:
     PrismodellRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         type:
           $ref: "#/components/schemas/PrismodellType"
         prisbetingelser:
@@ -3665,6 +3668,7 @@ components:
           items:
             $ref: "#/components/schemas/AvtaltSatsRequest"
       required:
+      - id
       - prisbetingelser
       - satser
       - type
@@ -4068,6 +4072,9 @@ components:
     AvtaleDto.Prismodell:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         type:
           $ref: "#/components/schemas/PrismodellType"
         satser:
@@ -4088,6 +4095,7 @@ components:
             type: string
       required:
       - beskrivelse
+      - id
       - navn
       - prisbetingelser
       - satser

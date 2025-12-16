@@ -64,11 +64,13 @@ object AvtaleFixtures {
     )
 
     fun prismodellDbo(
+        id: UUID = UUID.randomUUID(),
         prismodellType: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
         prisbetingelser: String = "Alt er dyrt",
         satser: List<AvtaltSats> = emptyList(),
     ): PrismodellDbo = PrismodellDbo(
-        prismodellType = prismodellType,
+        id = id,
+        type = prismodellType,
         prisbetingelser = prisbetingelser,
         satser = satser,
     )
@@ -82,7 +84,6 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-
     )
 
     val oppfolgingMedAvtale: AvtaleDbo = AvtaleDbo(
@@ -210,6 +211,7 @@ object AvtaleFixtures {
             personvernBekreftet = false,
         ),
         prismodell = PrismodellRequest(
+            UUID.randomUUID(),
             type = PrismodellType.ANNEN_AVTALT_PRIS,
             prisbetingelser = null,
             satser = listOf(),

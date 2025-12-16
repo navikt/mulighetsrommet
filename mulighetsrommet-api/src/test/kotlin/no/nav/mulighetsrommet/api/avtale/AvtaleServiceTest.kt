@@ -131,6 +131,8 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(avbruttAvtale, avsluttetAvtale),
             ) {
+                queries.avtale.upsertPrismodell(avbruttAvtale.id, AvtaleFixtures.prismodellDbo())
+                queries.avtale.upsertPrismodell(avsluttetAvtale.id, AvtaleFixtures.prismodellDbo())
                 queries.avtale.setStatus(
                     avbruttAvtale.id,
                     AvtaleStatusType.AVBRUTT,

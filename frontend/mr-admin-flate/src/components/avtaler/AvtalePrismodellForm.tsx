@@ -20,10 +20,10 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
   } = useFormContext<PrismodellValues>();
   const { data: prismodeller = [] } = usePrismodeller(tiltakskode);
 
-  const prismodell = watch("prismodell");
-  const satser = watch("satser");
+  const type = watch("prismodell.type");
+  const satser = watch("prismodell.satser");
 
-  const beskrivelse = prismodeller.find((p) => p.type === prismodell)?.beskrivelse;
+  const beskrivelse = prismodeller.find((p) => p.type === type)?.beskrivelse;
 
   return (
     <Box
@@ -35,17 +35,17 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
     >
       <VStack gap="4">
         <Select
-          readOnly={prismodell === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
+          readOnly={type === PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
           label={avtaletekster.prismodell.label}
           size="small"
-          error={errors.prismodell?.message}
-          value={prismodell}
+          error={errors.prismodell?.type?.message}
+          value={type}
           onChange={(e) => {
             const type = e.target.value as PrismodellType;
-            setValue("prismodell", type);
+            setValue("prismodell.type", type);
             if (erPrismodellMedAvtalteSatser(type)) {
               if (satser.length === 0) {
-                setValue("satser", [
+                setValue("prismodell.satser", [
                   {
                     gjelderFra: yyyyMMddSafeFormatting(avtaleStartDato),
                     gjelderTil: null,
@@ -55,7 +55,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                 ]);
               }
             } else {
-              setValue("satser", []);
+              setValue("prismodell.satser", []);
             }
           }}
         >
@@ -67,7 +67,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
           ))}
         </Select>
         {beskrivelse && beskrivelse.map((tekst) => <BodyShort>{tekst}</BodyShort>)}
-        <PrismodellForm prismodell={prismodell} avtaleStartDato={avtaleStartDato} />
+        <PrismodellForm prismodell={type} avtaleStartDato={avtaleStartDato} />
       </VStack>
     </Box>
   );
