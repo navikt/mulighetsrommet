@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.ArenaMigreringConfig
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
@@ -53,6 +54,20 @@ class TiltakshistorikkServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+    val arenaMigreringConfig = ArenaMigreringConfig(
+        migrerteTiltakskoder = setOf(
+            Tiltakskode.AVKLARING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        ),
+    )
 
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
@@ -129,7 +144,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tittel = "Oppfølging hos Fretex AS",
         tiltakstype = DeltakelserResponse.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
-            tiltakskode = "INDOPPFAG",
+            tiltakskode = Tiltakskode.OPPFOLGING,
         ),
         status = DeltakelseFraKomet.Status(
             type = DeltakerStatusType.VENTELISTE,
@@ -208,7 +223,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     fun createTiltakshistorikkService(isEnabled: () -> Boolean = { false }) = TiltakshistorikkService(
         historiskeIdenterQuery = historiskeIdenterQuery,
-        tiltakstypeService = TiltakstypeService(database.db),
+        tiltakstypeService = TiltakstypeService(database.db, arenaMigreringConfig),
         amtDeltakerClient = amtDeltakerClient,
         tiltakshistorikkClient = tiltakshistorikkClient,
         features = object : FeatureToggleService {
@@ -446,7 +461,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             tittel = "Tilfeldig enkeltplass fra Komet",
             tiltakstype = DeltakelserResponse.Tiltakstype(
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
-                tiltakskode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+                tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             ),
             status = DeltakelseFraKomet.Status(
                 type = DeltakerStatusType.VENTELISTE,

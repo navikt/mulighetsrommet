@@ -259,6 +259,19 @@ val ApplicationConfigProd = AppConfig(
             ),
         ),
     ),
+    arenaMigrering = ArenaMigreringConfig(
+        migrerteTiltakskoder = setOf(
+            Tiltakskode.AVKLARING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        ),
+    ),
     navAnsattSync = NavAnsattSyncService.Config(
         ansattGroupsToSync = setOf(
             teamMulighetsrommetAdGruppeId,

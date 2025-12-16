@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -125,8 +126,7 @@ data class DeltakelserResponse(
     @Serializable
     data class Tiltakstype(
         val navn: String,
-        // Arena tiltakskode
-        val tiltakskode: String,
+        val tiltakskode: Tiltakskode,
     )
 }
 
