@@ -10,6 +10,7 @@ import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.Query
+import no.nav.mulighetsrommet.api.ArenaMigreringConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -67,7 +68,7 @@ class VeilederflateServiceTest : FunSpec({
     fun createService() = VeilederflateService(
         db = database.db,
         sanityService = sanityService,
-        tiltakstypeService = TiltakstypeService(database.db),
+        tiltakstypeService = TiltakstypeService(database.db, ArenaMigreringConfig(setOf())),
         navEnhetService = NavEnhetService(database.db),
     )
 
@@ -168,7 +169,7 @@ class VeilederflateServiceTest : FunSpec({
         val veilederFlateService = VeilederflateService(
             db = database.db,
             sanityService = sanityService,
-            tiltakstypeService = TiltakstypeService(database.db),
+            tiltakstypeService = TiltakstypeService(database.db, ArenaMigreringConfig(setOf())),
             navEnhetService = NavEnhetService(database.db),
         )
 

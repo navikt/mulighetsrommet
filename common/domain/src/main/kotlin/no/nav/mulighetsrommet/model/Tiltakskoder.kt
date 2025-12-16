@@ -40,43 +40,6 @@ object Tiltakskoder {
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
     )
 
-    fun tilArenaStottetType(tiltakskode: Tiltakskode): Tiltakskode = when (tiltakskode) {
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING -> Tiltakskode.ARBEIDSRETTET_REHABILITERING
-
-        Tiltakskode.AVKLARING -> Tiltakskode.AVKLARING
-
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK -> Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK
-
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING -> Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING -> Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING
-
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-
-        Tiltakskode.HOYERE_UTDANNING -> Tiltakskode.HOYERE_UTDANNING
-
-        Tiltakskode.JOBBKLUBB -> Tiltakskode.JOBBKLUBB
-
-        Tiltakskode.OPPFOLGING -> Tiltakskode.OPPFOLGING
-
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET
-
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-        Tiltakskode.STUDIESPESIALISERING,
-        ->
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING
-
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-        ->
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
-    }
-
     /**
      * Nye tiltakskoder 2025 §7-2 a-f:
      */

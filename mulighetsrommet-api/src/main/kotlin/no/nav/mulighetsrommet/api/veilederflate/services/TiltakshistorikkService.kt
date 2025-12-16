@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
@@ -119,15 +118,10 @@ class TiltakshistorikkService(
         // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
         //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
         //  som feature toggle er definert for
-        val tiltakskoder = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            .mapNotNull { tiltaksTypeDto -> tiltaksTypeDto.tiltakskode?.let { Tiltakskoder.tilArenaStottetType(it) } }.toSet()
-        val tiltakstype = if (tiltakskoder.isNotEmpty()) {
-            val type = tiltakskoder.firstOrNull()
-                ?: throw IllegalStateException("Klarte ikke å utlede tiltakstype for deltakerens tiltakskode=${deltakelse.tiltakstype.tiltakskode}")
-            DeltakelseTiltakstype(deltakelse.tiltakstype.navn, type)
-        } else {
-            DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
-        }
+        val tiltakstype =
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).singleOrNull()?.let {
+                DeltakelseTiltakstype(it.navn, it.tiltakskode)
+            } ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -194,7 +188,7 @@ class TiltakshistorikkService(
     private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
         // TODO: ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
         //  `tiltakshistorikk`-appen som kilde
-        val tiltakstype = tiltakstypeService.getByTiltakskode(Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode))
+        val tiltakstype = tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode)
             .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
