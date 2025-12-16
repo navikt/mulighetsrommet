@@ -91,11 +91,6 @@ val ApplicationConfigLocal = AppConfig(
                 topic = "sakendret",
                 consumerProperties = arenaAdapterConsumerProperties,
             ),
-            arenaAvtaleInfoEndret = KafkaTopicConsumer.Config(
-                id = "arena-avtaleinfo-endret",
-                topic = "avtaleinfo-endret",
-                consumerProperties = arenaAdapterConsumerProperties,
-            ),
         ),
     ),
     auth = AuthConfig(

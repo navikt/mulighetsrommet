@@ -13,7 +13,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
@@ -37,7 +36,6 @@ fun Route.maamRoutes() {
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
 
-    val generateValidationReport: GenerateValidationReport by inject()
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
     val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
@@ -47,12 +45,6 @@ fun Route.maamRoutes() {
 
     route("/api/intern/maam") {
         route("/tasks") {
-            post("generate-validation-report") {
-                val taskId = generateValidationReport.schedule()
-
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
-
             post("initial-load-gjennomforinger") {
                 val request = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
 

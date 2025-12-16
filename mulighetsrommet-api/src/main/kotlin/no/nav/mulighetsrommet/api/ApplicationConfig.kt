@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.TidligstTidspunktForUtbetalingCalculator
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -38,6 +37,7 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
+    val arenaMigrering: ArenaMigreringConfig,
     val navAnsattSync: NavAnsattSyncService.Config,
     val veilarboppfolgingConfig: AuthenticatedHttpClientConfig,
     val veilarbvedtaksstotteConfig: AuthenticatedHttpClientConfig,
@@ -61,6 +61,10 @@ data class AppConfig(
     val okonomi: OkonomiConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,
+)
+
+data class ArenaMigreringConfig(
+    val migrerteTiltakskoder: Set<Tiltakskode> = emptySet(),
 )
 
 data class OkonomiConfig(
@@ -179,7 +183,6 @@ data class TaskConfig(
     val synchronizeUtdanninger: SynchronizeUtdanninger.Config = SynchronizeUtdanninger.Config(cronPattern = ""),
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
-    val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForPamelding: UpdateApentForPamelding.Config = UpdateApentForPamelding.Config(),
     val generateUtbetaling: GenerateUtbetaling.Config,
     val beregnUtbetaling: BeregnUtbetaling.Config = BeregnUtbetaling.Config(),

@@ -118,9 +118,10 @@ class TiltakshistorikkService(
         // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
         //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
         //  som feature toggle er definert for
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
-            ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
+        val tiltakstype =
+            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).singleOrNull()?.let {
+                DeltakelseTiltakstype(it.navn, it.tiltakskode)
+            } ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -185,13 +186,10 @@ class TiltakshistorikkService(
     }
 
     private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
-        // TODO: ideelt sett hadde vi fått tiltakskode i stedet for arenakode fra komet
-        //  (og enda mer ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
-        //  `tiltakshistorikk`-appen som kilde)
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            ?.let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
-            ?: throw IllegalStateException("Arena-tiltakskode finnes ikke i db=${deltakelse.tiltakstype.tiltakskode}")
-
+        // TODO: ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
+        //  `tiltakshistorikk`-appen som kilde
+        val tiltakstype = tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode)
+            .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)

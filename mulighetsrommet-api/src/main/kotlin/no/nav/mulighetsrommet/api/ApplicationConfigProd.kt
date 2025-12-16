@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.tidligstTidspunktForUtbetalingProd
@@ -260,6 +259,19 @@ val ApplicationConfigProd = AppConfig(
             ),
         ),
     ),
+    arenaMigrering = ArenaMigreringConfig(
+        migrerteTiltakskoder = setOf(
+            Tiltakskode.AVKLARING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        ),
+    ),
     navAnsattSync = NavAnsattSyncService.Config(
         ansattGroupsToSync = setOf(
             teamMulighetsrommetAdGruppeId,
@@ -355,9 +367,6 @@ val ApplicationConfigProd = AppConfig(
         ),
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(
             cronPattern = "0 0 6 * * *",
-        ),
-        generateValidationReport = GenerateValidationReport.Config(
-            bucketName = "mulighetsrommet-api-uploads-prod",
         ),
         updateApentForPamelding = UpdateApentForPamelding.Config(
             disabled = false,

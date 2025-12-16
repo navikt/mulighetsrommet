@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import arrow.core.flatMap
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -25,14 +24,11 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
-import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Unhandled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
@@ -41,7 +37,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatu
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
-import no.nav.mulighetsrommet.arena.adapter.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.SakRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
@@ -75,7 +70,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             saker = SakRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
         )
 
         fun createProcessor(
@@ -111,13 +105,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 entities.upsertMapping(mapping.copy(status = status))
             }
             return Pair(event, mapping)
-        }
-
-        fun upsertAvtale(event: ArenaEvent, mapping: ArenaEntityMapping) {
-            event.decodePayload<ArenaAvtaleInfo>()
-                .toAvtale(mapping.entityId)
-                .flatMap { entities.upsertAvtale(it) }
-                .shouldBeRight()
         }
 
         context("when dependent events has not been processed") {
@@ -374,7 +361,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
 
                     decodeRequestBody<ArenaGjennomforingDbo>().apply {
                         id shouldBe mapping.entityId
-                        tiltakstypeId shouldBe tiltakstype.id
+                        arenaKode shouldBe tiltakstype.tiltakskode
                         tiltaksnummer shouldBe "2022#123"
                         arrangorOrganisasjonsnummer shouldBe "123456"
                         startDato shouldBe LocalDate.of(2022, 11, 11)
@@ -446,98 +433,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                                 avslutningsstatus shouldBe expectedStatus
                             }
                         }
-                    }
-                }
-            }
-
-            test("should fail when dependent avtale is missing") {
-                val processor = createProcessor()
-
-                val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "ArenaEntityMapping mangler for arenaTable=AvtaleInfo og arenaId=1"
-                }
-            }
-
-            test("should fail when dependent avtale is Unhandled") {
-                val processor = createProcessor()
-
-                prepareEvent(
-                    createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Unhandled,
-                )
-
-                val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Avtale har enda ikke blitt prosessert"
-                }
-            }
-
-            test("should not keep reference to avtale when avtale is Ignored") {
-                val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(ArenaOrdsArrangor("123456", "000000"))
-                    }
-                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
-                        respondJson(UpsertTiltaksgjennomforingResponse(null))
-                    }
-                }
-                val processor = createProcessor(engine)
-
-                val (avtaleEvent, avtaleMapping) = prepareEvent(
-                    createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Ignored,
-                )
-                upsertAvtale(avtaleEvent, avtaleMapping)
-
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
-                processor.handleEvent(event).shouldBeRight()
-
-                database.assertTable("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("avtale_id").isNull
-            }
-
-            test("should keep reference to avtale when avtale is Handled") {
-                val engine = createMockEngine {
-                    get("/ords/arbeidsgiver") {
-                        respondJson(ArenaOrdsArrangor("123456", "000000"))
-                    }
-                    put("http://mr-api/api/v1/intern/arena/tiltaksgjennomforing") {
-                        respondJson(UpsertTiltaksgjennomforingResponse(null))
-                    }
-                }
-                val processor = createProcessor(engine)
-
-                val (avtaleEvent, avtaleMapping) = prepareEvent(
-                    createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Handled,
-                )
-                upsertAvtale(avtaleEvent, avtaleMapping)
-
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
-                processor.handleEvent(event).shouldBeRight()
-
-                database.assertTable("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("avtale_id").isEqualTo(1)
-
-                engine.requestHistory.last().apply {
-                    decodeRequestBody<ArenaGjennomforingDbo>().apply {
-                        id shouldBe mapping.entityId
-                        avtaleId shouldBe avtaleMapping.entityId
                     }
                 }
             }

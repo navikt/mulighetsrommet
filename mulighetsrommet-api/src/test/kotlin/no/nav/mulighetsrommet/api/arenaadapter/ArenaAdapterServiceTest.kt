@@ -22,12 +22,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V1_TO
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.arena.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
@@ -51,56 +49,12 @@ class ArenaAdapterServiceTest : FunSpec({
         arrangorService = ArrangorService(database.db, mockk(relaxed = true)),
     )
 
-    context("avtaler") {
-        val avtale = ArenaAvtaleDbo(
-            id = UUID.randomUUID(),
-            navn = "Oppfølgingsavtale",
-            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-            avtalenummer = "2023#1000",
-            arrangorOrganisasjonsnummer = "123456789",
-            startDato = LocalDate.now(),
-            sluttDato = LocalDate.now().plusYears(1),
-            arenaAnsvarligEnhet = null,
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            prisbetingelser = "💸",
-        )
-
-        afterEach {
-            database.truncateAll()
-        }
-
-        test("CRUD") {
-            MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet),
-                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(),
-                gjennomforinger = listOf(),
-            ).initialize(database.db)
-
-            val service = createArenaAdapterService()
-            service.upsertAvtale(avtale)
-
-            database.assertTable("avtale").row()
-                .value("id").isEqualTo(avtale.id)
-                .value("navn").isEqualTo(avtale.navn)
-                .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
-                .value("avtalenummer").isEqualTo(avtale.avtalenummer)
-                .value("arrangor_hovedenhet_id").isEqualTo(ArrangorFixtures.hovedenhet.id)
-                .value("start_dato").isEqualTo(avtale.startDato)
-                .value("slutt_dato").isEqualTo(avtale.sluttDato)
-                .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
-                .value("avtaletype").isEqualTo(avtale.avtaletype.name)
-                .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
-        }
-    }
-
     context("tiltak i egen regi") {
         val gjennomforing = ArenaGjennomforingDbo(
             id = UUID.randomUUID(),
             sanityId = null,
             navn = "IPS",
-            tiltakstypeId = TiltakstypeFixtures.IPS.id,
+            arenaKode = TiltakstypeFixtures.IPS.arenaKode,
             tiltaksnummer = "12345",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
@@ -192,7 +146,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 sanityId = null,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 tiltaksnummer = "12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
@@ -234,7 +188,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 sanityId = null,
                 navn = "Endet navn",
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 tiltaksnummer = "2024#2024",
                 arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
                 startDato = LocalDate.of(2024, 1, 1),
@@ -301,7 +255,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing.id,
                 sanityId = null,
                 navn = "Endet navn",
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 tiltaksnummer = "2024#2024",
                 arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
                 startDato = LocalDate.of(2024, 1, 1),
@@ -346,7 +300,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 navn = "Oppfølging",
                 sanityId = null,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 tiltaksnummer = "2021#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
@@ -400,7 +354,7 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "En enkeltplass",
             sanityId = null,
-            tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+            arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode,
             tiltaksnummer = "2025#1",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
