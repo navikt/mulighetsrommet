@@ -103,8 +103,23 @@ object GjennomforingValidator {
                 EstimertVentetid::verdi,
             )
         }
-        if (Tiltakskoder.isKursTiltak(ctx.avtale.tiltakstype.tiltakskode)) {
-            validateKursTiltak(next)
+        if (Tiltakskoder.kreverDeltidsprosent(ctx.avtale.tiltakstype.tiltakskode)) {
+            validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
+                FieldError.of(
+                    "Du må velge en deltidsprosent mellom 0 og 100",
+                    GjennomforingRequest::deltidsprosent,
+                )
+            }
+        }
+        if (Tiltakskoder.kanEndreOppstartOgPamelding(ctx.avtale.tiltakstype.tiltakskode)) {
+            if (request.oppstart == GjennomforingOppstartstype.FELLES) {
+                validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
+                    FieldError.of(
+                        "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
+                        GjennomforingRequest::pameldingType,
+                    )
+                }
+            }
         } else {
             validate(next.oppstart != GjennomforingOppstartstype.FELLES) {
                 FieldError.of(
@@ -405,19 +420,5 @@ object GjennomforingValidator {
     }
 
     private fun ValidationDsl.validateKursTiltak(request: GjennomforingRequest) {
-        validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
-            FieldError.of(
-                "Du må velge en deltidsprosent mellom 0 og 100",
-                GjennomforingRequest::deltidsprosent,
-            )
-        }
-        if (request.oppstart == GjennomforingOppstartstype.FELLES) {
-            validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
-                FieldError.of(
-                    "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
-                    GjennomforingRequest::pameldingType,
-                )
-            }
-        }
     }
 }

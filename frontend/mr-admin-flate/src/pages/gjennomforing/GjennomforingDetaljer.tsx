@@ -12,7 +12,7 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
+import { formatertVentetid, kreverDeltidsprosent } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -124,7 +124,7 @@ export function GjennomforingDetaljer() {
     },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 
-    ...(isKursTiltak(tiltakstype.tiltakskode)
+    ...(kreverDeltidsprosent(tiltakstype.tiltakskode)
       ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
       : []),
     ...(gjennomforing.estimertVentetid

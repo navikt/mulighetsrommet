@@ -3,7 +3,6 @@ import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAd
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
@@ -39,6 +38,7 @@ import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
 import { ControlledSokeSelect } from "@mr/frontend-common";
+import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/Utils";
 
 interface Props {
   avtale: AvtaleDto;
@@ -149,7 +149,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               label="Oppstartstype"
               placeholder="Velg oppstart"
               name="oppstart"
-              readOnly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
+              readOnly={!kanEndreOppstartOgPamelding(avtale.tiltakstype.tiltakskode)}
               options={[
                 {
                   label: "Felles oppstartsdato",
@@ -166,8 +166,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               label="Påmeldingstype"
               placeholder="Velg påmeldingstype"
               name="pameldingType"
-              // TODO: Må endres ved nye tiltakstyper
-              readOnly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
+              readOnly={!kanEndreOppstartOgPamelding(avtale.tiltakstype.tiltakskode)}
               options={[
                 {
                   label: "Veileder fatter vedtaket direkte etter påmelding",
@@ -234,7 +233,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                   valueAsNumber: true,
                 })}
               />
-              {isKursTiltak(avtale.tiltakstype.tiltakskode) && (
+              {kreverDeltidsprosent(avtale.tiltakstype.tiltakskode) && (
                 <TextField
                   size="small"
                   error={errors.deltidsprosent?.message as string}

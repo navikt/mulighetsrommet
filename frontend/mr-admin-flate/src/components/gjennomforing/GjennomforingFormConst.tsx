@@ -1,4 +1,4 @@
-import { isKursTiltak } from "@/utils/Utils";
+import { kanEndreOppstartOgPamelding } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
   AmoKategorisering,
@@ -14,27 +14,24 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 
-export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
+export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype | undefined {
   if (!avtale) {
     return GjennomforingOppstartstype.LOPENDE;
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return isKursTiltak(tiltakskode)
-    ? GjennomforingOppstartstype.FELLES
-    : GjennomforingOppstartstype.LOPENDE;
+  return !kanEndreOppstartOgPamelding(tiltakskode) ? GjennomforingOppstartstype.LOPENDE : undefined;
 }
 
-export function defaultPameldingType(avtale?: AvtaleDto): GjennomforingPameldingType {
+export function defaultPameldingType(avtale?: AvtaleDto): GjennomforingPameldingType | undefined {
   if (!avtale) {
     return GjennomforingPameldingType.DIREKTE_VEDTAK;
   }
 
-  // TODO: Trenger modifisering ved de nye tiltakstypene
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return isKursTiltak(tiltakskode)
-    ? GjennomforingPameldingType.TRENGER_GODKJENNING
-    : GjennomforingPameldingType.DIREKTE_VEDTAK;
+  return !kanEndreOppstartOgPamelding(tiltakskode)
+    ? GjennomforingPameldingType.DIREKTE_VEDTAK
+    : undefined;
 }
 
 function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {
