@@ -64,11 +64,10 @@ class TiltakgjennomforingEventProcessor(
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
-        val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
         val tiltaksgjennomforing = entities.getMapping(event.arenaTable, event.arenaId)
             .flatMap {
                 val previous = entities.getTiltaksgjennomforingOrNull(it.entityId)
-                data.toTiltaksgjennomforing(it.entityId, avtaleId, previous?.sanityId)
+                data.toTiltaksgjennomforing(it.entityId, previous?.sanityId)
             }
             .flatMap {
                 retry(
@@ -119,17 +118,6 @@ class TiltakgjennomforingEventProcessor(
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
             .bind()
-    }
-
-    private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
-        return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
-            .flatMap { mapping ->
-                when (mapping.status) {
-                    Handled -> avtaleId.right()
-                    Ignored -> null.right()
-                    else -> ProcessingError.ForeignKeyViolation("Avtale har enda ikke blitt prosessert").left()
-                }
-            }
     }
 
     private fun erTiltakRelevantForTiltaksadministrasjon(data: ArenaTiltaksgjennomforing): Boolean {
@@ -187,7 +175,7 @@ class TiltakgjennomforingEventProcessor(
         }.mapLeft { ProcessingError.fromResponseException(it) }.map { Handled }
     }
 
-    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?, sanityId: UUID?) = Either
+    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, sanityId: UUID?) = Either
         .catch {
             requireNotNull(DATO_FRA)
             requireNotNull(LOKALTNAVN)
@@ -206,7 +194,7 @@ class TiltakgjennomforingEventProcessor(
                 apentForInnsok = STATUS_TREVERDIKODE_INNSOKNING != JaNeiStatus.Nei,
                 antallPlasser = ANTALL_DELTAKERE,
                 status = TILTAKSTATUSKODE,
-                avtaleId = avtaleId,
+                avtaleId = AVTALE_ID,
                 deltidsprosent = PROSENT_DELTID,
             )
         }.mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
