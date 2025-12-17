@@ -29,7 +29,7 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.api.validation.ValidationDsl
+import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
@@ -221,7 +221,7 @@ object AvtaleValidator {
         )
     }
 
-    fun ValidationDsl.validateDetaljer(
+    fun FieldValidator.validateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, AmoKategorisering?> {
@@ -304,7 +304,7 @@ object AvtaleValidator {
         AvtaleStatusType.AVSLUTTET
     }
 
-    private fun ValidationDsl.validateArrangor(
+    private fun FieldValidator.validateArrangor(
         arrangor: ArrangorDto,
     ) {
         validate(arrangor.slettetDato == null) {
@@ -421,7 +421,7 @@ object AvtaleValidator {
         )
     }
 
-    private fun ValidationDsl.validateSatser(
+    private fun FieldValidator.validateSatser(
         context: ValidatePrismodellContext,
         satserRequest: List<AvtaltSatsRequest>,
     ): List<AvtaltSats> {
@@ -461,7 +461,7 @@ object AvtaleValidator {
         }
     }
 
-    private fun ValidationDsl.validateSlettetNavAnsatte(
+    private fun FieldValidator.validateSlettetNavAnsatte(
         navAnsatte: List<NavAnsatt>,
         property: KProperty1<*, *>,
     ) {
@@ -480,7 +480,7 @@ object AvtaleValidator {
         validateNavEnheter(navEnheter)
     }
 
-    private fun ValidationDsl.validateNavEnheter(navEnheter: List<NavEnhetDto>) {
+    private fun FieldValidator.validateNavEnheter(navEnheter: List<NavEnhetDto>) {
         validate(navEnheter.any { it.type == NavEnhetType.FYLKE }) {
             FieldError.ofPointer("/navRegioner", "Du må velge minst én Nav-region")
         }
@@ -490,7 +490,7 @@ object AvtaleValidator {
     }
 
     @OptIn(ExperimentalContracts::class)
-    private fun ValidationDsl.validateAmoKategorisering(
+    private fun FieldValidator.validateAmoKategorisering(
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> = when (tiltakskode) {
@@ -569,7 +569,7 @@ object AvtaleValidator {
         -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
     }?.toDbo().right()
 
-    private fun ValidationDsl.validateUtdanningslop(
+    private fun FieldValidator.validateUtdanningslop(
         tiltakskode: Tiltakskode,
         utdanningslop: UtdanningslopDbo?,
     ): Either<List<FieldError>, Unit> = when (tiltakskode) {

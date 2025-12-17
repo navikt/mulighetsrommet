@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.ValidationDsl
+import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
@@ -182,7 +182,7 @@ object GjennomforingValidator {
         )
     }
 
-    private fun ValidationDsl.validateUtdanningslop(
+    private fun FieldValidator.validateUtdanningslop(
         tiltakskode: Tiltakskode,
         utdanningslop: UtdanningslopDbo?,
         avtale: Avtale,
@@ -237,7 +237,7 @@ object GjennomforingValidator {
         }
     }
 
-    private fun ValidationDsl.validateNavEnheter(
+    private fun FieldValidator.validateNavEnheter(
         veilederinfoRequest: GjennomforingVeilederinfoRequest,
         avtale: Avtale,
     ) {
@@ -281,7 +281,7 @@ object GjennomforingValidator {
             }
     }
 
-    private fun ValidationDsl.validateSlettetNavAnsatte(
+    private fun FieldValidator.validateSlettetNavAnsatte(
         navAnsatte: List<NavAnsatt>,
         property: KProperty1<*, *>,
     ) {
@@ -345,7 +345,7 @@ object GjennomforingValidator {
         return errors.takeIf { it.isNotEmpty() }?.left() ?: tilgjengeligForArrangorDato.right()
     }
 
-    private fun ValidationDsl.validateCreateGjennomforing(
+    private fun FieldValidator.validateCreateGjennomforing(
         arrangor: ArrangorDto,
         gjennomforing: GjennomforingRequest,
         status: GjennomforingStatusType,
@@ -377,13 +377,13 @@ object GjennomforingValidator {
         }
         validate(status == GjennomforingStatusType.GJENNOMFORES) {
             FieldError.of(
-                "Du kan ikke opprette en gjennomføring som er ${status.name.lowercase()}",
+                "Du kan ikke opprette en gjennomføring med status ${status.beskrivelse}",
                 GjennomforingRequest::navn,
             )
         }
     }
 
-    private fun ValidationDsl.validateUpdateGjennomforing(
+    private fun FieldValidator.validateUpdateGjennomforing(
         gjennomforing: GjennomforingRequest,
         previous: Ctx.Gjennomforing,
         avtale: Avtale,
@@ -440,7 +440,7 @@ object GjennomforingValidator {
     }
 
     @OptIn(ExperimentalContracts::class)
-    private fun ValidationDsl.validateAmoKategorisering(
+    private fun FieldValidator.validateAmoKategorisering(
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
         avtale: Avtale,

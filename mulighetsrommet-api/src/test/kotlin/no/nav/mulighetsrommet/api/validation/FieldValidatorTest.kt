@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
-class ValidationDslTest : FunSpec({
+class FieldValidatorTest : FunSpec({
     test("poc") {
         val a = validation {
             val g: Int? = null
