@@ -1,4 +1,4 @@
-import { isKursTiltak } from "@/utils/Utils";
+import { kanEndreOppstartOgPamelding } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
   AmoKategorisering,
@@ -6,6 +6,7 @@ import {
   GjennomforingArrangorKontaktperson,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  GjennomforingPameldingType,
   GjennomforingRequest,
   NavAnsattDto,
   UtdanningslopDbo,
@@ -19,9 +20,17 @@ export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartst
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return isKursTiltak(tiltakskode)
-    ? GjennomforingOppstartstype.FELLES
-    : GjennomforingOppstartstype.LOPENDE;
+  return !kanEndreOppstartOgPamelding(tiltakskode)
+    ? GjennomforingOppstartstype.LOPENDE
+    : GjennomforingOppstartstype.FELLES;
+}
+
+export function defaultPameldingType(
+  oppstart: GjennomforingOppstartstype,
+): GjennomforingPameldingType {
+  return oppstart === GjennomforingOppstartstype.FELLES
+    ? GjennomforingPameldingType.TRENGER_GODKJENNING
+    : GjennomforingPameldingType.DIREKTE_VEDTAK;
 }
 
 function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {
@@ -73,6 +82,7 @@ export function defaultGjennomforingData(
 
   const faneInnhold = gjennomforing?.faneinnhold ?? avtale.faneinnhold;
 
+  const oppstart = gjennomforing?.oppstart || defaultOppstartType(avtale);
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
@@ -91,7 +101,7 @@ export function defaultGjennomforingData(
         ? avtale.sluttDato
         : null,
     arrangorId: defaultArrangor(avtale, gjennomforing),
-    oppstart: gjennomforing?.oppstart || defaultOppstartType(avtale),
+    oppstart,
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
     arrangorKontaktpersoner:
       gjennomforing?.arrangor?.kontaktpersoner.map(
@@ -117,6 +127,7 @@ export function defaultGjennomforingData(
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : null,
     oppmoteSted: gjennomforing?.oppmoteSted ?? null,
+    pameldingType: gjennomforing?.pameldingType || defaultPameldingType(oppstart),
   };
 }
 

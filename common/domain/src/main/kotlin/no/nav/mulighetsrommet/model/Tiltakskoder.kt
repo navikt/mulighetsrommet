@@ -77,8 +77,54 @@ object Tiltakskoder {
         return arenaKode in TiltakskoderEgenRegi
     }
 
-    fun isKursTiltak(tiltakskode: Tiltakskode): Boolean {
-        return tiltakskode in TiltakMedFellesOppstart
+    fun kanEndreOppstartOgPamelding(tiltakskode: Tiltakskode): Boolean {
+        return when (tiltakskode) {
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.STUDIESPESIALISERING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            -> true
+
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            -> false
+        }
+    }
+
+    fun kreverDeltidsprosent(tiltakskode: Tiltakskode): Boolean {
+        return when (tiltakskode) {
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.STUDIESPESIALISERING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            -> true
+
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            -> false
+        }
     }
 
     fun isEnkeltplassTiltak(arenakode: String): Boolean {

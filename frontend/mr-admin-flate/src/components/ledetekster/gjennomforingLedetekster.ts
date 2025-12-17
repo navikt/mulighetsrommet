@@ -7,6 +7,7 @@ export const gjennomforingTekster = {
   ingenAvtaleForGjennomforingenLabel: "Ingen avtale for gjennomføringen",
   tiltakstypeLabel: "Tiltakstype",
   oppstartstypeLabel: "Oppstartstype",
+  pameldingTypeLabel: "Påmeldingstype",
   avtaleStartdatoLabel: "Avtalens startdato",
   avtaleSluttdatoLabel: "Avtalens sluttdato",
   startdatoLabel: "Startdato",

@@ -3,12 +3,12 @@ import { useGjennomforingAdministratorer } from "@/api/ansatt/useGjennomforingAd
 import { GjennomforingAmoKategoriseringForm } from "@/components/amoKategorisering/GjennomforingAmoKategoriseringForm";
 import { FormGroup } from "@/components/skjema/FormGroup";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { isKursTiltak } from "@/utils/Utils";
 import {
   AvtaleDto,
   GjennomforingDeltakerSummary,
   GjennomforingDto,
   GjennomforingOppstartstype,
+  GjennomforingPameldingType,
   GjennomforingRequest,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
@@ -31,13 +31,14 @@ import { EndreDatoAdvarselModal } from "@/components/modal/EndreDatoAdvarselModa
 import { AdministratorOptions } from "@/components/skjema/AdministratorOptions";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { GjennomforingUtdanningslopForm } from "@/components/utdanning/GjennomforingUtdanningslopForm";
-import { SelectOppstartstype } from "./SelectOppstartstype";
 import { GjennomforingArrangorForm } from "./GjennomforingArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
+import { ControlledSokeSelect } from "@mr/frontend-common";
+import { kanEndreOppstartOgPamelding, kreverDeltidsprosent } from "@/utils/Utils";
 
 interface Props {
   avtale: AvtaleDto;
@@ -143,9 +144,29 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
           </FormGroup>
 
           <FormGroup>
-            <SelectOppstartstype
+            <ControlledSokeSelect
+              size="small"
+              label="Oppstartstype"
+              placeholder="Velg oppstart"
               name="oppstart"
-              readonly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
+              readOnly={!kanEndreOppstartOgPamelding(avtale.tiltakstype.tiltakskode)}
+              onChange={(e) => {
+                if (e.target.value === GjennomforingOppstartstype.FELLES) {
+                  setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
+                } else {
+                  setValue("pameldingType", GjennomforingPameldingType.DIREKTE_VEDTAK);
+                }
+              }}
+              options={[
+                {
+                  label: "Felles oppstartsdato",
+                  value: GjennomforingOppstartstype.FELLES,
+                },
+                {
+                  label: "Løpende oppstart",
+                  value: GjennomforingOppstartstype.LOPENDE,
+                },
+              ]}
             />
             <HGrid columns={2}>
               <DatePicker>
@@ -202,7 +223,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                   valueAsNumber: true,
                 })}
               />
-              {isKursTiltak(avtale.tiltakstype.tiltakskode) && (
+              {kreverDeltidsprosent(avtale.tiltakstype.tiltakskode) && (
                 <TextField
                   size="small"
                   error={errors.deltidsprosent?.message as string}

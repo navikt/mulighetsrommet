@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import java.time.LocalDate
 import java.util.UUID
@@ -46,6 +48,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
+        pameldingType = gjennomforing.pameldingType,
     )
 
     fun fromGjennomforingRequest(
@@ -54,6 +57,8 @@ object GjennomforingDboMapper {
         antallPlasser: Int,
         arrangorId: UUID,
         status: GjennomforingStatusType,
+        oppstartstype: GjennomforingOppstartstype,
+        pameldingType: GjennomforingPameldingType,
     ) = GjennomforingDbo(
         id = request.id,
         navn = request.navn,
@@ -68,7 +73,7 @@ object GjennomforingDboMapper {
         administratorer = request.administratorer,
         navEnheter =
         (request.veilederinformasjon.navRegioner + request.veilederinformasjon.navKontorer + request.veilederinformasjon.navAndreEnheter).toSet(),
-        oppstart = request.oppstart,
+        oppstart = oppstartstype,
         kontaktpersoner = request.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
@@ -84,6 +89,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato,
         amoKategorisering = request.amoKategorisering,
         utdanningslop = request.utdanningslop,
+        pameldingType = pameldingType,
     )
 
     fun toGjennomforingRequest(gjennomforing: Gjennomforing) = GjennomforingRequest(
@@ -126,5 +132,6 @@ object GjennomforingDboMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
         oppmoteSted = gjennomforing.oppmoteSted,
+        pameldingType = gjennomforing.pameldingType,
     )
 }

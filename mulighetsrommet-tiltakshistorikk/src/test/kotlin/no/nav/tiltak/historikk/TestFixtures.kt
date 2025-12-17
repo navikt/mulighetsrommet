@@ -4,6 +4,7 @@ import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -75,6 +76,7 @@ object TestFixtures {
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
             oppmoteSted = null,
+            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
 
         val enkelAmo: TiltaksgjennomforingV2Dto.Enkeltplass = TiltaksgjennomforingV2Dto.Enkeltplass(

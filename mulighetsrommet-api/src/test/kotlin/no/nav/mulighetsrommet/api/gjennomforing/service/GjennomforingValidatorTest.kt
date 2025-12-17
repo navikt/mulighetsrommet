@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -139,6 +140,32 @@ class GjennomforingValidatorTest : FunSpec({
         GjennomforingValidator.validate(request.copy(oppstart = GjennomforingOppstartstype.FELLES), ctx)
             .shouldBeLeft()
             .shouldContainExactlyInAnyOrder(FieldError("/oppstart", "Tiltaket må ha løpende oppstartstype"))
+    }
+
+    test("skal ikke kunne sette direkte vedtak når oppsart er felles") {
+        GjennomforingValidator.validate(
+            request.copy(
+                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                oppstart = GjennomforingOppstartstype.FELLES,
+                pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+            ),
+            ctx.copy(
+                avtale = ctx.avtale.copy(
+                    tiltakstype = Avtale.Tiltakstype(
+                        navn = TiltakstypeFixtures.Jobbklubb.navn,
+                        id = TiltakstypeFixtures.Jobbklubb.id,
+                        tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode!!,
+                    ),
+                ),
+            ),
+        )
+            .shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError(
+                    "/pameldingType",
+                    "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
+                ),
+            )
     }
 
     test("avtalen må være aktiv") {
@@ -347,6 +374,7 @@ class GjennomforingValidatorTest : FunSpec({
             status = GjennomforingStatusType.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.LOPENDE,
             avtaleId = avtale.id,
+            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
@@ -429,15 +457,16 @@ class GjennomforingValidatorTest : FunSpec({
             arrangorId = ArrangorFixtures.underenhet1.id,
             sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
             status = GjennomforingStatusType.GJENNOMFORES,
-            oppstart = GjennomforingOppstartstype.LOPENDE,
+            oppstart = GjennomforingOppstartstype.FELLES,
             avtaleId = avtale.id,
+            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
 
         test("skal ikke kunne endre oppstartstype") {
             GjennomforingValidator.validate(
                 request.copy(
                     tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                    oppstart = GjennomforingOppstartstype.FELLES,
+                    oppstart = GjennomforingOppstartstype.LOPENDE,
                 ),
                 ctx.copy(
                     previous = gjennomforing,
@@ -454,6 +483,32 @@ class GjennomforingValidatorTest : FunSpec({
                 FieldError(
                     "/oppstart",
                     "Oppstartstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
+                ),
+            )
+        }
+
+        test("skal ikke kunne endre påmeldingstype") {
+            GjennomforingValidator.validate(
+                request.copy(
+                    tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                    pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+                    oppstart = GjennomforingOppstartstype.FELLES,
+                ),
+                ctx.copy(
+                    previous = gjennomforing,
+                    antallDeltakere = 4,
+                    avtale = ctx.avtale.copy(
+                        tiltakstype = Avtale.Tiltakstype(
+                            navn = TiltakstypeFixtures.Jobbklubb.navn,
+                            id = TiltakstypeFixtures.Jobbklubb.id,
+                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode!!,
+                        ),
+                    ),
+                ),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError(
+                    "/pameldingType",
+                    "Påmeldingstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
                 ),
             )
         }

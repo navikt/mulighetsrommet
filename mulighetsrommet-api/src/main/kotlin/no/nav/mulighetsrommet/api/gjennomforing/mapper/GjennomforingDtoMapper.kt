@@ -35,6 +35,7 @@ object GjennomforingDtoMapper {
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
         oppmoteSted = gjennomforing.oppmoteSted,
+        pameldingType = gjennomforing.pameldingType,
     )
 
     fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
