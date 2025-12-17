@@ -1,39 +1,45 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import java.time.ZoneId
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Arrangor
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Enkeltplass
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
+import java.time.ZoneId.systemDefault
 
 object TiltaksgjennomforingV2Mapper {
-    fun fromGruppe(gruppe: GjennomforingGruppetiltak) = TiltaksgjennomforingV2Dto.Gruppe(
-        id = gruppe.id,
-        opprettetTidspunkt = gruppe.opprettetTidspunkt.atZone(ZoneId.systemDefault()).toInstant(),
-        oppdatertTidspunkt = gruppe.oppdatertTidspunkt.atZone(ZoneId.systemDefault()).toInstant(),
-        tiltakskode = gruppe.tiltakstype.tiltakskode,
-        arrangor = TiltaksgjennomforingV2Dto.Arrangor(
-            organisasjonsnummer = gruppe.arrangor.organisasjonsnummer,
-        ),
-        navn = gruppe.navn,
-        startDato = gruppe.startDato,
-        sluttDato = gruppe.sluttDato,
-        status = gruppe.status.type,
-        oppstart = gruppe.oppstart,
-        tilgjengeligForArrangorFraOgMedDato = gruppe.tilgjengeligForArrangorDato,
-        apentForPamelding = gruppe.apentForPamelding,
-        antallPlasser = gruppe.antallPlasser,
-        deltidsprosent = gruppe.deltidsprosent,
-        oppmoteSted = gruppe.oppmoteSted,
-        pameldingType = gruppe.pameldingType,
-    )
+    fun fromGjennomforing(gjennomforing: Gjennomforing): TiltaksgjennomforingV2Dto = when (gjennomforing) {
+        is GjennomforingGruppetiltak -> Gruppe(
+            id = gjennomforing.id,
+            opprettetTidspunkt = gjennomforing.opprettetTidspunkt.atZone(systemDefault()).toInstant(),
+            oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt.atZone(systemDefault()).toInstant(),
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangor = Arrangor(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            ),
+            navn = gjennomforing.navn,
+            startDato = gjennomforing.startDato,
+            sluttDato = gjennomforing.sluttDato,
+            status = gjennomforing.status.type,
+            oppstart = gjennomforing.oppstart,
+            tilgjengeligForArrangorFraOgMedDato = gjennomforing.tilgjengeligForArrangorDato,
+            apentForPamelding = gjennomforing.apentForPamelding,
+            antallPlasser = gjennomforing.antallPlasser,
+            deltidsprosent = gjennomforing.deltidsprosent,
+            oppmoteSted = gjennomforing.oppmoteSted,
+            pameldingType = gjennomforing.pameldingType,
+        )
 
-    fun fromEnkeltplass(enkeltplass: Enkeltplass) = TiltaksgjennomforingV2Dto.Enkeltplass(
-        id = enkeltplass.id,
-        opprettetTidspunkt = enkeltplass.opprettetTidspunkt,
-        oppdatertTidspunkt = enkeltplass.oppdatertTidspunkt,
-        tiltakskode = enkeltplass.tiltakstype.tiltakskode,
-        arrangor = TiltaksgjennomforingV2Dto.Arrangor(
-            organisasjonsnummer = enkeltplass.arrangor.organisasjonsnummer,
-        ),
-    )
+        is GjennomforingEnkeltplass -> Enkeltplass(
+            id = gjennomforing.id,
+            opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
+            oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangor = Arrangor(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            ),
+        )
+    }
 }

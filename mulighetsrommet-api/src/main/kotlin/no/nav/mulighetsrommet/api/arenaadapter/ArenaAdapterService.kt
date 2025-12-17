@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
@@ -113,7 +113,7 @@ class ArenaAdapterService(
         }
 
         publishTiltaksgjennomforingV1ToKafka(TiltaksgjennomforingV1Mapper.fromGjennomforing(next))
-        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGruppe(next))
+        publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
     }
 
     private fun upsertEnkeltplass(
@@ -154,7 +154,7 @@ class ArenaAdapterService(
             queries.gjennomforing.setArenaData(arenadata)
 
             val next = queries.gjennomforing.getEnkeltplassOrError(arenaGjennomforing.id)
-            publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromEnkeltplass(next))
+            publishTiltaksgjennomforingV2ToKafka(TiltaksgjennomforingV2Mapper.fromGjennomforing(next))
         }
     }
 
@@ -176,7 +176,7 @@ class ArenaAdapterService(
 
     private fun hasRelevantChanges(
         enkeltplass: GjennomforingEnkeltplassDbo,
-        current: Enkeltplass,
+        current: GjennomforingEnkeltplass,
     ): Boolean {
         return enkeltplass != GjennomforingEnkeltplassDbo(
             id = current.id,
@@ -193,7 +193,7 @@ class ArenaAdapterService(
 
     private fun hasRelevantChanges(
         arenadata: GjennomforingArenaDataDbo,
-        current: Enkeltplass,
+        current: GjennomforingEnkeltplass,
     ): Boolean {
         return arenadata != GjennomforingArenaDataDbo(
             id = current.id,

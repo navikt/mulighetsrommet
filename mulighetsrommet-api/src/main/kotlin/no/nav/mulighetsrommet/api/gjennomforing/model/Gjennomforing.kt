@@ -162,7 +162,7 @@ data class GjennomforingGruppetiltak(
 }
 
 @Serializable
-data class Enkeltplass(
+data class GjennomforingEnkeltplass(
     @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,

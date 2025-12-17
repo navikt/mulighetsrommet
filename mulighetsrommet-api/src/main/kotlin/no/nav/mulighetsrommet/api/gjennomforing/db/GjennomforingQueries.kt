@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktperson
@@ -473,11 +473,11 @@ class GjennomforingQueries(private val session: Session) {
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingGruppetiltak() }
     }
 
-    fun getEnkeltplassOrError(id: UUID): Enkeltplass {
+    fun getEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
         return checkNotNull(getEnkeltplass(id)) { "Enkeltplass med id=$id finnes ikke" }
     }
 
-    fun getEnkeltplass(id: UUID): Enkeltplass? {
+    fun getEnkeltplass(id: UUID): GjennomforingEnkeltplass? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -491,7 +491,7 @@ class GjennomforingQueries(private val session: Session) {
     fun getAllEnkeltplass(
         pagination: Pagination = Pagination.all(),
         tiltakstyper: List<UUID> = emptyList(),
-    ): PaginatedResult<Enkeltplass> {
+    ): PaginatedResult<GjennomforingEnkeltplass> {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over () as total_count
@@ -816,8 +816,8 @@ private fun Row.toGjennomforingStatus(): GjennomforingStatus {
     }
 }
 
-private fun Row.toEnkeltplass(): Enkeltplass {
-    return Enkeltplass(
+private fun Row.toEnkeltplass(): GjennomforingEnkeltplass {
+    return GjennomforingEnkeltplass(
         id = uuid("id"),
         opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
         lopenummer = Tiltaksnummer(string("lopenummer")),

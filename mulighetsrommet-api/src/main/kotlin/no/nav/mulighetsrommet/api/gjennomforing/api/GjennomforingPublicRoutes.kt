@@ -40,11 +40,11 @@ private fun Route.getGjennomforingV2Route() {
 
     suspend fun QueryContext.getTiltaksgjennomforingV2(id: UUID): TiltaksgjennomforingV2Dto? = coroutineScope {
         val gruppe = async {
-            queries.gjennomforing.getGruppetiltak(id)?.let(TiltaksgjennomforingV2Mapper::fromGruppe)
+            queries.gjennomforing.getGruppetiltak(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
         }
 
         val enkeltplass = async {
-            queries.gjennomforing.getEnkeltplass(id)?.let(TiltaksgjennomforingV2Mapper::fromEnkeltplass)
+            queries.gjennomforing.getEnkeltplass(id)?.let(TiltaksgjennomforingV2Mapper::fromGjennomforing)
         }
 
         listOf(gruppe, enkeltplass).awaitAll().firstOrNull { it != null }
