@@ -150,6 +150,13 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               placeholder="Velg oppstart"
               name="oppstart"
               readOnly={!kanEndreOppstartOgPamelding(avtale.tiltakstype.tiltakskode)}
+              onChange={(e) => {
+                if (e.target.value === GjennomforingOppstartstype.FELLES) {
+                  setValue("pameldingType", GjennomforingPameldingType.TRENGER_GODKJENNING);
+                } else {
+                  setValue("pameldingType", GjennomforingPameldingType.DIREKTE_VEDTAK);
+                }
+              }}
               options={[
                 {
                   label: "Felles oppstartsdato",
@@ -158,23 +165,6 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
                 {
                   label: "Løpende oppstart",
                   value: GjennomforingOppstartstype.LOPENDE,
-                },
-              ]}
-            />
-            <ControlledSokeSelect
-              size="small"
-              label="Påmeldingstype"
-              placeholder="Velg påmeldingstype"
-              name="pameldingType"
-              readOnly={!kanEndreOppstartOgPamelding(avtale.tiltakstype.tiltakskode)}
-              options={[
-                {
-                  label: "Veileder fatter vedtaket direkte etter påmelding",
-                  value: GjennomforingPameldingType.DIREKTE_VEDTAK,
-                },
-                {
-                  label: "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
-                  value: GjennomforingPameldingType.TRENGER_GODKJENNING,
                 },
               ]}
             />

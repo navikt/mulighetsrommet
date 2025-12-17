@@ -432,7 +432,4 @@ object GjennomforingValidator {
             )
         }
     }
-
-    private fun ValidationDsl.validateKursTiltak(request: GjennomforingRequest) {
-    }
 }

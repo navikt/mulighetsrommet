@@ -14,24 +14,23 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 
-export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype | null {
+export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
     return GjennomforingOppstartstype.LOPENDE;
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return !kanEndreOppstartOgPamelding(tiltakskode) ? GjennomforingOppstartstype.LOPENDE : null;
+  return !kanEndreOppstartOgPamelding(tiltakskode)
+    ? GjennomforingOppstartstype.LOPENDE
+    : GjennomforingOppstartstype.FELLES;
 }
 
-export function defaultPameldingType(avtale?: AvtaleDto): GjennomforingPameldingType | null {
-  if (!avtale) {
-    return GjennomforingPameldingType.DIREKTE_VEDTAK;
-  }
-
-  const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return !kanEndreOppstartOgPamelding(tiltakskode)
-    ? GjennomforingPameldingType.DIREKTE_VEDTAK
-    : null;
+export function defaultPameldingType(
+  oppstart: GjennomforingOppstartstype,
+): GjennomforingPameldingType {
+  return oppstart === GjennomforingOppstartstype.FELLES
+    ? GjennomforingPameldingType.TRENGER_GODKJENNING
+    : GjennomforingPameldingType.DIREKTE_VEDTAK;
 }
 
 function defaultNavRegion(avtale: AvtaleDto, gjennomforing?: Partial<GjennomforingDto>): string[] {
@@ -83,6 +82,7 @@ export function defaultGjennomforingData(
 
   const faneInnhold = gjennomforing?.faneinnhold ?? avtale.faneinnhold;
 
+  const oppstart = gjennomforing?.oppstart || defaultOppstartType(avtale);
   return {
     navn: gjennomforing?.navn || avtale.navn,
     avtaleId: avtale.id,
@@ -101,7 +101,7 @@ export function defaultGjennomforingData(
         ? avtale.sluttDato
         : null,
     arrangorId: defaultArrangor(avtale, gjennomforing),
-    oppstart: gjennomforing?.oppstart || defaultOppstartType(avtale),
+    oppstart,
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
     arrangorKontaktpersoner:
       gjennomforing?.arrangor?.kontaktpersoner.map(
@@ -127,7 +127,7 @@ export function defaultGjennomforingData(
         ? toUtdanningslopDbo(avtale.utdanningslop)
         : null,
     oppmoteSted: gjennomforing?.oppmoteSted ?? null,
-    pameldingType: gjennomforing?.pameldingType || defaultPameldingType(avtale),
+    pameldingType: gjennomforing?.pameldingType || defaultPameldingType(oppstart),
   };
 }
 
