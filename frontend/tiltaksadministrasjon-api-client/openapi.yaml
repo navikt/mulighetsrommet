@@ -4582,7 +4582,7 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
+          - $ref: "#/components/schemas/AmoKategoriseringRequest"
         utdanningslop:
           oneOf:
           - type: "null"

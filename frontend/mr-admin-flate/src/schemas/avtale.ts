@@ -66,7 +66,7 @@ export const avtaleFormSchema = avtaleDetaljerSchema
 export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
 export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
-function amoKategoriseringRequest(
+export function amoKategoriseringRequest(
   amoKategorisering: AmoKategorisering | null,
 ): AmoKategoriseringRequest | null {
   switch (amoKategorisering?.kurstype) {

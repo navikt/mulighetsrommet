@@ -135,9 +135,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
-            {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
-              <GjennomforingAmoKategoriseringForm avtale={avtale} />
-            ) : null}
+            <GjennomforingAmoKategoriseringForm avtale={avtale} />
             {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
               <GjennomforingUtdanningslopForm avtale={avtale} />
             ) : null}
