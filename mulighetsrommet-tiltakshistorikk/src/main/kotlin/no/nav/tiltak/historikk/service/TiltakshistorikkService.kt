@@ -118,7 +118,7 @@ class TiltakshistorikkService(
     }
 
     private fun getTiltakstype(tiltakskode: Avtale.Tiltakstype): TiltakstypeDbo = db.session {
-        queries.tiltakstype.getByTiltakskode(tiltakskode.name)
+        queries.tiltakstype.getByTiltakskode(tiltakskode)
     }
 }
 
