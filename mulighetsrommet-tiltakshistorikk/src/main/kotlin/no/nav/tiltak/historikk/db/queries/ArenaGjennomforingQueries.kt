@@ -12,20 +12,20 @@ class ArenaGjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             insert into arena_gjennomforing (id,
-                                             arena_tiltakskode,
+                                             tiltakstype_id,
                                              arena_reg_dato,
                                              arena_mod_dato,
                                              arrangor_organisasjonsnummer,
                                              navn,
                                              deltidsprosent)
             values (:id::uuid,
-                    :arena_tiltakskode,
+                    :tiltakstype_id,
                     :arena_reg_dato,
                     :arena_mod_dato,
                     :arrangor_organisasjonsnummer,
                     :navn,
                     :deltidsprosent)
-            on conflict (id) do update set arena_tiltakskode            = excluded.arena_tiltakskode,
+            on conflict (id) do update set tiltakstype_id               = excluded.tiltakstype_id,
                                            arena_reg_dato               = excluded.arena_reg_dato,
                                            arena_mod_dato               = excluded.arena_mod_dato,
                                            arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
@@ -36,7 +36,7 @@ class ArenaGjennomforingQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to gjennomforing.id,
-            "arena_tiltakskode" to gjennomforing.arenaTiltakskode,
+            "tiltakstype_id" to gjennomforing.tiltakstypeId,
             "arena_reg_dato" to gjennomforing.arenaRegDato,
             "arena_mod_dato" to gjennomforing.arenaModDato,
             "navn" to gjennomforing.navn,
