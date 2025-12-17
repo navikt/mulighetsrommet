@@ -22,12 +22,36 @@ object TestFixtures {
             navn = "Arbeidsmarkedsopplæring (gruppe)",
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING.name,
             arenaTiltakskode = "GRUPPEAMO",
+            tiltakstypeId = UUID.fromString(
+                "9b52265c-914c-413d-bca4-e9d7b3f1bd8d"
+            )
         )
 
         val enkelAmo = TiltakstypeDbo(
             navn = "Arbeidsmarkedsopplæring (enkeltplass)",
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING.name,
             arenaTiltakskode = "ENKELAMO",
+            tiltakstypeId = UUID.fromString(
+                "156f003f-e391-4b0d-9dba-ce398bf5fdde"
+            ),
+        )
+
+        val mentor = TiltakstypeDbo(
+            navn = "Mentor",
+            tiltakskode = "MENTOR",
+            arenaTiltakskode = "MENTOR",
+            tiltakstypeId = UUID.fromString(
+                "5d48aa11-b394-40ba-ae22-2b62f68f4191"
+            ),
+        )
+
+        val arbeidstrening = TiltakstypeDbo(
+            navn = "Arbeidstrening",
+            tiltakskode = "ARBEIDSTRENING",
+            arenaTiltakskode = "ARBTREN",
+            tiltakstypeId = UUID.fromString(
+                "c1cdf1ea-6d47-40f6-9787-d64670b5ae08"
+            ),
         )
     }
 
@@ -97,6 +121,7 @@ object TestFixtures {
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Arbeidstrening hos Fretex",
             deltidsprosent = 80.0,
+            tiltakstypeId = Tiltakstype.arbeidstrening.tiltakstypeId
         )
 
         val arenaMentor = TiltakshistorikkArenaGjennomforing(
@@ -107,6 +132,7 @@ object TestFixtures {
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Mentortiltak hos Joblearn",
             deltidsprosent = 100.0,
+            tiltakstypeId = Tiltakstype.mentor.tiltakstypeId
         )
 
         val arenaAmo = TiltakshistorikkArenaGjennomforing(
@@ -117,6 +143,7 @@ object TestFixtures {
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Enkelt-AMO hos Joblearn",
             deltidsprosent = 100.0,
+            tiltakstypeId = Tiltakstype.enkelAmo.tiltakstypeId
         )
     }
 
