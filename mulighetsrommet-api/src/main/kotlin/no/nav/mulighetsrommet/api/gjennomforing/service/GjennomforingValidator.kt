@@ -391,7 +391,7 @@ object GjennomforingValidator {
     ) {
         validate(previous.status == GjennomforingStatusType.GJENNOMFORES) {
             FieldError.of(
-                "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.name.lowercase()}",
+                "Du kan ikke gjøre endringer på en gjennomføring med status ${previous.status.beskrivelse}",
                 GjennomforingRequest::navn,
             )
         }
