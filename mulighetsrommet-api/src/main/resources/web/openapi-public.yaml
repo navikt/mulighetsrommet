@@ -196,7 +196,9 @@ components:
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingPameldingType"
         tilgjengeligForArrangorFraOgMedDato:
           type:
           - "null"
