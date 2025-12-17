@@ -47,7 +47,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -651,7 +651,7 @@ data class GjennomforingRequest(
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-    val amoKategorisering: AmoKategorisering?,
+    val amoKategorisering: AmoKategoriseringRequest?,
     val utdanningslop: UtdanningslopDbo? = null,
     val pameldingType: GjennomforingPameldingType?,
 )

@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -145,9 +147,6 @@ object GjennomforingValidator {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingRequest::arrangorId)
         }
 
-        if (ctx.avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
-            validateGruppeAMO(next.amoKategorisering, ctx.avtale)
-        }
         if (ctx.avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
             validateGruppeFagOgYrke(next.utdanningslop, ctx.avtale)
         }
@@ -160,6 +159,7 @@ object GjennomforingValidator {
                 GjennomforingRequest::arrangorId,
             )
         }
+        val amoKategorisering = validateAmoKategorisering(ctx.avtale.tiltakstype.tiltakskode, request.amoKategorisering, ctx.avtale).bind()
         requireValid(next.startDato != null && ctx.arrangor != null)
 
         next = validateOrResetTilgjengeligForArrangorDato(next, next.startDato)
@@ -179,25 +179,8 @@ object GjennomforingValidator {
             ctx.status,
             oppstartstype = request.oppstart,
             pameldingType = request.pameldingType,
+            amoKategorisering = amoKategorisering,
         )
-    }
-
-    private fun ValidationDsl.validateGruppeAMO(
-        amoKategorisering: AmoKategorisering?,
-        avtale: Avtale,
-    ) {
-        validate(avtale.amoKategorisering != null) {
-            FieldError(
-                "/avtale.amoKategorisering",
-                "Du må velge en kurstype for avtalen",
-            )
-        }
-        validate(amoKategorisering != null) {
-            FieldError.of(
-                "Du må velge et kurselement for gjennomføringen",
-                GjennomforingRequest::amoKategorisering,
-            )
-        }
     }
 
     private fun ValidationDsl.validateGruppeFagOgYrke(
@@ -431,5 +414,104 @@ object GjennomforingValidator {
                 GjennomforingRequest::pameldingType,
             )
         }
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    private fun ValidationDsl.validateAmoKategorisering(
+        tiltakskode: Tiltakskode,
+        amoKategorisering: AmoKategoriseringRequest?,
+        avtale: Avtale,
+    ): Either<List<FieldError>, AmoKategorisering?> {
+        when (tiltakskode) {
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            -> Unit
+
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.STUDIESPESIALISERING,
+            -> {
+                validate(avtale.amoKategorisering != null) {
+                    FieldError(
+                        "/avtale.amoKategorisering",
+                        "Du må velge en kurstype for avtalen",
+                    )
+                }
+            }
+        }
+        return when (tiltakskode) {
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            ->
+                null
+
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
+                requireValid(amoKategorisering?.kurstype != null) {
+                    FieldError.of(
+                        "Du må velge en kurstype",
+                        GjennomforingRequest::amoKategorisering,
+                        AmoKategoriseringRequest::kurstype,
+                    )
+                }
+                requireValid(amoKategorisering.bransje != null) {
+                    FieldError.of(
+                        "Du må velge en bransje",
+                        GjennomforingRequest::amoKategorisering,
+                        AmoKategoriseringRequest::bransje,
+                    )
+                }
+                AmoKategorisering.from(amoKategorisering)
+            }
+
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
+                requireValid(amoKategorisering?.bransje != null) {
+                    FieldError.of(
+                        "Du må velge en bransje",
+                        GjennomforingRequest::amoKategorisering,
+                        AmoKategoriseringRequest::bransje,
+                    )
+                }
+                AmoKategorisering.from(
+                    amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET),
+                )
+            }
+
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
+                requireValid(amoKategorisering?.kurstype != null) {
+                    FieldError.of(
+                        "Du må velge en kurstype",
+                        GjennomforingRequest::amoKategorisering,
+                        AmoKategoriseringRequest::kurstype,
+                    )
+                }
+                AmoKategorisering.from(amoKategorisering)
+            }
+
+            Tiltakskode.STUDIESPESIALISERING,
+            -> AmoKategorisering.from(AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING))
+        }.right()
     }
 }

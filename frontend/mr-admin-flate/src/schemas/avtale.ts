@@ -5,6 +5,8 @@ import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { DeepPartial } from "react-hook-form";
 import {
   AmoKategorisering,
+  AmoKategoriseringRequest,
+  AmoKurstype,
   AvtaleArrangorKontaktperson,
   AvtaleDto,
   NavAnsattDto,
@@ -64,6 +66,61 @@ export const avtaleFormSchema = avtaleDetaljerSchema
 export type AvtaleFormInput = z.input<typeof avtaleFormSchema>;
 export type AvtaleFormValues = z.infer<typeof avtaleFormSchema>;
 
+function amoKategoriseringRequest(
+  amoKategorisering: AmoKategorisering | null,
+): AmoKategoriseringRequest | null {
+  switch (amoKategorisering?.kurstype) {
+    case "BRANSJE_OG_YRKESRETTET":
+      return {
+        kurstype: AmoKurstype.BRANSJE_OG_YRKESRETTET,
+        bransje: amoKategorisering.bransje,
+        sertifiseringer: amoKategorisering.sertifiseringer,
+        forerkort: amoKategorisering.forerkort,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: null,
+      };
+    case "NORSKOPPLAERING":
+      return {
+        kurstype: AmoKurstype.NORSKOPPLAERING,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: amoKategorisering.norskprove,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+    case "GRUNNLEGGENDE_FERDIGHETER":
+      return {
+        kurstype: AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+        innholdElementer: amoKategorisering.innholdElementer,
+        norskprove: null,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+    case "FORBEREDENDE_OPPLAERING_FOR_VOKSNE":
+      return {
+        kurstype: AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+        innholdElementer: null,
+        norskprove: null,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+    case "STUDIESPESIALISERING":
+      return {
+        kurstype: AmoKurstype.STUDIESPESIALISERING,
+        innholdElementer: null,
+        norskprove: null,
+        bransje: null,
+        sertifiseringer: null,
+        forerkort: null,
+      };
+
+    case undefined:
+      return null;
+  }
+}
+
 export function defaultAvtaleData(
   ansatt: NavAnsattDto,
   avtale?: Partial<AvtaleDto>,
@@ -90,7 +147,7 @@ export function defaultAvtaleData(
       sluttDato: avtale?.sluttDato ?? null,
       sakarkivNummer: avtale?.sakarkivNummer ?? null,
       tiltakskode: avtale?.tiltakstype?.tiltakskode,
-      amoKategorisering: (avtale?.amoKategorisering as AmoKategorisering | undefined) ?? null,
+      amoKategorisering: amoKategoriseringRequest(avtale?.amoKategorisering ?? null),
       opsjonsmodell: {
         type: avtale?.opsjonsmodell?.type,
         opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,

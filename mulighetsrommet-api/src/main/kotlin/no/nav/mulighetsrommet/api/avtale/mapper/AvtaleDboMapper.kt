@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
@@ -92,7 +94,7 @@ object AvtaleDboMapper {
             sluttDato = dbo.detaljerDbo.sluttDato,
             avtaletype = dbo.detaljerDbo.avtaletype,
             administratorer = dbo.detaljerDbo.administratorer,
-            amoKategorisering = dbo.detaljerDbo.amoKategorisering,
+            amoKategorisering = dbo.detaljerDbo.amoKategorisering?.let { AmoKategoriseringRequest.from(it) },
             opsjonsmodell = dbo.detaljerDbo.opsjonsmodell,
             utdanningslop = dbo.detaljerDbo.utdanningslop,
         ),
@@ -157,7 +159,12 @@ fun ArrangorDto.toDbo(kontaktpersoner: List<UUID>?): ArrangorDbo = ArrangorDbo(
     kontaktpersoner = kontaktpersoner ?: emptyList(),
 )
 
-fun DetaljerRequest.toDbo(tiltakstypeId: UUID, arrangorDbo: ArrangorDbo?, status: AvtaleStatusType): DetaljerDbo = DetaljerDbo(
+fun DetaljerRequest.toDbo(
+    tiltakstypeId: UUID,
+    arrangorDbo: ArrangorDbo?,
+    status: AvtaleStatusType,
+    amoKategorisering: AmoKategorisering?,
+): DetaljerDbo = DetaljerDbo(
     navn = navn,
     status = status,
     sakarkivNummer = sakarkivNummer,

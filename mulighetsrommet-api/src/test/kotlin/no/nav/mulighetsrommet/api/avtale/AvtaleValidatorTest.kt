@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -221,7 +220,6 @@ class AvtaleValidatorTest : FunSpec({
         val offentligOffentlig = gruppeAmo.copy(
             detaljer = gruppeAmo.detaljer.copy(
                 sluttDato = null,
-                amoKategorisering = AmoKategorisering.Studiespesialisering,
             ),
         )
 
@@ -395,7 +393,6 @@ class AvtaleValidatorTest : FunSpec({
                 detaljer = gruppeAmo.detaljer.copy(
                     avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                     sakarkivNummer = null,
-                    amoKategorisering = AmoKategorisering.Studiespesialisering,
                 ),
             ),
             ctx,
