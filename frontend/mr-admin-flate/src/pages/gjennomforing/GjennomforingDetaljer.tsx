@@ -119,8 +119,8 @@ export function GjennomforingDetaljer() {
       key: gjennomforingTekster.pameldingTypeLabel,
       value:
         pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
-          ? "Veileder fatter vedtaket direkte etter påmelding"
-          : "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
+          ? "Direkte ved påmeldingen i Modia"
+          : "I Tiltaksadministrasjonen etter at deltakeren er søkt inn fra Modia",
     },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 
