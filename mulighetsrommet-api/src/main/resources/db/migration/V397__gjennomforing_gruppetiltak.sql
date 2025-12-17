@@ -29,12 +29,15 @@ alter table gjennomforing
 update gjennomforing
 set fts = to_tsvector('norwegian',
                       concat_ws(' ',
-                                lopenummer,
-                                regexp_replace(lopenummer, '/', ' '),
-                                coalesce(arena_tiltaksnummer, ''),
-                                navn
+                                gjennomforing.lopenummer,
+                                regexp_replace(gjennomforing.lopenummer, '/', ' '),
+                                coalesce(gjennomforing.arena_tiltaksnummer, ''),
+                                gjennomforing.navn,
+                                arrangor.navn
                       )
-          );
+          )
+from arrangor
+where arrangor.id = gjennomforing.arrangor_id;
 
 create index gjennomforing_fts_idx on gjennomforing using gin (fts);
 

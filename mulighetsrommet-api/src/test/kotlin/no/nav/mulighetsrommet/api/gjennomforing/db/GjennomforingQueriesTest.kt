@@ -575,6 +575,43 @@ class GjennomforingQueriesTest : FunSpec({
         }
     }
 
+    context("free text search") {
+        test("løpenummer og tiltaksnummer blir automatisk med i fritekstsøket") {
+            database.runAndRollback { session ->
+                MulighetsrommetTestDomain(
+                    arrangorer = listOf(
+                        ArrangorFixtures.hovedenhet,
+                        ArrangorFixtures.underenhet1,
+                    ),
+                    avtaler = listOf(AvtaleFixtures.oppfolging),
+                    gjennomforinger = listOf(
+                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
+                    ),
+                ).setup(session)
+
+                val lopenummer = queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).lopenummer
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.value).items.shouldHaveSize(0)
+
+                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo"))
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.value)
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.aar.toString())
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.lopenummer.toString())
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = "foo")
+                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
+
+                queries.gjennomforing.getAllGruppetiltakKompakt(search = "bar").items.shouldHaveSize(0)
+            }
+        }
+    }
+
     context("filtrering av tiltaksgjennomføringer") {
         test("filtrering på arrangør") {
             database.runAndRollback { session ->
@@ -604,58 +641,6 @@ class GjennomforingQueriesTest : FunSpec({
                     it.items.size shouldBe 1
                     it.items[0].id shouldBe Oppfolging2.id
                 }
-            }
-        }
-
-        test("søk på tiltaksarrangørs navn") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet,
-                        ArrangorFixtures.underenhet1.copy(navn = "Underenhet Bergen"),
-                        ArrangorFixtures.underenhet2.copy(navn = "Underenhet Ålesund"),
-                    ),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                        Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                    ),
-                ).setup(session)
-
-                queries.gjennomforing.getAllGruppetiltakKompakt(search = "bergen").should {
-                    it.items.size shouldBe 1
-                    it.items[0].arrangor.navn shouldBe "Underenhet Bergen"
-                }
-
-                queries.gjennomforing.getAllGruppetiltakKompakt(search = "under").should {
-                    it.items.size shouldBe 2
-                }
-            }
-        }
-
-        test("søk på lopenummer") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet,
-                        ArrangorFixtures.underenhet1,
-                    ),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(
-                        Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-                    ),
-                ).setup(session)
-
-                val lopenummer = queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).lopenummer
-
-                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.value)
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
-
-                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.aar.toString())
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
-
-                queries.gjennomforing.getAllGruppetiltakKompakt(search = lopenummer.lopenummer.toString())
-                    .items.shouldHaveSize(1).first().id shouldBe Oppfolging1.id
             }
         }
 

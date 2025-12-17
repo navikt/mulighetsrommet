@@ -81,8 +81,6 @@ class GjennomforingQueries(private val session: Session) {
             ),
         )
 
-        setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn))
-
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
@@ -444,7 +442,7 @@ class GjennomforingQueries(private val session: Session) {
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
-              and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
+              and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:nav_enheter::text[] is null or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet

@@ -168,11 +168,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("skal filtrere basert på fritekst i navn") {
+        test("skal filtrere basert på fritekst som er satt på gjennomføring") {
             database.runAndRollback { session ->
                 domain.setup(session)
-                queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
-                queries.gjennomforing.upsertGruppetiltak(AFT1.copy(navn = "AFT hos Frank"))
+                queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
+                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
+
+                queries.gjennomforing.upsertGruppetiltak(AFT1)
+                queries.gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
 
                 val queries = VeilederflateTiltakQueries(session)
 

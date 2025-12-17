@@ -105,6 +105,9 @@ class GjennomforingService(
                 "Redigerte gjennomføring"
             }
             val dto = logEndring(operation, dbo.id, navIdent)
+
+            queries.gjennomforing.setFreeTextSearch(dbo.id, listOf(dbo.navn, dto.arrangor.navn))
+
             publishToKafka(dto)
             dto
         }
