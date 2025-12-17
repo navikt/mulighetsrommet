@@ -1,13 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import java.time.LocalDate
 import java.util.UUID
@@ -46,6 +42,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
+        prismodellId = gjennomforing.prismodellId,
     )
 
     fun fromGjennomforingRequest(
@@ -58,13 +55,13 @@ object GjennomforingDboMapper {
         id = request.id,
         navn = request.navn,
         tiltakstypeId = request.tiltakstypeId,
-        avtaleId = request.avtaleId,
+        arrangorId = arrangorId,
+        arrangorKontaktpersoner = request.arrangorKontaktpersoner,
         startDato = startDato,
         sluttDato = request.sluttDato,
         status = status,
         antallPlasser = antallPlasser,
-        arrangorId = arrangorId,
-        arrangorKontaktpersoner = request.arrangorKontaktpersoner,
+        avtaleId = request.avtaleId,
         administratorer = request.administratorer,
         navEnheter =
         (request.veilederinformasjon.navRegioner + request.veilederinformasjon.navKontorer + request.veilederinformasjon.navAndreEnheter).toSet(),
@@ -84,47 +81,6 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato,
         amoKategorisering = request.amoKategorisering,
         utdanningslop = request.utdanningslop,
-    )
-
-    fun toGjennomforingRequest(gjennomforing: Gjennomforing) = GjennomforingRequest(
-        id = gjennomforing.id,
-        navn = gjennomforing.navn,
-        tiltakstypeId = gjennomforing.tiltakstype.id,
-        avtaleId = requireNotNull(gjennomforing.avtaleId),
-        startDato = gjennomforing.startDato,
-        sluttDato = gjennomforing.sluttDato,
-        antallPlasser = gjennomforing.antallPlasser,
-        arrangorId = gjennomforing.arrangor.id,
-        arrangorKontaktpersoner = gjennomforing.arrangor.kontaktpersoner.map { it.id },
-        veilederinformasjon = GjennomforingVeilederinfoRequest(
-            navRegioner = gjennomforing.kontorstruktur.map { it.region.enhetsnummer },
-            navKontorer = gjennomforing.kontorstruktur.flatMap {
-                it.kontorer.filter { it.type == NavEnhetType.LOKAL }.map { it.enhetsnummer }
-            },
-            navAndreEnheter = gjennomforing.kontorstruktur.flatMap {
-                it.kontorer.filter { it.type != NavEnhetType.LOKAL }.map { it.enhetsnummer }
-            },
-            faneinnhold = gjennomforing.faneinnhold,
-            beskrivelse = gjennomforing.beskrivelse,
-        ),
-        administratorer = gjennomforing.administratorer.map { it.navIdent },
-        oppstart = gjennomforing.oppstart,
-        kontaktpersoner = gjennomforing.kontaktpersoner.map {
-            GjennomforingKontaktpersonDto(
-                navIdent = it.navIdent,
-                beskrivelse = it.beskrivelse,
-            )
-        },
-        deltidsprosent = gjennomforing.deltidsprosent,
-        estimertVentetid = gjennomforing.estimertVentetid?.verdi?.let {
-            EstimertVentetid(
-                verdi = gjennomforing.estimertVentetid.verdi,
-                enhet = gjennomforing.estimertVentetid.enhet,
-            )
-        },
-        tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
-        amoKategorisering = gjennomforing.amoKategorisering,
-        utdanningslop = gjennomforing.utdanningslop?.toDbo(),
-        oppmoteSted = gjennomforing.oppmoteSted,
+        prismodellId = request.prismodellId,
     )
 }

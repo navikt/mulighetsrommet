@@ -25,6 +25,7 @@ object GjennomforingDtoMapper {
         oppstart = gjennomforing.oppstart,
         opphav = gjennomforing.opphav,
         kontaktpersoner = gjennomforing.kontaktpersoner,
+        oppmoteSted = gjennomforing.oppmoteSted,
         faneinnhold = gjennomforing.faneinnhold,
         beskrivelse = gjennomforing.beskrivelse,
         publisert = gjennomforing.publisert,
@@ -34,7 +35,7 @@ object GjennomforingDtoMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
-        oppmoteSted = gjennomforing.oppmoteSted,
+        prismodellId = gjennomforing.prismodellId,
     )
 
     fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {

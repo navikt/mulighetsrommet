@@ -51,6 +51,8 @@ data class GjennomforingDto(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<Gjennomforing.StengtPeriode>,
+    @Serializable(with = UUIDSerializer::class)
+    val prismodellId: UUID,
 ) {
     @Serializable
     data class Status(

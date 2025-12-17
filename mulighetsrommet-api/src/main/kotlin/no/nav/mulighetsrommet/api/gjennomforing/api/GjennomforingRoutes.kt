@@ -652,6 +652,8 @@ data class GjennomforingRequest(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val prismodellId: UUID,
 )
 
 @Serializable

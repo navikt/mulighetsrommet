@@ -61,7 +61,8 @@ class GjennomforingQueries(private val session: Session) {
                 deltidsprosent,
                 estimert_ventetid_verdi,
                 estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_dato
+                tilgjengelig_for_arrangor_dato,
+                prismodell_id
             )
             values (
                 :id::uuid,
@@ -81,7 +82,8 @@ class GjennomforingQueries(private val session: Session) {
                 :deltidsprosent,
                 :estimert_ventetid_verdi,
                 :estimert_ventetid_enhet,
-                :tilgjengelig_for_arrangor_fra_dato
+                :tilgjengelig_for_arrangor_fra_dato,
+                :prismodell_id::uuid
             )
             on conflict (id) do update set
                 navn                               = excluded.navn,
@@ -100,7 +102,8 @@ class GjennomforingQueries(private val session: Session) {
                 deltidsprosent                     = excluded.deltidsprosent,
                 estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                 estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_dato = excluded.tilgjengelig_for_arrangor_dato
+                tilgjengelig_for_arrangor_dato = excluded.tilgjengelig_for_arrangor_dato,
+                prismodell_id                      = excluded.prismodell_id
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -580,6 +583,7 @@ class GjennomforingQueries(private val session: Session) {
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorDato,
+        "prismodell_id" to prismodellId,
     )
 }
 
@@ -637,32 +641,13 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
 
     return Gjennomforing(
         id = uuid("id"),
+        tiltakstype = Gjennomforing.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
         navn = string("navn"),
         lopenummer = Tiltaksnummer(string("lopenummer")),
-        startDato = startDato,
-        sluttDato = sluttDato,
-        status = toGjennomforingStatus(),
-        apentForPamelding = boolean("apent_for_pamelding"),
-        antallPlasser = int("antall_plasser"),
-        avtaleId = uuidOrNull("avtale_id"),
-        avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
-        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
-        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-        beskrivelse = stringOrNull("beskrivelse"),
-        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-        deltidsprosent = double("deltidsprosent"),
-        estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-            Gjennomforing.EstimertVentetid(
-                verdi = int("estimert_ventetid_verdi"),
-                enhet = string("estimert_ventetid_enhet"),
-            )
-        },
-        publisert = boolean("publisert"),
-        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
-        kontaktpersoner = kontaktpersoner,
-        administratorer = administratorer,
         arrangor = Gjennomforing.ArrangorUnderenhet(
             id = uuid("arrangor_id"),
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
@@ -670,16 +655,35 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
             slettet = boolean("arrangor_slettet"),
             kontaktpersoner = arrangorKontaktpersoner,
         ),
-        tiltakstype = Gjennomforing.Tiltakstype(
-            id = uuid("tiltakstype_id"),
-            navn = string("tiltakstype_navn"),
-            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-        ),
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = toGjennomforingStatus(),
+        apentForPamelding = boolean("apent_for_pamelding"),
+        antallPlasser = int("antall_plasser"),
+        avtaleId = uuidOrNull("avtale_id"),
+        avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
+        administratorer = administratorer,
+        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
+        oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
+        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+        kontaktpersoner = kontaktpersoner,
+        oppmoteSted = stringOrNull("oppmote_sted"),
+        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        beskrivelse = stringOrNull("beskrivelse"),
+        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+        publisert = boolean("publisert"),
+        deltidsprosent = double("deltidsprosent"),
+        estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
+            Gjennomforing.EstimertVentetid(
+                verdi = int("estimert_ventetid_verdi"),
+                enhet = string("estimert_ventetid_enhet"),
+            )
+        },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
         amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
         utdanningslop = utdanningslop,
         stengt = stengt,
-        oppmoteSted = stringOrNull("oppmote_sted"),
         arena = Gjennomforing.ArenaData(
             tiltaksnummer = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) },
             ansvarligNavEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
@@ -689,6 +693,7 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
                 )
             },
         ),
+        prismodellId = uuid("prismodell_id"),
     )
 }
 

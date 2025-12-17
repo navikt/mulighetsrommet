@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo

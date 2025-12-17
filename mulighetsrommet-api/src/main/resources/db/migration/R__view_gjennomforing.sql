@@ -31,6 +31,7 @@ select gjennomforing.id,
        gjennomforing.avsluttet_tidspunkt,
        gjennomforing.tilgjengelig_for_arrangor_dato,
        gjennomforing.status,
+       gjennomforing.prismodell_id,
        nav_kontaktpersoner_json,
        administratorer_json,
        koordinator_json,
@@ -50,7 +51,7 @@ select gjennomforing.id,
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join avtale on avtale.id = gjennomforing.avtale_id
-        left join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
+         left join avtale_prismodell on avtale_prismodell.id = gjennomforing.prismodell_id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(

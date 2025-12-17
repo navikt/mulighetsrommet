@@ -61,6 +61,8 @@ data class Gjennomforing(
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
+    @Serializable(with = UUIDSerializer::class)
+    val prismodellId: UUID,
 ) {
     fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
         id = id,

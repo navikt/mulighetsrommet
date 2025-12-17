@@ -34,6 +34,7 @@ data class GjennomforingDbo(
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDbo?,
+    val prismodellId: UUID,
 )
 
 data class GjennomforingKontaktpersonDbo(
