@@ -80,7 +80,7 @@ class TiltakgjennomforingEventProcessor(
             .bind()
 
         val avtaleMapping = tiltaksgjennomforing.avtaleId?.let {
-            entities.getMapping(ArenaTable.AvtaleInfo, it.toString()).bind()
+            entities.getMappingIfHandled(ArenaTable.AvtaleInfo, it.toString())
         }
         val sak = entities.getSak(tiltaksgjennomforing.sakId).bind()
         val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
