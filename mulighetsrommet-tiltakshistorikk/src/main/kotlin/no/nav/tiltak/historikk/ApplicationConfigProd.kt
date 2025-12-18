@@ -1,6 +1,7 @@
 package no.nav.tiltak.historikk
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 
@@ -10,6 +11,7 @@ val ApplicationConfigProd = AppConfig(
         maximumPoolSize = 20,
         micrometerRegistry = Metrics.micrometerRegistry,
     ),
+    flyway = FlywayMigrationManager.MigrationConfig(strategy = FlywayMigrationManager.InitializationStrategy.MigrateAsync),
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = System.getenv("AZURE_OPENID_CONFIG_ISSUER"),
