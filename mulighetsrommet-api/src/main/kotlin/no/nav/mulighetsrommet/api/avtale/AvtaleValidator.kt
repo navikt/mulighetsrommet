@@ -514,12 +514,14 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::kurstype,
                 )
             }
-            requireValid(amoKategorisering.bransje != null) {
-                FieldError.of(
-                    "Du må velge en bransje",
-                    DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::bransje,
-                )
+            if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+                requireValid(amoKategorisering.bransje != null) {
+                    FieldError.of(
+                        "Du må velge en bransje",
+                        DetaljerRequest::amoKategorisering,
+                        AmoKategoriseringRequest::bransje,
+                    )
+                }
             }
             AmoKategorisering.from(amoKategorisering).right()
         }

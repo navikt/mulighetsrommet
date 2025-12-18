@@ -14,8 +14,9 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
@@ -33,6 +34,9 @@ import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -80,23 +84,19 @@ class AvtaleValidatorTest : FunSpec({
             satser = listOf(),
         ),
     )
-    val gruppeAmo = AvtaleDboMapper.toAvtaleRequest(
-        AvtaleFixtures.gruppeAmo,
+    val gruppeAmo = AvtaleFixtures.gruppeAmo.toAvtaleRequest(
         avtaleRequest.detaljer.arrangor,
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
     )
-    val forhaandsgodkjent = AvtaleDboMapper.toAvtaleRequest(
-        AvtaleFixtures.AFT,
+    val forhaandsgodkjent = AvtaleFixtures.AFT.toAvtaleRequest(
         avtaleRequest.detaljer.arrangor,
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     )
-    val avtaleTypeAvtale = AvtaleDboMapper.toAvtaleRequest(
-        AvtaleFixtures.oppfolgingMedAvtale,
+    val avtaleTypeAvtale = AvtaleFixtures.oppfolgingMedAvtale.toAvtaleRequest(
         avtaleRequest.detaljer.arrangor,
         Tiltakskode.OPPFOLGING,
     )
-    val oppfolgingMedRammeAvtale = AvtaleDboMapper.toAvtaleRequest(
-        AvtaleFixtures.oppfolging,
+    val oppfolgingMedRammeAvtale = AvtaleFixtures.oppfolging.toAvtaleRequest(
         avtaleRequest.detaljer.arrangor,
         Tiltakskode.OPPFOLGING,
     )
@@ -249,7 +249,7 @@ class AvtaleValidatorTest : FunSpec({
             gruppeAmo.copy(detaljer = gruppeAmo.detaljer.copy(amoKategorisering = null)),
             ctx,
         ).shouldBeLeft(
-            listOf(FieldError("/amoKategorisering.kurstype", "Du må velge en kurstype")),
+            listOf(FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype")),
         )
     }
 
@@ -652,7 +652,6 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Slettede administratorer valideres") {
-
         AvtaleValidator.validateUpdateDetaljer(
             avtaleRequest.detaljer.copy(tiltakskode = previous.tiltakskode),
             ctx.copy(
@@ -704,19 +703,6 @@ class AvtaleValidatorTest : FunSpec({
 
             val avtale = AvtaleFixtures.oppfolging
 
-            /*
-            MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-            ) {
-                queries.avtale.setStatus(
-                    avtale.id,
-                    AvtaleStatusType.AVBRUTT,
-                    tidspunkt = today.atStartOfDay(),
-                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                    forklaring = null,
-                )
-            }.initialize(database.db)
-             */
             val request = avtaleRequest.copy(
                 id = avtale.id,
                 detaljer = avtaleRequest.detaljer.copy(
@@ -736,3 +722,71 @@ class AvtaleValidatorTest : FunSpec({
         }
     }
 })
+
+fun AvtaleDbo.toAvtaleRequest(arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
+    id = this.id,
+    detaljer = DetaljerRequest(
+        navn = this.detaljerDbo.navn,
+        sakarkivNummer = this.detaljerDbo.sakarkivNummer,
+        tiltakskode = tiltakskode,
+        arrangor = arrangor,
+        startDato = this.detaljerDbo.startDato,
+        sluttDato = this.detaljerDbo.sluttDato,
+        avtaletype = this.detaljerDbo.avtaletype,
+        administratorer = this.detaljerDbo.administratorer,
+        amoKategorisering = this.detaljerDbo.amoKategorisering?.toRequest(),
+        opsjonsmodell = this.detaljerDbo.opsjonsmodell,
+        utdanningslop = this.detaljerDbo.utdanningslop,
+    ),
+
+    veilederinformasjon = VeilederinfoRequest(
+        navEnheter = this.veilederinformasjonDbo.navEnheter.toList(),
+        beskrivelse = this.veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
+        faneinnhold = this.veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold,
+    ),
+    personvern = PersonvernRequest(
+        personopplysninger = this.personvernDbo.personopplysninger,
+        personvernBekreftet = this.personvernDbo.personvernBekreftet,
+    ),
+    prismodell = PrismodellRequest(
+        id = this.prismodellDbo.id,
+        type = this.prismodellDbo.type,
+        prisbetingelser = this.prismodellDbo.prisbetingelser,
+        satser = (this.prismodellDbo.satser ?: listOf()).map {
+            AvtaltSatsRequest(
+                pris = it.sats,
+                valuta = "NOK",
+                gjelderFra = it.gjelderFra,
+            )
+        },
+    ),
+)
+
+fun AmoKategorisering.toRequest() = when (this) {
+    is AmoKategorisering.BransjeOgYrkesrettet -> AmoKategoriseringRequest(
+        kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
+        bransje = this.bransje,
+        sertifiseringer = this.sertifiseringer,
+        forerkort = this.forerkort,
+        innholdElementer = this.innholdElementer,
+    )
+
+    AmoKategorisering.ForberedendeOpplaeringForVoksne -> AmoKategoriseringRequest(
+        kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+    )
+
+    is AmoKategorisering.GrunnleggendeFerdigheter -> AmoKategoriseringRequest(
+        kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+        innholdElementer = this.innholdElementer,
+    )
+
+    is AmoKategorisering.Norskopplaering -> AmoKategoriseringRequest(
+        kurstype = AmoKurstype.NORSKOPPLAERING,
+        innholdElementer = this.innholdElementer,
+        norskprove = this.norskprove,
+    )
+
+    AmoKategorisering.Studiespesialisering -> AmoKategoriseringRequest(
+        kurstype = AmoKurstype.STUDIESPESIALISERING,
+    )
+}
