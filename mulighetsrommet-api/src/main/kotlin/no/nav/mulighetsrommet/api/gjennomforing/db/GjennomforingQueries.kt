@@ -646,54 +646,54 @@ private fun Row.toGjennomforing(): Gjennomforing {
     val utdanningslop = stringOrNull("utdanningslop_json")?.let {
         Json.decodeFromString<UtdanningslopDto>(it)
     }
-    val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
-    val prismodellId = uuid("prismodell_id")
-    val prisbetingelser = stringOrNull("prisbetingelser")
-    val satser = stringOrNull("satser_json")?.let {
-        Json.decodeFromString<List<AvtaltSats>>(it)
-    } ?: emptyList()
+    val prismodell = uuidOrNull("prismodell_id")?.let { prismodellId ->
+        val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
+        val prisbetingelser = stringOrNull("prisbetingelser")
+        val satser = stringOrNull("satser_json")?.let {
+            Json.decodeFromString<List<AvtaltSats>>(it)
+        } ?: emptyList()
 
-    val prismodell = when (prismodellType) {
-        PrismodellType.ANNEN_AVTALT_PRIS ->
-            Prismodell.AnnenAvtaltPris(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-            )
+        when (prismodellType) {
+            PrismodellType.ANNEN_AVTALT_PRIS ->
+                Prismodell.AnnenAvtaltPris(
+                    id = prismodellId,
+                    prisbetingelser = prisbetingelser,
+                )
 
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-            Prismodell.ForhandsgodkjentPrisPerManedsverk(
-                id = prismodellId,
-            )
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+                Prismodell.ForhandsgodkjentPrisPerManedsverk(
+                    id = prismodellId,
+                )
 
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK ->
-            Prismodell.AvtaltPrisPerManedsverk(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK ->
+                Prismodell.AvtaltPrisPerManedsverk(
+                    id = prismodellId,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser.toDto(),
+                )
 
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
-            Prismodell.AvtaltPrisPerUkesverk(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
+                Prismodell.AvtaltPrisPerUkesverk(
+                    id = prismodellId,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser.toDto(),
+                )
 
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
-            Prismodell.AvtaltPrisPerHeleUkesverk(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
+                Prismodell.AvtaltPrisPerHeleUkesverk(
+                    id = prismodellId,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser.toDto(),
+                )
 
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-            Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+                Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                    id = prismodellId,
+                    prisbetingelser = prisbetingelser,
+                    satser = satser.toDto(),
+                )
+        }
     }
-
     return Gjennomforing(
         id = uuid("id"),
         tiltakstype = Gjennomforing.Tiltakstype(
