@@ -14,6 +14,7 @@ import {
   TiltakstypeDto,
   PaginatedResponseGjennomforingKompaktDto,
   GjennomforingPameldingType,
+  PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
@@ -126,6 +127,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     stengt: [],
     utdanningslop: null,
     pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
+    prismodell: {
+      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
+      satser: null,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
   {
     pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
@@ -165,6 +174,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     beskrivelse: null,
     estimertVentetid: null,
     utdanningslop: null,
+    prismodell: {
+      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
+      satser: null,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -214,6 +231,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     estimertVentetid: null,
     utdanningslop: null,
     pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
+    prismodell: {
+      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
+      satser: null,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -253,6 +278,14 @@ export const mockGjennomforinger: GjennomforingDto[] = [
     estimertVentetid: null,
     utdanningslop: null,
     pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
+    prismodell: {
+      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+      type: PrismodellType.ANNEN_AVTALT_PRIS,
+      navn: "Annen avtalt pris",
+      beskrivelse: [],
+      satser: null,
+      prisbetingelser: "Maskert prisbetingelser",
+    },
   },
 ];
 

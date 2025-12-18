@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingDboMapper {
-    fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(
+    fun fromGjennomforing(gjennomforing: Gjennomforing, prismodellId: UUID) = GjennomforingDbo(
         id = gjennomforing.id,
         navn = gjennomforing.navn,
         tiltakstypeId = gjennomforing.tiltakstype.id,
@@ -46,6 +46,7 @@ object GjennomforingDboMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
         pameldingType = gjennomforing.pameldingType,
+        prismodellId = prismodellId,
     )
 
     fun fromGjennomforingRequest(
@@ -61,13 +62,13 @@ object GjennomforingDboMapper {
         id = request.id,
         navn = request.navn,
         tiltakstypeId = request.tiltakstypeId,
-        avtaleId = request.avtaleId,
+        arrangorId = arrangorId,
+        arrangorKontaktpersoner = request.arrangorKontaktpersoner,
         startDato = startDato,
         sluttDato = request.sluttDato,
         status = status,
         antallPlasser = antallPlasser,
-        arrangorId = arrangorId,
-        arrangorKontaktpersoner = request.arrangorKontaktpersoner,
+        avtaleId = request.avtaleId,
         administratorer = request.administratorer,
         navEnheter =
         (request.veilederinformasjon.navRegioner + request.veilederinformasjon.navKontorer + request.veilederinformasjon.navAndreEnheter).toSet(),
@@ -88,5 +89,6 @@ object GjennomforingDboMapper {
         amoKategorisering = amoKategorisering,
         utdanningslop = request.utdanningslop,
         pameldingType = pameldingType,
+        prismodellId = request.prismodellId,
     )
 }

@@ -1,6 +1,6 @@
 import { PrismodellSchema, PrismodellValues } from "@/schemas/avtale";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AvtaleDto, AvtaleDtoPrismodell, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, PrismodellDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Button, Modal } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import AvtalePrismodellForm from "./AvtalePrismodellForm";
@@ -77,7 +77,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   );
 }
 
-function defaultValues(prismodell: AvtaleDtoPrismodell): PrismodellValues {
+function defaultValues(prismodell: PrismodellDto): PrismodellValues {
   return {
     prismodell: {
       id: prismodell.id,

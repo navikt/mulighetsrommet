@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -39,8 +38,6 @@ data class Gjennomforing(
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    @Transient
-    val avtalePrismodell: PrismodellType? = null,
     val administratorer: List<Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
@@ -63,6 +60,7 @@ data class Gjennomforing(
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
     val pameldingType: GjennomforingPameldingType,
+    val prismodell: Prismodell?,
 ) {
     fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
         id = id,
@@ -72,7 +70,7 @@ data class Gjennomforing(
         sluttDato = sluttDato,
         status = status,
         publisert = publisert,
-        prismodell = avtalePrismodell,
+        prismodell = prismodell?.type,
         kontorstruktur = kontorstruktur,
         tiltakstype = Tiltakstype(tiltakstype.id, tiltakstype.navn, tiltakstype.tiltakskode),
         arrangor = GjennomforingKompakt.ArrangorUnderenhet(arrangor.id, arrangor.organisasjonsnummer, arrangor.navn),

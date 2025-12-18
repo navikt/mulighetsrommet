@@ -178,10 +178,11 @@ object UtbetalingValidator {
         okonomiConfig: OkonomiConfig,
         relativeDate: LocalDate = LocalDate.now(),
     ): LocalDate {
-        val opprettKravPeriodeSluttDato = okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.slutt
-            ?: invalidGjennomforingOpprettKrav(gjennomforing)
+        val opprettKravPeriodeSluttDato =
+            okonomiConfig.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.slutt
+                ?: invalidGjennomforingOpprettKrav(gjennomforing)
 
-        return when (gjennomforing.avtalePrismodell) {
+        return when (gjennomforing.prismodell?.type) {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
                 minOf(relativeDate, opprettKravPeriodeSluttDato)
 
@@ -201,7 +202,7 @@ object UtbetalingValidator {
     }
 
     @Throws(IllegalArgumentException::class)
-    private fun invalidGjennomforingOpprettKrav(gjennomforing: Gjennomforing): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for ${gjennomforing.tiltakstype.navn} med ${gjennomforing.avtalePrismodell?.navn}")
+    private fun invalidGjennomforingOpprettKrav(gjennomforing: Gjennomforing): Nothing = throw IllegalArgumentException("Kan ikke opprette utbetalingskrav for ${gjennomforing.tiltakstype.navn} med prismodell ${gjennomforing.prismodell?.type?.navn}")
 
     fun validateOpprettKravArrangorflate(
         request: OpprettKravUtbetalingRequest,
@@ -250,7 +251,7 @@ object UtbetalingValidator {
         validate(request.belop > 0) {
             FieldError.of("Beløp må være positivt", OpprettKravUtbetalingRequest::belop)
         }
-        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.avtalePrismodell)) {
+        validate(request.vedlegg.size >= minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type)) {
             FieldError.of("Du må legge ved vedlegg", OpprettKravUtbetalingRequest::vedlegg)
         }
         requireValid(request.kidNummer == null || Kid.parse(request.kidNummer) != null) {

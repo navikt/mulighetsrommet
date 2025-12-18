@@ -170,7 +170,7 @@ class UtbetalingValidatorTest : FunSpec({
             )
             every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
             every { vedlegg.size } returns 1
-            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.prismodell?.type } returns prismodell
             every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
 
             val periodeStart = LocalDate.now().minusMonths(1).withDayOfMonth(1)
@@ -199,7 +199,7 @@ class UtbetalingValidatorTest : FunSpec({
                 tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
             every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
-            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.prismodell?.type } returns prismodell
             every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 1
 
@@ -227,7 +227,7 @@ class UtbetalingValidatorTest : FunSpec({
                 tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
             every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
-            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.prismodell?.type } returns prismodell
             every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 0
 
@@ -255,7 +255,7 @@ class UtbetalingValidatorTest : FunSpec({
                 tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
             every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
-            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.prismodell?.type } returns prismodell
             every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 1
 
@@ -283,7 +283,7 @@ class UtbetalingValidatorTest : FunSpec({
                 tiltakskode to Periode.of(today.minusMonths(1).withDayOfMonth(1), today.plusMonths(2))!!,
             )
             every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
-            every { gjennomforing.avtalePrismodell } returns prismodell
+            every { gjennomforing.prismodell?.type } returns prismodell
             every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
             every { vedlegg.size } returns 1
 
@@ -321,7 +321,7 @@ class UtbetalingValidatorTest : FunSpec({
                 ) {
                     every { okonomiConfig.gyldigTilsagnPeriode } returns localOkonomiConfig.gyldigTilsagnPeriode
                     every { okonomiConfig.opprettKravPrismodeller } returns localOkonomiConfig.opprettKravPrismodeller
-                    every { gjennomforing.avtalePrismodell } returns it
+                    every { gjennomforing.prismodell?.type } returns it
                     every { gjennomforing.tiltakstype.tiltakskode } returns localOkonomiConfig.gyldigTilsagnPeriode.keys.first()
                     shouldThrow<IllegalArgumentException> {
                         UtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
@@ -339,7 +339,7 @@ class UtbetalingValidatorTest : FunSpec({
                 val sisteTilsagnsDato = LocalDate.of(2026, 1, 1)
 
                 beforeEach {
-                    every { gjennomforing.avtalePrismodell } returns prismodell
+                    every { gjennomforing.prismodell?.type } returns prismodell
                     every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
                     every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
                     every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
@@ -375,7 +375,7 @@ class UtbetalingValidatorTest : FunSpec({
                 val sisteTilsagnsDato = LocalDate.of(2026, 1, 1)
 
                 beforeEach {
-                    every { gjennomforing.avtalePrismodell } returns prismodell
+                    every { gjennomforing.prismodell?.type } returns prismodell
                     every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
                     every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
                     every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(
@@ -403,7 +403,7 @@ class UtbetalingValidatorTest : FunSpec({
                 val sisteTilsagnsDato = LocalDate.of(2026, 1, 1)
 
                 beforeEach {
-                    every { gjennomforing.avtalePrismodell } returns prismodell
+                    every { gjennomforing.prismodell?.type } returns prismodell
                     every { gjennomforing.tiltakstype.tiltakskode } returns tiltakskode
                     every { okonomiConfig.opprettKravPrismodeller } returns listOf(prismodell)
                     every { okonomiConfig.gyldigTilsagnPeriode } returns mapOf(

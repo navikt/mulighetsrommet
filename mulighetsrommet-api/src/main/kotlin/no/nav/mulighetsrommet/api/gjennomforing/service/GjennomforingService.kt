@@ -90,7 +90,7 @@ class GjennomforingService(
             }
             .bind()
 
-        if (previous != null && GjennomforingDboMapper.fromGjennomforing(previous) == dbo) {
+        if (previous != null && GjennomforingDboMapper.fromGjennomforing(previous, previous.prismodell?.id ?: dbo.prismodellId) == dbo) {
             return@either previous
         }
 

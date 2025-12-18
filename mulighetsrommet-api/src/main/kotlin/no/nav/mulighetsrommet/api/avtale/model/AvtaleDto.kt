@@ -42,23 +42,11 @@ data class AvtaleDto(
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<Avtale.OpsjonLoggDto>,
     val utdanningslop: UtdanningslopDto?,
-    val prismodell: Prismodell,
+    val prismodell: PrismodellDto,
 ) {
     @Serializable
     data class Status(
         val type: AvtaleStatusType,
         val status: DataElement.Status,
     )
-
-    @Serializable
-    data class Prismodell(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val type: PrismodellType,
-        val satser: List<AvtaltSatsDto>?,
-        val prisbetingelser: String?,
-    ) {
-        val navn: String = type.navn
-        val beskrivelse: List<String> = type.beskrivelse
-    }
 }
