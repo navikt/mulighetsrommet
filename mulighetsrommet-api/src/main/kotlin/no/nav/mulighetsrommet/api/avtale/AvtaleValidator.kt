@@ -504,7 +504,7 @@ object AvtaleValidator {
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         ->
-            null.right()
+            null
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
             requireValid(amoKategorisering?.kurstype != null) {
@@ -523,7 +523,7 @@ object AvtaleValidator {
                     )
                 }
             }
-            AmoKategorisering.from(amoKategorisering).right()
+            amoKategorisering
         }
 
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
@@ -534,9 +534,7 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::bransje,
                 )
             }
-            AmoKategorisering.from(
-                amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET),
-            ).right()
+            amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET)
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -547,10 +545,23 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::kurstype,
                 )
             }
-            AmoKategorisering.from(amoKategorisering).right()
+            validate(
+                amoKategorisering.kurstype in listOf(
+                    AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                    AmoKurstype.NORSKOPPLAERING,
+                    AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                ),
+            ) {
+                FieldError.of(
+                    "Ugyldig kurstype",
+                    DetaljerRequest::amoKategorisering,
+                    AmoKategoriseringRequest::kurstype,
+                )
+            }
+            amoKategorisering
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategorisering.from(AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)).right()
-    }
+        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+    }?.toDbo().right()
 }

@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
@@ -483,7 +484,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::bransje,
                     )
                 }
-                AmoKategorisering.from(amoKategorisering)
+                amoKategorisering
             }
 
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
@@ -494,9 +495,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::bransje,
                     )
                 }
-                AmoKategorisering.from(
-                    amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET),
-                )
+                amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET)
             }
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -507,11 +506,11 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                AmoKategorisering.from(amoKategorisering)
+                amoKategorisering
             }
 
             Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategorisering.from(AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING))
-        }.right()
+            -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+        }?.toDbo().right()
     }
 }

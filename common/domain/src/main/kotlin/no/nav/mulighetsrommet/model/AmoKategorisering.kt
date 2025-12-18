@@ -92,33 +92,6 @@ sealed class AmoKategorisering {
         ARBEIDSMARKEDSKUNNSKAP,
         NORSKOPPLAERING,
     }
-
-    companion object {
-        fun from(request: AmoKategoriseringRequest): AmoKategorisering {
-            requireNotNull(request.kurstype)
-            return when (request.kurstype) {
-                AmoKurstype.BRANSJE_OG_YRKESRETTET -> BransjeOgYrkesrettet(
-                    bransje = requireNotNull(request.bransje),
-                    sertifiseringer = request.sertifiseringer ?: emptyList(),
-                    innholdElementer = request.innholdElementer ?: emptyList(),
-                    forerkort = request.forerkort ?: emptyList(),
-                )
-
-                AmoKurstype.NORSKOPPLAERING -> Norskopplaering(
-                    norskprove = request.norskprove ?: false,
-                    innholdElementer = request.innholdElementer ?: emptyList(),
-                )
-
-                AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> GrunnleggendeFerdigheter(
-                    innholdElementer = request.innholdElementer ?: emptyList(),
-                )
-
-                AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne
-
-                AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
-            }
-        }
-    }
 }
 
 @Serializable

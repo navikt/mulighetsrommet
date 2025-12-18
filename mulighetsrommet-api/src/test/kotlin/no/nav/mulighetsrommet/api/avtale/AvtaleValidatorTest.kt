@@ -5,9 +5,11 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
@@ -241,15 +243,6 @@ class AvtaleValidatorTest : FunSpec({
             ctx,
         ).shouldBeLeft(
             listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for avtalen")),
-        )
-    }
-
-    test("amoKategorisering er påkrevd hvis gruppe amo") {
-        AvtaleValidator.validateCreateAvtale(
-            gruppeAmo.copy(detaljer = gruppeAmo.detaljer.copy(amoKategorisering = null)),
-            ctx,
-        ).shouldBeLeft(
-            listOf(FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype")),
         )
     }
 
@@ -719,6 +712,127 @@ class AvtaleValidatorTest : FunSpec({
             ).shouldBeRight().should {
                 it.status shouldBe AvtaleStatusType.AVBRUTT
             }
+        }
+    }
+
+    context("amo kategorisering") {
+        test("amoKategorisering er påkrevd hvis gruppe amo") {
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(detaljer = gruppeAmo.detaljer.copy(amoKategorisering = null)),
+                ctx,
+            ).shouldBeLeft(
+                listOf(FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype")),
+            )
+        }
+
+        test("bransje er påkrevd hvis bransje kurstype") {
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(
+                    detaljer = gruppeAmo.detaljer.copy(
+                        tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+                        amoKategorisering = AmoKategoriseringRequest(
+                            kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
+                        ),
+                    ),
+                ),
+                ctx,
+            ).shouldBeLeft(
+                listOf(FieldError("/amoKategorisering/bransje", "Du må velge en bransje")),
+            )
+        }
+
+        test("amoKategorisering blir mappet til riktig type") {
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo,
+                ctx,
+            ).shouldBeRight().detaljerDbo.amoKategorisering
+                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo,
+                ctx,
+            ).shouldBeRight().detaljerDbo.amoKategorisering
+                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(
+                    detaljer = gruppeAmo.detaljer.copy(
+                        tiltakskode = Tiltakskode.STUDIESPESIALISERING,
+                        amoKategorisering = null,
+                    ),
+                ),
+                ctx,
+            ).shouldBeRight().detaljerDbo.amoKategorisering
+                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(
+                    detaljer = gruppeAmo.detaljer.copy(
+                        tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+                        amoKategorisering = AmoKategoriseringRequest(
+                            kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+
+                        ),
+                    ),
+                ),
+                ctx,
+            ).shouldBeRight().detaljerDbo.amoKategorisering
+                .shouldBeTypeOf<AmoKategorisering.ForberedendeOpplaeringForVoksne>()
+
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(
+                    detaljer = gruppeAmo.detaljer.copy(
+                        tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+                        amoKategorisering = AmoKategoriseringRequest(
+                            kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                            innholdElementer = listOf(
+                                AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                            ),
+                        ),
+                    ),
+                ),
+                ctx,
+            ).shouldBeRight().detaljerDbo.amoKategorisering
+                .shouldBeTypeOf<AmoKategorisering.GrunnleggendeFerdigheter>().should {
+                    it.innholdElementer shouldContainExactly listOf(
+                        AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                    )
+                }
+
+            AvtaleValidator.validateCreateAvtale(
+                gruppeAmo.copy(
+                    detaljer = gruppeAmo.detaljer.copy(
+                        amoKategorisering = AmoKategoriseringRequest(
+                            kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
+                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
+                            forerkort = listOf(
+                                AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A,
+                                AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.B,
+                            ),
+                            sertifiseringer = listOf(
+                                AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                                    konseptId = 123,
+                                    label = "label",
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+                ctx,
+            ).shouldBeRight().detaljerDbo.amoKategorisering
+                .shouldBeTypeOf<AmoKategorisering.BransjeOgYrkesrettet>().should {
+                    it.bransje shouldBe AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID
+                    it.forerkort shouldContainExactlyInAnyOrder listOf(
+                        AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A,
+                        AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.B,
+                    )
+                    it.sertifiseringer shouldContainExactly listOf(
+                        AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                            konseptId = 123,
+                            label = "label",
+                        ),
+                    )
+                }
         }
     }
 })
