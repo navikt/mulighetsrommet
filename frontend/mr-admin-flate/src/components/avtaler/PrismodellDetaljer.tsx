@@ -2,21 +2,21 @@ import { Box, Heading, HStack, VStack } from "@navikt/ds-react";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterTall } from "@mr/frontend-common/utils/utils";
-import { AvtaleDto, AvtaltSatsDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
+import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import {
   MetadataVStack,
   MetadataFritekstfelt,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 
-export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
-  switch (avtale.prismodell.type) {
+export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto }) {
+  switch (prismodell.type) {
     case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
       return (
         <Box>
           <PrismodellHeading />
           <VStack gap="4">
-            <PrismodellNavn navn={avtale.prismodell.navn} />
-            <PrismodellSatser satser={avtale.prismodell.satser} />
+            <PrismodellNavn navn={prismodell.navn} />
+            <PrismodellSatser satser={prismodell.satser} />
           </VStack>
         </Box>
       );
@@ -28,9 +28,9 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         <Box>
           <PrismodellHeading />
           <VStack gap="4">
-            <PrismodellNavn navn={avtale.prismodell.navn} />
-            <PrismodellSatser satser={avtale.prismodell.satser} />
-            <PrismodellPrisbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
+            <PrismodellNavn navn={prismodell.navn} />
+            <PrismodellSatser satser={prismodell.satser} />
+            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
           </VStack>
         </Box>
       );
@@ -39,8 +39,8 @@ export function AvtalePrismodell({ avtale }: { avtale: AvtaleDto }) {
         <Box>
           <PrismodellHeading />
           <VStack gap="4">
-            <PrismodellNavn navn={avtale.prismodell.navn} />
-            <PrismodellPrisbetingelser prisbetingelser={avtale.prismodell.prisbetingelser} />
+            <PrismodellNavn navn={prismodell.navn} />
+            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
           </VStack>
         </Box>
       );

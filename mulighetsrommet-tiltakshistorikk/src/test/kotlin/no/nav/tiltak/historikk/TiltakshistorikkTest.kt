@@ -373,6 +373,9 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val arbeidsgiver = TestFixtures.Virksomhet.arbeidsgiver
     queries.virksomhet.upsert(arbeidsgiver)
 
+    val arbeidstrengingTiltakstype = TestFixtures.Tiltakstype.arbeidstrening
+    queries.tiltakstype.upsert(arbeidstrengingTiltakstype)
+
     val arenaArbeidstrening = TestFixtures.Gjennomforing.arenaArbeidstrening
     queries.arenaGjennomforing.upsert(arenaArbeidstrening)
 
@@ -390,6 +393,8 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.arenaDeltaker.upsertArenaDeltaker(arbeidstrening)
 
+    val mentorTiltakstype = TestFixtures.Tiltakstype.mentor
+    queries.tiltakstype.upsert(mentorTiltakstype)
     val arenaMentor = TestFixtures.Gjennomforing.arenaMentor
     queries.arenaGjennomforing.upsert(arenaMentor)
 
@@ -406,6 +411,9 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         deltidsprosent = 100.0,
     )
     queries.arenaDeltaker.upsertArenaDeltaker(mentor)
+
+    val amoTiltakstype = TestFixtures.Tiltakstype.amo
+    queries.tiltakstype.upsert(amoTiltakstype)
 
     val arenaAmo = TestFixtures.Gjennomforing.arenaAmo
     queries.arenaGjennomforing.upsert(arenaAmo)
@@ -424,12 +432,15 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     )
     queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
 
-    val tiltak = TestFixtures.Gjennomforing.gruppeAmo
-    queries.gjennomforing.upsert(tiltak.toGjennomforingDbo())
+    val gruppeAmoTiltakstype = TestFixtures.Tiltakstype.gruppeAmo
+    queries.tiltakstype.upsert(gruppeAmoTiltakstype)
+
+    val gruppeAmoGjennomforing = TestFixtures.Gjennomforing.gruppeAmo
+    queries.gjennomforing.upsert(gruppeAmoGjennomforing.toGjennomforingDbo())
 
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
-        gjennomforingId = tiltak.id,
+        gjennomforingId = gruppeAmoGjennomforing.id,
         personIdent = "12345678910",
         startDato = null,
         sluttDato = null,

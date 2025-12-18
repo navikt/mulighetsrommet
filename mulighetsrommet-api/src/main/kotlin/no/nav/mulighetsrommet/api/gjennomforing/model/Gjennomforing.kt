@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
@@ -68,7 +67,7 @@ sealed class Gjennomforing {
 data class GjennomforingGruppetiltak(
     @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
-    override val tiltakstype: Gjennomforing.Tiltakstype,
+    override val tiltakstype: Tiltakstype,
     override val lopenummer: Tiltaksnummer,
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
@@ -84,8 +83,6 @@ data class GjennomforingGruppetiltak(
     val apentForPamelding: Boolean,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    @Transient
-    val avtalePrismodell: PrismodellType? = null,
     val administratorer: List<Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
@@ -105,6 +102,7 @@ data class GjennomforingGruppetiltak(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<StengtPeriode>,
+    val prismodell: Prismodell?,
 ) : Gjennomforing() {
     fun toGjennomforingKompakt(): GjennomforingGruppetiltakKompakt = GjennomforingGruppetiltakKompakt(
         id = id,
@@ -114,7 +112,7 @@ data class GjennomforingGruppetiltak(
         sluttDato = sluttDato,
         status = status,
         publisert = publisert,
-        prismodell = avtalePrismodell,
+        prismodell = prismodell?.type,
         kontorstruktur = kontorstruktur,
         tiltakstype = GjennomforingGruppetiltakKompakt.Tiltakstype(
             tiltakstype.id,

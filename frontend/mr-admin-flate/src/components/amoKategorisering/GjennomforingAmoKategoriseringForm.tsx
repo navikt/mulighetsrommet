@@ -1,5 +1,5 @@
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
-import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { Alert, HGrid, Select } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { ForerkortForm } from "./ForerkortForm";
@@ -11,8 +11,27 @@ interface Props {
   avtale: AvtaleDto;
 }
 
-export function GjennomforingAmoKategoriseringForm(props: Props) {
-  const { avtale } = props;
+export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
+  switch (avtale.tiltakstype.tiltakskode) {
+    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
+    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
+    case Tiltakskode.AVKLARING:
+    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
+    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.HOYERE_UTDANNING:
+    case Tiltakskode.JOBBKLUBB:
+    case Tiltakskode.OPPFOLGING:
+    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
+    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
+      return null;
+    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.STUDIESPESIALISERING:
+    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
+  }
 
   if (!avtale.amoKategorisering) {
     return <Alert variant="warning">{gjennomforingTekster.amoKategoriseringMangler}</Alert>;

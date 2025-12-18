@@ -28,6 +28,7 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -52,6 +53,7 @@ export function GjennomforingDetaljer() {
     oppmoteSted,
     amoKategorisering,
     utdanningslop,
+    prismodell,
   } = gjennomforing;
 
   const avtaleMeta: Definition[] = [
@@ -119,8 +121,8 @@ export function GjennomforingDetaljer() {
       key: gjennomforingTekster.pameldingTypeLabel,
       value:
         pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
-          ? "Veileder fatter vedtaket direkte etter påmelding"
-          : "Deltakelsen skal behandles i tiltaksadministrasjon før vedtak fattes",
+          ? "Veileder fatter vedtaket direkte ved påmeldingen i Modia"
+          : "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia",
     },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 
@@ -214,6 +216,12 @@ export function GjennomforingDetaljer() {
           <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
           <Separator />
           <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
+          {prismodell && (
+            <>
+              <Separator />
+              <PrismodellDetaljer prismodell={prismodell} />
+            </>
+          )}
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>

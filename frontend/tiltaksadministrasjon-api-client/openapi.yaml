@@ -3450,7 +3450,7 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
+          - $ref: "#/components/schemas/AmoKategoriseringRequest"
         utdanningslop:
           oneOf:
           - type: "null"
@@ -3519,43 +3519,54 @@ components:
       - INGEN_OPSJONSMULIGHET
       - VALGFRI_SLUTTDATO
       - ANNET
-    AmoKategorisering:
-      anyOf:
-      - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
-      - $ref: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
-      - $ref: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
-      - $ref: "#/components/schemas/NORSKOPPLAERING"
-      - $ref: "#/components/schemas/STUDIESPESIALISERING"
-      discriminator:
-        propertyName: kurstype
-        mapping:
-          BRANSJE_OG_YRKESRETTET: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
-          FORBEREDENDE_OPPLAERING_FOR_VOKSNE: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
-          GRUNNLEGGENDE_FERDIGHETER: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
-          NORSKOPPLAERING: "#/components/schemas/NORSKOPPLAERING"
-          STUDIESPESIALISERING: "#/components/schemas/STUDIESPESIALISERING"
-    BRANSJE_OG_YRKESRETTET:
+    AmoKategoriseringRequest:
       type: object
       properties:
+        kurstype:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKurstype"
         bransje:
-          $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
         sertifiseringer:
-          type: array
+          type:
+          - "null"
+          - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
         forerkort:
-          type: array
+          type:
+          - "null"
+          - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
         innholdElementer:
-          type: array
+          type:
+          - "null"
+          - array
           items:
             $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+        norskprove:
+          type:
+          - "null"
+          - boolean
       required:
       - bransje
       - forerkort
       - innholdElementer
+      - kurstype
+      - norskprove
       - sertifiseringer
+    AmoKurstype:
+      type: string
+      enum:
+      - BRANSJE_OG_YRKESRETTET
+      - NORSKOPPLAERING
+      - GRUNNLEGGENDE_FERDIGHETER
+      - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+      - STUDIESPESIALISERING
     AmoKategorisering.BransjeOgYrkesrettet.Bransje:
       type: string
       enum:
@@ -3610,33 +3621,6 @@ components:
       - PRAKSIS
       - ARBEIDSMARKEDSKUNNSKAP
       - NORSKOPPLAERING
-    FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      type: object
-      properties: {}
-    GRUNNLEGGENDE_FERDIGHETER:
-      type: object
-      properties:
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
-    NORSKOPPLAERING:
-      type: object
-      properties:
-        norskprove:
-          type: boolean
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-      required:
-      - innholdElementer
-      - norskprove
-    STUDIESPESIALISERING:
-      type: object
-      properties: {}
     UtdanningslopDbo:
       type: object
       properties:
@@ -4005,6 +3989,70 @@ components:
       - TILLIT
       - UTLAND
       - YTA
+    AmoKategorisering:
+      anyOf:
+      - $ref: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
+      - $ref: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
+      - $ref: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
+      - $ref: "#/components/schemas/NORSKOPPLAERING"
+      - $ref: "#/components/schemas/STUDIESPESIALISERING"
+      discriminator:
+        propertyName: kurstype
+        mapping:
+          BRANSJE_OG_YRKESRETTET: "#/components/schemas/BRANSJE_OG_YRKESRETTET"
+          FORBEREDENDE_OPPLAERING_FOR_VOKSNE: "#/components/schemas/FORBEREDENDE_OPPLAERING_FOR_VOKSNE"
+          GRUNNLEGGENDE_FERDIGHETER: "#/components/schemas/GRUNNLEGGENDE_FERDIGHETER"
+          NORSKOPPLAERING: "#/components/schemas/NORSKOPPLAERING"
+          STUDIESPESIALISERING: "#/components/schemas/STUDIESPESIALISERING"
+    BRANSJE_OG_YRKESRETTET:
+      type: object
+      properties:
+        bransje:
+          $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+        sertifiseringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+        forerkort:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - bransje
+      - forerkort
+      - innholdElementer
+      - sertifiseringer
+    FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+      type: object
+      properties: {}
+    GRUNNLEGGENDE_FERDIGHETER:
+      type: object
+      properties:
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - innholdElementer
+    NORSKOPPLAERING:
+      type: object
+      properties:
+        norskprove:
+          type: boolean
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
+      required:
+      - innholdElementer
+      - norskprove
+    STUDIESPESIALISERING:
+      type: object
+      properties: {}
     Avtale.OpsjonLoggDto:
       type: object
       properties:
@@ -4069,7 +4117,7 @@ components:
       required:
       - id
       - navn
-    AvtaleDto.Prismodell:
+    PrismodellDto:
       type: object
       properties:
         id:
@@ -4198,7 +4246,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDto"
         prismodell:
-          $ref: "#/components/schemas/AvtaleDto.Prismodell"
+          $ref: "#/components/schemas/PrismodellDto"
       required:
       - administratorer
       - amoKategorisering
@@ -4534,11 +4582,14 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering"
+          - $ref: "#/components/schemas/AmoKategoriseringRequest"
         utdanningslop:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDbo"
+        prismodellId:
+          type: string
+          format: uuid
         pameldingType:
           oneOf:
           - type: "null"
@@ -4558,6 +4609,7 @@ components:
       - oppmoteSted
       - oppstart
       - pameldingType
+      - prismodellId
       - sluttDato
       - startDato
       - tilgjengeligForArrangorDato
@@ -4749,6 +4801,10 @@ components:
           - "null"
           - string
           format: uuid
+        prismodell:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/PrismodellDto"
         administratorer:
           type: array
           items:
@@ -4759,6 +4815,8 @@ components:
             $ref: "#/components/schemas/Kontorstruktur"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         opphav:
           $ref: "#/components/schemas/ArenaMigrering.Opphav"
         kontaktpersoner:
@@ -4803,8 +4861,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
       - administratorer
       - amoKategorisering
@@ -4826,6 +4882,7 @@ components:
       - oppmoteSted
       - oppstart
       - pameldingType
+      - prismodell
       - publisert
       - sluttDato
       - startDato

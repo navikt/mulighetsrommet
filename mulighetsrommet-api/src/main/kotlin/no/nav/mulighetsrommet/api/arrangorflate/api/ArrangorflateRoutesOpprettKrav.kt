@@ -208,7 +208,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
             val gjennomforing = requireGjennomforing()
 
             val tilsagnstyper =
-                if (gjennomforing.avtalePrismodell == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+                if (gjennomforing.prismodell?.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                     listOf(TilsagnType.INVESTERING)
                 } else {
                     listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
@@ -543,7 +543,7 @@ fun getVeiviserSteg(gjennomforing: GjennomforingGruppetiltak): List<OpprettKravV
         OpprettKravVeiviserSteg.OPPSUMMERING,
     )
 
-    if (gjennomforing.avtalePrismodell == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
+    if (gjennomforing.prismodell?.type == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
         stegListe.add(OpprettKravVeiviserSteg.DELTAKERLISTE)
     }
     stegListe.sortBy { it.order }
@@ -593,7 +593,7 @@ data class OpprettKravInnsendingsInformasjon(
             )
 
             return OpprettKravInnsendingsInformasjon(
-                guidePanel = panelGuide(gjennomforing.avtalePrismodell),
+                guidePanel = panelGuide(gjennomforing.prismodell?.type),
                 definisjonsListe = definisjonsListe(gjennomforing),
                 tilsagn = tilsagn,
                 datoVelger = datoVelger,
@@ -652,7 +652,7 @@ data class OpprettKravInnsendingsInformasjon(
                 gjennomforing: GjennomforingGruppetiltak,
                 tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
             ): DatoVelger {
-                when (gjennomforing.avtalePrismodell) {
+                when (gjennomforing.prismodell?.type) {
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
                         // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
                         val tilsagnPeriode =
@@ -700,8 +700,8 @@ data class OpprettKravVedlegg(
     companion object {
         fun from(gjennomforing: GjennomforingGruppetiltak): OpprettKravVedlegg {
             return OpprettKravVedlegg(
-                guidePanel = GuidePanelType.from(gjennomforing.avtalePrismodell),
-                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.avtalePrismodell),
+                guidePanel = GuidePanelType.from(gjennomforing.prismodell?.type),
+                minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.VEDLEGG, gjennomforing),
             )
         }
@@ -742,9 +742,9 @@ data class OpprettKravDeltakere(
             deltakelsePerioder: List<DeltakelsePeriode>,
             personalia: Map<UUID, ArrangorflatePersonalia>,
         ): OpprettKravDeltakere {
-            requireNotNull(gjennomforing.avtalePrismodell)
+            requireNotNull(gjennomforing.prismodell?.type)
             return OpprettKravDeltakere(
-                guidePanel = GuidePanelType.from(gjennomforing.avtalePrismodell),
+                guidePanel = GuidePanelType.from(gjennomforing.prismodell.type),
                 stengtHosArrangor = stengtHosArrangor,
                 tabell = DataDrivenTableDto(
                     columns = deltakelseCommonColumns(),
@@ -891,7 +891,7 @@ data class OpprettKravOppsummering(
                     periode = periode,
                     belop = requestData.belop,
                     kidNummer = requestData.kidNummer,
-                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.avtalePrismodell),
+                    minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
                 ),
                 navigering = getVeiviserNavigering(OpprettKravVeiviserSteg.OPPSUMMERING, gjennomforing),
             )

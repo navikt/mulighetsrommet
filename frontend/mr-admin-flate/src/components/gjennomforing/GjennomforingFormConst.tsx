@@ -1,7 +1,6 @@
 import { kanEndreOppstartOgPamelding } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
-  AmoKategorisering,
   AvtaleDto,
   GjennomforingArrangorKontaktperson,
   GjennomforingDto,
@@ -13,6 +12,7 @@ import {
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
+import { amoKategoriseringRequest } from "@/schemas/avtale";
 
 export function defaultOppstartType(avtale?: AvtaleDto): GjennomforingOppstartstype {
   if (!avtale) {
@@ -117,10 +117,9 @@ export function defaultGjennomforingData(
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     estimertVentetid: gjennomforing?.estimertVentetid || null,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
-    amoKategorisering:
-      gjennomforing?.amoKategorisering ??
-      (avtale.amoKategorisering as AmoKategorisering | undefined) ??
-      null,
+    amoKategorisering: gjennomforing?.amoKategorisering
+      ? amoKategoriseringRequest(gjennomforing.amoKategorisering)
+      : amoKategoriseringRequest(avtale.amoKategorisering),
     utdanningslop: gjennomforing?.utdanningslop
       ? toUtdanningslopDbo(gjennomforing.utdanningslop)
       : avtale.utdanningslop
@@ -128,6 +127,7 @@ export function defaultGjennomforingData(
         : null,
     oppmoteSted: gjennomforing?.oppmoteSted ?? null,
     pameldingType: gjennomforing?.pameldingType || defaultPameldingType(oppstart),
+    prismodellId: gjennomforing?.prismodell?.id || avtale.prismodell.id,
   };
 }
 

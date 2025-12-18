@@ -1,4 +1,3 @@
-import { AmoKategoriseringSchema } from "@/components/redaksjoneltInnhold/AmoKategoriseringSchema";
 import z from "zod";
 import {
   Tiltakskode,
@@ -6,6 +5,7 @@ import {
   OpsjonsmodellType,
   UtdanningslopDbo,
   UtdanningslopDto,
+  AmoKategoriseringRequest,
 } from "@tiltaksadministrasjon/api-client";
 
 export const avtaleDetaljerSchema = z.object({
@@ -39,7 +39,7 @@ export const avtaleDetaljerSchema = z.object({
           message: "Saksnummer må være på formatet 'år/løpenummer'",
         },
       ),
-    amoKategorisering: AmoKategoriseringSchema.nullish(),
+    amoKategorisering: z.custom<AmoKategoriseringRequest>().nullish(),
     utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
     arrangor: z
       .object({
@@ -56,16 +56,7 @@ export const validateAvtaledetaljer = (
   data: z.infer<typeof avtaleDetaljerSchema>,
 ) => {
   const detaljer = data.detaljer;
-  if (
-    [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(detaljer.avtaletype) &&
-    !detaljer.sakarkivNummer
-  ) {
-    ctx.addIssue({
-      code: "custom",
-      message: "Du må skrive inn saksnummer til avtalesaken",
-      path: ["sakarkivNummer"],
-    });
-  }
+
   if (detaljer.avtaletype !== Avtaletype.FORHANDSGODKJENT) {
     if (
       detaljer.opsjonsmodell.type === OpsjonsmodellType.ANNET &&

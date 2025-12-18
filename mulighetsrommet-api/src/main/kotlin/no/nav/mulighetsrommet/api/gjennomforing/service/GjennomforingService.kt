@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.SetStengtHosArrangorRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
-import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
@@ -90,7 +90,7 @@ class GjennomforingService(
             }
             .bind()
 
-        if (previous != null && GjennomforingDboMapper.fromGjennomforing(previous) == dbo) {
+        if (previous != null && isEqual(previous, dbo)) {
             return@either previous
         }
 
@@ -496,3 +496,43 @@ class GjennomforingService(
         }
     }
 }
+
+private fun isEqual(
+    previous: GjennomforingGruppetiltak,
+    dbo: GjennomforingGruppetiltakDbo,
+): Boolean = dbo == GjennomforingGruppetiltakDbo(
+    id = previous.id,
+    navn = previous.navn,
+    tiltakstypeId = previous.tiltakstype.id,
+    arrangorId = previous.arrangor.id,
+    arrangorKontaktpersoner = previous.arrangor.kontaktpersoner.map { it.id },
+    startDato = previous.startDato,
+    sluttDato = previous.sluttDato,
+    status = previous.status.type,
+    antallPlasser = previous.antallPlasser,
+    avtaleId = checkNotNull(previous.avtaleId) { "Forventet at avtale var definert!" },
+    administratorer = previous.administratorer.map { it.navIdent },
+    navEnheter = previous.kontorstruktur
+        .flatMap { (region, kontorer) ->
+            kontorer.map { kontor -> kontor.enhetsnummer } + region.enhetsnummer
+        }
+        .toSet(),
+    oppstart = previous.oppstart,
+    kontaktpersoner = previous.kontaktpersoner.map {
+        GjennomforingKontaktpersonDbo(
+            navIdent = it.navIdent,
+            beskrivelse = it.beskrivelse,
+        )
+    },
+    oppmoteSted = previous.oppmoteSted,
+    faneinnhold = previous.faneinnhold,
+    beskrivelse = previous.beskrivelse,
+    deltidsprosent = previous.deltidsprosent,
+    estimertVentetidVerdi = previous.estimertVentetid?.verdi,
+    estimertVentetidEnhet = previous.estimertVentetid?.enhet,
+    tilgjengeligForArrangorDato = previous.tilgjengeligForArrangorDato,
+    amoKategorisering = previous.amoKategorisering,
+    utdanningslop = previous.utdanningslop?.toDbo(),
+    pameldingType = previous.pameldingType,
+    prismodellId = checkNotNull(previous.prismodell?.id) { "Forventet at prismodell var definert!" },
+)

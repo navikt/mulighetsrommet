@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.db.ArenaNavEnhet
 import no.nav.mulighetsrommet.arena.ArenaMigrering
@@ -36,9 +37,11 @@ data class GjennomforingDto(
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
+    val prismodell: PrismodellDto?,
     val administratorer: List<GjennomforingGruppetiltak.Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
     val oppmoteSted: String?,
@@ -52,8 +55,8 @@ data class GjennomforingDto(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<GjennomforingGruppetiltak.StengtPeriode>,
-    val pameldingType: GjennomforingPameldingType,
 ) {
+
     @Serializable
     data class Status(
         val type: GjennomforingStatusType,

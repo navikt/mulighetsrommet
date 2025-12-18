@@ -27,4 +27,5 @@ private fun TiltakstypeV3Dto.toTiltakstypeDbo(): TiltakstypeDbo = TiltakstypeDbo
     navn = navn,
     tiltakskode = tiltakskode.name,
     arenaTiltakskode = tiltakskode.arenakode,
+    tiltakstypeId = id,
 )

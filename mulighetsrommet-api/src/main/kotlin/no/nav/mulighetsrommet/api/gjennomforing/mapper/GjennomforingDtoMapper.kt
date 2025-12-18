@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
@@ -25,6 +26,7 @@ object GjennomforingDtoMapper {
         oppstart = gjennomforing.oppstart,
         opphav = gjennomforing.opphav,
         kontaktpersoner = gjennomforing.kontaktpersoner,
+        oppmoteSted = gjennomforing.oppmoteSted,
         faneinnhold = gjennomforing.faneinnhold,
         beskrivelse = gjennomforing.beskrivelse,
         publisert = gjennomforing.publisert,
@@ -34,7 +36,7 @@ object GjennomforingDtoMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
-        oppmoteSted = gjennomforing.oppmoteSted,
+        prismodell = gjennomforing.prismodell?.let { fromPrismodell(it, gjennomforing.tiltakstype.tiltakskode) },
         pameldingType = gjennomforing.pameldingType,
     )
 

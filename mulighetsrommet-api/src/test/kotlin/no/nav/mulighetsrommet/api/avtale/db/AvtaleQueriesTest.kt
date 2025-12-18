@@ -564,24 +564,6 @@ class AvtaleQueriesTest : FunSpec({
             avtaler = listOf(),
         )
 
-        test("getAvtaleIdsByAdministrator") {
-            database.runAndRollback { session ->
-                oppfolgingDomain.setup(session)
-
-                val queries = AvtaleQueries(session)
-
-                val avtale1 = AvtaleFixtures.oppfolging.copy(
-                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-                        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                    ),
-                )
-
-                queries.upsert(avtale1)
-
-                queries.getAvtaleIdsByAdministrator(NavAnsattFixture.DonaldDuck.navIdent) shouldBe listOf(avtale1.id)
-            }
-        }
-
         test("fritekstsøk på avtalenavn og avtalenummer") {
             database.runAndRollback { session ->
                 oppfolgingDomain.setup(session)

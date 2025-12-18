@@ -29,6 +29,7 @@ data class GjennomforingGruppetiltakDbo(
     val antallPlasser: Int,
     val arrangorKontaktpersoner: List<UUID>,
     val avtaleId: UUID,
+    val prismodellId: UUID,
     val administratorer: List<NavIdent>,
     val navEnheter: Set<NavEnhetNummer>,
     val oppstart: GjennomforingOppstartstype,
