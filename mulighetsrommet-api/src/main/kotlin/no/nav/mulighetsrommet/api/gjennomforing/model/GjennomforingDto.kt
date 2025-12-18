@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 
 @Serializable
 data class GjennomforingDto(
@@ -51,9 +52,9 @@ data class GjennomforingDto(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<Gjennomforing.StengtPeriode>,
-    @Serializable(with = UUIDSerializer::class)
-    val prismodellId: UUID,
+    val prismodell: PrismodellDto,
 ) {
+
     @Serializable
     data class Status(
         val type: GjennomforingStatusType,

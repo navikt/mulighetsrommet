@@ -4069,7 +4069,7 @@ components:
       required:
       - id
       - navn
-    AvtaleDto.Prismodell:
+    PrismodellDto:
       type: object
       properties:
         id:
@@ -4198,7 +4198,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDto"
         prismodell:
-          $ref: "#/components/schemas/AvtaleDto.Prismodell"
+          $ref: "#/components/schemas/PrismodellDto"
       required:
       - administratorer
       - amoKategorisering
@@ -4532,6 +4532,9 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDbo"
+        prismodellId:
+          type: string
+          format: uuid
       required:
       - administratorer
       - amoKategorisering
@@ -4546,6 +4549,7 @@ components:
       - navn
       - oppmoteSted
       - oppstart
+      - prismodellId
       - sluttDato
       - startDato
       - tilgjengeligForArrangorDato
@@ -4791,6 +4795,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellDto"
       required:
       - administratorer
       - amoKategorisering
@@ -4811,6 +4817,7 @@ components:
       - opphav
       - oppmoteSted
       - oppstart
+      - prismodell
       - publisert
       - sluttDato
       - startDato

@@ -47,7 +47,9 @@ select gjennomforing.id,
        arrangor_kontaktpersoner_json,
        utdanningslop_json,
        stengt_perioder_json,
-       avtale_prismodell.prismodell_type   as prismodell
+       avtale_prismodell.prismodell_type   as prismodell_type,
+       avtale_prismodell.satser            as satser_json,
+       avtale_prismodell.prisbetingelser   as prisbetingelser
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join avtale on avtale.id = gjennomforing.avtale_id

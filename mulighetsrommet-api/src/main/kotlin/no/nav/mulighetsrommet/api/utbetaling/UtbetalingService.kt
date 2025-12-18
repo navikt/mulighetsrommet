@@ -107,7 +107,7 @@ class UtbetalingService(
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
-        return when (gjennomforing.avtalePrismodell) {
+        return when (gjennomforing.prismodell.type) {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
                 opprettAnnenAvtaltPrisUtbetaling(
                     utbetalingKrav.toAnnenAvtaltPris(
@@ -136,15 +136,6 @@ class UtbetalingService(
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             -> Either.Left(
-                listOf(
-                    FieldError.of(
-                        "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",
-                        OpprettKravUtbetalingRequest::tilsagnId,
-                    ),
-                ),
-            )
-
-            null -> Either.Left(
                 listOf(
                     FieldError.of(
                         "Kan ikke opprette utbetaling for denne gjennomføringen manuelt",

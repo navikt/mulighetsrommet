@@ -5,9 +5,12 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
@@ -295,7 +298,7 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toGjennomforingDto() }
+        return session.single(queryOf(query, id)) { it.toGjennomforing() }
     }
 
     fun getPrismodell(id: UUID): PrismodellType? {
@@ -374,7 +377,7 @@ class GjennomforingQueries(private val session: Session) {
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
-                   prismodell,
+                   prismodell_type,
                    nav_enheter_json,
                    tiltakstype_id,
                    tiltakstype_tiltakskode,
@@ -397,7 +400,7 @@ class GjennomforingQueries(private val session: Session) {
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
-              and (:prismodeller::text[] is null or prismodell = any(:prismodeller))
+              and (:prismodeller::text[] is null or prismodell_type = any(:prismodeller))
             order by $order
             limit :limit
             offset :offset
@@ -416,7 +419,7 @@ class GjennomforingQueries(private val session: Session) {
             where avtale_id = ?
         """.trimIndent()
 
-        return session.list(queryOf(query, avtaleId)) { it.toGjennomforingDto() }
+        return session.list(queryOf(query, avtaleId)) { it.toGjennomforing() }
     }
 
     fun delete(id: UUID): Int {
@@ -600,7 +603,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
         sluttDato = localDateOrNull("slutt_dato"),
         status = toGjennomforingStatus(),
         publisert = boolean("publisert"),
-        prismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
+        prismodell = stringOrNull("prismodell_type")?.let { PrismodellType.valueOf(it) },
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         arrangor = GjennomforingKompakt.ArrangorUnderenhet(
             id = uuid("arrangor_id"),
@@ -615,7 +618,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
     )
 }
 
-private fun Row.toGjennomforingDto(): Gjennomforing {
+private fun Row.toGjennomforing(): Gjennomforing {
     val administratorer = stringOrNull("administratorer_json")
         ?.let { Json.decodeFromString<List<Gjennomforing.Administrator>>(it) }
         ?: emptyList()
@@ -637,6 +640,53 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
 
     val utdanningslop = stringOrNull("utdanningslop_json")?.let {
         Json.decodeFromString<UtdanningslopDto>(it)
+    }
+    val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
+    val prismodellId = uuid("prismodell_id")
+    val prisbetingelser = stringOrNull("prisbetingelser")
+    val satser = stringOrNull("satser_json")?.let {
+        Json.decodeFromString<List<AvtaltSats>>(it)
+    } ?: emptyList()
+
+    val prismodell = when (prismodellType) {
+        PrismodellType.ANNEN_AVTALT_PRIS ->
+            Prismodell.AnnenAvtaltPris(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+            )
+
+        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+            Prismodell.ForhandsgodkjentPrisPerManedsverk(
+                id = prismodellId,
+            )
+
+        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK ->
+            Prismodell.AvtaltPrisPerManedsverk(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+
+        PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
+            Prismodell.AvtaltPrisPerUkesverk(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+
+        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
+            Prismodell.AvtaltPrisPerHeleUkesverk(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+
+        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
+            Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
     }
 
     return Gjennomforing(
@@ -661,7 +711,6 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
         apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = int("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
-        avtalePrismodell = stringOrNull("prismodell")?.let { PrismodellType.valueOf(it) },
         administratorer = administratorer,
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
@@ -693,7 +742,7 @@ private fun Row.toGjennomforingDto(): Gjennomforing {
                 )
             },
         ),
-        prismodellId = uuid("prismodell_id"),
+        prismodell = prismodell,
     )
 }
 

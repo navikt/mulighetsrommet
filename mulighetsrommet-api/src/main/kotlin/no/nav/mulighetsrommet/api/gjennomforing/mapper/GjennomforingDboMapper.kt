@@ -42,7 +42,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
-        prismodellId = gjennomforing.prismodellId,
+        prismodellId = gjennomforing.prismodell.id,
     )
 
     fun fromGjennomforingRequest(

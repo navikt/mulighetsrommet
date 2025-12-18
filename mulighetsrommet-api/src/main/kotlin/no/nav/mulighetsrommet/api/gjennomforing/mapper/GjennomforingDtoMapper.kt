@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
@@ -35,7 +36,7 @@ object GjennomforingDtoMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
-        prismodellId = gjennomforing.prismodellId,
+        prismodell = fromPrismodell(gjennomforing.prismodell, gjennomforing.tiltakstype.tiltakskode),
     )
 
     fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {
