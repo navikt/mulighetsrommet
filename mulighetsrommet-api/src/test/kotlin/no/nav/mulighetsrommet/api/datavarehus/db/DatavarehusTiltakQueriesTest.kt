@@ -246,18 +246,18 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
                 avtaler = listOf(),
-                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo),
+                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
             )
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
 
-                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
                 it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo.id
+                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo1.id
                 it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
@@ -276,24 +276,24 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
                 avtaler = listOf(),
-                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo),
+                enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
             )
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
-                        id = EnkeltplassFixtures.EnkelAmo.id,
+                        id = EnkeltplassFixtures.EnkelAmo1.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo.id)
+                DatavarehusTiltakQueries(session).getDatavarehusTiltak(EnkeltplassFixtures.EnkelAmo1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo.id
+                it.gjennomforing.id shouldBe EnkeltplassFixtures.EnkelAmo1.id
                 it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                 it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                 it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(

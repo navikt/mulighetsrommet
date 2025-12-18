@@ -506,7 +506,7 @@ class GjennomforingQueriesTest : FunSpec({
             avtaler = listOf(),
         )
 
-        val enkelAmo1 = EnkeltplassFixtures.EnkelAmo.copy(
+        val enkelAmo1 = EnkeltplassFixtures.EnkelAmo1.copy(
             navn = "Arena-navn",
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = null,

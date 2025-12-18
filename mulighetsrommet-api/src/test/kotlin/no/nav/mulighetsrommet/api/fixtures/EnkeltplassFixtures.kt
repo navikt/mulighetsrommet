@@ -6,7 +6,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object EnkeltplassFixtures {
-    val EnkelAmo = GjennomforingEnkeltplassDbo(
+    val EnkelAmo1 = GjennomforingEnkeltplassDbo(
         id = UUID.randomUUID(),
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
         arrangorId = ArrangorFixtures.underenhet1.id,

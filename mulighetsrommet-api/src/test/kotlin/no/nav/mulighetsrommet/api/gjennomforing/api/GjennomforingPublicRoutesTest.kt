@@ -52,7 +52,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
         domain.initialize(database.db)
 
         database.run {
-            queries.gjennomforing.upsertEnkeltplass(EnkeltplassFixtures.EnkelAmo)
+            queries.gjennomforing.upsertEnkeltplass(EnkeltplassFixtures.EnkelAmo1)
         }
     }
 
@@ -62,7 +62,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
     context("getTiltaksgjennomforingV2") {
         val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
-        val tiltakEnkeltplassId = EnkeltplassFixtures.EnkelAmo.id
+        val tiltakEnkeltplassId = EnkeltplassFixtures.EnkelAmo1.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {
@@ -127,7 +127,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
     context("getTiltaksgjennomforingArenadata") {
         val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
-        val tiltakEnkeltplassId = EnkeltplassFixtures.EnkelAmo.id
+        val tiltakEnkeltplassId = EnkeltplassFixtures.EnkelAmo1.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {
