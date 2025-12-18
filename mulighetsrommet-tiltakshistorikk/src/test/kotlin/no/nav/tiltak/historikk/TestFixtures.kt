@@ -36,6 +36,15 @@ object TestFixtures {
             ),
         )
 
+        val amo = TiltakstypeDbo(
+            navn = "Arbeidsmarkedsopplæring (AMO)",
+            tiltakskode = null,
+            arenaTiltakskode = "AMO",
+            tiltakstypeId = UUID.fromString(
+                "d5f724d6-4779-41f8-b9e6-e54cb6486b93",
+            ),
+        )
+
         val mentor = TiltakstypeDbo(
             navn = "Mentor",
             tiltakskode = "MENTOR",
@@ -143,7 +152,7 @@ object TestFixtures {
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Enkelt-AMO hos Joblearn",
             deltidsprosent = 100.0,
-            tiltakstypeId = Tiltakstype.enkelAmo.tiltakstypeId,
+            tiltakstypeId = Tiltakstype.amo.tiltakstypeId,
         )
     }
 
