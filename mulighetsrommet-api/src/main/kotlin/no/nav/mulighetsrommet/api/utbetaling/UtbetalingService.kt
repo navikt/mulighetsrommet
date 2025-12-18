@@ -107,7 +107,7 @@ class UtbetalingService(
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val periode = Periode(utbetalingKrav.periodeStart, utbetalingKrav.periodeSlutt)
-        return when (gjennomforing.prismodell.type) {
+        return when (gjennomforing.prismodell?.type) {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
                 opprettAnnenAvtaltPrisUtbetaling(
                     utbetalingKrav.toAnnenAvtaltPris(
@@ -135,6 +135,7 @@ class UtbetalingService(
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            null,
             -> Either.Left(
                 listOf(
                     FieldError.of(

@@ -4,14 +4,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import java.time.LocalDate
 import java.util.UUID
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 
 object GjennomforingDboMapper {
-    fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(
+    fun fromGjennomforing(gjennomforing: Gjennomforing, prismodellId: UUID) = GjennomforingDbo(
         id = gjennomforing.id,
         navn = gjennomforing.navn,
         tiltakstypeId = gjennomforing.tiltakstype.id,
@@ -45,7 +45,7 @@ object GjennomforingDboMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
         pameldingType = gjennomforing.pameldingType,
-        prismodellId = gjennomforing.prismodell.id,
+        prismodellId = prismodellId,
     )
 
     fun fromGjennomforingRequest(

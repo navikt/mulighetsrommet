@@ -4808,7 +4808,9 @@ components:
           items:
             $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
         prismodell:
-          $ref: "#/components/schemas/PrismodellDto"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/PrismodellDto"
         pameldingType:
           $ref: "#/components/schemas/GjennomforingPameldingType"
       required:

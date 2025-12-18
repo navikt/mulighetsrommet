@@ -53,6 +53,7 @@ export function GjennomforingDetaljer() {
     oppmoteSted,
     amoKategorisering,
     utdanningslop,
+    prismodell,
   } = gjennomforing;
 
   const avtaleMeta: Definition[] = [
@@ -215,8 +216,12 @@ export function GjennomforingDetaljer() {
           <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
           <Separator />
           <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
-          <Separator />
-          <PrismodellDetaljer prismodell={gjennomforing.prismodell} />
+          {prismodell && (
+            <>
+              <Separator />
+              <PrismodellDetaljer prismodell={prismodell} />
+            </>
+          )}
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>

@@ -53,7 +53,7 @@ data class GjennomforingDto(
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
     val stengt: List<Gjennomforing.StengtPeriode>,
-    val prismodell: PrismodellDto,
+    val prismodell: PrismodellDto?,
     val pameldingType: GjennomforingPameldingType,
 ) {
 

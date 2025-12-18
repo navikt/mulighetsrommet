@@ -60,7 +60,7 @@ data class Gjennomforing(
     val stengt: List<StengtPeriode>,
     val arena: ArenaData?,
     val pameldingType: GjennomforingPameldingType,
-    val prismodell: Prismodell,
+    val prismodell: Prismodell?,
 ) {
     fun toGjennomforingKompakt(): GjennomforingKompakt = GjennomforingKompakt(
         id = id,
@@ -70,7 +70,7 @@ data class Gjennomforing(
         sluttDato = sluttDato,
         status = status,
         publisert = publisert,
-        prismodell = prismodell.type,
+        prismodell = prismodell?.type,
         kontorstruktur = kontorstruktur,
         tiltakstype = Tiltakstype(tiltakstype.id, tiltakstype.navn, tiltakstype.tiltakskode),
         arrangor = GjennomforingKompakt.ArrangorUnderenhet(arrangor.id, arrangor.organisasjonsnummer, arrangor.navn),

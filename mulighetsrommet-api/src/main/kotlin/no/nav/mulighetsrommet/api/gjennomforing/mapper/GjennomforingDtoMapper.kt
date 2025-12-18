@@ -36,7 +36,7 @@ object GjennomforingDtoMapper {
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
-        prismodell = fromPrismodell(gjennomforing.prismodell, gjennomforing.tiltakstype.tiltakskode),
+        prismodell = gjennomforing.prismodell?.let { fromPrismodell(it, gjennomforing.tiltakstype.tiltakskode) },
         pameldingType = gjennomforing.pameldingType,
     )
 
