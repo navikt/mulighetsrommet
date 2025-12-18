@@ -31,6 +31,9 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.arena.ArenaMigrering
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
@@ -39,6 +42,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
 
 object AvtaleValidator {
@@ -83,7 +87,7 @@ object AvtaleValidator {
         ctx: Ctx,
     ): Either<List<FieldError>, AvtaleDbo> = validation {
         validateNavEnheter(ctx.navEnheter)
-        validateDetaljer(request.detaljer, ctx)
+        val amoKategorisering = validateDetaljer(request.detaljer, ctx).bind()
         val prismodellDbo = validatePrismodell(
             request.prismodell,
             tiltakskode = request.detaljer.tiltakskode,
@@ -97,6 +101,7 @@ object AvtaleValidator {
                 ctx.previous,
                 LocalDate.now(),
             ),
+            amoKategorisering,
         )
         val personvernDbo = request.personvern.toDbo()
         val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
@@ -196,19 +201,20 @@ object AvtaleValidator {
                 }
             }
         }
-        validateDetaljer(request, ctx)
+        val amoKategorisering = validateDetaljer(request, ctx).bind()
 
         request.toDbo(
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.arrangor?.kontaktpersoner),
             resolveStatus(request, previous, LocalDate.now()),
+            amoKategorisering = amoKategorisering,
         )
     }
 
     fun ValidationDsl.validateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
-    ) {
+    ): Either<List<FieldError>, AmoKategorisering?> {
         validateNotNull(request.startDato) {
             FieldError.of("Du må legge inn startdato for avtalen", DetaljerRequest::navn)
         }
@@ -266,9 +272,8 @@ object AvtaleValidator {
                 }
             }
         }
-        validate(request.tiltakskode != Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING || request.amoKategorisering != null) {
-            FieldError.ofPointer("/amoKategorisering.kurstype", "Du må velge en kurstype")
-        }
+        val amoKategorisering = validateAmoKategorisering(request.tiltakskode, request.amoKategorisering)
+
         if (request.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
             val utdanninger = request.utdanningslop
             validateNotNull(utdanninger) {
@@ -283,6 +288,7 @@ object AvtaleValidator {
         }
         validateSlettetNavAnsatte(ctx.administratorer, DetaljerRequest::administratorer)
         ctx.arrangor?.let { validateArrangor(it) }
+        return amoKategorisering
     }
 
     fun resolveStatus(
@@ -478,4 +484,84 @@ object AvtaleValidator {
             FieldError.ofPointer("/navKontorer", "Du må velge minst én Nav-enhet")
         }
     }
+
+    @OptIn(ExperimentalContracts::class)
+    private fun ValidationDsl.validateAmoKategorisering(
+        tiltakskode: Tiltakskode,
+        amoKategorisering: AmoKategoriseringRequest?,
+    ): Either<List<FieldError>, AmoKategorisering?> = when (tiltakskode) {
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.AVKLARING,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_UTDANNING,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.OPPFOLGING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        ->
+            null
+
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
+            requireValid(amoKategorisering?.kurstype != null) {
+                FieldError.of(
+                    "Du må velge en kurstype",
+                    DetaljerRequest::amoKategorisering,
+                    AmoKategoriseringRequest::kurstype,
+                )
+            }
+            if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+                requireValid(amoKategorisering.bransje != null) {
+                    FieldError.of(
+                        "Du må velge en bransje",
+                        DetaljerRequest::amoKategorisering,
+                        AmoKategoriseringRequest::bransje,
+                    )
+                }
+            }
+            amoKategorisering
+        }
+
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
+            requireValid(amoKategorisering?.bransje != null) {
+                FieldError.of(
+                    "Du må velge en bransje",
+                    DetaljerRequest::amoKategorisering,
+                    AmoKategoriseringRequest::bransje,
+                )
+            }
+            amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET)
+        }
+
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
+            requireValid(amoKategorisering?.kurstype != null) {
+                FieldError.of(
+                    "Du må velge en kurstype",
+                    DetaljerRequest::amoKategorisering,
+                    AmoKategoriseringRequest::kurstype,
+                )
+            }
+            validate(
+                amoKategorisering.kurstype in listOf(
+                    AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                    AmoKurstype.NORSKOPPLAERING,
+                    AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                ),
+            ) {
+                FieldError.of(
+                    "Ugyldig kurstype",
+                    DetaljerRequest::amoKategorisering,
+                    AmoKategoriseringRequest::kurstype,
+                )
+            }
+            amoKategorisering
+        }
+
+        Tiltakskode.STUDIESPESIALISERING,
+        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+    }?.toDbo().right()
 }

@@ -144,9 +144,7 @@ export function AvtaleDetaljerForm() {
               {avtaletypeOptions}
             </Select>
           </HGrid>
-          {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
-            <AvtaleAmoKategoriseringForm />
-          ) : null}
+          <AvtaleAmoKategoriseringForm tiltakskode={tiltakskode} />
           {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
             <AvtaleUtdanningslopForm />
           ) : null}
