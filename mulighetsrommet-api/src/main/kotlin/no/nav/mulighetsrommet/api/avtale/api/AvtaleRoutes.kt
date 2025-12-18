@@ -43,7 +43,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -86,7 +86,7 @@ data class DetaljerRequest(
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
     val opsjonsmodell: Opsjonsmodell,
-    val amoKategorisering: AmoKategorisering?,
+    val amoKategorisering: AmoKategoriseringRequest?,
     val utdanningslop: UtdanningslopDbo?,
 ) {
     @Serializable

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -56,6 +57,7 @@ object GjennomforingDboMapper {
         status: GjennomforingStatusType,
         oppstartstype: GjennomforingOppstartstype,
         pameldingType: GjennomforingPameldingType,
+        amoKategorisering: AmoKategorisering?,
     ) = GjennomforingDbo(
         id = request.id,
         navn = request.navn,
@@ -84,7 +86,7 @@ object GjennomforingDboMapper {
         estimertVentetidVerdi = request.estimertVentetid?.verdi,
         estimertVentetidEnhet = request.estimertVentetid?.enhet,
         tilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato,
-        amoKategorisering = request.amoKategorisering,
+        amoKategorisering = amoKategorisering,
         utdanningslop = request.utdanningslop,
         pameldingType = pameldingType,
         prismodellId = request.prismodellId,

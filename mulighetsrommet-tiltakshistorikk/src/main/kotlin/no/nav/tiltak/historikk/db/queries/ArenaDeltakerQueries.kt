@@ -91,7 +91,7 @@ class ArenaDeltakerQueries(private val session: Session) {
                     arrangor_hovedenhet.navn as arrangor_hovedenhet_navn
                 from arena_deltaker deltaker
                     join arena_gjennomforing gjennomforing on gjennomforing.id = arena_gjennomforing_id
-                    join tiltakstype on tiltakstype.arena_tiltakskode = gjennomforing.arena_tiltakskode
+                    join tiltakstype on tiltakstype.tiltakstype_id = gjennomforing.tiltakstype_id
                     join virksomhet arrangor on gjennomforing.arrangor_organisasjonsnummer = arrangor.organisasjonsnummer
                     left join virksomhet arrangor_hovedenhet on arrangor.overordnet_enhet_organisasjonsnummer = arrangor_hovedenhet.organisasjonsnummer
                 where deltaker.norsk_ident = any(:identer)

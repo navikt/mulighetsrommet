@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.mapper
 
 import PersonvernDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
@@ -15,11 +14,16 @@ import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet
+import no.nav.mulighetsrommet.model.AmoKategorisering.ForberedendeOpplaeringForVoksne
+import no.nav.mulighetsrommet.model.AmoKategorisering.GrunnleggendeFerdigheter
+import no.nav.mulighetsrommet.model.AmoKategorisering.Norskopplaering
+import no.nav.mulighetsrommet.model.AmoKategorisering.Studiespesialisering
+import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
 object AvtaleDboMapper {
@@ -80,45 +84,6 @@ object AvtaleDboMapper {
         personvernDbo = personvernDbo,
         veilederinformasjonDbo = veilederinformasjonDbo,
     )
-
-    fun toAvtaleRequest(dbo: AvtaleDbo, arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
-        id = dbo.id,
-        detaljer = DetaljerRequest(
-            navn = dbo.detaljerDbo.navn,
-            sakarkivNummer = dbo.detaljerDbo.sakarkivNummer,
-            tiltakskode = tiltakskode,
-            arrangor = arrangor,
-            startDato = dbo.detaljerDbo.startDato,
-            sluttDato = dbo.detaljerDbo.sluttDato,
-            avtaletype = dbo.detaljerDbo.avtaletype,
-            administratorer = dbo.detaljerDbo.administratorer,
-            amoKategorisering = dbo.detaljerDbo.amoKategorisering,
-            opsjonsmodell = dbo.detaljerDbo.opsjonsmodell,
-            utdanningslop = dbo.detaljerDbo.utdanningslop,
-        ),
-
-        veilederinformasjon = VeilederinfoRequest(
-            navEnheter = dbo.veilederinformasjonDbo.navEnheter.toList(),
-            beskrivelse = dbo.veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
-            faneinnhold = dbo.veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold,
-        ),
-        personvern = PersonvernRequest(
-            personopplysninger = dbo.personvernDbo.personopplysninger,
-            personvernBekreftet = dbo.personvernDbo.personvernBekreftet,
-        ),
-        prismodell = PrismodellRequest(
-            id = dbo.prismodellDbo.id,
-            type = dbo.prismodellDbo.type,
-            prisbetingelser = dbo.prismodellDbo.prisbetingelser,
-            satser = (dbo.prismodellDbo.satser ?: listOf()).map {
-                AvtaltSatsRequest(
-                    pris = it.sats,
-                    valuta = "NOK",
-                    gjelderFra = it.gjelderFra,
-                )
-            },
-        ),
-    )
 }
 
 fun Prismodell.prisbetingelser(): String? = when (this) {
@@ -157,7 +122,12 @@ fun ArrangorDto.toDbo(kontaktpersoner: List<UUID>?): ArrangorDbo = ArrangorDbo(
     kontaktpersoner = kontaktpersoner ?: emptyList(),
 )
 
-fun DetaljerRequest.toDbo(tiltakstypeId: UUID, arrangorDbo: ArrangorDbo?, status: AvtaleStatusType): DetaljerDbo = DetaljerDbo(
+fun DetaljerRequest.toDbo(
+    tiltakstypeId: UUID,
+    arrangorDbo: ArrangorDbo?,
+    status: AvtaleStatusType,
+    amoKategorisering: AmoKategorisering?,
+): DetaljerDbo = DetaljerDbo(
     navn = navn,
     status = status,
     sakarkivNummer = sakarkivNummer,
@@ -184,3 +154,29 @@ fun VeilederinfoRequest.toDbo(): VeilederinformasjonDbo = VeilederinformasjonDbo
     ),
     navEnheter = navEnheter.toSet(),
 )
+
+fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {
+    return when (this.kurstype) {
+        AmoKurstype.BRANSJE_OG_YRKESRETTET -> BransjeOgYrkesrettet(
+            bransje = requireNotNull(this.bransje),
+            sertifiseringer = this.sertifiseringer ?: emptyList(),
+            innholdElementer = this.innholdElementer ?: emptyList(),
+            forerkort = this.forerkort ?: emptyList(),
+        )
+
+        AmoKurstype.NORSKOPPLAERING -> Norskopplaering(
+            norskprove = this.norskprove ?: false,
+            innholdElementer = this.innholdElementer ?: emptyList(),
+        )
+
+        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> GrunnleggendeFerdigheter(
+            innholdElementer = this.innholdElementer ?: emptyList(),
+        )
+
+        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne
+
+        AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
+
+        else -> throw IllegalArgumentException("Kurstype må være satt")
+    }
+}
