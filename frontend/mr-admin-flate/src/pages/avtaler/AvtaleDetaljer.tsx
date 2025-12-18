@@ -17,7 +17,7 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, HelpText, HStack, VStack } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link } from "react-router";
-import { AvtalePrismodell } from "@/components/avtaler/AvtalePrismodell";
+import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -159,7 +159,7 @@ export function AvtaleDetaljer() {
         {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
         <Separator />
-        <AvtalePrismodell avtale={avtale} />
+        <PrismodellDetaljer prismodell={avtale.prismodell} />
       </VStack>
       <VStack>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />

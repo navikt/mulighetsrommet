@@ -348,7 +348,7 @@ class GjennomforingQueries(private val session: Session) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "publisert" to publisert,
-            "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell_type", prismodeller) },
+            "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell", prismodeller) },
         )
 
         val order = when (sortering) {

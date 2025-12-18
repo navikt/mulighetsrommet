@@ -28,6 +28,7 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -214,6 +215,8 @@ export function GjennomforingDetaljer() {
           <Definisjonsliste title="Avtaledetaljer" definitions={avtaleMeta} />
           <Separator />
           <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />
+          <Separator />
+          <PrismodellDetaljer prismodell={gjennomforing.prismodell} />
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </VStack>

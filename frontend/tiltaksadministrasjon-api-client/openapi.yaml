@@ -4560,8 +4560,8 @@ components:
       - navn
       - oppmoteSted
       - oppstart
-      - prismodellId
       - pameldingType
+      - prismodellId
       - sluttDato
       - startDato
       - tilgjengeligForArrangorDato
@@ -4831,8 +4831,8 @@ components:
       - opphav
       - oppmoteSted
       - oppstart
-      - prismodell
       - pameldingType
+      - prismodell
       - publisert
       - sluttDato
       - startDato
