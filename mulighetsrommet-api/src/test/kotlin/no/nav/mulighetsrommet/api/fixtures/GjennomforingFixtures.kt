@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -37,6 +38,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         prismodellId = AvtaleFixtures.oppfolging.prismodellDbo.id,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
     val Oppfolging1Request = GjennomforingRequest(
@@ -68,6 +70,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         prismodellId = Oppfolging1.prismodellId,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
     val Oppfolging2 = GjennomforingDbo(
@@ -94,6 +97,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         prismodellId = AvtaleFixtures.oppfolging.prismodellDbo.id,
     )
 
@@ -122,6 +126,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         prismodellId = AvtaleFixtures.VTA.prismodellDbo.id,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
     val AFT1 = GjennomforingDbo(
@@ -148,6 +153,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         prismodellId = AvtaleFixtures.AFT.prismodellDbo.id,
     )
 
@@ -176,6 +182,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         prismodellId = AvtaleFixtures.jobbklubb.prismodellDbo.id,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
     val GruppeAmo1 = GjennomforingDbo(
@@ -202,6 +209,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         prismodellId = AvtaleFixtures.gruppeAmo.prismodellDbo.id,
     )
 
@@ -230,6 +238,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         prismodellId = AvtaleFixtures.gruppeFagYrke.prismodellDbo.id,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
     val ArbeidsrettetRehabilitering = GjennomforingDbo(
@@ -257,5 +266,6 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         prismodellId = AvtaleFixtures.ARR.prismodellDbo.id,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 }

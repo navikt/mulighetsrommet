@@ -12,14 +12,17 @@ import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetal
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { formatertVentetid, isKursTiltak } from "@/utils/Utils";
+import { formatertVentetid, kreverDeltidsprosent } from "@/utils/Utils";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { BodyShort, Heading, HelpText, HStack, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "react-router";
 import { GjennomforingPageLayout } from "./GjennomforingPageLayout";
-import { GjennomforingOppstartstype } from "@tiltaksadministrasjon/api-client";
+import {
+  GjennomforingOppstartstype,
+  GjennomforingPameldingType,
+} from "@tiltaksadministrasjon/api-client";
 import {
   Definisjonsliste,
   Definition,
@@ -39,6 +42,7 @@ export function GjennomforingDetaljer() {
     startDato,
     sluttDato,
     oppstart,
+    pameldingType,
     antallPlasser,
     deltidsprosent,
     apentForPamelding,
@@ -111,9 +115,16 @@ export function GjennomforingDetaljer() {
       key: gjennomforingTekster.oppstartstypeLabel,
       value: oppstart === GjennomforingOppstartstype.FELLES ? "Felles" : "Løpende oppstart",
     },
+    {
+      key: gjennomforingTekster.pameldingTypeLabel,
+      value:
+        pameldingType === GjennomforingPameldingType.DIREKTE_VEDTAK
+          ? "Veileder fatter vedtaket direkte ved påmeldingen i Modia"
+          : "Vedtaket fattes i Tiltaksadministrasjon etter at deltakeren er søkt inn fra Modia",
+    },
     { key: gjennomforingTekster.antallPlasserLabel, value: antallPlasser },
 
-    ...(isKursTiltak(tiltakstype.tiltakskode)
+    ...(kreverDeltidsprosent(tiltakstype.tiltakskode)
       ? [{ key: gjennomforingTekster.deltidsprosentLabel, value: deltidsprosent }]
       : []),
     ...(gjennomforing.estimertVentetid

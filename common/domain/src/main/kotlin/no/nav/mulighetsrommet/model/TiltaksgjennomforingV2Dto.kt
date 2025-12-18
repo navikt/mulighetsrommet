@@ -44,6 +44,7 @@ sealed class TiltaksgjennomforingV2Dto {
         val sluttDato: LocalDate?,
         val status: GjennomforingStatusType,
         val oppstart: GjennomforingOppstartstype,
+        val pameldingType: GjennomforingPameldingType? = null,
         @Serializable(with = LocalDateSerializer::class)
         val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
         val apentForPamelding: Boolean,

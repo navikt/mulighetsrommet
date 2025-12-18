@@ -132,6 +132,7 @@ class GjennomforingService(
                     arrangorId = it.arrangor.id,
                     status = it.status.type,
                     sluttDato = it.sluttDato,
+                    pameldingType = it.pameldingType,
                 )
             },
             avtale = avtale,

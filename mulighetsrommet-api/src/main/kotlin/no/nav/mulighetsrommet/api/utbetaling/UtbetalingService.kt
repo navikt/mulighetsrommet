@@ -426,7 +426,7 @@ class UtbetalingService(
     private fun TransactionalQueryContext.oppdaterUtbetalingForUtbetaltDelutbetaling(
         utbetalingId: UUID,
     ) {
-        val utbetaling = queries.utbetaling.getOrError(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
         val delutbetalinger = queries.delutbetaling.getByUtbetalingId(utbetaling.id)
 
         val oppdatertUtbetalingStatus = when {

@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
-
 @Serializable
 data class PrismodellDto(
     @Serializable(with = UUIDSerializer::class)

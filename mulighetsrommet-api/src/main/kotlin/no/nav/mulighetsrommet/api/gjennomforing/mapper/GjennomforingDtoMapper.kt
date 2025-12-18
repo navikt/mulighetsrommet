@@ -37,6 +37,7 @@ object GjennomforingDtoMapper {
         utdanningslop = gjennomforing.utdanningslop,
         stengt = gjennomforing.stengt,
         prismodell = fromPrismodell(gjennomforing.prismodell, gjennomforing.tiltakstype.tiltakskode),
+        pameldingType = gjennomforing.pameldingType,
     )
 
     fun fromGjennomforingStatus(status: GjennomforingStatus): GjennomforingDto.Status {

@@ -4457,6 +4457,11 @@ components:
       required:
       - enhet
       - verdi
+    GjennomforingPameldingType:
+      type: string
+      enum:
+      - DIREKTE_VEDTAK
+      - TRENGER_GODKJENNING
     GjennomforingRequest:
       type: object
       properties:
@@ -4507,7 +4512,9 @@ components:
           items:
             type: string
         oppstart:
-          $ref: "#/components/schemas/GjennomforingOppstartstype"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingOppstartstype"
         oppmoteSted:
           type:
           - "null"
@@ -4535,6 +4542,10 @@ components:
         prismodellId:
           type: string
           format: uuid
+        pameldingType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
       - administratorer
       - amoKategorisering
@@ -4550,6 +4561,7 @@ components:
       - oppmoteSted
       - oppstart
       - prismodellId
+      - pameldingType
       - sluttDato
       - startDato
       - tilgjengeligForArrangorDato
@@ -4797,6 +4809,8 @@ components:
             $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
         prismodell:
           $ref: "#/components/schemas/PrismodellDto"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
       required:
       - administratorer
       - amoKategorisering
@@ -4818,6 +4832,7 @@ components:
       - oppmoteSted
       - oppstart
       - prismodell
+      - pameldingType
       - publisert
       - sluttDato
       - startDato

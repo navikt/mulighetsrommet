@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -80,6 +81,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
             oppmoteSted = null,
+            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
 
         producer.consume(AFT1.id.toString(), Json.encodeToJsonElement(gjennomforing))

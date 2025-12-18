@@ -7,6 +7,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import java.time.LocalDate
 import java.util.UUID
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 
 object GjennomforingDboMapper {
     fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDbo(
@@ -42,6 +44,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato,
         amoKategorisering = gjennomforing.amoKategorisering,
         utdanningslop = gjennomforing.utdanningslop?.toDbo(),
+        pameldingType = gjennomforing.pameldingType,
         prismodellId = gjennomforing.prismodell.id,
     )
 
@@ -51,6 +54,8 @@ object GjennomforingDboMapper {
         antallPlasser: Int,
         arrangorId: UUID,
         status: GjennomforingStatusType,
+        oppstartstype: GjennomforingOppstartstype,
+        pameldingType: GjennomforingPameldingType,
     ) = GjennomforingDbo(
         id = request.id,
         navn = request.navn,
@@ -65,7 +70,7 @@ object GjennomforingDboMapper {
         administratorer = request.administratorer,
         navEnheter =
         (request.veilederinformasjon.navRegioner + request.veilederinformasjon.navKontorer + request.veilederinformasjon.navAndreEnheter).toSet(),
-        oppstart = request.oppstart,
+        oppstart = oppstartstype,
         kontaktpersoner = request.kontaktpersoner.map {
             GjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,
@@ -81,6 +86,7 @@ object GjennomforingDboMapper {
         tilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato,
         amoKategorisering = request.amoKategorisering,
         utdanningslop = request.utdanningslop,
+        pameldingType = pameldingType,
         prismodellId = request.prismodellId,
     )
 }

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltakskoder
@@ -48,6 +49,7 @@ object GjennomforingValidator {
             val status: GjennomforingStatusType,
             val sluttDato: LocalDate?,
             val oppstart: GjennomforingOppstartstype,
+            val pameldingType: GjennomforingPameldingType,
         )
     }
 
@@ -101,8 +103,35 @@ object GjennomforingValidator {
                 EstimertVentetid::verdi,
             )
         }
-        if (Tiltakskoder.isKursTiltak(ctx.avtale.tiltakstype.tiltakskode)) {
-            validateKursTiltak(next)
+        if (Tiltakskoder.kreverDeltidsprosent(ctx.avtale.tiltakstype.tiltakskode)) {
+            validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
+                FieldError.of(
+                    "Du må velge en deltidsprosent mellom 0 og 100",
+                    GjennomforingRequest::deltidsprosent,
+                )
+            }
+        }
+        validateNotNull(request.oppstart) {
+            FieldError.of(
+                "Oppstartstype må være satt",
+                GjennomforingRequest::oppstart,
+            )
+        }
+        validateNotNull(request.pameldingType) {
+            FieldError.of(
+                "Påmeldingstype må være satt",
+                GjennomforingRequest::pameldingType,
+            )
+        }
+        if (Tiltakskoder.kanEndreOppstartOgPamelding(ctx.avtale.tiltakstype.tiltakskode)) {
+            if (request.oppstart == GjennomforingOppstartstype.FELLES) {
+                validate(request.pameldingType == GjennomforingPameldingType.TRENGER_GODKJENNING) {
+                    FieldError.of(
+                        "Påmeldingstype kan ikke være “direkte vedtak” hvis oppstartstype er felles",
+                        GjennomforingRequest::pameldingType,
+                    )
+                }
+            }
         } else {
             validate(next.oppstart != GjennomforingOppstartstype.FELLES) {
                 FieldError.of(
@@ -141,13 +170,15 @@ object GjennomforingValidator {
             validateUpdateGjennomforing(next, ctx.previous, ctx.avtale, ctx.antallDeltakere)
         }
 
-        requireValid(next.antallPlasser != null && next.startDato != null)
+        requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
             next,
             startDato = next.startDato,
             antallPlasser = next.antallPlasser,
             arrangorId = ctx.arrangor.id,
             ctx.status,
+            oppstartstype = request.oppstart,
+            pameldingType = request.pameldingType,
         )
     }
 
@@ -394,13 +425,10 @@ object GjennomforingValidator {
                 GjennomforingRequest::oppstart,
             )
         }
-    }
-
-    private fun ValidationDsl.validateKursTiltak(request: GjennomforingRequest) {
-        validate(request.deltidsprosent > 0 && request.deltidsprosent <= 100) {
+        validate(antallDeltakere <= 0 || gjennomforing.pameldingType == previous.pameldingType) {
             FieldError.of(
-                "Du må velge en deltidsprosent mellom 0 og 100",
-                GjennomforingRequest::deltidsprosent,
+                "Påmeldingstype kan ikke endres fordi det er deltakere koblet til gjennomføringen",
+                GjennomforingRequest::pameldingType,
             )
         }
     }
