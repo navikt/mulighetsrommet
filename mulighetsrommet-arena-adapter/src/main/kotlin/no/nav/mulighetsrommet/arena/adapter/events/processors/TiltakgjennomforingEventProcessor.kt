@@ -102,7 +102,10 @@ class TiltakgjennomforingEventProcessor(
         }
 
         if (erTiltakRelevantForTiltakshistorikk(status, data)) {
-            val gjennomforing = data.toTiltakshistorikk(tiltaksgjennomforing.id, virksomhetsnummer)
+            val tiltakstypeMapping = entities
+                .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+                .bind()
+            val gjennomforing = data.toTiltakshistorikk(tiltaksgjennomforing.id, tiltakstypeMapping.entityId, virksomhetsnummer)
             status = upsertTiltaksgjennomforingToTiltakshistorikk(event.operation, gjennomforing).bind()
         }
 
@@ -130,7 +133,7 @@ class TiltakgjennomforingEventProcessor(
         status: ArenaEntityMapping.Status,
         data: ArenaTiltaksgjennomforing,
     ): Boolean {
-        // TODO: slutte å sende opplæring-enkeltplasser når komet får delt disse deltakelsene i prod
+        // TODO: slutte å sende opplæring-enkeltplasser når komet får delt disse deltakelsene i prod (via kafka)
         return status == Handled && !Tiltakskoder.isGruppetiltak(data.TILTAKSKODE)
     }
 
@@ -216,10 +219,11 @@ class TiltakgjennomforingEventProcessor(
         deltidsprosent = deltidsprosent,
     )
 
-    private fun ArenaTiltaksgjennomforing.toTiltakshistorikk(id: UUID, virksomhetsnummer: String) = TiltakshistorikkArenaGjennomforing(
+    private fun ArenaTiltaksgjennomforing.toTiltakshistorikk(id: UUID, tiltaktypeId: UUID, virksomhetsnummer: String) = TiltakshistorikkArenaGjennomforing(
         id = id,
         navn = requireNotNull(LOKALTNAVN),
         arenaTiltakskode = TILTAKSKODE,
+        tiltakstypeId = tiltaktypeId,
         arenaRegDato = ArenaUtils.parseTimestamp(REG_DATO),
         arenaModDato = ArenaUtils.parseTimestamp(MOD_DATO),
         arrangorOrganisasjonsnummer = Organisasjonsnummer(virksomhetsnummer),

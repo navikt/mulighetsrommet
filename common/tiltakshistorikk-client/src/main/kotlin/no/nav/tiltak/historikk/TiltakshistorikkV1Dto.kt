@@ -217,6 +217,8 @@ data class TiltakshistorikkArenaGjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val arenaTiltakskode: String,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
     @Serializable(with = LocalDateTimeSerializer::class)
     val arenaRegDato: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)

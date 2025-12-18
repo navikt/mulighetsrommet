@@ -8,7 +8,6 @@ import io.ktor.http.headersOf
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
@@ -28,7 +27,6 @@ val ApplicationConfigLocal = AppConfig(
         jdbcUrl = "jdbc:postgresql://localhost:5442/mr-tiltakshistorikk?user=valp&password=valp",
         maximumPoolSize = 10,
     ),
-    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = AuthConfig(
         azure = AuthProvider(
             issuer = "http://localhost:8081/azure",
