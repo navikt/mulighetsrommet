@@ -45,7 +45,6 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleQueries(private val session: Session) {
-
     fun upsert(avtale: AvtaleDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
@@ -274,6 +273,7 @@ class AvtaleQueries(private val session: Session) {
         }
     }
 
+    context(session: Session)
     fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) {
         @Language("PostgreSQL")
         val query = """
@@ -292,6 +292,12 @@ class AvtaleQueries(private val session: Session) {
                 status = :status::avtale_status
              where id = :id::uuid
         """.trimIndent()
+
+        AmoKategoriseringQueries.upsert(
+            AmoKategoriseringQueries.Relation.AVTALE,
+            id,
+            detaljer.amoKategorisering,
+        )
 
         session.execute(queryOf(query, detaljer.params(id)))
     }
@@ -530,17 +536,6 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         execute(queryOf(query, kontaktpersonId, avtaleId))
-    }
-
-    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select avtale_id
-            from avtale_administrator
-            where nav_ident = ?
-        """.trimIndent()
-
-        return list(queryOf(query, navIdent.value)) { it.uuid("avtale_id") }
     }
 
     fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
