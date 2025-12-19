@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.teamLogs.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
-import org.slf4j.MarkerFactory
 
 class VeilarbdialogClient(
     private val baseUrl: String,
@@ -58,7 +57,7 @@ class VeilarbdialogClient(
             )
             log.teamLogsError(
                 "Klarte ikke sende melding til dialogen for bruker ${requestBody.fnr.value}",
-                response.bodyAsText()
+                response.bodyAsText(),
             )
             log.error("Klarte ikke sende melding til dialogen. Se detaljer i Team Logs.")
             VeilarbdialogError.Error.left()

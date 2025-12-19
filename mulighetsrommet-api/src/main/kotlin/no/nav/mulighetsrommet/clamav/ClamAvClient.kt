@@ -10,7 +10,6 @@ import io.ktor.http.HttpHeaders
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.teamLogs.teamLogsError
 import no.nav.mulighetsrommet.teamLogs.teamLogsInfo
 import org.slf4j.LoggerFactory
 
