@@ -60,7 +60,7 @@ class VeilarbdialogClient(
                 "Klarte ikke sende melding til dialogen for bruker ${requestBody.fnr.value}",
                 response.bodyAsText()
             )
-            log.error("Klarte ikke sende melding til dialogen. Se detaljer i team logs.")
+            log.error("Klarte ikke sende melding til dialogen. Se detaljer i Team Logs.")
             VeilarbdialogError.Error.left()
         }
     }

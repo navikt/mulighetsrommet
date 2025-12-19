@@ -62,7 +62,7 @@ class HentAdressebeskyttetPersonBolkPdlQuery(
                             }
 
                             else -> {
-                                log.error("Response med ${it.code} fra pdl. Se secure logs for detaljer.")
+                                log.error("Response med ${it.code} fra pdl. Se Team Logs for detaljer.")
                                 SecureLog.logger.error("Response med ${it.code} fra pdl for ident=${it.ident}")
                                 log.teamLogsError("Response med ${it.code} fra pdl for ident=${it.ident}")
                                 null

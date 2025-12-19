@@ -79,7 +79,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
                         gradering = person.adressebeskyttelse.tilGradering(),
                     )
                 } else {
-                    log.error("Response med ${it.code} fra pdl ved henting av person. Se secure logs for detaljer.")
+                    log.error("Response med ${it.code} fra pdl ved henting av person. Se Team Logs for detaljer.")
                     SecureLog.logger.error("Response med ${it.code} fra pdl ved henting av person for ident=${it.ident}")
                     log.teamLogsError("Response med ${it.code} fra pdl ved henting av person for ident=${it.ident}")
                     null
@@ -92,7 +92,7 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
 
                 PdlIdent(it.ident) to geografiskTilknytning
             } else {
-                log.error("Response med ${it.code} fra pdl ved henting av geografisk tilknytning. Se secure logs for detaljer.")
+                log.error("Response med ${it.code} fra pdl ved henting av geografisk tilknytning. Se Team Logs for detaljer.")
                 SecureLog.logger.error("Response med ${it.code} fra pdl ved henting av geografisk tilknytning for ident=${it.ident}")
                 log.teamLogsError("Response med ${it.code} fra pdl ved henting av geografisk tilknytning for ident=${it.ident}")
                 null

@@ -36,7 +36,7 @@ fun Application.configureStatusPages() {
         SecureLog.logger.error(errorMessage, cause)
         log.teamLogsError(errorMessage, cause)
 
-        val summary = "$errorMessage (se stacktrace i Securelogs)"
+        val summary = "$errorMessage (se stacktrace i Team Logs)"
         when (statusCode.value) {
             in 500..599 -> log.error(summary)
             in 400..499 -> log.warn(summary)
