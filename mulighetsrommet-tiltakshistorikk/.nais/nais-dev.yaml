@@ -84,8 +84,6 @@ spec:
       rules:
         - application: tiltak-datadeling
           namespace: team-tiltak
-        - application: logging
-          namespace: nais-system
       external:
         - host: data.brreg.no
   env:
