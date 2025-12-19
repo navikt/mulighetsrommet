@@ -9,9 +9,6 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="secureLogger" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT"/>
-    </logger>
     <logger name="io.netty" level="WARN"/>
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="com.github.kagkarlsson.scheduler" level="WARN"/>

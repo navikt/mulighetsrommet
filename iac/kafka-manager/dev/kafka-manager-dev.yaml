@@ -32,8 +32,6 @@ spec:
     requests:
       cpu: 1m
       memory: 512Mi
-  secureLogs:
-    enabled: true
   kafka:
     pool: nav-dev
   azure:

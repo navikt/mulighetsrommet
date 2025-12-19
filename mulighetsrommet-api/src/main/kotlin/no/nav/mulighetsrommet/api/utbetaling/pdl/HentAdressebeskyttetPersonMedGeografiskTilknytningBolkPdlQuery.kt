@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.pdl.tilGradering
 import no.nav.mulighetsrommet.api.clients.pdl.tilNavn
 import no.nav.mulighetsrommet.api.clients.pdl.toGeografiskTilknytning
-import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -80,7 +79,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
                     )
                 } else {
                     log.error("Response med ${it.code} fra pdl ved henting av person. Se Team Logs for detaljer.")
-                    SecureLog.logger.error("Response med ${it.code} fra pdl ved henting av person for ident=${it.ident}")
                     log.teamLogsError("Response med ${it.code} fra pdl ved henting av person for ident=${it.ident}")
                     null
                 }
@@ -93,7 +91,6 @@ class HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(
                 PdlIdent(it.ident) to geografiskTilknytning
             } else {
                 log.error("Response med ${it.code} fra pdl ved henting av geografisk tilknytning. Se Team Logs for detaljer.")
-                SecureLog.logger.error("Response med ${it.code} fra pdl ved henting av geografisk tilknytning for ident=${it.ident}")
                 log.teamLogsError("Response med ${it.code} fra pdl ved henting av geografisk tilknytning for ident=${it.ident}")
                 null
             }
