@@ -12,6 +12,8 @@ data class AarsakerOgForklaringRequest<T>(
     val forklaring: String?,
 )
 
+const val FORKLARING_MAX_LENGTH = 500
+
 fun <T> validateAarsakerOgForklaring(
     aarsaker: List<T>,
     forklaring: String?,
@@ -20,8 +22,8 @@ fun <T> validateAarsakerOgForklaring(
         if ("ANNET" in aarsaker.map { it.toString() } && forklaring.isNullOrBlank()) {
             add(FieldError.ofPointer("/aarsaker", "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
         }
-        if (forklaring != null && forklaring.length > 100) {
-            add(FieldError.ofPointer("/forklaring", "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+        if (forklaring != null && forklaring.length > FORKLARING_MAX_LENGTH) {
+            add(FieldError.ofPointer("/forklaring", "Beskrivelse kan ikke inneholde mer enn $FORKLARING_MAX_LENGTH tegn"))
         }
         if (aarsaker.isEmpty()) {
             add(FieldError.ofPointer("/aarsaker", "Du må velge minst én årsak"))

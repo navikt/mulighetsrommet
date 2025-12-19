@@ -481,7 +481,6 @@ export function TilsagnDetaljer() {
               aarsaker,
               forklaring,
             });
-            setAvvisModalOpen(false);
           }}
         />
         <AarsakerOgForklaringModal<TilsagnStatusAarsak>

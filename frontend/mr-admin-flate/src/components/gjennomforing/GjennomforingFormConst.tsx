@@ -2,7 +2,6 @@ import { kanEndreOppstartOgPamelding } from "@/utils/Utils";
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
   AvtaleDto,
-  GjennomforingArrangorKontaktperson,
   GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
@@ -103,10 +102,7 @@ export function defaultGjennomforingData(
     arrangorId: defaultArrangor(avtale, gjennomforing),
     oppstart,
     kontaktpersoner: gjennomforing?.kontaktpersoner ?? [],
-    arrangorKontaktpersoner:
-      gjennomforing?.arrangor?.kontaktpersoner.map(
-        (p: GjennomforingArrangorKontaktperson) => p.id,
-      ) ?? [],
+    arrangorKontaktpersoner: gjennomforing?.arrangor?.kontaktpersoner.map((p) => p.id) ?? [],
     veilederinformasjon: {
       navRegioner: defaultNavRegion(avtale, gjennomforing),
       navKontorer: navKontorEnheter.map((enhet) => enhet.enhetsnummer),
