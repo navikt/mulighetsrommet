@@ -96,7 +96,7 @@ sealed class AmoKategorisering {
 
 @Serializable
 data class AmoKategoriseringRequest(
-    val kurstype: AmoKurstype?,
+    val kurstype: AmoKurstype? = null,
     val bransje: AmoKategorisering.BransjeOgYrkesrettet.Bransje? = null,
     val sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>? = null,
     val forerkort: List<AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse>? = null,
