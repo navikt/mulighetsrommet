@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -32,7 +33,6 @@ import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
