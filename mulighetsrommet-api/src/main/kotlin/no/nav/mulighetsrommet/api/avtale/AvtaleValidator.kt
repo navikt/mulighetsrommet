@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -32,7 +33,6 @@ import no.nav.mulighetsrommet.api.validation.ValidationDsl
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
@@ -273,19 +274,8 @@ object AvtaleValidator {
             }
         }
         val amoKategorisering = validateAmoKategorisering(request.tiltakskode, request.amoKategorisering)
+        validateUtdanningslop(request.tiltakskode, request.utdanningslop)
 
-        if (request.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-            val utdanninger = request.utdanningslop
-            validateNotNull(utdanninger) {
-                FieldError.of(
-                    "Du må velge et utdanningsprogram og minst ett lærefag",
-                    DetaljerRequest::utdanningslop,
-                )
-            }
-            validate(utdanninger == null || utdanninger.utdanninger.isNotEmpty()) {
-                FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
-            }
-        }
         validateSlettetNavAnsatte(ctx.administratorer, DetaljerRequest::administratorer)
         ctx.arrangor?.let { validateArrangor(it) }
         return amoKategorisering
@@ -564,4 +554,40 @@ object AvtaleValidator {
         Tiltakskode.STUDIESPESIALISERING,
         -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
     }?.toDbo().right()
+
+    private fun ValidationDsl.validateUtdanningslop(
+        tiltakskode: Tiltakskode,
+        utdanningslop: UtdanningslopDbo?,
+    ): Either<List<FieldError>, Unit> = when (tiltakskode) {
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        Tiltakskode.AVKLARING,
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.HOYERE_UTDANNING,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.OPPFOLGING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        Tiltakskode.STUDIESPESIALISERING,
+        -> Unit
+
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        -> {
+            validateNotNull(utdanningslop) {
+                FieldError.of(
+                    "Du må velge et utdanningsprogram og minst ett lærefag",
+                    DetaljerRequest::utdanningslop,
+                )
+            }
+            validate(utdanningslop == null || utdanningslop.utdanninger.isNotEmpty()) {
+                FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
+            }
+        }
+    }.right()
 }
