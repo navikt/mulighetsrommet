@@ -38,19 +38,6 @@
         </filter>
     </appender>
 
-    <!-- TODO: Fjern når team-logs er på plass -->
-    <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/secure-logs/secure.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>/secure-logs/secure.log.%i</fileNamePattern>
-            <minIndex>1</minIndex>
-            <maxIndex>1</maxIndex>
-        </rollingPolicy>
-        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-            <maxFileSize>50MB</maxFileSize>
-        </triggeringPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-    </appender>
 
     <!-- Audit logging -->
     <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
@@ -59,11 +46,6 @@
         <appender-ref ref="stdout_json"/>
         <appender-ref ref="team-logs"/>
     </root>
-
-    <!-- TODO: Fjern når team-logs er på plass -->
-    <logger name="secureLogger" level="INFO" additivity="false">
-        <appender-ref ref="secureLog"/>
-    </logger>
 
     <logger name="team-logs-logger" level="INFO" additivity="false">
         <appender-ref ref="team-logs"/>

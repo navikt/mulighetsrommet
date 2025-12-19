@@ -38,8 +38,6 @@ spec:
       destinations:
         - id: elastic
         - id: loki
-  secureLogs:
-    enabled: true
   prometheus:
     enabled: true
     path: /internal/prometheus

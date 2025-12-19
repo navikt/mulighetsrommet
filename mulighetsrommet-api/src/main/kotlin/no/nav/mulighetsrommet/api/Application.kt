@@ -34,7 +34,6 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrics
-import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.teamLogsError
 import org.koin.ktor.ext.inject
 import kotlin.time.Duration.Companion.seconds
@@ -118,7 +117,6 @@ fun Application.logException(statusCode: HttpStatusCode, cause: Throwable, call:
     val requestDetails = "${call.request.httpMethod.value} ${call.request.path()}"
     val errorMessage = "$statusDetails on $requestDetails: ${cause.message}"
 
-    SecureLog.logger.error(errorMessage, cause)
     log.teamLogsError(errorMessage, cause)
 
     val summary = "$errorMessage (se stacktrace i Team Logs)"

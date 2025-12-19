@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.teamLogsError
@@ -62,7 +61,6 @@ class AmtDeltakerClient(
 
             else -> {
                 val bodyAsText = response.bodyAsText()
-                SecureLog.logger.error("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
                 logger.teamLogsError("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
                 AmtDeltakerError.Error.left()
             }
@@ -103,7 +101,6 @@ class AmtDeltakerClient(
 
             else -> {
                 val bodyAsText = response.bodyAsText()
-                SecureLog.logger.error("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")
                 logger.teamLogsError("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")
                 AmtDeltakerError.Error.left()
             }
