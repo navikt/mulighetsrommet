@@ -34,7 +34,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 ) {
     companion object {
         fun from(
-            gjennomforing: Gjennomforing,
+            gjennomforing: GjennomforingGruppetiltak,
             arenaId: Int?,
         ): ArenaMigreringTiltaksgjennomforingDto {
             val enhetsnummer = if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {

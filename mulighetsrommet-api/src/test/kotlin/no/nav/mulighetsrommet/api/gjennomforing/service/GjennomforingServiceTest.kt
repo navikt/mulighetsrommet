@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -18,6 +19,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -25,10 +27,12 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sagene
+import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV1Dto
@@ -50,6 +54,11 @@ class GjennomforingServiceTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(Innlandet, Oslo, Sagene, Gjovik),
+        arrangorer = listOf(
+            ArrangorFixtures.hovedenhet,
+            ArrangorFixtures.underenhet1,
+            ArrangorFixtures.underenhet2,
+        ),
     )
 
     beforeEach {
@@ -99,6 +108,30 @@ class GjennomforingServiceTest : FunSpec({
                     deserialized.id shouldBe gjennomforing.id
                 }
             }
+        }
+
+        test("navn på tiltak og arrangør blir tilgjengelig via fritekstsøk") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1Request.copy(navn = "Veldig rart navn")
+
+            service.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
+
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = "merkelig"),
+            ).data.shouldBeEmpty()
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = "rart"),
+            ).data.shouldHaveSize(1)
+
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = ArrangorFixtures.hovedenhet.navn),
+            ).data.shouldBeEmpty()
+            service.getAll(
+                Pagination.all(),
+                AdminTiltaksgjennomforingFilter(search = ArrangorFixtures.underenhet1.navn),
+            ).data.shouldHaveSize(1)
         }
 
         test("navEnheter uten fylke blir filtrert vekk") {

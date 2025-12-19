@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingStatus
 import no.nav.mulighetsrommet.model.DataElement
 
 object GjennomforingDtoMapper {
-    fun fromGjennomforing(gjennomforing: Gjennomforing) = GjennomforingDto(
+    fun fromGjennomforing(gjennomforing: GjennomforingGruppetiltak) = GjennomforingDto(
         id = gjennomforing.id,
         tiltakstype = gjennomforing.tiltakstype,
         navn = gjennomforing.navn,

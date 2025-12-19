@@ -1,43 +1,41 @@
 -- ${flyway:timestamp}
 
-drop view if exists view_gjennomforing;
+drop view if exists view_gjennomforing_gruppetiltak;
 
-create view view_gjennomforing as
+create view view_gjennomforing_gruppetiltak as
 select gjennomforing.id,
-       gjennomforing.created_at            as opprettet_tidspunkt,
-       gjennomforing.updated_at            as oppdatert_tidspunkt,
-       gjennomforing.fts,
+       gjennomforing.opphav,
+       gjennomforing.lopenummer,
+       gjennomforing.arena_tiltaksnummer,
+       gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
+       arena_nav_enhet.navn                as arena_nav_enhet_navn,
        gjennomforing.navn,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
-       gjennomforing.apent_for_pamelding,
+       gjennomforing.status,
+       gjennomforing.avbrutt_aarsaker,
+       gjennomforing.avbrutt_forklaring,
+       gjennomforing.avsluttet_tidspunkt,
+       gjennomforing.deltidsprosent,
        gjennomforing.antall_plasser,
-       gjennomforing.avtale_id,
+       gjennomforing.fts,
+       gjennomforing.created_at            as opprettet_tidspunkt,
+       gjennomforing.updated_at            as oppdatert_tidspunkt,
+       gjennomforing.apent_for_pamelding,
        gjennomforing.oppstart,
-       gjennomforing.opphav,
+       gjennomforing.pamelding_type,
        gjennomforing.beskrivelse,
        gjennomforing.faneinnhold,
-       gjennomforing.deltidsprosent,
        gjennomforing.estimert_ventetid_verdi,
        gjennomforing.estimert_ventetid_enhet,
        gjennomforing.oppmote_sted,
        gjennomforing.publisert,
-       gjennomforing.lopenummer,
-       gjennomforing.avbrutt_aarsaker,
-       gjennomforing.avbrutt_forklaring,
-       gjennomforing.arena_tiltaksnummer,
-       gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
-       arena_nav_enhet.navn                as arena_nav_enhet_navn,
-       gjennomforing.avsluttet_tidspunkt,
        gjennomforing.tilgjengelig_for_arrangor_dato,
-       gjennomforing.status,
-       gjennomforing.prismodell_id,
-       gjennomforing.pamelding_type,
-       nav_kontaktpersoner_json,
-       administratorer_json,
-       koordinator_json,
-       nav_enheter_json,
-       amo_kategorisering_json,
+       gjennomforing.avtale_id,
+       avtale_prismodell.id                as prismodell_id,
+       avtale_prismodell.prismodell_type   as prismodell_type,
+       avtale_prismodell.satser            as satser_json,
+       avtale_prismodell.prisbetingelser   as prisbetingelser,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
@@ -46,16 +44,17 @@ select gjennomforing.id,
        arrangor.navn                       as arrangor_navn,
        arrangor.slettet_dato is not null   as arrangor_slettet,
        arrangor_kontaktpersoner_json,
+       nav_kontaktpersoner_json,
+       administratorer_json,
+       koordinator_json,
+       nav_enheter_json,
+       amo_kategorisering_json,
        utdanningslop_json,
-       stengt_perioder_json,
-       avtale_prismodell.prismodell_type   as prismodell_type,
-       avtale_prismodell.satser            as satser_json,
-       avtale_prismodell.prisbetingelser   as prisbetingelser
+       stengt_perioder_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         left join avtale on avtale.id = gjennomforing.avtale_id
-         left join avtale_prismodell on avtale_prismodell.id = gjennomforing.prismodell_id
          join arrangor on arrangor.id = gjennomforing.arrangor_id
+         left join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
          left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
@@ -158,5 +157,6 @@ from gjennomforing
                                            ) order by periode
                                    ) as stengt_perioder_json
                             from gjennomforing_stengt_hos_arrangor
-                            where gjennomforing_id = gjennomforing.id) on true;
+                            where gjennomforing_id = gjennomforing.id) on true
+where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'
 

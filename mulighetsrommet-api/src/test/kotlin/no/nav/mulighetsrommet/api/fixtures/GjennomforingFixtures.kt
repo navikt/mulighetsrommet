@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.EstimertVentetid
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingFixtures {
-    val Oppfolging1 = GjennomforingDbo(
+    val Oppfolging1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -73,7 +73,7 @@ object GjennomforingFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
-    val Oppfolging2 = GjennomforingDbo(
+    val Oppfolging2 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Oppfølging 2",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -101,7 +101,7 @@ object GjennomforingFixtures {
         prismodellId = AvtaleFixtures.oppfolging.prismodellDbo.id,
     )
 
-    val VTA1 = GjennomforingDbo(
+    val VTA1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",
         tiltakstypeId = TiltakstypeFixtures.VTA.id,
@@ -129,7 +129,7 @@ object GjennomforingFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
-    val AFT1 = GjennomforingDbo(
+    val AFT1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "AFT 1",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -157,7 +157,7 @@ object GjennomforingFixtures {
         prismodellId = AvtaleFixtures.AFT.prismodellDbo.id,
     )
 
-    val Jobbklubb1 = GjennomforingDbo(
+    val Jobbklubb1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Jobbklubb 1",
         tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
@@ -185,7 +185,7 @@ object GjennomforingFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
-    val GruppeAmo1 = GjennomforingDbo(
+    val GruppeAmo1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
@@ -213,7 +213,7 @@ object GjennomforingFixtures {
         prismodellId = AvtaleFixtures.gruppeAmo.prismodellDbo.id,
     )
 
-    val GruppeFagYrke1 = GjennomforingDbo(
+    val GruppeFagYrke1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Fag- og yrkesopplæring 1",
         tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
@@ -241,7 +241,7 @@ object GjennomforingFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
-    val ArbeidsrettetRehabilitering = GjennomforingDbo(
+    val ArbeidsrettetRehabilitering = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Arbeidsretter Rehabilitering 1",
         tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,

@@ -51,10 +51,10 @@ class UpdateGjennomforingStatus(
         @Language("PostgreSQL")
         val query = """
             select id
-            from gjennomforing
+            from view_gjennomforing_gruppetiltak
             where status = 'GJENNOMFORES'
               and slutt_dato < :slutt_dato_lt
-            order by created_at
+            order by opprettet_tidspunkt
         """.trimIndent()
 
         val params = mapOf(
