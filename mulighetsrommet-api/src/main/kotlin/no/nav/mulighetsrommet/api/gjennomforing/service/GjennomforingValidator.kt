@@ -148,9 +148,7 @@ object GjennomforingValidator {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingRequest::arrangorId)
         }
 
-        if (ctx.avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-            validateGruppeFagOgYrke(next.utdanningslop, ctx.avtale)
-        }
+        validateUtdanningslop(ctx.avtale.tiltakstype.tiltakskode, next.utdanningslop, ctx.avtale)
         validateNavEnheter(next.veilederinformasjon, ctx.avtale)
         validateSlettetNavAnsatte(ctx.kontaktpersoner, GjennomforingRequest::kontaktpersoner)
         validateSlettetNavAnsatte(ctx.administratorer, GjennomforingRequest::administratorer)
@@ -184,10 +182,34 @@ object GjennomforingValidator {
         )
     }
 
-    private fun ValidationDsl.validateGruppeFagOgYrke(
+    private fun ValidationDsl.validateUtdanningslop(
+        tiltakskode: Tiltakskode,
         utdanningslop: UtdanningslopDbo?,
         avtale: Avtale,
     ) {
+        when (tiltakskode) {
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.STUDIESPESIALISERING,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            -> return
+
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            -> Unit
+        }
+
         requireValid(utdanningslop != null) {
             FieldError.of(
                 "Du må velge utdanningsprogram og lærefag på avtalen",

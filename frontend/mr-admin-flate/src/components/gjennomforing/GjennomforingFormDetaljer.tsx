@@ -10,7 +10,6 @@ import {
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingRequest,
-  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import {
   Alert,
@@ -136,9 +135,7 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
             <GjennomforingAmoKategoriseringForm avtale={avtale} />
-            {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <GjennomforingUtdanningslopForm avtale={avtale} />
-            ) : null}
+            <GjennomforingUtdanningslopForm avtale={avtale} />
           </FormGroup>
 
           <FormGroup>

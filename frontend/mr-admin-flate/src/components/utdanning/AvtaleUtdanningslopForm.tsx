@@ -7,15 +7,41 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "../laster/Laster";
 import { AvtaleFormValues } from "@/schemas/avtale";
+import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
-export function AvtaleUtdanningslopForm() {
-  return (
-    <ReloadAppErrorBoundary>
-      <Suspense fallback={<Laster />}>
-        <SelectAvtaleUtdanning />
-      </Suspense>
-    </ReloadAppErrorBoundary>
-  );
+interface Props {
+  tiltakskode: Tiltakskode;
+}
+
+export function AvtaleUtdanningslopForm({ tiltakskode }: Props) {
+  switch (tiltakskode) {
+    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
+    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
+    case Tiltakskode.AVKLARING:
+    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
+    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.JOBBKLUBB:
+    case Tiltakskode.OPPFOLGING:
+    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
+    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
+    case Tiltakskode.STUDIESPESIALISERING:
+    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
+    case Tiltakskode.HOYERE_UTDANNING:
+      return null;
+
+    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
+      return (
+        <ReloadAppErrorBoundary>
+          <Suspense fallback={<Laster />}>
+            <SelectAvtaleUtdanning />
+          </Suspense>
+        </ReloadAppErrorBoundary>
+      );
+  }
 }
 
 function SelectAvtaleUtdanning() {
