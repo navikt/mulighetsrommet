@@ -19,8 +19,8 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.teamLogs.teamLogsError
-import no.nav.mulighetsrommet.teamLogs.teamLogsWarn
+import no.nav.mulighetsrommet.teamLogsError
+import no.nav.mulighetsrommet.teamLogsWarn
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory

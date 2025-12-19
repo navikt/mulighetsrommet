@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.teamLogs
+package no.nav.mulighetsrommet
 
 import org.slf4j.Logger
 import org.slf4j.Marker

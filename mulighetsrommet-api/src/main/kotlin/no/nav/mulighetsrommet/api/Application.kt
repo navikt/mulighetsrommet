@@ -1,14 +1,19 @@
 package no.nav.mulighetsrommet.api
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.ApplicationStopPreparing
+import io.ktor.server.application.log
 import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.netty.NettyApplicationEngine
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.path
 import io.ktor.server.routing.routing
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor
@@ -29,6 +34,8 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.plugins.configureStatusPages
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogsError
 import org.koin.ktor.ext.inject
 import kotlin.time.Duration.Companion.seconds
 
@@ -69,7 +76,7 @@ fun Application.configure(config: AppConfig) {
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
-    configureStatusPages()
+    configureStatusPages(this::logException)
     configureOpenApiGenerator()
 
     FlywayMigrationManager(config.flyway).migrate(db)
@@ -103,5 +110,21 @@ fun Application.configure(config: AppConfig) {
         shedLockLeaderElectionClient.close()
 
         db.close()
+    }
+}
+
+fun Application.logException(statusCode: HttpStatusCode, cause: Throwable, call: ApplicationCall) {
+    val statusDetails = "${statusCode.description} (${statusCode.value})"
+    val requestDetails = "${call.request.httpMethod.value} ${call.request.path()}"
+    val errorMessage = "$statusDetails on $requestDetails: ${cause.message}"
+
+    SecureLog.logger.error(errorMessage, cause)
+    log.teamLogsError(errorMessage, cause)
+
+    val summary = "$errorMessage (se stacktrace i Team Logs)"
+    when (statusCode.value) {
+        in 500..599 -> log.error(summary)
+        in 400..499 -> log.warn(summary)
+        else -> log.info(summary)
     }
 }

@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.teamLogs.teamLogsInfo
+import no.nav.mulighetsrommet.teamLogsInfo
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.UUID

@@ -6,7 +6,7 @@ import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.teamLogs.teamLogsWarn
+import no.nav.mulighetsrommet.teamLogsWarn
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput

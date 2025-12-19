@@ -1,13 +1,18 @@
 package no.nav.tiltak.okonomi
 
 import com.github.kagkarlsson.scheduler.Scheduler
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.application.log
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.path
 import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider
 import no.nav.common.job.leader_election.ShedLockLeaderElectionClient
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository
@@ -82,7 +87,7 @@ fun Application.configure(config: AppConfig) {
     configureAuthentication(config.auth)
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
-    configureStatusPages()
+    configureStatusPages(this::logException)
     configureHTTP()
 
     val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
@@ -200,4 +205,16 @@ private fun configureDbScheduler(
         .serializer(DbSchedulerKotlinSerializer())
         .registerShutdownHook()
         .build()
+}
+
+fun Application.logException(statusCode: HttpStatusCode, cause: Throwable, call: ApplicationCall) {
+    val statusDetails = "${statusCode.description} (${statusCode.value})"
+    val requestDetails = "${call.request.httpMethod.value} ${call.request.path()}"
+    val errorMessage = "$statusDetails on $requestDetails: ${cause.message}"
+
+    when (statusCode.value) {
+        in 500..599 -> log.error(errorMessage, cause)
+        in 400..499 -> log.warn(errorMessage, cause)
+        else -> log.info(errorMessage, cause)
+    }
 }

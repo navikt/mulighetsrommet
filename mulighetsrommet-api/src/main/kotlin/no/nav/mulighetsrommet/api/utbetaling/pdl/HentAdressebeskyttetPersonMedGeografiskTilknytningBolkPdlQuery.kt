@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.tilGradering
 import no.nav.mulighetsrommet.api.clients.pdl.tilNavn
 import no.nav.mulighetsrommet.api.clients.pdl.toGeografiskTilknytning
 import no.nav.mulighetsrommet.securelog.SecureLog
-import no.nav.mulighetsrommet.teamLogs.teamLogsError
+import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 
