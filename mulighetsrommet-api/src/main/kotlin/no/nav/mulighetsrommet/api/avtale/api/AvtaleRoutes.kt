@@ -64,7 +64,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable
-data class AvtaleRequest(
+data class OpprettAvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val detaljer: DetaljerRequest,
@@ -134,13 +134,13 @@ fun Route.avtaleRoutes() {
         authorize(Rolle.AVTALER_SKRIV) {
             put({
                 tags = setOf("Avtale")
-                operationId = "upsertAvtale"
+                operationId = "opprettAvtale"
                 request {
-                    body<AvtaleRequest>()
+                    body<OpprettAvtaleRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Avtalen ble upsertet"
+                        description = "Avtalen ble opprettet"
                         body<AvtaleDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
@@ -154,9 +154,9 @@ fun Route.avtaleRoutes() {
                 }
             }) {
                 val navIdent = getNavIdent()
-                val request = call.receive<AvtaleRequest>()
+                val request = call.receive<OpprettAvtaleRequest>()
 
-                val result = avtaleService.upsert(request, navIdent)
+                val result = avtaleService.create(request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { AvtaleDtoMapper.fromAvtale(it) }
 

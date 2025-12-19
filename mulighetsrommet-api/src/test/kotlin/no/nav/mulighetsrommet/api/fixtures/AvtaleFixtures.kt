@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import PersonvernDbo
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
@@ -178,7 +178,7 @@ object AvtaleFixtures {
         prismodellDbo = prismodellDbo(),
     )
 
-    val avtaleRequest: AvtaleRequest = AvtaleRequest(
+    val opprettAvtaleRequest: OpprettAvtaleRequest = OpprettAvtaleRequest(
         id = UUID.randomUUID(),
         detaljer = DetaljerRequest(
             navn = "Avtalenavn",
