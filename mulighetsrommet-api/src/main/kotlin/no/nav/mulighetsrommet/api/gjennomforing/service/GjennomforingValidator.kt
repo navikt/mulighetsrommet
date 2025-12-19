@@ -499,12 +499,14 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                requireValid(amoKategorisering.bransje != null) {
-                    FieldError.of(
-                        "Du må velge en bransje",
-                        GjennomforingRequest::amoKategorisering,
-                        AmoKategoriseringRequest::bransje,
-                    )
+                if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+                    requireValid(amoKategorisering.bransje != null) {
+                        FieldError.of(
+                            "Du må velge en bransje",
+                            GjennomforingRequest::amoKategorisering,
+                            AmoKategoriseringRequest::bransje,
+                        )
+                    }
                 }
                 amoKategorisering
             }
