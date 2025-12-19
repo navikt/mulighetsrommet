@@ -5,7 +5,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
-import io.ktor.server.application.log
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.CannotTransformContentToTypeException
 import io.ktor.server.plugins.ContentTransformationException
@@ -13,8 +12,6 @@ import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.PayloadTooLargeException
 import io.ktor.server.plugins.UnsupportedMediaTypeException
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.request.httpMethod
-import io.ktor.server.request.path
 import io.ktor.server.response.respondText
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -23,25 +20,9 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.MDC
 
-fun Application.configureStatusPages() {
-    fun logException(statusCode: HttpStatusCode, cause: Throwable, call: ApplicationCall) {
-        val statusDetails = "${statusCode.description} (${statusCode.value})"
-        val requestDetails = "${call.request.httpMethod.value} ${call.request.path()}"
-        val errorMessage = "$statusDetails on $requestDetails: ${cause.message}"
-
-        SecureLog.logger.error(errorMessage, cause)
-
-        val summary = "$errorMessage (se stacktrace i Securelogs)"
-        when (statusCode.value) {
-            in 500..599 -> log.error(summary)
-            in 400..499 -> log.warn(summary)
-            else -> log.info(summary)
-        }
-    }
-
+fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, ApplicationCall) -> Unit) {
     install(StatusPages) {
         status(HttpStatusCode.Unauthorized) { status ->
             val requestId = MDC.get("correlationId")

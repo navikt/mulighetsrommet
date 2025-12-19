@@ -16,7 +16,9 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogsInfo
 import org.intellij.lang.annotations.Language
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class DelMedBrukerService(
@@ -24,8 +26,12 @@ class DelMedBrukerService(
     private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
 ) {
+    private val logger = LoggerFactory.getLogger(DelMedBrukerService::class.java)
     fun insertDelMedBruker(dbo: DelMedBrukerDbo): Unit = db.session {
         SecureLog.logger.info(
+            "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
+        )
+        logger.teamLogsInfo(
             "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
         )
 

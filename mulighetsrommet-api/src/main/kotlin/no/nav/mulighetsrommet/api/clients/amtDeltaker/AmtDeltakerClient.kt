@@ -26,8 +26,10 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.UUID
 
@@ -36,7 +38,7 @@ class AmtDeltakerClient(
     private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine,
 ) {
-    private val log = SecureLog.logger
+    private val logger = LoggerFactory.getLogger(AmtDeltakerClient::class.java)
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
@@ -60,7 +62,8 @@ class AmtDeltakerClient(
 
             else -> {
                 val bodyAsText = response.bodyAsText()
-                log.error("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
+                SecureLog.logger.error("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
+                logger.teamLogsError("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
                 AmtDeltakerError.Error.left()
             }
         }
@@ -100,7 +103,8 @@ class AmtDeltakerClient(
 
             else -> {
                 val bodyAsText = response.bodyAsText()
-                log.error("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")
+                SecureLog.logger.error("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")
+                logger.teamLogsError("Feil ved henting av personalia for deltakelser. Response=$bodyAsText")
                 AmtDeltakerError.Error.left()
             }
         }
