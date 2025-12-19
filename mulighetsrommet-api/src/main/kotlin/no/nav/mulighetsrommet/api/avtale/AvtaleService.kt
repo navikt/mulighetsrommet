@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
@@ -56,8 +56,8 @@ class AvtaleService(
     private val arrangorService: ArrangorService,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
-    suspend fun upsert(
-        request: AvtaleRequest,
+    suspend fun create(
+        request: OpprettAvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
         val ctx = getValidatorCtx(request.id, request.detaljer, request.veilederinformasjon.navEnheter, null).bind()

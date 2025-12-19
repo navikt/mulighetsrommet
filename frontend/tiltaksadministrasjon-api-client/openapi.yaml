@@ -212,17 +212,17 @@ paths:
     put:
       tags:
       - Avtale
-      operationId: upsertAvtale
+      operationId: opprettAvtale
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvtaleRequest"
+              $ref: "#/components/schemas/OpprettAvtaleRequest"
         required: false
       responses:
         "200":
-          description: Avtalen ble upsertet
+          description: Avtalen ble opprettet
           headers: {}
           content:
             application/json:
@@ -3750,7 +3750,7 @@ components:
       - beskrivelse
       - faneinnhold
       - navEnheter
-    AvtaleRequest:
+    OpprettAvtaleRequest:
       type: object
       properties:
         id:

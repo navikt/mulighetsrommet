@@ -6,8 +6,8 @@ import {
 } from "@/schemas/avtale";
 import { AvtaleDetaljerValues, getUtdanningslop } from "@/schemas/avtaledetaljer";
 import {
-  AvtaleRequest,
   DetaljerRequest,
+  OpprettAvtaleRequest,
   PersonvernRequest,
   PrismodellRequest,
   VeilederinfoRequest,
@@ -19,15 +19,9 @@ export interface RequestValues {
   id?: string;
 }
 
-export function toAvtaleRequest({
-  data,
-  id,
-}: {
-  data: AvtaleFormValues;
-  id?: string;
-}): AvtaleRequest {
+export function toOpprettAvtaleRequest(data: AvtaleFormValues): OpprettAvtaleRequest {
   return {
-    id: id ?? v4(),
+    id: v4(),
     detaljer: toDetaljerRequest({ data: data }),
     veilederinformasjon: toVeilederinfoRequest({ data: data }),
     personvern: toPersonvernRequest({ data: data }),

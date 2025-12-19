@@ -1,5 +1,5 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useOpprettAvtale } from "@/api/avtaler/useOpprettAvtale";
 import { QueryKeys } from "@/api/QueryKeys";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
@@ -25,7 +25,7 @@ import { useCallback, useState } from "react";
 import { DeepPartial, FieldValues, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router";
 import { ZodObject } from "zod";
-import { mapNameToSchemaPropertyName, toAvtaleRequest } from "./avtaleFormUtils";
+import { mapNameToSchemaPropertyName, toOpprettAvtaleRequest } from "./avtaleFormUtils";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -53,9 +53,7 @@ const steps = [
   },
 ];
 
-export type StepKey = (typeof steps)[number]["key"];
-
-export function NewAvtaleFormPage() {
+export function OpprettAvtaleFormPage() {
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Avtaler", lenke: "/avtaler" },
     {
@@ -67,7 +65,7 @@ export function NewAvtaleFormPage() {
 
   const queryClient = useQueryClient();
   const location = useLocation();
-  const mutation = useUpsertAvtale();
+  const opprettAvtale = useOpprettAvtale();
   const { data: ansatt } = useHentAnsatt();
   const [activeStep, setActiveStep] = useState<number>(1);
   const [collectedData, setCollectedData] = useState<DeepPartial<AvtaleFormValues>>(
@@ -92,7 +90,7 @@ export function NewAvtaleFormPage() {
   );
 
   const onSubmit = async (data: AvtaleFormValues) =>
-    mutation.mutate(toAvtaleRequest({ data: data }), {
+    opprettAvtale.mutate(toOpprettAvtaleRequest(data), {
       onValidationError: (error: ValidationError) => {
         handleValidationError(error);
       },

@@ -13,8 +13,8 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
@@ -51,7 +51,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleValidatorTest : FunSpec({
-    val avtaleRequest = AvtaleRequest(
+    val avtaleRequest = OpprettAvtaleRequest(
         id = UUID.randomUUID(),
         detaljer = DetaljerRequest(
             navn = "Avtale",
@@ -837,7 +837,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 })
 
-fun AvtaleDbo.toAvtaleRequest(arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = AvtaleRequest(
+fun AvtaleDbo.toAvtaleRequest(arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = OpprettAvtaleRequest(
     id = this.id,
     detaljer = DetaljerRequest(
         navn = this.detaljerDbo.navn,

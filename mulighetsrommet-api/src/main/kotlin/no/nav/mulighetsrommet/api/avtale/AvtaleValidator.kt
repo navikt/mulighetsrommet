@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
@@ -84,7 +84,7 @@ object AvtaleValidator {
     }
 
     fun validateCreateAvtale(
-        request: AvtaleRequest,
+        request: OpprettAvtaleRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, AvtaleDbo> = validation {
         validateNavEnheter(ctx.navEnheter)
@@ -338,7 +338,7 @@ object AvtaleValidator {
         validate(request.type in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
             FieldError.of(
                 "${request.type.navn} er ikke tillatt for tiltakstype $tiltakstypeNavn",
-                AvtaleRequest::prismodell,
+                OpprettAvtaleRequest::prismodell,
             )
         }
         when (request.type) {
@@ -419,7 +419,7 @@ object AvtaleValidator {
         validate(satser.isNotEmpty()) {
             FieldError.of(
                 "Minst én pris er påkrevd",
-                AvtaleRequest::prismodell,
+                OpprettAvtaleRequest::prismodell,
             )
         }
         satser.forEachIndexed { index, sats ->
