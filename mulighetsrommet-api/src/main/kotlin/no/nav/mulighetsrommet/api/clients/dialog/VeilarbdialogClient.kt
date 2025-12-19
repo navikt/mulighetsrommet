@@ -19,9 +19,11 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogs.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
+import org.slf4j.MarkerFactory
 
 class VeilarbdialogClient(
     private val baseUrl: String,
@@ -54,7 +56,11 @@ class VeilarbdialogClient(
                 "Klarte ikke sende melding til dialogen til bruker med fnr: ${requestBody.fnr.value}",
                 response.bodyAsText(),
             )
-            log.error("Klarte ikke sende melding til dialogen. Se detaljer i secureLog.")
+            log.teamLogsError(
+                "Klarte ikke sende melding til dialogen for bruker ${requestBody.fnr.value}",
+                response.bodyAsText()
+            )
+            log.error("Klarte ikke sende melding til dialogen. Se detaljer i team logs.")
             VeilarbdialogError.Error.left()
         }
     }

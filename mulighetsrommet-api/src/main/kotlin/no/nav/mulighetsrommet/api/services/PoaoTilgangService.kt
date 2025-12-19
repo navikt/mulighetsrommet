@@ -6,18 +6,21 @@ import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogs.teamLogsWarn
 import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilModiaPolicyInput
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.TilgangType
+import org.slf4j.LoggerFactory
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class PoaoTilgangService(
     val client: PoaoTilgangClient,
 ) {
+    private val logger = LoggerFactory.getLogger(PoaoTilgangService::class.java)
 
     private val tilgangCache: Cache<String, Boolean> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
@@ -52,6 +55,7 @@ class PoaoTilgangService(
 
         if (!access) {
             SecureLog.logger.warn("Veileder med EntraObjectId $navAnsattEntraObjectId har ikke tilgang til modia")
+            logger.teamLogsWarn("Veileder med EntraObjectId $navAnsattEntraObjectId har ikke tilgang til modia")
             throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til Modia")
         }
     }

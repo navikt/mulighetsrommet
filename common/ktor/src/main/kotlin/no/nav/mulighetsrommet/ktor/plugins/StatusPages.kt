@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.teamLogs.teamLogsError
 import org.slf4j.MDC
 
 fun Application.configureStatusPages() {
@@ -33,6 +34,7 @@ fun Application.configureStatusPages() {
         val errorMessage = "$statusDetails on $requestDetails: ${cause.message}"
 
         SecureLog.logger.error(errorMessage, cause)
+        log.teamLogsError(errorMessage, cause)
 
         val summary = "$errorMessage (se stacktrace i Securelogs)"
         when (statusCode.value) {
