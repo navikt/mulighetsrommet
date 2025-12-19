@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -21,7 +21,7 @@ data class ArrangorflateGjennomforing(
     val sluttDato: LocalDate?,
 ) {
     companion object {
-        fun fromGjennomforing(gjennomforing: Gjennomforing) = ArrangorflateGjennomforing(
+        fun fromGjennomforingGruppetiltak(gjennomforing: GjennomforingGruppetiltak) = ArrangorflateGjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
             tiltakstype = ArrangorflateTiltakstype(
@@ -32,7 +32,7 @@ data class ArrangorflateGjennomforing(
             sluttDato = gjennomforing.sluttDato,
         )
 
-        fun fromGjennomforingKompakt(gjennomforing: GjennomforingKompakt) = ArrangorflateGjennomforing(
+        fun fromGjennomforingKompakt(gjennomforing: GjennomforingGruppetiltakKompakt) = ArrangorflateGjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
             tiltakstype = ArrangorflateTiltakstype(

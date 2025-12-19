@@ -37,9 +37,11 @@ data class GjennomforingDto(
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val administratorer: List<Gjennomforing.Administrator>,
+    val prismodell: PrismodellDto?,
+    val administratorer: List<GjennomforingGruppetiltak.Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<GjennomforingKontaktperson>,
     val oppmoteSted: String?,
@@ -47,14 +49,12 @@ data class GjennomforingDto(
     val beskrivelse: String?,
     val publisert: Boolean,
     val deltidsprosent: Double,
-    val estimertVentetid: Gjennomforing.EstimertVentetid?,
+    val estimertVentetid: GjennomforingGruppetiltak.EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
     val utdanningslop: UtdanningslopDto?,
-    val stengt: List<Gjennomforing.StengtPeriode>,
-    val prismodell: PrismodellDto?,
-    val pameldingType: GjennomforingPameldingType,
+    val stengt: List<GjennomforingGruppetiltak.StengtPeriode>,
 ) {
 
     @Serializable

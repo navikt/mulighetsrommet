@@ -4643,7 +4643,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/Gjennomforing.ArrangorKontaktperson"
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.ArrangorKontaktperson"
         slettet:
           type: boolean
       required:
@@ -4652,7 +4652,7 @@ components:
       - navn
       - organisasjonsnummer
       - slettet
-    Gjennomforing.ArrangorKontaktperson:
+    GjennomforingGruppetiltak.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -4693,7 +4693,7 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    Gjennomforing.Administrator:
+    GjennomforingGruppetiltak.Administrator:
       type: object
       properties:
         navIdent:
@@ -4729,7 +4729,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    Gjennomforing.EstimertVentetid:
+    GjennomforingGruppetiltak.EstimertVentetid:
       type: object
       properties:
         verdi:
@@ -4740,7 +4740,7 @@ components:
       required:
       - enhet
       - verdi
-    Gjennomforing.StengtPeriode:
+    GjennomforingGruppetiltak.StengtPeriode:
       type: object
       properties:
         id:
@@ -4801,16 +4801,22 @@ components:
           - "null"
           - string
           format: uuid
+        prismodell:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/PrismodellDto"
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/Gjennomforing.Administrator"
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.Administrator"
         kontorstruktur:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
+        pameldingType:
+          $ref: "#/components/schemas/GjennomforingPameldingType"
         opphav:
           $ref: "#/components/schemas/ArenaMigrering.Opphav"
         kontaktpersoner:
@@ -4837,7 +4843,7 @@ components:
         estimertVentetid:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Gjennomforing.EstimertVentetid"
+          - $ref: "#/components/schemas/GjennomforingGruppetiltak.EstimertVentetid"
         tilgjengeligForArrangorDato:
           type:
           - "null"
@@ -4854,13 +4860,7 @@ components:
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/Gjennomforing.StengtPeriode"
-        prismodell:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/PrismodellDto"
-        pameldingType:
-          $ref: "#/components/schemas/GjennomforingPameldingType"
+            $ref: "#/components/schemas/GjennomforingGruppetiltak.StengtPeriode"
       required:
       - administratorer
       - amoKategorisering
@@ -4987,9 +4987,9 @@ components:
           items:
             $ref: "#/components/schemas/Kontorstruktur"
         arrangor:
-          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.ArrangorUnderenhet"
         tiltakstype:
-          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
+          $ref: "#/components/schemas/GjennomforingGruppetiltakKompakt.Tiltakstype"
       required:
       - arrangor
       - id
@@ -5001,7 +5001,7 @@ components:
       - startDato
       - status
       - tiltakstype
-    GjennomforingKompakt.ArrangorUnderenhet:
+    GjennomforingGruppetiltakKompakt.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -5015,6 +5015,20 @@ components:
       - id
       - navn
       - organisasjonsnummer
+    GjennomforingGruppetiltakKompakt.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
     PaginatedResponse_GjennomforingKompaktDto:
       type: object
       properties:

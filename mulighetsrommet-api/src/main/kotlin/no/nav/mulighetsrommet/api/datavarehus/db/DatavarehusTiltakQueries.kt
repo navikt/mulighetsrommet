@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
@@ -18,16 +19,17 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class DatavarehusTiltakQueries(private val session: Session) {
-    fun getGruppetiltak(id: UUID): DatavarehusTiltakV1 {
+    fun getDatavarehusTiltak(id: UUID): DatavarehusTiltakV1 {
         @Language("PostgreSQL")
         val query = """
             select *
-            from view_datavarehus_gruppetiltak
+            from view_datavarehus_tiltak
             where id = ?
         """.trimIndent()
 
         val dto = session.requireSingle(queryOf(query, id)) { it.toDatavarehusTiltakDto() }
 
+        // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
         return when (dto.tiltakskode) {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> {
                 val utdanningslop = getUtdanningslop(id)
@@ -51,18 +53,6 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
             else -> dto
         }
-    }
-
-    fun getEnkeltplass(id: UUID): DatavarehusTiltakV1 {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_datavarehus_enkeltplass
-            where id = ?
-        """.trimIndent()
-
-        // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
-        return session.requireSingle(queryOf(query, id)) { it.toDatavarehusEnkeltplassDto() }
     }
 
     private fun getUtdanningslop(id: UUID): DatavarehusTiltakV1YrkesfagDto.Utdanningslop? {
@@ -152,51 +142,40 @@ private fun Row.toAmoKategorisering(
     }
 }
 
-private fun Row.toDatavarehusTiltakDto() = DatavarehusTiltakV1Dto(
-    tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-    avtale = uuidOrNull("avtale_id")?.let {
-        DatavarehusTiltakV1.Avtale(
-            id = it,
-            navn = string("avtale_navn"),
-            opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
-            oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
-        )
-    },
-    gjennomforing = DatavarehusTiltakV1.Gjennomforing(
-        id = uuid("id"),
-        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-        arrangor = DatavarehusTiltakV1.Arrangor(
-            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-        ),
-        arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
-            DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
+private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
+    val type = GjennomforingType.valueOf(string("gjennomforing_type"))
+    return DatavarehusTiltakV1Dto(
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        avtale = uuidOrNull("avtale_id")?.let {
+            DatavarehusTiltakV1.Avtale(
+                id = it,
+                navn = string("avtale_navn"),
+                opprettetTidspunkt = localDateTime("avtale_opprettet_tidspunkt"),
+                oppdatertTidspunkt = localDateTime("avtale_oppdatert_tidspunkt"),
+            )
         },
-        navn = string("navn"),
-        startDato = localDate("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
-        status = GjennomforingStatusType.valueOf(string("status")),
-        deltidsprosent = double("deltidsprosent"),
-    ),
-)
+        gjennomforing = DatavarehusTiltakV1.Gjennomforing(
+            id = uuid("id"),
+            opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+            oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
+            arrangor = DatavarehusTiltakV1.Arrangor(
+                organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+            ),
+            arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
+                DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
+            },
+            navn = string("navn").takeIfIsGruppetiltak(type),
+            startDato = localDate("start_dato").takeIfIsGruppetiltak(type),
+            sluttDato = localDateOrNull("slutt_dato")?.takeIfIsGruppetiltak(type),
+            status = GjennomforingStatusType.valueOf(string("status")).takeIfIsGruppetiltak(type),
+            deltidsprosent = double("deltidsprosent").takeIfIsGruppetiltak(type),
+        ),
+    )
+}
 
-private fun Row.toDatavarehusEnkeltplassDto() = DatavarehusTiltakV1Dto(
-    tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-    avtale = null,
-    gjennomforing = DatavarehusTiltakV1.Gjennomforing(
-        id = uuid("id"),
-        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
-        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
-        arrangor = DatavarehusTiltakV1.Arrangor(
-            organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
-        ),
-        arena = stringOrNull("arena_tiltaksnummer")?.let { Tiltaksnummer(it) }?.let {
-            DatavarehusTiltakV1.ArenaData(aar = it.aar, lopenummer = it.lopenummer)
-        },
-        navn = null,
-        startDato = null,
-        sluttDato = null,
-        status = null,
-        deltidsprosent = null,
-    ),
-)
+private fun <T> T.takeIfIsGruppetiltak(type: GjennomforingType): T? = takeIf {
+    when (type) {
+        GjennomforingType.GRUPPETILTAK -> true
+        GjennomforingType.ENKELTPLASS -> false
+    }
+}

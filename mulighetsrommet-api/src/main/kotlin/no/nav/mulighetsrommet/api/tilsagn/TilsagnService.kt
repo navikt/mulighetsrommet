@@ -68,7 +68,7 @@ class TilsagnService(
     fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
         requireNotNull(request.id) { "id mangler" }
 
-        val gjennomforing = queries.gjennomforing.getOrError(request.gjennomforingId)
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         requireNotNull(gjennomforing.avtaleId) { "Gjennomforingen mangler avtale" }
 
         val avtale = queries.avtale.getOrError(gjennomforing.avtaleId)
@@ -273,7 +273,7 @@ class TilsagnService(
 
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
         val sats =
-            queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
+            queries.gjennomforing.getGruppetiltak(request.gjennomforingId)?.avtaleId?.let {
                 queries.avtale.get(it)
             }?.let { avtale ->
                 val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
@@ -696,7 +696,7 @@ class TilsagnService(
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
-        val gjennomforing = queries.gjennomforing.getOrError(tilsagn.gjennomforing.id)
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(tilsagn.gjennomforing.id)
 
         val avtale = checkNotNull(gjennomforing.avtaleId?.let { queries.avtale.get(it) }) {
             "Gjennomføring ${gjennomforing.id} mangler avtale"

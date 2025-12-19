@@ -2,7 +2,7 @@ import { Alert, Select } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
-import { AvtaleDto, GjennomforingRequest } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, GjennomforingRequest, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   avtale: AvtaleDto;
@@ -10,6 +10,28 @@ interface Props {
 
 export function GjennomforingUtdanningslopForm({ avtale }: Props) {
   const { register } = useFormContext<GjennomforingRequest>();
+
+  switch (avtale.tiltakstype.tiltakskode) {
+    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
+    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
+    case Tiltakskode.AVKLARING:
+    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
+    case Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.JOBBKLUBB:
+    case Tiltakskode.OPPFOLGING:
+    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
+    case Tiltakskode.ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
+    case Tiltakskode.STUDIESPESIALISERING:
+    case Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV:
+    case Tiltakskode.HOYERE_UTDANNING:
+    case Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING:
+      return null;
+
+    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.FAG_OG_YRKESOPPLAERING:
+  }
 
   if (!avtale.utdanningslop) {
     return (

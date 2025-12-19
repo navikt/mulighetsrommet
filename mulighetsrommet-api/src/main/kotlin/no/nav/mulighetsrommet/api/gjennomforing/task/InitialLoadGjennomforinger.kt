@@ -9,8 +9,8 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV1Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -90,14 +90,14 @@ class InitialLoadGjennomforinger(
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter gjennomføringer pagination=$pagination")
-                val result = queries.gjennomforing.getAll(
+                val result = queries.gjennomforing.getAllGruppetiltakKompakt(
                     pagination = pagination,
                     tiltakstypeIder = listOf(tiltakstypeId),
                 )
                 result.items
             },
         ) {
-            publish(queries.gjennomforing.getOrError(it.id))
+            publish(queries.gjennomforing.getGruppetiltakOrError(it.id))
         }
 
         logger.info("Antall gruppetiltak relastet på topic: $total")
@@ -111,7 +111,7 @@ class InitialLoadGjennomforinger(
         val total = paginateFanOut(
             { pagination: Pagination ->
                 logger.info("Henter enkeltplasser pagination=$pagination")
-                val result = queries.enkeltplass.getAll(
+                val result = queries.gjennomforing.getAllEnkeltplass(
                     pagination = pagination,
                     tiltakstyper = listOf(tiltakstypeId),
                 )
@@ -126,13 +126,13 @@ class InitialLoadGjennomforinger(
 
     private fun initialLoadGjennomforingerById(ids: List<UUID>) = db.session {
         ids.forEach { id ->
-            val gruppetiltak = queries.gjennomforing.get(id)
+            val gruppetiltak = queries.gjennomforing.getGruppetiltak(id)
             if (gruppetiltak != null) {
                 publish(gruppetiltak)
                 return@forEach
             }
 
-            val enkeltplass = queries.enkeltplass.get(id)
+            val enkeltplass = queries.gjennomforing.getEnkeltplass(id)
             if (enkeltplass != null) {
                 publish(enkeltplass)
                 return@forEach
@@ -148,7 +148,7 @@ class InitialLoadGjennomforinger(
         }
     }
 
-    private fun publish(gjennomforing: Gjennomforing) {
+    private fun publish(gjennomforing: GjennomforingGruppetiltak) {
         val gjennomforingV1 = TiltaksgjennomforingV1Mapper.fromGjennomforing(gjennomforing)
         val recordV1: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV1Topic,
@@ -157,7 +157,7 @@ class InitialLoadGjennomforinger(
         )
         kafkaProducerClient.sendSync(recordV1)
 
-        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGruppe(gjennomforing)
+        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(gjennomforing)
         val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV2Topic,
             gjennomforingV2.id.toString().toByteArray(),
@@ -166,8 +166,8 @@ class InitialLoadGjennomforinger(
         kafkaProducerClient.sendSync(recordV2)
     }
 
-    private fun publish(enkeltplass: Enkeltplass) {
-        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromEnkeltplass(enkeltplass)
+    private fun publish(enkeltplass: GjennomforingEnkeltplass) {
+        val gjennomforingV2: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Mapper.fromGjennomforing(enkeltplass)
         val recordV2: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.gjennomforinvV2Topic,
             gjennomforingV2.id.toString().toByteArray(),

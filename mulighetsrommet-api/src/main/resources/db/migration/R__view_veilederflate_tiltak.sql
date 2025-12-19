@@ -4,32 +4,32 @@ drop view if exists view_veilederflate_tiltak;
 
 create view view_veilederflate_tiltak as
 select gjennomforing.id,
-       gjennomforing.fts,
-       gjennomforing.navn,
-       gjennomforing.oppmote_sted,
-       gjennomforing.apent_for_pamelding,
        gjennomforing.arena_tiltaksnummer,
-       gjennomforing.oppstart,
+       gjennomforing.fts,
+       tiltakstype.id               as tiltakstype_id,
+       tiltakstype.sanity_id        as tiltakstype_sanity_id,
+       tiltakstype.navn             as tiltakstype_navn,
+       tiltakstype.tiltakskode      as tiltakstype_tiltakskode,
+       tiltakstype.innsatsgrupper   as tiltakstype_innsatsgrupper,
+       gjennomforing.navn,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
        gjennomforing.status,
+       gjennomforing.oppmote_sted,
+       gjennomforing.apent_for_pamelding,
+       gjennomforing.oppstart,
        gjennomforing.estimert_ventetid_verdi,
        gjennomforing.estimert_ventetid_enhet,
        gjennomforing.beskrivelse,
        gjennomforing.faneinnhold,
        gjennomforing.publisert,
-       tiltakstype.id                                                 as tiltakstype_id,
-       tiltakstype.sanity_id                                          as tiltakstype_sanity_id,
-       tiltakstype.navn                                               as tiltakstype_navn,
-       tiltakstype.tiltakskode                                        as tiltakstype_tiltakskode,
-       tiltakstype.innsatsgrupper                                     as tiltakstype_innsatsgrupper,
        avtale.personvern_bekreftet,
        personopplysninger_som_kan_behandles,
        nav_enheter_json,
        nav_kontaktpersoner_json,
-       arrangor.id                                                    as arrangor_id,
-       arrangor.organisasjonsnummer                                   as arrangor_organisasjonsnummer,
-       arrangor.navn                                                  as arrangor_navn,
+       arrangor.id                  as arrangor_id,
+       arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
+       arrangor.navn                as arrangor_navn,
        arrangor_kontaktpersoner_json
 from gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
@@ -44,9 +44,10 @@ from gjennomforing
                                                    'type', nav_enhet.type
                                            )
                                    ) as nav_enheter_json
-                                           from gjennomforing_nav_enhet
-                                           left join nav_enhet on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
-                                           where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id) on true
+                            from gjennomforing_nav_enhet
+                                     left join nav_enhet
+                                               on nav_enhet.enhetsnummer = gjennomforing_nav_enhet.enhetsnummer
+                            where gjennomforing_nav_enhet.gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navn', concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn),
@@ -76,3 +77,4 @@ from gjennomforing
                             from gjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
                             where gjennomforing_id = gjennomforing.id) on true
+where gjennomforing.gjennomforing_type = 'GRUPPETILTAK'

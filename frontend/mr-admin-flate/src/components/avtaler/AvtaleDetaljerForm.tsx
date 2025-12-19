@@ -145,9 +145,7 @@ export function AvtaleDetaljerForm() {
             </Select>
           </HGrid>
           <AvtaleAmoKategoriseringForm tiltakskode={tiltakskode} />
-          {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-            <AvtaleUtdanningslopForm />
-          ) : null}
+          <AvtaleUtdanningslopForm tiltakskode={tiltakskode} />
         </FormGroup>
         <FormGroup>
           <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />

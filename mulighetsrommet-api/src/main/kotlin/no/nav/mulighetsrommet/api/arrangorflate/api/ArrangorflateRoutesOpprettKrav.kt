@@ -26,7 +26,8 @@ import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltakKompakt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -85,12 +86,12 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         Unit
     }
 
-    suspend fun RoutingContext.requireGjennomforing(): Gjennomforing {
+    suspend fun RoutingContext.requireGjennomforing(): GjennomforingGruppetiltak {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
         requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
         val gjennomforingId = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
-        val gjennomforing = db.session { queries.gjennomforing.getOrError(gjennomforingId) }
+        val gjennomforing = db.session { queries.gjennomforing.getGruppetiltakOrError(gjennomforingId) }
         requireGjennomforingTilArrangor(gjennomforing, orgnr)
 
         return gjennomforing
@@ -140,7 +141,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 return@session emptyList()
             } else {
                 queries.gjennomforing
-                    .getAll(
+                    .getAllGruppetiltakKompakt(
                         arrangorOrgnr = arrangorer,
                         prismodeller = opprettKravPrismodeller,
                         tiltakstypeIder = opprettKravTiltakstyperMedTilsagn,
@@ -206,7 +207,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
         }) {
             val gjennomforing = requireGjennomforing()
 
-            val tilsagnsTyper =
+            val tilsagnstyper =
                 if (gjennomforing.prismodell?.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                     listOf(TilsagnType.INVESTERING)
                 } else {
@@ -214,7 +215,7 @@ fun Route.arrangorflateRoutesOpprettKrav(okonomiConfig: OkonomiConfig) {
                 }
             val tilsagn = arrangorFlateService.getTilsagn(
                 arrangorer = setOf(gjennomforing.arrangor.organisasjonsnummer),
-                typer = tilsagnsTyper,
+                typer = tilsagnstyper,
                 statuser = listOf(TilsagnStatus.GODKJENT),
                 gjennomforingId = gjennomforing.id,
             )
@@ -444,7 +445,7 @@ private fun hentTiltakstyperMedTilsagn(
  */
 fun kanOppretteKrav(
     okonomiConfig: OkonomiConfig,
-    gjennomforing: GjennomforingKompakt,
+    gjennomforing: GjennomforingGruppetiltakKompakt,
     relativeDate: LocalDate = LocalDate.now(),
 ): Boolean {
     if (gjennomforing.prismodell !in okonomiConfig.opprettKravPrismodeller) {
@@ -485,7 +486,7 @@ data class TiltaksoversiktResponse(
 )
 
 private fun toGjennomforingDataTable(
-    gjennomforinger: List<GjennomforingKompakt>,
+    gjennomforinger: List<GjennomforingGruppetiltakKompakt>,
 ): DataDrivenTableDto {
     return DataDrivenTableDto(
         columns = listOf(
@@ -534,7 +535,7 @@ enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
     OPPSUMMERING("Oppsummering", 5),
 }
 
-fun getVeiviserSteg(gjennomforing: Gjennomforing): List<OpprettKravVeiviserSteg> {
+fun getVeiviserSteg(gjennomforing: GjennomforingGruppetiltak): List<OpprettKravVeiviserSteg> {
     val stegListe = mutableListOf(
         OpprettKravVeiviserSteg.INFORMASJON,
         OpprettKravVeiviserSteg.UTBETALING,
@@ -557,7 +558,10 @@ data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val nav
 @Serializable
 data class OpprettKravVeiviserNavigering(val tilbake: OpprettKravVeiviserSteg?, val neste: OpprettKravVeiviserSteg?)
 
-fun getVeiviserNavigering(steg: OpprettKravVeiviserSteg, gjennomforing: Gjennomforing): OpprettKravVeiviserNavigering {
+fun getVeiviserNavigering(
+    steg: OpprettKravVeiviserSteg,
+    gjennomforing: GjennomforingGruppetiltak,
+): OpprettKravVeiviserNavigering {
     val stegListe = getVeiviserSteg(gjennomforing)
     val stegIndex = stegListe.indexOf(steg)
     return OpprettKravVeiviserNavigering(
@@ -577,7 +581,7 @@ data class OpprettKravInnsendingsInformasjon(
     companion object {
         fun from(
             okonomiConfig: OkonomiConfig,
-            gjennomforing: Gjennomforing,
+            gjennomforing: GjennomforingGruppetiltak,
             tilsagn: List<ArrangorflateTilsagnDto>,
             tidligereUtbetalinger: List<Utbetaling>,
         ): OpprettKravInnsendingsInformasjon {
@@ -610,7 +614,7 @@ data class OpprettKravInnsendingsInformasjon(
             else -> null
         }
 
-        fun definisjonsListe(gjennomforing: Gjennomforing): List<LabeledDataElement> = listOf(
+        fun definisjonsListe(gjennomforing: GjennomforingGruppetiltak): List<LabeledDataElement> = listOf(
             LabeledDataElement.text(
                 "Arrangør",
                 "${gjennomforing.arrangor.navn} - ${gjennomforing.arrangor.organisasjonsnummer.value}",
@@ -645,7 +649,7 @@ data class OpprettKravInnsendingsInformasjon(
         companion object {
             fun from(
                 okonomiConfig: OkonomiConfig,
-                gjennomforing: Gjennomforing,
+                gjennomforing: GjennomforingGruppetiltak,
                 tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
             ): DatoVelger {
                 when (gjennomforing.prismodell?.type) {
@@ -694,7 +698,7 @@ data class OpprettKravVedlegg(
 ) {
 
     companion object {
-        fun from(gjennomforing: Gjennomforing): OpprettKravVedlegg {
+        fun from(gjennomforing: GjennomforingGruppetiltak): OpprettKravVedlegg {
             return OpprettKravVedlegg(
                 guidePanel = GuidePanelType.from(gjennomforing.prismodell?.type),
                 minAntallVedlegg = minAntallVedleggVedOpprettKrav(gjennomforing.prismodell?.type),
@@ -731,7 +735,7 @@ data class OpprettKravDeltakere(
 ) {
     companion object {
         fun from(
-            gjennomforing: Gjennomforing,
+            gjennomforing: GjennomforingGruppetiltak,
             satser: Set<SatsPeriode>,
             stengtHosArrangor: Set<StengtPeriode>,
             deltakere: List<Deltaker>,
@@ -805,7 +809,10 @@ data class OpprettKravUtbetalingsinformasjon(
     val navigering: OpprettKravVeiviserNavigering,
 ) {
     companion object {
-        fun from(gjennomforing: Gjennomforing, kontonummer: Kontonummer): OpprettKravUtbetalingsinformasjon {
+        fun from(
+            gjennomforing: GjennomforingGruppetiltak,
+            kontonummer: Kontonummer,
+        ): OpprettKravUtbetalingsinformasjon {
             return OpprettKravUtbetalingsinformasjon(
                 kontonummer = kontonummer,
                 navigering = getVeiviserNavigering(
@@ -836,7 +843,7 @@ data class OpprettKravOppsummering(
     companion object {
         fun from(
             requestData: OpprettKravOppsummeringRequest,
-            gjennomforing: Gjennomforing,
+            gjennomforing: GjennomforingGruppetiltak,
             kontonummer: Kontonummer?,
         ): OpprettKravOppsummering {
             val periodeStart = LocalDate.parse(requestData.periodeStart)
