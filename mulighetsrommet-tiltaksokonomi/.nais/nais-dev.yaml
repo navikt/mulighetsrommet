@@ -76,6 +76,9 @@ spec:
             roles:
               - oebs-api
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: slack.com
         - host: data.brreg.no
