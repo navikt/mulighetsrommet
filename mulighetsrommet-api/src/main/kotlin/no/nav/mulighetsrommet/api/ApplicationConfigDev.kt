@@ -298,7 +298,6 @@ val ApplicationConfigDev = AppConfig(
             Tiltakskode.STUDIESPESIALISERING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            Tiltakskode.HOYERE_UTDANNING,
         ),
     ),
     navAnsattSync = NavAnsattSyncService.Config(
