@@ -36,7 +36,6 @@ class UpdateAvtaleStatusTest : FunSpec({
             startDato = LocalDate.of(2025, 5, 1),
             sluttDato = LocalDate.of(2025, 5, 31),
         ),
-        prismodellDbo = AvtaleFixtures.prismodellDbo(),
     )
     val avtale2 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
@@ -44,7 +43,6 @@ class UpdateAvtaleStatusTest : FunSpec({
             startDato = LocalDate.of(2025, 5, 1),
             sluttDato = LocalDate.of(2025, 6, 30),
         ),
-        prismodellDbo = AvtaleFixtures.prismodellDbo(),
     )
     val avtale3 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
@@ -52,7 +50,6 @@ class UpdateAvtaleStatusTest : FunSpec({
             startDato = LocalDate.of(2025, 5, 1),
             sluttDato = null,
         ),
-        prismodellDbo = AvtaleFixtures.prismodellDbo(),
     )
 
     val domain = MulighetsrommetTestDomain(

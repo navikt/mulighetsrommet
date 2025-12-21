@@ -39,7 +39,7 @@ import java.util.UUID
 
 class GjennomforingValidatorTest : FunSpec({
     val avtale = Avtale(
-        id = UUID.randomUUID(),
+        id = AvtaleFixtures.oppfolging.id,
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
@@ -81,23 +81,20 @@ class GjennomforingValidatorTest : FunSpec({
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.AnnenAvtaltPris(
-            id = UUID.randomUUID(),
-            prisbetingelser = null,
+        prismodeller = listOf(
+            Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = null),
         ),
         arenaAnsvarligEnhet = null,
         opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,
         opsjonerRegistrert = emptyList(),
     )
 
-    val request = GjennomforingFixtures.Oppfolging1Request.copy(
-        avtaleId = avtale.id,
+    val request = GjennomforingFixtures.createGjennomforingRequest(
+        AvtaleFixtures.oppfolging,
         startDato = avtale.startDato,
         sluttDato = avtale.sluttDato,
-        veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-            navRegioner = listOf(NavEnhetNummer("0400")),
-            navKontorer = listOf(NavEnhetNummer("0502")),
-        ),
+        navRegioner = listOf(NavEnhetNummer("0400")),
+        navKontorer = listOf(NavEnhetNummer("0502")),
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
@@ -123,7 +120,11 @@ class GjennomforingValidatorTest : FunSpec({
             ctx,
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError.of("Du må velge en enhet", GjennomforingRequest::estimertVentetid, EstimertVentetid::enhet),
-            FieldError.of("Du må velge en verdi større enn 0", GjennomforingRequest::estimertVentetid, EstimertVentetid::verdi),
+            FieldError.of(
+                "Du må velge en verdi større enn 0",
+                GjennomforingRequest::estimertVentetid,
+                EstimertVentetid::verdi,
+            ),
         )
     }
 

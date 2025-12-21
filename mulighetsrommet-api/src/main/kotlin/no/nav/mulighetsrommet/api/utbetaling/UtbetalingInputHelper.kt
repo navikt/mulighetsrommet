@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingGruppetiltak
 import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -37,15 +35,7 @@ object UtbetalingInputHelper {
         val deltakelsePerioder: Set<DeltakelsePeriode>,
     )
 
-    private fun QueryContext.resolveAvtalteSatser(
-        gjennomforing: GjennomforingGruppetiltak,
-        periode: Periode,
-    ): Set<SatsPeriode> {
-        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
-        return resolveAvtalteSatser(gjennomforing, avtale, periode)
-    }
-
-    fun resolveAvtalteSatser(gjennomforing: Gjennomforing, avtale: Avtale, periode: Periode): Set<SatsPeriode> {
+    fun resolveAvtalteSatser(gjennomforing: GjennomforingGruppetiltak, periode: Periode): Set<SatsPeriode> {
         val periodeStart = if (gjennomforing.startDato.isBefore(periode.slutt)) {
             maxOf(gjennomforing.startDato, periode.start)
         } else {
@@ -53,7 +43,8 @@ object UtbetalingInputHelper {
         }
         val avtaltSatsPeriode = Periode(periodeStart, periode.slutt)
 
-        return AvtalteSatser.getAvtalteSatser(avtale)
+        val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
+        return AvtalteSatser.getAvtalteSatser(gjennomforing.tiltakstype.tiltakskode, prismodell)
             .sortedBy { it.gjelderFra }
             .windowed(size = 2, partialWindows = true)
             .mapNotNull { satser ->

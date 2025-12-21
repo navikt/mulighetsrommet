@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -14,9 +13,9 @@ object AvtalteSatser {
             .lastOrNull { dato >= it.gjelderFra }?.sats
     }
 
-    fun getAvtalteSatser(avtale: Avtale): List<AvtaltSats> = when (avtale.prismodell) {
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> getForhandsgodkjenteSatser(avtale.tiltakstype.tiltakskode)
-        else -> avtale.prismodell.satser()
+    fun getAvtalteSatser(tiltakskode: Tiltakskode, prismodell: Prismodell): List<AvtaltSats> = when (prismodell) {
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> getForhandsgodkjenteSatser(tiltakskode)
+        else -> prismodell.satser()
     }
 
     fun getForhandsgodkjenteSatser(tiltakskode: Tiltakskode): List<AvtaltSats> = when (tiltakskode) {

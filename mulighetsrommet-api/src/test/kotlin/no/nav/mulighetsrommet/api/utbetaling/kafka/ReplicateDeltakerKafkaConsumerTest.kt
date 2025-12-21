@@ -73,7 +73,7 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
             enkeltplasser = listOf(EnkelAmo1),
         )
 
-        beforeTest {
+        beforeEach {
             domain.initialize(database.db)
         }
 

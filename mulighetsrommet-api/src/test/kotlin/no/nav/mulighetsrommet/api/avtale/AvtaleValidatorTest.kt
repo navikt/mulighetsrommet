@@ -17,9 +17,7 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
@@ -35,6 +33,7 @@ import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.model.AmoKategorisering
@@ -86,21 +85,24 @@ class AvtaleValidatorTest : FunSpec({
             satser = listOf(),
         ),
     )
-    val gruppeAmo = AvtaleFixtures.gruppeAmo.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
+        amo = AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING),
     )
-    val forhaandsgodkjent = AvtaleFixtures.AFT.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        avtaletype = Avtaletype.FORHANDSGODKJENT,
+        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+        prismodell = AvtaleFixtures.Prismodell.Forhandsgodkjent,
     )
-    val avtaleTypeAvtale = AvtaleFixtures.oppfolgingMedAvtale.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val avtaleTypeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
+        avtaletype = Avtaletype.AVTALE,
     )
-    val oppfolgingMedRammeAvtale = AvtaleFixtures.oppfolging.toAvtaleRequest(
-        avtaleRequest.detaljer.arrangor,
+    val oppfolgingMedRammeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
+        avtaletype = Avtaletype.RAMMEAVTALE,
     )
     val ctx = Ctx(
         previous = null,
@@ -123,7 +125,7 @@ class AvtaleValidatorTest : FunSpec({
         avtaletype = Avtaletype.AVTALE,
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         gjennomforinger = emptyList(),
-        prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = ""),
+        prismodeller = listOf(Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = "")),
     )
 
     test("should accumulate errors when request has multiple issues") {
@@ -470,36 +472,34 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("prismodell") {
-        test("prismodell må stemme overens med tiltakstypen") {
-            AvtaleValidator.validateCreateAvtale(
-                avtaleRequest.copy(
-                    detaljer = avtaleRequest.detaljer.copy(
-                        tiltakskode = Tiltakskode.OPPFOLGING,
-                    ),
-                    prismodell = PrismodellRequest(
-                        id = UUID.randomUUID(),
-                        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                        prisbetingelser = null,
-                        satser = emptyList(),
-                    ),
+        fun getValidatePrismodellContext(tiltakstype: TiltakstypeDbo) = AvtaleValidator.ValidatePrismodellContext(
+            tiltakskode = tiltakstype.tiltakskode!!,
+            tiltakstypeNavn = tiltakstype.navn,
+        )
+
+        test("må stemme overens med tiltakstypen") {
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
+                    satser = emptyList(),
                 ),
-                ctx,
+                getValidatePrismodellContext(TiltakstypeFixtures.Oppfolging),
             ).shouldBeLeft().shouldContain(
                 FieldError(
                     "/prismodell",
                     "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
-            AvtaleValidator.validateCreateAvtale(
-                forhaandsgodkjent.copy(
-                    prismodell = PrismodellRequest(
-                        id = UUID.randomUUID(),
-                        type = PrismodellType.ANNEN_AVTALT_PRIS,
-                        prisbetingelser = null,
-                        satser = emptyList(),
-                    ),
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    prisbetingelser = null,
+                    satser = emptyList(),
                 ),
-                ctx.copy(tiltakstype = ctx.tiltakstype.copy(navn = TiltakstypeFixtures.AFT.navn)),
+                getValidatePrismodellContext(TiltakstypeFixtures.AFT),
             ).shouldBeLeft().shouldContain(
                 FieldError(
                     "/prismodell",
@@ -507,15 +507,15 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             )
 
-            val fri = avtaleRequest.copy(
-                prismodell = PrismodellRequest(
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
                     id = UUID.randomUUID(),
                     type = PrismodellType.ANNEN_AVTALT_PRIS,
                     prisbetingelser = null,
                     satser = emptyList(),
                 ),
-            )
-            AvtaleValidator.validateCreateAvtale(fri, ctx).shouldBeRight()
+                getValidatePrismodellContext(TiltakstypeFixtures.Oppfolging),
+            ).shouldBeRight()
         }
     }
 
@@ -836,71 +836,3 @@ class AvtaleValidatorTest : FunSpec({
         }
     }
 })
-
-fun AvtaleDbo.toAvtaleRequest(arrangor: DetaljerRequest.Arrangor?, tiltakskode: Tiltakskode) = OpprettAvtaleRequest(
-    id = this.id,
-    detaljer = DetaljerRequest(
-        navn = this.detaljerDbo.navn,
-        sakarkivNummer = this.detaljerDbo.sakarkivNummer,
-        tiltakskode = tiltakskode,
-        arrangor = arrangor,
-        startDato = this.detaljerDbo.startDato,
-        sluttDato = this.detaljerDbo.sluttDato,
-        avtaletype = this.detaljerDbo.avtaletype,
-        administratorer = this.detaljerDbo.administratorer,
-        amoKategorisering = this.detaljerDbo.amoKategorisering?.toRequest(),
-        opsjonsmodell = this.detaljerDbo.opsjonsmodell,
-        utdanningslop = this.detaljerDbo.utdanningslop,
-    ),
-
-    veilederinformasjon = VeilederinfoRequest(
-        navEnheter = this.veilederinformasjonDbo.navEnheter.toList(),
-        beskrivelse = this.veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
-        faneinnhold = this.veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold,
-    ),
-    personvern = PersonvernRequest(
-        personopplysninger = this.personvernDbo.personopplysninger,
-        personvernBekreftet = this.personvernDbo.personvernBekreftet,
-    ),
-    prismodell = PrismodellRequest(
-        id = this.prismodellDbo.id,
-        type = this.prismodellDbo.type,
-        prisbetingelser = this.prismodellDbo.prisbetingelser,
-        satser = (this.prismodellDbo.satser ?: listOf()).map {
-            AvtaltSatsRequest(
-                pris = it.sats,
-                valuta = "NOK",
-                gjelderFra = it.gjelderFra,
-            )
-        },
-    ),
-)
-
-fun AmoKategorisering.toRequest() = when (this) {
-    is AmoKategorisering.BransjeOgYrkesrettet -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-        bransje = this.bransje,
-        sertifiseringer = this.sertifiseringer,
-        forerkort = this.forerkort,
-        innholdElementer = this.innholdElementer,
-    )
-
-    AmoKategorisering.ForberedendeOpplaeringForVoksne -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-    )
-
-    is AmoKategorisering.GrunnleggendeFerdigheter -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-        innholdElementer = this.innholdElementer,
-    )
-
-    is AmoKategorisering.Norskopplaering -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.NORSKOPPLAERING,
-        innholdElementer = this.innholdElementer,
-        norskprove = this.norskprove,
-    )
-
-    AmoKategorisering.Studiespesialisering -> AmoKategoriseringRequest(
-        kurstype = AmoKurstype.STUDIESPESIALISERING,
-    )
-}

@@ -45,7 +45,7 @@ data class Avtale(
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<OpsjonLoggDto>,
     val utdanningslop: UtdanningslopDto?,
-    val prismodell: Prismodell,
+    val prismodeller: List<Prismodell>,
 ) {
 
     @Serializable

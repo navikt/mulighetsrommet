@@ -130,6 +130,9 @@ export function defaultAvtaleData(
   const navEnheter = avtale?.kontorstruktur?.flatMap((struktur) => struktur.kontorer);
   const { navKontorEnheter, navAndreEnheter } = splitNavEnheterByType(navEnheter || []);
 
+  // TODO: støtte flere prismodeller
+  const prismodell = avtale?.prismodeller?.[0];
+
   return {
     detaljer: {
       administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
@@ -167,13 +170,10 @@ export function defaultAvtaleData(
       personopplysninger: avtale?.personopplysninger ?? [],
     },
     prismodell: {
-      id: avtale?.prismodell?.id,
-      type: avtale?.prismodell?.type as PrismodellType | undefined,
-      satser: avtale?.prismodell?.satser ?? [],
-      prisbetingelser:
-        avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-          ? (avtale.prismodell.prisbetingelser ?? null)
-          : null,
+      id: prismodell?.id,
+      type: prismodell?.type as PrismodellType | undefined,
+      satser: prismodell?.satser ?? [],
+      prisbetingelser: prismodell?.prisbetingelser ?? null,
     },
   };
 }

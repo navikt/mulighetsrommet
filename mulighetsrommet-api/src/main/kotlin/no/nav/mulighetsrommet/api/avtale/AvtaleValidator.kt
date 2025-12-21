@@ -67,7 +67,7 @@ object AvtaleValidator {
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
             val gjennomforinger: List<Gjennomforing>,
-            val prismodell: Prismodell,
+            val prismodeller: List<Prismodell>,
         )
 
         data class Gjennomforing(
@@ -89,11 +89,6 @@ object AvtaleValidator {
     ): Either<List<FieldError>, AvtaleDbo> = validation {
         validateNavEnheter(ctx.navEnheter)
         val amoKategorisering = validateDetaljer(request.detaljer, ctx).bind()
-        val prismodellDbo = validatePrismodell(
-            request.prismodell,
-            tiltakskode = request.detaljer.tiltakskode,
-            tiltakstypeNavn = ctx.tiltakstype.navn,
-        ).bind()
         val detaljerDbo = request.detaljer.toDbo(
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),
@@ -104,9 +99,13 @@ object AvtaleValidator {
             ),
             amoKategorisering,
         )
+        val prismodeller = validatePrismodell(
+            request.prismodell,
+            ValidatePrismodellContext(request.detaljer.tiltakskode, ctx.tiltakstype.navn),
+        ).bind()
         val personvernDbo = request.personvern.toDbo()
         val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
-        fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodellDbo, personvernDbo, veilederinformasjonDbo)
+        fromValidatedAvtaleRequest(request.id, detaljerDbo, listOf(prismodeller), personvernDbo, veilederinformasjonDbo)
     }
 
     /**
@@ -139,11 +138,13 @@ object AvtaleValidator {
                 )
             }
         }
-        validate(previous.prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
-            FieldError.of(
-                "Tiltakstype kan ikke endres fordi prismodellen “${previous.prismodell.type.navn}” er i bruk",
-                DetaljerRequest::tiltakskode,
-            )
+        previous.prismodeller.forEach { prismodell ->
+            validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
+                FieldError.of(
+                    "Tiltakstype kan ikke endres fordi prismodellen “${prismodell.type.navn}” er i bruk",
+                    DetaljerRequest::tiltakskode,
+                )
+            }
         }
 
         if (previous.gjennomforinger.isNotEmpty()) {
@@ -322,22 +323,18 @@ object AvtaleValidator {
         }
     }
 
+    data class ValidatePrismodellContext(
+        val tiltakskode: Tiltakskode,
+        val tiltakstypeNavn: String,
+    )
+
     fun validatePrismodell(
         request: PrismodellRequest,
-        tiltakskode: Tiltakskode,
-        tiltakstypeNavn: String,
+        context: ValidatePrismodellContext,
     ): Either<List<FieldError>, PrismodellDbo> = validation {
-        validatePrismodell(request, tiltakskode, tiltakstypeNavn).bind()
-    }
-
-    private fun ValidationDsl.validatePrismodell(
-        request: PrismodellRequest,
-        tiltakskode: Tiltakskode,
-        tiltakstypeNavn: String,
-    ): Either<List<FieldError>, PrismodellDbo> {
-        validate(request.type in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
+        validate(request.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
             FieldError.of(
-                "${request.type.navn} er ikke tillatt for tiltakstype $tiltakstypeNavn",
+                "${request.type.navn} er ikke tillatt for tiltakstype ${context.tiltakstypeNavn}",
                 OpprettAvtaleRequest::prismodell,
             )
         }
@@ -353,14 +350,14 @@ object AvtaleValidator {
             -> validateSatser(request.satser)
         }
 
-        return PrismodellDbo(
+        PrismodellDbo(
             id = request.id,
             type = request.type,
             prisbetingelser = request.prisbetingelser,
             satser = request.satser.map {
                 AvtaltSats(gjelderFra = it.gjelderFra!!, sats = it.pris!!)
             },
-        ).right()
+        )
     }
 
     fun validateOpprettOpsjonLoggRequest(
@@ -417,21 +414,18 @@ object AvtaleValidator {
 
     private fun ValidationDsl.validateSatser(satser: List<AvtaltSatsRequest>) {
         validate(satser.isNotEmpty()) {
-            FieldError.of(
-                "Minst én pris er påkrevd",
-                OpprettAvtaleRequest::prismodell,
-            )
+            FieldError.of("Minst én pris er påkrevd", OpprettAvtaleRequest::prismodell)
         }
         satser.forEachIndexed { index, sats ->
             validate(sats.pris != null && sats.pris > 0) {
-                FieldError.ofPointer("prismodell/satser/$index/pris", "Pris må være positiv")
+                FieldError.ofPointer("/prismodell/satser/$index/pris", "Pris må være positiv")
             }
         }
         for (i in satser.indices) {
             val a = satser[i]
             if (a.gjelderFra == null) {
                 validate(false) {
-                    FieldError.ofPointer("prismodell/satser/$i/gjelderFra", "Gjelder fra må være satt")
+                    FieldError.ofPointer("/prismodell/satser/$i/gjelderFra", "Gjelder fra må være satt")
                 }
                 continue
             }
@@ -439,7 +433,7 @@ object AvtaleValidator {
                 val b = satser[j]
                 if (!a.gjelderFra.isBefore(b.gjelderFra)) {
                     validate(false) {
-                        FieldError.ofPointer("prismodell/satser/$j/gjelderFra", "Ny pris må gjelde etter forrige pris")
+                        FieldError.ofPointer("/prismodell/satser/$j/gjelderFra", "Ny pris må gjelde etter forrige pris")
                     }
                     continue
                 }

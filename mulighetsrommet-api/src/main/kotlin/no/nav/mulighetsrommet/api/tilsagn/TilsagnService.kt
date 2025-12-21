@@ -69,10 +69,8 @@ class TilsagnService(
         requireNotNull(request.id) { "id mangler" }
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
-        requireNotNull(gjennomforing.avtaleId) { "Gjennomforingen mangler avtale" }
-
-        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId)
-        val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
+        val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
+        val avtalteSatser = AvtalteSatser.getAvtalteSatser(gjennomforing.tiltakstype.tiltakskode, prismodell)
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -268,17 +266,15 @@ class TilsagnService(
         if (request.periodeStart == null || request.periodeSlutt == null) {
             return null
         }
+
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
+        val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
+        val avtalteSatser = AvtalteSatser.getAvtalteSatser(gjennomforing.tiltakstype.tiltakskode, prismodell)
+        val sats = AvtalteSatser.findSats(avtalteSatser, request.periodeStart) ?: 0
+
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
-
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
-        val sats =
-            queries.gjennomforing.getGruppetiltak(request.gjennomforingId)?.avtaleId?.let {
-                queries.avtale.get(it)
-            }?.let { avtale ->
-                val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
-                AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
-            } ?: 0
 
         return TilsagnBeregningFallbackResolver(
             sats = sats,
