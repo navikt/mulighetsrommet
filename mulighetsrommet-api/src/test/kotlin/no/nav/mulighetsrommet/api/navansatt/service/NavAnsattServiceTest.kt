@@ -39,7 +39,7 @@ class NavAnsattServiceTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
     )
 
-    beforeEach {
+    beforeSpec {
         domain.initialize(database.db)
     }
 
@@ -150,6 +150,7 @@ class NavAnsattServiceTest : FunSpec({
 
         test("should resolve Nav-enhet with kostnadssteder Nav-enheter from multiple groups") {
             MulighetsrommetTestDomain(
+                tiltakstyper = listOf(),
                 navEnheter = listOf(
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,

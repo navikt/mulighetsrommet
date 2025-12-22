@@ -245,7 +245,6 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter relevant data om tiltakstype og gjennomføring") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                avtaler = listOf(),
                 enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
             )
 
@@ -275,7 +274,6 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter bare tiltaksnummer fra Arena-data") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                avtaler = listOf(),
                 enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
             )
 

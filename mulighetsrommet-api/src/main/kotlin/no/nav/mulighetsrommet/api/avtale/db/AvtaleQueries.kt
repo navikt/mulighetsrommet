@@ -4,6 +4,7 @@ import PersonvernDbo
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
@@ -30,6 +31,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -45,7 +47,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleQueries(private val session: Session) {
-    fun upsert(avtale: AvtaleDbo) = withTransaction(session) {
+    fun create(avtale: AvtaleDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale (
@@ -57,11 +59,8 @@ class AvtaleQueries(private val session: Session) {
                 start_dato,
                 slutt_dato,
                 status,
-                opsjon_maks_varighet,
                 avtaletype,
-                beskrivelse,
-                faneinnhold,
-                personvern_bekreftet,
+                opsjon_maks_varighet,
                 opsjonsmodell,
                 opsjon_custom_opsjonsmodell_navn
             ) values (
@@ -73,43 +72,36 @@ class AvtaleQueries(private val session: Session) {
                 :start_dato,
                 :slutt_dato,
                 :status::avtale_status,
-                :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
-                :beskrivelse,
-                :faneinnhold::jsonb,
-                :personvern_bekreftet,
+                :opsjon_maks_varighet,
                 :opsjonsmodell::opsjonsmodell,
                 :opsjonCustomOpsjonsmodellNavn
-            ) on conflict (id) do update set
-                navn                        = excluded.navn,
-                tiltakstype_id              = excluded.tiltakstype_id,
-                sakarkiv_nummer             = excluded.sakarkiv_nummer,
-                arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
-                start_dato                  = excluded.start_dato,
-                slutt_dato                  = excluded.slutt_dato,
-                status                      = excluded.status,
-                opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
-                avtaletype                  = excluded.avtaletype,
-                beskrivelse                 = excluded.beskrivelse,
-                faneinnhold                 = excluded.faneinnhold,
-                personvern_bekreftet        = excluded.personvern_bekreftet,
-                opsjonsmodell               = excluded.opsjonsmodell,
-                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
+            )
         """.trimIndent()
 
-        execute(queryOf(query, avtale.toSqlParameters()))
-
-        AmoKategoriseringQueries.upsert(
-            AmoKategoriseringQueries.Relation.AVTALE,
-            avtale.id,
-            avtale.detaljerDbo.amoKategorisering,
+        val params = mapOf(
+            "id" to avtale.id,
+            "navn" to avtale.detaljerDbo.navn,
+            "tiltakstype_id" to avtale.detaljerDbo.tiltakstypeId,
+            "sakarkiv_nummer" to avtale.detaljerDbo.sakarkivNummer?.value,
+            "arrangor_hovedenhet_id" to avtale.detaljerDbo.arrangor?.hovedenhet,
+            "start_dato" to avtale.detaljerDbo.startDato,
+            "slutt_dato" to avtale.detaljerDbo.sluttDato,
+            "status" to avtale.detaljerDbo.status.name,
+            "avtaletype" to avtale.detaljerDbo.avtaletype.name,
+            "opsjon_maks_varighet" to avtale.detaljerDbo.opsjonsmodell.opsjonMaksVarighet,
+            "opsjonsmodell" to avtale.detaljerDbo.opsjonsmodell.type.name,
+            "opsjonCustomOpsjonsmodellNavn" to avtale.detaljerDbo.opsjonsmodell.customOpsjonsmodellNavn,
         )
-        upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
-        upsertNavEnheter(avtale.id, avtale.veilederinformasjonDbo.navEnheter)
+        execute(queryOf(query, params))
+
         upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
+        upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
+        upsertAmo(avtale.id, avtale.detaljerDbo.amoKategorisering)
         upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
+        updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         upsertPrismodell(avtale.id, avtale.prismodellDbo)
-        upsertPersonopplysninger(avtale.id, avtale.personvernDbo.personopplysninger)
+        updatePersonvern(avtale.id, avtale.personvernDbo)
     }
 
     fun updateDetaljer(
@@ -119,25 +111,47 @@ class AvtaleQueries(private val session: Session) {
         upsertDetaljer(avtaleId, detaljerDbo)
         upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
         upsertArrangor(avtaleId, detaljerDbo.arrangor)
+        upsertAmo(avtaleId, detaljerDbo.amoKategorisering)
         upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop)
     }
 
     fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val updatePersonvernBekreftet = """
-                update avtale
-                set
-                    personvern_bekreftet = :personvern_bekreftet::boolean
-                 where id = :id::uuid
+            update avtale
+            set personvern_bekreftet = :personvern_bekreftet::boolean
+            where id = :id::uuid
         """.trimIndent()
-
-        session.execute(
+        execute(
             queryOf(
                 updatePersonvernBekreftet,
                 mapOf("id" to avtaleId, "personvern_bekreftet" to personvernDbo.personvernBekreftet),
             ),
         )
-        upsertPersonopplysninger(avtaleId, personvernDbo.personopplysninger)
+
+        @Language("PostgreSQL")
+        val updatePersonopplysninger = """
+            insert into avtale_personopplysning (avtale_id, personopplysning)
+            values (?::uuid, ?::personopplysning)
+            on conflict do nothing
+        """.trimIndent()
+        batchPreparedStatement(
+            updatePersonopplysninger,
+            personvernDbo.personopplysninger.map { listOf<Any>(avtaleId, it.name) },
+        )
+
+        @Language("PostgreSQL")
+        val deletePersonopplysninger = """
+            delete from avtale_personopplysning
+            where avtale_id = ?::uuid and not (personopplysning = any (?))
+        """.trimIndent()
+        execute(
+            queryOf(
+                deletePersonopplysninger,
+                avtaleId,
+                createArrayOfPersonopplysning(personvernDbo.personopplysninger),
+            ),
+        )
     }
 
     fun updateVeilederinfo(avtaleId: UUID, veilederinformasjonDbo: VeilederinformasjonDbo) = withTransaction(session) {
@@ -145,68 +159,52 @@ class AvtaleQueries(private val session: Session) {
         upsertNavEnheter(avtaleId, veilederinformasjonDbo.navEnheter)
     }
 
-    private fun DetaljerDbo.params(id: UUID) = mapOf(
-        "id" to id,
-        "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "sakarkiv_nummer" to sakarkivNummer?.value,
-        "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "avtaletype" to avtaletype.name,
-        "status" to status.name,
-    ) + opsjonsmodell.params()
-
-    private fun Opsjonsmodell.params() = mapOf(
-        "opsjonsmodell" to type.name,
-        "opsjon_maks_varighet" to opsjonMaksVarighet,
-        "opsjon_custom_opsjonsmodell_navn" to customOpsjonsmodellNavn,
-    )
-
-    private fun RedaksjoneltInnholdDbo.params(id: UUID) = mapOf(
-        "id" to id,
-        "beskrivelse" to beskrivelse,
-        "faneinnhold" to faneinnhold.let { Json.encodeToString(it) },
-    )
-
-    fun upsertAdministratorer(avtaleId: UUID, administratorer: List<NavIdent>) {
+    private fun upsertAdministratorer(avtaleId: UUID, administratorer: List<NavIdent>) = withTransaction(session) {
         @Language("PostgreSQL")
         val upsertAdministrator = """
              insert into avtale_administrator(avtale_id, nav_ident)
              values (?::uuid, ?)
              on conflict (avtale_id, nav_ident) do nothing
         """.trimIndent()
+        batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it.value) })
 
         @Language("PostgreSQL")
         val deleteAdministratorer = """
              delete from avtale_administrator
              where avtale_id = ?::uuid and not (nav_ident = any (?))
         """.trimIndent()
-
-        session.batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it.value) })
-        session.execute(
+        execute(
             queryOf(
                 deleteAdministratorer,
                 avtaleId,
-                session.createArrayOfValue(administratorer) { it.value },
+                createArrayOfValue(administratorer) { it.value },
             ),
         )
     }
 
-    fun upsertArrangor(avtaleId: UUID, arrangor: ArrangorDbo?) {
+    private fun upsertArrangor(avtaleId: UUID, arrangor: ArrangorDbo?) = withTransaction(session) {
         @Language("PostgreSQL")
         val setArrangorUnderenhet = """
              insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
              values (?::uuid, ?::uuid)
              on conflict (avtale_id, arrangor_id) do nothing
         """.trimIndent()
+        arrangor?.underenheter?.also { underenheter ->
+            batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtaleId, it) })
+        }
 
         @Language("PostgreSQL")
         val deleteUnderenheter = """
              delete from avtale_arrangor_underenhet
              where avtale_id = ?::uuid and not (arrangor_id = any (?))
         """.trimIndent()
+        execute(
+            queryOf(
+                deleteUnderenheter,
+                avtaleId,
+                arrangor?.underenheter?.let { createUuidArray(it) },
+            ),
+        )
 
         @Language("PostgreSQL")
         val upsertArrangorKontaktperson = """
@@ -214,41 +212,36 @@ class AvtaleQueries(private val session: Session) {
             values (?::uuid, ?::uuid)
             on conflict do nothing
         """.trimIndent()
+        arrangor?.kontaktpersoner?.also { kontaktpersoner ->
+            batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtaleId, it) })
+        }
 
         @Language("PostgreSQL")
         val deleteArrangorKontaktpersoner = """
             delete from avtale_arrangor_kontaktperson
             where avtale_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
-
-        arrangor?.underenheter?.let { underenheter ->
-            session.batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtaleId, it) })
-        }
-        session.execute(
-            queryOf(
-                deleteUnderenheter,
-                avtaleId,
-                arrangor?.underenheter?.let { session.createUuidArray(it) },
-            ),
-        )
-        arrangor?.kontaktpersoner?.let { kontaktpersoner ->
-            session.batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtaleId, it) })
-        }
-        session.execute(
+        execute(
             queryOf(
                 deleteArrangorKontaktpersoner,
                 avtaleId,
-                arrangor?.kontaktpersoner?.let { session.createUuidArray(it) },
+                arrangor?.kontaktpersoner?.let { createUuidArray(it) },
             ),
         )
     }
 
-    fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?) {
+    context(session: TransactionalSession)
+    private fun upsertAmo(avtaleId: UUID, amo: AmoKategorisering?) {
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtaleId, amo)
+    }
+
+    private fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?) = withTransaction(session) {
         @Language("PostgreSQL")
         val deleteUtdanningslop = """
             delete from avtale_utdanningsprogram
             where avtale_id = ?::uuid
         """.trimIndent()
+        execute(queryOf(deleteUtdanningslop, avtaleId))
 
         @Language("PostgreSQL")
         val insertUtdanningslop = """
@@ -259,8 +252,6 @@ class AvtaleQueries(private val session: Session) {
             )
             values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
-        session.execute(queryOf(deleteUtdanningslop, avtaleId))
-
         utdanningslop?.let { utdanningslop ->
             val utdanninger = utdanningslop.utdanninger.map {
                 mapOf(
@@ -269,12 +260,11 @@ class AvtaleQueries(private val session: Session) {
                     "utdanning_id" to it,
                 )
             }
-            session.batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
+            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
     }
 
-    context(session: Session)
-    fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) {
+    private fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             update avtale
@@ -292,17 +282,25 @@ class AvtaleQueries(private val session: Session) {
                 status = :status::avtale_status
              where id = :id::uuid
         """.trimIndent()
-
-        AmoKategoriseringQueries.upsert(
-            AmoKategoriseringQueries.Relation.AVTALE,
-            id,
-            detaljer.amoKategorisering,
+        val params = mapOf(
+            "id" to id,
+            "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
+            "navn" to detaljer.navn,
+            "tiltakstype_id" to detaljer.tiltakstypeId,
+            "sakarkiv_nummer" to detaljer.sakarkivNummer?.value,
+            "arrangor_hovedenhet_id" to detaljer.arrangor?.hovedenhet,
+            "start_dato" to detaljer.startDato,
+            "slutt_dato" to detaljer.sluttDato,
+            "avtaletype" to detaljer.avtaletype.name,
+            "status" to detaljer.status.name,
+            "opsjonsmodell" to detaljer.opsjonsmodell.type.name,
+            "opsjon_maks_varighet" to detaljer.opsjonsmodell.opsjonMaksVarighet,
+            "opsjon_custom_opsjonsmodell_navn" to detaljer.opsjonsmodell.customOpsjonsmodellNavn,
         )
-
-        session.execute(queryOf(query, detaljer.params(id)))
+        execute(queryOf(query, params))
     }
 
-    fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
+    private fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
         @Language("PostgreSQL")
         val query = """
                 update avtale
@@ -311,57 +309,32 @@ class AvtaleQueries(private val session: Session) {
                     faneinnhold = :faneinnhold::jsonb
                  where id = :id::uuid
         """.trimIndent()
-
-        session.execute(queryOf(query, redaksjoneltInnhold.params(id)))
+        val params = mapOf(
+            "id" to id,
+            "beskrivelse" to redaksjoneltInnhold.beskrivelse,
+            "faneinnhold" to redaksjoneltInnhold.faneinnhold.let { Json.encodeToString<Faneinnhold?>(it) },
+        )
+        session.execute(queryOf(query, params))
     }
 
-    fun upsertNavEnheter(avtaleId: UUID, enheter: Set<NavEnhetNummer>) {
+    private fun upsertNavEnheter(avtaleId: UUID, enheter: Set<NavEnhetNummer>) = withTransaction(session) {
         @Language("PostgreSQL")
         val upsertEnhet = """
              insert into avtale_nav_enhet (avtale_id, enhetsnummer)
              values (?::uuid, ?)
              on conflict (avtale_id, enhetsnummer) do nothing
         """.trimIndent()
+        batchPreparedStatement(upsertEnhet, enheter.map { listOf(avtaleId, it.value) })
 
         @Language("PostgreSQL")
         val deleteEnheter = """
              delete from avtale_nav_enhet
              where avtale_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
-
-        session.batchPreparedStatement(upsertEnhet, enheter.map { listOf(avtaleId, it.value) })
-        session.execute(queryOf(deleteEnheter, avtaleId, session.createArrayOfValue(enheter) { it.value }))
+        execute(queryOf(deleteEnheter, avtaleId, createArrayOfValue(enheter) { it.value }))
     }
 
-    fun upsertPersonopplysninger(id: UUID, personopplysninger: List<Personopplysning>) = withTransaction(session) {
-        @Language("PostgreSQL")
-        val updatePersonopplysninger = """
-                insert into avtale_personopplysning (avtale_id, personopplysning)
-                values (?::uuid, ?::personopplysning)
-                on conflict do nothing
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deletePersonopplysninger = """
-                delete from avtale_personopplysning
-                where avtale_id = ?::uuid and not (personopplysning = any (?))
-        """.trimIndent()
-
-        session.batchPreparedStatement(
-            updatePersonopplysninger,
-            personopplysninger.map { listOf<Any>(id, it.name) },
-        )
-
-        session.execute(
-            queryOf(
-                deletePersonopplysninger,
-                id,
-                session.createArrayOfPersonopplysning(personopplysninger),
-            ),
-        )
-    }
-
-    fun upsertPrismodell(avtaleId: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+    fun upsertPrismodell(avtaleId: UUID, dbo: PrismodellDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale_prismodell(id,
@@ -379,7 +352,6 @@ class AvtaleQueries(private val session: Session) {
                                            prismodell_type = excluded.prismodell_type,
                                            satser          = excluded.satser
         """.trimIndent()
-
         val params = mapOf(
             "avtale_id" to avtaleId,
             "id" to dbo.id,
@@ -387,10 +359,10 @@ class AvtaleQueries(private val session: Session) {
             "prisbetingelser" to dbo.prisbetingelser,
             "satser" to Json.encodeToString(dbo.satser),
         )
-        execute(queryOf(query, params))
+        session.execute(queryOf(query, params))
     }
 
-    fun upsertAvtalenummer(id: UUID, avtalenummer: String) = withTransaction(session) {
+    fun upsertAvtalenummer(id: UUID, avtalenummer: String) {
         @Language("PostgreSQL")
         val updateAvtalenummer = """
                 update avtale
@@ -398,17 +370,13 @@ class AvtaleQueries(private val session: Session) {
                 where id = :id::uuid
         """.trimIndent()
 
-        execute(
-            queryOf(
-                updateAvtalenummer,
-                mapOf("id" to id, "avtalenummer" to avtalenummer),
-            ),
-        )
+        val params = mapOf("id" to id, "avtalenummer" to avtalenummer)
+        session.execute(queryOf(updateAvtalenummer, params))
     }
 
     fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
 
-    fun get(id: UUID): Avtale? = with(session) {
+    fun get(id: UUID): Avtale? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -416,7 +384,7 @@ class AvtaleQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toAvtale() }
+        return session.single(queryOf(query, id)) { it.toAvtale() }
     }
 
     fun getAll(
@@ -492,7 +460,7 @@ class AvtaleQueries(private val session: Session) {
         tidspunkt: LocalDateTime?,
         aarsaker: List<AvbrytAvtaleAarsak>?,
         forklaring: String?,
-    ): Int = with(session) {
+    ): Int {
         @Language("PostgreSQL")
         val query = """
             update avtale set
@@ -510,10 +478,10 @@ class AvtaleQueries(private val session: Session) {
             "aarsaker" to aarsaker?.let { session.createTextArray(it) },
             "forklaring" to forklaring,
         )
-        return update(queryOf(query, params))
+        return session.update(queryOf(query, params))
     }
 
-    fun delete(id: UUID) = with(session) {
+    fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -521,13 +489,13 @@ class AvtaleQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        execute(queryOf(query, id))
+        session.execute(queryOf(query, id))
     }
 
     fun frikobleKontaktpersonFraAvtale(
         kontaktpersonId: UUID,
         avtaleId: UUID,
-    ) = with(session) {
+    ) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -535,10 +503,10 @@ class AvtaleQueries(private val session: Session) {
             where arrangor_kontaktperson_id = ?::uuid and avtale_id = ?::uuid
         """.trimIndent()
 
-        execute(queryOf(query, kontaktpersonId, avtaleId))
+        session.execute(queryOf(query, kontaktpersonId, avtaleId))
     }
 
-    fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) = with(session) {
+    fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) {
         @Language("PostgreSQL")
         val query = """
             update avtale
@@ -546,168 +514,143 @@ class AvtaleQueries(private val session: Session) {
             where id = ?::uuid
         """
 
-        update(queryOf(query, sluttDato, avtaleId))
+        session.update(queryOf(query, sluttDato, avtaleId))
+    }
+}
+
+private fun Row.toAvtale(): Avtale {
+    val startDato = localDate("start_dato")
+    val sluttDato = localDateOrNull("slutt_dato")
+    val personopplysninger = stringOrNull("personopplysninger_json")
+        ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
+        ?: emptyList()
+    val administratorer = stringOrNull("administratorer_json")
+        ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
+        ?: emptyList()
+    val navEnheter = stringOrNull("nav_enheter_json")
+        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
+        ?: emptyList()
+    val kontorstruktur = fromNavEnheter(navEnheter)
+
+    val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
+        ?.let { Json.decodeFromString<List<Avtale.OpsjonLoggDto>>(it) }
+        ?: emptyList()
+
+    val opsjonsmodell = Opsjonsmodell(
+        type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
+        opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
+        customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
+    )
+    val amoKategorisering = stringOrNull("amo_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
+
+    val utdanningslop = stringOrNull("utdanningslop_json")
+        ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
+
+    val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
+        val underenheter = stringOrNull("arrangor_underenheter_json")
+            ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
+            ?: emptyList()
+        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) } ?: emptyList()
+        Avtale.ArrangorHovedenhet(
+            id = id,
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
+            navn = string("arrangor_hovedenhet_navn"),
+            slettet = boolean("arrangor_hovedenhet_slettet"),
+            underenheter = underenheter,
+            kontaktpersoner = arrangorKontaktpersoner,
+        )
     }
 
-    private fun AvtaleDbo.toSqlParameters() = mapOf(
-        "opphav" to ArenaMigrering.Opphav.TILTAKSADMINISTRASJON.name,
-        "id" to id,
-        "navn" to detaljerDbo.navn,
-        "tiltakstype_id" to detaljerDbo.tiltakstypeId,
-        "sakarkiv_nummer" to detaljerDbo.sakarkivNummer?.value,
-        "arrangor_hovedenhet_id" to detaljerDbo.arrangor?.hovedenhet,
-        "start_dato" to detaljerDbo.startDato,
-        "slutt_dato" to detaljerDbo.sluttDato,
-        "status" to detaljerDbo.status.name,
-        "avtaletype" to detaljerDbo.avtaletype.name,
-        "beskrivelse" to veilederinformasjonDbo.redaksjoneltInnhold?.beskrivelse,
-        "faneinnhold" to veilederinformasjonDbo.redaksjoneltInnhold?.faneinnhold?.let { Json.encodeToString(it) },
-        "personvern_bekreftet" to personvernDbo.personvernBekreftet,
-        "opsjonsmodell" to detaljerDbo.opsjonsmodell.type.name,
-        "opsjonMaksVarighet" to detaljerDbo.opsjonsmodell.opsjonMaksVarighet,
-        "opsjonCustomOpsjonsmodellNavn" to detaljerDbo.opsjonsmodell.customOpsjonsmodellNavn,
-    )
+    val prismodell = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
+        val satser = prismodell.satser?.toDto() ?: listOf()
+        when (prismodell.type) {
+            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
+                id = prismodell.id,
+                prisbetingelser = prismodell.prisbetingelser,
+            )
 
-    private fun Row.toAvtale(): Avtale {
-        val startDato = localDate("start_dato")
-        val sluttDato = localDateOrNull("slutt_dato")
-        val personopplysninger = stringOrNull("personopplysninger_json")
-            ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
-            ?: emptyList()
-        val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
-            ?: emptyList()
-        val navEnheter = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-            ?: emptyList()
-        val kontorstruktur = fromNavEnheter(navEnheter)
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
+                id = prismodell.id,
+            )
 
-        val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
-            ?.let { Json.decodeFromString<List<Avtale.OpsjonLoggDto>>(it) }
-            ?: emptyList()
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
+                id = prismodell.id,
+                prisbetingelser = prismodell.prisbetingelser,
+                satser = satser,
+            )
 
-        val opsjonsmodell = Opsjonsmodell(
-            type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
-            opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-            customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
-        )
-        val amoKategorisering = stringOrNull("amo_kategorisering_json")
-            ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
+                id = prismodell.id,
+                prisbetingelser = prismodell.prisbetingelser,
+                satser = satser,
+            )
 
-        val utdanningslop = stringOrNull("utdanningslop_json")
-            ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
+                id = prismodell.id,
+                prisbetingelser = prismodell.prisbetingelser,
+                satser = satser,
+            )
 
-        val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
-            val underenheter = stringOrNull("arrangor_underenheter_json")
-                ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
-                ?: emptyList()
-            val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-                ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) } ?: emptyList()
-            Avtale.ArrangorHovedenhet(
-                id = id,
-                organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
-                navn = string("arrangor_hovedenhet_navn"),
-                slettet = boolean("arrangor_hovedenhet_slettet"),
-                underenheter = underenheter,
-                kontaktpersoner = arrangorKontaktpersoner,
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                id = prismodell.id,
+                prisbetingelser = prismodell.prisbetingelser,
+                satser = satser,
             )
         }
+    }.first()
 
-        val prismodeller = string("prismodeller_json")
-            .let { Json.decodeFromString<List<PrismodellDbo>>(it) }
-        val prismodell = prismodeller.map { p ->
-            when (p.type) {
-                PrismodellType.ANNEN_AVTALT_PRIS ->
-                    Prismodell.AnnenAvtaltPris(
-                        id = p.id,
-                        prisbetingelser = p.prisbetingelser,
-                    )
+    val status = when (AvtaleStatusType.valueOf(string("status"))) {
+        AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
 
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-                    Prismodell.ForhandsgodkjentPrisPerManedsverk(
-                        id = p.id,
-                    )
+        AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
 
-                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK ->
-                    Prismodell.AvtaltPrisPerManedsverk(
-                        id = p.id,
-                        prisbetingelser = p.prisbetingelser,
-                        satser = p.satser?.toDto() ?: listOf(),
-                    )
+        AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
 
-                PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
-                    Prismodell.AvtaltPrisPerUkesverk(
-                        id = p.id,
-                        prisbetingelser = p.prisbetingelser,
-                        satser = p.satser?.toDto() ?: listOf(),
-                    )
-
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
-                    Prismodell.AvtaltPrisPerHeleUkesverk(
-                        id = p.id,
-                        prisbetingelser = p.prisbetingelser,
-                        satser = p.satser?.toDto() ?: listOf(),
-                    )
-
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                    Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-                        id = p.id,
-                        prisbetingelser = p.prisbetingelser,
-                        satser = p.satser?.toDto() ?: listOf(),
-                    )
-            }
-        }.first()
-
-        val status = when (AvtaleStatusType.valueOf(string("status"))) {
-            AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
-
-            AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
-
-            AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
-
-            AvtaleStatusType.AVBRUTT -> {
-                AvtaleStatus.Avbrutt(
-                    localDateTime("avbrutt_tidspunkt"),
-                    arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytAvtaleAarsak.valueOf(it) } ?: emptyList(),
-                    stringOrNull("avbrutt_forklaring"),
-                )
-            }
+        AvtaleStatusType.AVBRUTT -> {
+            AvtaleStatus.Avbrutt(
+                localDateTime("avbrutt_tidspunkt"),
+                arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytAvtaleAarsak.valueOf(it) } ?: emptyList(),
+                stringOrNull("avbrutt_forklaring"),
+            )
         }
-        return Avtale(
-            id = uuid("id"),
-            navn = string("navn"),
-            avtalenummer = stringOrNull("avtalenummer"),
-            sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
-            startDato = startDato,
-            sluttDato = sluttDato,
-            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            status = status,
-            beskrivelse = stringOrNull("beskrivelse"),
-            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-            administratorer = administratorer,
-            kontorstruktur = kontorstruktur,
-            arrangor = arrangor,
-            arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
-                ArenaNavEnhet(
-                    navn = stringOrNull("arena_nav_enhet_navn"),
-                    enhetsnummer = it,
-                )
-            },
-            tiltakstype = Avtale.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-            ),
-            personopplysninger = personopplysninger,
-            personvernBekreftet = boolean("personvern_bekreftet"),
-            opsjonsmodell = opsjonsmodell,
-            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
-            amoKategorisering = amoKategorisering,
-            utdanningslop = utdanningslop,
-            prismodell = prismodell,
-        )
     }
+
+    return Avtale(
+        id = uuid("id"),
+        navn = string("navn"),
+        avtalenummer = stringOrNull("avtalenummer"),
+        sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
+        startDato = startDato,
+        sluttDato = sluttDato,
+        opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
+        avtaletype = Avtaletype.valueOf(string("avtaletype")),
+        status = status,
+        beskrivelse = stringOrNull("beskrivelse"),
+        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        administratorer = administratorer,
+        kontorstruktur = kontorstruktur,
+        arrangor = arrangor,
+        arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
+            ArenaNavEnhet(
+                navn = stringOrNull("arena_nav_enhet_navn"),
+                enhetsnummer = it,
+            )
+        },
+        tiltakstype = Avtale.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        personopplysninger = personopplysninger,
+        personvernBekreftet = boolean("personvern_bekreftet"),
+        opsjonsmodell = opsjonsmodell,
+        opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
+        amoKategorisering = amoKategorisering,
+        utdanningslop = utdanningslop,
+        prismodell = prismodell,
+    )
 }
 
 fun Session.createArrayOfAvtaleStatus(

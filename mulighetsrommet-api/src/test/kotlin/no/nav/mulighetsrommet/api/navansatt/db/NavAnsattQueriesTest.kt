@@ -41,7 +41,6 @@ class NavAnsattQueriesTest : FunSpec({
             navEnheter = listOf(enhet1, enhet2),
             ansatte = listOf(),
             arrangorer = listOf(),
-            avtaler = listOf(),
         ).initialize(database.db)
 
         fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<NavAnsattRolle>) = ansatt.run {

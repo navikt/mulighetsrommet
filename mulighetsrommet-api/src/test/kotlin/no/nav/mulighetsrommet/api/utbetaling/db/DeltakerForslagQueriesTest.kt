@@ -5,6 +5,7 @@ import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldNotContainKey
 import no.nav.amt.model.Melding
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -24,6 +25,7 @@ class DeltakerForslagQueriesTest : FunSpec({
     )
 
     val domain = MulighetsrommetTestDomain(
+        avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
         deltakere = listOf(deltaker),
     )

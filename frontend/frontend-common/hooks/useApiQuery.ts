@@ -1,8 +1,10 @@
 import { useQuery, UseQueryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 // Define the type of your wrapped useQuery
-interface UseQueryWrapperOptions<TQueryFnData, TError, TData>
-  extends Omit<UseQueryOptions<TQueryFnData, TError, TData>, "queryFn"> {
+interface UseQueryWrapperOptions<TQueryFnData, TError, TData> extends Omit<
+  UseQueryOptions<TQueryFnData, TError, TData>,
+  "queryFn"
+> {
   queryFn: () => Promise<{ data: TQueryFnData }>;
 }
 
@@ -30,8 +32,10 @@ export function useApiQuery<TQueryFnData, TError, TData = TQueryFnData>(
 }
 
 // Define the type of your wrapped useSuspenseQuery
-interface UseSuspenseQueryWrapperOptions<TQueryFnData, TError, TData>
-  extends Omit<UseQueryOptions<TQueryFnData, TError, TData>, "queryFn"> {
+interface UseSuspenseQueryWrapperOptions<TQueryFnData, TError, TData> extends Omit<
+  UseQueryOptions<TQueryFnData, TError, TData>,
+  "queryFn"
+> {
   queryFn: () => Promise<{ data: TQueryFnData }>;
 }
 

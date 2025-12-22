@@ -240,7 +240,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
     ).right()
 
-    beforeAny {
+    beforeSpec {
         MulighetsrommetTestDomain(
             arrangorer = listOf(
                 ArrangorFixtures.hovedenhet,

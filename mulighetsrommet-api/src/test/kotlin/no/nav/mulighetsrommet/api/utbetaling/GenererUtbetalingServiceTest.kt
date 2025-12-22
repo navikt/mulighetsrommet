@@ -152,10 +152,15 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
-        test("genererer ikke utbetaling når deltakelser mangler") {
+        beforeEach {
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
+            ).initialize(database.db)
+        }
+
+        test("genererer ikke utbetaling når deltakelser mangler") {
+            MulighetsrommetTestDomain(
                 gjennomforinger = listOf(AFT1),
             ).initialize(database.db)
 
@@ -209,8 +214,6 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("genererer utbetaling med riktig periode, sats og deltakere som input") {
             val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
@@ -662,6 +665,13 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("gjennomføringer og deltakere med feil i datagrunnlaget") {
         val service = createUtbetalingService()
 
+        beforeEach {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+            ).initialize(database.db)
+        }
+
         test("genererer ikke utbetaling når gjennomføringen ble avbrutt før utbetalingsperioden, selv om deltaker har sluttdato i utbetalingsperioden") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(
@@ -911,10 +921,15 @@ class GenererUtbetalingServiceTest : FunSpec({
         )
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = avtale.prismodellDbo.id)
 
-        test("genererer en utbetaling for avtalt pris per månedsverk med riktig periode, stengt, sats og deltakere som input") {
-            val domain = MulighetsrommetTestDomain(
+        beforeEach {
+            MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(avtale),
+            ).initialize(database.db)
+        }
+
+        test("genererer en utbetaling for avtalt pris per månedsverk med riktig periode, stengt, sats og deltakere som input") {
+            val domain = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(oppfolging),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
@@ -959,14 +974,6 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("genererer en utbetaling for avtalt pris per ukesverk med riktig periode, stengt, sats og deltakere som input") {
             val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(
-                    avtale.copy(
-                        prismodellDbo = avtale.prismodellDbo.copy(
-                            type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-                        ),
-                    ),
-                ),
                 gjennomforinger = listOf(oppfolging),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
@@ -983,6 +990,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
+                queries.avtale.upsertPrismodell(
+                    avtale.id,
+                    avtale.prismodellDbo.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                )
                 queries.gjennomforing.setStengtHosArrangor(
                     oppfolging.id,
                     Periode(LocalDate.of(2025, 1, 20), LocalDate.of(2025, 2, 20)),
@@ -1011,8 +1022,6 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
             MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(avtale),
                 gjennomforinger = listOf(oppfolging),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
@@ -1028,7 +1037,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
 
             database.run {
-                queries.avtale.upsert(avtale.copy(prismodellDbo = avtale.prismodellDbo.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)))
+                queries.avtale.upsertPrismodell(
+                    avtale.id,
+                    avtale.prismodellDbo.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                )
             }
 
             val oppdatertUtbetaling = service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id)
@@ -1039,14 +1051,6 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         test("innsendt fri utbetaling blir ikke slettet hvis avtalens prismodell endres") {
             val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(
-                    avtale.copy(
-                        prismodellDbo = avtale.prismodellDbo.copy(
-                            type = PrismodellType.ANNEN_AVTALT_PRIS,
-                        ),
-                    ),
-                ),
                 gjennomforinger = listOf(oppfolging),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(
@@ -1067,26 +1071,24 @@ class GenererUtbetalingServiceTest : FunSpec({
                         ),
                     ),
                 ),
-            ).initialize(database.db)
+            ) {
 
-            database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
                     avtale.prismodellDbo.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
                 )
-            }
+            }.initialize(database.db)
 
             service.oppdaterUtbetalingBeregningForGjennomforing(oppfolging.id).shouldHaveSize(0)
 
             database.run {
-                queries.utbetaling.get(domain.utbetalinger[0].id).shouldNotBeNull()
+                val utbetaling = queries.utbetaling.getOrError(domain.utbetalinger[0].id)
+                utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFri>()
             }
         }
 
         test("utbetalinger slettes når prismodell ikke lengre kan genereres av systemet") {
             MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(avtale),
                 gjennomforinger = listOf(oppfolging),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerDbo(

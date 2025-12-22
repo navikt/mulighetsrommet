@@ -69,11 +69,9 @@ class GjennomforingRoutesTest : FunSpec({
             navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo),
             ansatte = listOf(ansatt),
             arrangorer = listOf(),
-            avtaler = listOf(),
-            gjennomforinger = listOf(),
         )
 
-        beforeAny {
+        beforeEach {
             domain.initialize(database.db)
         }
 
@@ -131,11 +129,11 @@ class GjennomforingRoutesTest : FunSpec({
             ),
         )
 
-        beforeAny {
+        beforeEach {
             domain.initialize(database.db)
         }
 
-        afterContainer {
+        afterEach {
             database.truncateAll()
         }
 
@@ -248,7 +246,7 @@ class GjennomforingRoutesTest : FunSpec({
             )
         }
 
-        beforeAny {
+        beforeEach {
             domain.initialize(database.db)
         }
 

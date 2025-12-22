@@ -23,7 +23,6 @@ class NotificationQueriesTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         arrangorer = listOf(),
         tiltakstyper = listOf(),
-        avtaler = listOf(),
     )
 
     val user1 = NavAnsattFixture.DonaldDuck.navIdent
