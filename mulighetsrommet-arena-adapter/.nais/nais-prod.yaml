@@ -73,6 +73,8 @@ spec:
       rules:
         - application: mulighetsrommet-api
         - application: tiltakshistorikk
+        - application: logging
+          namespace: nais-system
       external:
         - host: amt-arena-ords-proxy.prod-fss-pub.nais.io
         - host: slack.com
