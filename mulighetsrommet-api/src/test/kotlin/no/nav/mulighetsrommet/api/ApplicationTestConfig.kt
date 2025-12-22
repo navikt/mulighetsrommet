@@ -35,11 +35,26 @@ fun <R> withTestApplication(
     }
 }
 
+fun kafkaTestConfig(kafkaConfig: KafkaConfig): KafkaConfig {
+    val testification = { str: String -> "$str-test" }
+    return kafkaConfig.copy(
+        topics = KafkaTopics(
+            okonomiBestillingTopic = testification(kafkaConfig.topics.okonomiBestillingTopic),
+            sisteTiltaksgjennomforingerV1Topic = testification(kafkaConfig.topics.sisteTiltaksgjennomforingerV1Topic),
+            sisteTiltaksgjennomforingerV2Topic = testification(kafkaConfig.topics.sisteTiltaksgjennomforingerV2Topic),
+            sisteTiltakstyperTopic = testification(kafkaConfig.topics.sisteTiltakstyperTopic),
+            arenaMigreringGjennomforingTopic = testification(kafkaConfig.topics.arenaMigreringGjennomforingTopic),
+            datavarehusTiltakTopic = testification(kafkaConfig.topics.datavarehusTiltakTopic),
+        ),
+    )
+}
+
 fun createTestApplicationConfig() = ApplicationConfigLocal.copy(
     engine = createMockEngine(),
     database = databaseConfig,
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = setOf()),
+    kafka = kafkaTestConfig(ApplicationConfigLocal.kafka),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
