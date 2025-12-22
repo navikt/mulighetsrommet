@@ -23,6 +23,7 @@ class UpdateAvtaleStatusTest : FunSpec({
     fun createTask() = UpdateAvtaleStatus(
         database.db,
         AvtaleService(
+            config = AvtaleService.Config(mapOf()),
             db = database.db,
             arrangorService = mockk(relaxed = true),
             gjennomforingPublisher = mockk(relaxed = true),

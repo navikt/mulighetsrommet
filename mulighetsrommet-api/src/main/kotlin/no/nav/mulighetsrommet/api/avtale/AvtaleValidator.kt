@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
@@ -59,6 +60,7 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
@@ -102,7 +104,12 @@ object AvtaleValidator {
         )
         val prismodeller = validatePrismodell(
             request.prismodell,
-            ValidatePrismodellContext(request.detaljer.tiltakskode, ctx.tiltakstype.navn),
+            ValidatePrismodellContext(
+                tiltakskode = request.detaljer.tiltakskode,
+                tiltakstypeNavn = ctx.tiltakstype.navn,
+                avtaleStartDato = request.detaljer.startDato,
+                gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
+            ),
         ).bind()
         val personvernDbo = request.personvern.toDbo()
         val veilederinformasjonDbo = request.veilederinformasjon.toDbo()
@@ -327,6 +334,8 @@ object AvtaleValidator {
     data class ValidatePrismodellContext(
         val tiltakskode: Tiltakskode,
         val tiltakstypeNavn: String,
+        val avtaleStartDato: LocalDate,
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     )
 
     fun validatePrismodell(
@@ -349,7 +358,7 @@ object AvtaleValidator {
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            -> validateSatser(request.satser)
+            -> validateSatser(context, request.satser)
         }
 
         PrismodellDbo(
@@ -412,7 +421,10 @@ object AvtaleValidator {
         )
     }
 
-    private fun ValidationDsl.validateSatser(satserRequest: List<AvtaltSatsRequest>): List<AvtaltSats> {
+    private fun ValidationDsl.validateSatser(
+        context: ValidatePrismodellContext,
+        satserRequest: List<AvtaltSatsRequest>,
+    ): List<AvtaltSats> {
         requireValid(satserRequest.isNotEmpty()) {
             FieldError.of("Minst én pris er påkrevd", OpprettAvtaleRequest::prismodell)
         }
@@ -434,7 +446,19 @@ object AvtaleValidator {
             }
         }
 
-        return satser.sortedBy { it.gjelderFra }
+        return satser.sortedBy { it.gjelderFra }.also { satser ->
+            val minSatsDato = satser.first().gjelderFra
+            val requiredMinSatsDato = maxOf(
+                context.avtaleStartDato,
+                context.gyldigTilsagnPeriode[context.tiltakskode]?.start ?: context.avtaleStartDato,
+            )
+            validate(minSatsDato <= requiredMinSatsDato) {
+                FieldError.ofPointer(
+                    "/prismodell/satser/0/gjelderFra",
+                    "Første sats må gjelde fra ${requiredMinSatsDato.formaterDatoTilEuropeiskDatoformat()}",
+                )
+            }
+        }
     }
 
     private fun ValidationDsl.validateSlettetNavAnsatte(

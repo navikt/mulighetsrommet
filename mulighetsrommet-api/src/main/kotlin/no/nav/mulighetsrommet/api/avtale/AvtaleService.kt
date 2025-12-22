@@ -45,6 +45,8 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -53,10 +55,15 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class AvtaleService(
+    private val config: Config,
     private val db: ApiDatabase,
     private val arrangorService: ArrangorService,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
+    data class Config(
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+    )
+
     suspend fun create(
         request: OpprettAvtaleRequest,
         navIdent: NavIdent,
@@ -199,7 +206,12 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
-        val context = ValidatePrismodellContext(avtale.tiltakstype.tiltakskode, avtale.tiltakstype.navn)
+        val context = ValidatePrismodellContext(
+            tiltakskode = avtale.tiltakstype.tiltakskode,
+            tiltakstypeNavn = avtale.tiltakstype.navn,
+            avtaleStartDato = avtale.startDato,
+            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+        )
         AvtaleValidator.validatePrismodell(request, context).map {
             queries.avtale.upsertPrismodell(id, it)
 
@@ -363,10 +375,7 @@ class AvtaleService(
         val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
-            val (arrangor, underenheter) = syncArrangorerFromBrreg(
-                it.hovedenhet,
-                it.underenheter,
-            ).bind()
+            val (arrangor, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
             arrangor.copy(underenheter = underenheter)
         }
 
@@ -379,6 +388,7 @@ class AvtaleService(
                 id = tiltakstype.id,
             ),
             navEnheter = navEnheter,
+            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
         )
     }
 
