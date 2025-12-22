@@ -235,7 +235,6 @@ class ArrangorQueriesTest : FunSpec({
             val domain = MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet),
                 arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
-                avtaler = listOf(),
             )
 
             database.runAndRollback { session ->

@@ -502,9 +502,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     context("enkeltplasser") {
-        val domain = MulighetsrommetTestDomain(
-            avtaler = listOf(),
-        )
+        val domain = MulighetsrommetTestDomain()
 
         val enkelAmo1 = EnkeltplassFixtures.EnkelAmo1.copy(
             navn = "Arena-navn",

@@ -68,7 +68,6 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.IPS),
-                avtaler = listOf(),
             ).initialize(database.db)
         }
 
@@ -281,7 +280,6 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                avtaler = listOf(),
             ).initialize(database.db)
         }
 

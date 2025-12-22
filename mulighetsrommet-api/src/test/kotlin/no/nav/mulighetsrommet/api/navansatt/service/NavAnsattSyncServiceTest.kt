@@ -27,7 +27,6 @@ class NavAnsattSyncServiceTest : FunSpec({
         navEnheter = listOf(NavEnhetFixtures.Innlandet),
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         arrangorer = listOf(),
-        avtaler = listOf(),
     ) {
         queries.ansatt.setRoller(
             NavAnsattFixture.DonaldDuck.navIdent,

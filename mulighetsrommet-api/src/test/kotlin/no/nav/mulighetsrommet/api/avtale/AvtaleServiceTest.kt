@@ -44,7 +44,7 @@ import java.util.UUID
 class AvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val domain = MulighetsrommetTestDomain(avtaler = listOf())
+    val domain = MulighetsrommetTestDomain()
     val brregClient = mockk<BrregClient>(relaxed = true)
 
     beforeEach {

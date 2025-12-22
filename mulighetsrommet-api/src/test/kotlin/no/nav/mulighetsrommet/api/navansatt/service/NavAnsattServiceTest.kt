@@ -151,7 +151,6 @@ class NavAnsattServiceTest : FunSpec({
         test("should resolve Nav-enhet with kostnadssteder Nav-enheter from multiple groups") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(),
-                avtaler = listOf(),
                 navEnheter = listOf(
                     NavEnhetFixtures.Innlandet,
                     NavEnhetFixtures.Gjovik,

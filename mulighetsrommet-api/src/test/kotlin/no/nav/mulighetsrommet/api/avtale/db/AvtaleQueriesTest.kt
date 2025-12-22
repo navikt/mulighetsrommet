@@ -59,7 +59,6 @@ class AvtaleQueriesTest : FunSpec({
                 ArrangorFixtures.underenhet2,
             ),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(),
         )
 
         test("upsert genererer nye løpenummer") {
