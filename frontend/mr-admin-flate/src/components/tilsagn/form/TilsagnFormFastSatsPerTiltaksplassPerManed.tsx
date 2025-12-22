@@ -39,7 +39,7 @@ function BeregningInputSkjema({ gjennomforing }: Pick<Props, "gjennomforing">) {
   } = useFormContext<TilsagnRequest>();
 
   const periodeStart = watch("periodeStart");
-  const sats = useFindAvtaltSats(gjennomforing.avtaleId ?? "", periodeStart);
+  const sats = useFindAvtaltSats(gjennomforing, periodeStart);
 
   return (
     <VStack gap="4">
