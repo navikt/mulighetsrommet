@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Unhandled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
+import no.nav.mulighetsrommet.arena.adapter.utils.teamLogsWarn
 import org.slf4j.LoggerFactory
 import kotlin.time.measureTime
 
@@ -101,12 +102,17 @@ class ArenaEventService(
                     }
                     events.upsert(event.copy(status = status, message = null))
                 }
-                .onLeft {
-                    logger.info("Failed to process event: table=${event.arenaTable}, id=${event.arenaId}")
-                    events.upsert(event.copy(status = it.status, message = it.message))
+                .onLeft { processingError ->
+                    when (processingError) {
+                        is ProcessingError.ForeignKeyViolation -> logger.teamLogsWarn("Foreign key violation when processing event: table=${event.arenaTable}, id=${event.arenaId}. Details: ${processingError.message}")
+                        is ProcessingError.ProcessingFailed -> logger.teamLogsWarn("Processing failed for event: table=${event.arenaTable}, id=${event.arenaId}. Details: ${processingError.message}")
+                    }
+                    logger.info("Failed to process event: table=${event.arenaTable}, id=${event.arenaId}. See Team Logs for details.")
+                    events.upsert(event.copy(status = processingError.status, message = processingError.message))
                 }
         } catch (e: Throwable) {
-            logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
+            logger.teamLogsWarn("Exception while processing event: table=${event.arenaTable}, id=${event.arenaId}", e)
+            logger.warn("Exception while processing event: table=${event.arenaTable}, id=${event.arenaId}. See details in Team Logs")
 
             events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Failed, message = e.localizedMessage))
         }
