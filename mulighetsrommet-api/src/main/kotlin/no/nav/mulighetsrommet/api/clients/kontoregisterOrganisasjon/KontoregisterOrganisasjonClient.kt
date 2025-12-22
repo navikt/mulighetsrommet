@@ -68,8 +68,7 @@ class KontoregisterOrganisasjonClient(
         } else if (response.status === HttpStatusCode.MethodNotAllowed) {
             val error = response.body<Feilmelding>()
             log.teamLogsError(
-                "Ugyldig input ved henting av kontonummer fra kontoregisteret. Feilmelding: ${error.feilmelding}",
-                response.bodyAsText(),
+                "Ugyldig input ved henting av kontonummer fra kontoregisteret. Feilmelding: ${error.feilmelding} ${response.bodyAsText()}",
             )
             log.error("Ugyldig input ved henting av kontonummer fra kontoregisteret. Se detaljer i Team Logs.")
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()

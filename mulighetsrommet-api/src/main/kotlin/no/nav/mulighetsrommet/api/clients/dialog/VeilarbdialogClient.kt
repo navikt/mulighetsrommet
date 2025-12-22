@@ -51,8 +51,7 @@ class VeilarbdialogClient(
             VeilarbdialogError.OppfyllerIkkeKravForDigitalKommunikasjon.left()
         } else {
             log.teamLogsError(
-                "Klarte ikke sende melding til dialogen for bruker ${requestBody.fnr.value}",
-                response.bodyAsText(),
+                "Klarte ikke sende melding til dialogen for bruker ${requestBody.fnr.value} ${response.bodyAsText()}",
             )
             log.error("Klarte ikke sende melding til dialogen. Se detaljer i Team Logs.")
             VeilarbdialogError.Error.left()
