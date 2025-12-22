@@ -3646,20 +3646,9 @@ components:
           - "null"
           - integer
           format: int32
-        valuta:
-          type:
-          - "null"
-          - string
-        gjelderTil:
-          type:
-          - "null"
-          - string
-          format: date
       required:
       - gjelderFra
-      - gjelderTil
       - pris
-      - valuta
     PersonvernRequest:
       type: object
       properties:

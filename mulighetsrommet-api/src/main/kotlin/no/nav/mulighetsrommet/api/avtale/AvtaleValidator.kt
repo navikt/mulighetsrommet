@@ -46,6 +46,7 @@ import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
 
+@OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
     private val opsjonsmodellerUtenValidering = listOf(
         OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
@@ -338,10 +339,11 @@ object AvtaleValidator {
                 OpprettAvtaleRequest::prismodell,
             )
         }
-        when (request.type) {
+
+        val satser = when (request.type) {
             PrismodellType.ANNEN_AVTALT_PRIS,
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            -> Unit
+            -> null
 
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
@@ -354,9 +356,7 @@ object AvtaleValidator {
             id = request.id,
             type = request.type,
             prisbetingelser = request.prisbetingelser,
-            satser = request.satser.map {
-                AvtaltSats(gjelderFra = it.gjelderFra!!, sats = it.pris!!)
-            },
+            satser = satser,
         )
     }
 
@@ -412,33 +412,29 @@ object AvtaleValidator {
         )
     }
 
-    private fun ValidationDsl.validateSatser(satser: List<AvtaltSatsRequest>) {
-        validate(satser.isNotEmpty()) {
+    private fun ValidationDsl.validateSatser(satserRequest: List<AvtaltSatsRequest>): List<AvtaltSats> {
+        requireValid(satserRequest.isNotEmpty()) {
             FieldError.of("Minst én pris er påkrevd", OpprettAvtaleRequest::prismodell)
         }
-        satser.forEachIndexed { index, sats ->
-            validate(sats.pris != null && sats.pris > 0) {
+
+        val satser = satserRequest.mapIndexed { index, request ->
+            requireValid(request.pris != null && request.pris > 0) {
                 FieldError.ofPointer("/prismodell/satser/$index/pris", "Pris må være positiv")
             }
-        }
-        for (i in satser.indices) {
-            val a = satser[i]
-            if (a.gjelderFra == null) {
-                validate(false) {
-                    FieldError.ofPointer("/prismodell/satser/$i/gjelderFra", "Gjelder fra må være satt")
-                }
-                continue
+            requireValid(request.gjelderFra != null) {
+                FieldError.ofPointer("/prismodell/satser/$index/gjelderFra", "Gjelder fra må være satt")
             }
-            for (j in i + 1 until satser.size) {
-                val b = satser[j]
-                if (!a.gjelderFra.isBefore(b.gjelderFra)) {
-                    validate(false) {
-                        FieldError.ofPointer("/prismodell/satser/$j/gjelderFra", "Ny pris må gjelde etter forrige pris")
-                    }
-                    continue
-                }
+            AvtaltSats(request.gjelderFra, request.pris)
+        }
+
+        val duplicateDates = satser.map { it.gjelderFra }.groupBy { it }.filter { it.value.size > 1 }.keys
+        satser.forEachIndexed { index, (gjelderFra) ->
+            validate(gjelderFra !in duplicateDates) {
+                FieldError.ofPointer("/prismodell/satser/$index/gjelderFra", "Gjelder fra må være unik per rad")
             }
         }
+
+        return satser
     }
 
     private fun ValidationDsl.validateSlettetNavAnsatte(
