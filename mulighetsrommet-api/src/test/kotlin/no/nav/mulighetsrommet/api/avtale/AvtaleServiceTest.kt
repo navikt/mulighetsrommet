@@ -61,6 +61,7 @@ class AvtaleServiceTest : FunSpec({
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
         arrangorService: ArrangorService = ArrangorService(database.db, brregClient),
     ) = AvtaleService(
+        config = AvtaleService.Config(mapOf()),
         database.db,
         arrangorService,
         gjennomforingPublisher,

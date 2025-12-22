@@ -367,6 +367,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         AvtaleService(
+            config = AvtaleService.Config(appConfig.okonomi.gyldigTilsagnPeriode),
             get(),
             get(),
             get(),
