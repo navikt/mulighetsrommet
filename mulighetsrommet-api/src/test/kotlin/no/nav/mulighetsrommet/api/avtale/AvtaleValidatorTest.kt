@@ -547,6 +547,26 @@ class AvtaleValidatorTest : FunSpec({
                 FieldError("/prismodell/satser/1/gjelderFra", "Gjelder fra må være unik per rad"),
             )
         }
+
+        test("sorterer satsene etter gjelderFra-dato") {
+            AvtaleValidator.validatePrismodell(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                    prisbetingelser = null,
+                    satser = listOf(
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 3, 1), pris = 3),
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1),
+                        AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
+                    ),
+                ),
+                getValidatePrismodellContext(TiltakstypeFixtures.Oppfolging),
+            ).shouldBeRight().satser shouldBe listOf(
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3),
+            )
+        }
     }
 
     context("når avtalen allerede eksisterer") {

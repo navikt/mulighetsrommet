@@ -434,7 +434,7 @@ object AvtaleValidator {
             }
         }
 
-        return satser
+        return satser.sortedBy { it.gjelderFra }
     }
 
     private fun ValidationDsl.validateSlettetNavAnsatte(
