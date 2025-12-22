@@ -443,7 +443,7 @@ class AvtaleValidatorTest : FunSpec({
 
     context("prismodell") {
         fun getContext(
-            tiltakstype: TiltakstypeDbo,
+            tiltakstype: TiltakstypeDbo = TiltakstypeFixtures.Oppfolging,
             gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = mapOf(),
             avtaleStartDato: LocalDate = LocalDate.of(2025, 1, 1),
         ) = AvtaleValidator.ValidatePrismodellContext(
@@ -544,35 +544,35 @@ class AvtaleValidatorTest : FunSpec({
 
             AvtaleValidator.validatePrismodell(
                 request,
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodell", "Minst én pris er påkrevd"),
             )
 
             AvtaleValidator.validatePrismodell(
                 request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1))),
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodell/satser/0/gjelderFra", "Gjelder fra må være satt"),
             )
 
             AvtaleValidator.validatePrismodell(
                 request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = null))),
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodell/satser/0/pris", "Pris må være positiv"),
             )
 
             AvtaleValidator.validatePrismodell(
                 request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 0))),
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodell/satser/0/pris", "Pris må være positiv"),
             )
 
             AvtaleValidator.validatePrismodell(
                 request.copy(satser = listOf(AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 1, 1), pris = 1))),
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeRight().satser shouldBe listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1))
         }
 
@@ -588,7 +588,7 @@ class AvtaleValidatorTest : FunSpec({
                         AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                     ),
                 ),
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/prismodell/satser/0/gjelderFra", "Gjelder fra må være unik per rad"),
                 FieldError("/prismodell/satser/1/gjelderFra", "Gjelder fra må være unik per rad"),
@@ -607,7 +607,7 @@ class AvtaleValidatorTest : FunSpec({
                         AvtaltSatsRequest(gjelderFra = LocalDate.of(2025, 2, 1), pris = 2),
                     ),
                 ),
-                getContext(TiltakstypeFixtures.Oppfolging),
+                getContext(),
             ).shouldBeRight().satser shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1),
                 AvtaltSats(LocalDate.of(2025, 2, 1), 2),
