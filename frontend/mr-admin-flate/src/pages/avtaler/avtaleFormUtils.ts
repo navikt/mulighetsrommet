@@ -14,11 +14,6 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export interface RequestValues {
-  data: AvtaleFormValues;
-  id?: string;
-}
-
 export function toOpprettAvtaleRequest(data: AvtaleFormValues): OpprettAvtaleRequest {
   return {
     id: v4(),

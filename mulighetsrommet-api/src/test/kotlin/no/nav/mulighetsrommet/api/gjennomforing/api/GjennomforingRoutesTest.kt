@@ -113,20 +113,22 @@ class GjennomforingRoutesTest : FunSpec({
     }
 
     context("opprett gjennomføring") {
+        val prismodell = AvtaleFixtures.createPrismodellDbo()
+        val avtale = AvtaleFixtures.oppfolging.copy(
+            veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(
+                navEnheter = setOf(
+                    NavEnhetFixtures.Oslo.enhetsnummer,
+                    NavEnhetFixtures.Sagene.enhetsnummer,
+                ),
+            ),
+            prismodeller = listOf(prismodell),
+        )
+
         val domain = MulighetsrommetTestDomain(
             navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
             ansatte = listOf(ansatt),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-            avtaler = listOf(
-                AvtaleFixtures.oppfolging.copy(
-                    veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(
-                        navEnheter = setOf(
-                            NavEnhetFixtures.Oslo.enhetsnummer,
-                            NavEnhetFixtures.Sagene.enhetsnummer,
-                        ),
-                    ),
-                ),
-            ),
+            avtaler = listOf(avtale),
         )
 
         beforeEach {
@@ -173,12 +175,11 @@ class GjennomforingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        GjennomforingFixtures.Oppfolging1Request.copy(
+                        GjennomforingFixtures.createGjennomforingRequest(
+                            avtale,
                             administratorer = emptyList(),
-                            veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-                                navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
-                                navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
-                            ),
+                            navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                            navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         ),
                     )
                 }
@@ -196,19 +197,16 @@ class GjennomforingRoutesTest : FunSpec({
         test("200 OK når bruker har skrivetilgang til gjennomføringer") {
             withTestApplication(appConfig()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, gjennomforingSkrivRolle))
-                val avtale = AvtaleFixtures.oppfolging
 
                 val response = client.put("/api/tiltaksadministrasjon/gjennomforinger") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        GjennomforingFixtures.Oppfolging1Request.copy(
-                            avtaleId = avtale.id,
-                            veilederinformasjon = GjennomforingFixtures.Oppfolging1Request.veilederinformasjon.copy(
-                                navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
-                                navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
-                            ),
-                            tiltakstypeId = avtale.detaljerDbo.tiltakstypeId,
+                        GjennomforingFixtures.createGjennomforingRequest(
+                            avtale,
+                            prismodellId = prismodell.id,
+                            navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                            navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         ),
                     )
                 }

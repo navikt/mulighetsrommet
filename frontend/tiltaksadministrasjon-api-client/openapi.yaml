@@ -4213,8 +4213,10 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/UtdanningslopDto"
-        prismodell:
-          $ref: "#/components/schemas/PrismodellDto"
+        prismodeller:
+          type: array
+          items:
+            $ref: "#/components/schemas/PrismodellDto"
       required:
       - administratorer
       - amoKategorisering
@@ -4232,7 +4234,7 @@ components:
       - opsjonsmodell
       - personopplysninger
       - personvernBekreftet
-      - prismodell
+      - prismodeller
       - sakarkivNummer
       - sluttDato
       - startDato

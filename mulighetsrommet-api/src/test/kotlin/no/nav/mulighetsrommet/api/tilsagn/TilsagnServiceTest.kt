@@ -51,8 +51,6 @@ import java.util.UUID
 class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
-
     val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
     val ansatt2 = NavAnsattFixture.MikkeMus.navIdent
 
@@ -106,6 +104,8 @@ class TilsagnServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
+
     fun createTilsagnService(navAnsattService: NavAnsattService = mockk(relaxed = true)): TilsagnService {
         return TilsagnService(
             db = database.db,
@@ -113,10 +113,7 @@ class TilsagnServiceTest : FunSpec({
                 bestillingTopic = "topic",
                 gyldigTilsagnPeriode = mapOf(
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
-                    Tiltakskode.ARBEIDSRETTET_REHABILITERING to Periode(
-                        GjennomforingFixtures.ArbeidsrettetRehabilitering.startDato,
-                        LocalDate.of(2026, 1, 1),
-                    ),
+                    Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
                 ),
             ),
             navAnsattService = navAnsattService,
@@ -140,7 +137,7 @@ class TilsagnServiceTest : FunSpec({
             }
         }
 
-        test("oppdaterer prismodell for tilsagn med fri prismodell") {
+        test("lagrer prisbetingelser på beregnet tilsagn") {
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
             val beregningInput = TilsagnBeregningRequest(
                 type = TilsagnBeregningType.FRI,
@@ -158,8 +155,8 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(
                 request.copy(
                     gjennomforingId = gjennomforing.id,
-                    periodeStart = gjennomforing.startDato,
-                    periodeSlutt = gjennomforing.sluttDato!!,
+                    periodeStart = LocalDate.of(2025, 1, 1),
+                    periodeSlutt = LocalDate.of(2025, 2, 1),
                     beregning = beregningInput,
                 ),
                 ansatt1,
@@ -471,7 +468,8 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("løpenummer beholdes når tilsagn blir returnert") {
-            val aft1 = database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
+            val aft1 =
+                database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -497,7 +495,8 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("returnere eget tilsagn") {
-            val aft1 = database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
+            val aft1 =
+                database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1

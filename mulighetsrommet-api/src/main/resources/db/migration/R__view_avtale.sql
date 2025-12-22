@@ -42,7 +42,7 @@ select avtale.id,
        arrangor_underenheter_json,
        arrangor_kontaktpersoner_json,
        utdanningslop_json,
-       prismodeller_json
+       coalesce(prismodeller_json, '[]'::jsonb)         as prismodeller_json
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id

@@ -74,13 +74,14 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: {
-      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-      type: PrismodellType.ANNEN_AVTALT_PRIS,
-      navn: "Annen avtalt pris",
-      beskrivelse: [],
-      satser: null,
-      prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
+    prismodeller: [
+      {
+        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+        type: PrismodellType.ANNEN_AVTALT_PRIS,
+        navn: "Annen avtalt pris",
+        beskrivelse: [],
+        satser: null,
+        prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
         10 deltakere:
         Teori en uke: 31 239,- (30 329,-)                     Praksis en uke: 26 018,- (25 260,-)                      Kombinasjon en uke: 28 396,- (27 569,-)
@@ -90,7 +91,8 @@ export const mockAvtaler: AvtaleDto[] = [
 
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
-    },
+      },
+    ],
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -145,14 +147,16 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: {
-      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-      type: PrismodellType.ANNEN_AVTALT_PRIS,
-      navn: "Annen avtalt pris",
-      beskrivelse: [],
-      satser: null,
-      prisbetingelser: "Maskert prisbetingelser",
-    },
+    prismodeller: [
+      {
+        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+        type: PrismodellType.ANNEN_AVTALT_PRIS,
+        navn: "Annen avtalt pris",
+        beskrivelse: [],
+        satser: null,
+        prisbetingelser: "Maskert prisbetingelser",
+      },
+    ],
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -203,14 +207,16 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: {
-      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-      type: PrismodellType.ANNEN_AVTALT_PRIS,
-      navn: "Annen avtalt pris",
-      beskrivelse: [],
-      satser: null,
-      prisbetingelser: "Maskert prisbetingelser",
-    },
+    prismodeller: [
+      {
+        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+        type: PrismodellType.ANNEN_AVTALT_PRIS,
+        navn: "Annen avtalt pris",
+        beskrivelse: [],
+        satser: null,
+        prisbetingelser: "Maskert prisbetingelser",
+      },
+    ],
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba93",
@@ -261,14 +267,16 @@ export const mockAvtaler: AvtaleDto[] = [
     },
     opsjonerRegistrert: [],
     utdanningslop: null,
-    prismodell: {
-      id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-      type: PrismodellType.ANNEN_AVTALT_PRIS,
-      navn: "Annen avtalt pris",
-      beskrivelse: [],
-      satser: null,
-      prisbetingelser: "Maskert prisbetingelser",
-    },
+    prismodeller: [
+      {
+        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+        type: PrismodellType.ANNEN_AVTALT_PRIS,
+        navn: "Annen avtalt pris",
+        beskrivelse: [],
+        satser: null,
+        prisbetingelser: "Maskert prisbetingelser",
+      },
+    ],
   },
 ];
 

@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -60,7 +61,13 @@ class AvtaleService(
         request: OpprettAvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val ctx = getValidatorCtx(request.id, request.detaljer, request.veilederinformasjon.navEnheter, null).bind()
+        val context = db.session {
+            getValidatorCtx(
+                request = request.detaljer,
+                navEnheter = request.veilederinformasjon.navEnheter,
+                previous = null,
+            ).bind()
+        }
 
         val dbo = AvtaleValidator
             .validateCreateAvtale(
@@ -71,7 +78,7 @@ class AvtaleService(
                         ),
                     ),
                 ),
-                ctx,
+                context,
             )
             .bind()
 
@@ -96,15 +103,40 @@ class AvtaleService(
         request: DetaljerRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val previous = get(avtaleId) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
-        val ctx = getValidatorCtx(avtaleId, request, null, previous).bind()
+        val avtale = get(avtaleId) ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
+
+        val context = db.session {
+            val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
+            val previous = AvtaleValidator.Ctx.Avtale(
+                status = avtale.status.type,
+                opphav = avtale.opphav,
+                opsjonerRegistrert = avtale.opsjonerRegistrert,
+                opsjonsmodell = avtale.opsjonsmodell,
+                avtaletype = avtale.avtaletype,
+                tiltakskode = avtale.tiltakstype.tiltakskode,
+                gjennomforinger = gjennomforinger.map {
+                    AvtaleValidator.Ctx.Gjennomforing(
+                        arrangor = it.arrangor,
+                        startDato = it.startDato,
+                        utdanningslop = it.utdanningslop,
+                        status = it.status.type,
+                    )
+                },
+                prismodeller = avtale.prismodeller,
+            )
+            getValidatorCtx(
+                request = request,
+                navEnheter = listOf(),
+                previous = previous,
+            ).bind()
+        }
 
         val dbo = AvtaleValidator
-            .validateUpdateDetaljer(request, ctx)
+            .validateUpdateDetaljer(request, context)
             .bind()
 
-        if (AvtaleDboMapper.fromAvtale(previous) == dbo) {
-            return@either previous
+        if (AvtaleDboMapper.fromAvtale(avtale) == dbo) {
+            return@either avtale
         }
 
         db.transaction {
@@ -165,16 +197,11 @@ class AvtaleService(
         id: UUID,
         request: PrismodellRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Avtale> = either {
-        val previous = get(id)
-            ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
-
-        val dbo = AvtaleValidator
-            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
-            .bind()
-
-        db.transaction {
-            queries.avtale.upsertPrismodell(id, dbo)
+    ): Either<List<FieldError>, Avtale> = db.transaction {
+        val avtale = getOrError(id)
+        val context = ValidatePrismodellContext(avtale.tiltakstype.tiltakskode, avtale.tiltakstype.navn)
+        AvtaleValidator.validatePrismodell(request, context).map {
+            queries.avtale.upsertPrismodell(id, it)
 
             val dto = logEndring("Prismodell oppdatert", id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
@@ -326,56 +353,33 @@ class AvtaleService(
         )
     }
 
-    private suspend fun getValidatorCtx(
-        avtaleId: UUID,
+    private suspend fun QueryContext.getValidatorCtx(
         request: DetaljerRequest,
-        navEnheter: List<NavEnhetNummer>?,
-        previous: Avtale?,
+        navEnheter: List<NavEnhetNummer>,
+        previous: AvtaleValidator.Ctx.Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
-        db.session {
-            val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
-            val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-            val navEnheter = (navEnheter ?: emptyList()).mapNotNull { queries.enhet.get(it)?.toDto() }
+        val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
+        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
-            val arrangor = request.arrangor?.let {
-                val (arrangor, underenheter) = syncArrangorerFromBrreg(
-                    it.hovedenhet,
-                    it.underenheter,
-                ).bind()
-                arrangor.copy(underenheter = underenheter)
-            }
-
-            val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
-
-            AvtaleValidator.Ctx(
-                previous = previous?.let {
-                    AvtaleValidator.Ctx.Avtale(
-                        status = it.status.type,
-                        opphav = it.opphav,
-                        opsjonerRegistrert = it.opsjonerRegistrert,
-                        opsjonsmodell = it.opsjonsmodell,
-                        avtaletype = it.avtaletype,
-                        tiltakskode = it.tiltakstype.tiltakskode,
-                        gjennomforinger = gjennomforinger.map {
-                            AvtaleValidator.Ctx.Gjennomforing(
-                                arrangor = it.arrangor,
-                                startDato = it.startDato,
-                                utdanningslop = it.utdanningslop,
-                                status = it.status.type,
-                            )
-                        },
-                        prismodell = it.prismodell,
-                    )
-                },
-                arrangor = arrangor,
-                administratorer = administratorer,
-                tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
-                    navn = tiltakstype.navn,
-                    id = tiltakstype.id,
-                ),
-                navEnheter = navEnheter,
-            )
+        val arrangor = request.arrangor?.let {
+            val (arrangor, underenheter) = syncArrangorerFromBrreg(
+                it.hovedenhet,
+                it.underenheter,
+            ).bind()
+            arrangor.copy(underenheter = underenheter)
         }
+
+        AvtaleValidator.Ctx(
+            previous = previous,
+            arrangor = arrangor,
+            administratorer = administratorer,
+            tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
+                navn = tiltakstype.navn,
+                id = tiltakstype.id,
+            ),
+            navEnheter = navEnheter,
+        )
     }
 
     private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
@@ -493,7 +497,7 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPDATER_PRIS.takeIf {
-                avtale.prismodell.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
                 avtale.opsjonsmodell.opsjonMaksVarighet != null

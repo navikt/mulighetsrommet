@@ -19,7 +19,7 @@ export function OppdaterPrisModal({ open, onClose, avtale }: Props) {
   const mutation = useUpsertPrismodell(avtale.id);
   const form = useForm<PrismodellValues>({
     resolver: zodResolver(PrismodellSchema),
-    defaultValues: defaultValues(avtale.prismodell),
+    defaultValues: defaultValues(avtale.prismodeller[0]),
   });
 
   const postData: SubmitHandler<PrismodellValues> = async (data): Promise<void> => {

@@ -100,8 +100,8 @@ class AvtaleQueries(private val session: Session) {
         upsertAmo(avtale.id, avtale.detaljerDbo.amoKategorisering)
         upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
-        upsertPrismodell(avtale.id, avtale.prismodellDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
+        avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
     }
 
     fun updateDetaljer(
@@ -563,7 +563,7 @@ private fun Row.toAvtale(): Avtale {
         )
     }
 
-    val prismodell = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
+    val prismodeller = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
         val satser = prismodell.satser?.toDto() ?: listOf()
         when (prismodell.type) {
             PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
@@ -599,7 +599,7 @@ private fun Row.toAvtale(): Avtale {
                 satser = satser,
             )
         }
-    }.first()
+    }
 
     val status = when (AvtaleStatusType.valueOf(string("status"))) {
         AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
@@ -649,7 +649,7 @@ private fun Row.toAvtale(): Avtale {
         opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
         amoKategorisering = amoKategorisering,
         utdanningslop = utdanningslop,
-        prismodell = prismodell,
+        prismodeller = prismodeller,
     )
 }
 

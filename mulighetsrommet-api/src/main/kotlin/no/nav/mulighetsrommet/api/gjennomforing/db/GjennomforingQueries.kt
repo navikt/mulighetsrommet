@@ -357,18 +357,19 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toGjennomforingGruppetiltak() }
     }
 
-    fun getPrismodell(id: UUID): PrismodellType? {
+    fun getPrismodell(id: UUID): Prismodell? {
         @Language("PostgreSQL")
         val query = """
-            select avtale_prismodell.prismodell_type
+            select avtale_prismodell.id as prismodell_id,
+                   avtale_prismodell.prismodell_type,
+                   avtale_prismodell.prisbetingelser as prismodell_prisbetingelser,
+                   avtale_prismodell.satser as prismodell_satser
             from gjennomforing
-                join avtale_prismodell on avtale_prismodell.avtale_id = gjennomforing.avtale_id
+                join avtale_prismodell on avtale_prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { row ->
-            PrismodellType.valueOf(row.string("prismodell_type"))
-        }
+        return session.single(queryOf(query, id)) { it.toPrismodell() }
     }
 
     fun getAllGruppetiltakKompakt(
@@ -734,54 +735,6 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
     val utdanningslop = stringOrNull("utdanningslop_json")?.let {
         Json.decodeFromString<UtdanningslopDto>(it)
     }
-    val prismodell = uuidOrNull("prismodell_id")?.let { prismodellId ->
-        val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
-        val prisbetingelser = stringOrNull("prisbetingelser")
-        val satser = stringOrNull("satser_json")?.let {
-            Json.decodeFromString<List<AvtaltSats>>(it)
-        } ?: emptyList()
-
-        when (prismodellType) {
-            PrismodellType.ANNEN_AVTALT_PRIS ->
-                Prismodell.AnnenAvtaltPris(
-                    id = prismodellId,
-                    prisbetingelser = prisbetingelser,
-                )
-
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
-                Prismodell.ForhandsgodkjentPrisPerManedsverk(
-                    id = prismodellId,
-                )
-
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK ->
-                Prismodell.AvtaltPrisPerManedsverk(
-                    id = prismodellId,
-                    prisbetingelser = prisbetingelser,
-                    satser = satser.toDto(),
-                )
-
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK ->
-                Prismodell.AvtaltPrisPerUkesverk(
-                    id = prismodellId,
-                    prisbetingelser = prisbetingelser,
-                    satser = satser.toDto(),
-                )
-
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK ->
-                Prismodell.AvtaltPrisPerHeleUkesverk(
-                    id = prismodellId,
-                    prisbetingelser = prisbetingelser,
-                    satser = satser.toDto(),
-                )
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-                    id = prismodellId,
-                    prisbetingelser = prisbetingelser,
-                    satser = satser.toDto(),
-                )
-        }
-    }
     return GjennomforingGruppetiltak(
         id = uuid("id"),
         tiltakstype = Gjennomforing.Tiltakstype(
@@ -804,7 +757,7 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         apentForPamelding = boolean("apent_for_pamelding"),
         antallPlasser = int("antall_plasser"),
         avtaleId = uuidOrNull("avtale_id"),
-        prismodell = prismodell,
+        prismodell = toPrismodell(),
         administratorer = administratorer,
         kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
@@ -840,6 +793,50 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
     )
 }
 
+private fun Row.toPrismodell(): Prismodell? {
+    return uuidOrNull("prismodell_id")?.let { prismodellId ->
+        val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
+        val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
+        val satser = stringOrNull("prismodell_satser")
+            ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
+            ?: emptyList()
+        when (prismodellType) {
+            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+            )
+
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
+                id = prismodellId,
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                id = prismodellId,
+                prisbetingelser = prisbetingelser,
+                satser = satser.toDto(),
+            )
+        }
+    }
+}
+
 private fun Row.toGjennomforingStatus(): GjennomforingStatus {
     return when (GjennomforingStatusType.valueOf(string("status"))) {
         GjennomforingStatusType.GJENNOMFORES -> GjennomforingStatus.Gjennomfores
@@ -848,21 +845,13 @@ private fun Row.toGjennomforingStatus(): GjennomforingStatus {
 
         GjennomforingStatusType.AVBRUTT -> GjennomforingStatus.Avbrutt(
             tidspunkt = localDateTime("avsluttet_tidspunkt"),
-            array<String>("avbrutt_aarsaker").map<String, AvbrytGjennomforingAarsak> {
-                AvbrytGjennomforingAarsak.valueOf(
-                    it,
-                )
-            },
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
             stringOrNull("avbrutt_forklaring"),
         )
 
         GjennomforingStatusType.AVLYST -> GjennomforingStatus.Avlyst(
             tidspunkt = localDateTime("avsluttet_tidspunkt"),
-            array<String>("avbrutt_aarsaker").map<String, AvbrytGjennomforingAarsak> {
-                AvbrytGjennomforingAarsak.valueOf(
-                    it,
-                )
-            },
+            array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
             stringOrNull("avbrutt_forklaring"),
         )
     }

@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -129,7 +128,7 @@ class GenererUtbetalingService(
             .mapNotNull { utbetaling ->
                 val oppdatertUtbetaling = generateUtbetalingForPrismodell(
                     utbetaling.id,
-                    prismodell,
+                    prismodell.type,
                     gjennomforing,
                     utbetaling.periode,
                 )
@@ -201,7 +200,7 @@ class GenererUtbetalingService(
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(gjennomforing.id, periode)
         return UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
@@ -215,7 +214,7 @@ class GenererUtbetalingService(
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningPrisPerManedsverk.Input {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerManedsverk.Input(
@@ -229,7 +228,7 @@ class GenererUtbetalingService(
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningPrisPerUkesverk.Input {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerUkesverk.Input(
@@ -243,7 +242,7 @@ class GenererUtbetalingService(
         gjennomforing: GjennomforingGruppetiltak,
         periode: Periode,
     ): UtbetalingBeregningPrisPerHeleUkesverk.Input {
-        val satser = resolveAvtalteSatser(gjennomforing, periode)
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelsePerioder(gjennomforing.id, periode)
         return UtbetalingBeregningPrisPerHeleUkesverk.Input(
@@ -279,14 +278,6 @@ class GenererUtbetalingService(
             godkjentAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
         )
-    }
-
-    private fun QueryContext.resolveAvtalteSatser(
-        gjennomforing: GjennomforingGruppetiltak,
-        periode: Periode,
-    ): Set<SatsPeriode> {
-        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
-        return UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, avtale, periode)
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
@@ -387,11 +378,11 @@ class GenererUtbetalingService(
             .toSet()
     }
 
-    private fun resolveDeltakelserPerioderMedDeltakelsesmengder(
+    private fun QueryContext.resolveDeltakelserPerioderMedDeltakelsesmengder(
         gjennomforingId: UUID,
         periode: Periode,
-    ): Set<DeltakelseDeltakelsesprosentPerioder> = db.session {
-        queries.deltaker.getAll(gjennomforingId = gjennomforingId)
+    ): Set<DeltakelseDeltakelsesprosentPerioder> {
+        return queries.deltaker.getAll(gjennomforingId = gjennomforingId)
             .asSequence()
             .mapNotNull { deltaker ->
                 UtbetalingInputHelper.toDeltakelsePeriode(deltaker, periode)

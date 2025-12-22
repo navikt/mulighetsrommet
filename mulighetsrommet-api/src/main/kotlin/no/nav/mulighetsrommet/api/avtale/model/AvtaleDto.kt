@@ -42,7 +42,7 @@ data class AvtaleDto(
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<Avtale.OpsjonLoggDto>,
     val utdanningslop: UtdanningslopDto?,
-    val prismodell: PrismodellDto,
+    val prismodeller: List<PrismodellDto>,
 ) {
     @Serializable
     data class Status(

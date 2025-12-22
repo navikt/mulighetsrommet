@@ -8,5 +8,5 @@ data class AvtaleDbo(
     val detaljerDbo: DetaljerDbo,
     val personvernDbo: PersonvernDbo,
     val veilederinformasjonDbo: VeilederinformasjonDbo,
-    val prismodellDbo: PrismodellDbo,
+    val prismodeller: List<PrismodellDbo>,
 )
