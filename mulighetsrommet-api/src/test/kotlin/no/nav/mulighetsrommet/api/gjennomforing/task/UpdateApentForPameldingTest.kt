@@ -60,6 +60,10 @@ class UpdateApentForPameldingTest : FunSpec({
             domain.initialize(database.db)
         }
 
+        afterEach {
+            database.truncateAll()
+        }
+
         test("beholder påmelding når dato er før startDato på tiltaket") {
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 

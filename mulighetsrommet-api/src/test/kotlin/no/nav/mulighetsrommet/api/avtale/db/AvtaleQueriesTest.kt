@@ -36,7 +36,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.ArenaMigrering
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -48,7 +48,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("CRUD") {
         val domain = MulighetsrommetTestDomain(
@@ -66,22 +66,20 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 val avtale1 = AvtaleFixtures.oppfolging
                 val avtale2 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
 
-                queries.upsert(avtale1)
-                queries.upsert(avtale2)
+                queries.avtale.create(avtale1)
+                queries.avtale.create(avtale2)
 
-                val avtale1Avtalenummer = queries.get(avtale1.id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
+                val avtale1Avtalenummer = queries.avtale.getOrError(avtale1.id).avtalenummer.shouldNotBeNull()
                 avtale1Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeGreaterThanOrEqual 10_000
 
-                val avtale2Avtalenummer = queries.get(avtale2.id).shouldNotBeNull().avtalenummer.shouldNotBeNull()
+                val avtale2Avtalenummer = queries.avtale.getOrError(avtale2.id).avtalenummer.shouldNotBeNull()
                 avtale2Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeLessThan avtale2Avtalenummer.substring(5).toInt()
             }
@@ -91,17 +89,15 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 val avtaleId = AvtaleFixtures.oppfolging.id
 
-                queries.upsert(
+                queries.avtale.create(
                     AvtaleFixtures.oppfolging.copy(
                         detaljerDbo = AvtaleFixtures.detaljerDbo().copy(arrangor = null),
                     ),
                 )
 
-                queries.get(avtaleId).shouldNotBeNull().arrangor.shouldBeNull()
+                queries.avtale.getOrError(avtaleId).arrangor.shouldBeNull()
             }
         }
 
@@ -109,11 +105,9 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 val id = UUID.randomUUID()
-                queries.upsert(AvtaleFixtures.oppfolging.copy(id = id))
-                queries.get(id).shouldNotBeNull().should {
+                queries.avtale.create(AvtaleFixtures.oppfolging.copy(id = id))
+                queries.avtale.getOrError(id).should {
                     it.opphav shouldBe ArenaMigrering.Opphav.TILTAKSADMINISTRASJON
                 }
             }
@@ -123,54 +117,50 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 val id = AvtaleFixtures.oppfolging.id
-                queries.upsert(AvtaleFixtures.oppfolging)
+                queries.avtale.create(AvtaleFixtures.oppfolging)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.setStatus(
+                queries.avtale.setStatus(
                     id = id,
                     status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avbrutt(
+                queries.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.setStatus(
+                queries.avtale.setStatus(
                     id = id,
                     status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avbrutt(
+                queries.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.setStatus(
+                queries.avtale.setStatus(
                     id = id,
                     status = AvtaleStatusType.AVSLUTTET,
                     tidspunkt = null,
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.get(id).shouldNotBeNull().status shouldBe AvtaleStatus.Avsluttet
+                queries.avtale.getOrError(id).status shouldBe AvtaleStatus.Avsluttet
             }
         }
 
         test("administrator for avtale") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = AvtaleQueries(session)
 
                 val ansatt1 = NavAnsattFixture.DonaldDuck
                 val ansatt2 = NavAnsattFixture.MikkeMus
@@ -180,28 +170,27 @@ class AvtaleQueriesTest : FunSpec({
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(administratorer = listOf(ansatt1.navIdent)),
                 )
 
-                queries.upsert(avtale1)
-                queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
+                queries.avtale.create(avtale1)
+                queries.avtale.getOrError(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
                     Avtale.Administrator(ansatt1.navIdent, "Donald Duck"),
                 )
 
-                queries.upsert(
-                    avtale1.copy(
-                        detaljerDbo = AvtaleFixtures.detaljerDbo()
-                            .copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)),
+                queries.avtale.updateDetaljer(
+                    avtale1.id,
+                    AvtaleFixtures.detaljerDbo().copy(
+                        administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent),
                     ),
                 )
-                queries.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
+                queries.avtale.getOrError(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
                     Avtale.Administrator(ansatt1.navIdent, "Donald Duck"),
                     Avtale.Administrator(ansatt2.navIdent, "Mikke Mus"),
                 )
 
-                queries.upsert(
-                    avtale1.copy(
-                        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(administratorer = listOf()),
-                    ),
+                queries.avtale.updateDetaljer(
+                    avtale1.id,
+                    AvtaleFixtures.detaljerDbo().copy(administratorer = listOf()),
                 )
-                queries.get(avtale1.id).shouldNotBeNull().administratorer.shouldBeEmpty()
+                queries.avtale.getOrError(avtale1.id).administratorer.shouldBeEmpty()
             }
         }
 
@@ -223,9 +212,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.get(avtale.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
+                queries.avtale.getOrError(avtale.id).kontorstruktur.shouldHaveSize(1).first().should {
                     it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                     it.kontorer.should { (first, second) ->
                         first.enhetsnummer shouldBe Gjovik.enhetsnummer
@@ -253,9 +240,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.get(avtale.id).shouldNotBeNull().kontorstruktur.should { (first, second) ->
+                queries.avtale.getOrError(avtale.id).kontorstruktur.should { (first, second) ->
                     first.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                     first.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Gjovik.enhetsnummer
 
@@ -299,43 +284,36 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactly listOf(toAvtaleArrangorKontaktperson(p1))
                 }
-                val avtaleMedKontaktpersoner = avtale.copy(
-                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-                        arrangor = avtale.detaljerDbo.arrangor?.copy(
-                            kontaktpersoner = listOf(p2.id, p3.id),
-                        ),
+
+                queries.avtale.updateDetaljer(
+                    avtale.id,
+                    AvtaleFixtures.detaljerDbo().copy(
+                        arrangor = avtale.detaljerDbo.arrangor?.copy(kontaktpersoner = listOf(p2.id, p3.id)),
                     ),
                 )
 
-                queries.upsert(avtaleMedKontaktpersoner)
-
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                         toAvtaleArrangorKontaktperson(p2),
                         toAvtaleArrangorKontaktperson(p3),
                     )
                 }
 
-                queries.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(toAvtaleArrangorKontaktperson(p2))
                 }
 
-                val avtaleUtenKontaktpersoner = avtale.copy(
-                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-                        arrangor = avtale.detaljerDbo.arrangor?.copy(
-                            kontaktpersoner = emptyList(),
-                        ),
+                queries.avtale.updateDetaljer(
+                    avtale.id,
+                    AvtaleFixtures.detaljerDbo().copy(
+                        arrangor = avtale.detaljerDbo.arrangor?.copy(kontaktpersoner = emptyList()),
                     ),
                 )
-
-                queries.upsert(avtaleUtenKontaktpersoner)
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner.shouldBeEmpty()
                 }
             }
@@ -345,34 +323,31 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 var avtale = AvtaleFixtures.oppfolging.copy(
                     personvernDbo = AvtaleFixtures.personvernDbo(
                         personopplysninger = listOf(Personopplysning.NAVN),
                     ),
                 )
-                queries.upsert(avtale)
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.create(avtale)
+                queries.avtale.getOrError(avtale.id).should {
                     it.personopplysninger shouldContainExactly listOf(Personopplysning.NAVN)
                 }
 
-                avtale = avtale.copy(
-                    personvernDbo = AvtaleFixtures.personvernDbo(
-                        personopplysninger = listOf(
-                            Personopplysning.KJONN,
-                            Personopplysning.ADFERD,
-                        ),
+                queries.avtale.updatePersonvern(
+                    avtale.id,
+                    AvtaleFixtures.personvernDbo(
+                        personopplysninger = listOf(Personopplysning.KJONN, Personopplysning.ADFERD),
                     ),
                 )
-                queries.upsert(avtale)
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.personopplysninger shouldContainExactly listOf(Personopplysning.KJONN, Personopplysning.ADFERD)
                 }
 
-                avtale = avtale.copy(personvernDbo = AvtaleFixtures.personvernDbo(personopplysninger = emptyList()))
-                queries.upsert(avtale)
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.updatePersonvern(
+                    avtale.id,
+                    AvtaleFixtures.personvernDbo(personopplysninger = emptyList()),
+                )
+                queries.avtale.getOrError(avtale.id).should {
                     it.personopplysninger shouldHaveSize 0
                 }
             }
@@ -392,11 +367,9 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
+                queries.avtale.create(avtale)
 
-                queries.upsert(avtale)
-
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
                     it.arrangor?.underenheter?.map { enhet -> enhet.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
                         ArrangorFixtures.underenhet1.organisasjonsnummer,
@@ -441,17 +414,16 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.underenheter.shouldNotBeEmpty()
                     it.arrangor?.kontaktpersoner.shouldNotBeEmpty()
                 }
+
                 // Remove arrangor from avtale
-                queries.upsert(avtale.copy(detaljerDbo = AvtaleFixtures.detaljerDbo().copy(arrangor = null)))
+                queries.avtale.updateDetaljer(avtale.id, AvtaleFixtures.detaljerDbo().copy(arrangor = null))
 
                 // Verify that underenheter and kontaktpersoner are deleted
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.underenheter.shouldBeNull()
                     it.arrangor?.kontaktpersoner.shouldBeNull()
                 }
@@ -461,8 +433,6 @@ class AvtaleQueriesTest : FunSpec({
         test("gruppe amo kategorier") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = AvtaleQueries(session)
 
                 val amoKategorisering = AmoKategorisering.BransjeOgYrkesrettet(
                     bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.INDUSTRIARBEID,
@@ -478,8 +448,8 @@ class AvtaleQueriesTest : FunSpec({
                 val avtale = AvtaleFixtures.oppfolging.copy(
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(amoKategorisering = amoKategorisering),
                 )
-                queries.upsert(avtale)
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.create(avtale)
+                queries.avtale.getOrError(avtale.id).should {
                     it.amoKategorisering shouldBe amoKategorisering
                 }
 
@@ -492,16 +462,16 @@ class AvtaleQueriesTest : FunSpec({
                         ),
                     ),
                 )
-                queries.upsert(
-                    avtale.copy(
-                        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(amoKategorisering = amoEndring),
-                    ),
+                queries.avtale.updateDetaljer(
+                    avtale.id,
+                    AvtaleFixtures.detaljerDbo().copy(amoKategorisering = amoEndring),
                 )
-                queries.get(avtale.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(avtale.id).should {
                     it.amoKategorisering shouldBe amoEndring
                 }
-                queries.upsert(avtale.copy(detaljerDbo = AvtaleFixtures.detaljerDbo().copy(amoKategorisering = null)))
-                queries.get(avtale.id).shouldNotBeNull().should {
+
+                queries.avtale.updateDetaljer(avtale.id, AvtaleFixtures.detaljerDbo().copy(amoKategorisering = null))
+                queries.avtale.getOrError(avtale.id).should {
                     it.amoKategorisering shouldBe null
                 }
             }
@@ -511,19 +481,16 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-                val sats2 = AvtaltSats(LocalDate.of(2025, 7, 1), 2000)
-
                 val avtale = AvtaleFixtures.oppfolging.copy(
                     prismodellDbo = AvtaleFixtures.prismodellDbo(
                         prismodellType = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(sats2),
+                        satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000)),
                     ),
                 )
 
-                queries.upsert(avtale)
+                queries.avtale.create(avtale)
 
-                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should { avtale ->
+                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).should { avtale ->
                     avtale.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>() should {
                         it.satser shouldContainExactly listOf(
                             AvtaltSatsDto(
@@ -535,14 +502,14 @@ class AvtaleQueriesTest : FunSpec({
                     }
                 }
 
-                queries.upsertPrismodell(
+                queries.avtale.upsertPrismodell(
                     avtale.id,
                     avtale.prismodellDbo.copy(
                         type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
                     ),
                 )
 
-                queries.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().should {
+                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).should {
                     it.prismodell.shouldBeTypeOf<Prismodell.AvtaltPrisPerHeleUkesverk>()
                 }
             }
@@ -561,14 +528,12 @@ class AvtaleQueriesTest : FunSpec({
                 TiltakstypeFixtures.AFT,
                 TiltakstypeFixtures.GruppeAmo,
             ),
-            avtaler = listOf(),
         )
 
         test("fritekstsøk på avtalenavn og avtalenummer") {
             database.runAndRollback { session ->
                 oppfolgingDomain.setup(session)
 
-                val queries = AvtaleQueries(session)
                 val avtalenummer1 = "2024#1000"
                 val avtalenummer2 = "2024#2000"
 
@@ -588,39 +553,39 @@ class AvtaleQueriesTest : FunSpec({
                     prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
 
-                queries.upsert(avtale1)
-                queries.upsertAvtalenummer(avtale1.id, avtalenummer1)
-                queries.upsert(avtale2)
-                queries.upsertAvtalenummer(avtale2.id, avtalenummer2)
+                queries.avtale.create(avtale1)
+                queries.avtale.upsertAvtalenummer(avtale1.id, avtalenummer1)
+                queries.avtale.create(avtale2)
+                queries.avtale.upsertAvtalenummer(avtale2.id, avtalenummer2)
 
-                queries.getAll(search = "krokodillen").should {
+                queries.avtale.getAll(search = "krokodillen").should {
                     it.totalCount shouldBe 1
                     it.items[0].id shouldBe avtale1.id
                 }
 
-                queries.getAll(search = "avtale").should {
+                queries.avtale.getAll(search = "avtale").should {
                     it.totalCount shouldBe 2
                 }
 
-                queries.getAll(search = "avtale ulv").should {
+                queries.avtale.getAll(search = "avtale ulv").should {
                     it.totalCount shouldBe 1
                     it.items[0].id shouldBe avtale2.id
                 }
 
-                queries.getAll(search = "krok").should {
+                queries.avtale.getAll(search = "krok").should {
                     it.totalCount shouldBe 1
                 }
 
-                queries.getAll(search = "avtale kråke").should {
+                queries.avtale.getAll(search = "avtale kråke").should {
                     it.totalCount shouldBe 0
                 }
 
-                queries.getAll(search = "2000").should {
+                queries.avtale.getAll(search = "2000").should {
                     it.totalCount shouldBe 1
                     it.items[0].id shouldBe avtale2.id
                 }
 
-                queries.getAll(search = "2024").should {
+                queries.avtale.getAll(search = "2024").should {
                     it.totalCount shouldBe 2
                 }
             }
@@ -629,8 +594,6 @@ class AvtaleQueriesTest : FunSpec({
         test("administrator") {
             database.runAndRollback { session ->
                 oppfolgingDomain.setup(session)
-
-                val queries = AvtaleQueries(session)
 
                 val a1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -650,14 +613,14 @@ class AvtaleQueriesTest : FunSpec({
                     prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
 
-                queries.upsert(a1)
-                queries.upsert(a2)
+                queries.avtale.create(a1)
+                queries.avtale.create(a2)
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent).should {
+                queries.avtale.getAll(administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent).should {
                     it.items shouldContainExactlyIds listOf(a1.id, a2.id)
                 }
 
-                queries.getAll(administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent).should {
+                queries.avtale.getAll(administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent).should {
                     it.items shouldContainExactlyIds listOf(a2.id)
                 }
             }
@@ -667,15 +630,13 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 oppfolgingDomain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 val avtaleAktiv = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
                         status = AvtaleStatusType.AKTIV,
                     ),
                 )
-                queries.upsert(avtaleAktiv)
+                queries.avtale.create(avtaleAktiv)
 
                 val avtaleAvsluttet = AvtaleFixtures.AFT.copy(
                     id = UUID.randomUUID(),
@@ -684,13 +645,13 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                     prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
-                queries.upsert(avtaleAvsluttet)
+                queries.avtale.create(avtaleAvsluttet)
 
                 val avtaleAvbrutt = AvtaleFixtures.gruppeAmo.copy(
                     id = UUID.randomUUID(),
                 )
-                queries.upsert(avtaleAvbrutt)
-                queries.setStatus(
+                queries.avtale.create(avtaleAvbrutt)
+                queries.avtale.setStatus(
                     avtaleAvbrutt.id,
                     AvtaleStatusType.AVBRUTT,
                     LocalDateTime.now(),
@@ -705,7 +666,7 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                     prismodellDbo = AvtaleFixtures.prismodellDbo(),
                 )
-                queries.upsert(avtaleUtkast)
+                queries.avtale.create(avtaleUtkast)
 
                 forAll(
                     row(listOf(AvtaleStatusType.UTKAST), listOf(avtaleUtkast.id)),
@@ -717,7 +678,7 @@ class AvtaleQueriesTest : FunSpec({
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
-                    val result = queries.getAll(statuser = statuser)
+                    val result = queries.avtale.getAll(statuser = statuser)
                     result.items shouldContainExactlyIds expected
                 }
             }
@@ -745,19 +706,17 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${AvtaleFixtures.oppfolging.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'"))
 
-                queries.getAll(navEnheter = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
+                queries.avtale.getAll(navEnheter = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
-                queries.getAll(navEnheter = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
+                queries.avtale.getAll(navEnheter = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
                     totalCount shouldBe 2
                 }
-                queries.getAll(navEnheter = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
+                queries.avtale.getAll(navEnheter = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
             }
@@ -801,15 +760,13 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.getAll(
+                queries.avtale.getAll(
                     navEnheter = listOf(Innlandet.enhetsnummer),
                 ).should { (totalCount) ->
                     totalCount shouldBe 3
                 }
 
-                queries.getAll(
+                queries.avtale.getAll(
                     navEnheter = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
                 ).should { (totalCount, items) ->
                     totalCount shouldBe 2
@@ -852,19 +809,17 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.getAll(avtaletyper = listOf(Avtaletype.AVTALE)).should {
+                queries.avtale.getAll(avtaletyper = listOf(Avtaletype.AVTALE)).should {
                     it.totalCount shouldBe 1
                     it.items shouldContainExactlyIds listOf(avtale1.id)
                 }
 
-                queries.getAll(avtaletyper = listOf(Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG)).should {
+                queries.avtale.getAll(avtaletyper = listOf(Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG)).should {
                     it.totalCount shouldBe 2
                     it.items shouldContainExactlyIds listOf(avtale1.id, avtale3.id)
                 }
 
-                queries.getAll(avtaletyper = listOf()).should {
+                queries.avtale.getAll(avtaletyper = listOf()).should {
                     it.totalCount shouldBe 3
                 }
             }
@@ -886,16 +841,14 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.getAll(
+                queries.avtale.getAll(
                     tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
                 ).should { (totalCount, items) ->
                     totalCount shouldBe 2
                     items shouldContainExactlyIds listOf(domain.avtaler[0].id, domain.avtaler[1].id)
                 }
 
-                queries.getAll(
+                queries.avtale.getAll(
                     tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id),
                 ).should { (totalCount) ->
                     totalCount shouldBe 3
@@ -947,10 +900,8 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.getAll(search = "enhet").totalCount shouldBe 2
-                queries.getAll(search = "annen").totalCount shouldBe 1
+                queries.avtale.getAll(search = "enhet").totalCount shouldBe 2
+                queries.avtale.getAll(search = "annen").totalCount shouldBe 1
             }
         }
 
@@ -972,11 +923,9 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                queries.getAll(personvernBekreftet = true).totalCount shouldBe 2
-                queries.getAll(personvernBekreftet = false).totalCount shouldBe 1
-                queries.getAll(personvernBekreftet = null).totalCount shouldBe 3
+                queries.avtale.getAll(personvernBekreftet = true).totalCount shouldBe 2
+                queries.avtale.getAll(personvernBekreftet = false).totalCount shouldBe 1
+                queries.avtale.getAll(personvernBekreftet = null).totalCount shouldBe 3
             }
         }
     }
@@ -1059,9 +1008,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                val result = queries.getAll(sortering = "navn-ascending")
+                val result = queries.avtale.getAll(sortering = "navn-ascending")
 
                 result.totalCount shouldBe 5
                 result.items[0].navn shouldBe "Avtale hos Anders"
@@ -1076,9 +1023,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                val result = queries.getAll(sortering = "navn-descending")
+                val result = queries.avtale.getAll(sortering = "navn-descending")
 
                 result.totalCount shouldBe 5
                 result.items[0].navn shouldBe "Avtale hos Åse"
@@ -1118,9 +1063,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                val ascending = queries.getAll(sortering = "arrangor-ascending")
+                val ascending = queries.avtale.getAll(sortering = "arrangor-ascending")
 
                 ascending.items[0].arrangor shouldBe alvdal
                 ascending.items[1].arrangor shouldBe alvdal
@@ -1128,7 +1071,7 @@ class AvtaleQueriesTest : FunSpec({
                 ascending.items[3].arrangor shouldBe bjarne
                 ascending.items[4].arrangor shouldBe chris
 
-                val descending = queries.getAll(sortering = "arrangor-descending")
+                val descending = queries.avtale.getAll(sortering = "arrangor-descending")
                 descending.items[0].arrangor shouldBe chris
                 descending.items[1].arrangor shouldBe bjarne
                 descending.items[2].arrangor shouldBe bjarne
@@ -1141,9 +1084,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                val result = queries.getAll(sortering = "sluttdato-descending")
+                val result = queries.avtale.getAll(sortering = "sluttdato-descending")
                 result.items[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
                 result.items[1].navn shouldBe "Avtale hos Kjetil"
                 result.items[2].navn shouldBe "Avtale hos Anders"
@@ -1156,9 +1097,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = AvtaleQueries(session)
-
-                val result = queries.getAll(sortering = "sluttdato-ascending")
+                val result = queries.avtale.getAll(sortering = "sluttdato-ascending")
                 result.items[0].navn shouldBe "Avtale hos Åse"
                 result.items[1].navn shouldBe "Avtale hos Øyvind"
                 result.items[2].navn shouldBe "Avtale hos Anders"

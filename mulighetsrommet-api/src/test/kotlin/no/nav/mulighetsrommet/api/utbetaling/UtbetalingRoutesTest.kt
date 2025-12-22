@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -39,6 +40,7 @@ class UtbetalingRoutesTest : FunSpec({
     val ansatt = NavAnsattFixture.DonaldDuck
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(ansatt),
+        avtaler = listOf(AvtaleFixtures.AFT),
         gjennomforinger = listOf(AFT1),
         tilsagn = listOf(TilsagnFixtures.Tilsagn1),
         utbetalinger = listOf(UtbetalingFixtures.utbetaling1),

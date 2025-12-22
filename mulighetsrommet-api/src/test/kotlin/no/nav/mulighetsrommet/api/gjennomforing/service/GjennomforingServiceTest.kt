@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -59,6 +60,7 @@ class GjennomforingServiceTest : FunSpec({
             ArrangorFixtures.underenhet1,
             ArrangorFixtures.underenhet2,
         ),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
     )
 
     beforeEach {
@@ -199,7 +201,7 @@ class GjennomforingServiceTest : FunSpec({
         val service = createService()
 
         test("blir valideringsfeil hvis gjennomføringen ikke er aktiv") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 status = GjennomforingStatusType.AVSLUTTET,
             )
 
@@ -221,7 +223,7 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("blir valideringsfeil hvis gjennomføringen forsøkes avbrytes etter at sluttdato er passert") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
                 status = GjennomforingStatusType.AVSLUTTET,
@@ -245,7 +247,7 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avbrytes") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
@@ -289,7 +291,7 @@ class GjennomforingServiceTest : FunSpec({
         }
 
         test("stenger gjennomføring og får status avlyst når gjennomføring avbrytes før start") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
             )
@@ -320,7 +322,7 @@ class GjennomforingServiceTest : FunSpec({
         val service = createService()
 
         test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avsluttes") {
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
             )
@@ -366,7 +368,7 @@ class GjennomforingServiceTest : FunSpec({
             val tilgjengeligForArrangorDato = LocalDate.now().plusDays(1)
             val startDato = LocalDate.now().plusWeeks(1)
 
-            val gjennomforing = GjennomforingFixtures.AFT1.copy(startDato = startDato)
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(startDato = startDato)
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),

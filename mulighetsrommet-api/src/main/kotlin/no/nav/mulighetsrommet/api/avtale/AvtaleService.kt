@@ -76,7 +76,7 @@ class AvtaleService(
             .bind()
 
         db.transaction {
-            queries.avtale.upsert(dbo)
+            queries.avtale.create(dbo)
 
             dispatchNotificationToNewAdministrators(
                 dbo.id,

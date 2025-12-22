@@ -57,16 +57,11 @@ class UpdateAvtaleStatusTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-        avtaler = emptyList(),
+        avtaler = listOf(avtale1, avtale2, avtale3),
     )
 
     beforeEach {
         domain.initialize(database.db)
-        database.run {
-            queries.avtale.upsert(avtale1)
-            queries.avtale.upsert(avtale2)
-            queries.avtale.upsert(avtale3)
-        }
     }
 
     afterEach {

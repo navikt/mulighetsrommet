@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -25,10 +26,6 @@ class DelMedBrukerServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
     val sanityService: SanityService = mockk(relaxed = true)
 
-    afterEach {
-        database.truncateAll()
-    }
-
     context("DelMedBrukerService") {
         val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(database.db))
 
@@ -36,6 +33,10 @@ class DelMedBrukerServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
             ).initialize(database.db)
+        }
+
+        afterEach {
+            database.truncateAll()
         }
 
         test("opprett deling med bruker for sanity-tiltak") {
@@ -74,6 +75,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
         test("opprett deling med bruker for gjennomføring") {
             MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             ).initialize(database.db)
 
@@ -102,6 +104,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
         test("hent siste delinger med bruker per tiltak") {
             MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             ).initialize(database.db)
 
@@ -162,6 +165,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     TiltakstypeFixtures.EnkelAmo,
                     TiltakstypeFixtures.Arbeidstrening,
                 ),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
             ).initialize(database.db)
 

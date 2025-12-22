@@ -18,18 +18,6 @@ import java.util.UUID
 class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-    )
-
-    beforeTest {
-        domain.initialize(database.db)
-    }
-
-    afterEach {
-        database.truncateAll()
-    }
-
     fun createConsumer(): AmtKoordinatorGjennomforingV1KafkaConsumer {
         return AmtKoordinatorGjennomforingV1KafkaConsumer(
             db = database.db,
@@ -67,22 +55,29 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
         }
     }
 
-    context("Konsumering av Koordinator-kobling fra Komet") {
-        MulighetsrommetTestDomain(
-            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-        ).initialize(database.db)
+    val domain = MulighetsrommetTestDomain(
+        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
+        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
+    )
 
+    beforeEach {
+        domain.initialize(database.db)
+    }
+
+    afterEach {
+        database.truncateAll()
+    }
+
+    context("Konsumering av Koordinator-kobling fra Komet") {
         val consumer = createConsumer()
 
         test("Should process valid KoordinatorTiltaksgjennomforingV1 message successfully") {
-            val message =
-                createMelding(
-                    id = UUID.randomUUID(),
-                    ident = NavIdent("Z123456"),
-                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
-                )
+            val message = createMelding(
+                id = UUID.randomUUID(),
+                ident = NavIdent("Z123456"),
+                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+            )
 
             consumer.consume(message.gjennomforingId.toString(), Json.encodeToJsonElement(message))
 
@@ -91,12 +86,11 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
 
         test("Should process tombstone message successfully") {
             val key = UUID.fromString("5e5de632-c696-4584-a18f-eb9c1a6362ca")
-            val message =
-                createMelding(
-                    id = key,
-                    ident = NavIdent("Z123456"),
-                    gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
-                )
+            val message = createMelding(
+                id = key,
+                ident = NavIdent("Z123456"),
+                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+            )
 
             consumer.consume(key.toString(), Json.encodeToJsonElement(message))
 

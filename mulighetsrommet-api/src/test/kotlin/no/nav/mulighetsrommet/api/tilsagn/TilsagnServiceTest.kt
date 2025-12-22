@@ -171,7 +171,6 @@ class TilsagnServiceTest : FunSpec({
 
         test("genererer løpenummer og bestillingsnummer") {
             val domain2 = MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(
                     GjennomforingFixtures.AFT1,
                     GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID()),

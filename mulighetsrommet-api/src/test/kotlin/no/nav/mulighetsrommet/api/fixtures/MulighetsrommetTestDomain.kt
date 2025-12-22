@@ -37,13 +37,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.DigitalOppfolging,
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
     ),
-    val avtaler: List<AvtaleDbo> = listOf(
-        AvtaleFixtures.oppfolging,
-        AvtaleFixtures.VTA,
-        AvtaleFixtures.AFT,
-        AvtaleFixtures.jobbklubb,
-        AvtaleFixtures.EnkelAmo,
-    ),
+    val avtaler: List<AvtaleDbo> = listOf(),
     val gjennomforinger: List<GjennomforingGruppetiltakDbo> = listOf(),
     val enkeltplasser: List<GjennomforingEnkeltplassDbo> = listOf(),
     val deltakere: List<DeltakerDbo> = listOf(),
@@ -65,7 +59,7 @@ data class MulighetsrommetTestDomain(
             arrangorer.forEach { queries.arrangor.upsert(it) }
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
-            avtaler.forEach { queries.avtale.upsert(it) }
+            avtaler.forEach { queries.avtale.create(it) }
             gjennomforinger.forEach { queries.gjennomforing.upsertGruppetiltak(it) }
             enkeltplasser.forEach { queries.gjennomforing.upsertEnkeltplass(it) }
             deltakere.forEach { queries.deltaker.upsert(it) }

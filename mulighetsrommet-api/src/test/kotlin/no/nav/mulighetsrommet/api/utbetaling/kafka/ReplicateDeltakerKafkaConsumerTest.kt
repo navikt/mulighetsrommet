@@ -144,13 +144,6 @@ class ReplicateDeltakerKafkaConsumerTest : FunSpec({
         }
 
         test("tolker deltakelsesprosent som 100 hvis den mangler for tiltak med forhåndsgodkjent prismodell") {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(
-                    AvtaleFixtures.AFT,
-                    AvtaleFixtures.oppfolging,
-                ),
-            ).initialize(database.db)
-
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(
                 amtDeltaker1.id,

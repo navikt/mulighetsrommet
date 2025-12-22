@@ -32,28 +32,23 @@ class GjennomforingPublicRoutesTest : FunSpec({
 
     val oauth = MockOAuth2Server()
 
-    beforeSpec {
-        oauth.start()
-    }
-
-    afterSpec {
-        oauth.shutdown()
-    }
-
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
+        enkeltplasser = listOf(EnkeltplassFixtures.EnkelAmo1),
     )
 
-    beforeAny {
-        domain.initialize(database.db)
+    beforeSpec {
+        oauth.start()
 
-        database.run {
-            queries.gjennomforing.upsertEnkeltplass(EnkeltplassFixtures.EnkelAmo1)
-        }
+        domain.initialize(database.db)
+    }
+
+    afterSpec {
+        oauth.shutdown()
     }
 
     fun appConfig() = createTestApplicationConfig().copy(

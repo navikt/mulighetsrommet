@@ -69,7 +69,7 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
         ),
     )
 
-    beforeAny {
+    beforeSpec {
         domain.initialize(database.db)
     }
 
