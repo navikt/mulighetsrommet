@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
@@ -329,7 +328,7 @@ class GjennomforingRoutesTest : FunSpec({
                 response.bodyAsText().shouldBeEmpty()
 
                 database.run {
-                    queries.gjennomforing.getGruppetiltak(aktivGjennomforingId).shouldNotBeNull().should {
+                    queries.gjennomforing.getGruppetiltakOrError(aktivGjennomforingId).should {
                         it.status.shouldBeTypeOf<GjennomforingStatus.Avbrutt>().should {
                             it.type shouldBe GjennomforingStatusType.AVBRUTT
                             it.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING

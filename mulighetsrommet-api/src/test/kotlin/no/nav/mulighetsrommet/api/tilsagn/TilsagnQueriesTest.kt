@@ -82,7 +82,7 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.upsert(tilsagn)
 
-                queries.get(tilsagn.id).shouldNotBeNull() should {
+                queries.getOrError(tilsagn.id) should {
                     it.id shouldBe tilsagn.id
                     it.tiltakstype shouldBe Tilsagn.Tiltakstype(
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
@@ -140,7 +140,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+                queries.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -160,7 +160,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+                queries.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -181,7 +181,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+                queries.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -202,7 +202,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+                queries.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -223,7 +223,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+                queries.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -245,7 +245,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
                 queries.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.get(tilsagn.id).shouldNotBeNull().beregning shouldBe beregning
+                queries.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -349,11 +349,11 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.upsert(tilsagn)
 
-                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnStatus.TIL_GODKJENNING
+                queries.getOrError(tilsagn.id).status shouldBe TilsagnStatus.TIL_GODKJENNING
 
                 queries.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
 
-                queries.get(tilsagn.id).shouldNotBeNull().status shouldBe TilsagnStatus.TIL_ANNULLERING
+                queries.getOrError(tilsagn.id).status shouldBe TilsagnStatus.TIL_ANNULLERING
             }
         }
 
@@ -365,11 +365,11 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.upsert(tilsagn.copy(bestillingStatus = BestillingStatusType.SENDT))
 
-                queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.SENDT
+                queries.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.SENDT
 
                 queries.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.OPPGJORT)
 
-                queries.get(tilsagn.id).shouldNotBeNull().bestilling.status shouldBe BestillingStatusType.OPPGJORT
+                queries.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
     }

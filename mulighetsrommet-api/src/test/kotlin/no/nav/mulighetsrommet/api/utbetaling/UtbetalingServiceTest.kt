@@ -372,7 +372,7 @@ class UtbetalingServiceTest : FunSpec({
             )
 
             database.run {
-                queries.delutbetaling.get(delutbetaling.id).shouldNotBeNull()
+                queries.delutbetaling.getOrError(delutbetaling.id)
             }
         }
 
@@ -426,9 +426,9 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                queries.delutbetaling.get(delutbetaling1.id).shouldNotBeNull()
+                queries.delutbetaling.getOrError(delutbetaling1.id)
                     .status shouldBe DelutbetalingStatus.TIL_ATTESTERING
-                queries.utbetaling.get(delutbetaling1.utbetalingId).shouldNotBeNull()
+                queries.utbetaling.getOrError(delutbetaling1.utbetalingId)
                     .status shouldBe UtbetalingStatusType.TIL_ATTESTERING
             }
         }
@@ -1150,7 +1150,7 @@ class UtbetalingServiceTest : FunSpec({
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
-                queries.tilsagn.get(Tilsagn1.id).shouldNotBeNull().should {
+                queries.tilsagn.getOrError(Tilsagn1.id).should {
                     it.belopBrukt shouldBe 1000
                 }
 

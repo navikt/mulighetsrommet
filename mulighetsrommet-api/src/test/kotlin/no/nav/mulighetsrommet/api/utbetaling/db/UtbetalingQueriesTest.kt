@@ -92,7 +92,7 @@ class UtbetalingQueriesTest : FunSpec({
 
             queries.upsert(utbetaling)
 
-            queries.get(utbetaling.id).shouldNotBeNull().should {
+            queries.getOrError(utbetaling.id).should {
                 it.id shouldBe utbetaling.id
                 it.tiltakstype shouldBe Utbetaling.Tiltakstype(
                     navn = TiltakstypeFixtures.AFT.navn,
@@ -129,13 +129,11 @@ class UtbetalingQueriesTest : FunSpec({
 
             queries.upsert(utbetaling.copy(innsender = null))
 
-            queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe null
+            queries.getOrError(utbetaling.id).innsender shouldBe null
 
             queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
-            queries.get(utbetaling.id)
-                .shouldNotBeNull().innsender shouldBe Arrangor
+            queries.getOrError(utbetaling.id).innsender shouldBe Arrangor
         }
     }
 
@@ -149,7 +147,7 @@ class UtbetalingQueriesTest : FunSpec({
 
             queries.setJournalpostId(utbetaling.id, "123")
 
-            queries.get(utbetaling.id).shouldNotBeNull().journalpostId shouldBe "123"
+            queries.getOrError(utbetaling.id).journalpostId shouldBe "123"
         }
     }
 
@@ -221,9 +219,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(utbetaling.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
 
@@ -311,9 +307,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(utbetaling.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -368,9 +362,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(utbetaling.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -425,9 +417,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(utbetaling.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -469,9 +459,7 @@ class UtbetalingQueriesTest : FunSpec({
 
                 queries.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.get(utbetaling.id).shouldNotBeNull().should {
-                    it.beregning shouldBe beregning
-                }
+                queries.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -654,9 +642,7 @@ class UtbetalingQueriesTest : FunSpec({
             queries.upsert(utbetaling)
             queries.avbrytUtbetaling(utbetaling.id, "min begrunnelse", Instant.now())
 
-            queries.get(utbetaling.id).shouldNotBeNull().should {
-                it.status shouldBe UtbetalingStatusType.AVBRUTT
-            }
+            queries.getOrError(utbetaling.id).status shouldBe UtbetalingStatusType.AVBRUTT
         }
     }
 })

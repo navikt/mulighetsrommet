@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.task
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
@@ -68,10 +67,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeFagYrke1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -81,10 +80,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeFagYrke1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -94,10 +93,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeFagYrke1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.GruppeAmo1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }

@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.task
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
@@ -71,13 +70,13 @@ class UpdateAvtaleStatusTest : FunSpec({
         task.execute(now = LocalDateTime.of(2025, 5, 1, 0, 0))
 
         database.run {
-            queries.avtale.get(avtale1.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale1.id).should {
                 it.status.type shouldBe AvtaleStatusType.AKTIV
             }
-            queries.avtale.get(avtale2.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale2.id).should {
                 it.status.type shouldBe AvtaleStatusType.AKTIV
             }
-            queries.avtale.get(avtale3.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale3.id).should {
                 it.status.type shouldBe AvtaleStatusType.AKTIV
             }
         }
@@ -89,13 +88,13 @@ class UpdateAvtaleStatusTest : FunSpec({
         task.execute(now = LocalDateTime.of(2025, 7, 1, 0, 0))
 
         database.run {
-            queries.avtale.get(avtale1.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale1.id).should {
                 it.status.type shouldBe AvtaleStatusType.AVSLUTTET
             }
-            queries.avtale.get(avtale2.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale2.id).should {
                 it.status.type shouldBe AvtaleStatusType.AVSLUTTET
             }
-            queries.avtale.get(avtale3.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale3.id).should {
                 it.status.type shouldBe AvtaleStatusType.AKTIV
             }
         }
@@ -125,17 +124,17 @@ class UpdateAvtaleStatusTest : FunSpec({
         task.execute(now = LocalDateTime.of(2025, 7, 1, 0, 0))
 
         database.run {
-            queries.avtale.get(avtale1.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale1.id).should {
                 it.status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
             }
-            queries.avtale.get(avtale2.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale2.id).should {
                 it.status shouldBe AvtaleStatus.Avsluttet
             }
-            queries.avtale.get(avtale3.id).shouldNotBeNull().should {
+            queries.avtale.getOrError(avtale3.id).should {
                 it.status shouldBe AvtaleStatus.Aktiv
             }
         }

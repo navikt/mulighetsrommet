@@ -41,34 +41,6 @@ object GjennomforingFixtures {
         prismodellId = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging.id,
     )
 
-    val Oppfolging2 = GjennomforingGruppetiltakDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging 2",
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangorId = ArrangorFixtures.underenhet2.id,
-        arrangorKontaktpersoner = emptyList(),
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        status = GjennomforingStatusType.GJENNOMFORES,
-        antallPlasser = 12,
-        avtaleId = AvtaleFixtures.oppfolging.id,
-        administratorer = emptyList(),
-        navEnheter = emptySet(),
-        oppstart = GjennomforingOppstartstype.FELLES,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        kontaktpersoner = emptyList(),
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging.id,
-    )
-
     val VTA1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",

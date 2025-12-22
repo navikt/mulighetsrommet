@@ -21,14 +21,17 @@ class DeltakerQueriesTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.oppfolging),
-        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.Oppfolging2),
+        gjennomforinger = listOf(
+            GjennomforingFixtures.Oppfolging1,
+            GjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID()),
+        ),
     )
 
     val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
 
     val deltaker1 = DeltakerDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+        gjennomforingId = domain.gjennomforinger[0].id,
         startDato = null,
         sluttDato = null,
         registrertDato = opprettetTidspunkt.toLocalDate(),
@@ -43,7 +46,7 @@ class DeltakerQueriesTest : FunSpec({
     )
     val deltaker2 = deltaker1.copy(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.Oppfolging2.id,
+        gjennomforingId = domain.gjennomforinger[1].id,
     )
 
     test("CRUD") {
@@ -131,11 +134,11 @@ class DeltakerQueriesTest : FunSpec({
             queries.upsert(deltaker2)
 
             queries
-                .getAll(gjennomforingId = GjennomforingFixtures.Oppfolging1.id)
+                .getAll(gjennomforingId = domain.gjennomforinger[0].id)
                 .shouldContainExactly(deltaker1.toDto())
 
             queries
-                .getAll(gjennomforingId = GjennomforingFixtures.Oppfolging2.id)
+                .getAll(gjennomforingId = domain.gjennomforinger[1].id)
                 .shouldContainExactly(deltaker2.toDto())
         }
     }
