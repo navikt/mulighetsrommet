@@ -94,7 +94,7 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         test("CRUD") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 queries.ansatt.upsert(ansatt1)
 
                 queries.ansatt.getByEntraObjectId(ansatt1.entraObjectId) shouldBe toDto(ansatt1, enhet1, setOf())
@@ -108,7 +108,7 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("oppdatere roller") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 queries.ansatt.upsert(ansatt1)
 
                 val enRolle = setOf(
@@ -132,7 +132,7 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("oppdatere roller med kontortilhørlighet") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 queries.ansatt.upsert(ansatt1)
 
                 val enRolle = setOf(
@@ -157,7 +157,7 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("hent ansatte gitt rolle") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 val generell = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
                 val kontaktperson = NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
@@ -190,7 +190,7 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("hent ansatte gitt rolle med kontortilhørlighet") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 val beslutterTilsagnAndeby =
                     NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000")))
                 val beslutterTilsagnGaseby =
@@ -237,7 +237,7 @@ class NavAnsattQueriesTest : FunSpec({
         }
 
         test("hent ansatte gitt hovedenhet") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 queries.ansatt.upsert(ansatt1)
                 queries.ansatt.upsert(ansatt2)
                 queries.ansatt.upsert(ansatt3)
