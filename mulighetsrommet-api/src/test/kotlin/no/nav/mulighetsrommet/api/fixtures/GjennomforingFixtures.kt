@@ -125,34 +125,6 @@ object GjennomforingFixtures {
         prismodellId = AvtaleFixtures.Prismodell.Forhandsgodkjent.id,
     )
 
-    val Jobbklubb1 = GjennomforingGruppetiltakDbo(
-        id = UUID.randomUUID(),
-        navn = "Jobbklubb 1",
-        tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-        arrangorId = ArrangorFixtures.underenhet1.id,
-        arrangorKontaktpersoner = emptyList(),
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        status = GjennomforingStatusType.GJENNOMFORES,
-        antallPlasser = 12,
-        avtaleId = AvtaleFixtures.jobbklubb.id,
-        administratorer = listOf(NavIdent("DD1")),
-        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
-        oppstart = GjennomforingOppstartstype.FELLES,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        kontaktpersoner = emptyList(),
-        oppmoteSted = "Oslo",
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-        tilgjengeligForArrangorDato = null,
-        amoKategorisering = null,
-        utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
-    )
-
     val GruppeAmo1 = GjennomforingGruppetiltakDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",

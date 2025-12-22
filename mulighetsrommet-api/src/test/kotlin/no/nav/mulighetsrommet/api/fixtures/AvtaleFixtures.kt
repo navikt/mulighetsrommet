@@ -154,18 +154,6 @@ object AvtaleFixtures {
         prismodeller = listOf(),
     )
 
-    // TODO: slett
-    val jobbklubb: AvtaleDbo = AvtaleDbo(
-        id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "Jobbklubb avtale",
-            tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-        ),
-        personvernDbo = personvernDbo(),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(),
-    )
-
     val ARR: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
