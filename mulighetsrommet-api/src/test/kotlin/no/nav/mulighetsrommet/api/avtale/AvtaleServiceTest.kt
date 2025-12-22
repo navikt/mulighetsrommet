@@ -170,7 +170,8 @@ class AvtaleServiceTest : FunSpec({
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
-            val gjennomforing2 = GjennomforingFixtures.Oppfolging2.copy(
+            val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )

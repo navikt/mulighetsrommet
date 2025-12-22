@@ -5,7 +5,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -195,18 +194,18 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                val aft1 = queries.gjennomforing.getGruppetiltak(domain2.gjennomforinger[0].id).shouldNotBeNull()
-                queries.tilsagn.get(requestId).shouldNotBeNull().should {
+                val aft1 = queries.gjennomforing.getGruppetiltakOrError(domain2.gjennomforinger[0].id)
+                queries.tilsagn.getOrError(requestId).should {
                     it.lopenummer shouldBe 1
                 }
 
-                queries.tilsagn.get(tilsagn2).shouldNotBeNull().should {
+                queries.tilsagn.getOrError(tilsagn2).should {
                     it.lopenummer shouldBe 2
                     it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer.value}-2"
                 }
 
-                val aft2 = queries.gjennomforing.getGruppetiltak(domain2.gjennomforinger[1].id).shouldNotBeNull()
-                queries.tilsagn.get(tilsagn3).shouldNotBeNull().should {
+                val aft2 = queries.gjennomforing.getGruppetiltakOrError(domain2.gjennomforinger[1].id)
+                queries.tilsagn.getOrError(tilsagn3).should {
                     it.lopenummer shouldBe 1
                     it.bestilling.bestillingsnummer shouldBe "A-${aft2.lopenummer.value}-1"
                 }
@@ -414,7 +413,7 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -432,7 +431,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
                     it.besluttelse shouldBe Besluttelse.AVVIST
@@ -443,7 +442,7 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -457,7 +456,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.OPPRETT).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe ansatt2
                     it.besluttelse shouldBe Besluttelse.GODKJENT
@@ -469,7 +468,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("løpenummer beholdes når tilsagn blir returnert") {
             val aft1 =
-                database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
+                database.run { queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.AFT1.id) }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -496,7 +495,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("returnere eget tilsagn") {
             val aft1 =
-                database.run { queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.AFT1.id).shouldNotBeNull() }
+                database.run { queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.AFT1.id) }
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
@@ -549,7 +548,7 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.ANNULLER).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.ANNULLER).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -565,7 +564,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.ANNULLER).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.ANNULLER).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
                     it.besluttelse shouldBe Besluttelse.GODKJENT
@@ -716,7 +715,7 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.GJOR_OPP).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -730,7 +729,7 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.GJOR_OPP).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
                     it.besluttelse shouldBe Besluttelse.GODKJENT
@@ -764,7 +763,7 @@ class TilsagnServiceTest : FunSpec({
             }.status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
-                queries.totrinnskontroll.get(requestId, Totrinnskontroll.Type.GJOR_OPP).shouldNotBeNull().should {
+                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {
                     it.behandletAv shouldBe Tiltaksadministrasjon
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe Besluttelse.GODKJENT

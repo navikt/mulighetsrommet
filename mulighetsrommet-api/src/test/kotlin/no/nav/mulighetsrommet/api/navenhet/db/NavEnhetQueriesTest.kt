@@ -5,12 +5,12 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
 
 class NavEnhetQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     fun createEnhet(
         enhet: NavEnhetNummer,
@@ -27,8 +27,6 @@ class NavEnhetQueriesTest : FunSpec({
 
     test("CRUD") {
         database.runAndRollback { session ->
-            val queries = NavEnhetQueries(session)
-
             val overordnetEnhet = createEnhet(NavEnhetNummer("1200"), null, Norg2Type.FYLKE)
             val underenhet1 = createEnhet(NavEnhetNummer("1111"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
             val underenhet2 = createEnhet(NavEnhetNummer("2222"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
@@ -41,14 +39,14 @@ class NavEnhetQueriesTest : FunSpec({
                 NavEnhetStatus.NEDLAGT,
             )
 
-            queries.upsert(overordnetEnhet)
-            queries.upsert(underenhet1)
-            queries.upsert(underenhet2)
-            queries.upsert(underenhet3)
-            queries.upsert(underenhet4)
-            queries.upsert(underenhet5)
+            queries.enhet.upsert(overordnetEnhet)
+            queries.enhet.upsert(underenhet1)
+            queries.enhet.upsert(underenhet2)
+            queries.enhet.upsert(underenhet3)
+            queries.enhet.upsert(underenhet4)
+            queries.enhet.upsert(underenhet5)
 
-            queries.getAll() shouldContainExactlyInAnyOrder listOf(
+            queries.enhet.getAll() shouldContainExactlyInAnyOrder listOf(
                 overordnetEnhet,
                 underenhet1,
                 underenhet2,
@@ -57,7 +55,7 @@ class NavEnhetQueriesTest : FunSpec({
                 underenhet5,
             )
 
-            queries.getAll(
+            queries.enhet.getAll(
                 typer = listOf(
                     Norg2Type.FYLKE,
                     Norg2Type.ALS,
@@ -67,7 +65,7 @@ class NavEnhetQueriesTest : FunSpec({
                 underenhet4,
             )
 
-            queries.getAll(statuser = listOf(NavEnhetStatus.AKTIV)) shouldContainExactlyInAnyOrder listOf(
+            queries.enhet.getAll(statuser = listOf(NavEnhetStatus.AKTIV)) shouldContainExactlyInAnyOrder listOf(
                 overordnetEnhet,
                 underenhet1,
                 underenhet2,
@@ -75,7 +73,7 @@ class NavEnhetQueriesTest : FunSpec({
                 underenhet4,
             )
 
-            queries.getAll(overordnetEnhet = overordnetEnhet.enhetsnummer) shouldContainExactlyInAnyOrder listOf(
+            queries.enhet.getAll(overordnetEnhet = overordnetEnhet.enhetsnummer) shouldContainExactlyInAnyOrder listOf(
                 underenhet1,
                 underenhet2,
                 underenhet3,
@@ -83,7 +81,7 @@ class NavEnhetQueriesTest : FunSpec({
                 underenhet5,
             )
 
-            queries.deleteWhereEnhetsnummer(
+            queries.enhet.deleteWhereEnhetsnummer(
                 listOf(
                     NavEnhetNummer("1111"),
                     NavEnhetNummer("2222"),
@@ -91,7 +89,7 @@ class NavEnhetQueriesTest : FunSpec({
                 ),
             )
 
-            queries.getAll() shouldContainExactlyInAnyOrder listOf(
+            queries.enhet.getAll() shouldContainExactlyInAnyOrder listOf(
                 overordnetEnhet,
                 underenhet4,
                 underenhet5,
@@ -101,24 +99,28 @@ class NavEnhetQueriesTest : FunSpec({
 
     test("kostnadssted") {
         database.runAndRollback { session ->
-            val queries = NavEnhetQueries(session)
-
-            queries.upsert(createEnhet(enhet = NavEnhetNummer("0200"), type = Norg2Type.FYLKE, overordnetEnhet = null))
-            queries.upsert(
+            queries.enhet.upsert(
+                createEnhet(
+                    enhet = NavEnhetNummer("0200"),
+                    type = Norg2Type.FYLKE,
+                    overordnetEnhet = null,
+                ),
+            )
+            queries.enhet.upsert(
                 createEnhet(
                     enhet = NavEnhetNummer("0106"),
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = NavEnhetNummer("0200"),
                 ),
             )
-            queries.upsert(
+            queries.enhet.upsert(
                 createEnhet(
                     enhet = NavEnhetNummer("0101"),
                     type = Norg2Type.LOKAL,
                     overordnetEnhet = NavEnhetNummer("0200"),
                 ),
             )
-            queries.upsert(
+            queries.enhet.upsert(
                 createEnhet(
                     enhet = NavEnhetNummer("0128"),
                     type = Norg2Type.LOKAL,
@@ -134,7 +136,7 @@ class NavEnhetQueriesTest : FunSpec({
             """.trimIndent()
             session.execute(queryOf(setKostnadssteder))
 
-            queries.getKostnadssted(listOf(NavEnhetNummer("0200")))
+            queries.enhet.getKostnadssted(listOf(NavEnhetNummer("0200")))
                 .map { it.enhetsnummer } shouldContainExactlyInAnyOrder listOf(
                 NavEnhetNummer("0106"),
                 NavEnhetNummer("0101"),

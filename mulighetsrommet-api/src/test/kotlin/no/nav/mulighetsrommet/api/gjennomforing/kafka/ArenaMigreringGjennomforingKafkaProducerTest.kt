@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -40,7 +39,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         ).initialize(database.db)
 
         val gjennomforing = database.run {
-            queries.gjennomforing.getGruppetiltak(GjennomforingFixtures.Oppfolging1.id).shouldNotBeNull()
+            queries.gjennomforing.getGruppetiltakOrError(GjennomforingFixtures.Oppfolging1.id)
         }
 
         fun createConsumer(

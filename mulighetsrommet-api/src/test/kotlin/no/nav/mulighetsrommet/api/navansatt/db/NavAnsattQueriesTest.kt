@@ -94,113 +94,103 @@ class NavAnsattQueriesTest : FunSpec({
         )
 
         test("CRUD") {
-            database.runAndRollback { session ->
-                val queries = NavAnsattQueries(session)
+            database.runAndRollback {
+                queries.ansatt.upsert(ansatt1)
 
-                queries.upsert(ansatt1)
+                queries.ansatt.getByEntraObjectId(ansatt1.entraObjectId) shouldBe toDto(ansatt1, enhet1, setOf())
+                queries.ansatt.getByNavIdent(ansatt1.navIdent) shouldBe toDto(ansatt1, enhet1, setOf())
 
-                queries.getByEntraObjectId(ansatt1.entraObjectId) shouldBe toDto(ansatt1, enhet1, setOf())
-                queries.getByNavIdent(ansatt1.navIdent) shouldBe toDto(ansatt1, enhet1, setOf())
+                queries.ansatt.deleteByEntraObjectId(ansatt1.entraObjectId)
 
-                queries.deleteByEntraObjectId(ansatt1.entraObjectId)
-
-                queries.getByEntraObjectId(ansatt1.entraObjectId) shouldBe null
-                queries.getByNavIdent(ansatt1.navIdent) shouldBe null
+                queries.ansatt.getByEntraObjectId(ansatt1.entraObjectId) shouldBe null
+                queries.ansatt.getByNavIdent(ansatt1.navIdent) shouldBe null
             }
         }
 
         test("oppdatere roller") {
-            database.runAndRollback { session ->
-                val queries = NavAnsattQueries(session)
-
-                queries.upsert(ansatt1)
+            database.runAndRollback {
+                queries.ansatt.upsert(ansatt1)
 
                 val enRolle = setOf(
                     NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
                 )
-                queries.setRoller(ansatt1.navIdent, enRolle)
-                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
+                queries.ansatt.setRoller(ansatt1.navIdent, enRolle)
+                queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
                     NavAnsattRolle.generell(Rolle.KONTAKTPERSON),
                     NavAnsattRolle.generell(Rolle.OKONOMI_LES),
                     NavAnsattRolle.generell(Rolle.OPPFOLGER_GJENNOMFORING),
                 )
-                queries.setRoller(ansatt1.navIdent, flereRoller)
-                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
+                queries.ansatt.setRoller(ansatt1.navIdent, flereRoller)
+                queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
                 val ingenRoller = setOf<NavAnsattRolle>()
-                queries.setRoller(ansatt1.navIdent, ingenRoller)
-                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
+                queries.ansatt.setRoller(ansatt1.navIdent, ingenRoller)
+                queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
             }
         }
 
         test("oppdatere roller med kontortilhørlighet") {
-            database.runAndRollback { session ->
-                val queries = NavAnsattQueries(session)
-
-                queries.upsert(ansatt1)
+            database.runAndRollback {
+                queries.ansatt.upsert(ansatt1)
 
                 val enRolle = setOf(
                     NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("1000"))),
                 )
-                queries.setRoller(ansatt1.navIdent, enRolle)
-                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
+                queries.ansatt.setRoller(ansatt1.navIdent, enRolle)
+                queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
                     NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000"))),
                     NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("2000"))),
                 )
-                queries.setRoller(ansatt1.navIdent, flereRoller)
-                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
+                queries.ansatt.setRoller(ansatt1.navIdent, flereRoller)
+                queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
                 val ingenRoller = setOf<NavAnsattRolle>(
                     NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf()),
                 )
-                queries.setRoller(ansatt1.navIdent, ingenRoller)
-                queries.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
+                queries.ansatt.setRoller(ansatt1.navIdent, ingenRoller)
+                queries.ansatt.getByNavIdent(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
             }
         }
 
         test("hent ansatte gitt rolle") {
-            database.runAndRollback { session ->
-                val queries = NavAnsattQueries(session)
-
+            database.runAndRollback {
                 val generell = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
 
                 val kontaktperson = NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
 
-                queries.upsert(ansatt1)
-                queries.setRoller(ansatt1.navIdent, setOf(generell))
+                queries.ansatt.upsert(ansatt1)
+                queries.ansatt.setRoller(ansatt1.navIdent, setOf(generell))
 
-                queries.upsert(ansatt2)
-                queries.setRoller(ansatt2.navIdent, setOf(kontaktperson))
+                queries.ansatt.upsert(ansatt2)
+                queries.ansatt.setRoller(ansatt2.navIdent, setOf(kontaktperson))
 
-                queries.upsert(ansatt3)
-                queries.setRoller(ansatt3.navIdent, setOf(generell, kontaktperson))
+                queries.ansatt.upsert(ansatt3)
+                queries.ansatt.setRoller(ansatt3.navIdent, setOf(generell, kontaktperson))
 
                 val expectedAnsatt1 = toDto(ansatt1, enhet1, setOf(generell))
                 val expectedAnsatt2 = toDto(ansatt2, enhet2, setOf(kontaktperson))
                 val expectedAnsatt3 = toDto(ansatt3, enhet1, setOf(generell, kontaktperson))
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(generell),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt3)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(kontaktperson),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2, expectedAnsatt3)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(generell, kontaktperson),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt3)
             }
         }
 
         test("hent ansatte gitt rolle med kontortilhørlighet") {
-            database.runAndRollback { session ->
-                val queries = NavAnsattQueries(session)
-
+            database.runAndRollback {
                 val beslutterTilsagnAndeby =
                     NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000")))
                 val beslutterTilsagnGaseby =
@@ -215,59 +205,57 @@ class NavAnsattQueriesTest : FunSpec({
                 val beslutterTilsagnForUkjentKontor =
                     NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("3000")))
 
-                queries.upsert(ansatt1)
-                queries.setRoller(ansatt1.navIdent, setOf(beslutterTilsagnAndeby))
+                queries.ansatt.upsert(ansatt1)
+                queries.ansatt.setRoller(ansatt1.navIdent, setOf(beslutterTilsagnAndeby))
 
-                queries.upsert(ansatt2)
-                queries.setRoller(ansatt2.navIdent, setOf(beslutterTilsagnForBeggeKontor))
+                queries.ansatt.upsert(ansatt2)
+                queries.ansatt.setRoller(ansatt2.navIdent, setOf(beslutterTilsagnForBeggeKontor))
 
                 val expectedAnsatt1 = toDto(ansatt1, enhet1, setOf(beslutterTilsagnAndeby))
                 val expectedAnsatt2 = toDto(ansatt2, enhet2, setOf(beslutterTilsagnForBeggeKontor))
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(beslutterTilsagnAndeby),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt2)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(beslutterTilsagnGaseby),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(beslutterTilsagnUtenKontor),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt2)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(beslutterTilsagnForBeggeKontor),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     rollerContainsAll = listOf(beslutterTilsagnForUkjentKontor),
                 ) shouldContainExactlyInAnyOrder listOf()
             }
         }
 
         test("hent ansatte gitt hovedenhet") {
-            database.runAndRollback { session ->
-                val queries = NavAnsattQueries(session)
-
-                queries.upsert(ansatt1)
-                queries.upsert(ansatt2)
-                queries.upsert(ansatt3)
+            database.runAndRollback {
+                queries.ansatt.upsert(ansatt1)
+                queries.ansatt.upsert(ansatt2)
+                queries.ansatt.upsert(ansatt3)
 
                 val expectedAnsatt1 = toDto(ansatt1, enhet1, setOf())
                 val expectedAnsatt2 = toDto(ansatt2, enhet2, setOf())
                 val expectedAnsatt3 = toDto(ansatt3, enhet1, setOf())
 
-                queries.getAll(hovedenhetIn = listOf()) shouldBe listOf()
-                queries.getAll(
+                queries.ansatt.getAll(hovedenhetIn = listOf()) shouldBe listOf()
+                queries.ansatt.getAll(
                     hovedenhetIn = listOf(NavEnhetNummer("1000")),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt1, expectedAnsatt3)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     hovedenhetIn = listOf(NavEnhetNummer("2000")),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2)
 
-                queries.getAll(
+                queries.ansatt.getAll(
                     hovedenhetIn = listOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
                 ) shouldContainExactlyInAnyOrder listOf(expectedAnsatt2, expectedAnsatt1, expectedAnsatt3)
             }

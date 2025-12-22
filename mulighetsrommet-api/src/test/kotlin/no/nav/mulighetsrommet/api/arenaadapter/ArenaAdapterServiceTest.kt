@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arenaadapter
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
@@ -204,7 +203,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             database.run {
-                queries.gjennomforing.getGruppetiltak(gjennomforing1.id).shouldNotBeNull().should {
+                queries.gjennomforing.getGruppetiltakOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe ArenaNavEnhet(navn = "Nav Tiltak Oslo", enhetsnummer = "0387")
                     it.status.type shouldBe GjennomforingStatusType.GJENNOMFORES

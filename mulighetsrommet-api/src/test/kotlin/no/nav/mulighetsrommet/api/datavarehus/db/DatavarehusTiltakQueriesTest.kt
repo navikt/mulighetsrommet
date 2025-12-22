@@ -47,9 +47,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                queries.getDatavarehusTiltak(AFT1.id)
+                queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
@@ -83,13 +81,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             val tiltak = database.runAndRollback { session ->
                 domain.setup(session)
+
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(AFT1.id, tiltaksnummer = Tiltaksnummer("2020#1234")),
                 )
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                queries.getDatavarehusTiltak(AFT1.id)
+                queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
             tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
@@ -142,10 +139,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = DatavarehusTiltakQueries(session)
-
                 table.forAll { id, expectedAmoKategorisering ->
-                    val tiltak = queries.getDatavarehusTiltak(id)
+                    val tiltak = queries.dvh.getDatavarehusTiltak(id)
 
                     tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().amoKategorisering.shouldNotBeNull().shouldBe(
                         expectedAmoKategorisering,
@@ -211,9 +206,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 val idForSveisefag = queries.utdanning.getIdForUtdanning("u_sveisefag")
                 val idForSveisefagUnderVann = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                val gjennomforing = queries.getDatavarehusTiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
                     it.utdanningsprogram shouldBe idForUtdanningsprogram
@@ -232,9 +225,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = DatavarehusTiltakQueries(session)
-
-                val gjennomforing = queries.getDatavarehusTiltak(GruppeFagYrke1.id)
+                val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldBeNull()
             }

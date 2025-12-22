@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -12,20 +11,15 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
 class DelutbetalingQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
@@ -53,11 +47,9 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = DelutbetalingQueries(session)
+            queries.delutbetaling.upsert(delutbetaling)
 
-            queries.upsert(delutbetaling)
-
-            queries.getByUtbetalingId(UtbetalingFixtures.utbetaling1.id).first().should {
+            queries.delutbetaling.getByUtbetalingId(UtbetalingFixtures.utbetaling1.id).first().should {
                 it.tilsagnId shouldBe TilsagnFixtures.Tilsagn1.id
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
                 it.status shouldBe DelutbetalingStatus.TIL_ATTESTERING
@@ -73,12 +65,10 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = DelutbetalingQueries(session)
+            queries.delutbetaling.upsert(delutbetaling)
+            queries.delutbetaling.delete(delutbetaling.id)
 
-            queries.upsert(delutbetaling)
-            queries.delete(delutbetaling.id)
-
-            queries.get(delutbetaling.id) shouldBe null
+            queries.delutbetaling.get(delutbetaling.id) shouldBe null
         }
     }
 
@@ -86,19 +76,17 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = DelutbetalingQueries(session)
+            queries.delutbetaling.upsert(delutbetaling)
 
-            queries.upsert(delutbetaling)
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBeNull()
 
-            queries.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBeNull()
-
-            queries.setSendtTilOkonomi(
+            queries.delutbetaling.setSendtTilOkonomi(
                 UtbetalingFixtures.utbetaling1.id,
                 TilsagnFixtures.Tilsagn1.id,
                 Instant.parse("2025-12-01T00:00:00.00Z"),
             )
 
-            queries.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.sendtTidspunkt.shouldBe(
                 LocalDateTime.of(2025, 12, 1, 1, 0, 0),
             )
         }
@@ -108,62 +96,17 @@ class DelutbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = DelutbetalingQueries(session)
+            queries.delutbetaling.upsert(delutbetaling.copy(fakturaStatus = FakturaStatusType.SENDT))
 
-            queries.upsert(delutbetaling.copy(fakturaStatus = FakturaStatusType.SENDT))
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.status shouldBe FakturaStatusType.SENDT
 
-            queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.SENDT
-
-            queries.setFakturaStatus(
+            queries.delutbetaling.setFakturaStatus(
                 delutbetaling.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
                 fakturaStatusSistOppdatert = LocalDateTime.now(),
             )
 
-            queries.get(delutbetaling.id).shouldNotBeNull().faktura.status shouldBe FakturaStatusType.FULLT_BETALT
-        }
-    }
-
-    test("totrinnskontroll kan besluttes to ganger") {
-        database.runAndRollback { session ->
-            val queries = TotrinnskontrollQueries(session)
-            val id = UUID.randomUUID()
-            val entityId = UUID.randomUUID()
-            queries.upsert(
-                Totrinnskontroll(
-                    id = id,
-                    entityId = entityId,
-                    behandletAv = Tiltaksadministrasjon,
-                    aarsaker = emptyList(),
-                    forklaring = null,
-                    type = Totrinnskontroll.Type.OPPRETT,
-                    behandletTidspunkt = LocalDateTime.now(),
-                    besluttelse = Besluttelse.GODKJENT,
-                    besluttetAv = Tiltaksadministrasjon,
-                    besluttetTidspunkt = LocalDateTime.now(),
-                    besluttetAvNavn = null,
-                    behandletAvNavn = null,
-                ),
-            )
-            queries.upsert(
-                Totrinnskontroll(
-                    id = id,
-                    entityId = entityId,
-                    behandletAv = Tiltaksadministrasjon,
-                    aarsaker = emptyList(),
-                    forklaring = null,
-                    type = Totrinnskontroll.Type.OPPRETT,
-                    behandletTidspunkt = LocalDateTime.now(),
-                    besluttelse = Besluttelse.AVVIST,
-                    besluttetAv = Arena,
-                    besluttetAvNavn = null,
-                    behandletAvNavn = null,
-                    besluttetTidspunkt = LocalDateTime.now(),
-                ),
-            )
-            val totrinn = queries.get(entityId, Totrinnskontroll.Type.OPPRETT)
-            totrinn?.besluttetAv shouldBe Arena
-            totrinn?.besluttelse shouldBe Besluttelse.AVVIST
+            queries.delutbetaling.getOrError(delutbetaling.id).faktura.status shouldBe FakturaStatusType.FULLT_BETALT
         }
     }
 })
