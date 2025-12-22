@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
@@ -25,7 +24,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Periode
@@ -34,7 +33,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class TilsagnQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
@@ -78,11 +77,9 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TilsagnQueries(session)
+                queries.tilsagn.upsert(tilsagn)
 
-                queries.upsert(tilsagn)
-
-                queries.getOrError(tilsagn.id) should {
+                queries.tilsagn.getOrError(tilsagn.id) should {
                     it.id shouldBe tilsagn.id
                     it.tiltakstype shouldBe Tilsagn.Tiltakstype(
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode!!,
@@ -116,17 +113,15 @@ class TilsagnQueriesTest : FunSpec({
                     it.beskrivelse shouldBe "Beskrivelse til arrangør"
                 }
 
-                queries.delete(tilsagn.id)
+                queries.tilsagn.delete(tilsagn.id)
 
-                queries.get(tilsagn.id) shouldBe null
+                queries.tilsagn.get(tilsagn.id) shouldBe null
             }
         }
 
         test("upsert beregning - fri") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = TilsagnQueries(session)
 
                 val beregning = TilsagnBeregningFri(
                     input = TilsagnBeregningFri.Input(
@@ -138,17 +133,15 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningFri.Output(1100),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning))
+                queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.getOrError(tilsagn.id).beregning shouldBe beregning
+                queries.tilsagn.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
         test("upsert beregning - fast sats per tiltaksplass per måned") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = TilsagnQueries(session)
 
                 val beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
                     input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
@@ -158,17 +151,15 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(1000),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning))
+                queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.getOrError(tilsagn.id).beregning shouldBe beregning
+                queries.tilsagn.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
         test("upsert beregning - pris per månedsverk") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = TilsagnQueries(session)
 
                 val beregning = TilsagnBeregningPrisPerManedsverk(
                     input = TilsagnBeregningPrisPerManedsverk.Input(
@@ -179,17 +170,15 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(1000),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning))
+                queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.getOrError(tilsagn.id).beregning shouldBe beregning
+                queries.tilsagn.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
         test("upsert beregning - pris per ukesverk") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = TilsagnQueries(session)
 
                 val beregning = TilsagnBeregningPrisPerUkesverk(
                     input = TilsagnBeregningPrisPerUkesverk.Input(
@@ -200,17 +189,15 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(1000),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning))
+                queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.getOrError(tilsagn.id).beregning shouldBe beregning
+                queries.tilsagn.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
         test("upsert beregning - Avtalt pris per uke med påbegynt oppfølging per deltaker") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = TilsagnQueries(session)
 
                 val beregning = TilsagnBeregningPrisPerHeleUkesverk(
                     input = TilsagnBeregningPrisPerHeleUkesverk.Input(
@@ -221,17 +208,15 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningPrisPerHeleUkesverk.Output(1000),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning))
+                queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.getOrError(tilsagn.id).beregning shouldBe beregning
+                queries.tilsagn.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
         test("upsert beregning - pris per time oppfølging") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = TilsagnQueries(session)
 
                 val beregning = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
                     input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
@@ -243,9 +228,9 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                     output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(5000),
                 )
-                queries.upsert(tilsagn.copy(beregning = beregning))
+                queries.tilsagn.upsert(tilsagn.copy(beregning = beregning))
 
-                queries.getOrError(tilsagn.id).beregning shouldBe beregning
+                queries.tilsagn.getOrError(tilsagn.id).beregning shouldBe beregning
             }
         }
 
@@ -260,9 +245,7 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain2.setup(session)
 
-                val queries = TilsagnQueries(session)
-
-                queries.upsert(
+                queries.tilsagn.upsert(
                     tilsagn.copy(
                         id = UUID.randomUUID(),
                         lopenummer = 1,
@@ -272,7 +255,7 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(
+                queries.tilsagn.upsert(
                     tilsagn.copy(
                         id = UUID.randomUUID(),
                         lopenummer = 1,
@@ -283,7 +266,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
 
                 query {
-                    queries.upsert(
+                    queries.tilsagn.upsert(
                         tilsagn.copy(
                             id = UUID.randomUUID(),
                             lopenummer = 1,
@@ -300,9 +283,7 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TilsagnQueries(session)
-
-                queries.upsert(
+                queries.tilsagn.upsert(
                     tilsagn.copy(
                         id = UUID.randomUUID(),
                         lopenummer = 1,
@@ -311,7 +292,7 @@ class TilsagnQueriesTest : FunSpec({
                 )
 
                 query {
-                    queries.upsert(
+                    queries.tilsagn.upsert(
                         tilsagn.copy(
                             id = UUID.randomUUID(),
                             lopenummer = 2,
@@ -326,18 +307,16 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TilsagnQueries(session)
+                queries.tilsagn.upsert(tilsagn)
 
-                queries.upsert(tilsagn)
+                queries.tilsagn.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
+                queries.tilsagn.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
 
-                queries.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
-                queries.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
+                queries.tilsagn.getAll(gjennomforingId = GjennomforingFixtures.AFT1.id).shouldHaveSize(1)
+                queries.tilsagn.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
 
-                queries.getAll(gjennomforingId = GjennomforingFixtures.AFT1.id).shouldHaveSize(1)
-                queries.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
-
-                queries.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
-                queries.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
+                queries.tilsagn.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
+                queries.tilsagn.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
             }
         }
 
@@ -345,15 +324,13 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TilsagnQueries(session)
+                queries.tilsagn.upsert(tilsagn)
 
-                queries.upsert(tilsagn)
+                queries.tilsagn.getOrError(tilsagn.id).status shouldBe TilsagnStatus.TIL_GODKJENNING
 
-                queries.getOrError(tilsagn.id).status shouldBe TilsagnStatus.TIL_GODKJENNING
+                queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
 
-                queries.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
-
-                queries.getOrError(tilsagn.id).status shouldBe TilsagnStatus.TIL_ANNULLERING
+                queries.tilsagn.getOrError(tilsagn.id).status shouldBe TilsagnStatus.TIL_ANNULLERING
             }
         }
 
@@ -361,15 +338,13 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = TilsagnQueries(session)
+                queries.tilsagn.upsert(tilsagn.copy(bestillingStatus = BestillingStatusType.SENDT))
 
-                queries.upsert(tilsagn.copy(bestillingStatus = BestillingStatusType.SENDT))
+                queries.tilsagn.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.SENDT
 
-                queries.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.SENDT
+                queries.tilsagn.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.OPPGJORT)
 
-                queries.setBestillingStatus(tilsagn.bestillingsnummer, BestillingStatusType.OPPGJORT)
-
-                queries.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.OPPGJORT
+                queries.tilsagn.getOrError(tilsagn.id).bestilling.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
     }

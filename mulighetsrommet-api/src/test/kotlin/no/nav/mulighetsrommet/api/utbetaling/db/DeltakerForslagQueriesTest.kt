@@ -9,13 +9,13 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
 import java.util.UUID
 
 class DeltakerForslagQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val deltaker = DeltakerFixtures.createDeltakerDbo(
         GjennomforingFixtures.Oppfolging1.id,
@@ -34,8 +34,6 @@ class DeltakerForslagQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = DeltakerForslagQueries(session)
-
             val forslag = DeltakerForslag(
                 id = UUID.randomUUID(),
                 deltakerId = deltaker.id,
@@ -43,16 +41,16 @@ class DeltakerForslagQueriesTest : FunSpec({
                 status = DeltakerForslag.Status.GODKJENT,
             )
 
-            queries.upsert(forslag)
+            queries.deltakerForslag.upsert(forslag)
 
-            val forslagEtterUpsert = queries.getForslagByGjennomforing(
+            val forslagEtterUpsert = queries.deltakerForslag.getForslagByGjennomforing(
                 GjennomforingFixtures.Oppfolging1.id,
             )
             forslagEtterUpsert shouldContainExactly mapOf(deltaker.id to listOf(forslag))
 
-            queries.delete(forslag.id)
+            queries.deltakerForslag.delete(forslag.id)
 
-            val forslagEtterDelete = queries.getForslagByGjennomforing(
+            val forslagEtterDelete = queries.deltakerForslag.getForslagByGjennomforing(
                 GjennomforingFixtures.Oppfolging1.id,
             )
             forslagEtterDelete shouldNotContainKey deltaker.id

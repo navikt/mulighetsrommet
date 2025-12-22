@@ -36,7 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -50,7 +50,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 class UtbetalingQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.VTA),
@@ -88,11 +88,9 @@ class UtbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = UtbetalingQueries(session)
+            queries.utbetaling.upsert(utbetaling)
 
-            queries.upsert(utbetaling)
-
-            queries.getOrError(utbetaling.id).should {
+            queries.utbetaling.getOrError(utbetaling.id).should {
                 it.id shouldBe utbetaling.id
                 it.tiltakstype shouldBe Utbetaling.Tiltakstype(
                     navn = TiltakstypeFixtures.AFT.navn,
@@ -125,15 +123,13 @@ class UtbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = UtbetalingQueries(session)
+            queries.utbetaling.upsert(utbetaling.copy(innsender = null))
 
-            queries.upsert(utbetaling.copy(innsender = null))
+            queries.utbetaling.getOrError(utbetaling.id).innsender shouldBe null
 
-            queries.getOrError(utbetaling.id).innsender shouldBe null
+            queries.utbetaling.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
 
-            queries.setGodkjentAvArrangor(utbetaling.id, LocalDateTime.now())
-
-            queries.getOrError(utbetaling.id).innsender shouldBe Arrangor
+            queries.utbetaling.getOrError(utbetaling.id).innsender shouldBe Arrangor
         }
     }
 
@@ -141,13 +137,11 @@ class UtbetalingQueriesTest : FunSpec({
         database.runAndRollback { session ->
             domain.setup(session)
 
-            val queries = UtbetalingQueries(session)
+            queries.utbetaling.upsert(utbetaling)
 
-            queries.upsert(utbetaling)
+            queries.utbetaling.setJournalpostId(utbetaling.id, "123")
 
-            queries.setJournalpostId(utbetaling.id, "123")
-
-            queries.getOrError(utbetaling.id).journalpostId shouldBe "123"
+            queries.utbetaling.getOrError(utbetaling.id).journalpostId shouldBe "123"
         }
     }
 
@@ -155,8 +149,6 @@ class UtbetalingQueriesTest : FunSpec({
         test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -217,17 +209,15 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.getOrError(utbetaling.id).beregning shouldBe beregning
+                queries.utbetaling.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
 
         test("tillater lagring av overlappende deltakelsesperioder") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val deltakelsePeriode = DeltakelsesprosentPeriode(
                     periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
@@ -249,7 +239,7 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
             }
         }
     }
@@ -258,8 +248,6 @@ class UtbetalingQueriesTest : FunSpec({
         test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -305,9 +293,9 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.getOrError(utbetaling.id).beregning shouldBe beregning
+                queries.utbetaling.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -316,8 +304,6 @@ class UtbetalingQueriesTest : FunSpec({
         test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -360,9 +346,9 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.getOrError(utbetaling.id).beregning shouldBe beregning
+                queries.utbetaling.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -371,8 +357,6 @@ class UtbetalingQueriesTest : FunSpec({
         test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -415,9 +399,9 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.getOrError(utbetaling.id).beregning shouldBe beregning
+                queries.utbetaling.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -426,8 +410,6 @@ class UtbetalingQueriesTest : FunSpec({
         test("upsert and get beregning") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -457,9 +439,9 @@ class UtbetalingQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.upsert(utbetaling.copy(beregning = beregning))
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
 
-                queries.getOrError(utbetaling.id).beregning shouldBe beregning
+                queries.utbetaling.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }
@@ -468,8 +450,6 @@ class UtbetalingQueriesTest : FunSpec({
         test("Henter kun innsendinger som venter på arrangor") {
             database.runAndRollback { session ->
                 domain.setup(session)
-
-                val queries = UtbetalingQueries(session)
 
                 val utbetaling1 = utbetaling1.copy(
                     status = UtbetalingStatusType.GENERERT,
@@ -480,10 +460,10 @@ class UtbetalingQueriesTest : FunSpec({
                     gjennomforingId = AFT1.id,
                 )
 
-                queries.upsert(utbetaling1)
-                queries.upsert(utbetaling2)
+                queries.utbetaling.upsert(utbetaling1)
+                queries.utbetaling.upsert(utbetaling2)
 
-                queries.getAll(
+                queries.utbetaling.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = emptyList(),
                         tiltakstyper = emptyList(),
@@ -494,9 +474,9 @@ class UtbetalingQueriesTest : FunSpec({
                     first.status.type shouldBe Type.VENTER_PA_ARRANGOR
                 }
 
-                queries.upsert(utbetaling3)
+                queries.utbetaling.upsert(utbetaling3)
 
-                queries.getAll(
+                queries.utbetaling.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = emptyList(),
                         tiltakstyper = emptyList(),
@@ -568,8 +548,6 @@ class UtbetalingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = UtbetalingQueries(session)
-
                 val utbetaling1 = utbetaling1.copy(
                     status = UtbetalingStatusType.GENERERT,
                     gjennomforingId = AFT1.id,
@@ -579,10 +557,10 @@ class UtbetalingQueriesTest : FunSpec({
                     gjennomforingId = VTA1.id,
                 )
 
-                queries.upsert(utbetaling1)
-                queries.upsert(utbetaling2)
+                queries.utbetaling.upsert(utbetaling1)
+                queries.utbetaling.upsert(utbetaling2)
 
-                queries.getAll(
+                queries.utbetaling.getAll(
                     filter = AdminInnsendingerFilter(
                         navEnheter = emptyList(),
                         tiltakstyper = listOf(TiltakstypeFixtures.AFT.id),
@@ -637,12 +615,11 @@ class UtbetalingQueriesTest : FunSpec({
     test("avbryt utbetaling") {
         database.runAndRollback { session ->
             domain.setup(session)
-            val queries = UtbetalingQueries(session)
 
-            queries.upsert(utbetaling)
-            queries.avbrytUtbetaling(utbetaling.id, "min begrunnelse", Instant.now())
+            queries.utbetaling.upsert(utbetaling)
+            queries.utbetaling.avbrytUtbetaling(utbetaling.id, "min begrunnelse", Instant.now())
 
-            queries.getOrError(utbetaling.id).status shouldBe UtbetalingStatusType.AVBRUTT
+            queries.utbetaling.getOrError(utbetaling.id).status shouldBe UtbetalingStatusType.AVBRUTT
         }
     }
 })

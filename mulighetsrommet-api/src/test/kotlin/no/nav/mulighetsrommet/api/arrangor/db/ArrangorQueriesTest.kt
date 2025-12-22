@@ -17,26 +17,24 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.util.UUID
 
 class ArrangorQueriesTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     context("crud") {
         test("søk og filtrering på arrangører") {
             database.runAndRollback { session ->
-                val queries = ArrangorQueries(session)
-
                 val overordnet = ArrangorDto(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
                 )
-                queries.upsert(overordnet)
+                queries.arrangor.upsert(overordnet)
 
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
@@ -45,7 +43,7 @@ class ArrangorQueriesTest : FunSpec({
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                 )
-                queries.upsert(underenhet1)
+                queries.arrangor.upsert(underenhet1)
 
                 val underenhet2 = ArrangorDto(
                     id = UUID.randomUUID(),
@@ -54,7 +52,7 @@ class ArrangorQueriesTest : FunSpec({
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
                 )
-                queries.upsert(underenhet2)
+                queries.arrangor.upsert(underenhet2)
 
                 val utenlandsk = ArrangorDto(
                     id = UUID.randomUUID(),
@@ -62,31 +60,29 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsform = "IKS",
                     navn = "X - Utenlandsk arrangør",
                 )
-                queries.upsert(utenlandsk)
+                queries.arrangor.upsert(utenlandsk)
                 session.execute(queryOf("update arrangor set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer.value}'"))
 
-                queries.getAll(utenlandsk = true).items shouldContainExactlyInAnyOrder listOf(utenlandsk)
-                queries.getAll(utenlandsk = false).items shouldContainExactlyInAnyOrder listOf(
+                queries.arrangor.getAll(utenlandsk = true).items shouldContainExactlyInAnyOrder listOf(utenlandsk)
+                queries.arrangor.getAll(utenlandsk = false).items shouldContainExactlyInAnyOrder listOf(
                     overordnet,
                     underenhet1,
                     underenhet2,
                 )
 
-                queries.getAll(sok = "utenlandsk").items shouldContainExactlyInAnyOrder listOf(utenlandsk)
-                queries.getAll(sok = "østland").items shouldContainExactlyInAnyOrder listOf(underenhet2)
+                queries.arrangor.getAll(sok = "utenlandsk").items shouldContainExactlyInAnyOrder listOf(utenlandsk)
+                queries.arrangor.getAll(sok = "østland").items shouldContainExactlyInAnyOrder listOf(underenhet2)
 
-                queries.getAll(overordnetEnhetOrgnr = overordnet.organisasjonsnummer).items shouldContainExactlyInAnyOrder listOf(
+                queries.arrangor.getAll(overordnetEnhetOrgnr = overordnet.organisasjonsnummer).items shouldContainExactlyInAnyOrder listOf(
                     underenhet1,
                     underenhet2,
                 )
-                queries.getAll(overordnetEnhetOrgnr = underenhet1.organisasjonsnummer).items.shouldBeEmpty()
+                queries.arrangor.getAll(overordnetEnhetOrgnr = underenhet1.organisasjonsnummer).items.shouldBeEmpty()
             }
         }
 
         test("Upsert underenhet etter overenhet") {
-            database.runAndRollback { session ->
-                val queries = ArrangorQueries(session)
-
+            database.runAndRollback {
                 val underenhet1 = ArrangorDto(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
@@ -102,19 +98,19 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsform = "AS",
                 )
 
-                queries.upsert(overordnet)
-                queries.upsert(underenhet1)
+                queries.arrangor.upsert(overordnet)
+                queries.arrangor.upsert(underenhet1)
 
-                queries.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
                     it.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
                 }
-                queries.get(overordnet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(overordnet.organisasjonsnummer).shouldNotBeNull().should {
                     it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
                         e.navn shouldBe underenhet1.navn
                         e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
                     }
                 }
-                queries.get(listOf(overordnet.organisasjonsnummer)).firstOrNull().shouldNotBeNull().should {
+                queries.arrangor.get(listOf(overordnet.organisasjonsnummer)).firstOrNull().shouldNotBeNull().should {
                     it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
                         e.navn shouldBe underenhet1.navn
                         e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
@@ -124,9 +120,7 @@ class ArrangorQueriesTest : FunSpec({
         }
 
         test("Upsert slettet enhet") {
-            database.runAndRollback { session ->
-                val queries = ArrangorQueries(session)
-
+            database.runAndRollback {
                 val slettetDato = LocalDate.of(2024, 1, 1)
 
                 val underenhet1 = ArrangorDto(
@@ -145,17 +139,17 @@ class ArrangorQueriesTest : FunSpec({
                     organisasjonsform = "AS",
                 )
 
-                queries.upsert(overordnet)
-                queries.upsert(underenhet1)
+                queries.arrangor.upsert(overordnet)
+                queries.arrangor.upsert(underenhet1)
 
-                queries.get(overordnet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(overordnet.organisasjonsnummer).shouldNotBeNull().should {
                     it.slettetDato shouldBe null
                 }
-                queries.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
                     it.slettetDato shouldBe slettetDato
                 }
-                queries.getAll(slettet = true).items shouldContainExactlyInAnyOrder listOf(underenhet1)
-                queries.getAll(slettet = false).items shouldContainExactlyInAnyOrder listOf(overordnet)
+                queries.arrangor.getAll(slettet = true).items shouldContainExactlyInAnyOrder listOf(underenhet1)
+                queries.arrangor.getAll(slettet = false).items shouldContainExactlyInAnyOrder listOf(overordnet)
             }
         }
 
@@ -170,16 +164,14 @@ class ArrangorQueriesTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             )
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 domain.setup(session)
 
-                val queries = ArrangorQueries(session)
-
-                queries.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
-                queries.getAll(kobling = ArrangorKobling.AVTALE).should {
+                queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
+                queries.arrangor.getAll(kobling = ArrangorKobling.AVTALE).should {
                     it.items shouldContainExactlyIds listOf(hovedenhet.id)
                 }
-                queries.getAll(kobling = ArrangorKobling.TILTAKSGJENNOMFORING).should {
+                queries.arrangor.getAll(kobling = ArrangorKobling.TILTAKSGJENNOMFORING).should {
                     it.items shouldContainExactlyIds listOf(underenhet.id)
                 }
             }
@@ -199,9 +191,7 @@ class ArrangorQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val queries = ArrangorQueries(session)
-
-                queries.getHovedenhetById(hovedenhet.id).should {
+                queries.arrangor.getHovedenhetById(hovedenhet.id).should {
                     it.underenheter.shouldNotBeNull() shouldContainExactlyIds listOf(underenhet.id)
                 }
             }
@@ -237,12 +227,10 @@ class ArrangorQueriesTest : FunSpec({
                 arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
             )
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 domain.setup(session)
 
-                val queries = ArrangorQueries(session)
-
-                queries.getKontaktpersoner(arrangorId) shouldContainExactlyInAnyOrder listOf(
+                queries.arrangor.getKontaktpersoner(arrangorId) shouldContainExactlyInAnyOrder listOf(
                     kontaktperson1,
                     kontaktperson2,
                 )
