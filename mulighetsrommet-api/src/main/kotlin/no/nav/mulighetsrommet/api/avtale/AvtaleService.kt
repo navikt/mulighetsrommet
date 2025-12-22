@@ -117,58 +117,6 @@ class AvtaleService(
         }
     }
 
-    suspend fun getValidatorCtx(
-        avtaleId: UUID,
-        request: DetaljerRequest,
-        navEnheter: List<NavEnhetNummer>?,
-        previous: Avtale?,
-    ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
-        db.session {
-            val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
-            val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-            val navEnheter = (navEnheter ?: emptyList()).mapNotNull { queries.enhet.get(it)?.toDto() }
-
-            val arrangor = request.arrangor?.let {
-                val (arrangor, underenheter) = syncArrangorerFromBrreg(
-                    it.hovedenhet,
-                    it.underenheter,
-                ).bind()
-                arrangor.copy(underenheter = underenheter)
-            }
-
-            val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
-
-            AvtaleValidator.Ctx(
-                previous = previous?.let {
-                    AvtaleValidator.Ctx.Avtale(
-                        status = it.status.type,
-                        opphav = it.opphav,
-                        opsjonerRegistrert = it.opsjonerRegistrert,
-                        opsjonsmodell = it.opsjonsmodell,
-                        avtaletype = it.avtaletype,
-                        tiltakskode = it.tiltakstype.tiltakskode,
-                        gjennomforinger = gjennomforinger.map {
-                            AvtaleValidator.Ctx.Gjennomforing(
-                                arrangor = it.arrangor,
-                                startDato = it.startDato,
-                                utdanningslop = it.utdanningslop,
-                                status = it.status.type,
-                            )
-                        },
-                        prismodell = it.prismodell,
-                    )
-                },
-                arrangor = arrangor,
-                administratorer = administratorer,
-                tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
-                    navn = tiltakstype.navn,
-                    id = tiltakstype.id,
-                ),
-                navEnheter = navEnheter,
-            )
-        }
-    }
-
     fun upsertPersonvern(
         avtaleId: UUID,
         request: PersonvernRequest,
@@ -376,6 +324,58 @@ class AvtaleService(
             id = dto.id,
             startTime = Instant.now().plus(30, ChronoUnit.SECONDS),
         )
+    }
+
+    private suspend fun getValidatorCtx(
+        avtaleId: UUID,
+        request: DetaljerRequest,
+        navEnheter: List<NavEnhetNummer>?,
+        previous: Avtale?,
+    ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
+        db.session {
+            val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
+            val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+            val navEnheter = (navEnheter ?: emptyList()).mapNotNull { queries.enhet.get(it)?.toDto() }
+
+            val arrangor = request.arrangor?.let {
+                val (arrangor, underenheter) = syncArrangorerFromBrreg(
+                    it.hovedenhet,
+                    it.underenheter,
+                ).bind()
+                arrangor.copy(underenheter = underenheter)
+            }
+
+            val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
+
+            AvtaleValidator.Ctx(
+                previous = previous?.let {
+                    AvtaleValidator.Ctx.Avtale(
+                        status = it.status.type,
+                        opphav = it.opphav,
+                        opsjonerRegistrert = it.opsjonerRegistrert,
+                        opsjonsmodell = it.opsjonsmodell,
+                        avtaletype = it.avtaletype,
+                        tiltakskode = it.tiltakstype.tiltakskode,
+                        gjennomforinger = gjennomforinger.map {
+                            AvtaleValidator.Ctx.Gjennomforing(
+                                arrangor = it.arrangor,
+                                startDato = it.startDato,
+                                utdanningslop = it.utdanningslop,
+                                status = it.status.type,
+                            )
+                        },
+                        prismodell = it.prismodell,
+                    )
+                },
+                arrangor = arrangor,
+                administratorer = administratorer,
+                tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
+                    navn = tiltakstype.navn,
+                    id = tiltakstype.id,
+                ),
+                navEnheter = navEnheter,
+            )
+        }
     }
 
     private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
