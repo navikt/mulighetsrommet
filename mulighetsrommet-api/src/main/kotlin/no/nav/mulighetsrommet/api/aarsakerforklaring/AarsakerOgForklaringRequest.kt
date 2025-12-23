@@ -13,18 +13,20 @@ data class AarsakerOgForklaringRequest<T>(
     val forklaring: String?,
 ) {
     fun validate(): Either<List<FieldError>, AarsakerOgForklaringRequest<T>> = validation {
-        error("ANNET" in aarsaker.map { it.toString() } && forklaring.isNullOrBlank()) {
-            FieldError.ofPointer("/aarsaker", "Beskrivelse er obligatorisk når “Annet” er valgt som årsak")
+        if ("ANNET" in aarsaker.map { it.toString() }) {
+            validate(!forklaring.isNullOrBlank()) {
+                FieldError.ofPointer("/aarsaker", "Beskrivelse er obligatorisk når “Annet” er valgt som årsak")
+            }
         }
 
-        error(forklaring != null && forklaring.length > FORKLARING_MAX_LENGTH) {
+        validate(forklaring == null || forklaring.length <= FORKLARING_MAX_LENGTH) {
             FieldError.ofPointer(
                 "/forklaring",
                 "Beskrivelse kan ikke inneholde mer enn $FORKLARING_MAX_LENGTH tegn",
             )
         }
 
-        error(aarsaker.isEmpty()) {
+        validate(aarsaker.isNotEmpty()) {
             FieldError.ofPointer("/aarsaker", "Du må velge minst én årsak")
         }
     }.map { this }
