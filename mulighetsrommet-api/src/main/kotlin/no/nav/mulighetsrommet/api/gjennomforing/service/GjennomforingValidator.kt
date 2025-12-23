@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -159,9 +157,9 @@ object GjennomforingValidator {
             )
         }
         val amoKategorisering = validateAmoKategorisering(ctx.avtale, request.amoKategorisering).bind()
-        requireValid(next.startDato != null && ctx.arrangor != null)
+        requireValid(ctx.arrangor != null)
 
-        next = validateOrResetTilgjengeligForArrangorDato(next, next.startDato)
+        next = validateOrResetTilgjengeligForArrangorDato(next)
 
         if (ctx.previous == null) {
             validateCreateGjennomforing(ctx.arrangor, next, ctx.status, ctx.avtale)
@@ -171,15 +169,47 @@ object GjennomforingValidator {
 
         requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
-            next,
+            request = next,
             startDato = next.startDato,
             antallPlasser = next.antallPlasser,
             arrangorId = ctx.arrangor.id,
-            ctx.status,
+            status = ctx.status,
             oppstartstype = request.oppstart,
             pameldingType = request.pameldingType,
             amoKategorisering = amoKategorisering,
         )
+    }
+
+    fun validateTilgjengeligForArrangorDato(
+        tilgjengeligForArrangorDato: LocalDate?,
+        startDato: LocalDate,
+    ): Either<List<FieldError>, LocalDate> = validation {
+        requireValid(tilgjengeligForArrangorDato != null) {
+            FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato)
+        }
+
+        validate(tilgjengeligForArrangorDato >= LocalDate.now()) {
+            FieldError.of(
+                "Du må velge en dato som er etter dagens dato",
+                GjennomforingRequest::tilgjengeligForArrangorDato,
+            )
+        }
+
+        validate(tilgjengeligForArrangorDato >= startDato.minusMonths(2)) {
+            FieldError.of(
+                "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
+                GjennomforingRequest::tilgjengeligForArrangorDato,
+            )
+        }
+
+        validate(tilgjengeligForArrangorDato <= startDato) {
+            FieldError.of(
+                "Du må velge en dato som er før gjennomføringens oppstartsdato",
+                GjennomforingRequest::tilgjengeligForArrangorDato,
+            )
+        }
+
+        tilgjengeligForArrangorDato
     }
 
     private fun FieldValidator.validateUtdanningslop(
@@ -285,9 +315,7 @@ object GjennomforingValidator {
         navAnsatte: List<NavAnsatt>,
         property: KProperty1<*, *>,
     ) {
-        val slettedeNavIdenter = navAnsatte
-            .filter { it.skalSlettesDato != null }
-
+        val slettedeNavIdenter = navAnsatte.filter { it.skalSlettesDato != null }
         validate(slettedeNavIdenter.isEmpty()) {
             FieldError.of(
                 "Nav identer " + slettedeNavIdenter.joinToString(", ") { it.navIdent.value } + " er slettet og må fjernes",
@@ -296,53 +324,14 @@ object GjennomforingValidator {
         }
     }
 
-    private fun validateOrResetTilgjengeligForArrangorDato(
-        next: GjennomforingRequest,
-        startDato: LocalDate,
-    ): GjennomforingRequest {
-        val nextTilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato?.let { date ->
-            validateTilgjengeligForArrangorDato(date, startDato).fold({ null }, { it })
-        }
-        return next.copy(tilgjengeligForArrangorDato = nextTilgjengeligForArrangorDato)
-    }
+    private fun FieldValidator.validateOrResetTilgjengeligForArrangorDato(request: GjennomforingRequest): GjennomforingRequest {
+        requireValid(request.startDato != null)
 
-    fun validateTilgjengeligForArrangorDato(
-        tilgjengeligForArrangorDato: LocalDate?,
-        startDato: LocalDate,
-    ): Either<List<FieldError>, LocalDate> {
-        if (tilgjengeligForArrangorDato == null) {
-            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato)
-                .nel().left()
+        val nextTilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato?.let { date ->
+            validateTilgjengeligForArrangorDato(date, request.startDato).fold({ null }, { it })
         }
 
-        val errors = buildList {
-            if (tilgjengeligForArrangorDato < LocalDate.now()) {
-                add(
-                    FieldError.of(
-                        "Du må velge en dato som er etter dagens dato",
-                        GjennomforingRequest::tilgjengeligForArrangorDato,
-                    ),
-                )
-            } else if (tilgjengeligForArrangorDato < startDato.minusMonths(2)) {
-                add(
-                    FieldError.of(
-                        "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
-                        GjennomforingRequest::tilgjengeligForArrangorDato,
-                    ),
-                )
-            }
-
-            if (tilgjengeligForArrangorDato > startDato) {
-                add(
-                    FieldError.of(
-                        "Du må velge en dato som er før gjennomføringens oppstartsdato",
-                        GjennomforingRequest::tilgjengeligForArrangorDato,
-                    ),
-                )
-            }
-        }
-
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: tilgjengeligForArrangorDato.right()
+        return request.copy(tilgjengeligForArrangorDato = nextTilgjengeligForArrangorDato)
     }
 
     private fun FieldValidator.validateCreateGjennomforing(
