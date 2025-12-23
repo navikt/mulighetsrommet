@@ -18,6 +18,10 @@ class FieldValidator(
 ) {
     val errors = mutableListOf<FieldError>()
 
+    fun error(error: () -> FieldError) {
+        errors.add(error())
+    }
+
     fun validate(condition: Boolean, error: () -> FieldError) {
         if (!condition) errors += error()
     }
