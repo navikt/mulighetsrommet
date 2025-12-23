@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api
 
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType.Application.Json
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
@@ -28,6 +31,9 @@ fun <R> withTestApplication(
         client = createClient {
             install(ContentNegotiation) {
                 json()
+            }
+            install(DefaultRequest) {
+                contentType(Json)
             }
         }
 

@@ -1,7 +1,6 @@
-import { useBesluttDelutbetaling } from "@/api/utbetaling/useBesluttDelutbetaling";
+import { useAttesterDelutbetaling } from "@/api/utbetaling/useAttesterDelutbetaling";
 import {
-  Besluttelse,
-  BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak,
+  AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
   FieldError,
   UtbetalingDto,
@@ -20,6 +19,7 @@ import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalin
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { useReturnerDelutbetaling } from "@/api/utbetaling/useReturnerDelutbetaling";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -31,10 +31,26 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const besluttMutation = useBesluttDelutbetaling();
+  const attesterDelutbetalingMutation = useAttesterDelutbetaling();
+  const returnerDelutbetalingMutation = useReturnerDelutbetaling();
 
-  function beslutt(id: string, body: BesluttTotrinnskontrollRequestDelutbetalingReturnertAarsak) {
-    besluttMutation.mutate(
+  function attesterDelutbetaling(id: string) {
+    attesterDelutbetalingMutation.mutate(
+      { id },
+      {
+        onSuccess: oppdaterLinjer,
+        onValidationError: (error: ValidationError) => {
+          setErrors(error.errors);
+        },
+      },
+    );
+  }
+
+  function returnerDelutbetaling(
+    id: string,
+    body: AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
+  ) {
+    returnerDelutbetalingMutation.mutate(
       { id, body },
       {
         onSuccess: oppdaterLinjer,
@@ -129,11 +145,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                       setErrors([]);
                     }}
                     onConfirm={({ aarsaker, forklaring }) => {
-                      beslutt(linje.id, {
-                        besluttelse: Besluttelse.AVVIST,
-                        aarsaker,
-                        forklaring: forklaring ?? null,
-                      });
+                      returnerDelutbetaling(linje.id, { aarsaker, forklaring: forklaring ?? null });
                       setAvvisModalOpen(false);
                     }}
                   />
@@ -150,11 +162,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                         `godkjenn-modal-${linje.id}`,
                       ) as HTMLDialogElement;
                       modal.close();
-                      beslutt(linje.id, {
-                        besluttelse: Besluttelse.GODKJENT,
-                        aarsaker: [],
-                        forklaring: null,
-                      });
+                      attesterDelutbetaling(linje.id);
                     }}
                     linje={linje}
                   />

@@ -28,7 +28,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
@@ -126,12 +125,12 @@ fun Route.gjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
 
-                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                request.validate()
                     .flatMap {
                         gjennomforinger.avbrytGjennomforing(
                             id,
                             tidspunkt = LocalDateTime.now(),
-                            aarsakerOgForklaring = request,
+                            aarsakerOgForklaring = it,
                             avbruttAv = navIdent,
                         )
                     }

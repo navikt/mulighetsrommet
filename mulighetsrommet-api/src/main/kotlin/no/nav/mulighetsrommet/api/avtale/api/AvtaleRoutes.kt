@@ -22,7 +22,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
@@ -353,13 +352,13 @@ fun Route.avtaleRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
 
-                validateAarsakerOgForklaring(request.aarsaker, request.forklaring)
+                request.validate()
                     .flatMap {
                         avtaleService.avbrytAvtale(
                             id,
                             avbruttAv = navIdent,
                             tidspunkt = LocalDateTime.now(),
-                            aarsakerOgForklaring = request,
+                            aarsakerOgForklaring = it,
                         )
                     }
                     .onLeft { call.respondWithProblemDetail(ValidationError("Klarte ikke avbryte avtale", it)) }
