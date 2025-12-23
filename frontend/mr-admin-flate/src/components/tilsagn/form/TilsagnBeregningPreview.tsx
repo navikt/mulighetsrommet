@@ -1,9 +1,9 @@
 import { formaterNOK } from "@mr/frontend-common/utils/utils";
 import { HStack, Label, Loader, VStack } from "@navikt/ds-react";
-import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { TilsagnRegnestykke } from "../beregning/TilsagnRegnestykke";
 import { useFormContext } from "react-hook-form";
 import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
+import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 
 export function TilsagnBeregningPreview() {
   const { watch } = useFormContext<TilsagnRequest>();

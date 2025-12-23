@@ -1,4 +1,3 @@
-import { useOpprettTilsagn } from "@/api/tilsagn/useOpprettTilsagn";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import {
   GjennomforingDto,
@@ -29,6 +28,7 @@ import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { TilsagnBeregningPreview } from "./TilsagnBeregningPreview";
+import { useOpprettTilsagn } from "@/api/tilsagn/mutations";
 
 interface Props {
   onSuccess: () => void;

@@ -10,6 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -24,9 +25,8 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingReturnertAarsak
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -147,17 +147,33 @@ class UtbetalingRoutesTest : FunSpec({
         }
     }
 
-    context("beslutt utbetaling") {
+    context("attester utbetaling") {
         test("403 Forbidden uten attestant-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.delutbetaling1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/beslutt") {
+                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/attester") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(BesluttTotrinnskontrollRequest<String>(Besluttelse.GODKJENT, emptyList(), null))
                 }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
+            }
+        }
+    }
+
+    context("returner utbetaling") {
+        test("403 Forbidden uten attestant-tilgang") {
+            withTestApplication(appConfig()) {
+                val id = UtbetalingFixtures.delutbetaling1.id
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/delutbetalinger/$id/returner") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    setBody(AarsakerOgForklaringRequest(listOf(DelutbetalingReturnertAarsak.FEIL_BELOP), null))
+                }
+
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
             }

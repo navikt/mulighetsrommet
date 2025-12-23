@@ -70,7 +70,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
                 variant="primary"
                 onClick={(e) => {
                   e.preventDefault();
-                  onConfirm({ aarsaker: valgteAarsaker, forklaring: forklaring ?? null });
+                  onConfirm({ aarsaker: valgteAarsaker, forklaring: forklaring || null });
                 }}
               >
                 {buttonLabel}

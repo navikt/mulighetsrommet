@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
@@ -37,7 +38,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.utbetaling.api.BesluttTotrinnskontrollRequest
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -285,55 +286,63 @@ class TilsagnService(
         )
     }
 
-    fun beslutt(
+    fun godkjennTilsagn(
         id: UUID,
-        request: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
+        validateAccessToTilsagn(id, navIdent).flatMap { tilsagn ->
+            when (tilsagn.status) {
+                TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
+                -> FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}")
+                    .nel()
+                    .left()
+
+                TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagn(tilsagn, navIdent).onRight {
+                    publishOpprettBestilling(it)
+                }
+
+                TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, navIdent).onRight {
+                    publishAnnullerBestilling(it)
+                }
+
+                TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, navIdent, "Tilsagn oppgjort").onRight {
+                    publishGjorOppBestilling(it)
+                }
+            }
+        }
+    }
+
+    fun returnerTilsagn(
+        id: UUID,
+        navIdent: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+        validateAccessToTilsagn(id, navIdent).flatMap { tilsagn ->
+            when (tilsagn.status) {
+                TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
+                -> FieldError.of("Tilsagnet kan ikke returneres fordi det har status ${tilsagn.status.beskrivelse}")
+                    .nel()
+                    .left()
+
+                TilsagnStatus.TIL_GODKJENNING -> returnerTilsagn(tilsagn, navIdent, aarsaker, forklaring)
+
+                TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, forklaring)
+
+                TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, forklaring)
+            }
+        }
+    }
+
+    private fun QueryContext.validateAccessToTilsagn(id: UUID, navIdent: NavIdent) = validation {
         val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        if (!ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
-            return FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
-                .nel()
-                .left()
+        validate(ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
+            FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
         }
 
-        return when (tilsagn.status) {
-            TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT -> {
-                FieldError.of("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status}").nel().left()
-            }
-
-            TilsagnStatus.TIL_GODKJENNING -> {
-                when (request.besluttelse) {
-                    Besluttelse.GODKJENT -> godkjennTilsagn(tilsagn, navIdent).onRight {
-                        publishOpprettBestilling(it)
-                    }
-
-                    Besluttelse.AVVIST -> returnerTilsagn(tilsagn, request, navIdent)
-                }
-            }
-
-            TilsagnStatus.TIL_ANNULLERING -> {
-                when (request.besluttelse) {
-                    Besluttelse.GODKJENT -> annullerTilsagn(tilsagn, navIdent).onRight {
-                        publishAnnullerBestilling(it)
-                    }
-
-                    Besluttelse.AVVIST -> avvisAnnullering(tilsagn, request, navIdent)
-                }
-            }
-
-            TilsagnStatus.TIL_OPPGJOR -> {
-                when (request.besluttelse) {
-                    Besluttelse.GODKJENT -> gjorOppTilsagn(tilsagn, navIdent, "Tilsagn oppgjort").onRight {
-                        publishGjorOppBestilling(it)
-                    }
-
-                    Besluttelse.AVVIST -> avvisOppgjor(tilsagn, request, navIdent)
-                }
-            }
-        }
+        tilsagn
     }
 
     fun republishOpprettBestilling(bestillingsnummer: String): Tilsagn = db.transaction {
@@ -396,8 +405,9 @@ class TilsagnService(
 
     private fun QueryContext.returnerTilsagn(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         besluttetAv: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_GODKJENNING} for å returneres")
@@ -405,7 +415,7 @@ class TilsagnService(
                 .left()
         }
 
-        if (besluttelse.aarsaker.isEmpty()) {
+        if (aarsaker.isEmpty()) {
             return FieldError.of("Årsaker er påkrevd").nel().left()
         }
 
@@ -414,8 +424,8 @@ class TilsagnService(
             besluttetAv = besluttetAv,
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.AVVIST,
-            aarsaker = besluttelse.aarsaker.map { it.name },
-            forklaring = besluttelse.forklaring,
+            aarsaker = aarsaker.map { it.name },
+            forklaring = forklaring,
         )
         queries.totrinnskontroll.upsert(avvistOpprettelse)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
@@ -487,8 +497,9 @@ class TilsagnService(
 
     private fun QueryContext.avvisAnnullering(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         besluttetAv: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering skal avvises")
@@ -501,8 +512,8 @@ class TilsagnService(
             besluttetAv = besluttetAv,
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.AVVIST,
-            aarsaker = besluttelse.aarsaker.map { it.name },
-            forklaring = besluttelse.forklaring,
+            aarsaker = aarsaker.map { it.name },
+            forklaring = forklaring,
         )
         queries.totrinnskontroll.upsert(avvistAnnullering)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
@@ -580,8 +591,9 @@ class TilsagnService(
 
     private fun avvisOppgjor(
         tilsagn: Tilsagn,
-        besluttelse: BesluttTotrinnskontrollRequest<TilsagnStatusAarsak>,
         besluttetAv: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal avvises")
@@ -594,8 +606,8 @@ class TilsagnService(
             besluttetAv = besluttetAv,
             besluttetTidspunkt = LocalDateTime.now(),
             besluttelse = Besluttelse.AVVIST,
-            aarsaker = besluttelse.aarsaker.map { it.name },
-            forklaring = besluttelse.forklaring,
+            aarsaker = aarsaker.map { it.name },
+            forklaring = forklaring,
         )
         queries.totrinnskontroll.upsert(avvistOppgjor)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
