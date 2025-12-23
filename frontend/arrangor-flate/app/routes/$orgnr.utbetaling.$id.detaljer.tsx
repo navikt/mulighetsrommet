@@ -16,6 +16,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
+  ArrangorAvbrytStatus,
   ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
@@ -202,20 +203,22 @@ export default function UtbetalingDetaljerSide() {
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
-        <HStack gap="2" justify="start" align="center">
-          <Button
-            disabled={!utbetaling.kanAvbrytes}
-            size="small"
-            variant="danger"
-            onClick={() => setAvbrytModalOpen(true)}
-          >
-            Avbryt
-          </Button>
-          <HelpText>
-            Du kan avbryte en innsending frem til Nav har startet behandling av kravet. Om det ikke
-            er mulig å avbryte innsendingen må du ta kontakt direkte med Nav.
-          </HelpText>
-        </HStack>
+        {utbetaling.kanAvbrytes !== ArrangorAvbrytStatus.HIDDEN && (
+          <HStack gap="2" justify="start" align="center">
+            <Button
+              disabled={utbetaling.kanAvbrytes === ArrangorAvbrytStatus.DEACTIVATED}
+              size="small"
+              variant="danger"
+              onClick={() => setAvbrytModalOpen(true)}
+            >
+              Avbryt
+            </Button>
+            <HelpText>
+              Du kan avbryte en innsending frem til Nav har startet behandling av kravet. Om det
+              ikke er mulig å avbryte innsendingen må du ta kontakt direkte med Nav.
+            </HelpText>
+          </HStack>
+        )}
         <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
         <DeltakerModal
           utbetaling={utbetaling}

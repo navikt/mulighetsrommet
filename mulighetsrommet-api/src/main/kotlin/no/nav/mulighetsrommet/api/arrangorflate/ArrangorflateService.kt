@@ -35,12 +35,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Arrangor
@@ -249,7 +243,7 @@ class ArrangorflateService(
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
-            kanAvbrytes = kanAvbrytesAvArrangor(utbetaling),
+            kanAvbrytes = arrangorAvbrytStatus(utbetaling),
         )
     }
 
@@ -486,31 +480,30 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
     return DataDetails(entries = entries)
 }
 
-fun kanAvbrytesAvArrangor(utbetaling: Utbetaling): Boolean {
-    when (utbetaling.status) {
+fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
+    if (utbetaling.innsender != Arrangor) {
+        return ArrangorAvbrytStatus.HIDDEN
+    }
+
+    return when (utbetaling.status) {
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        -> ArrangorAvbrytStatus.DEACTIVATED
+
+        UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
-        -> return false
+        -> ArrangorAvbrytStatus.HIDDEN
 
         UtbetalingStatusType.INNSENDT,
         UtbetalingStatusType.RETURNERT,
-        -> Unit
+        -> ArrangorAvbrytStatus.ACTIVATED
     }
-    when (utbetaling.beregning) {
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-        is UtbetalingBeregningPrisPerHeleUkesverk,
-        is UtbetalingBeregningPrisPerManedsverk,
-        is UtbetalingBeregningPrisPerUkesverk,
-        -> return false
+}
 
-        is UtbetalingBeregningFri,
-        is UtbetalingBeregningPrisPerTimeOppfolging,
-        -> Unit
-    }
-
-    return utbetaling.innsender == Arrangor
+enum class ArrangorAvbrytStatus {
+    ACTIVATED,
+    DEACTIVATED,
+    HIDDEN,
 }

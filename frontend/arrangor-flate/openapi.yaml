@@ -1930,6 +1930,12 @@ components:
       required:
       - beskrivelse
       - deltakerId
+    ArrangorAvbrytStatus:
+      type: string
+      enum:
+      - ACTIVATED
+      - DEACTIVATED
+      - HIDDEN
     ArrangorflateUtbetalingDto:
       type: object
       properties:
@@ -1978,7 +1984,7 @@ components:
           items:
             $ref: "#/components/schemas/DeltakerAdvarsel"
         kanAvbrytes:
-          type: boolean
+          $ref: "#/components/schemas/ArrangorAvbrytStatus"
       required:
       - advarsler
       - arrangor
