@@ -291,7 +291,7 @@ object GjennomforingValidator {
             )
         }
         navKontorer.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }.forEach { enhetsnummer ->
-            validate(false) {
+            error {
                 FieldError.of(
                     "Nav-enhet $enhetsnummer mangler i avtalen",
                     GjennomforingRequest::veilederinformasjon,
@@ -301,7 +301,7 @@ object GjennomforingValidator {
         }
         veilederinfoRequest.navAndreEnheter.filterNot { it in avtaleRegioner || it in avtaleNavKontorer }
             .forEach { enhetsnummer ->
-                validate(false) {
+                error {
                     FieldError.of(
                         "Nav-enhet $enhetsnummer mangler i avtalen",
                         GjennomforingRequest::veilederinformasjon,
