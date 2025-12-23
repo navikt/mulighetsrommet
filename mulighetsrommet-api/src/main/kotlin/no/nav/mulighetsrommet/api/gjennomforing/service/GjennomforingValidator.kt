@@ -158,7 +158,7 @@ object GjennomforingValidator {
                 GjennomforingRequest::arrangorId,
             )
         }
-        val amoKategorisering = validateAmoKategorisering(ctx.avtale.tiltakstype.tiltakskode, request.amoKategorisering, ctx.avtale).bind()
+        val amoKategorisering = validateAmoKategorisering(ctx.avtale, request.amoKategorisering).bind()
         requireValid(next.startDato != null && ctx.arrangor != null)
 
         next = validateOrResetTilgjengeligForArrangorDato(next, next.startDato)
@@ -439,13 +439,11 @@ object GjennomforingValidator {
         }
     }
 
-    @OptIn(ExperimentalContracts::class)
     private fun FieldValidator.validateAmoKategorisering(
-        tiltakskode: Tiltakskode,
-        amoKategorisering: AmoKategoriseringRequest?,
         avtale: Avtale,
+        amoKategorisering: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> {
-        when (tiltakskode) {
+        when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -474,7 +472,8 @@ object GjennomforingValidator {
                 }
             }
         }
-        return when (tiltakskode) {
+
+        return when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -488,8 +487,7 @@ object GjennomforingValidator {
             Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            ->
-                null
+            -> null
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 requireValid(amoKategorisering?.kurstype != null) {

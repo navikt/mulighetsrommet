@@ -489,7 +489,6 @@ object AvtaleValidator {
         }
     }
 
-    @OptIn(ExperimentalContracts::class)
     private fun FieldValidator.validateAmoKategorisering(
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
