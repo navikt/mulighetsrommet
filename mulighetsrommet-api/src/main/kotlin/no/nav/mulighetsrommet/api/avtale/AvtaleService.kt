@@ -293,14 +293,10 @@ class AvtaleService(
     ): Either<List<FieldError>, Avtale> = either {
         db.transaction {
             val avtale = getOrError(avtaleId)
-            requireNotNull(avtale.sluttDato) {
-                "Sluttdato på avtalen er null"
-            }
 
             val dbo = AvtaleValidator.validateOpprettOpsjonLoggRequest(
+                AvtaleValidator.ValidateOpprettOpsjonContext(avtale, navIdent),
                 request,
-                avtale,
-                navIdent,
             ).bind()
 
             queries.opsjoner.insert(dbo)
