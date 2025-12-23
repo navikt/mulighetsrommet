@@ -49,11 +49,6 @@ import kotlin.reflect.KProperty1
 
 @OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
-    private val opsjonsmodellerUtenValidering = listOf(
-        OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
-        OpsjonsmodellType.VALGFRI_SLUTTDATO,
-    )
-
     data class Ctx(
         val previous: Avtale?,
         val arrangor: ArrangorDto?,
@@ -341,21 +336,30 @@ object AvtaleValidator {
             validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO || request.sluttDato != null) {
                 FieldError.of("Du må legge inn sluttdato for avtalen", DetaljerRequest::sluttDato)
             }
-            if (request.opsjonsmodell.type !in opsjonsmodellerUtenValidering) {
-                validate(request.opsjonsmodell.opsjonMaksVarighet != null) {
-                    FieldError.of(
-                        "Du må legge inn maks varighet for opsjonen",
-                        DetaljerRequest::opsjonsmodell,
-                        Opsjonsmodell::opsjonMaksVarighet,
-                    )
-                }
-                if (request.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
-                    validate(!request.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
+
+            when (request.opsjonsmodell.type) {
+                OpsjonsmodellType.INGEN_OPSJONSMULIGHET, OpsjonsmodellType.VALGFRI_SLUTTDATO -> Unit
+
+                OpsjonsmodellType.TO_PLUSS_EN,
+                OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN,
+                OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+                OpsjonsmodellType.ANNET,
+                -> {
+                    validate(request.opsjonsmodell.opsjonMaksVarighet != null) {
                         FieldError.of(
-                            "Du må beskrive opsjonsmodellen",
+                            "Du må legge inn maks varighet for opsjonen",
                             DetaljerRequest::opsjonsmodell,
-                            Opsjonsmodell::customOpsjonsmodellNavn,
+                            Opsjonsmodell::opsjonMaksVarighet,
                         )
+                    }
+                    if (request.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
+                        validate(!request.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
+                            FieldError.of(
+                                "Du må beskrive opsjonsmodellen",
+                                DetaljerRequest::opsjonsmodell,
+                                Opsjonsmodell::customOpsjonsmodellNavn,
+                            )
+                        }
                     }
                 }
             }
