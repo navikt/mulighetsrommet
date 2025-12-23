@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.api.validation.ValidationDsl
+import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -109,7 +109,7 @@ object TilsagnValidator {
         )
     }
 
-    fun ValidationDsl.validateAvtaltSats(
+    fun FieldValidator.validateAvtaltSats(
         beregningType: TilsagnBeregningType,
         avtalteSatser: List<AvtaltSats>,
         periode: Periode,
@@ -161,7 +161,7 @@ object TilsagnValidator {
         }
     }
 
-    fun ValidationDsl.validateBeregning(request: TilsagnBeregningRequest, periode: Periode, avtalteSatser: List<AvtaltSats>): TilsagnBeregning {
+    fun FieldValidator.validateBeregning(request: TilsagnBeregningRequest, periode: Periode, avtalteSatser: List<AvtaltSats>): TilsagnBeregning {
         val sats = validateAvtaltSats(request.type, avtalteSatser, periode)
         val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
         val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker)
@@ -222,7 +222,7 @@ object TilsagnValidator {
         }
     }
 
-    private fun ValidationDsl.validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Int = when (type) {
+    private fun FieldValidator.validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Int = when (type) {
         TilsagnBeregningType.FRI,
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -242,7 +242,7 @@ object TilsagnValidator {
         }
     }
 
-    private fun ValidationDsl.validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Int = when (beregningType) {
+    private fun FieldValidator.validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Int = when (beregningType) {
         TilsagnBeregningType.FRI -> 0
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,

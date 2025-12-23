@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.arrangor
 
-import arrow.core.Either
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -28,6 +27,7 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
@@ -381,38 +381,32 @@ data class ArrangorKontaktpersonRequest(
     val epost: String,
     val ansvarligFor: List<ArrangorKontaktperson.Ansvar>,
 ) {
-    fun toDto(arrangorId: UUID): StatusResponse<ArrangorKontaktperson> {
+    fun toDto(arrangorId: UUID): StatusResponse<ArrangorKontaktperson> = validation {
         val navn = navn.trim()
         val epost = epost.trim()
 
-        val errors = buildList {
-            if (navn.isEmpty()) {
-                add(FieldError.of("Navn er påkrevd", ArrangorKontaktperson::navn))
-            }
-            if (epost.isEmpty()) {
-                add(FieldError.of("E-post er påkrevd", ArrangorKontaktperson::epost))
-            }
-            if (ansvarligFor.isEmpty()) {
-                add(FieldError.of("Du må velge minst ett ansvarsområde", ArrangorKontaktperson::ansvarligFor))
-            }
+        validate(navn.isNotEmpty()) {
+            FieldError.of("Navn er påkrevd", ArrangorKontaktperson::navn)
         }
 
-        if (errors.isNotEmpty()) {
-            return Either.Left(ValidationError(errors = errors))
+        validate(epost.isNotEmpty()) {
+            FieldError.of("E-post er påkrevd", ArrangorKontaktperson::epost)
         }
 
-        return Either.Right(
-            ArrangorKontaktperson(
-                id = id,
-                arrangorId = arrangorId,
-                navn = navn,
-                telefon = telefon?.trim()?.ifEmpty { null },
-                epost = epost,
-                beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
-                ansvarligFor = ansvarligFor,
-            ),
+        validate(ansvarligFor.isNotEmpty()) {
+            FieldError.of("Du må velge minst ett ansvarsområde", ArrangorKontaktperson::ansvarligFor)
+        }
+
+        ArrangorKontaktperson(
+            id = id,
+            arrangorId = arrangorId,
+            navn = navn,
+            telefon = telefon?.trim()?.ifEmpty { null },
+            epost = epost,
+            beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
+            ansvarligFor = ansvarligFor,
         )
-    }
+    }.mapLeft { ValidationError(errors = it) }
 }
 
 fun toStatusResponseError(it: BrregError, orgnr: Organisasjonsnummer) = when (it) {

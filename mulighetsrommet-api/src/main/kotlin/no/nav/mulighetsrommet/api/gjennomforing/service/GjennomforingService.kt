@@ -256,19 +256,14 @@ class GjennomforingService(
     ): Either<List<FieldError>, GjennomforingGruppetiltak> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        val errors = buildList {
-            when (gjennomforing.status) {
-                is GjennomforingStatus.Gjennomfores -> Unit
+        when (gjennomforing.status) {
+            is GjennomforingStatus.Gjennomfores -> Unit
 
-                is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
-                    add(FieldError.root("Gjennomføringen er allerede avbrutt"))
+            is GjennomforingStatus.Avlyst, is GjennomforingStatus.Avbrutt ->
+                return FieldError.root("Gjennomføringen er allerede avbrutt").nel().left()
 
-                is GjennomforingStatus.Avsluttet ->
-                    add(FieldError.root("Gjennomføringen er allerede avsluttet"))
-            }
-        }
-        if (errors.isNotEmpty()) {
-            return errors.left()
+            is GjennomforingStatus.Avsluttet ->
+                return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
         val tidspunktForStart = gjennomforing.startDato.atStartOfDay()

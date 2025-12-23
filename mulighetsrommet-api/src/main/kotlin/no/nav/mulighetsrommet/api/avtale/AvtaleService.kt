@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -248,41 +249,37 @@ class AvtaleService(
         tidspunkt: LocalDateTime,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
     ): Either<List<FieldError>, Avtale> = db.transaction {
-        val avtale = getOrError(id)
-
-        val errors = buildList {
+        validation {
+            val avtale = getOrError(id)
             when (avtale.status) {
                 is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
-                is AvtaleStatus.Avbrutt -> add(FieldError.root("Avtalen er allerede avbrutt"))
-                is AvtaleStatus.Avsluttet -> add(FieldError.root("Avtalen er allerede avsluttet"))
+                is AvtaleStatus.Avbrutt -> error { FieldError.root("Avtalen er allerede avbrutt") }
+                is AvtaleStatus.Avsluttet -> error { FieldError.root("Avtalen er allerede avsluttet") }
             }
 
             val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
                 it.status.type == GjennomforingStatusType.GJENNOMFORES
             }
-            if (antallAktiveGjennomforinger > 0) {
+            validate(antallAktiveGjennomforinger == 0) {
                 val message = listOf(
                     "Avtalen har",
                     antallAktiveGjennomforinger,
                     if (antallAktiveGjennomforinger > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
                     "og kan derfor ikke avbrytes",
                 ).joinToString(" ")
-                add(FieldError.root(message))
+                FieldError.root(message)
             }
-        }
-        if (errors.isNotEmpty()) {
-            return errors.left()
-        }
+        }.map {
+            queries.avtale.setStatus(
+                id = id,
+                status = AvtaleStatusType.AVBRUTT,
+                tidspunkt = tidspunkt,
+                aarsaker = aarsakerOgForklaring.aarsaker,
+                forklaring = aarsakerOgForklaring.forklaring,
+            )
 
-        queries.avtale.setStatus(
-            id = id,
-            status = AvtaleStatusType.AVBRUTT,
-            tidspunkt = tidspunkt,
-            aarsaker = aarsakerOgForklaring.aarsaker,
-            forklaring = aarsakerOgForklaring.forklaring,
-        )
-
-        logEndring("Avtalen ble avbrutt", id, avbruttAv).right()
+            logEndring("Avtalen ble avbrutt", id, avbruttAv)
+        }
     }
 
     fun registrerOpsjon(
@@ -293,14 +290,10 @@ class AvtaleService(
     ): Either<List<FieldError>, Avtale> = either {
         db.transaction {
             val avtale = getOrError(avtaleId)
-            requireNotNull(avtale.sluttDato) {
-                "Sluttdato på avtalen er null"
-            }
 
             val dbo = AvtaleValidator.validateOpprettOpsjonLoggRequest(
+                AvtaleValidator.ValidateOpprettOpsjonContext(avtale, navIdent),
                 request,
-                avtale,
-                navIdent,
             ).bind()
 
             queries.opsjoner.insert(dbo)

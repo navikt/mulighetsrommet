@@ -9,10 +9,18 @@ import arrow.core.toNonEmptyListOrNull
 import no.nav.mulighetsrommet.api.responses.FieldError
 import kotlin.contracts.contract
 
-class ValidationDsl(
+@DslMarker
+annotation class FieldValidatorDsl
+
+@FieldValidatorDsl
+class FieldValidator(
     private val raise: Raise<List<FieldError>>,
 ) {
     val errors = mutableListOf<FieldError>()
+
+    fun error(error: () -> FieldError) {
+        errors.add(error())
+    }
 
     fun validate(condition: Boolean, error: () -> FieldError) {
         if (!condition) errors += error()
@@ -41,8 +49,8 @@ class ValidationDsl(
     }
 }
 
-fun <V> validation(block: ValidationDsl.() -> V): Either<List<FieldError>, V> = either {
-    val dsl = ValidationDsl(this)
+fun <V> validation(block: FieldValidator.() -> V): Either<List<FieldError>, V> = either {
+    val dsl = FieldValidator(this)
     val result = dsl.block()
     return dsl.errors.toNonEmptyListOrNull()?.left() ?: result.right()
 }

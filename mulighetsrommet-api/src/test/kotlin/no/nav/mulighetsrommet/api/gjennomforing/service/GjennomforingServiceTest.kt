@@ -85,7 +85,7 @@ class GjennomforingServiceTest : FunSpec({
 
             service.upsert(gjennomforing, bertilNavIdent, today = LocalDate.of(2023, 1, 2))
                 .shouldBeLeft().shouldContainAll(
-                    listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
+                    listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avsluttet")),
                 )
         }
     }

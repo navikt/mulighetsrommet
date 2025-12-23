@@ -188,13 +188,13 @@ class GjennomforingValidatorTest : FunSpec({
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.GJENNOMFORES))
             .shouldBeRight()
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVSLUTTET)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avsluttet")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avsluttet")),
         )
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVBRUTT)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avbrutt")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avbrutt")),
         )
         GjennomforingValidator.validate(request, ctx.copy(status = GjennomforingStatusType.AVLYST)).shouldBeLeft(
-            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring som er avlyst")),
+            listOf(FieldError("/navn", "Du kan ikke opprette en gjennomføring med status Avlyst")),
         )
     }
 
@@ -439,7 +439,7 @@ class GjennomforingValidatorTest : FunSpec({
                 request,
                 ctx.copy(previous = gjennomforing.copy(status = GjennomforingStatusType.AVBRUTT)),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring som er avbrutt"),
+                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring med status Avbrutt"),
             )
         }
 
@@ -448,7 +448,7 @@ class GjennomforingValidatorTest : FunSpec({
                 request,
                 ctx.copy(previous = gjennomforing.copy(status = GjennomforingStatusType.AVSLUTTET)),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring som er avsluttet"),
+                FieldError("/navn", "Du kan ikke gjøre endringer på en gjennomføring med status Avsluttet"),
             )
         }
     }

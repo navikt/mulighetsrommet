@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
-import arrow.core.left
-import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -17,7 +15,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDboMapper
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.ValidationDsl
+import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AmoKurstype
@@ -158,10 +156,10 @@ object GjennomforingValidator {
                 GjennomforingRequest::arrangorId,
             )
         }
-        val amoKategorisering = validateAmoKategorisering(ctx.avtale.tiltakstype.tiltakskode, request.amoKategorisering, ctx.avtale).bind()
-        requireValid(next.startDato != null && ctx.arrangor != null)
+        val amoKategorisering = validateAmoKategorisering(ctx.avtale, request.amoKategorisering).bind()
+        requireValid(ctx.arrangor != null)
 
-        next = validateOrResetTilgjengeligForArrangorDato(next, next.startDato)
+        next = validateOrResetTilgjengeligForArrangorDato(next)
 
         if (ctx.previous == null) {
             validateCreateGjennomforing(ctx.arrangor, next, ctx.status, ctx.avtale)
@@ -171,18 +169,50 @@ object GjennomforingValidator {
 
         requireValid(next.antallPlasser != null && next.startDato != null && request.oppstart != null && request.pameldingType != null)
         GjennomforingDboMapper.fromGjennomforingRequest(
-            next,
+            request = next,
             startDato = next.startDato,
             antallPlasser = next.antallPlasser,
             arrangorId = ctx.arrangor.id,
-            ctx.status,
+            status = ctx.status,
             oppstartstype = request.oppstart,
             pameldingType = request.pameldingType,
             amoKategorisering = amoKategorisering,
         )
     }
 
-    private fun ValidationDsl.validateUtdanningslop(
+    fun validateTilgjengeligForArrangorDato(
+        tilgjengeligForArrangorDato: LocalDate?,
+        startDato: LocalDate,
+    ): Either<List<FieldError>, LocalDate> = validation {
+        requireValid(tilgjengeligForArrangorDato != null) {
+            FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato)
+        }
+
+        validate(tilgjengeligForArrangorDato >= LocalDate.now()) {
+            FieldError.of(
+                "Du må velge en dato som er etter dagens dato",
+                GjennomforingRequest::tilgjengeligForArrangorDato,
+            )
+        }
+
+        validate(tilgjengeligForArrangorDato >= startDato.minusMonths(2)) {
+            FieldError.of(
+                "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
+                GjennomforingRequest::tilgjengeligForArrangorDato,
+            )
+        }
+
+        validate(tilgjengeligForArrangorDato <= startDato) {
+            FieldError.of(
+                "Du må velge en dato som er før gjennomføringens oppstartsdato",
+                GjennomforingRequest::tilgjengeligForArrangorDato,
+            )
+        }
+
+        tilgjengeligForArrangorDato
+    }
+
+    private fun FieldValidator.validateUtdanningslop(
         tiltakskode: Tiltakskode,
         utdanningslop: UtdanningslopDbo?,
         avtale: Avtale,
@@ -237,7 +267,7 @@ object GjennomforingValidator {
         }
     }
 
-    private fun ValidationDsl.validateNavEnheter(
+    private fun FieldValidator.validateNavEnheter(
         veilederinfoRequest: GjennomforingVeilederinfoRequest,
         avtale: Avtale,
     ) {
@@ -281,13 +311,11 @@ object GjennomforingValidator {
             }
     }
 
-    private fun ValidationDsl.validateSlettetNavAnsatte(
+    private fun FieldValidator.validateSlettetNavAnsatte(
         navAnsatte: List<NavAnsatt>,
         property: KProperty1<*, *>,
     ) {
-        val slettedeNavIdenter = navAnsatte
-            .filter { it.skalSlettesDato != null }
-
+        val slettedeNavIdenter = navAnsatte.filter { it.skalSlettesDato != null }
         validate(slettedeNavIdenter.isEmpty()) {
             FieldError.of(
                 "Nav identer " + slettedeNavIdenter.joinToString(", ") { it.navIdent.value } + " er slettet og må fjernes",
@@ -296,56 +324,17 @@ object GjennomforingValidator {
         }
     }
 
-    private fun validateOrResetTilgjengeligForArrangorDato(
-        next: GjennomforingRequest,
-        startDato: LocalDate,
-    ): GjennomforingRequest {
-        val nextTilgjengeligForArrangorDato = next.tilgjengeligForArrangorDato?.let { date ->
-            validateTilgjengeligForArrangorDato(date, startDato).fold({ null }, { it })
+    private fun FieldValidator.validateOrResetTilgjengeligForArrangorDato(request: GjennomforingRequest): GjennomforingRequest {
+        requireValid(request.startDato != null)
+
+        val nextTilgjengeligForArrangorDato = request.tilgjengeligForArrangorDato?.let { date ->
+            validateTilgjengeligForArrangorDato(date, request.startDato).fold({ null }, { it })
         }
-        return next.copy(tilgjengeligForArrangorDato = nextTilgjengeligForArrangorDato)
+
+        return request.copy(tilgjengeligForArrangorDato = nextTilgjengeligForArrangorDato)
     }
 
-    fun validateTilgjengeligForArrangorDato(
-        tilgjengeligForArrangorDato: LocalDate?,
-        startDato: LocalDate,
-    ): Either<List<FieldError>, LocalDate> {
-        if (tilgjengeligForArrangorDato == null) {
-            return FieldError.of("Dato må være satt", SetTilgjengligForArrangorRequest::tilgjengeligForArrangorDato)
-                .nel().left()
-        }
-
-        val errors = buildList {
-            if (tilgjengeligForArrangorDato < LocalDate.now()) {
-                add(
-                    FieldError.of(
-                        "Du må velge en dato som er etter dagens dato",
-                        GjennomforingRequest::tilgjengeligForArrangorDato,
-                    ),
-                )
-            } else if (tilgjengeligForArrangorDato < startDato.minusMonths(2)) {
-                add(
-                    FieldError.of(
-                        "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
-                        GjennomforingRequest::tilgjengeligForArrangorDato,
-                    ),
-                )
-            }
-
-            if (tilgjengeligForArrangorDato > startDato) {
-                add(
-                    FieldError.of(
-                        "Du må velge en dato som er før gjennomføringens oppstartsdato",
-                        GjennomforingRequest::tilgjengeligForArrangorDato,
-                    ),
-                )
-            }
-        }
-
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: tilgjengeligForArrangorDato.right()
-    }
-
-    private fun ValidationDsl.validateCreateGjennomforing(
+    private fun FieldValidator.validateCreateGjennomforing(
         arrangor: ArrangorDto,
         gjennomforing: GjennomforingRequest,
         status: GjennomforingStatusType,
@@ -377,13 +366,13 @@ object GjennomforingValidator {
         }
         validate(status == GjennomforingStatusType.GJENNOMFORES) {
             FieldError.of(
-                "Du kan ikke opprette en gjennomføring som er ${status.name.lowercase()}",
+                "Du kan ikke opprette en gjennomføring med status ${status.beskrivelse}",
                 GjennomforingRequest::navn,
             )
         }
     }
 
-    private fun ValidationDsl.validateUpdateGjennomforing(
+    private fun FieldValidator.validateUpdateGjennomforing(
         gjennomforing: GjennomforingRequest,
         previous: Ctx.Gjennomforing,
         avtale: Avtale,
@@ -391,7 +380,7 @@ object GjennomforingValidator {
     ) {
         validate(previous.status == GjennomforingStatusType.GJENNOMFORES) {
             FieldError.of(
-                "Du kan ikke gjøre endringer på en gjennomføring som er ${previous.status.name.lowercase()}",
+                "Du kan ikke gjøre endringer på en gjennomføring med status ${previous.status.beskrivelse}",
                 GjennomforingRequest::navn,
             )
         }
@@ -439,13 +428,11 @@ object GjennomforingValidator {
         }
     }
 
-    @OptIn(ExperimentalContracts::class)
-    private fun ValidationDsl.validateAmoKategorisering(
-        tiltakskode: Tiltakskode,
-        amoKategorisering: AmoKategoriseringRequest?,
+    private fun FieldValidator.validateAmoKategorisering(
         avtale: Avtale,
+        amoKategorisering: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> {
-        when (tiltakskode) {
+        when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -474,7 +461,8 @@ object GjennomforingValidator {
                 }
             }
         }
-        return when (tiltakskode) {
+
+        return when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -488,8 +476,7 @@ object GjennomforingValidator {
             Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            ->
-                null
+            -> null
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 requireValid(amoKategorisering?.kurstype != null) {
