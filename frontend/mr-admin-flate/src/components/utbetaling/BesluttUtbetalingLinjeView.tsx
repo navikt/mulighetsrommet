@@ -1,4 +1,4 @@
-import { useAttesterDelutbetaling } from "@/api/utbetaling/useAttesterDelutbetaling";
+import { useAttesterDelutbetaling, useReturnerDelutbetaling } from "@/api/utbetaling/mutations";
 import {
   AarsakerOgForklaringRequestDelutbetalingReturnertAarsak,
   DelutbetalingReturnertAarsak,
@@ -19,7 +19,6 @@ import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalin
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useReturnerDelutbetaling } from "@/api/utbetaling/useReturnerDelutbetaling";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -144,8 +143,8 @@ export function BesluttUtbetalingLinjeView({ utbetaling, oppdaterLinjer }: Props
                       setAvvisModalOpen(false);
                       setErrors([]);
                     }}
-                    onConfirm={({ aarsaker, forklaring }) => {
-                      returnerDelutbetaling(linje.id, { aarsaker, forklaring: forklaring ?? null });
+                    onConfirm={(request) => {
+                      returnerDelutbetaling(linje.id, request);
                       setAvvisModalOpen(false);
                     }}
                   />

@@ -25,7 +25,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
-import { useOpprettDelutbetalinger } from "@/api/utbetaling/useOpprettDelutbetalinger";
 import MindreBelopModal from "./MindreBelopModal";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { isBesluttet } from "@/utils/totrinnskontroll";
@@ -34,7 +33,7 @@ import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useSlettKorreksjon } from "@/api/utbetaling/useSlettKorreksjon";
+import { useOpprettDelutbetalinger, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 
 export interface Props {
   utbetaling: UtbetalingDto;

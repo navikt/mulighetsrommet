@@ -1,7 +1,3 @@
-import { useGodkjennTilsagn } from "@/api/tilsagn/useGodkjennTilsagn";
-import { useSlettTilsagn } from "@/api/tilsagn/useSlettTilsagn";
-import { useTilsagnTilAnnullering } from "@/api/tilsagn/useTilsagnTilAnnullering";
-import { useTilsagnTilOppgjor } from "@/api/tilsagn/useTilsagnTilOppgjor";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
@@ -48,7 +44,13 @@ import {
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { DataDetails } from "@mr/frontend-common";
-import { useReturnerTilsagn } from "@/api/tilsagn/useReturnerTilsagn";
+import {
+  useGodkjennTilsagn,
+  useReturnerTilsagn,
+  useSlettTilsagn,
+  useTilsagnTilAnnullering,
+  useTilsagnTilOppgjor,
+} from "@/api/tilsagn/mutations";
 
 function useTilsagnDetaljer(tilsagnId: string) {
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
