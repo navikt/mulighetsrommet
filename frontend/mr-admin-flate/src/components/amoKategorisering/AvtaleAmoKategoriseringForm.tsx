@@ -55,10 +55,13 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
         value={amoKategorisering?.kurstype ?? undefined}
         error={errors.detaljer?.amoKategorisering?.kurstype?.message}
         onChange={(type) => {
-          setValue("detaljer.amoKategorisering.kurstype", type.target.value as AmoKurstype);
+          setValue(
+            "detaljer.amoKategorisering.kurstype",
+            (type.target.value || null) as AmoKurstype | null,
+          );
         }}
       >
-        <option value={undefined}>Velg kurstype</option>
+        <option value="">Velg kurstype</option>
         <option value={AmoKurstype.NORSKOPPLAERING}>
           {kurstypeToString(AmoKurstype.NORSKOPPLAERING)}
         </option>
@@ -99,10 +102,13 @@ function GruppeAmoForm() {
         value={amoKategorisering?.kurstype ?? undefined}
         error={errors.detaljer?.amoKategorisering?.kurstype?.message}
         onChange={(type) => {
-          setValue("detaljer.amoKategorisering.kurstype", type.target.value as AmoKurstype);
+          setValue(
+            "detaljer.amoKategorisering.kurstype",
+            (type.target.value || null) as AmoKurstype | null,
+          );
         }}
       >
-        <option value={undefined}>Velg kurstype</option>
+        <option value="">Velg kurstype</option>
         <option value={AmoKurstype.BRANSJE_OG_YRKESRETTET}>
           {kurstypeToString(AmoKurstype.BRANSJE_OG_YRKESRETTET)}
         </option>
