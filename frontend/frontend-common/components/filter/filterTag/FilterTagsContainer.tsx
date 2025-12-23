@@ -1,7 +1,7 @@
 import styles from "./FilterTag.module.scss";
 import classNames from "classnames";
-import { ReactNode, useLayoutEffect } from "react";
-import useResizeObserver from "use-resize-observer";
+import {ReactNode, useLayoutEffect, useRef} from "react";
+import { useHeightObserver } from "../../../hooks/useHeightObserver";
 
 interface Props {
   children: ReactNode;
@@ -10,7 +10,8 @@ interface Props {
 }
 
 export function FilterTagsContainer({ children, filterOpen, setTagsHeight }: Props) {
-  const { ref, height = 1 } = useResizeObserver<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement | null>(null)
+  const height = useHeightObserver<HTMLDivElement>(ref);
 
   useLayoutEffect(() => {
     setTagsHeight(height);
