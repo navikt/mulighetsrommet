@@ -35,6 +35,12 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Arrangor
@@ -244,6 +250,7 @@ class ArrangorflateService(
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
             kanAvbrytes = arrangorAvbrytStatus(utbetaling),
+            kanRegenereres = kanRegenereres(utbetaling),
         )
     }
 
@@ -506,4 +513,25 @@ enum class ArrangorAvbrytStatus {
     ACTIVATED,
     DEACTIVATED,
     HIDDEN,
+}
+
+fun kanRegenereres(utbetaling: Utbetaling): Boolean {
+    if (utbetaling.innsender != Arrangor) {
+        return false
+    }
+    if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
+        return false
+    }
+
+    return when (utbetaling.beregning) {
+        is UtbetalingBeregningFri,
+        is UtbetalingBeregningPrisPerTimeOppfolging,
+        -> false
+
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+        is UtbetalingBeregningPrisPerHeleUkesverk,
+        is UtbetalingBeregningPrisPerManedsverk,
+        is UtbetalingBeregningPrisPerUkesverk,
+        -> true
+    }
 }

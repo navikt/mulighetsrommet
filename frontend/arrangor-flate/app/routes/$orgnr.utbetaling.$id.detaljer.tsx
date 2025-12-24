@@ -88,36 +88,55 @@ interface ActionData {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
+  if (!id) throw new Response("Mangler id", { status: 400 });
 
   const formData = await request.formData();
-  const begrunnelse = formData.get("begrunnelse")?.toString();
+  const intent = formData.get("_action");
 
-  const [{ error }] = await Promise.all([
-    ArrangorflateService.avbrytUtbetaling({
-      path: { id },
-      body: { begrunnelse: begrunnelse ?? null },
-      headers: await apiHeaders(request),
-    }),
-  ]);
+  if (intent === "avbryt") {
+    const begrunnelse = formData.get("begrunnelse")?.toString();
 
-  if (error) {
-    if (isValidationError(error)) {
-      return { errors: error.errors };
-    } else {
+    const [{ error }] = await Promise.all([
+      ArrangorflateService.avbrytUtbetaling({
+        path: { id },
+        body: { begrunnelse: begrunnelse ?? null },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+    if (error) {
+      if (isValidationError(error)) return { ok: false, errors: error.errors };
       throw problemDetailResponse(error);
     }
+
+    return { ok: true };
   }
 
-  return { ok: true };
+  if (intent === "regenerer") {
+    const [{ error }] = await Promise.all([
+      ArrangorflateService.regenererUtbetaling({
+        path: { id },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+    if (error) {
+      if (isValidationError(error)) return { ok: false, errors: error.errors };
+      throw problemDetailResponse(error);
+    }
+
+    return { ok: true };
+  }
+
+  throw new Response("Ukjent handling", { status: 400 });
 };
 
 export default function UtbetalingDetaljerSide() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [deltakerModalOpen, setDeltakerModalOpen] = useState<boolean>(false);
+
+  const regenererFetcher = useFetcher<ActionData>();
 
   const visNedlastingAvKvittering = [
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -218,6 +237,22 @@ export default function UtbetalingDetaljerSide() {
               ikke er mulig å avbryte innsendingen må du ta kontakt direkte med Nav.
             </HelpText>
           </HStack>
+        )}
+        {utbetaling.kanRegenereres && (
+          <regenererFetcher.Form method="post">
+            <input type="hidden" name="_action" value="regenerer" />
+            <HStack gap="2" justify="start" align="center">
+              <Button
+                type="submit"
+                size="small"
+                variant="primary"
+                loading={regenererFetcher.state !== "idle"}
+              >
+                Regenerer
+              </Button>
+              <HelpText>Bla bla bla</HelpText>
+            </HStack>
+          </regenererFetcher.Form>
         )}
         <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
         <DeltakerModal
@@ -320,6 +355,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
     >
       <Modal.Body>
         <fetcher.Form method="post">
+          <input type="hidden" name="_action" value="avbryt" />
           <VStack gap="2">
             <Alert variant={"info"}>
               Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det
