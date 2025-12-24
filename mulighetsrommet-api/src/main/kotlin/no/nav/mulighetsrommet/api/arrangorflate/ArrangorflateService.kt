@@ -249,7 +249,8 @@ class ArrangorflateService(
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
-            kanAvbrytes = kanAvbrytesAvArrangor(utbetaling),
+            kanAvbrytes = arrangorAvbrytStatus(utbetaling),
+            kanRegenereres = kanRegenereres(utbetaling),
         )
     }
 
@@ -486,31 +487,51 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
     return DataDetails(entries = entries)
 }
 
-fun kanAvbrytesAvArrangor(utbetaling: Utbetaling): Boolean {
-    when (utbetaling.status) {
+fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
+    if (utbetaling.innsender != Arrangor) {
+        return ArrangorAvbrytStatus.HIDDEN
+    }
+
+    return when (utbetaling.status) {
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        -> ArrangorAvbrytStatus.DEACTIVATED
+
+        UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
-        -> return false
+        -> ArrangorAvbrytStatus.HIDDEN
 
         UtbetalingStatusType.INNSENDT,
         UtbetalingStatusType.RETURNERT,
-        -> Unit
+        -> ArrangorAvbrytStatus.ACTIVATED
     }
-    when (utbetaling.beregning) {
+}
+
+enum class ArrangorAvbrytStatus {
+    ACTIVATED,
+    DEACTIVATED,
+    HIDDEN,
+}
+
+fun kanRegenereres(utbetaling: Utbetaling): Boolean {
+    if (utbetaling.innsender != Arrangor) {
+        return false
+    }
+    if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
+        return false
+    }
+
+    return when (utbetaling.beregning) {
+        is UtbetalingBeregningFri,
+        is UtbetalingBeregningPrisPerTimeOppfolging,
+        -> false
+
         is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
         is UtbetalingBeregningPrisPerHeleUkesverk,
         is UtbetalingBeregningPrisPerManedsverk,
         is UtbetalingBeregningPrisPerUkesverk,
-        -> return false
-
-        is UtbetalingBeregningFri,
-        is UtbetalingBeregningPrisPerTimeOppfolging,
-        -> Unit
+        -> true
     }
-
-    return utbetaling.innsender == Arrangor
 }

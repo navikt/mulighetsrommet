@@ -149,6 +149,40 @@ class GenererUtbetalingService(
             }
     }
 
+    suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling? = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(utbetaling.gjennomforing.id)
+        val prismodell = queries.gjennomforing.getPrismodell(gjennomforing.id)
+
+        if (prismodell == null) {
+            log.info("Prismodell er ikke satt for gjennomføring med id=${utbetaling.id}")
+            return null
+        }
+
+        val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(gjennomforing.id)
+            .filter { it.periode == utbetaling.periode }
+
+        if (utbetalingerSammePeriode.any { it.status != UtbetalingStatusType.AVBRUTT }) {
+            return null
+        }
+
+        val nyUtbetaling = generateUtbetalingForPrismodell(
+            UUID.randomUUID(),
+            prismodell.type,
+            gjennomforing,
+            utbetaling.periode,
+        )
+
+        if (nyUtbetaling == null) {
+            log.info("Generert utbetaling var null utbetaling=${utbetaling.id} fordi den ikke lengre er relevant for arrangør")
+            return null
+        }
+
+        queries.utbetaling.upsert(nyUtbetaling)
+        val dto = getOrError(nyUtbetaling.id)
+        logEndring("Utbetaling opprettet", dto, Tiltaksadministrasjon)
+        dto
+    }
+
     private suspend fun QueryContext.generateUtbetalingForPrismodell(
         utbetalingId: UUID,
         prismodell: PrismodellType,
