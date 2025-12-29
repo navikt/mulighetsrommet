@@ -25,10 +25,10 @@
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "react-error-boundary": "6.0.0",
-    "react-hook-form": "7.68.0",
+    "react-hook-form": "7.69.0",
     "react-router": "7.10.1",
     "react-select": "5.10.2",
-    "zod": "4.2.0"
+    "zod": "4.2.1"
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
@@ -38,7 +38,7 @@
     "eslint": "9.39.2",
     "postcss": "8.5.6",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "4.0.15"
+    "vitest": "4.0.16"
   },
   "repository": {
     "type": "git",

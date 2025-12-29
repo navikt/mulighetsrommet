@@ -53,7 +53,7 @@
     "react-router": "7.10.1",
     "tailwindcss": "4.1.18",
     "uuid": "13.0.0",
-    "zod": "4.2.0"
+    "zod": "4.2.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.11.0",
@@ -72,9 +72,9 @@
     "playwright": "1.57.0",
     "postcss-import": "16.1.1",
     "rollup-plugin-visualizer": "6.0.5",
-    "sass-embedded": "1.96.0",
+    "sass-embedded": "1.97.1",
     "typescript": "5.9.3",
-    "vite": "7.2.7",
+    "vite": "7.3.0",
     "vite-tsconfig-paths": "5.1.4"
   },
   "msw": {
