@@ -154,48 +154,6 @@ object AvtaleFixtures {
         prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
-    val opprettAvtaleRequest: OpprettAvtaleRequest = OpprettAvtaleRequest(
-        id = UUID.randomUUID(),
-        detaljer = DetaljerRequest(
-            navn = "Avtalenavn",
-            sakarkivNummer = SakarkivNummer("24/1234"),
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
-            arrangor = DetaljerRequest.Arrangor(
-                hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-                underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                kontaktpersoner = emptyList(),
-            ),
-            startDato = LocalDate.of(2023, 1, 11),
-            sluttDato = LocalDate.now().plusMonths(3),
-            avtaletype = Avtaletype.RAMMEAVTALE,
-            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-            amoKategorisering = null,
-            opsjonsmodell = Opsjonsmodell(
-                opsjonMaksVarighet = LocalDate.now().plusYears(5),
-                type = OpsjonsmodellType.TO_PLUSS_EN,
-                customOpsjonsmodellNavn = null,
-            ),
-            utdanningslop = null,
-        ),
-        veilederinformasjon = VeilederinfoRequest(
-            navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
-            beskrivelse = null,
-            faneinnhold = null,
-        ),
-        personvern = PersonvernRequest(
-            personopplysninger = emptyList(),
-            personvernBekreftet = false,
-        ),
-        prismodeller = listOf(
-            PrismodellRequest(
-                UUID.randomUUID(),
-                type = PrismodellType.ANNEN_AVTALT_PRIS,
-                prisbetingelser = null,
-                satser = listOf(),
-            ),
-        ),
-    )
-
     fun createAvtaleRequest(
         tiltakskode: Tiltakskode,
         avtaletype: Avtaletype = Avtaletype.RAMMEAVTALE,
@@ -204,6 +162,7 @@ object AvtaleFixtures {
             underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
             kontaktpersoner = emptyList(),
         ),
+        administratorer: List<NavIdent> = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         prismodell: PrismodellDbo = PrismodellDbo(
             id = UUID.randomUUID(),
             type = PrismodellType.ANNEN_AVTALT_PRIS,
@@ -222,7 +181,7 @@ object AvtaleFixtures {
                 sakarkivNummer = SakarkivNummer("24/1234"),
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().plusMonths(1),
-                administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+                administratorer = administratorer,
                 avtaletype = avtaletype,
                 amoKategorisering = amo,
                 opsjonsmodell = opsjonsmodell,

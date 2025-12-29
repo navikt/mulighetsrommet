@@ -146,7 +146,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
-            val request = AvtaleFixtures.opprettAvtaleRequest
+            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
 
             avtaleService.create(request, bertilNavIdent).shouldBeRight()
 
@@ -235,18 +235,15 @@ class AvtaleServiceTest : FunSpec({
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
 
-            avtaleService.create(
-                AvtaleFixtures.opprettAvtaleRequest.copy(
-                    detaljer = AvtaleFixtures.opprettAvtaleRequest.detaljer.copy(
-                        arrangor = DetaljerRequest.Arrangor(
-                            hovedenhet = Organisasjonsnummer("223442332"),
-                            underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                            kontaktpersoner = emptyList(),
-                        ),
-                    ),
+            val request = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
+                arrangor = DetaljerRequest.Arrangor(
+                    hovedenhet = Organisasjonsnummer("223442332"),
+                    underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                    kontaktpersoner = emptyList(),
                 ),
-                bertilNavIdent,
-            ).shouldBeLeft(
+            )
+            avtaleService.create(request, bertilNavIdent).shouldBeLeft(
                 listOf(
                     FieldError(
                         "/arrangorHovedenhet",
@@ -372,7 +369,10 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
-            val avtale = AvtaleFixtures.opprettAvtaleRequest
+            val avtale = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
+                administratorer = listOf(identAnsatt1),
+            )
             avtaleService.create(avtale, identAnsatt1).shouldBeRight()
 
             database.run {
@@ -383,16 +383,12 @@ class AvtaleServiceTest : FunSpec({
         test("Bare nye administratorer får notification når man endrer avtale") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
-            val avtale = AvtaleFixtures.oppfolging
 
-            MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-            ).initialize(database.db)
-
-            val detaljerReq = AvtaleFixtures.opprettAvtaleRequest.detaljer.copy(
+            val request = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
                 administratorer = listOf(identAnsatt2),
             )
-            avtaleService.upsertDetaljer(avtale.id, detaljerReq, identAnsatt1).shouldBeRight()
+            avtaleService.create(request, identAnsatt1).shouldBeRight()
 
             database.run {
                 queries.notifications.getAll().shouldHaveSize(1).first().should {
