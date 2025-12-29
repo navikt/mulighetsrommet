@@ -213,11 +213,15 @@ class AvtaleService(
                     .toSet(),
             )
 
-            val prismodeller =
-                AvtaleValidator.validatePrismodell(request, context)
-                    .bind()
+            val prismodeller = AvtaleValidator.validatePrismodell(request, context).bind()
+            prismodeller.forEach { prismodell ->
+                queries.avtale.upsertPrismodell(id, prismodell)
+            }
 
-            queries.avtale.upsertPrismodell(id, prismodeller)
+            val prismodellerIds = prismodeller.map { it.id }.toSet()
+            avtale.prismodeller.filter { it.id !in prismodellerIds }.forEach { prismodell ->
+                queries.avtale.deletePrismodell(avtale.id, prismodell.id)
+            }
 
             val dto = logEndring("Prismodell oppdatert", id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)

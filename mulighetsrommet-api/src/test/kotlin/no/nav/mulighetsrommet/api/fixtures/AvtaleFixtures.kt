@@ -70,7 +70,7 @@ object AvtaleFixtures {
     fun createPrismodellDbo(
         id: UUID = UUID.randomUUID(),
         type: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
-        prisbetingelser: String? = "Alt er dyrt",
+        prisbetingelser: String? = null,
         satser: List<AvtaltSats> = emptyList(),
     ): PrismodellDbo = PrismodellDbo(
         id = id,

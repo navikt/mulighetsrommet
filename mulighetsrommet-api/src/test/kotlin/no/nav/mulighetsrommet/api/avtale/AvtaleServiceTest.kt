@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -94,7 +95,14 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {
-            val request = listOf(PrismodellRequest(id = gjennomforing1.prismodellId, type = PrismodellType.ANNEN_AVTALT_PRIS, satser = emptyList(), prisbetingelser = null))
+            val request = listOf(
+                PrismodellRequest(
+                    id = gjennomforing1.prismodellId,
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    satser = emptyList(),
+                    prisbetingelser = null,
+                ),
+            )
 
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
@@ -110,6 +118,42 @@ class AvtaleServiceTest : FunSpec({
                     any(),
                 )
             }
+        }
+
+        test("endre prismodeller") {
+            val prismodell1Request = PrismodellRequest(
+                id = UUID.randomUUID(),
+                type = PrismodellType.ANNEN_AVTALT_PRIS,
+                satser = emptyList(),
+                prisbetingelser = null,
+            )
+            val prismodell2Request = PrismodellRequest(
+                id = UUID.randomUUID(),
+                type = PrismodellType.ANNEN_AVTALT_PRIS,
+                satser = emptyList(),
+                prisbetingelser = null,
+            )
+
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+            ).initialize(database.db)
+
+            avtaleService
+                .upsertPrismodell(avtale.id, listOf(prismodell1Request, prismodell2Request), bertilNavIdent)
+                .shouldBeRight()
+                .prismodeller.map { it.id }
+                .shouldContainExactlyInAnyOrder(prismodell1Request.id, prismodell2Request.id)
+
+            avtaleService
+                .upsertPrismodell(avtale.id, listOf(prismodell2Request), bertilNavIdent)
+                .shouldBeRight()
+                .prismodeller.map { it.id }
+                .shouldContainExactlyInAnyOrder(prismodell2Request.id)
+
+            avtaleService
+                .upsertPrismodell(avtale.id, listOf(), bertilNavIdent)
+                .shouldBeLeft()
+                .shouldContainExactlyInAnyOrder(FieldError("/prismodeller", "Minst én prismodell er påkrevd"))
         }
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {

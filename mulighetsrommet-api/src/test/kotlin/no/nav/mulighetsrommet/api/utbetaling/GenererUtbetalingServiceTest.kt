@@ -969,7 +969,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ) {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
+                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
                 )
                 queries.gjennomforing.setStengtHosArrangor(
                     oppfolging.id,
@@ -1015,7 +1015,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
+                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
                 )
             }
 
@@ -1050,7 +1050,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK)),
+                    prismodell.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
                 )
             }.initialize(database.db)
 
@@ -1080,7 +1080,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             database.run {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    listOf(prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS)),
+                    prismodell.copy(type = PrismodellType.ANNEN_AVTALT_PRIS),
                 )
             }
 
@@ -1282,14 +1282,12 @@ class GenererUtbetalingServiceTest : FunSpec({
             ) {
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    listOf(
-                        prismodell.copy(
-                            satser = listOf(
-                                AvtaltSats(LocalDate.of(2024, 1, 1), 1, ValutaType.NOK),
-                                AvtaltSats(LocalDate.of(2025, 1, 2), 2, ValutaType.NOK),
-                                AvtaltSats(LocalDate.of(2025, 1, 3), 3, ValutaType.NOK),
-                                AvtaltSats(LocalDate.of(2025, 2, 1), 4, ValutaType.NOK),
-                            ),
+                    prismodell.copy(
+                        satser = listOf(
+                            AvtaltSats(LocalDate.of(2024, 1, 1), 1, ValutaType.NOK),
+                            AvtaltSats(LocalDate.of(2025, 1, 2), 2, ValutaType.NOK),
+                            AvtaltSats(LocalDate.of(2025, 1, 3), 3, ValutaType.NOK),
+                            AvtaltSats(LocalDate.of(2025, 2, 1), 4, ValutaType.NOK),
                         ),
                     ),
                 )

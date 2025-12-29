@@ -5,12 +5,12 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
+import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Kontorstruktur
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
@@ -360,12 +360,12 @@ class GjennomforingQueries(private val session: Session) {
     fun getPrismodell(id: UUID): Prismodell? {
         @Language("PostgreSQL")
         val query = """
-            select avtale_prismodell.id as prismodell_id,
-                   avtale_prismodell.prismodell_type,
-                   avtale_prismodell.prisbetingelser as prismodell_prisbetingelser,
-                   avtale_prismodell.satser as prismodell_satser
+            select prismodell.id as prismodell_id,
+                   prismodell.prismodell_type,
+                   prismodell.prisbetingelser as prismodell_prisbetingelser,
+                   prismodell.satser as prismodell_satser
             from gjennomforing
-                join avtale_prismodell on avtale_prismodell.id = gjennomforing.prismodell_id
+                join prismodell on prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.id = ?::uuid
         """.trimIndent()
 
@@ -401,7 +401,7 @@ class GjennomforingQueries(private val session: Session) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "koordinator_nav_ident" to koordinatorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "publisert" to publisert,
-            "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell", prismodeller) },
+            "prismodeller" to prismodeller.ifEmpty { null }?.let { createArrayOf("prismodell_type", prismodeller) },
         )
 
         val order = when (sortering) {
@@ -791,50 +791,6 @@ private fun Row.toGjennomforingGruppetiltak(): GjennomforingGruppetiltak {
         ),
         pameldingType = string("pamelding_type").let { GjennomforingPameldingType.valueOf(it) },
     )
-}
-
-private fun Row.toPrismodell(): Prismodell? {
-    return uuidOrNull("prismodell_id")?.let { prismodellId ->
-        val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
-        val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
-        val satser = stringOrNull("prismodell_satser")
-            ?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
-            ?: emptyList()
-        when (prismodellType) {
-            PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-            )
-
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
-                id = prismodellId,
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK -> Prismodell.AvtaltPrisPerUkesverk(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> Prismodell.AvtaltPrisPerHeleUkesverk(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
-                id = prismodellId,
-                prisbetingelser = prisbetingelser,
-                satser = satser.toDto(),
-            )
-        }
-    }
 }
 
 private fun Row.toGjennomforingStatus(): GjennomforingStatus {

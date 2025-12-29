@@ -14,7 +14,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeTypeOf
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -474,49 +473,56 @@ class AvtaleQueriesTest : FunSpec({
             }
         }
 
-        test("upsert prismodell med avtalte satser") {
+        test("endre prismodeller") {
+            val prismodell1Dbo = AvtaleFixtures.createPrismodellDbo(
+                type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 1000, ValutaType.NOK)),
+            )
+            val prismodell1 = Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker(
+                id = prismodell1Dbo.id,
+                prisbetingelser = null,
+                satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 1000, ValutaType.NOK)),
+            )
+            val prismodell2Dbo = AvtaleFixtures.createPrismodellDbo(
+                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
+            )
+
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf())
+                val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell1Dbo))
                 queries.avtale.create(avtale)
 
-                var prismodell = listOf(
-                    AvtaleFixtures.createPrismodellDbo(
-                        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                        satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
+                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                    prismodell1,
+                )
+
+                queries.avtale.upsertPrismodell(avtale.id, prismodell2Dbo)
+
+                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                    prismodell1,
+                    Prismodell.AvtaltPrisPerManedsverk(
+                        id = prismodell2Dbo.id,
+                        prisbetingelser = null,
+                        satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
                     ),
                 )
-                queries.avtale.upsertPrismodell(avtale.id, prismodell)
-
-                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).should {
-                    it.prismodeller
-                        .shouldHaveSize(1)
-                        .first()
-                        .shouldBeTypeOf<Prismodell.AvtaltPrisPerManedsverk>().satser.shouldContainExactly(
-                            AvtaltSatsDto(
-                                gjelderFra = LocalDate.of(2025, 7, 1),
-                                pris = 2000,
-                                valuta = ValutaType.NOK,
-                            ),
-                        )
-                }
 
                 queries.avtale.upsertPrismodell(
                     avtale.id,
-                    prismodell.map {
-                        it.copy(
-                            type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-                        )
-                    },
+                    prismodell2Dbo.copy(type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK),
                 )
 
-                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).should {
-                    it.prismodeller
-                        .shouldHaveSize(1)
-                        .first()
-                        .shouldBeTypeOf<Prismodell.AvtaltPrisPerHeleUkesverk>()
-                }
+                queries.avtale.deletePrismodell(avtale.id, prismodell1Dbo.id)
+
+                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                    Prismodell.AvtaltPrisPerHeleUkesverk(
+                        id = prismodell2Dbo.id,
+                        prisbetingelser = null,
+                        satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
+                    ),
+                )
             }
         }
     }

@@ -57,6 +57,7 @@ from avtale
                                            order by id
                                    ) as prismodeller_json
                             from avtale_prismodell
+                                     join prismodell on prismodell_id = prismodell.id
                             where avtale_id = avtale.id) on true
          left join lateral (select jsonb_agg(personopplysning) as personopplysninger_json
                             from avtale_personopplysning
