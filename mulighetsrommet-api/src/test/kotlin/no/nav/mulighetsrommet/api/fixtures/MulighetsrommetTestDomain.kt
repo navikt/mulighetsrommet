@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingEnkeltplassDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingGruppetiltakDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
@@ -37,6 +38,11 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.DigitalOppfolging,
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
     ),
+    val prismodeller: List<PrismodellDbo> = listOf(
+        PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
+        PrismodellFixtures.Forhandsgodkjent,
+        PrismodellFixtures.AnnenAvtaltPris,
+    ),
     val avtaler: List<AvtaleDbo> = listOf(),
     val gjennomforinger: List<GjennomforingGruppetiltakDbo> = listOf(),
     val enkeltplasser: List<GjennomforingEnkeltplassDbo> = listOf(),
@@ -59,6 +65,7 @@ data class MulighetsrommetTestDomain(
             arrangorer.forEach { queries.arrangor.upsert(it) }
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
             tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
+            prismodeller.forEach { queries.prismodell.upsertPrismodell(it) }
             avtaler.forEach { queries.avtale.create(it) }
             gjennomforinger.forEach { queries.gjennomforing.upsertGruppetiltak(it) }
             enkeltplasser.forEach { queries.gjennomforing.upsertEnkeltplass(it) }

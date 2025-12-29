@@ -67,15 +67,14 @@ class AvtaleService(
         request: OpprettAvtaleRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        val context = db.session {
+        val createAvtaleContext = db.session {
             getValidatorCtx(
                 request = request.detaljer,
                 navEnheter = request.veilederinformasjon.navEnheter,
                 previous = null,
             ).bind()
         }
-
-        val dbo = AvtaleValidator
+        val avtaleDbo = AvtaleValidator
             .validateCreateAvtale(
                 request.copy(
                     veilederinformasjon = request.veilederinformasjon.copy(
@@ -84,21 +83,31 @@ class AvtaleService(
                         ),
                     ),
                 ),
-                context,
+                createAvtaleContext,
             )
             .bind()
 
+        val upsertPrismodellContext = ValidatePrismodellContext(
+            tiltakskode = request.detaljer.tiltakskode,
+            tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
+            avtaleStartDato = request.detaljer.startDato,
+            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+            bruktePrismodeller = setOf(),
+        )
+        val prismodeller = AvtaleValidator.validatePrismodell(request.prismodeller, upsertPrismodellContext).bind()
+
         db.transaction {
-            queries.avtale.create(dbo)
+            prismodeller.forEach { queries.prismodell.upsertPrismodell(it) }
+            queries.avtale.create(avtaleDbo)
 
             dispatchNotificationToNewAdministrators(
-                dbo.id,
-                dbo.detaljerDbo.navn,
-                dbo.detaljerDbo.administratorer,
+                avtaleDbo.id,
+                avtaleDbo.detaljerDbo.navn,
+                avtaleDbo.detaljerDbo.administratorer,
                 navIdent,
             )
 
-            val dto = logEndring("Opprettet avtale", dbo.id, navIdent)
+            val dto = logEndring("Opprettet avtale", avtaleDbo.id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
             dto
         }
@@ -199,28 +208,27 @@ class AvtaleService(
         id: UUID,
         request: List<PrismodellRequest>,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Avtale> = either {
-        db.transaction {
-            val avtale = getOrError(id)
-            val gjennomforinger = queries.gjennomforing.getByAvtale(id)
-            val context = ValidatePrismodellContext(
-                tiltakskode = avtale.tiltakstype.tiltakskode,
-                tiltakstypeNavn = avtale.tiltakstype.navn,
-                avtaleStartDato = avtale.startDato,
-                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-                bruktePrismodeller = gjennomforinger
-                    .mapNotNull { it.prismodell?.id }
-                    .toSet(),
-            )
+    ): Either<List<FieldError>, Avtale> = db.transaction {
+        val avtale = getOrError(id)
+        val gjennomforinger = queries.gjennomforing.getByAvtale(id)
+        val context = ValidatePrismodellContext(
+            tiltakskode = avtale.tiltakstype.tiltakskode,
+            tiltakstypeNavn = avtale.tiltakstype.navn,
+            avtaleStartDato = avtale.startDato,
+            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+            bruktePrismodeller = gjennomforinger.mapNotNull { it.prismodell?.id }.toSet(),
+        )
 
-            val prismodeller = AvtaleValidator.validatePrismodell(request, context).bind()
+        AvtaleValidator.validatePrismodell(request, context).map { prismodeller ->
             prismodeller.forEach { prismodell ->
-                queries.avtale.upsertPrismodell(id, prismodell)
+                queries.prismodell.upsertPrismodell(prismodell)
+                queries.avtale.upsertPrismodell(id, prismodell.id)
             }
 
             val prismodellerIds = prismodeller.map { it.id }.toSet()
             avtale.prismodeller.filter { it.id !in prismodellerIds }.forEach { prismodell ->
                 queries.avtale.deletePrismodell(avtale.id, prismodell.id)
+                queries.prismodell.deletePrismodell(prismodell.id)
             }
 
             val dto = logEndring("Prismodell oppdatert", id, navIdent)
@@ -388,7 +396,6 @@ class AvtaleService(
                 id = tiltakstype.id,
             ),
             navEnheter = navEnheter,
-            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
         )
     }
 

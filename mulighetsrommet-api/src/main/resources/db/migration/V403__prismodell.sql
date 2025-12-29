@@ -11,8 +11,8 @@ alter table avtale_prismodell
 
 create table avtale_prismodell
 (
-    avtale_id     uuid not null,
-    prismodell_id uuid not null,
+    avtale_id     uuid not null references avtale (id),
+    prismodell_id uuid not null references prismodell (id),
     primary key (avtale_id, prismodell_id)
 );
 

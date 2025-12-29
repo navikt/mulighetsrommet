@@ -334,29 +334,25 @@ class AvtaleQueries(private val session: Session) {
         execute(queryOf(deleteEnheter, avtaleId, createArrayOfValue(enheter) { it.value }))
     }
 
-    fun upsertPrismodell(avtaleId: UUID, prismodell: PrismodellDbo): Unit = withTransaction(session) {
-        PrismodellQueries(this).upsertPrismodell(prismodell)
-
+    fun upsertPrismodell(avtaleId: UUID, prismodellId: UUID) {
         @Language("PostgreSQL")
         val updateAvtalenummer = """
             insert into avtale_prismodell (avtale_id, prismodell_id)
             values (:avtale_id, :prismodell_id)
             on conflict (avtale_id, prismodell_id) do nothing
         """.trimIndent()
-        val params = mapOf("avtale_id" to avtaleId, "prismodell_id" to prismodell.id)
-        execute(queryOf(updateAvtalenummer, params))
+        val params = mapOf("avtale_id" to avtaleId, "prismodell_id" to prismodellId)
+        session.execute(queryOf(updateAvtalenummer, params))
     }
 
-    fun deletePrismodell(avtaleId: UUID, prismodellId: UUID): Unit = withTransaction(session) {
+    fun deletePrismodell(avtaleId: UUID, prismodellId: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete
             from avtale_prismodell
             where avtale_id = ?::uuid and prismodell_id = ?::uuid
         """.trimIndent()
-        execute(queryOf(query, avtaleId, prismodellId))
-
-        PrismodellQueries(this).deletePrismodell(prismodellId)
+        session.execute(queryOf(query, avtaleId, prismodellId))
     }
 
     fun upsertAvtalenummer(id: UUID, avtalenummer: String) {

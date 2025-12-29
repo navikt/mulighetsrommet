@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -53,7 +54,7 @@ class AvtaleValidatorTest : FunSpec({
     val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
-        prismodell = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging,
+        prismodell = PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
     )
     val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -64,7 +65,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         avtaletype = Avtaletype.FORHANDSGODKJENT,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-        prismodell = AvtaleFixtures.Prismodell.Forhandsgodkjent,
+        prismodell = PrismodellFixtures.Forhandsgodkjent,
     )
     val avtaleTypeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
@@ -86,7 +87,6 @@ class AvtaleValidatorTest : FunSpec({
             id = TiltakstypeFixtures.Oppfolging.id,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
-        gyldigTilsagnPeriode = mapOf(),
     )
 
     val previous = Ctx.Avtale(

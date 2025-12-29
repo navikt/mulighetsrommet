@@ -112,7 +112,6 @@ class GjennomforingRoutesTest : FunSpec({
     }
 
     context("opprett gjennomføring") {
-        val prismodell = AvtaleFixtures.createPrismodellDbo()
         val avtale = AvtaleFixtures.oppfolging.copy(
             veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(
                 navEnheter = setOf(
@@ -120,7 +119,6 @@ class GjennomforingRoutesTest : FunSpec({
                     NavEnhetFixtures.Sagene.enhetsnummer,
                 ),
             ),
-            prismodeller = listOf(prismodell),
         )
 
         val domain = MulighetsrommetTestDomain(
@@ -203,7 +201,6 @@ class GjennomforingRoutesTest : FunSpec({
                     setBody(
                         GjennomforingFixtures.createGjennomforingRequest(
                             avtale,
-                            prismodellId = prismodell.id,
                             navRegioner = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
                             navKontorer = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
                         ),

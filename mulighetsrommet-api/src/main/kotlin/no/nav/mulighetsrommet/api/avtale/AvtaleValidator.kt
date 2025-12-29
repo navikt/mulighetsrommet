@@ -46,8 +46,6 @@ import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
-import kotlin.text.orEmpty
-import kotlin.text.toSet
 
 @OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
@@ -57,7 +55,6 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
@@ -100,18 +97,11 @@ object AvtaleValidator {
             ),
             amoKategorisering,
         )
-        val prismodeller =
-            validatePrismodell(
-                request.prismodeller,
-                ValidatePrismodellContext(
-                    tiltakskode = request.detaljer.tiltakskode,
-                    tiltakstypeNavn = ctx.tiltakstype.navn,
-                    avtaleStartDato = request.detaljer.startDato,
-                    gyldigTilsagnPeriode = ctx.gyldigTilsagnPeriode,
-                    bruktePrismodeller = ctx.previous?.gjennomforinger?.map { it.prismodellId }.orEmpty()
-                        .toSet(),
-                ),
-            ).bind()
+
+        val prismodeller = request.prismodeller.map { it.id }
+        validate(prismodeller.isNotEmpty()) {
+            FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
+        }
 
         val personvernDbo = request.personvern.toDbo()
         val veilederinformasjonDbo = request.veilederinformasjon.toDbo()

@@ -38,7 +38,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.AvtaltPrisPerTimeOppfolging.id,
+        prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id,
     )
 
     val VTA1 = GjennomforingGruppetiltakDbo(
@@ -66,7 +66,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.Forhandsgodkjent.id,
+        prismodellId = PrismodellFixtures.Forhandsgodkjent.id,
     )
 
     val AFT1 = GjennomforingGruppetiltakDbo(
@@ -94,7 +94,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.Forhandsgodkjent.id,
+        prismodellId = PrismodellFixtures.Forhandsgodkjent.id,
     )
 
     val GruppeAmo1 = GjennomforingGruppetiltakDbo(
@@ -122,7 +122,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
+        prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
     )
 
     val GruppeFagYrke1 = GjennomforingGruppetiltakDbo(
@@ -150,7 +150,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
+        prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
     )
 
     val ArbeidsrettetRehabilitering = GjennomforingGruppetiltakDbo(
@@ -178,13 +178,13 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.Prismodell.AnnenAvtaltPris.id,
+        prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
     )
 
     fun createGjennomforingRequest(
         avtale: AvtaleDbo,
         id: UUID = UUID.randomUUID(),
-        prismodellId: UUID = avtale.prismodeller.single().id,
+        prismodellId: UUID = avtale.prismodeller.single(),
         arrangorId: UUID = ArrangorFixtures.underenhet1.id,
         startDato: LocalDate = avtale.detaljerDbo.startDato,
         sluttDato: LocalDate? = avtale.detaljerDbo.sluttDato,

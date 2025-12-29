@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
+import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -474,7 +475,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("endre prismodeller") {
-            val prismodell1Dbo = AvtaleFixtures.createPrismodellDbo(
+            val prismodell1Dbo = PrismodellFixtures.createPrismodellDbo(
                 type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 1000, ValutaType.NOK)),
             )
@@ -483,24 +484,26 @@ class AvtaleQueriesTest : FunSpec({
                 prisbetingelser = null,
                 satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 1000, ValutaType.NOK)),
             )
-            val prismodell2Dbo = AvtaleFixtures.createPrismodellDbo(
+            val prismodell2Dbo = PrismodellFixtures.createPrismodellDbo(
                 type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
                 satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
             )
 
             database.runAndRollback { session ->
                 domain.setup(session)
+                queries.prismodell.upsertPrismodell(prismodell1Dbo)
+                queries.prismodell.upsertPrismodell(prismodell2Dbo)
 
-                val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell1Dbo))
+                val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell1Dbo.id))
                 queries.avtale.create(avtale)
 
-                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(
                     prismodell1,
                 )
 
-                queries.avtale.upsertPrismodell(avtale.id, prismodell2Dbo)
+                queries.avtale.upsertPrismodell(avtale.id, prismodell2Dbo.id)
 
-                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(
                     prismodell1,
                     Prismodell.AvtaltPrisPerManedsverk(
                         id = prismodell2Dbo.id,
@@ -509,17 +512,16 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.avtale.upsertPrismodell(
-                    avtale.id,
-                    prismodell2Dbo.copy(type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK),
+                queries.prismodell.upsertPrismodell(
+                    prismodell2Dbo.copy(type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK, prisbetingelser = "$"),
                 )
 
                 queries.avtale.deletePrismodell(avtale.id, prismodell1Dbo.id)
 
-                queries.avtale.getOrError(AvtaleFixtures.oppfolging.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(
                     Prismodell.AvtaltPrisPerHeleUkesverk(
                         id = prismodell2Dbo.id,
-                        prisbetingelser = null,
+                        prisbetingelser = "$",
                         satser = listOf(AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000, ValutaType.NOK)),
                     ),
                 )

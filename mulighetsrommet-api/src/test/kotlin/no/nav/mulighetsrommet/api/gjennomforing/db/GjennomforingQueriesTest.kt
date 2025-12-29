@@ -56,15 +56,22 @@ import java.util.UUID
 class GjennomforingQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val domain = MulighetsrommetTestDomain(
+        arrangorer = listOf(
+            ArrangorFixtures.hovedenhet,
+            ArrangorFixtures.underenhet1,
+            ArrangorFixtures.underenhet2,
+        ),
+        avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+    )
+
+    beforeSpec {
+        domain.initialize(database.db)
+    }
+
     context("CRUD") {
-        val domain = MulighetsrommetTestDomain(
-            avtaler = listOf(AvtaleFixtures.oppfolging),
-        )
-
         test("lagre gjennomføring") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
                 queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id) should {
@@ -112,9 +119,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("Administratorer crud") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 val gjennomforing = Oppfolging1.copy(
                     administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
                 )
@@ -133,8 +138,6 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, Oslo),
-                    arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
                 queries.gjennomforing.upsertGruppetiltak(
@@ -178,12 +181,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("tilgjengelig for arrangør") {
-            database.runAndRollback { session ->
-                MulighetsrommetTestDomain(
-                    arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                ).setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
                 queries.gjennomforing.setTilgjengeligForArrangorDato(Oppfolging1.id, LocalDate.now())
                 queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
@@ -193,9 +191,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("Nav kontaktperson") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(
                         kontaktpersoner = listOf(
@@ -277,7 +273,6 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     arrangorKontaktpersoner = listOf(thomas, jens),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
                 ).setup(session)
 
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id)))
@@ -305,9 +300,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("Publisert må settes eksplisitt") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
                 queries.gjennomforing.getGruppetiltak(Oppfolging1.id)?.publisert shouldBe false
@@ -318,9 +311,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("skal sette åpent for påmelding") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
                 queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).apentForPamelding shouldBe true
 
@@ -330,9 +321,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("oppdater status") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 val id = Oppfolging1.id
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
@@ -395,9 +384,7 @@ class GjennomforingQueriesTest : FunSpec({
             """,
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(faneinnhold = faneinnhold))
 
                 queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
@@ -415,9 +402,7 @@ class GjennomforingQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1.copy(amoKategorisering = amo))
                 queries.gjennomforing.getGruppetiltakOrError(Oppfolging1.id).should {
                     it.amoKategorisering shouldBe amo
@@ -431,9 +416,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("stengt hos arrangør lagres og hentes i periodens rekkefølge") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
                 queries.gjennomforing.setStengtHosArrangor(
                     Oppfolging1.id,
@@ -475,9 +458,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("tillater ikke lagring av overlappende perioder med stengt hos arrangør") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertGruppetiltak(Oppfolging1)
 
                 queries.gjennomforing.setStengtHosArrangor(
@@ -498,8 +479,6 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     context("enkeltplasser") {
-        val domain = MulighetsrommetTestDomain()
-
         val enkelAmo1 = EnkeltplassFixtures.EnkelAmo1.copy(
             navn = "Arena-navn",
             startDato = LocalDate.of(2025, 1, 1),
@@ -509,9 +488,7 @@ class GjennomforingQueriesTest : FunSpec({
         val enkelAmo2 = EnkeltplassFixtures.EnkelAmo2
 
         test("lagre enkeltplass") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
 
                 queries.gjennomforing.getEnkeltplassOrError(enkelAmo1.id).should {
@@ -556,9 +533,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("hent alle enkeltplasser") {
-            database.runAndRollback { session ->
-                domain.setup(session)
-
+            database.runAndRollback {
                 queries.gjennomforing.upsertEnkeltplass(enkelAmo1)
                 queries.gjennomforing.upsertEnkeltplass(enkelAmo2)
 
@@ -573,11 +548,6 @@ class GjennomforingQueriesTest : FunSpec({
         test("løpenummer og tiltaksnummer blir automatisk med i fritekstsøket") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet,
-                        ArrangorFixtures.underenhet1,
-                    ),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
                     ),
@@ -610,12 +580,6 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på arrangør") {
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
-                    arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet,
-                        ArrangorFixtures.underenhet1,
-                        ArrangorFixtures.underenhet2,
-                    ),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
                         Oppfolging1.copy(id = UUID.randomUUID(), arrangorId = ArrangorFixtures.underenhet2.id),
@@ -641,7 +605,6 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på avtale") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(Oppfolging1, AFT1),
                 ).setup(session)
 
@@ -660,7 +623,6 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrer vekk gjennomføringer basert på sluttdato") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(sluttDato = LocalDate.of(2023, 12, 31)),
                         Oppfolging1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2023, 6, 29)),
@@ -684,7 +646,6 @@ class GjennomforingQueriesTest : FunSpec({
         test("administrator og koordinator filtrering") {
             database.runAndRollback { session ->
                 val domain = MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(
                             id = UUID.randomUUID(),
@@ -720,7 +681,6 @@ class GjennomforingQueriesTest : FunSpec({
         test("filtrering på tiltakstype") {
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
-                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
                 ).setup(session)
 
@@ -743,7 +703,6 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
-                    avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
                     gjennomforinger = listOf(
                         Oppfolging1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer)),
                         VTA1.copy(navEnheter = setOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
@@ -778,10 +737,6 @@ class GjennomforingQueriesTest : FunSpec({
 
     test("pagination") {
         database.runAndRollback { session ->
-            MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-            ).setup(session)
-
             (1..10).forEach {
                 queries.gjennomforing.upsertGruppetiltak(
                     Oppfolging1.copy(id = UUID.randomUUID(), navn = "$it".padStart(2, '0')),
@@ -831,7 +786,6 @@ class GjennomforingQueriesTest : FunSpec({
         val domain = MulighetsrommetTestDomain(
             arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 Oppfolging1.copy(arrangorKontaktpersoner = listOf(kontaktperson1.id)),
                 Oppfolging1.copy(id = UUID.randomUUID(), arrangorKontaktpersoner = listOf(kontaktperson2.id)),

@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
@@ -67,24 +66,12 @@ object AvtaleFixtures {
         redaksjoneltInnhold = null,
     )
 
-    fun createPrismodellDbo(
-        id: UUID = UUID.randomUUID(),
-        type: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
-        prisbetingelser: String? = null,
-        satser: List<AvtaltSats> = emptyList(),
-    ): PrismodellDbo = PrismodellDbo(
-        id = id,
-        type = type,
-        prisbetingelser = prisbetingelser,
-        satser = satser,
-    )
-
     val oppfolging: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(Prismodell.AvtaltPrisPerTimeOppfolging),
+        prismodeller = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id),
     )
 
     val gruppeAmo: AvtaleDbo = AvtaleDbo(
@@ -97,7 +84,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
     val gruppeFagYrke: AvtaleDbo = AvtaleDbo(
@@ -110,7 +97,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
     val VTA: AvtaleDbo = AvtaleDbo(
@@ -124,7 +111,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(Prismodell.Forhandsgodkjent),
+        prismodeller = listOf(PrismodellFixtures.Forhandsgodkjent.id),
     )
 
     val AFT: AvtaleDbo = AvtaleDbo(
@@ -138,7 +125,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(Prismodell.Forhandsgodkjent),
+        prismodeller = listOf(PrismodellFixtures.Forhandsgodkjent.id),
     )
 
     val EnkelAmo: AvtaleDbo = AvtaleDbo(
@@ -164,7 +151,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(Prismodell.AnnenAvtaltPris),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
     )
 
     val opprettAvtaleRequest: OpprettAvtaleRequest = OpprettAvtaleRequest(
@@ -261,21 +248,5 @@ object AvtaleFixtures {
                 ),
             ),
         )
-    }
-
-    object Prismodell {
-        val Forhandsgodkjent = PrismodellDbo(
-            id = UUID.randomUUID(),
-            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            prisbetingelser = null,
-            satser = listOf(),
-        )
-
-        val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
-            type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            satser = listOf(AvtaltSats(gjelderFra = LocalDate.of(2023, 1, 1), sats = 1234, ValutaType.NOK)),
-        )
-
-        val AnnenAvtaltPris = createPrismodellDbo()
     }
 }
