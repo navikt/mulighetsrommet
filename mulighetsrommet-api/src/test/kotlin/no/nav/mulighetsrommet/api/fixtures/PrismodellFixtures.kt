@@ -20,11 +20,36 @@ object PrismodellFixtures {
         satser = satser,
     )
 
-    val Forhandsgodkjent = PrismodellDbo(
+    val ForhandsgodkjentAft = PrismodellDbo(
         id = UUID.randomUUID(),
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         prisbetingelser = null,
-        satser = listOf(),
+        satser = listOf(
+            AvtaltSats(
+                gjelderFra = LocalDate.of(2025, 1, 1),
+                sats = 20_975,
+            ),
+            AvtaltSats(
+                gjelderFra = LocalDate.of(2026, 1, 1),
+                sats = 21_730,
+            ),
+        ),
+    )
+
+    val ForhandsgodkjentVta = PrismodellDbo(
+        id = UUID.randomUUID(),
+        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        prisbetingelser = null,
+        satser = listOf(
+            AvtaltSats(
+                gjelderFra = LocalDate.of(2025, 1, 1),
+                sats = 16_848,
+            ),
+            AvtaltSats(
+                gjelderFra = LocalDate.of(2026, 1, 1),
+                sats = 17_455,
+            ),
+        ),
     )
 
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(

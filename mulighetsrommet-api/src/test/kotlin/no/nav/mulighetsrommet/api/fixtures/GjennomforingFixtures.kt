@@ -66,7 +66,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = PrismodellFixtures.Forhandsgodkjent.id,
+        prismodellId = PrismodellFixtures.ForhandsgodkjentVta.id,
     )
 
     val AFT1 = GjennomforingGruppetiltakDbo(
@@ -94,7 +94,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = PrismodellFixtures.Forhandsgodkjent.id,
+        prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
     )
 
     val GruppeAmo1 = GjennomforingGruppetiltakDbo(

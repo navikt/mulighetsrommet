@@ -111,7 +111,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.Forhandsgodkjent.id),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVta.id),
     )
 
     val AFT: AvtaleDbo = AvtaleDbo(
@@ -125,7 +125,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.Forhandsgodkjent.id),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.id),
     )
 
     val EnkelAmo: AvtaleDbo = AvtaleDbo(

@@ -30,7 +30,7 @@ object AvtaleDtoMapper {
         opsjonsmodell = avtale.opsjonsmodell,
         opsjonerRegistrert = avtale.opsjonerRegistrert,
         utdanningslop = avtale.utdanningslop,
-        prismodeller = avtale.prismodeller.map { fromPrismodell(it, avtale.tiltakstype.tiltakskode) },
+        prismodeller = avtale.prismodeller.map { fromPrismodell(it) },
     )
 
     private fun fromAvtaleStatus(status: AvtaleStatus): AvtaleDto.Status {

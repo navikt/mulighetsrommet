@@ -65,7 +65,7 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         avtaletype = Avtaletype.FORHANDSGODKJENT,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-        prismodell = PrismodellFixtures.Forhandsgodkjent,
+        prismodell = PrismodellFixtures.ForhandsgodkjentAft,
     )
     val avtaleTypeAvtale = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.OPPFOLGING,

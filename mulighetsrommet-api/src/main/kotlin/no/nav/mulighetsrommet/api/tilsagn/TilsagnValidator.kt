@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.findSats
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
@@ -76,13 +76,18 @@ object TilsagnValidator {
             FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
         }
         validate(!next.periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
-            FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er ${gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeStart)
+            val dato = gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()
+            FieldError.of("Minimum startdato for tilsagn til $tiltakstypeNavn er $dato", TilsagnRequest::periodeStart)
         }
         validate(!next.periodeSlutt.isAfter(gyldigTilsagnPeriode.getLastInclusiveDate())) {
-            FieldError.of("Maksimum sluttdato for tilsagn til $tiltakstypeNavn er ${gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()}", TilsagnRequest::periodeSlutt)
+            val dato = gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+            FieldError.of("Maksimum sluttdato for tilsagn til $tiltakstypeNavn er $dato", TilsagnRequest::periodeSlutt)
         }
         validate(gjennomforingSluttDato == null || !next.periodeSlutt.isAfter(gjennomforingSluttDato)) {
-            FieldError.of("Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden", TilsagnRequest::periodeSlutt)
+            FieldError.of(
+                "Sluttdato for tilsagnet kan ikke være etter gjennomføringsperioden",
+                TilsagnRequest::periodeSlutt,
+            )
         }
         validate(next.periodeStart.year == next.periodeSlutt.year) {
             FieldError.of("Tilsagnsperioden kan ikke vare utover årsskiftet", TilsagnRequest::periodeSlutt)
@@ -122,22 +127,15 @@ object TilsagnValidator {
         TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
         -> {
-            val sats = AvtalteSatser.findSats(avtalteSatser, periode.start)
-            requireValid(sats != null) {
-                FieldError.of(
-                    "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
-                    TilsagnRequest::periodeStart,
-                )
-            }
-            val satsPeriodeStart = AvtalteSatser.findSats(avtalteSatser, periode.start)
-            validate(satsPeriodeStart != null) {
+            val satsPeriodeStart = avtalteSatser.findSats(periode.start)
+            requireValid(satsPeriodeStart != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
                     TilsagnRequest::periodeStart,
                 )
             }
 
-            val satsPeriodeSlutt = AvtalteSatser.findSats(avtalteSatser, periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = avtalteSatser.findSats(periode.getLastInclusiveDate())
             validate(satsPeriodeSlutt != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -151,20 +149,17 @@ object TilsagnValidator {
                 )
             }
 
-            validate(sats == satsPeriodeStart) {
-                FieldError.of(
-                    "Sats må stemme med avtalt sats for perioden ($satsPeriodeStart)",
-                    TilsagnRequest::periodeStart,
-                )
-            }
-            sats
+            satsPeriodeStart
         }
     }
 
-    fun FieldValidator.validateBeregning(request: TilsagnBeregningRequest, periode: Periode, avtalteSatser: List<AvtaltSats>): TilsagnBeregning {
+    fun FieldValidator.validateBeregning(
+        request: TilsagnBeregningRequest,
+        periode: Periode,
+        avtalteSatser: List<AvtaltSats>,
+    ): TilsagnBeregning {
         val sats = validateAvtaltSats(request.type, avtalteSatser, periode)
         val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
-        val antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(request.type, request.antallTimerOppfolgingPerDeltaker)
 
         return when (request.type) {
             TilsagnBeregningType.FRI ->
@@ -216,13 +211,19 @@ object TilsagnValidator {
                         sats = sats,
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
-                        antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltaker,
+                        antallTimerOppfolgingPerDeltaker = validateAntallTimerOppfolgingPerDeltaker(
+                            request.type,
+                            request.antallTimerOppfolgingPerDeltaker,
+                        ),
                     ),
                 )
         }
     }
 
-    private fun FieldValidator.validateAntallTimerOppfolgingPerDeltaker(type: TilsagnBeregningType, antallTimerOppfolgingPerDeltaker: Int?): Int = when (type) {
+    private fun FieldValidator.validateAntallTimerOppfolgingPerDeltaker(
+        type: TilsagnBeregningType,
+        antallTimerOppfolgingPerDeltaker: Int?,
+    ): Int = when (type) {
         TilsagnBeregningType.FRI,
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,

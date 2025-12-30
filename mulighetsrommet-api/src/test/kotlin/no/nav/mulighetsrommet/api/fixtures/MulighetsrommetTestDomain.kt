@@ -39,9 +39,10 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
     ),
     val prismodeller: List<PrismodellDbo> = listOf(
-        PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
-        PrismodellFixtures.Forhandsgodkjent,
         PrismodellFixtures.AnnenAvtaltPris,
+        PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
+        PrismodellFixtures.ForhandsgodkjentAft,
+        PrismodellFixtures.ForhandsgodkjentVta,
     ),
     val avtaler: List<AvtaleDbo> = listOf(),
     val gjennomforinger: List<GjennomforingGruppetiltakDbo> = listOf(),

@@ -566,6 +566,7 @@ private fun Row.toAvtale(): Avtale {
 
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
                 id = prismodell.id,
+                satser = satser,
             )
 
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(

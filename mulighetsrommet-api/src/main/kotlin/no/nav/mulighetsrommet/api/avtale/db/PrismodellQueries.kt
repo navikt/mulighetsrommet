@@ -74,6 +74,7 @@ fun Row.toPrismodell(): Prismodell? {
 
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> Prismodell.ForhandsgodkjentPrisPerManedsverk(
                 id = prismodellId,
+                satser = satser.toDto(),
             )
 
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> Prismodell.AvtaltPrisPerManedsverk(

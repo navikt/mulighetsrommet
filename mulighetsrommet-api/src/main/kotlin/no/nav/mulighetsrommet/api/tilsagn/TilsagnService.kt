@@ -13,6 +13,8 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.avtale.mapper.satser
+import no.nav.mulighetsrommet.api.avtale.model.findSats
 import no.nav.mulighetsrommet.api.endringshistorikk.DocumentClass
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
@@ -21,7 +23,6 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
@@ -71,7 +72,7 @@ class TilsagnService(
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
-        val avtalteSatser = AvtalteSatser.getAvtalteSatser(gjennomforing.tiltakstype.tiltakskode, prismodell)
+        val avtalteSatser = prismodell.satser()
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -270,8 +271,7 @@ class TilsagnService(
 
         val gjennomforing = queries.gjennomforing.getGruppetiltakOrError(request.gjennomforingId)
         val prismodell = requireNotNull(gjennomforing.prismodell) { "Gjennomføringen mangler prismodell" }
-        val avtalteSatser = AvtalteSatser.getAvtalteSatser(gjennomforing.tiltakstype.tiltakskode, prismodell)
-        val sats = AvtalteSatser.findSats(avtalteSatser, request.periodeStart) ?: 0
+        val sats = prismodell.satser().findSats(request.periodeStart) ?: 0
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
