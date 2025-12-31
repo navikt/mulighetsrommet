@@ -35,7 +35,10 @@ select gjennomforing.id,
        avtale_prismodell.id                as prismodell_id,
        avtale_prismodell.prismodell_type   as prismodell_type,
        avtale_prismodell.prisbetingelser   as prismodell_prisbetingelser,
-       avtale_prismodell.satser            as prismodell_satser,
+       case
+           when avtale_prismodell.satser = 'null'::jsonb then null
+           else avtale_prismodell.satser
+           end                             as prismodell_satser,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
