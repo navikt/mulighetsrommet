@@ -798,7 +798,7 @@ private fun Row.toPrismodell(): Prismodell? {
         val prismodellType = PrismodellType.valueOf(string("prismodell_type"))
         val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
         val satser = stringOrNull("prismodell_satser")
-            ?.let { Json.decodeFromString<List<AvtaltSats>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
             ?: emptyList()
         when (prismodellType) {
             PrismodellType.ANNEN_AVTALT_PRIS -> Prismodell.AnnenAvtaltPris(
