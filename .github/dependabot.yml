@@ -97,6 +97,10 @@ updates:
         patterns:
           - "@rjsf/*"
 
+      portabletext:
+        patterns:
+          - "@portabletext/*"
+
       minor-and-patch:
         update-types:
           - "minor"
@@ -112,6 +116,7 @@ updates:
           - "react-router"
           - "@react-router/*"
           - "@rjsf/*"
+          - "@portabletext/*"
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker
