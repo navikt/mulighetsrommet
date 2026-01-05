@@ -399,8 +399,8 @@ importers:
         specifier: 3.3.13
         version: 3.3.13(@portabletext/sanity-bridge@1.2.14(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2)
       '@portabletext/react':
-        specifier: 5.0.0
-        version: 5.0.0(react@19.0.3)
+        specifier: 6.0.0
+        version: 6.0.0(react@19.0.3)
       '@portabletext/toolbar':
         specifier: 4.0.33
         version: 4.0.33(@portabletext/editor@3.3.13(@portabletext/sanity-bridge@1.2.14(@types/react@19.0.3))(@types/react@19.0.3)(react-dom@19.0.3(react@19.0.3))(react@19.0.3)(rxjs@7.8.2))(@types/react@19.0.3)(react@19.0.3)
@@ -523,8 +523,8 @@ importers:
         specifier: 7.36.0
         version: 7.36.0
       '@portabletext/react':
-        specifier: 5.0.0
-        version: 5.0.0(react@19.0.3)
+        specifier: 6.0.0
+        version: 6.0.0(react@19.0.3)
       '@sanity/client':
         specifier: 7.13.0
         version: 7.13.0(debug@4.4.3)
@@ -593,8 +593,8 @@ importers:
         specifier: 7.36.0
         version: 7.36.0
       '@portabletext/react':
-        specifier: 5.0.0
-        version: 5.0.0(react@19.0.3)
+        specifier: 6.0.0
+        version: 6.0.0(react@19.0.3)
       '@tailwindcss/postcss':
         specifier: 4.1.18
         version: 4.1.18
@@ -2599,6 +2599,12 @@ packages:
 
   '@portabletext/react@5.0.0':
     resolution: {integrity: sha512-ZEYhjsiUn2Dvrhyao3qAvi6C/re9ZBt2atp14dtwWtPruMNgp1uMf3p+URf0pEEhu+rMEh9JeK0A8FgNejEWCg==}
+    engines: {node: '>=20.19 <22 || >=22.12'}
+    peerDependencies:
+      react: ^18.2 || ^19
+
+  '@portabletext/react@6.0.0':
+    resolution: {integrity: sha512-8jzmFruC6fhC8A47c+RdiFfldzRq/rRW/FwRsr5ZMeNeCf3S0dXVlM/LJQRWH5JLQXbH3oxINN1UV2mbuZQJ9w==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     peerDependencies:
       react: ^18.2 || ^19
@@ -10518,6 +10524,12 @@ snapshots:
     dependencies:
       '@portabletext/toolkit': 4.0.0
       '@portabletext/types': 3.0.0
+      react: 19.0.3
+
+  '@portabletext/react@6.0.0(react@19.0.3)':
+    dependencies:
+      '@portabletext/toolkit': 5.0.0
+      '@portabletext/types': 4.0.0
       react: 19.0.3
 
   '@portabletext/sanity-bridge@1.2.14(@types/react@19.0.3)(debug@4.4.3)':
