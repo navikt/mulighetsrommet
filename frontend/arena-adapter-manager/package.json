@@ -12,9 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@navikt/aksel-icons": "7.35.2",
-    "@navikt/ds-css": "7.35.2",
-    "@navikt/ds-react": "7.35.2",
+    "@navikt/aksel-icons": "7.36.0",
+    "@navikt/ds-css": "7.36.0",
+    "@navikt/ds-react": "7.36.0",
     "react": "19.0.3",
     "react-dom": "19.0.3",
     "react-hot-toast": "2.6.0",
