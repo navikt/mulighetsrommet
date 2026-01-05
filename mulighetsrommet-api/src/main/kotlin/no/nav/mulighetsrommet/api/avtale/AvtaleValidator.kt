@@ -67,7 +67,7 @@ object AvtaleValidator {
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
             val gjennomforinger: List<Gjennomforing>,
-            val prismodell: Prismodell,
+            val prismodeller: List<Prismodell>,
         )
 
         data class Gjennomforing(
@@ -89,11 +89,8 @@ object AvtaleValidator {
     ): Either<List<FieldError>, AvtaleDbo> = validation {
         validateNavEnheter(ctx.navEnheter)
         val amoKategorisering = validateDetaljer(request.detaljer, ctx).bind()
-        val prismodellDbo = validatePrismodell(
-            request.prismodell,
-            tiltakskode = request.detaljer.tiltakskode,
-            tiltakstypeNavn = ctx.tiltakstype.navn,
-        ).bind()
+        val prismodellDbo = request.prismodeller
+            .map { validatePrismodell(it, request.detaljer.tiltakskode, ctx.tiltakstype.navn).bind() }
         val detaljerDbo = request.detaljer.toDbo(
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),
@@ -139,11 +136,13 @@ object AvtaleValidator {
                 )
             }
         }
-        validate(previous.prismodell.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
-            FieldError.of(
-                "Tiltakstype kan ikke endres fordi prismodellen “${previous.prismodell.type.navn}” er i bruk",
-                DetaljerRequest::tiltakskode,
-            )
+        previous.prismodeller.forEach {
+            validate(it.type in Prismodeller.getPrismodellerForTiltak(request.tiltakskode)) {
+                FieldError.of(
+                    "Tiltakstype kan ikke endres fordi prismodellen “${it.type.navn}” er i bruk",
+                    DetaljerRequest::tiltakskode,
+                )
+            }
         }
 
         if (previous.gjennomforinger.isNotEmpty()) {
@@ -338,7 +337,7 @@ object AvtaleValidator {
         validate(request.type in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
             FieldError.of(
                 "${request.type.navn} er ikke tillatt for tiltakstype $tiltakstypeNavn",
-                AvtaleRequest::prismodell,
+                AvtaleRequest::prismodeller,
             )
         }
         when (request.type) {
@@ -419,7 +418,7 @@ object AvtaleValidator {
         validate(satser.isNotEmpty()) {
             FieldError.of(
                 "Minst én pris er påkrevd",
-                AvtaleRequest::prismodell,
+                AvtaleRequest::prismodeller,
             )
         }
         satser.forEachIndexed { index, sats ->

@@ -69,11 +69,10 @@ fun Route.tilsagnRoutesBeregning() {
         val gjennomforing = gjennomforinger.get(tilsagn.gjennomforing.id)
             ?: return@get call.respond(HttpStatusCode.NotFound)
 
-        val prismodell = gjennomforing.avtaleId?.let { db.session { queries.avtale.get(it) } }
-            ?.prismodell
+        val prismodell = gjennomforing.prismodell
             ?: throw StatusException(
                 HttpStatusCode.BadRequest,
-                "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",
+                "Tilsagn kan ikke opprettes uten at gjennomføringen har en prismodell",
             )
 
         val defaults = resolveTilsagnRequest(tilsagn, prismodell)
@@ -104,8 +103,7 @@ fun Route.tilsagnRoutesBeregning() {
         val gjennomforing = gjennomforinger.get(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.NotFound)
 
-        val prismodell = gjennomforing.avtaleId?.let { db.session { queries.avtale.get(it) } }
-            ?.prismodell
+        val prismodell = gjennomforing.prismodell
             ?: throw StatusException(
                 HttpStatusCode.BadRequest,
                 "Tilsagn kan ikke opprettes uten at avtalen har en prismodell",

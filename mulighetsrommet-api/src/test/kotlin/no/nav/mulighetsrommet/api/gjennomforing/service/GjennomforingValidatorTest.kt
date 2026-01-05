@@ -81,9 +81,11 @@ class GjennomforingValidatorTest : FunSpec({
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
-        prismodell = Prismodell.AnnenAvtaltPris(
-            id = UUID.randomUUID(),
-            prisbetingelser = null,
+        prismodeller = listOf(
+            Prismodell.AnnenAvtaltPris(
+                id = UUID.randomUUID(),
+                prisbetingelser = null,
+            ),
         ),
         arenaAnsvarligEnhet = null,
         opphav = ArenaMigrering.Opphav.TILTAKSADMINISTRASJON,

@@ -28,10 +28,8 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -42,7 +40,6 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -68,7 +65,7 @@ data class AvtaleRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val detaljer: DetaljerRequest,
-    val prismodell: PrismodellRequest,
+    val prismodeller: List<PrismodellRequest>,
     val personvern: PersonvernRequest,
     val veilederinformasjon: VeilederinfoRequest,
 )
@@ -395,7 +392,7 @@ fun Route.avtaleRoutes() {
                 val id: UUID by call.parameters
                 val request = call.receive<PrismodellRequest>()
 
-                val result = avtaleService.upsertPrismodell(id, request, navIdent)
+                val result = avtaleService.upsertPrismodell(id, listOf(request), navIdent)
                     .mapLeft { ValidationError(errors = it) }
 
                 call.respondWithStatusResponse(result)
@@ -612,33 +609,6 @@ fun Route.avtaleRoutes() {
             avtaleService.get(id)
                 ?.let { call.respond(avtaleService.handlinger(it, ansatt)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
-        }
-
-        get("{id}/satser", {
-            tags = setOf("Avtale")
-            operationId = "getAvtalteSatser"
-            request {
-                pathParameterUuid("id")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Avtalte satser for avtale"
-                    body<List<AvtaltSatsDto>>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-
-            val avtale = avtaleService.get(id)
-                ?: return@get call.respond(HttpStatusCode.NotFound, "Avtale med id $id finnes ikke")
-
-            val satser = AvtalteSatser.getAvtalteSatser(avtale).toDto()
-
-            call.respond(satser)
         }
 
         get("{id}/historikk", {

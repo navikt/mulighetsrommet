@@ -30,6 +30,8 @@ import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.validateAarsakerOgForklaring
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -47,6 +49,7 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -444,6 +447,39 @@ fun Route.gjennomforingRoutes() {
             gjennomforinger.get(id)
                 ?.let { call.respond(GjennomforingDtoMapper.fromGjennomforing(it)) }
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
+        }
+
+        get("{id}/satser", {
+            tags = setOf("Gjennomføring")
+            operationId = "getAvtalteSatser"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Avtalte satser for gjennomføringens prismodell"
+                    body<List<AvtaltSatsDto>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+
+            val gjennomforing = gjennomforinger.get(id)
+                ?: return@get call.respond(HttpStatusCode.NotFound, "Gjennomføring med id $id finnes ikke")
+
+            gjennomforing.prismodell?.let {
+                call.respond(
+                    AvtalteSatser.getAvtalteSatser(
+                        it,
+                        gjennomforing.tiltakstype.tiltakskode,
+                    ).toDto(),
+                )
+            }
+                ?: call.respond(HttpStatusCode.NotFound, "Gjennomføringen mangler prismodell")
         }
 
         get("{id}/tiltaksnummer", {

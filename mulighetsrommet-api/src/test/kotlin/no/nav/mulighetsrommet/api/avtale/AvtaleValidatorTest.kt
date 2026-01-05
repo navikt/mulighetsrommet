@@ -79,11 +79,13 @@ class AvtaleValidatorTest : FunSpec({
             personopplysninger = emptyList(),
             personvernBekreftet = false,
         ),
-        prismodell = PrismodellRequest(
-            id = UUID.randomUUID(),
-            type = PrismodellType.ANNEN_AVTALT_PRIS,
-            prisbetingelser = null,
-            satser = listOf(),
+        prismodeller = listOf(
+            PrismodellRequest(
+                id = UUID.randomUUID(),
+                type = PrismodellType.ANNEN_AVTALT_PRIS,
+                prisbetingelser = null,
+                satser = listOf(),
+            ),
         ),
     )
     val gruppeAmo = AvtaleFixtures.gruppeAmo.toAvtaleRequest(
@@ -123,7 +125,7 @@ class AvtaleValidatorTest : FunSpec({
         avtaletype = Avtaletype.AVTALE,
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         gjennomforinger = emptyList(),
-        prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = ""),
+        prismodeller = listOf(Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), prisbetingelser = "")),
     )
 
     test("should accumulate errors when request has multiple issues") {
@@ -476,43 +478,49 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = avtaleRequest.detaljer.copy(
                         tiltakskode = Tiltakskode.OPPFOLGING,
                     ),
-                    prismodell = PrismodellRequest(
-                        id = UUID.randomUUID(),
-                        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                        prisbetingelser = null,
-                        satser = emptyList(),
+                    prismodeller = listOf(
+                        PrismodellRequest(
+                            id = UUID.randomUUID(),
+                            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                            prisbetingelser = null,
+                            satser = emptyList(),
+                        ),
                     ),
                 ),
                 ctx,
             ).shouldBeLeft().shouldContain(
                 FieldError(
-                    "/prismodell",
+                    "/prismodeller",
                     "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
             AvtaleValidator.validateCreateAvtale(
                 forhaandsgodkjent.copy(
-                    prismodell = PrismodellRequest(
-                        id = UUID.randomUUID(),
-                        type = PrismodellType.ANNEN_AVTALT_PRIS,
-                        prisbetingelser = null,
-                        satser = emptyList(),
+                    prismodeller = listOf(
+                        PrismodellRequest(
+                            id = UUID.randomUUID(),
+                            type = PrismodellType.ANNEN_AVTALT_PRIS,
+                            prisbetingelser = null,
+                            satser = emptyList(),
+                        ),
                     ),
                 ),
                 ctx.copy(tiltakstype = ctx.tiltakstype.copy(navn = TiltakstypeFixtures.AFT.navn)),
             ).shouldBeLeft().shouldContain(
                 FieldError(
-                    "/prismodell",
+                    "/prismodeller",
                     "Annen avtalt pris er ikke tillatt for tiltakstype Arbeidsforberedende trening",
                 ),
             )
 
             val fri = avtaleRequest.copy(
-                prismodell = PrismodellRequest(
-                    id = UUID.randomUUID(),
-                    type = PrismodellType.ANNEN_AVTALT_PRIS,
-                    prisbetingelser = null,
-                    satser = emptyList(),
+                prismodeller = listOf(
+                    PrismodellRequest(
+                        id = UUID.randomUUID(),
+                        type = PrismodellType.ANNEN_AVTALT_PRIS,
+                        prisbetingelser = null,
+                        satser = emptyList(),
+                    ),
                 ),
             )
             AvtaleValidator.validateCreateAvtale(fri, ctx).shouldBeRight()
@@ -862,18 +870,20 @@ fun AvtaleDbo.toAvtaleRequest(arrangor: DetaljerRequest.Arrangor?, tiltakskode: 
         personopplysninger = this.personvernDbo.personopplysninger,
         personvernBekreftet = this.personvernDbo.personvernBekreftet,
     ),
-    prismodell = PrismodellRequest(
-        id = this.prismodellDbo.id,
-        type = this.prismodellDbo.type,
-        prisbetingelser = this.prismodellDbo.prisbetingelser,
-        satser = (this.prismodellDbo.satser ?: listOf()).map {
-            AvtaltSatsRequest(
-                pris = it.sats,
-                valuta = "NOK",
-                gjelderFra = it.gjelderFra,
-            )
-        },
-    ),
+    prismodeller = this.prismodellDbo.map {
+        PrismodellRequest(
+            id = it.id,
+            type = it.type,
+            prisbetingelser = it.prisbetingelser,
+            satser = (it.satser ?: listOf()).map { sats ->
+                AvtaltSatsRequest(
+                    pris = sats.sats,
+                    valuta = "NOK",
+                    gjelderFra = sats.gjelderFra,
+                )
+            },
+        )
+    },
 )
 
 fun AmoKategorisering.toRequest() = when (this) {

@@ -155,7 +155,7 @@ class AvtaleService(
                                 status = it.status.type,
                             )
                         },
-                        prismodell = it.prismodell,
+                        prismodeller = it.prismodeller,
                     )
                 },
                 arrangor = arrangor,
@@ -215,18 +215,20 @@ class AvtaleService(
 
     fun upsertPrismodell(
         id: UUID,
-        request: PrismodellRequest,
+        request: List<PrismodellRequest>,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
         val previous = get(id)
             ?: throw StatusException(HttpStatusCode.NotFound, "Fant ikke avtale")
 
-        val dbo = AvtaleValidator
-            .validatePrismodell(request, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
-            .bind()
+        val prismodeller = request.map {
+            AvtaleValidator
+                .validatePrismodell(it, previous.tiltakstype.tiltakskode, previous.tiltakstype.navn)
+                .bind()
+        }
 
         db.transaction {
-            queries.avtale.upsertPrismodell(id, dbo)
+            queries.avtale.upsertPrismodell(id, prismodeller)
 
             val dto = logEndring("Prismodell oppdatert", id, navIdent)
             schedulePublishGjennomforingerForAvtale(dto)
@@ -493,7 +495,7 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPDATER_PRIS.takeIf {
-                avtale.prismodell.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                avtale.prismodeller.any { prismodell -> prismodell.type !== PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
                 avtale.opsjonsmodell.opsjonMaksVarighet != null

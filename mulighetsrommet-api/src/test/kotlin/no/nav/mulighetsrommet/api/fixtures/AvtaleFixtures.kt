@@ -78,9 +78,11 @@ object AvtaleFixtures {
     val oppfolging: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo(),
-        prismodellDbo = prismodellDbo(
-            prismodellType = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            satser = listOf(AvtaltSats(gjelderFra = detaljerDbo().startDato, sats = 1234)),
+        prismodellDbo = listOf(
+            prismodellDbo(
+                prismodellType = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                satser = listOf(AvtaltSats(gjelderFra = detaljerDbo().startDato, sats = 1234)),
+            ),
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
@@ -89,7 +91,7 @@ object AvtaleFixtures {
     val oppfolgingMedAvtale: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(avtaletype = Avtaletype.AVTALE),
-        prismodellDbo = prismodellDbo(),
+        prismodellDbo = listOf(prismodellDbo()),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
     )
@@ -102,7 +104,7 @@ object AvtaleFixtures {
             avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         ),
-        prismodellDbo = prismodellDbo(),
+        prismodellDbo = listOf(prismodellDbo()),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
     )
@@ -115,7 +117,7 @@ object AvtaleFixtures {
             avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
 
         ),
-        prismodellDbo = prismodellDbo(),
+        prismodellDbo = listOf(prismodellDbo()),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
     )
@@ -128,8 +130,10 @@ object AvtaleFixtures {
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
 
         ),
-        prismodellDbo = prismodellDbo(
-            prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        prismodellDbo = listOf(
+            prismodellDbo(
+                prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            ),
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
@@ -145,8 +149,10 @@ object AvtaleFixtures {
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
 
         ),
-        prismodellDbo = prismodellDbo(
-            prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        prismodellDbo = listOf(
+            prismodellDbo(
+                prismodellType = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            ),
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
@@ -161,7 +167,7 @@ object AvtaleFixtures {
             avtaletype = Avtaletype.FORHANDSGODKJENT,
 
         ),
-        prismodellDbo = prismodellDbo(),
+        prismodellDbo = listOf(prismodellDbo()),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
     )
@@ -175,7 +181,7 @@ object AvtaleFixtures {
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodellDbo = prismodellDbo(),
+        prismodellDbo = listOf(prismodellDbo()),
     )
 
     val avtaleRequest: AvtaleRequest = AvtaleRequest(
@@ -210,11 +216,13 @@ object AvtaleFixtures {
             personopplysninger = emptyList(),
             personvernBekreftet = false,
         ),
-        prismodell = PrismodellRequest(
-            UUID.randomUUID(),
-            type = PrismodellType.ANNEN_AVTALT_PRIS,
-            prisbetingelser = null,
-            satser = listOf(),
+        prismodeller = listOf(
+            PrismodellRequest(
+                UUID.randomUUID(),
+                type = PrismodellType.ANNEN_AVTALT_PRIS,
+                prisbetingelser = null,
+                satser = listOf(),
+            ),
         ),
     )
 
@@ -228,7 +236,7 @@ object AvtaleFixtures {
             tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
             sakarkivNummer = SakarkivNummer("24/3234"),
         ),
-        prismodellDbo = prismodellDbo(),
+        prismodellDbo = listOf(prismodellDbo()),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),
     )

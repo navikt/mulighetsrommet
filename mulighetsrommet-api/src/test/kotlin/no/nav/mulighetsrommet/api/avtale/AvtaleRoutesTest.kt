@@ -13,9 +13,7 @@ import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -26,7 +24,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -128,40 +125,17 @@ class AvtaleRoutesTest : FunSpec({
                 avtaler = listOf(
                     AvtaleFixtures.AFT,
                     AvtaleFixtures.oppfolging.copy(
-                        prismodellDbo = PrismodellDbo(
-                            id = UUID.randomUUID(),
-                            type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                            prisbetingelser = null,
-                            satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                        prismodellDbo = listOf(
+                            PrismodellDbo(
+                                id = UUID.randomUUID(),
+                                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                                prisbetingelser = null,
+                                satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                            ),
                         ),
                     ),
                 ),
             ).initialize(database.db)
-        }
-
-        test("henter avtalte satser fra avtalens prismodell") {
-            withTestApplication(appConfig()) {
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
-
-                val response1 = client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.AFT.id}/satser") {
-                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                }
-                response1.status shouldBe HttpStatusCode.OK
-                response1.body<List<AvtaltSatsDto>>() shouldBe AvtalteSatser.AFT.satser.toDto()
-
-                val response2 =
-                    client.get("/api/tiltaksadministrasjon/avtaler/${AvtaleFixtures.oppfolging.id}/satser") {
-                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    }
-                response2.status shouldBe HttpStatusCode.OK
-                response2.body<List<AvtaltSatsDto>>() shouldBe listOf(
-                    AvtaltSatsDto(
-                        gjelderFra = LocalDate.of(2025, 1, 1),
-                        pris = 1000,
-                        valuta = "NOK",
-                    ),
-                )
-            }
         }
     }
 })

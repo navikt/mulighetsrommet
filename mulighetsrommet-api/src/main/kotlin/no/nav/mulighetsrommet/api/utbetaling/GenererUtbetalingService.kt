@@ -280,9 +280,8 @@ class GenererUtbetalingService(
         )
     }
 
-    private fun QueryContext.resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
-        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId!!)
-        return UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, avtale, periode)
+    private fun resolveAvtalteSatser(gjennomforing: Gjennomforing, periode: Periode): Set<SatsPeriode> {
+        return UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
     }
 
     private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {

@@ -37,7 +37,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.oppfolging.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.oppfolging.prismodellDbo[0].id,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
@@ -98,7 +98,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        prismodellId = AvtaleFixtures.oppfolging.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.oppfolging.prismodellDbo[0].id,
     )
 
     val VTA1 = GjennomforingDbo(
@@ -125,7 +125,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.VTA.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.VTA.prismodellDbo[0].id,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
@@ -154,7 +154,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        prismodellId = AvtaleFixtures.AFT.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.AFT.prismodellDbo[0].id,
     )
 
     val Jobbklubb1 = GjennomforingDbo(
@@ -181,7 +181,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.jobbklubb.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.jobbklubb.prismodellDbo[0].id,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
@@ -210,7 +210,7 @@ object GjennomforingFixtures {
         amoKategorisering = null,
         utdanningslop = null,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        prismodellId = AvtaleFixtures.gruppeAmo.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.gruppeAmo.prismodellDbo[0].id,
     )
 
     val GruppeFagYrke1 = GjennomforingDbo(
@@ -237,7 +237,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.gruppeFagYrke.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.gruppeFagYrke.prismodellDbo[0].id,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 
@@ -265,7 +265,7 @@ object GjennomforingFixtures {
         tilgjengeligForArrangorDato = null,
         amoKategorisering = null,
         utdanningslop = null,
-        prismodellId = AvtaleFixtures.ARR.prismodellDbo.id,
+        prismodellId = AvtaleFixtures.ARR.prismodellDbo[0].id,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
     )
 }

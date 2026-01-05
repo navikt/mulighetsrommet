@@ -18,6 +18,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -34,6 +39,7 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.tilsagn.model.AvtalteSatser
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -340,6 +346,54 @@ class GjennomforingRoutesTest : FunSpec({
                         }
                     }
                 }
+            }
+        }
+    }
+
+    context("prismodell") {
+        val prismodellId = UUID.randomUUID()
+        beforeEach {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(
+                    AvtaleFixtures.AFT,
+                    AvtaleFixtures.oppfolging.copy(
+                        prismodellDbo = listOf(
+                            PrismodellDbo(
+                                id = prismodellId,
+                                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                                prisbetingelser = null,
+                                satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 1000)),
+                            ),
+                        ),
+                    ),
+                ),
+                gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodellId)),
+            ).initialize(database.db)
+        }
+
+        test("henter avtalte satser fra gjennomføringens prismodell") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+
+                val response1 =
+                    client.get("/api/tiltaksadministrasjon/gjennomforinger/${GjennomforingFixtures.AFT1.id}/satser") {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    }
+                response1.status shouldBe HttpStatusCode.OK
+                response1.body<List<AvtaltSatsDto>>() shouldBe AvtalteSatser.AFT.satser.toDto()
+
+                val response2 =
+                    client.get("/api/tiltaksadministrasjon/gjennomforinger/${GjennomforingFixtures.Oppfolging1.id}/satser") {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    }
+                response2.status shouldBe HttpStatusCode.OK
+                response2.body<List<AvtaltSatsDto>>() shouldBe listOf(
+                    AvtaltSatsDto(
+                        gjelderFra = LocalDate.of(2025, 1, 1),
+                        pris = 1000,
+                        valuta = "NOK",
+                    ),
+                )
             }
         }
     }

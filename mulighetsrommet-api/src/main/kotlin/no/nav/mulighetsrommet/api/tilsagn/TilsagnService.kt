@@ -69,10 +69,10 @@ class TilsagnService(
         requireNotNull(request.id) { "id mangler" }
 
         val gjennomforing = queries.gjennomforing.getOrError(request.gjennomforingId)
-        requireNotNull(gjennomforing.avtaleId) { "Gjennomforingen mangler avtale" }
+        requireNotNull(gjennomforing.prismodell) { "Gjennomforingen mangler prismodell" }
 
-        val avtale = queries.avtale.getOrError(gjennomforing.avtaleId)
-        val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
+        val avtalteSatser =
+            AvtalteSatser.getAvtalteSatser(gjennomforing.prismodell, gjennomforing.tiltakstype.tiltakskode)
 
         val totrinnskontroll = Totrinnskontroll(
             id = UUID.randomUUID(),
@@ -272,13 +272,14 @@ class TilsagnService(
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
 
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
-        val sats =
-            queries.gjennomforing.get(request.gjennomforingId)?.avtaleId?.let {
-                queries.avtale.get(it)
-            }?.let { avtale ->
-                val avtalteSatser = AvtalteSatser.getAvtalteSatser(avtale)
-                AvtalteSatser.findSats(avtalteSatser, request.periodeStart)
-            } ?: 0
+        val sats = queries.gjennomforing.get(request.gjennomforingId)
+            ?.let { gjennomforing ->
+                gjennomforing.prismodell?.let { prismodell ->
+                    AvtalteSatser.getAvtalteSatser(prismodell, gjennomforing.tiltakstype.tiltakskode)
+                }
+            }
+            ?.let { AvtalteSatser.findSats(it, request.periodeStart) }
+            ?: 0
 
         return TilsagnBeregningFallbackResolver(
             sats = sats,
@@ -297,7 +298,11 @@ class TilsagnService(
         val tilsagn = queries.tilsagn.getOrError(id)
 
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        if (!ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
+        if (!ansatt.hasKontorspesifikkRolle(
+                Rolle.BESLUTTER_TILSAGN,
+                setOf(tilsagn.kostnadssted.enhetsnummer),
+            )
+        ) {
             return FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
                 .nel()
                 .left()
@@ -305,7 +310,8 @@ class TilsagnService(
 
         return when (tilsagn.status) {
             TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT -> {
-                FieldError.of("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status}").nel().left()
+                FieldError.of("Tilsagnet kan ikke besluttes fordi det har status ${tilsagn.status}").nel()
+                    .left()
             }
 
             TilsagnStatus.TIL_GODKJENNING -> {
@@ -757,7 +763,10 @@ class TilsagnService(
             besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
-        storeOkonomiMelding(tilsagn.bestilling.bestillingsnummer, OkonomiBestillingMelding.GjorOppBestilling(faktura))
+        storeOkonomiMelding(
+            tilsagn.bestilling.bestillingsnummer,
+            OkonomiBestillingMelding.GjorOppBestilling(faktura),
+        )
     }
 
     private fun QueryContext.logEndring(

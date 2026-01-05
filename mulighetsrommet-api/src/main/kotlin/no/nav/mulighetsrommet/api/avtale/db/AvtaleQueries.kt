@@ -361,7 +361,7 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    fun upsertPrismodell(avtaleId: UUID, dbo: PrismodellDbo) = withTransaction(session) {
+    fun upsertPrismodell(avtaleId: UUID, prismodeller: List<PrismodellDbo>) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale_prismodell(id,
@@ -380,14 +380,16 @@ class AvtaleQueries(private val session: Session) {
                                            satser          = excluded.satser
         """.trimIndent()
 
-        val params = mapOf(
-            "avtale_id" to avtaleId,
-            "id" to dbo.id,
-            "prismodell" to dbo.type.name,
-            "prisbetingelser" to dbo.prisbetingelser,
-            "satser" to Json.encodeToString(dbo.satser),
-        )
-        execute(queryOf(query, params))
+        val params = prismodeller.map { dbo ->
+            mapOf(
+                "avtale_id" to avtaleId,
+                "id" to dbo.id,
+                "prismodell" to dbo.type.name,
+                "prisbetingelser" to dbo.prisbetingelser,
+                "satser" to Json.encodeToString(dbo.satser),
+            )
+        }
+        session.batchPreparedNamedStatement(query, params)
     }
 
     fun upsertAvtalenummer(id: UUID, avtalenummer: String) = withTransaction(session) {
@@ -656,7 +658,7 @@ class AvtaleQueries(private val session: Session) {
                         satser = p.satser?.toDto() ?: listOf(),
                     )
             }
-        }.first()
+        }
 
         val status = when (AvtaleStatusType.valueOf(string("status"))) {
             AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
@@ -705,7 +707,7 @@ class AvtaleQueries(private val session: Session) {
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
             amoKategorisering = amoKategorisering,
             utdanningslop = utdanningslop,
-            prismodell = prismodell,
+            prismodeller = prismodell,
         )
     }
 }
