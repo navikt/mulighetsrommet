@@ -159,7 +159,7 @@ export function AvtaleDetaljer() {
         {amoKategorisering && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         {utdanningslop ? <UtdanningslopDetaljer utdanningslop={utdanningslop} /> : null}
         <Separator />
-        <PrismodellDetaljer prismodell={avtale.prismodell} />
+        <PrismodellDetaljer prismodell={avtale.prismodeller} />
       </VStack>
       <VStack>
         <Definisjonsliste title="Administratorer" definitions={administratorMeta} />

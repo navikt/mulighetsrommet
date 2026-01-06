@@ -15,19 +15,21 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const PrismodellSchema = z.object({
-  prismodell: z.object({
-    id: z.uuid().optional(),
-    prisbetingelser: z.string().nullable(),
-    type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
-    satser: z.array(
-      z.object({
-        gjelderFra: z.string().nullable(),
-        gjelderTil: z.string().nullable(),
-        pris: z.number().nullable(),
-        valuta: z.string(),
-      }),
-    ),
-  }),
+  prismodeller: z
+    .object({
+      id: z.uuid().optional(),
+      prisbetingelser: z.string().nullable(),
+      type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
+      satser: z.array(
+        z.object({
+          gjelderFra: z.string().nullable(),
+          gjelderTil: z.string().nullable(),
+          pris: z.number().nullable(),
+          valuta: z.string(),
+        }),
+      ),
+    })
+    .array(),
 });
 
 export type PrismodellValues = z.infer<typeof PrismodellSchema>;
@@ -166,14 +168,19 @@ export function defaultAvtaleData(
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger ?? [],
     },
-    prismodell: {
-      id: avtale?.prismodell?.id,
-      type: avtale?.prismodell?.type as PrismodellType | undefined,
-      satser: avtale?.prismodell?.satser ?? [],
+    prismodeller: avtale?.prismodeller?.map((prismodell) => ({
+      id: prismodell?.id,
+      type: prismodell?.type as PrismodellType | undefined,
+      satser: prismodell?.satser ?? [],
       prisbetingelser:
-        avtale?.prismodell && "prisbetingelser" in avtale.prismodell
-          ? (avtale.prismodell.prisbetingelser ?? null)
-          : null,
-    },
+        prismodell && "prisbetingelser" in prismodell ? (prismodell.prisbetingelser ?? null) : null,
+    })) ?? [
+      {
+        id: undefined,
+        type: undefined,
+        satser: [],
+        prisbetingelser: null,
+      },
+    ],
   };
 }

@@ -10,7 +10,7 @@ export default function AvtalePrismodellStep() {
   const startDato = safeParseDate(watch("detaljer.startDato"));
 
   return (
-    <TwoColumnGrid separator>
+    <TwoColumnGrid>
       <AvtalePrismodellForm tiltakskode={tiltakskode} avtaleStartDato={startDato} />
     </TwoColumnGrid>
   );

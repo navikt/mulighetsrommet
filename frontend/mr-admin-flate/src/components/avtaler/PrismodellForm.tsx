@@ -11,24 +11,31 @@ import { PrismodellType } from "@tiltaksadministrasjon/api-client";
 interface Props {
   prismodell?: PrismodellType;
   avtaleStartDato: Date;
+  field: `prismodeller.${number}`;
 }
 
-const PrismodellForm = memo(({ prismodell, avtaleStartDato }: Props) => {
+const PrismodellForm = memo(({ prismodell, avtaleStartDato, field }: Props) => {
   switch (prismodell) {
     case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+    case undefined:
       return null;
     case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
     case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
     case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
     case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
-      return <AvtalteSatser avtaleStartDato={avtaleStartDato} />;
+      return <AvtalteSatser avtaleStartDato={avtaleStartDato} field={field} />;
     case PrismodellType.ANNEN_AVTALT_PRIS:
-    case undefined:
-      return <PrisbetingelserTextArea />;
+      return <PrisbetingelserTextArea field={field} />;
   }
 });
 
-function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
+function AvtalteSatser({
+  avtaleStartDato,
+  field,
+}: {
+  avtaleStartDato: Date;
+  field: `prismodeller.${number}`;
+}) {
   const {
     control,
     register,
@@ -38,7 +45,7 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
   } = useFormContext<AvtaleFormValues>();
 
   const { fields, append, remove } = useFieldArray({
-    name: "prismodell.satser",
+    name: `${field}.satser` as const,
     control,
   });
 
@@ -51,25 +58,27 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
 
   return (
     <VStack gap="4">
-      {fields.map((field, index) => (
+      {fields.map((satsField, index) => (
         <HStack
-          key={field.gjelderFra}
+          key={satsField.id}
           padding="4"
           gap="4"
           wrap={false}
           align="center"
-          className="border-border-subtle border-1 rounded-lg"
+          className="border-border-subtle border rounded-lg"
         >
-          <HStack key={field.gjelderFra} gap="4" align="start">
+          <HStack key={satsField.id} gap="4" align="start">
             <Select readOnly label="Valuta" size="small">
-              <option value={undefined}>{field.valuta}</option>
+              <option value={undefined}>{satsField.valuta}</option>
             </Select>
             <TextField
               label={avtaletekster.prismodell.pris.label}
               size="small"
               type="number"
-              error={errors.prismodell?.satser?.[index]?.pris?.message}
-              {...register(`prismodell.satser.${index}.pris`, {
+              error={
+                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.pris?.message
+              }
+              {...register(`${field}.satser.${index}.pris` as const, {
                 valueAsNumber: true,
               })}
             />
@@ -77,9 +86,12 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
               label={avtaletekster.prismodell.periodeStart.label}
               fromDate={fromDate}
               toDate={toDate}
-              onChange={(val) => setValue(`prismodell.satser.${index}.gjelderFra`, val)}
-              error={errors.prismodell?.satser?.[index]?.gjelderFra?.message}
-              defaultSelected={getValues(`prismodell.satser.${index}.gjelderFra`)}
+              onChange={(val) => setValue(`${field}.satser.${index}.gjelderFra` as const, val)}
+              error={
+                errors.prismodeller?.[parseInt(field.split(".")[1])]?.satser?.[index]?.gjelderFra
+                  ?.message
+              }
+              defaultSelected={getValues(`${field}.satser.${index}.gjelderFra` as const)}
             />
           </HStack>
           <Spacer />
@@ -105,23 +117,24 @@ function AvtalteSatser({ avtaleStartDato }: { avtaleStartDato: Date }) {
       >
         Legg til ny prisperiode
       </Button>
-      <PrisbetingelserTextArea />
+      <PrisbetingelserTextArea field={field} />
     </VStack>
   );
 }
 
-function PrisbetingelserTextArea() {
+function PrisbetingelserTextArea({ field }: { field: `prismodeller.${number}` }) {
   const {
     register,
     formState: { errors },
   } = useFormContext<AvtaleFormValues>();
 
+  const index = parseInt(field.split(".")[1]);
   return (
     <Textarea
       size="small"
-      error={errors.prismodell?.prisbetingelser?.message}
+      error={errors.prismodeller?.[index]?.prisbetingelser?.message}
       label={avtaletekster.prisOgBetalingLabel}
-      {...register("prismodell.prisbetingelser")}
+      {...register(`${field}.prisbetingelser` as const)}
     />
   );
 }

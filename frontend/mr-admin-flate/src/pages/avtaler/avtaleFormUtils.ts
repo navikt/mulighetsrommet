@@ -31,15 +31,15 @@ export function toAvtaleRequest({
     detaljer: toDetaljerRequest({ data: data }),
     veilederinformasjon: toVeilederinfoRequest({ data: data }),
     personvern: toPersonvernRequest({ data: data }),
-    prismodell: toPrismodellRequest({ data: data }),
+    prismodeller: toPrismodellRequest({ data: data }),
   };
 }
 
-export function toPrismodellRequest({ data }: { data: PrismodellValues }): PrismodellRequest {
-  return {
-    ...data.prismodell,
-    id: data.prismodell.id ?? v4(),
-  };
+export function toPrismodellRequest({ data }: { data: PrismodellValues }): PrismodellRequest[] {
+  return data.prismodeller.map((prismodell) => ({
+    ...prismodell,
+    id: prismodell.id ? prismodell.id : v4(),
+  }));
 }
 
 export function toPersonvernRequest({ data }: { data: PersonvernValues }): PersonvernRequest {
