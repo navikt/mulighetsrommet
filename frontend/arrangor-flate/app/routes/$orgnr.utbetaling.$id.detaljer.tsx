@@ -4,6 +4,7 @@ import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import {
   Alert,
+  BodyShort,
   Box,
   Button,
   Heading,
@@ -16,6 +17,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
+  ArrangorAvbrytStatus,
   ArrangorflateService,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
@@ -87,36 +89,55 @@ interface ActionData {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { id } = params;
-  if (!id) {
-    throw new Response("Mangler id", { status: 400 });
-  }
+  if (!id) throw new Response("Mangler id", { status: 400 });
 
   const formData = await request.formData();
-  const begrunnelse = formData.get("begrunnelse")?.toString();
+  const intent = formData.get("_action");
 
-  const [{ error }] = await Promise.all([
-    ArrangorflateService.avbrytUtbetaling({
-      path: { id },
-      body: { begrunnelse: begrunnelse ?? null },
-      headers: await apiHeaders(request),
-    }),
-  ]);
+  if (intent === "avbryt") {
+    const begrunnelse = formData.get("begrunnelse")?.toString();
 
-  if (error) {
-    if (isValidationError(error)) {
-      return { errors: error.errors };
-    } else {
+    const [{ error }] = await Promise.all([
+      ArrangorflateService.avbrytUtbetaling({
+        path: { id },
+        body: { begrunnelse: begrunnelse ?? null },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+    if (error) {
+      if (isValidationError(error)) return { ok: false, errors: error.errors };
       throw problemDetailResponse(error);
     }
+
+    return { ok: true };
   }
 
-  return { ok: true };
+  if (intent === "regenerer") {
+    const [{ error }] = await Promise.all([
+      ArrangorflateService.regenererUtbetaling({
+        path: { id },
+        headers: await apiHeaders(request),
+      }),
+    ]);
+
+    if (error) {
+      if (isValidationError(error)) return { ok: false, errors: error.errors };
+      throw problemDetailResponse(error);
+    }
+
+    return { ok: true };
+  }
+
+  throw new Response("Ukjent handling", { status: 400 });
 };
 
 export default function UtbetalingDetaljerSide() {
   const { utbetaling, deltakerlisteUrl } = useLoaderData<UtbetalingDetaljerSideData>();
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const [deltakerModalOpen, setDeltakerModalOpen] = useState<boolean>(false);
+
+  const regenererFetcher = useFetcher<ActionData>();
 
   const visNedlastingAvKvittering = [
     ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -202,20 +223,42 @@ export default function UtbetalingDetaljerSide() {
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
-        <HStack gap="2" justify="start" align="center">
-          <Button
-            disabled={!utbetaling.kanAvbrytes}
-            size="small"
-            variant="danger"
-            onClick={() => setAvbrytModalOpen(true)}
-          >
-            Avbryt
-          </Button>
-          <HelpText>
-            Du kan avbryte en innsending frem til Nav har startet behandling av kravet. Om det ikke
-            er mulig å avbryte innsendingen må du ta kontakt direkte med Nav.
-          </HelpText>
-        </HStack>
+        {utbetaling.kanAvbrytes !== ArrangorAvbrytStatus.HIDDEN && (
+          <HStack gap="2" justify="start" align="center">
+            <Button
+              disabled={utbetaling.kanAvbrytes === ArrangorAvbrytStatus.DEACTIVATED}
+              size="small"
+              variant="danger"
+              onClick={() => setAvbrytModalOpen(true)}
+            >
+              Avbryt
+            </Button>
+            <HelpText>
+              Du kan avbryte en innsending frem til Nav har startet behandling av kravet. Om det
+              ikke er mulig å avbryte innsendingen må du ta kontakt direkte med Nav.
+            </HelpText>
+          </HStack>
+        )}
+        {utbetaling.kanRegenereres && (
+          <regenererFetcher.Form method="post">
+            <input type="hidden" name="_action" value="regenerer" />
+            <HStack gap="2" justify="start" align="center">
+              <Button
+                type="submit"
+                size="small"
+                variant="primary"
+                loading={regenererFetcher.state !== "idle"}
+              >
+                Regenerer
+              </Button>
+            </HStack>
+          </regenererFetcher.Form>
+        )}
+        {utbetaling.regenerertId && (
+          <HStack gap="2" justify="start" align="center">
+            <BodyShort className="italic">Denne utbetalingen er regenerert</BodyShort>
+          </HStack>
+        )}
         <AvbrytModal open={avbrytModalOpen} setOpen={setAvbrytModalOpen} />
         <DeltakerModal
           utbetaling={utbetaling}
@@ -317,6 +360,7 @@ function AvbrytModal({ open, setOpen }: AvbrytModalProps) {
     >
       <Modal.Body>
         <fetcher.Form method="post">
+          <input type="hidden" name="_action" value="avbryt" />
           <VStack gap="2">
             <Alert variant={"info"}>
               Hvis kravet avbrytes, vil det ikke behandles av Nav og det vil ikke utbetales noe. Det

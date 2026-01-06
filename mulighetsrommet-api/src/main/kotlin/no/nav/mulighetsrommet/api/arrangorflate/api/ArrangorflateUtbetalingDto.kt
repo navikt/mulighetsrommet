@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DelutbetalingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
@@ -37,7 +38,10 @@ data class ArrangorflateUtbetalingDto(
     val type: UtbetalingTypeDto,
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
-    val kanAvbrytes: Boolean,
+    val kanAvbrytes: ArrangorAvbrytStatus,
+    val kanRegenereres: Boolean,
+    @Serializable(with = UUIDSerializer::class)
+    val regenerertId: UUID?,
 )
 
 @Serializable

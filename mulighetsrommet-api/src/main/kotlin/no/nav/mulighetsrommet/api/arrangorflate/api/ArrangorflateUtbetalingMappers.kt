@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
@@ -42,7 +43,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
-    kanAvbrytes: Boolean,
+    kanAvbrytes: ArrangorAvbrytStatus,
+    kanRegenereres: Boolean,
+    regenerertId: UUID?,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
         belop = utbetaling.beregning.output.belop,
@@ -86,6 +89,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         linjer = linjer,
         advarsler = advarsler,
         kanAvbrytes = kanAvbrytes,
+        kanRegenereres = kanRegenereres,
+        regenerertId = regenerertId,
     )
 }
 

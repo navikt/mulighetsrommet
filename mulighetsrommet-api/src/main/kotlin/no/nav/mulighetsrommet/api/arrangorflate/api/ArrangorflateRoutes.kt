@@ -49,6 +49,7 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
@@ -126,6 +127,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val arrangorFlateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
+    val genererUtbetalingService: GenererUtbetalingService by inject()
 
     suspend fun resolveArrangorer(organisasjonsnummer: List<Organisasjonsnummer>): List<ArrangorDto> {
         return arrangorService.getArrangorerOrSyncFromBrreg(organisasjonsnummer)
@@ -577,6 +579,38 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
                 .onRight {
                     db.session { queries.utbetaling.avbrytUtbetaling(utbetaling.id, it, Instant.now()) }
+                    call.respond(HttpStatusCode.OK)
+                }
+        }
+
+        post("/regenerer", {
+            description = "Regenererer en utbetaling på vegne av arrangør"
+            tags = setOf("Arrangorflate")
+            operationId = "regenererUtbetaling"
+            request {
+                pathParameterUuid("id")
+                body<AvbrytUtbetaling>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Utbetaling ble regenerert"
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val utbetaling = getUtbetalingOrRespondNotFound()
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
+            UtbetalingValidator
+                .validerRegenererUtbetaling(utbetaling)
+                .onLeft {
+                    call.respondWithProblemDetail(ValidationError(errors = it))
+                }
+                .onRight {
+                    genererUtbetalingService.regenererUtbetaling(utbetaling)
                     call.respond(HttpStatusCode.OK)
                 }
         }

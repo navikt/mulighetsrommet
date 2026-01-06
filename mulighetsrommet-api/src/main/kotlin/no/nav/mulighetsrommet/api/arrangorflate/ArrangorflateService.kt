@@ -240,6 +240,7 @@ class ArrangorflateService(
         val personalia = getPersonalia(deltakere.map { it.id }.toSet())
         val advarsler = getAdvarsler(utbetaling)
         val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler.isNotEmpty())
+        val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
@@ -249,7 +250,9 @@ class ArrangorflateService(
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
-            kanAvbrytes = kanAvbrytesAvArrangor(utbetaling),
+            kanAvbrytes = arrangorAvbrytStatus(utbetaling),
+            kanRegenereres = kanRegenereres,
+            regenerertId = regenrertId,
         )
     }
 
@@ -271,6 +274,37 @@ class ArrangorflateService(
                     ),
                 )
             }
+    }
+
+    fun QueryContext.kanRegenereres(utbetaling: Utbetaling): Pair<Boolean, UUID?> {
+        if (utbetaling.innsender != Arrangor) {
+            return false to null
+        }
+        if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
+            return false to null
+        }
+
+        val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
+            .filter { it.periode == utbetaling.periode }
+
+        val regenerertKrav = utbetalingerSammePeriode
+            .sortedByDescending { it.createdAt }
+            .firstOrNull { it.status != UtbetalingStatusType.AVBRUTT }
+        if (regenerertKrav != null) {
+            return false to regenerertKrav.id
+        }
+
+        return when (utbetaling.beregning) {
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            -> false to null
+
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> true to null
+        }
     }
 
     private fun getArrangorflateUtbetalingStatus(
@@ -486,31 +520,30 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
     return DataDetails(entries = entries)
 }
 
-fun kanAvbrytesAvArrangor(utbetaling: Utbetaling): Boolean {
-    when (utbetaling.status) {
+fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
+    if (utbetaling.innsender != Arrangor) {
+        return ArrangorAvbrytStatus.HIDDEN
+    }
+
+    return when (utbetaling.status) {
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        -> ArrangorAvbrytStatus.DEACTIVATED
+
+        UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
-        -> return false
+        -> ArrangorAvbrytStatus.HIDDEN
 
         UtbetalingStatusType.INNSENDT,
         UtbetalingStatusType.RETURNERT,
-        -> Unit
+        -> ArrangorAvbrytStatus.ACTIVATED
     }
-    when (utbetaling.beregning) {
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-        is UtbetalingBeregningPrisPerHeleUkesverk,
-        is UtbetalingBeregningPrisPerManedsverk,
-        is UtbetalingBeregningPrisPerUkesverk,
-        -> return false
+}
 
-        is UtbetalingBeregningFri,
-        is UtbetalingBeregningPrisPerTimeOppfolging,
-        -> Unit
-    }
-
-    return utbetaling.innsender == Arrangor
+enum class ArrangorAvbrytStatus {
+    ACTIVATED,
+    DEACTIVATED,
+    HIDDEN,
 }
