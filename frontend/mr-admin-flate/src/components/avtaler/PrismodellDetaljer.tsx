@@ -16,7 +16,12 @@ export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[]
         switch (prismodell.type) {
           case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
             return (
-              <VStack key={prismodell.navn} gap="4" padding="2" className="border-bg-subtle">
+              <VStack
+                key={prismodell.navn}
+                gap="4"
+                padding="2"
+                className="border-border-subtle border rounded-md"
+              >
                 <PrismodellTypenavn type={prismodell.navn} />
                 <PrismodellSatser satser={prismodell.satser} />
               </VStack>
@@ -35,16 +40,23 @@ export function PrismodellDetaljer({ prismodell }: { prismodell: PrismodellDto[]
                 <PrismodellTypenavn type={prismodell.navn} />
                 {prismodell.navn && <PrismodellNavn navn={prismodell.navn} />}
                 <PrismodellSatser satser={prismodell.satser} />
-                <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+                {prismodell.prisbetingelser && (
+                  <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+                )}
               </VStack>
             );
           case PrismodellType.ANNEN_AVTALT_PRIS:
             return (
-              <>
+              <VStack
+                key={prismodell.navn}
+                gap="4"
+                padding="2"
+                className="border-border-subtle border rounded-md"
+              >
                 <PrismodellTypenavn type={prismodell.navn} />
                 {prismodell.navn && <PrismodellNavn navn={prismodell.navn} />}
                 <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
-              </>
+              </VStack>
             );
         }
       })}

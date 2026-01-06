@@ -290,6 +290,8 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               />
             </VStack>
           </FormGroup>
+        </SkjemaKolonne>
+        <SkjemaKolonne>
           <FormGroup>
             <Controller
               control={control}
@@ -332,8 +334,6 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
               )}
             />
           </FormGroup>
-        </SkjemaKolonne>
-        <SkjemaKolonne>
           {avtale.arrangor ? (
             <FormGroup>
               <GjennomforingArrangorForm readOnly={false} arrangor={avtale.arrangor} />
@@ -341,6 +341,23 @@ export function GjennomforingFormDetaljer({ avtale, gjennomforing, deltakere }: 
           ) : (
             <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
           )}
+          <FormGroup>
+            <HStack align="start" justify="start" gap="10">
+              <Select
+                size="small"
+                label="Prismodell"
+                error={errors.prismodellId?.message}
+                {...register("prismodellId")}
+              >
+                <option value={undefined}>-- Velg prismodell --</option>
+                {avtale.prismodeller.map((prismodell) => (
+                  <option key={prismodell.id} value={prismodell.id}>
+                    {prismodell.navn}
+                  </option>
+                ))}
+              </Select>
+            </HStack>
+          </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>
       {gjennomforing && (

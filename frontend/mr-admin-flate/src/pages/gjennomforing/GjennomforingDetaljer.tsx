@@ -219,7 +219,7 @@ export function GjennomforingDetaljer() {
           {prismodell && (
             <>
               <Separator />
-              <PrismodellDetaljer prismodell={prismodell} />
+              <PrismodellDetaljer prismodell={[prismodell]} />
             </>
           )}
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
