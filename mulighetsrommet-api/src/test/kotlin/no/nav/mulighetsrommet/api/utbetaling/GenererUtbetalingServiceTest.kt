@@ -1,12 +1,15 @@
 package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -1297,6 +1300,78 @@ class GenererUtbetalingServiceTest : FunSpec({
                     SatsPeriode(Periode(LocalDate.of(2025, 1, 2), LocalDate.of(2025, 1, 3)), 2),
                     SatsPeriode(Periode(LocalDate.of(2025, 1, 3), LocalDate.of(2025, 2, 1)), 3),
                 )
+            }
+        }
+    }
+
+    context("regenerering") {
+        val service = createUtbetalingService()
+
+        val prismodell = AvtaleFixtures.createPrismodellDbo(
+            type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            satser = listOf(
+                AvtaltSats(LocalDate.of(2025, 1, 1), 100),
+            ),
+        )
+
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
+
+        val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(oppfolging),
+            ).initialize(database.db)
+        }
+
+        test("regenert er lik forrige") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            var utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling = database.run {
+                queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.AVBRUTT)
+                queries.utbetaling.getOrError(utbetaling.id)
+            }
+
+            val regenerert = service.regenererUtbetaling(utbetaling).shouldNotBeNull()
+            regenerert.id shouldNotBe utbetaling.id
+            regenerert.beregning shouldBe utbetaling.beregning
+        }
+
+        test("regenering feiler hvis allerede regenerert") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltakerDbo(
+                        oppfolging.id,
+                        startDato = LocalDate.of(2025, 1, 1),
+                        sluttDato = LocalDate.of(2025, 1, 31),
+                        statusType = DeltakerStatusType.DELTAR,
+                    ),
+                ),
+            ).initialize(database.db)
+
+            var utbetaling = service.genererUtbetalingForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling = database.run {
+                queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.AVBRUTT)
+                queries.utbetaling.getOrError(utbetaling.id)
+            }
+
+            service.regenererUtbetaling(utbetaling)
+            shouldThrow<IllegalArgumentException> {
+                service.regenererUtbetaling(utbetaling).shouldBeNull()
             }
         }
     }

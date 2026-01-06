@@ -14,9 +14,16 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
@@ -342,5 +349,27 @@ object UtbetalingValidator {
             FieldError.of("Begrunnelse ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
         }
         request.begrunnelse
+    }
+
+    fun validerRegenererUtbetaling(utbetaling: Utbetaling): Either<List<FieldError>, Unit> = validation {
+        validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
+            FieldError.root("Utbetalingen kan ikke regenereres")
+        }
+        validate(utbetaling.innsender == Arrangor) {
+            FieldError.root("Utbetalingen kan ikke regenereres")
+        }
+        when (utbetaling.beregning) {
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            -> error {
+                FieldError.root("Utbetalingen kan ikke regenereres")
+            }
+
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> Unit
+        }
     }
 }

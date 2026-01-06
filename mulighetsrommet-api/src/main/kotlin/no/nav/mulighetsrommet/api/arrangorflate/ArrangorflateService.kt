@@ -35,6 +35,12 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Arrangor
@@ -234,6 +240,7 @@ class ArrangorflateService(
         val personalia = getPersonalia(deltakere.map { it.id }.toSet())
         val advarsler = getAdvarsler(utbetaling)
         val status = getArrangorflateUtbetalingStatus(utbetaling, advarsler.isNotEmpty())
+        val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
@@ -244,6 +251,8 @@ class ArrangorflateService(
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
             kanAvbrytes = arrangorAvbrytStatus(utbetaling),
+            kanRegenereres = kanRegenereres,
+            regenerertId = regenrertId,
         )
     }
 
@@ -265,6 +274,37 @@ class ArrangorflateService(
                     ),
                 )
             }
+    }
+
+    fun QueryContext.kanRegenereres(utbetaling: Utbetaling): Pair<Boolean, UUID?> {
+        if (utbetaling.innsender != Arrangor) {
+            return false to null
+        }
+        if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
+            return false to null
+        }
+
+        val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
+            .filter { it.periode == utbetaling.periode }
+
+        val regenerertKrav = utbetalingerSammePeriode
+            .sortedByDescending { it.createdAt }
+            .firstOrNull { it.status != UtbetalingStatusType.AVBRUTT }
+        if (regenerertKrav != null) {
+            return false to regenerertKrav.id
+        }
+
+        return when (utbetaling.beregning) {
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            -> false to null
+
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> true to null
+        }
     }
 
     private fun getArrangorflateUtbetalingStatus(

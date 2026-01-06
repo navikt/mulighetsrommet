@@ -44,6 +44,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     linjer: List<ArrangforflateUtbetalingLinje>,
     kanViseBeregning: Boolean,
     kanAvbrytes: ArrangorAvbrytStatus,
+    kanRegenereres: Boolean,
+    regenerertId: UUID?,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
         belop = utbetaling.beregning.output.belop,
@@ -87,6 +89,8 @@ fun mapUtbetalingToArrangorflateUtbetaling(
         linjer = linjer,
         advarsler = advarsler,
         kanAvbrytes = kanAvbrytes,
+        kanRegenereres = kanRegenereres,
+        regenerertId = regenerertId,
     )
 }
 

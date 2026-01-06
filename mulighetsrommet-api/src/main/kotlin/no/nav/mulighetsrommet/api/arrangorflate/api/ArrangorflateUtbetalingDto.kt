@@ -39,6 +39,9 @@ data class ArrangorflateUtbetalingDto(
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarsel>,
     val kanAvbrytes: ArrangorAvbrytStatus,
+    val kanRegenereres: Boolean,
+    @Serializable(with = UUIDSerializer::class)
+    val regenerertId: UUID?,
 )
 
 @Serializable

@@ -88,6 +88,8 @@ const satsDetaljerUkespris: DataDetails[] = [
 ];
 
 const aftUtbetalt: ArrangorflateUtbetalingDto = {
+  kanRegenereres: false,
+  regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
@@ -132,6 +134,8 @@ const aftUtbetalt: ArrangorflateUtbetalingDto = {
 };
 
 const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+  kanRegenereres: false,
+  regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
@@ -162,6 +166,8 @@ const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
 };
 
 const aftKreverEndring: ArrangorflateUtbetalingDto = {
+  kanRegenereres: false,
+  regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
   status: ArrangorflateUtbetalingStatus.KREVER_ENDRING,
@@ -195,6 +201,8 @@ const aftKreverEndring: ArrangorflateUtbetalingDto = {
 };
 
 const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
+  kanRegenereres: false,
+  regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
@@ -228,6 +236,8 @@ const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
 };
 
 const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
+  kanRegenereres: false,
+  regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -272,6 +282,8 @@ const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
 };
 
 const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
+  kanRegenereres: false,
+  regenerertId: null,
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
@@ -306,6 +318,8 @@ const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
 
 const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
+  kanRegenereres: false,
+  regenerertId: null,
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
