@@ -566,6 +566,8 @@ class UtbetalingQueries(private val session: Session) {
                 id = uuid("gjennomforing_id"),
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
                 navn = string("gjennomforing_navn"),
+                start = localDate("gjennomforing_start_dato"),
+                slutt = localDateOrNull("gjennomforing_slutt_dato"),
             ),
             arrangor = Utbetaling.Arrangor(
                 id = uuid("arrangor_id"),
