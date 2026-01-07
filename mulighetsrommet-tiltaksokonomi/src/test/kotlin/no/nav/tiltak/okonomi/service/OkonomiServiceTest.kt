@@ -190,6 +190,24 @@ class OkonomiServiceTest : FunSpec({
             }
         }
 
+        test("feiler for ukjent utenlandsk leverandør") {
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            val opprettBestilling = createOpprettBestilling("3", organisasjonsnummer = Organisasjonsnummer("100000000"))
+
+            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+                it.message shouldBe "Utenlandske organisasjonsnummer er ikke støttet enda: 100000000"
+            }
+        }
+
+        test("midlertidig: kjenner til hardkodet leverandør") {
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            val opprettBestilling = createOpprettBestilling("56", organisasjonsnummer = Organisasjonsnummer("100000056"))
+
+            service.opprettBestilling(opprettBestilling).shouldBeRight()
+        }
+
         test("oppretter bestilling med hovedenhet hentet fra brreg") {
             coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
             coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
@@ -766,11 +784,11 @@ private fun initializeData(db: OkonomiDatabase) = db.session {
     )
 }
 
-private fun createOpprettBestilling(bestillingsnummer: String) = OpprettBestilling(
+private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnummer: Organisasjonsnummer? = null) = OpprettBestilling(
     bestillingsnummer = bestillingsnummer,
     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-    arrangor = Organisasjonsnummer("234567891"),
+    arrangor = organisasjonsnummer ?: Organisasjonsnummer("234567891"),
     avtalenummer = null,
     belop = 1000,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
