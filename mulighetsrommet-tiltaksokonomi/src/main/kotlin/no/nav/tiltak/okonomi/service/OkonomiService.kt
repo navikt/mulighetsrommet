@@ -75,17 +75,7 @@ class OkonomiService(
             )
             ?: return OpprettBestillingError("Kontering for bestilling $bestillingsnummer mangler").left()
 
-        return getHovedenhet(opprettBestilling.arrangor)
-            .flatMap { hovedenhet ->
-                getLeverandorAdresse(hovedenhet).map { adresse ->
-                    OebsBestillingMelding.Selger(
-                        organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
-                        organisasjonsNavn = hovedenhet.navn,
-                        adresse = adresse,
-                        bedriftsNummer = opprettBestilling.arrangor.value,
-                    )
-                }
-            }
+        return getSelger(opprettBestilling.arrangor)
             .flatMap { selger ->
                 val bestilling = Bestilling.fromOpprettBestilling(
                     bestilling = opprettBestilling,
@@ -108,6 +98,26 @@ class OkonomiService(
                 log.warn("Opprett bestilling $bestillingsnummer feilet", it)
             }
     }
+
+    suspend fun getSelger(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, OebsBestillingMelding.Selger> {
+        return if (organisasjonsnummer.erUtenlandsk()) {
+            Either.Left(OpprettBestillingError("Utenlandske organisasjonsnummer er ikke støttet enda: $organisasjonsnummer"))
+        } else {
+            getSelgerFromBreg(organisasjonsnummer)
+        }
+    }
+
+    suspend fun getSelgerFromBreg(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, OebsBestillingMelding.Selger> = getHovedenhet(organisasjonsnummer)
+        .flatMap { hovedenhet ->
+            getLeverandorAdresse(hovedenhet).map { adresse ->
+                OebsBestillingMelding.Selger(
+                    organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
+                    organisasjonsNavn = hovedenhet.navn,
+                    adresse = adresse,
+                    bedriftsNummer = organisasjonsnummer.value,
+                )
+            }
+        }
 
     suspend fun annullerBestilling(
         annullerBestilling: AnnullerBestilling,
